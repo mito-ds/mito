@@ -27,9 +27,15 @@ export const getStaticProps: GetStaticProps<{glossaryPageInfo: GlossaryPageInfo[
     }
 }
 
-export const getGlossaryPageInfoForSection = (glossaryPageInfo: GlossaryPageInfo[], section: string) => {
+export const getGlossaryPageInfoForSection = (glossaryPageInfo: GlossaryPageInfo[], category: string, subcategory?: string) => {
+    if (subcategory === undefined) {
+        return glossaryPageInfo.filter((glossaryPageInfo) => {
+            return glossaryPageInfo.slug[0] === category
+        })
+    }
+
     return glossaryPageInfo.filter((glossaryPageInfo) => {
-        return glossaryPageInfo.slug[1] === section
+        return glossaryPageInfo.slug[0] === category && glossaryPageInfo.slug[1] === subcategory
     })
 }
 
@@ -53,13 +59,15 @@ const GlossaryPageCard = (props: {glossaryPageInfo: GlossaryPageInfo}) => {
 
 const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) => {
 
-    const mathFucntionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'math')
-    const textFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'text')
-    const dateFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'date')
-    const conditionalFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'conditional')
-    const lookupFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'lookup')
-    const financialFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'financial')
-    const miscFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'misc')
+    const transformationPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'transformations')
+
+    const mathFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'functions', 'math')
+    const textFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'functions', 'text')
+    const dateFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'functions', 'date')
+    const conditionalFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'functions', 'conditional')
+    const lookupFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'functions', 'lookup')
+    const financialFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'functions', 'financial')
+    const miscFunctionsPageInfo = getGlossaryPageInfoForSection(props.glossaryPageInfo, 'functions', 'misc')
 
     return (
         <>
@@ -120,9 +128,15 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                                 </h2>
                             </section>
                             <section style={{marginTop: '2rem'}}>
+                                <h2 id="Transformations" style={{marginBottom: '2rem'}}>Transformations</h2>
+                                {transformationPageInfo.map((glossaryPageInfo) => {
+                                    return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
+                                })}
+                            </section>
+                            <section style={{marginTop: '2rem'}}>
                                 <h2 id="Functions" style={{marginBottom: '2rem'}}>Functions</h2>
                                 <h3 id="Math" className={excelToPythonStyles.glossary_function_category_header}>Math Functions</h3>
-                                {mathFucntionsPageInfo.map((glossaryPageInfo) => {
+                                {mathFunctionsPageInfo.map((glossaryPageInfo) => {
                                     return <GlossaryPageCard key={glossaryPageInfo.functionNameShort} glossaryPageInfo={glossaryPageInfo} />
                                 })}
                             </section>

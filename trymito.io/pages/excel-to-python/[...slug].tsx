@@ -201,28 +201,31 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       </table>
                     </>
                   }
-                  
-                  <h3 className={excelToPythonStyles.section_h3_tag}>Examples</h3>
-                  <table className={excelToPythonStyles.excel_to_python_table}>
-                    <thead>
-                      <tr>
-                        <th>Formula</th>
-                        <th>Description</th>
-                        <th>Result</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pageContent.excelExplanation.examplesTable.map((row, index) => {
-                        return (
-                          <tr key={`examples-table-row-${index}`}>
-                            <td>{row.formula}</td>
-                            <td>{row.description}</td>
-                            <td>{row.result}</td>
+                  {pageContent.excelExplanation.examplesTable.length > 0 &&
+                    <>
+                      <h3 className={excelToPythonStyles.section_h3_tag}>Examples</h3>
+                      <table className={excelToPythonStyles.excel_to_python_table}>
+                        <thead>
+                          <tr>
+                            <th>Formula</th>
+                            <th>Description</th>
+                            <th>Result</th>
                           </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                        </thead>
+                        <tbody>
+                          {pageContent.excelExplanation.examplesTable.map((row, index) => {
+                            return (
+                              <tr key={`examples-table-row-${index}`}>
+                                <td>{row.formula}</td>
+                                <td>{row.description}</td>
+                                <td>{row.result}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </>
+                  }
               </section>
 
               {/* Equivalent Python Code Using Pandas */}
