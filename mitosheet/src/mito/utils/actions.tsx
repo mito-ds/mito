@@ -1332,6 +1332,27 @@ export const getActions = (
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."
         },
+        [ActionEnum.Schedule_Github]: {
+            type: 'build-time',
+            staticType: ActionEnum.Schedule_Github,
+            toolbarTitle: 'Schedule on Github',
+            longTitle: 'Schedule on Github',
+            actionFunction: () => {
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.GITHUB_SCHEDULE},
+                        selectedTabType: 'data'
+                    }
+                })
+                
+            },
+            isDisabled: () => {return undefined},
+            searchTerms: ['docs', 'documentation', 'help', 'support'],
+            tooltip: "Open a PR on a Github Repo that "
+        },
         [ActionEnum.See_All_Functionality]: {
             type: 'build-time',
             staticType: ActionEnum.See_All_Functionality,

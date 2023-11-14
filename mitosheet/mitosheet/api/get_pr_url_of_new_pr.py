@@ -1,7 +1,11 @@
 import json
 import os
+import string
+from typing import Dict
 
 import requests
+
+from mitosheet.types import StepsManagerType
 
 
 def create_github_pr(
@@ -103,3 +107,68 @@ def create_github_pr(
         return pr_response.json()['html_url']
     else:
         raise Exception(f"Failed to create PR: {pr_response.content}")
+    
+
+def get_automation_files_for_new_automation(
+        steps_manager: StepsManagerType, 
+        file_base_folder: str,
+    ) -> Dict[str, str]:
+    """
+    Returns the new files 
+    new_files
+
+    new_files
+    """
+    new_files: Dict[str, str] = {}
+
+    # First, we get the CSV and Excel files the user has importer
+    import_params = [param for param in steps_manager.param_metadata if param['type'] == 'import']
+    file_paths = [param['original_value'] for param in import_params if 'file_path' in param['subtype'] and param['original_value'] is not None]
+
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        new_files[f'{file_base_folder}/data/{file_name}'] = open(file_path).read()
+
+    # Then, we get these files from the parameters as the function call to the function
+    new_files[f'{file_base_folder}/automation.py'] = steps_manager.fully_parameterized_function
+
+    return new_files
+
+def get_pr_url_of_new_pr(params: Dict[str, str], steps_manager: StepsManagerType) -> str:
+    automation_name = params['automation_name']
+
+    automation_name_safe_file_path = "".join(
+        char for char in automation_name 
+        if char in string.ascii_letters or char in string.digits
+        else '_'
+    )
+
+    base_folder = f'automations/{automation_name_safe_file_path}'
+    new_files = get_automation_files_for_new_automation(steps_manager, base_folder)
+
+    pr_url = create_github_pr(
+        'mito-ds/mito-automations-test', 
+        f'new-automation-{automation_name_safe_file_path}', 
+        f'Commit Message: add a new file',
+        f'Add automation: {automation_name}', 
+        f'This PR adds the automation {automation_name}', 
+        new_files
+    )
+
+    print("NEW URL", pr_url)
+    return pr_url
+
+"""
+pr_url = create_github_pr(
+    'mito-ds/mito-automations-test', 
+    'new-branch-6', 
+    'Commit Message: add a new file',
+    'A new PR', 
+    'This is a test PR', 
+    {
+        'path/to/new_file1.py': 'x = 1',
+        'path/to/new_file2.py': 'x = 2'
+    }
+)
+print(pr_url)
+"""

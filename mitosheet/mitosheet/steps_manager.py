@@ -11,6 +11,7 @@ from copy import copy, deepcopy
 from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
+from mitosheet.api.get_parameterizable_params import get_parameterizable_params_metadata
 from mitosheet.api.get_path_contents import get_path_parts
 
 from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
@@ -34,7 +35,7 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, MitoTheme
+from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
@@ -469,6 +470,30 @@ class StepsManager:
     
     def code(self) -> List[str]:
         return transpile(self, optimize=True)
+    
+    @property
+    def fully_parameterized_function(self) -> str:
+        """
+        Returns the fully parameterized function string. This is used for
+        cases where we want to get the function string regardless of the 
+        code options the user provided. 
+        """
+        return '\n'.join(transpile(
+            self,
+            add_comments=False,
+            optimize=True,
+            code_options_override={
+                'import_custom_python_code': True,
+                'as_function': True,
+                'call_function': False,
+                'function_name': self.code_options.get('function_name', 'automate'),
+                'function_params': 'all'
+            }
+        ))
+    
+    @property
+    def param_metadata(self) -> List[ParamMetadata]:
+        return get_parameterizable_params_metadata(self)
 
     def handle_edit_event(self, edit_event: Dict[str, Any]) -> None:
         """
