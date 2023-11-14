@@ -101,6 +101,14 @@ export const FormulaTabContents = (
     }
 
     return (<div className='mito-toolbar-bottom'>
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Set_Column_Formula]} />
+        <ToolbarButton
+            action={props.actions.buildTimeActions[ActionEnum.Add_Column]}
+            toolbarTitle='Add Column'
+        />
+
+        <div className="toolbar-vertical-line"/>
+
         {(Object.keys(formulaCategories) as FunctionCategory[]).map((category: FunctionCategory) => {
             // We don't want to display the finance category in the toolbar because we don't currently have any finance functions
             if (category === 'FINANCE') {

@@ -67,6 +67,7 @@ import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
 import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
 import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
+import FunctionIcon from "../components/icons/FunctionIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -1392,7 +1393,8 @@ export const getActions = (
         [ActionEnum.Set_Column_Formula]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Column_Formula,
-            toolbarTitle: 'Set Column Formula',
+            icon: FunctionIcon,
+            toolbarTitle: 'Insert Function',
             longTitle: 'Set column formula',
             actionFunction: async () => {  
                 
