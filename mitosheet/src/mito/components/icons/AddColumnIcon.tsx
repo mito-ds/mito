@@ -16,8 +16,8 @@ const AddColumnIcon = (): JSX.Element => {
             <path d="M5.5 25.9297L5.5 0.575022L12 0.635957L12 13.5L12 25.9297L5.5 25.9297Z" fill="var(--mito-highlight-medium)" stroke="var(--mito-highlight)"/>
             <path d="M5.17896 8.64062L11.5 8.64062" stroke="var(--mito-highlight)"/>
             <path d="M5.17896 16.6406L12 16.6406" stroke="var(--mito-highlight)"/>
-            <path d="M14.0746 8.1453L9.91482 11.59M9.91482 11.59L13.9462 15.1841M9.91482 11.59L17.4136 11.7268" stroke="var(--mito-background-off)" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round"/>
-            <path d="M14.0746 8.1453L9.91482 11.59M9.91482 11.59L13.9462 15.1841M9.91482 11.59L17.4136 11.7268" stroke="var(--mito-highlight-medium)" stroke-miterlimit="10" stroke-linecap="round"/>
+            <path d="M14.0746 8.1453L9.91482 11.59M9.91482 11.59L13.9462 15.1841M9.91482 11.59L17.4136 11.7268" stroke="var(--mito-background-off)" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round"/>
+            <path d="M14.0746 8.1453L9.91482 11.59M9.91482 11.59L13.9462 15.1841M9.91482 11.59L17.4136 11.7268" stroke="var(--mito-highlight-medium)" strokeMiterlimit="10" strokeLinecap="round"/>
         </svg>
     )
 }

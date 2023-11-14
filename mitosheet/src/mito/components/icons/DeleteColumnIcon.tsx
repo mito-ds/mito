@@ -20,7 +20,7 @@ const DeleteColumnIcon = (): JSX.Element => {
             <line x1="17.4005" y1="23.5703" x2="11.4008" y2="23.6327" stroke="var(--mito-text)"/>
             <line x1="6.40108" y1="23.6836" x2="0.401404" y2="23.746" stroke="var(--mito-text)"/>
             <line x1="6.1617" y1="0.683567" x2="0.162024" y2="0.746027" stroke="var(--mito-text)"/>
-            <g clip-path="url(#clip0_7142_764)">
+            <g clipPath="url(#clip0_7142_764)">
                 <rect x="2.09863" y="6.44141" width="3.46154" height="15" rx="1" transform="rotate(-45.5965 2.09863 6.44141)" fill="var(--mito-background-off)"/>
                 <rect x="4.65625" y="17.0195" width="3.46154" height="15" rx="1" transform="rotate(-135.596 4.65625 17.0195)" fill="var(--mito-background-off)"/>
                 <rect x="4.63818" y="15.3867" width="1.15385" height="12.6923" transform="rotate(-135.596 4.63818 15.3867)" fill="var(--mito-status-error)"/>
@@ -28,7 +28,7 @@ const DeleteColumnIcon = (): JSX.Element => {
             </g>
             <defs>
                 <clipPath id="clip0_7142_764">
-                <rect width="13" height="11" fill="white" transform="translate(3.13538 17.1133) rotate(-90.5965)"/>
+                    <rect width="13" height="11" fill="white" transform="translate(3.13538 17.1133) rotate(-90.5965)"/>
                 </clipPath>
             </defs>
         </svg>
