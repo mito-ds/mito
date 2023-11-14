@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import React from 'react';
 
-import '../../../css/elements/TextArea.css'
+import '../../../../css/elements/TextArea.css'
 import { classNames } from '../../utils/classNames';
 import { Height, Width } from './sizes.d';
 

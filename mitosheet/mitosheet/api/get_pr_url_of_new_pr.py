@@ -32,6 +32,7 @@ def create_github_pr(
     api_url = f'https://api.github.com/repos/{github_repo}'
 
     # Check if the branch already exists
+    print("Getting existing branch")
     existing_branch = requests.get(f'{api_url}/git/refs/heads/{new_branch_name}', headers=headers)
     if existing_branch.status_code == 200:
         raise Exception(f"Branch '{new_branch_name}' already exists")
@@ -46,6 +47,7 @@ def create_github_pr(
         'ref': f'refs/heads/{new_branch_name}',
         'sha': sha_latest_commit
     }
+    print("Creating new branch")
     requests.post(f'{api_url}/git/refs', headers=headers, data=json.dumps(new_branch_data))
 
     # Get the current tree of the latest commit to preserve existing files
@@ -65,6 +67,7 @@ def create_github_pr(
         'tree': tree_elements,
         'base_tree': base_tree_sha  # This is important to preserve existing files
     }
+    print("Adding tree")
     tree_response = requests.post(f'{api_url}/git/trees', headers=headers, data=json.dumps(tree_data))
 
     if tree_response.status_code not in [200, 201]:
@@ -78,6 +81,7 @@ def create_github_pr(
         'parents': [sha_latest_commit],
         'tree': tree_sha
     }
+    print("CREATING COMMIT")
     commit_response = requests.post(f'{api_url}/git/commits', headers=headers, data=json.dumps(commit_data))
 
     if commit_response.status_code not in [200, 201]:
@@ -90,6 +94,7 @@ def create_github_pr(
         'sha': commit_sha,
         'force': False
     }
+    print("UPDATING BRANCH")
     update_branch = requests.patch(f'{api_url}/git/refs/heads/{new_branch_name}', headers=headers, data=json.dumps(update_branch_data))
     if update_branch.status_code not in [200, 201]:
         raise Exception(f"Failed to update branch: {update_branch.json()}")
@@ -101,6 +106,7 @@ def create_github_pr(
         'base': default_branch,
         'body': pr_description
     }
+    print("CREATING PR")
     pr_response = requests.post(f'{api_url}/pulls', headers=headers, data=json.dumps(pr_data))
 
     if pr_response.status_code == 201:
@@ -123,7 +129,7 @@ def get_automation_files_for_new_automation(
 
     # First, we get the CSV and Excel files the user has importer
     import_params = [param for param in steps_manager.param_metadata if param['type'] == 'import']
-    file_paths = [param['original_value'] for param in import_params if 'file_path' in param['subtype'] and param['original_value'] is not None]
+    file_paths = [param['original_value'] for param in import_params if 'file' in param['subtype'] and param['original_value'] is not None]
 
     for file_path in file_paths:
         file_name = os.path.basename(file_path)
@@ -136,27 +142,30 @@ def get_automation_files_for_new_automation(
 
 def get_pr_url_of_new_pr(params: Dict[str, str], steps_manager: StepsManagerType) -> str:
     automation_name = params['automation_name']
+    automation_description = params['automation_description']
 
-    automation_name_safe_file_path = "".join(
-        char for char in automation_name 
-        if char in string.ascii_letters or char in string.digits
-        else '_'
-    )
+    # TODO: make this better
+    try:
+        automation_name_safe_file_path = "".join(char for char in automation_name if char in string.ascii_letters or char in string.digits)
 
-    base_folder = f'automations/{automation_name_safe_file_path}'
-    new_files = get_automation_files_for_new_automation(steps_manager, base_folder)
+        base_folder = f'automations/{automation_name_safe_file_path}'
+        new_files = get_automation_files_for_new_automation(steps_manager, base_folder)
 
-    pr_url = create_github_pr(
-        'mito-ds/mito-automations-test', 
-        f'new-automation-{automation_name_safe_file_path}', 
-        f'Commit Message: add a new file',
-        f'Add automation: {automation_name}', 
-        f'This PR adds the automation {automation_name}', 
-        new_files
-    )
+        pr_url = create_github_pr(
+            'mito-ds/mito-automations-test', 
+            f'new-automation-{automation_name_safe_file_path}', 
+            f'Commit Message: add a new file',
+            f'Add automation: {automation_name}', 
+            automation_description, 
+            new_files
+        )
+    except Exception as e:
+        # TODO: error handling
+        print(e)
+        pr_url = None
 
-    print("NEW URL", pr_url)
     return pr_url
+
 
 """
 pr_url = create_github_pr(
