@@ -1,20 +1,12 @@
 {
-    "slug": ["transformations", "FILTER"],
+    "slug": ["transformations", "Filter"],
     "functionNameShort": "Filter",
     "functionNameLong": "Filter",
-    "relatedFunctions": ["SORT", "IF", "PIVOT TABLE"],
+    "relatedFunctions": ["Sort", "IF", "Pivot Table"],
     "purpose": "Filter data based on certain criteria.",
     "titleCardParagraphs": [
         "In Excel, filtering data is one of the most common data transformations. This page explains how to build simple single condition filters all the way to complex regex-based filtering in Python using pandas."
     ],
-    "excelExplanation": {
-        "paragraphs": [
-            "Excel's filter feature allows users to display only the rows that meet certain criteria. You can filter on dates, numbers, strings, etc.",
-            "To filter in Excel, select the data range, then click the 'Filter' button in the 'Data' tab. This will add filter dropdowns to each column header. Clicking the dropdown will display a list of values in that column, and you can toggle them in and out of your dataset invidually, or apply a condition to bulk remove values."
-        ],
-        "syntaxTable": [],
-        "examplesTable": []
-    },
     "equivalentCode": {
         "introParagraphs": [
             "Filtering in pandas is a versatile operation, enabling you to select data based on conditions similar to Excel but with more flexibility. Here are some common implementations:"

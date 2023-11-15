@@ -2,20 +2,12 @@
     "slug": ["transformations", "Pivot Table"],
     "functionNameShort": "Pivot Table",
     "functionNameLong": "Pivot Table",
-    "relatedFunctions": ["GROUPBY", "CROSSTAB", "RESAMPLE"],
+    "relatedFunctions": ["SUMIF", "COUNTIF", "INDEX MATCH"],
     "purpose": "Summarize and analyze complex data sets using pivot tables",
     "titleCardParagraphs": [
         "Pivot tables are a powerful way to group data into buckets and calculate summary metrics about each group. They are particularly helpful for analyzing large datasets that are too large to learn from by simply looking at the raw data.",
         "This page explains how to create and use pivot tables in Python using pandas."
     ],
-    "excelExplanation": {
-        "paragraphs": [
-            "Pivot tables are one of the most commonly used features in Excel.",
-            "To create a pivot table in Excel, select the data range you want to summarize and choose 'Insert Pivot Table'. Then, drag and drop the attributes you want to group the data by into the 'Rows' and 'Columns' sections. And finally, drag and drop the attributes you want to summarize into the 'Values' section and select an aggregation method: sum, count, average, etc."
-        ],
-        "syntaxTable": [],
-        "examplesTable": []
-    },
     "equivalentCode": {
         "introParagraphs": [
             "Creating pivot tables in pandas requires understanding of the DataFrame structure and the pivot_table method. Here's how you can replicate Excel's pivot table functionality in pandas:"

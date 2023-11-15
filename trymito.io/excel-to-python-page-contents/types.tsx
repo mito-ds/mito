@@ -11,7 +11,7 @@ export type PageContent = {
     relatedFunctions: string[];
     purpose: string;
     titleCardParagraphs: string[];
-    excelExplanation: {
+    excelExplanation?: {
         paragraphs: string[],
         syntaxTable: {
             parameter: string,

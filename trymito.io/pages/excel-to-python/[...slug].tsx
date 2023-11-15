@@ -165,7 +165,8 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
               </section>
 
               {/* Understanding the Excel Function */}
-              <section className={excelToPythonStyles.section}>
+              {pageContent.excelExplanation !== undefined &&
+                <section className={excelToPythonStyles.section}>
                   <h2 
                     id={`Excel's ${functionNameShort} formula`}
                     className={excelToPythonStyles.link}
@@ -227,6 +228,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                     </>
                   }
               </section>
+              }
 
               {/* Equivalent Python Code Using Pandas */}
               <section className={excelToPythonStyles.section}>
