@@ -16,6 +16,8 @@
 
 .code_container code[class*=language-], .code_container pre[class*=language-] {
     text-shadow: none !important;
+    width: 100%; 
+    overflow-x: auto; /* Enables horizontal scrolling */
 }
 
 .clipboard_container {

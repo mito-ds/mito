@@ -13,6 +13,8 @@
 
 .section {
     align-items: flex-start !important;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 .section + .section {
@@ -135,6 +137,7 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        width: 100%;
     }
 
     .table_of_contents_container {
