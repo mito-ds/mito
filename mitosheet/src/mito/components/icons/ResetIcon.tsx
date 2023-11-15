@@ -4,7 +4,7 @@ import React from 'react';
 
 const ResetIcon = (): JSX.Element => {
     return (
-        <svg width="23" height="29" viewBox="0 0 23 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="23" height="22" viewBox="0 0 23 29" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10.748 4.73047H16.748H22.748V28.1395H16.748H10.748V5.14062V4.73047Z" fill="var(--mito-background)"/>
             <path d="M14.374 13.0703H22.374M14.374 21.0703H22.374" stroke="#ACACAD" strokeOpacity="0.76" strokeWidth="0.5" strokeLinecap="round"/>
             <rect x="6.11816" y="28.0625" width="23" height="16" transform="rotate(-90 6.11816 28.0625)" stroke="var(--mito-text)"/>
