@@ -3,7 +3,7 @@
     "functionNameShort": "IFERROR",
     "functionNameLong": "IFERROR",
     "relatedFunctions": ["IF", "ISNA"],
-    "purpose": "Returns a specified value if the formula evaluates to an error",
+    "purpose": "Returns a value if the formula evaluates to an error",
     "titleCardParagraphs": [
       "In Excel, the IFERROR function is used to catch and handle errors produced by other formulas. If the formula does not produce an error, IFERROR will simply return the original result. If there is an error, you can specify an alternate value or action.",
       "In Python's pandas library, there isn't a direct IFERROR function. Instead, various techniques and methods are employed to achieve similar error handling. Below are some equivalent ways to perform IFERROR-like operations in pandas."

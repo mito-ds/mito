@@ -3,7 +3,7 @@
     "functionNameShort": "MID",
     "functionNameLong": "Extract substring from middle",
     "relatedFunctions": ["LEFT", "RIGHT", "LEN"],
-    "purpose": "Extract a specific number of characters from the middle of a string",
+    "purpose": "Extract a number of characters from the middle of a string",
     "titleCardParagraphs": [
         "Excel's MID function allows you to extract a substring from a given string based on the start position and the number of characters. This can be incredibly handy for parsing structured text data.",
         "This page shows you how to replicate the functionality of Excel's MID function in Python using pandas."

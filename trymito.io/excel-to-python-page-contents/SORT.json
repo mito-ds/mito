@@ -3,7 +3,7 @@
     "functionNameShort": "Sort",
     "functionNameLong": "Sort",
     "relatedFunctions": ["Filter", "IF", "Pivot Table"],
-    "purpose": "Sort data in ascending or descending order based on one or more columns",
+    "purpose": "Sort data based on one or more columns",
     "titleCardParagraphs": [
         "Excel's sorting functionality is pivotal for organizing data in a DataFrame. From arranging sales data by dates to sorting customer information alphabetically, SORT is fundamental in data analysis and reporting.",
         "This page explains how to use Excel's sorting features in Python using pandas."

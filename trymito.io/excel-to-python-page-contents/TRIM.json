@@ -3,7 +3,7 @@
     "functionNameShort": "TRIM",
     "functionNameLong": "Trimming Whitespace Characters",
     "relatedFunctions": ["REPLACE", "CLEAN", "MID"],
-    "purpose": "Remove unwanted whitespace or characters from text data",
+    "purpose": "Remove whitespace from the start and end of string",
     "titleCardParagraphs": [
         "Excel's TRIM function is widely used for removing all spaces from text except for single spaces between words. It's a crucial (and too often forgotten) step in cleaning and preparing data.",
         "This page demonstrates how to achieve similar functionality in Python using pandas, enhancing data cleaning processes for automation."

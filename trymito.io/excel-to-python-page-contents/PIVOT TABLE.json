@@ -3,7 +3,7 @@
     "functionNameShort": "Pivot Table",
     "functionNameLong": "Pivot Table",
     "relatedFunctions": ["SUMIF", "COUNTIF", "INDEX MATCH"],
-    "purpose": "Summarize and analyze complex data sets using pivot tables",
+    "purpose": "Group and summarize data",
     "titleCardParagraphs": [
         "Pivot tables are a powerful way to group data into buckets and calculate summary metrics about each group. They are particularly helpful for analyzing large datasets that are too large to learn from by simply looking at the raw data.",
         "This page explains how to create and use pivot tables in Python using pandas."

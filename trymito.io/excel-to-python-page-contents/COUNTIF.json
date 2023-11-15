@@ -3,7 +3,7 @@
     "functionNameShort": "COUNTIF",
     "functionNameLong": "Count with Condition",
     "relatedFunctions": ["SUMIF", "AVERAGEIF", "MAXIF"],
-    "purpose": "Count the number of cells that match a condition or criteria",
+    "purpose": "Count the number of cells that match a condition",
     "titleCardParagraphs": [
         "Excel's COUNTIF function is used to count the number of cells that meet a single condition within a range. It's a fundamental function for basic data analysis tasks.",
         "This page provides examples on using Excem's COUNTIF's functionality in Python using pandas."

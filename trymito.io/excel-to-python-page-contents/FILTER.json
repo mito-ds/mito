@@ -3,7 +3,7 @@
     "functionNameShort": "Filter",
     "functionNameLong": "Filter",
     "relatedFunctions": ["Sort", "IF", "Pivot Table"],
-    "purpose": "Filter data based on certain criteria.",
+    "purpose": "Filter data based on certain criteria",
     "titleCardParagraphs": [
         "In Excel, filtering data is one of the most common data transformations. This page explains how to build simple single condition filters all the way to complex regex-based filtering in Python using pandas."
     ],
