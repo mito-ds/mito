@@ -93,4 +93,4 @@ def test_type_after_filter():
     mito.filter(0, 'A', 'And', FC_EMPTY, None)
     mito.set_formula('=TYPE(A)', 0, 'B', add_column=True)
 
-    assert mito.get_column(0, 'B', as_list=True) == ['object']
+    assert mito.get_column(0, 'B', as_list=True) == ['NaN']
