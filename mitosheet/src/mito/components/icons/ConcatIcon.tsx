@@ -4,21 +4,16 @@ import React from 'react';
 
 const ConcatIcon = (): JSX.Element => {
     return (
-        <svg width="26" height="30" viewBox="0 0 26 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="6.57031" width="16" height="6" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
-            <line x1="5.5" y1="9.57031" x2="20.5" y2="9.57031" stroke="var(--mito-text-medium)"/>
-            <rect x="5.5" y="7.07031" width="15" height="2" fill="var(--mito-highlight-medium)"/>
-            <line x1="10" y1="7.07031" x2="10" y2="12.0703" stroke="var(--mito-text-medium)"/>
-            <line x1="16" y1="7.07031" x2="16" y2="12.0703" stroke="var(--mito-text-medium)"/>
-            <rect x="5" y="16.5703" width="16" height="6" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
-            <line x1="5.5" y1="19.5703" x2="20.5" y2="19.5703" stroke="var(--mito-text-medium)"/>
-            <rect x="5.5" y="17.0703" width="15" height="2" fill="var(--mito-highlight-medium)"/>
-            <line x1="10" y1="17.0703" x2="10" y2="22.0703" stroke="var(--mito-text-medium)"/>
-            <line x1="16" y1="17.0703" x2="16" y2="22.0703" stroke="var(--mito-text-medium)"/>
-            <rect width="2.30767" height="9.9999" rx="1" transform="matrix(1 -1.05367e-05 -1.05367e-05 1 11.9167 9.57031)" fill="var(--mito-background-off)"/>
-            <rect width="2.30767" height="9.9999" rx="1" transform="matrix(1.04103e-05 -1 1 -1.04103e-05 8.0708 15.7227)" fill="var(--mito-background-off)"/>
-            <rect width="0.769223" height="8.46145" transform="matrix(1.04524e-05 -1 1 -1.04524e-05 8.83936 14.9531)" fill="var(--mito-status-success)"/>
-            <rect width="0.769223" height="8.46145" transform="matrix(1 -1.04524e-05 -1.04524e-05 1 12.6863 10.3398)" fill="var(--mito-status-success)"/>
+        <svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 0.894531)" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 6.10156)" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <mask id="mask0_7507_341" style={{maskType: 'alpha'}} maskUnits="userSpaceOnUse" x="0" y="7" width="17" height="16">
+                <path d="M8.5 22.5C12.9473 22.5 16.5 19.114 16.5 15C16.5 10.886 12.9473 7.5 8.5 7.5C4.05273 7.5 0.5 10.886 0.5 15C0.5 19.114 4.05273 22.5 8.5 22.5Z" fill="var(--mito-highlight)" stroke="var(--mito-text)"/>
+            </mask>
+            <g mask="url(#mask0_7507_341)">
+                <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 1.89453)" fill="var(--mito-highlight)" stroke="var(--mito-text)"/>
+            </g>
+            <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 6.10156)" stroke="var(--mito-text)"/>
         </svg>
     )
 }

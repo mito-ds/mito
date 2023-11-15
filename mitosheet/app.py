@@ -28,6 +28,7 @@ analysis = spreadsheet(
     df,
     df_names=['df'],
     import_folder='datasets',
+    sheet_functions=[ADD_ONE],
     return_type='analysis'
 )
 

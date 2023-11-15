@@ -14,6 +14,7 @@ import { MitoAPI, getRandomId } from '../../api/api';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { FilterIcon } from '../icons/FilterIcons';
 
 export const HomeTabContents = (
     props: {
@@ -190,6 +191,7 @@ export const HomeTabContents = (
         <div className='toolbar-vertical-line'/>
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Filter]}
+            iconOverride={<FilterIcon sortIncluded />}
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}

@@ -67,6 +67,7 @@ import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
 import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
 import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
+import FunctionIcon from "../components/icons/FunctionIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -161,7 +162,7 @@ export const getActions = (
             icon: AddColumnIcon,
             toolbarTitle: 'Insert',
             longTitle: 'Add column',
-            actionFunction: () => {
+            actionFunction: async () => {
                 if (sheetDataArray.length === 0) {
                     return;
                 }
@@ -176,11 +177,33 @@ export const getActions = (
                 // The new column should be placed 1 position to the right of the last selected column
                 const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].endingColumnIndex + 1;
 
-                void mitoAPI.editAddColumn(
+                await mitoAPI.editAddColumn(
                     sheetIndex,
                     newColumnHeader,
                     newColumnHeaderIndex
-                );
+                )
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            sheetIndex: sheetIndex,
+                            startingRowIndex: -1,
+                            startingColumnIndex: newColumnHeaderIndex,
+                            endingRowIndex: -1,
+                            endingColumnIndex: newColumnHeaderIndex
+                        }]
+                    }
+                })
+                setEditorState({
+                    rowIndex: 0,
+                    columnIndex: newColumnHeaderIndex,
+                    formula: '=',
+                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
+                    editorLocation: 'cell',
+                    editingMode: 'entire_column',
+                    sheetIndex: sheetIndex,
+                })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
@@ -762,6 +785,33 @@ export const getActions = (
             },
             searchTerms: ['reference', 'lookup', 'functions'],
             tooltip: "Perform lookups on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Custom]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Custom,
+            icon: LookupFunctionsIcon,
+            longTitle: 'Custom Formulas',
+            toolbarTitle: 'Custom',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-custom'
+                    }
+                })
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to perform custom functions on. Import data.'
+                } else if (analysisData.userDefinedFunctions.length === 0) {
+                    return 'There are no custom formulas available.'
+                } else {
+                    return defaultActionDisabledMessage;
+                }
+            },
+            searchTerms: ['custom', 'functions'],
+            tooltip: "Perform custom functions on the selected columns."
         },
         [ActionEnum.Formulas_Dropdown_Finance]: {
             type: 'build-time',
@@ -1392,7 +1442,8 @@ export const getActions = (
         [ActionEnum.Set_Column_Formula]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Column_Formula,
-            toolbarTitle: 'Set Column Formula',
+            icon: FunctionIcon,
+            toolbarTitle: 'Insert Function',
             longTitle: 'Set column formula',
             actionFunction: async () => {  
                 
@@ -1501,14 +1552,15 @@ export const getActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the selected sheet. Add data to the sheet.'},
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : "There are no dataframes to operate on. Import data."
+            },
             searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
             tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
         [ActionEnum.Steps]: {
             type: 'build-time',
             staticType: ActionEnum.Steps,
-            toolbarTitle: 'Steps',
             longTitle: 'Step history',
             actionFunction: () => {
                 void mitoAPI.log('click_open_steps')

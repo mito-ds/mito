@@ -67,7 +67,7 @@ export function getIcon(stepType: StepType | UpdateType, height?: string, width?
             <EditIcon height={height} width={width}/>
         )
         case StepType.FilterColumn: return (
-            <FilterIcon purpleOrDark='dark'/>
+            <FilterIcon/>
         )
         case StepType.SetColumnFormula: return (
             <div className='step-taskpane-missing-icon'>
