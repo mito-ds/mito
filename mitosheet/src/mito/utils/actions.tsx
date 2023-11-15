@@ -805,7 +805,7 @@ export const getActions = (
                 if (!doesAnySheetExist(sheetDataArray)) {
                     return 'There are no columns to perform custom functions on. Import data.'
                 } else if (analysisData.userDefinedFunctions.length === 0) {
-                    return 'There are no custom formulas available. Import data or create a custom formula.'
+                    return 'There are no custom formulas available.'
                 } else {
                     return defaultActionDisabledMessage;
                 }
