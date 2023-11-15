@@ -802,16 +802,16 @@ export const getActions = (
                 })
             },
             isDisabled: () => {
-                if (doesAnySheetExist(sheetDataArray)) {
-                    return defaultActionDisabledMessage;
-                } else if (runtimeEditActionsList.length === 0) {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to perform custom functions on. Import data.'
+                } else if (analysisData.userDefinedFunctions.length === 0) {
                     return 'There are no custom formulas available. Import data or create a custom formula.'
                 } else {
-                    return 'There are no columns to perform custom functions on. Import data.'
+                    return defaultActionDisabledMessage;
                 }
             },
-            searchTerms: ['reference', 'lookup', 'functions'],
-            tooltip: "Perform lookups on the selected columns."
+            searchTerms: ['custom', 'functions'],
+            tooltip: "Perform custom functions on the selected columns."
         },
         [ActionEnum.Formulas_Dropdown_Finance]: {
             type: 'build-time',
