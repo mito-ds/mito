@@ -5,7 +5,7 @@ import React from 'react'
 
 import ToolbarButton from './ToolbarButton';
 import Dropdown from '../elements/Dropdown';
-import { ActionEnum, EditorState, GridState, SheetData, UIState } from '../../types';
+import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState } from '../../types';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
 import { functionDocumentationObjects, FunctionCategory } from '../../data/function_documentation';
@@ -20,6 +20,7 @@ export const FormulaTabContents = (
         sheetData: SheetData;
         editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+        analysisData: AnalysisData;
     }): JSX.Element => {
 
     /**
@@ -35,9 +36,14 @@ export const FormulaTabContents = (
     };
 
     const getFormulaDropdownItems = (category?: string): JSX.Element[] => {
-        const functionsInCategory = functionDocumentationObjects.filter(
-            functionObject => functionObject.category === category
-        );
+        let functionsInCategory = []
+        if (category === 'custom') {
+            functionsInCategory = props.analysisData.userDefinedFunctions
+        } else {
+            functionsInCategory = functionDocumentationObjects.filter(
+                functionObject => functionObject.category === category
+            );
+        }
         return functionsInCategory.map(functionObject => {
             return (
                 <DropdownItem
@@ -114,6 +120,7 @@ export const FormulaTabContents = (
             }
             return getFormulaDropdown(formulaCategories[category], category)
         })}
+        {getFormulaDropdown(ActionEnum.Formulas_Dropdown_Custom, 'custom')}
         {getFormulaDropdown(ActionEnum.Formulas_Dropdown_More)}
     </div>);
 }

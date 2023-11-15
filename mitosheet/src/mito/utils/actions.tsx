@@ -786,6 +786,33 @@ export const getActions = (
             searchTerms: ['reference', 'lookup', 'functions'],
             tooltip: "Perform lookups on the selected columns."
         },
+        [ActionEnum.Formulas_Dropdown_Custom]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Custom,
+            icon: LookupFunctionsIcon,
+            longTitle: 'Custom Formulas',
+            toolbarTitle: 'Custom',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-custom'
+                    }
+                })
+            },
+            isDisabled: () => {
+                if (doesAnySheetExist(sheetDataArray)) {
+                    return defaultActionDisabledMessage;
+                } else if (runtimeEditActionsList.length === 0) {
+                    return 'There are no custom formulas available. Import data or create a custom formula.'
+                } else {
+                    return 'There are no columns to perform custom functions on. Import data.'
+                }
+            },
+            searchTerms: ['reference', 'lookup', 'functions'],
+            tooltip: "Perform lookups on the selected columns."
+        },
         [ActionEnum.Formulas_Dropdown_Finance]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Finance,
