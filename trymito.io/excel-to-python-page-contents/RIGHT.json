@@ -3,7 +3,7 @@
     "functionNameShort": "RIGHT",
     "functionNameLong": "Extracting characters from the right",
     "relatedFunctions": ["LEFT", "MID", "LEN"],
-    "purpose": "Extract a specified number of characters from the end (the right) of text",
+    "purpose": "Extract characters from the right side of a string",
     "titleCardParagraphs": [
         "Excel's RIGHT function is used to extract a specific number of characters from the right end of a text string. This can be especially useful in data preprocessing tasks like extracting the last name from a full name or extracting a unit label from a number.",
         "This page explains how to achieve similar functionality in Python using pandas."

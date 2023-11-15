@@ -1,0 +1,239 @@
+{
+    "slug": ["transformations", "Pivot Table"],
+    "functionNameShort": "Pivot Table",
+    "functionNameLong": "Pivot Table",
+    "relatedFunctions": ["SUMIF", "COUNTIF", "INDEX MATCH"],
+    "purpose": "Group and summarize data",
+    "titleCardParagraphs": [
+        "Pivot tables are a powerful way to group data into buckets and calculate summary metrics about each group. They are particularly helpful for analyzing large datasets that are too large to learn from by simply looking at the raw data.",
+        "This page explains how to create and use pivot tables in Python using pandas."
+    ],
+    "equivalentCode": {
+        "introParagraphs": [
+            "Creating pivot tables in pandas requires understanding of the DataFrame structure and the pivot_table method. Here's how you can replicate Excel's pivot table functionality in pandas:"
+        ],
+        "codeSections": [
+            {
+                "title": "Basic Pivot Table",
+                "shortTitle": "Basic Pivot Table",
+                "paragraphs": [
+                    "The simplest pivot table must have a dataframe and an index. In this case, the index is the `Column1` attribute."
+                ],
+                "codeLines": [
+                    "pivot = df.pivot_table(index=['Column1'], values=['Column2'], aggfunc='count').reset_index()"
+                ]
+            },
+            {
+                "title": "Pivot Table with Multiple Values",
+                "shortTitle": "Multiple Values",
+                "paragraphs": [
+                    "Just like in Excel, you can Pandas pivot tables can perform multiple aggregations. You can specify the aggregation function using the `aggfunc` parameter."
+                ],
+                "codeLines": [
+                    "# Create a pivot table",
+                    "pivot = df.pivot_table(index=['Column1'], values=['Column2', 'Column3'], aggfunc=['count']).reset_index()",
+                    "",
+                    "# Flatten column headers so they are not tuples",
+                    "pivot.columns = [' '.join(col).strip() for col in pivot.columns.values]"
+                ]
+            },
+            {
+                "title": "Sum, Count, Average, and Product Aggregation",
+                "shortTitle": "Sum, Count, Average, Product",
+                "paragraphs": [
+                    "The default aggregation method in pandas pivot tables is the sum of the values. You can specify the aggregation method using the `aggfunc` parameter."
+                ],
+                "codeLines": [
+                    "pivot = df.pivot_table(",
+                    "    index=['Column1'],",
+                    "    values=['Column2', 'Column3', 'Column4', 'Column5'],",
+                    "    aggfunc={",
+                    "        'Column2': 'sum',",
+                    "        'Column3': 'count',",
+                    "        'Column4': 'mean',",  
+                    "        'Column5': 'prod'",  
+                    "}).reset_index()"
+                ]
+            },
+            {
+                "title": "Min and Max Aggregation",
+                "shortTitle": "Min, Max Aggregation",
+                "paragraphs": [
+                    "You can also calculate the average value in each group using the `max` aggregation function."
+                ],
+                "codeLines": [
+                    "pivot = df.pivot_table(",
+                    "    index=['Column1'],",
+                    "    values=['Column2', 'Column3'],",
+                    "    aggfunc={",
+                    "        'Column2': 'max',",
+                    "        'Column3': 'min',",
+                    "}).reset_index()"
+                ]
+            },
+            {
+                "title": "Aggregating the same column multiple times",
+                "shortTitle": "Multiple Aggregations",
+                "paragraphs": [
+                    "Just like in Excel, you can aggregate the same attribute with multiple aggregation techniques. For example, you might want to calculate the sum and count of the same column."
+                ],
+                "codeLines": [
+                    "# Create a pivot table",
+                    "pivot = df.pivot_table(index=['Column1'], values=['Column2'], aggfunc=['sum', 'count']).reset_index()",
+                    "",
+                    "# Flatten column headers so they are easier to work with",
+                    "pivot.columns = [' '.join(col).strip() for col in pivot.columns.values]"
+                ]
+            },
+            {
+                "title": "Pivot Table with custom Aggregation",
+                "shortTitle": "Custom Aggregation",
+                "paragraphs": [
+                    "Pandas also gives you the ability to specify custom aggregation functions. For example, you might want to calculate the difference between the max and min values in each group.",
+                    "The easiest way to define a custom aggregation function is to create a helper function and pass it to the `aggfunc` parameter."
+                ],
+                "codeLines": [
+                    "# Create a custom aggregation function",
+                    "def difference(x):",
+                    "    return x.max() - x.min()",
+                    "",
+                    "# Create a pivot table using the custom aggregation function",
+                    "pivot = df.pivot_table(index=['Column1'], values=['Column2'], aggfunc=difference).reset_index()"
+                ]
+            },
+            {
+                "title": "Filtering Data in Pivot Table",
+                "shortTitle": "Filter Pivot Table",
+                "paragraphs": [
+                    "To filter data in a pivot table before calculating the summary aggregations, filter the data before creating the pivot table.",
+                    "By making a copy of the dataframe, you can filter the data without affecting the original dataframe."
+                ],
+                "codeLines": [
+                    "# Create a filtered dataframe to use in the pivot table",
+                    "filtered_df = df[df['Column3'] > 10]",
+                    "",
+                    "# Create a pivot table based on the filtered dataframe",
+                    "pivot = filtered_df.pivot_table(index=['Column1'], values=['Column2'], aggfunc='sum').reset_index()"
+                ]
+            },
+            {
+                "title": "Sort Data in Pivot Table",
+                "shortTitle": "Sort Pivot Table",
+                "paragraphs": [
+                    "Oftentimes, after creating a pivot table, you'll want to sort the data in ascending/descending order by one of the aggregated columns."
+                ],
+                "codeLines": [
+                    "# Create the pivot table",
+                    "pivot = df.pivot_table(index=['Column1'], values=['Column2'], aggfunc='sum').reset_index()",
+                    "",
+                    "# Sort the pivot table in descending order of the aggregated column",
+                    "pivot = pivot.sort_values(by=['Column2'], ascending=False)"
+                ]
+            },
+            {
+                "title": "Pivot Table Grand Totals",
+                "shortTitle": "Grand Totals",
+                "paragraphs": [
+                    "Just like in Excel, Pivot tables in pandas can also calculate totals for each group. To do this, set the `margins` parameter to `True` and set the margins_name parameter to the label you want to assign to the totals."
+                ],
+                "codeLines": [
+                    "# Create a sample DataFrame",
+                    "df = pd.DataFrame({",
+                    "    'Category': ['Fruit', 'Fruit', 'Vegetable', 'Vegetable', 'Fruit'],",
+                    "    'Item': ['Apple', 'Banana', 'Carrot', 'Broccoli', 'Apple'],",
+                    "    'Sales': [50, 80, 60, 70, 55]",
+                    "})",
+                    "",
+                    "# Creating the pivot table with grand total",
+                    "pivot = df.pivot_table(index=['Category', 'Item'], values='Sales', aggfunc='sum', margins=True, margins_name='Grand Total').reset_index()"
+                ]
+            },
+            {
+                "title": "Pivot Table with Sub Totals and Grand Totals and ",
+                "shortTitle": "Sub Totals and Grand Totals",
+                "paragraphs": [
+                    "Unlike Excel, pandas does not have out of the box support for creating pivot tables with subtotals, but you can create a pivot table with subtotals by creating multiple pivot tables and then concatenating them together."
+                ],
+                "codeLines": [
+                    "# Create a sampel DataFrame",
+                    "df = pd.DataFrame({",
+                    "    'Category': ['Fruit', 'Fruit', 'Vegetable', 'Vegetable', 'Fruit'],",
+                    "    'Item': ['Apple', 'Banana', 'Carrot', 'Broccoli', 'Apple'],",
+                    "    'Sales': [50, 80, 60, 70, 55]",
+                    "})",
+                    "",
+                    "pivot_table = pd.DataFrame()",
+                    "",
+                    "# For each of the categories, create a pivot table and calculate its subtotal, ",
+                    "# then add it to the pivot_table",
+                    "categories = df['Category'].unique()",
+                    "for category in categories:",
+                    "    # Filter the data to the category and then build the pivot table for the current category",
+                    "    data = df[df['Category'] == category]",
+                    "    category_pivot = data.pivot_table(index=['Category', 'Item'], values='Sales', aggfunc='sum', margins=True, margins_name='Subtotal')",
+                    "",
+                    "    # Add the new category_pivot table to the pivot_table",
+                    "    pivot_table = pd.concat([pivot_table, category_pivot])",
+                    "",
+                    "# Reset the indexes to make them easier to work with",
+                    "pivot_table = pivot_table.reset_index()",
+                    "",
+                    "# Calculate the Grand Total row excluding rows with Subtotal in the Category column",
+                    "pivot_table.loc[len(pivot_table)] = ['Grand Total', '', pivot_table[pivot_table['Category'] != 'Subtotal']['Sales'].sum()]",
+                    "",
+                    "# Reset the index and update the final column names",
+                    "pivot_table.columns = ['Category', 'Item', 'Sales Sum']"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While pivot tables in pandas are powerful, there are common pitfalls that can lead to incorrect results and/or errors. Here are some common mistakes and how to avoid them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Data Types",
+                "shortTitle": "Data Type Errors",
+                "paragraphs": [
+                    "Not all pandas aggregation functions work with all data types. For example, the `prod` function only works with numeric data types.",
+                    "If you try to use an aggregation function with the wrong data type, you'll get an error, so it's important to make sure that your columns are the correct dtype before building the pivot table. You can use the `to_numeric` function to convert columns to numeric data types."
+                ],
+                "codeLines": [
+                    "# Convert Column1 to numeric",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce')"
+                ]
+            },
+            {
+                "title": "Ignoring NaN Values in Aggregation",
+                "shortTitle": "NaN Values",
+                "paragraphs": [
+                    "Most of the time, pandas handles NaN values similar to how Excel handles missing values in pivot tables. For example, if you use the count aggregation function, NaN values will be ignored.",
+                    "If you want to handle NaN values differently, make sure to fill them before creating the pivot table."
+                ],
+                "codeLines": [
+                    "# Fill NaN values before aggregation",
+                    "df['Column1'] = df['Column1'].fillna(0)",
+                    "pivot = df.pivot_table(index=['Column1'], values=['Column2'], aggfunc='sum').reset_index()"
+                ]
+            },
+            {
+                "title": "Creating Multiindex and Multilevel Pivot Table",
+                "shortTitle": "Resetting Index/Level",
+                "paragraphs": [
+                    "Creating a pivot table in pandas returns a DataFrame with a MultiIndex when you specify multiple columns for the index and/or columns parameters in the pivot_table method. This MultiIndex structure is used to represent hierarchical indices and columns, allowing for more complex data representations. But its also confusing and hard to work with going forward! For example, if you want to rename a column, you have to specify the column name as a tuple with the level and column name.",
+                    "If you provide a list of two or more column names to the index argument, pandas creates a multi-level row index. To fix, reset the index after creating the pivot table.",
+                    "Similarly, if you aggregate a column with two different aggregation types or aggregate two different columns with the same aggregation type, pandas creates a multi-level column index. To fix, flatten the column headers by concatenating the column header levels together."
+                ],
+                "codeLines": [
+                    "# Create a pivot table and reset the index, making the index 0, 1, 2, ... ",
+                    "# instead of values the in Column1",
+                    "pivot = df.pivot_table(index=['Column1'], values=['Column2'], aggfunc='sum').reset_index()",
+                    "",
+                    "# Flatten the column headers by concatenating the column header levels together",
+                    "pivot.columns = ['_'.join(col).strip() for col in pivot.columns.values]"
+                ]
+            }
+        ]
+    }
+}

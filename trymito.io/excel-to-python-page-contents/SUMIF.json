@@ -3,7 +3,7 @@
     "functionNameShort": "SUMIF",
     "functionNameLong": "Sum with Condition",
     "relatedFunctions": ["COUNTIF", "AVERAGEIF", "MAXIF"],
-    "purpose": "Sum the values of numeric cells that match a condition or criteria",
+    "purpose": "Sum the values of numeric cells that match a condition",
     "titleCardParagraphs": [
         "Excel's SUMIF function is commonly used to sum the values of numeric cells that meet some predefined conditions. Often, its used to group and sum values based on a single condition, but it can also be used to sum values based on multiple conditions.",
         "This page provides several common examples of how to use replicate the SUMIF function in Python with pandas."

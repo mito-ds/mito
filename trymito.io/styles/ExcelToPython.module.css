@@ -3,6 +3,10 @@
     position: relative;
 }
 
+.content_and_table_of_contents_container {
+    width: 100%;
+}
+
 .title_card {
     padding-top: 4rem;
 }
@@ -13,6 +17,8 @@
 
 .section {
     align-items: flex-start !important;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 .section + .section {
@@ -128,6 +134,8 @@
     width: 100%;
     margin-left: 5px;
 }
+
+
 
 @media only screen and (min-width: 50em) {
 

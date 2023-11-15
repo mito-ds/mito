@@ -3,7 +3,7 @@
     "functionNameShort": "LEFT",
     "functionNameLong": "Extract Left Characters",
     "relatedFunctions": ["RIGHT", "MID", "LEN"],
-    "purpose": "Extract a specified number of characters from the start (left side) of a text string",
+    "purpose": "Extract characters from the left side of a string",
     "titleCardParagraphs": [
         "Excel's LEFT function allows you to extract a specific number of characters from the start of a text string. This is commonly used in data preparation tasks such as splitting columns, extracting codes, or cleaning up data.",
         "This page explains how to use Excel's LEFT function in Python using pandas"

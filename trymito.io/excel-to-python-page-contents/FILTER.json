@@ -1,0 +1,180 @@
+{
+    "slug": ["transformations", "Filter"],
+    "functionNameShort": "Filter",
+    "functionNameLong": "Filter",
+    "relatedFunctions": ["Sort", "IF", "Pivot Table"],
+    "purpose": "Filter data based on certain criteria",
+    "titleCardParagraphs": [
+        "In Excel, filtering data is one of the most common data transformations. This page explains how to build simple single condition filters all the way to complex regex-based filtering in Python using pandas."
+    ],
+    "equivalentCode": {
+        "introParagraphs": [
+            "Filtering in pandas is a versatile operation, enabling you to select data based on conditions similar to Excel but with more flexibility. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Filtering with Single Condition",
+                "shortTitle": "Single Condition",
+                "paragraphs": [
+                    "To filter rows where a certain column meets a specific condition, use boolean indexing. A boolean index is a series of True or False values, where True values are kept and False values are removed from the DataFrame.",
+                    "For example, to filter for values in 'Column1' greater than 50:"
+                ],
+                "codeLines": [
+                    "# Filter to rows where Column1 is greater than 50",
+                    "df = df[df['Column1'] > 50]"
+                ]
+            },
+            {
+                "title": "Filtering with Multiple Conditions using the AND and OR Operators ",
+                "shortTitle": "Multiple Conditions",
+                "paragraphs": [
+                    "To apply multiple conditions in pandas, simply combine two boolean indexes together using & (and) / | (or) operators",
+                    "If you combine two boolean indexes with an &, the result will be True only if both indexes are True. On the other hand, if you combine two boolean indexes with an |, the result will be True if either index is True.", 
+                    "For example, the following code filters to where 'Column1' is greater than 50 AND 'Column2' is less than 100. If instead you wanted to filter for rows where 'Column1' is greater than 50 OR 'Column2' is less than 100, replace the `&` with `|`. "
+                ],
+                "codeLines": [
+                    "# Filter to rows where Column1 is greater than 50 AND Column2 is less than 100",
+                    "df = df[(df['Column1'] > 50) & (df['Column2'] < 100)]"
+                ]
+            },
+            {
+                "title": "Filtering Using Regular Expressions",
+                "shortTitle": "Regex Filtering",
+                "paragraphs": [
+                    "Regular expressions let you filter data based on patterns in strings. This is useful for filtering data based on partial matches, or for filtering data based on patterns like dates or phone numbers.",
+                    "Below are several examples of regex filtering."
+                ],
+                "codeLines": [
+                    "# Filter rows where 'Column1' contains 'data' anywhere in the string",
+                    "df = df[df['Column1'].str.contains('data', regex=True)]",
+                    "",
+                    "# Filter rows where 'Column1' looks like a phone number",
+                    "df = df[df['Column1'].str.contains(r'\\d{3}-\\d{3}-\\d{4}', regex=True)]"
+                ]
+            },
+            {
+                "title": "Filter NaN values",
+                "shortTitle": "NaN Filter",
+                "paragraphs": [
+                    "Filtering NaN (Not a Number) values in pandas is crucial for clean data analysis, much like handling blanks in Excel.",
+                    "Often, you will want to filter out NaN values from your dataset to avoid errors in calculations or to remove incomplete data.",
+                    "To keep rows where 'Column1' is not NaN:"
+                ],
+                "codeLines": [
+                    "df = df[df['Column1'].notna()]"
+                ]
+            },
+            {
+                "title": "Filter to values that start with a certain string",
+                "shortTitle": "Starts With Filter",
+                "paragraphs": [
+                    "To filter to rows that start with or end with a specific string, use the pandas `startswith` or `endswith` methods."
+                ],
+                "codeLines": [
+                    "# Filter to rows that start with 'id-'",
+                    "df = df[df['Column1'].str.startswith('id-')]"
+                ]
+            },
+            {
+                "title": "Filter Dates column using After, Before, or Between",
+                "shortTitle": "Date Filtering",
+                "paragraphs": [
+                    "To filter a column of dates, you can use the numeric operatos > (after), >= (on or after), < (before), <= (on or before), or == (on)."
+                ],
+                "codeLines": [
+                    "# Filter to dates after 1/1/2020",
+                    "df = df[df['Column1'] > pd.to_datetime('1/1/2020')]",
+                    "",
+                    "# Filter to dates before 1/1/2020",
+                    "df = df[df['Column1'] < pd.to_datetime('1/1/2020')]",
+                    "",
+                    "# Filter to dates between 1/1/2020 and 1/1/2021",
+                    "df = df[(df['Column1'] > pd.to_datetime('1/1/2020')) & (df['Column1'] < pd.to_datetime('1/1/2021'))]"
+                ]
+            },
+            {
+                "title": "Filtering to values in a list of Values",
+                "shortTitle": "Value Filter",
+                "paragraphs": [
+                    "To filter rows matching any value from a list, use the `isin` method. This is similar to selecting multiple items in an Excel filter.",
+                    "For example, to filter rows where 'Column1' is either 'value1', 'value2', or 'value3':"
+                ],
+                "codeLines": [
+                    "# Filter to values in 'Column1' that are either 'value1', 'value2', or 'value3'",
+                    "df = df[df['Column1'].isin(['value1', 'value2', 'value3'])]",
+                    "",
+                    "# Filter to values in 'Column1' that are not either 'value1', 'value2', or 'value3'",
+                    "df = df[~df['Column1'].isin(['value1', 'value2', 'value3'])]"
+                ]
+            },
+            {
+                "title": "Filter Series",
+                "shortTitle": "Series Filter",
+                "paragraphs": [
+                    "Filtering within a pandas Series object can be done similarly to DataFrame filtering.",
+                    "For instance, to filter values in a Series object `series` that are greater than 10:"
+                ],
+                "codeLines": [
+                    "series = series[series > 10]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While filtering data in pandas is powerful, there are common pitfalls that new users often encounter. Here are some tips to avoid them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Use of Logical Operators",
+                "shortTitle": "Logical Operator Errors",
+                "paragraphs": [
+                    "Using the wrong logical operators, or misplacing them, can lead to incorrect results. Remember, in pandas, use `&` for AND and `|` for OR.",
+                    "If you get an error that looks like `ValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().`, you probably used `and` or `or` instead of `&` or `|`."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Neglecting Parentheses in Conditions",
+                "shortTitle": "Missing Parentheses",
+                "paragraphs": [
+                    "Not using parentheses properly in multiple filter conditions can cause unexpected results. Always encapsulate each condition in parentheses.",
+                    "If you get an error that looks like `TypeError: unsupported operand type(s) for &: ...`, you probably forgot to put each condition in parentheses."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Misunderstanding NaN Handling",
+                "shortTitle": "NaN Handling",
+                "paragraphs": [
+                    "Pandas handles NaN values differently than Excel. By default, comparisons with NaN return False, which can affect filter results."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Overlooking Case Sensitivity in String Filters",
+                "shortTitle": "Case Sensitivity",
+                "paragraphs": [
+                    "String filters in pandas are case-sensitive by default, unlike Excel. Use methods like `str.lower()` for case-insensitive filtering."
+                ],
+                "codeLines": [
+                    "# Filter to rows where 'Column1' contains 'data' anywhere in the string, ignoring case",
+                    "df = df[df['Column1'].str.lower().str.contains('data', regex=True)]"
+                ]
+            },
+            {
+                "title": "Incorrect data types",
+                "shortTitle": "Data Type Errors",
+                "paragraphs": [
+                    "Pandas is strict about data types. Make sure you are using the correct data types for your filters, or convert them using `astype`.",
+                    "If you get an error that looks like `ValueError: Cannot mask with non-boolean array containing NA / NaN values`, you probably tried to use a string filter on a numeric column.",
+                    "Convert your numeric data to strings using `astype` before filtering."
+                ],
+                "codeLines": [
+                    "# Filter to rows where 'Column1' starts with '1'",
+                    "df = df[df['Column1'].astype(str).str.startswith('1')]"
+                ]
+            }
+        ]
+    }
+}

@@ -66,16 +66,23 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
   const slugComponent0 = pageContent.slug[0].charAt(0).toUpperCase() + pageContent.slug[0].slice(1);
   const slugComponent1 = pageContent.slug[1].charAt(0).toUpperCase() + pageContent.slug[1].slice(1);
 
+  const isFunction = pageContent.slug[0] == 'functions' ? true : false
+  const FUNCTION_UPPERCASE = isFunction ? ' Function' : ''
+  const FUNCTION_LOWERCASE = isFunction ? ' function' : ''
+  const FORMULA_UPPERCASE = isFunction ? ' Formula' : ''
+  const FORMULA_LOWERCASE = isFunction ? ' formula' : ''
+  
+
   return (
     <>
       <Head>
         {/* Title Tag */}
-        <title>{`Excel to Python: ${functionNameShort} Function - A Complete Guide | Mito`}</title>
+        <title>{`Excel to Python: ${functionNameShort}${FUNCTION_UPPERCASE} - A Complete Guide | Mito`}</title>
         
         {/* Meta Description */}
         <meta
           name="description"
-          content={`Learn how to convert Excel's ${functionNameShort} formula to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
+          content={`Learn how to convert Excel's ${functionNameShort}${FORMULA_LOWERCASE} to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
         />
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -86,11 +93,11 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
         {/* Open Graph Tags (for social media sharing) */}
         <meta
           property="og:title"
-          content={`Excel to Python: ${functionNameShort} function - A Complete Guide`}
+          content={`Excel to Python: ${functionNameShort}${FUNCTION_LOWERCASE} - A Complete Guide`}
         />
         <meta
           property="og:description"
-          content={`Learn how to convert Excel's ${functionNameShort} function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
+          content={`Learn how to convert Excel's ${functionNameShort}${FUNCTION_LOWERCASE} to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
         />
         {/* Add more Open Graph tags as needed */}
         
@@ -98,11 +105,11 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
-          content={`Excel to Python: ${functionNameShort} function - A Complete Guide`}
+          content={`Excel to Python: ${functionNameShort}${FUNCTION_LOWERCASE} - A Complete Guide`}
         />
         <meta
           name="twitter:description"
-          content={`Learn how to convert Excel's ${functionNameShort} function to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
+          content={`Learn how to convert Excel's ${functionNameShort}${FUNCTION_LOWERCASE} to Python using Pandas. This comprehensive guide provides step-by-step instructions and practical examples.`}
         />
         {/* Add more Twitter Card tags as needed */}
         
@@ -125,7 +132,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                   </GlossayHorizontalNavbar>
                 </div>
                 
-                <h1>How to Use Excel&apos;s <span className='text-highlight'>{functionNameShort}</span> Function in Pandas</h1>
+                <h1>How to Use Excel&apos;s <span className='text-highlight'>{functionNameShort}</span>{FUNCTION_UPPERCASE} in Pandas</h1>
                 <div className={classNames(excelToPythonStyles.related_functions_card)}>
                   <p>Related Functions</p>
                   {pageContent.relatedFunctions.length > 0 && 
@@ -165,12 +172,13 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
               </section>
 
               {/* Understanding the Excel Function */}
-              <section className={excelToPythonStyles.section}>
+              {pageContent.excelExplanation !== undefined &&
+                <section className={excelToPythonStyles.section}>
                   <h2 
                     id={`Excel's ${functionNameShort} formula`}
                     className={excelToPythonStyles.link}
                   >
-                    Understanding the {pageContent.functionNameLong} Formula in Excel
+                    Understanding {isFunction ? 'the ' : ''}{pageContent.functionNameLong}{FORMULA_UPPERCASE} in Excel
                     <Link href={`#Excel's ${functionNameShort} formula`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
                   </h2>
                   {pageContent.excelExplanation.paragraphs.map(text => {
@@ -201,29 +209,33 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       </table>
                     </>
                   }
-                  
-                  <h3 className={excelToPythonStyles.section_h3_tag}>Examples</h3>
-                  <table className={excelToPythonStyles.excel_to_python_table}>
-                    <thead>
-                      <tr>
-                        <th>Formula</th>
-                        <th>Description</th>
-                        <th>Result</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pageContent.excelExplanation.examplesTable.map((row, index) => {
-                        return (
-                          <tr key={`examples-table-row-${index}`}>
-                            <td>{row.formula}</td>
-                            <td>{row.description}</td>
-                            <td>{row.result}</td>
+                  {pageContent.excelExplanation.examplesTable.length > 0 &&
+                    <>
+                      <h3 className={excelToPythonStyles.section_h3_tag}>Examples</h3>
+                      <table className={excelToPythonStyles.excel_to_python_table}>
+                        <thead>
+                          <tr>
+                            <th>Formula</th>
+                            <th>Description</th>
+                            <th>Result</th>
                           </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                        </thead>
+                        <tbody>
+                          {pageContent.excelExplanation.examplesTable.map((row, index) => {
+                            return (
+                              <tr key={`examples-table-row-${index}`}>
+                                <td>{row.formula}</td>
+                                <td>{row.description}</td>
+                                <td>{row.result}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </>
+                  }
               </section>
+              }
 
               {/* Equivalent Python Code Using Pandas */}
               <section className={excelToPythonStyles.section}>
@@ -231,7 +243,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                   id={`Implementing ${functionNameShort} in Pandas`}
                   className={excelToPythonStyles.link}
                 >
-                  Implementing the {pageContent.functionNameLong} function in Pandas
+                  Implementing {isFunction ? 'the ' : ''}{pageContent.functionNameLong}{FUNCTION_LOWERCASE} in Pandas
                   <Link href={`#Implementing ${functionNameShort} in Pandas`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
                 </h2>
                 {pageContent.equivalentCode.introParagraphs.map(text => {
