@@ -1525,7 +1525,9 @@ export const getActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the selected sheet. Add data to the sheet.'},
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : "There are no dataframes to operate on. Import data."
+            },
             searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
             tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
