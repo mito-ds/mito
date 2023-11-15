@@ -147,6 +147,11 @@
 
 .horizontal-align-content.mito-toolbar-button-container {
   height: min-content;
+  width: 100%;
+}
+
+.horizontal-align-content .mito-toolbar-button {
+  align-items: flex-start;
 }
 
 .mito-toolbar-tabbar-tabname span {
