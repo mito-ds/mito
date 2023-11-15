@@ -1,7 +1,8 @@
 import json
 import os
 import string
-from typing import Dict
+import sys
+from typing import Any, Dict, Tuple
 
 import requests
 
@@ -114,10 +115,43 @@ def create_github_pr(
     else:
         raise Exception(f"Failed to create PR: {pr_response.content}")
     
+def get_minute_and_hour_from_time(time: str) -> Tuple[str, str]:
+    hour = time.split(':')[0]
+    minute = time.split(':')[1]
+
+    # Handle AM and PM
+    if time.endswith('AM'):
+        if hour == '12':
+            hour = '0'
+    elif time.endswith('PM'):
+        if hour != '12':
+            hour = str(int(hour) + 12)
+
+    return hour, minute
+
+def get_cron_string_from_schedule(schedule: Dict[str, Any]) -> str:
+    if schedule['type'] == 'Every Day':
+        hour, minute = get_minute_and_hour_from_time(schedule['time'])
+        return f'{minute} {hour} * * *'
+
+    elif schedule['type'] == 'Every Week':
+        hour, minute = get_minute_and_hour_from_time(schedule['time'])
+        day_of_week = schedule['dayOfWeek']
+        return f'{minute} {hour} * * {day_of_week}'
+
+    elif schedule['type'] == 'Every Month':
+        hour, minute = get_minute_and_hour_from_time(schedule['time'])
+        day_of_month = schedule['dayOfMonth']
+        return f'{minute} {hour} {day_of_month} * *'
+
+    else:
+        raise Exception(f"Invalid schedule type: {schedule['type']}")
 
 def get_automation_files_for_new_automation(
         steps_manager: StepsManagerType, 
+        automation_name: str,
         file_base_folder: str,
+        schedule: Dict[str, Any]
     ) -> Dict[str, str]:
     """
     Returns the new files 
@@ -138,18 +172,70 @@ def get_automation_files_for_new_automation(
     # Then, we get these files from the parameters as the function call to the function
     new_files[f'{file_base_folder}/automation.py'] = steps_manager.fully_parameterized_function
 
+
+    # Add a requirements.txt file, with the correct version of mitosheet, as well as any other dependencies
+    from mitosheet import __version__ as mitosheet_version
+    if mitosheet_version == '0.3.131': # Handle development version
+        mitosheet_version = '0.1.528'
+
+    from pandas import __version__ as pandas_version
+    new_files[f'{file_base_folder}/requirements.txt'] = f"""
+mitosheet=={mitosheet_version}
+pandas=={pandas_version}
+"""
+
+    # Then, we add the Github Actions workflow file. 
+    # TODO: we could allow you to overrwite file paths in the workflow dispatch,
+    # given the param metadata
+    cron_string = get_cron_string_from_schedule(schedule)
+    # Get the current Python version as a string of 3.10, for example
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+    new_files[f'.github/workflows/automation.yml'] = f"""
+name: "Automation: {automation_name}"
+on:
+  schedule:
+    - cron: {cron_string}
+  workflow_dispatch: null
+  pull_request:
+    branches:
+        - main
+    
+jobs:
+  run_automation:
+    name: "Run {automation_name}"
+    runs-on: ubuntu-latest      
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python {python_version}
+        uses: actions/setup-python@v4
+        with:
+          python-version: {python_version}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r {file_base_folder}/requirements.txt
+      - name: Run automation
+        run: python {file_base_folder}/automation.py
+"""
     return new_files
 
-def get_pr_url_of_new_pr(params: Dict[str, str], steps_manager: StepsManagerType) -> str:
+
+def get_pr_url_of_new_pr(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
     automation_name = params['automation_name']
     automation_description = params['automation_description']
+    schedule = params['schedule']
 
     # TODO: make this better
     try:
         automation_name_safe_file_path = "".join(char for char in automation_name if char in string.ascii_letters or char in string.digits)
 
         base_folder = f'automations/{automation_name_safe_file_path}'
-        new_files = get_automation_files_for_new_automation(steps_manager, base_folder)
+        new_files = get_automation_files_for_new_automation(
+            steps_manager, 
+            automation_name_safe_file_path,
+            base_folder,
+            schedule
+        )
 
         pr_url = create_github_pr(
             'mito-ds/mito-automations-test', 

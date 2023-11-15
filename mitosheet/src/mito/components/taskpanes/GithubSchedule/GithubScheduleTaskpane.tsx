@@ -12,6 +12,8 @@ import Row from "../../layout/Row";
 import Col from "../../layout/Col";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import TextArea from "../../elements/TextArea";
+import AutomationSchedule, { AutomationScheduleType } from "../../elements/AutomationSchedulePicker";
+import Spacer from "../../layout/Spacer";
 
 
 interface GithubScheduleTaskpaneProps {
@@ -24,14 +26,17 @@ interface GithubScheduleTaskpaneProps {
 type GithubScheduleParams = {
     automationName: string,
     automationDescription: string,
-    schedule: any
+    schedule: AutomationScheduleType
 }
 
 const getDefaultParams = (): GithubScheduleParams => {
     return {
         automationName: '',
         automationDescription: '',
-        schedule: undefined
+        schedule: {
+            type: 'Every Day',
+            time: '12:00 AM',
+        }
     }
 }
 
@@ -89,9 +94,21 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                         })
                     }}
                     placeholder="Describe what this automation accomplishes"
-                    height="medium"
-                
+                    height="small"
                 />
+                <Spacer px={10}/>
+                <AutomationSchedule
+                    schedule={params.schedule}
+                    setSchedule={(newSchedule) => {
+                        setParams((prevParams) => {
+                            return {
+                                ...prevParams,
+                                schedule: newSchedule,
+                            }
+                        })
+                    }}
+                />
+                
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <TextButton
@@ -102,7 +119,8 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                         setLoading(true);
                         const response = await props.mitoAPI.getPRUrlOfNewPR(
                             params.automationName,
-                            params.automationDescription
+                            params.automationDescription,
+                            params.schedule
                         );
                         setLoading(false);
                         const url ='error' in response ? undefined : response.result;

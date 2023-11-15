@@ -1,6 +1,7 @@
 // Copyright (c) Mito
 
 import { SnowflakeCredentialsValidityCheckResult } from "../components/elements/AuthenticateToSnowflakeCard";
+import { AutomationScheduleType } from "../components/elements/AutomationSchedulePicker";
 import { CSVFileMetadata } from "../components/import/CSVImportConfigScreen";
 import { ExcelFileMetadata } from "../components/import/XLSXImportConfigScreen";
 import { ModalEnum } from "../components/modals/modals";
@@ -535,13 +536,14 @@ export class MitoAPI {
      /*
         Gets the path data for given path parts
     */
-    async getPRUrlOfNewPR(name: string, description: string): Promise<MitoAPIResult<string>> {
+    async getPRUrlOfNewPR(name: string, description: string, schedule: AutomationScheduleType): Promise<MitoAPIResult<string>> {
         return await this.send<string>({
             'event': 'api_call',
             'type': 'get_pr_url_of_new_pr',
             'params': {
                 'automation_name': name,
-                'automation_description': description
+                'automation_description': description,
+                'schedule': schedule
             }
         });
     }
