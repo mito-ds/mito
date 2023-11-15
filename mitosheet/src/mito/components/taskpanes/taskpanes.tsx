@@ -3,6 +3,7 @@
 import { SendFunctionError } from "../../api/send";
 import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
+import { MergeType } from "./Merge/MergeTaskpane";
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
 
 /* 
@@ -71,7 +72,7 @@ export type TaskpaneInfo =
         graphSidebarTab?: GraphSidebarTab
     }    
     | {type: TaskpaneType.IMPORT_FILES}
-    | {type: TaskpaneType.MERGE}
+    | {type: TaskpaneType.MERGE, defaultMergeType?: MergeType}
     | {type: TaskpaneType.CONCAT}
     | {type: TaskpaneType.NONE}
     | {
@@ -135,11 +136,16 @@ export type TaskpaneInfo =
     through some other method. 
 */ 
 export const EDITING_TASKPANES: TaskpaneType[] = [
+    TaskpaneType.PIVOT, 
+    TaskpaneType.MERGE, 
+    TaskpaneType.CONCAT,
     TaskpaneType.DROP_DUPLICATES,
     TaskpaneType.IMPORT_FILES,
     TaskpaneType.DOWNLOAD,
     TaskpaneType.SPLIT_TEXT_TO_COLUMNS,
     TaskpaneType.FILL_NA,
+    TaskpaneType.MELT,
+    TaskpaneType.SET_DATAFRAME_FORMAT,
     TaskpaneType.SNOWFLAKEIMPORT,
     TaskpaneType.EXCEL_RANGE_IMPORT,
     TaskpaneType.EXPORT_TO_FILE,
