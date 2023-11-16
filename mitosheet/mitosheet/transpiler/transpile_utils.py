@@ -321,7 +321,7 @@ def get_imports_for_custom_python_code(code: List[str], steps_manager: StepsMana
 
     import_map: Dict[str, List[str]] = {}
 
-    all_custom_python_code = (steps_manager.user_defined_importers or []) + (steps_manager.user_defined_functions or [])
+    all_custom_python_code = (steps_manager.user_defined_importers or []) + (steps_manager.user_defined_functions or []) + (steps_manager.user_defined_editors or [])
 
     for func in all_custom_python_code:
         if any(func.__name__ in line for line in code):
