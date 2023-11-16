@@ -5,7 +5,7 @@ import React from 'react'
 
 import ToolbarButton from './ToolbarButton';
 import Dropdown from '../elements/Dropdown';
-import { ActionEnum, EditorState, GridState, SheetData, UIState } from '../../types';
+import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState } from '../../types';
 import { Actions } from '../../utils/actions';
 import DropdownItem from '../elements/DropdownItem';
 import { functionDocumentationObjects, FunctionCategory } from '../../data/function_documentation';
@@ -20,6 +20,7 @@ export const FormulaTabContents = (
         sheetData: SheetData;
         editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+        analysisData: AnalysisData;
     }): JSX.Element => {
 
     /**
@@ -35,14 +36,20 @@ export const FormulaTabContents = (
     };
 
     const getFormulaDropdownItems = (category?: string): JSX.Element[] => {
-        const functionsInCategory = functionDocumentationObjects.filter(
-            functionObject => functionObject.category === category
-        );
+        let functionsInCategory = []
+        if (category === 'custom') {
+            functionsInCategory = props.analysisData.userDefinedFunctions
+        } else {
+            functionsInCategory = functionDocumentationObjects.filter(
+                functionObject => functionObject.category === category
+            );
+        }
         return functionsInCategory.map(functionObject => {
             return (
                 <DropdownItem
                     title={functionObject.function}
                     key={functionObject.function}
+                    supressFocusSettingOnClose
                     onClick={(e) => {
                         e?.stopPropagation();
                         // If the user is currently editing a cell, we only want to update the formula
@@ -101,6 +108,11 @@ export const FormulaTabContents = (
     }
 
     return (<div className='mito-toolbar-bottom'>
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Set_Column_Formula]} />
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Add_Column]} />
+
+        <div className="toolbar-vertical-line"/>
+
         {(Object.keys(formulaCategories) as FunctionCategory[]).map((category: FunctionCategory) => {
             // We don't want to display the finance category in the toolbar because we don't currently have any finance functions
             if (category === 'FINANCE') {
@@ -108,6 +120,7 @@ export const FormulaTabContents = (
             }
             return getFormulaDropdown(formulaCategories[category], category)
         })}
+        {getFormulaDropdown(ActionEnum.Formulas_Dropdown_Custom, 'custom')}
         {getFormulaDropdown(ActionEnum.Formulas_Dropdown_More)}
     </div>);
 }

@@ -105,7 +105,10 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
             icon={
                 <>
                     {invalidColumnIDs.length === 0 &&
-                        <ConditionalFormatIcon/>
+                        <ConditionalFormatIcon
+                            color={color}
+                            backgroundColor={backgroundColor}
+                        />
                     }
                     {invalidColumnIDs.length !== 0 &&
                         <ConditionalFormatInvalidIcon

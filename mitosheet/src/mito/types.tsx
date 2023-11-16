@@ -892,7 +892,7 @@ export interface UIState {
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
     currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-more' | undefined;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -967,6 +967,7 @@ export enum ActionEnum {
     Formulas_Dropdown_Logic = 'logical formulas dropdown',
     Formulas_Dropdown_Text = 'text formulas dropdown',
     Formulas_Dropdown_Reference = 'reference formulas dropdown',
+    Formulas_Dropdown_Custom = 'custom formulas dropdown',
     Formulas_Dropdown_More = 'more formulas dropdown',
     OpenSearch = 'open search',
     Pivot = 'pivot',

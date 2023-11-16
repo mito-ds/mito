@@ -70,6 +70,8 @@ def TYPE(series: pd.Series) -> pd.Series:
             if np.isnan(element):
                 return 'NaN'
             return 'number'
+        elif element is None or element is pd.NaT:
+            return 'NaN'
         elif isinstance(element, str):
             return 'string'
         elif isinstance(element, datetime) or isinstance(element, pd.Timestamp):

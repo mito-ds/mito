@@ -369,14 +369,7 @@ const ColumnHeader = (props: {
                             <div className='endo-column-header-final-icons' title='Open the column control panel' >
                                 <span title='Edit filters'>
                                     {!hasFilters &&
-                                        <div className='icon-color-changer-container'>
-                                            <div className='icon-hide-on-hover'>
-                                                <FilterIcon purpleOrDark='dark' />
-                                            </div>
-                                            <div className='icon-show-on-hover'>
-                                                <FilterIcon purpleOrDark='purple' />
-                                            </div>
-                                        </div>
+                                        <FilterIcon />
                                     }
                                     {hasFilters &&
                                         <FilterIcon nonEmpty />
