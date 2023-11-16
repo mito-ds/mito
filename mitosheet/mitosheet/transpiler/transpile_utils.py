@@ -320,7 +320,6 @@ def get_script_as_function(
 def get_imports_for_custom_python_code(code: List[str], steps_manager: StepsManagerType) -> List[str]:
 
     import_map: Dict[str, List[str]] = {}
-    inlined_functions: List[str] = []
 
     all_custom_python_code = (steps_manager.user_defined_importers or []) + (steps_manager.user_defined_functions or [])
 
@@ -354,8 +353,6 @@ def get_imports_for_custom_python_code(code: List[str], steps_manager: StepsMana
         f"from {module_name} import {', '.join(function_names)}"
         for module_name, function_names in import_map.items()
     ]
-
-    import_strings.extend(inlined_functions)
 
     return import_strings           
 

@@ -19,7 +19,7 @@ def create_github_pr(
 
     token = os.environ.get('GITHUB_TOKEN')
     if not token:
-        raise Exception("GitHub token not found in environment variables")
+        raise Exception("GitHub token not found in environment variables. See docs here: TODO: insert link")
 
     headers = {
         'Authorization': f'token {token}',
@@ -103,4 +103,4 @@ def create_github_pr(
     if pr_response.status_code == 201:
         return pr_response.json()['html_url']
     else:
-        raise Exception(f"Failed to create PR: {pr_response.content}")
+        raise Exception(f"Failed to create PR: {pr_response.content.decode('utf-8')}")

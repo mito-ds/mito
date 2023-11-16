@@ -2,19 +2,18 @@ import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
 import { AnalysisData, UIState, UserProfile } from "../../../types";
 
+import AutomationSchedule, { AutomationScheduleType } from "../../elements/AutomationSchedulePicker";
+import Input from "../../elements/Input";
+import LoadingDots from "../../elements/LoadingDots";
+import TextArea from "../../elements/TextArea";
 import TextButton from "../../elements/TextButton";
+import Col from "../../layout/Col";
+import Row from "../../layout/Row";
+import Spacer from "../../layout/Spacer";
 import DefaultTaskpane from "../DefaultTaskpane/DefaultTaskpane";
 import DefaultTaskpaneBody from "../DefaultTaskpane/DefaultTaskpaneBody";
 import DefaultTaskpaneFooter from "../DefaultTaskpane/DefaultTaskpaneFooter";
 import DefaultTaskpaneHeader from "../DefaultTaskpane/DefaultTaskpaneHeader";
-import Input from "../../elements/Input";
-import Row from "../../layout/Row";
-import Col from "../../layout/Col";
-import LabelAndTooltip from "../../elements/LabelAndTooltip";
-import TextArea from "../../elements/TextArea";
-import AutomationSchedule, { AutomationScheduleType } from "../../elements/AutomationSchedulePicker";
-import Spacer from "../../layout/Spacer";
-import LoadingDots from "../../elements/LoadingDots";
 
 
 interface GithubScheduleTaskpaneProps {

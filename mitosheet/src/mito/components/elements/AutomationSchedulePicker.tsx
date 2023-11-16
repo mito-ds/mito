@@ -121,7 +121,7 @@ const AutomationSchedule = (props: AutomationSchedulePickerProps): JSX.Element =
                             }}
                         >
                             {Array.from(Array(31).keys()).map((day) => {
-                                return <DropdownItem title={day + 1 + ''} id={day + 1 + ''}/>
+                                return <DropdownItem title={day + 1 + ''} id={day + 1 + ''} key={day}/>
                             })}
                         </Select>
                     </Col>

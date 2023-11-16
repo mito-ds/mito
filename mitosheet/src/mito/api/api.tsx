@@ -533,7 +533,7 @@ export class MitoAPI {
         })
     }
 
-     /*
+    /*
         Gets the path data for given path parts
     */
     async getPRUrlOfNewPR(name: string, description: string, schedule: AutomationScheduleType): Promise<MitoAPIResult<{error: string} | string>> {

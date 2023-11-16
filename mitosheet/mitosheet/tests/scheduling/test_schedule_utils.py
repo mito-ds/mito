@@ -1,6 +1,12 @@
 import pandas as pd
+import pytest
+
+from mitosheet.scheduling.schedule_utils import (
+    get_automation_code, get_automation_files_for_new_automation,
+    get_cron_string_from_schedule)
 from mitosheet.tests.test_utils import create_mito_wrapper
-from mitosheet.scheduling.schedule_utils import get_automation_code
+from mitosheet.tests.decorators import only_on_github_actions
+
 
 def test_get_automation_code_with_no_params():
     mito = create_mito_wrapper()
@@ -9,7 +15,6 @@ def test_get_automation_code_with_no_params():
         'automation_name',
         'automation_name',
     )
-    print(automation_code)
 
     assert automation_code == """
 def automation_name():
@@ -33,10 +38,9 @@ def test_get_automation_code_with_custom_function_params():
         'automation_name',
         'automation_name',
     )
-    print(automation_code)
 
     assert automation_code == """from mitosheet.public.v3 import *
-from mitosheet.tests.scheduling.test_scheduling_utils import ADDONE
+from mitosheet.tests.scheduling.test_schedule_utils import ADDONE
 
 def automation_name(import_dataframe_0):
     import_dataframe_0.insert(1, 'B', ADDONE(import_dataframe_0['A'].shift(-1, fill_value=0)))
@@ -96,3 +100,79 @@ file_name_import_csv_0 = r"automation_name/data/input.csv"
 file_name_export_csv_0 = f"automation_name/runs/{export_time}/file_name_export_csv_0.csv"
 file_name_export_excel_0 = f"automation_name/runs/{export_time}/file_name_export_excel_0.xlsx"
 automation_name(file_name_import_csv_0, file_name_export_csv_0, file_name_export_excel_0)"""
+
+
+def test_get_automation_files_returns_correct_files(tmp_path):
+    mito = create_mito_wrapper()
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    import_path = str(tmp_path / 'input.csv')
+    df.to_csv(import_path, index=False)
+    mito.simple_import([import_path])
+
+    files = get_automation_files_for_new_automation(
+        mito.mito_backend.steps_manager,
+        'newname',
+        'automation_description',
+        'automations/newname',
+        {
+            'type': 'Every Day',
+            'time': '09:00'
+        }
+    )
+
+    assert len(files) == 5
+    assert 'automations/newname/automation.py' in files and len(files['automations/newname/automation.py']) > 0
+    assert 'automations/newname/requirements.txt' in files and len(files['automations/newname/requirements.txt']) > 0
+    assert 'automations/newname/README.md' in files and len(files['automations/newname/README.md']) > 0
+    assert 'automations/newname/data/input.csv' in files and len(files['automations/newname/data/input.csv']) > 0
+    assert '.github/workflows/newname.yml' in files and len(files['.github/workflows/newname.yml']) > 0
+
+
+"""
+type EveryDayAutomationSchedule = {
+    type: 'Every Day',
+    time: string
+}
+
+type EveryWeekAutomationSchedule = {
+    type: 'Every Week',
+    dayOfWeek: number,
+    time: string
+}
+
+type EveryMonthAutomationSchedule = {
+    type: 'Every Month',
+    dayOfMonth: number,
+    time: string
+}
+"""
+CRON_TESTS = [
+    (
+        {
+            'type': 'Every Day',
+            'time': '09:00'
+        }
+        , '0 9 * * *'
+    ),
+    (
+        {
+            'type': 'Every Week',
+            'dayOfWeek': 1,
+            'time': '09:00'
+        }
+        , '0 9 * * 1'
+    ),
+    (
+        {
+            'type': 'Every Month',
+            'dayOfMonth': 1,
+            'time': '09:00'
+        }
+        , '0 9 1 * *'
+    )
+]
+
+@pytest.mark.parametrize('schedule, cron_string', CRON_TESTS)
+@only_on_github_actions
+def test_cron_string_from_schedule(schedule, cron_string):
+    assert get_cron_string_from_schedule(schedule) == cron_string
