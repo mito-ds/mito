@@ -88,7 +88,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         {/* Canonical URL */}
-        <link rel="canonical" href={`https://www.trymito.io/${path}`} />
+        <link rel="canonical" href={`https://www.trymito.io${path}`} />
         
         {/* Open Graph Tags (for social media sharing) */}
         <meta
