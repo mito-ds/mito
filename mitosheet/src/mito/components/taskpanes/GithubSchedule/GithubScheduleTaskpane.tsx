@@ -35,7 +35,7 @@ const getDefaultParams = (): GithubScheduleParams => {
         automationDescription: '',
         schedule: {
             type: 'Every Day',
-            time: '12:00 AM',
+            time: '08:00',
         }
     }
 }
@@ -44,6 +44,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
 
     const [params, setParams] = useState(() => getDefaultParams());
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | undefined>(undefined);
     
     return (
         <DefaultTaskpane>
@@ -52,10 +53,11 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                 setUIState={props.setUIState}           
             />
             <DefaultTaskpaneBody
-                //requiresEnterprise={{
-                //    'featureName': 'Github Scheduling',
-                //    'mitoAPI': props.mitoAPI
-                //}}
+                userProfile={props.userProfile}
+                requiresEnterprise={{
+                    featureName: 'Github Scheduling',
+                    mitoAPI: props.mitoAPI
+                }}
             >
                 <Row justify='space-between' align='center'>
                     <Col span={14}>
@@ -100,6 +102,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                 <AutomationSchedule
                     schedule={params.schedule}
                     setSchedule={(newSchedule) => {
+                        console.log(newSchedule);
                         setParams((prevParams) => {
                             return {
                                 ...prevParams,
@@ -108,7 +111,13 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                         })
                     }}
                 />
-                
+                {error !== undefined && 
+                    <div>
+                        <p className="text-color-error">
+                            {error}
+                        </p>
+                    </div>
+                }
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
                 <TextButton
@@ -116,6 +125,17 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                     width='block'
                     disabled={loading}
                     onClick={async () => {
+                        if (params.automationName === '') {
+                            setError('Please enter an automation name');
+                            return;
+                        }
+
+                        if (params.automationDescription === '') {
+                            setError('Please enter an automation description');
+                            return;
+                        }
+                        
+                        setError(undefined);
                         setLoading(true);
                         const response = await props.mitoAPI.getPRUrlOfNewPR(
                             params.automationName,
@@ -123,15 +143,20 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                             params.schedule
                         );
                         setLoading(false);
-                        const url ='error' in response ? undefined : response.result;
-                        console.log(response, url)
-                        if (url !== undefined) {
+                        const urlOrError ='error' in response ? undefined : response.result;
+                        if (urlOrError !== undefined && typeof urlOrError === 'string') {
                             // Open in a new tab
-                            window.open(url, '_blank');
+                            window.open(urlOrError, '_blank');
+                        } else if (urlOrError !== undefined && typeof urlOrError === 'object') {
+                            // Handle error
+                            setError(urlOrError.error);
                         }
                     }}
                 >
-                    Schedule on Github
+                    {!loading ? 
+                        "Schedule on Github"
+                        : "Scheduling..."
+                    }
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

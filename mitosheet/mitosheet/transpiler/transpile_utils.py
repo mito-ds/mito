@@ -320,13 +320,18 @@ def get_script_as_function(
 def get_imports_for_custom_python_code(code: List[str], steps_manager: StepsManagerType) -> List[str]:
 
     import_map: Dict[str, List[str]] = {}
+    inlined_functions: List[str] = []
 
     all_custom_python_code = (steps_manager.user_defined_importers or []) + (steps_manager.user_defined_functions or [])
 
     for func in all_custom_python_code:
         if any(func.__name__ in line for line in code):
+
+            # If the function is defined in a module, we add it to the import map
             module = inspect.getmodule(func)
-            if module is not None:
+
+            # Note: the __main__ check handles JupyterLab module (not sure this is true in all cases)
+            if module is not None and module.__name__ != '__main__':
                 module_name = module.__name__
                 function_name = func.__name__
 
@@ -335,10 +340,22 @@ def get_imports_for_custom_python_code(code: List[str], steps_manager: StepsMana
 
                 import_map[module_name] = imports_from_module
 
+            # Otherwise, we are in JupyerLab, and if we're being asked to import
+            # this function, we literally just inline the function. In this case,
+            # you need to do all your imported _inside_ the function dynamically
+            # because the function is inlined
+            # TODO: this is not working, but I'm ignoring JupyterLab custom imports
+            # for now -- this is hard..
+            #else:
+            #    inlined_functions.append(inspect.getsource(func))
+                
+
     import_strings = [
         f"from {module_name} import {', '.join(function_names)}"
         for module_name, function_names in import_map.items()
     ]
+
+    import_strings.extend(inlined_functions)
 
     return import_strings           
 

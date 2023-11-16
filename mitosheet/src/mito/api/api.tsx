@@ -536,8 +536,8 @@ export class MitoAPI {
      /*
         Gets the path data for given path parts
     */
-    async getPRUrlOfNewPR(name: string, description: string, schedule: AutomationScheduleType): Promise<MitoAPIResult<string>> {
-        return await this.send<string>({
+    async getPRUrlOfNewPR(name: string, description: string, schedule: AutomationScheduleType): Promise<MitoAPIResult<{error: string} | string>> {
+        return await this.send<{error: string} | string>({
             'event': 'api_call',
             'type': 'get_pr_url_of_new_pr',
             'params': {

@@ -101,9 +101,6 @@ def transpile(
     if len(code) > 0:
         final_imports_code.insert(0, IMPORT_STATEMENTS[steps_manager.public_interface_version])
 
-    
-
-
     # If we should transpile this as a function, we do so
     if code_options['as_function']:
         final_code = get_script_as_function(

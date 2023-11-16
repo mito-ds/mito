@@ -29,10 +29,9 @@ def create_github_pr(
     api_url = f'https://api.github.com/repos/{github_repo}'
 
     # Check if the branch already exists
-    print("Getting existing branch")
     existing_branch = requests.get(f'{api_url}/git/refs/heads/{new_branch_name}', headers=headers)
     if existing_branch.status_code == 200:
-        raise Exception(f"Branch '{new_branch_name}' already exists")
+        raise Exception(f"An automation with this name already exists. Please pick a different name.")
 
     # Get the default branch of the repo
     repo_info = requests.get(api_url, headers=headers).json()
@@ -44,7 +43,6 @@ def create_github_pr(
         'ref': f'refs/heads/{new_branch_name}',
         'sha': sha_latest_commit
     }
-    print("Creating new branch")
     requests.post(f'{api_url}/git/refs', headers=headers, data=json.dumps(new_branch_data))
 
     # Get the current tree of the latest commit to preserve existing files
@@ -64,7 +62,6 @@ def create_github_pr(
         'tree': tree_elements,
         'base_tree': base_tree_sha  # This is important to preserve existing files
     }
-    print("Adding tree")
     tree_response = requests.post(f'{api_url}/git/trees', headers=headers, data=json.dumps(tree_data))
 
     if tree_response.status_code not in [200, 201]:
@@ -78,7 +75,6 @@ def create_github_pr(
         'parents': [sha_latest_commit],
         'tree': tree_sha
     }
-    print("CREATING COMMIT")
     commit_response = requests.post(f'{api_url}/git/commits', headers=headers, data=json.dumps(commit_data))
 
     if commit_response.status_code not in [200, 201]:
@@ -91,7 +87,6 @@ def create_github_pr(
         'sha': commit_sha,
         'force': False
     }
-    print("UPDATING BRANCH")
     update_branch = requests.patch(f'{api_url}/git/refs/heads/{new_branch_name}', headers=headers, data=json.dumps(update_branch_data))
     if update_branch.status_code not in [200, 201]:
         raise Exception(f"Failed to update branch: {update_branch.json()}")
@@ -103,7 +98,6 @@ def create_github_pr(
         'base': default_branch,
         'body': pr_description
     }
-    print("CREATING PR")
     pr_response = requests.post(f'{api_url}/pulls', headers=headers, data=json.dumps(pr_data))
 
     if pr_response.status_code == 201:

@@ -355,6 +355,10 @@ if sys.version_info[:3] > (3, 8, 0):
         name: str
         original_value: Optional[str]
 
+    # You can either pass in: 'all', which will generate all the params for the given subtype
+    # Or you can pass in a list of the param subtypes you want to parameterize
+    # Or a dictionary that maps the starting param value to the new param name, which will 
+    # parameterize that specific param
     CodeOptionsFunctionParams = Union[OrderedDict, ParamSubtype, List[ParamSubtype]]
 
     class CodeOptions(TypedDict):

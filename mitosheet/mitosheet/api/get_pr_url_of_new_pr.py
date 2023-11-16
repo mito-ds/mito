@@ -1,12 +1,12 @@
 import string
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from mitosheet.scheduling import get_automation_files_for_new_automation, create_github_pr
 
 from mitosheet.types import StepsManagerType
 
 
-def get_pr_url_of_new_pr(params: Dict[str, Any], steps_manager: StepsManagerType) -> str:
+def get_pr_url_of_new_pr(params: Dict[str, Any], steps_manager: StepsManagerType) -> Union[str, Dict[str, str]]:
     automation_name = params['automation_name']
     automation_description = params['automation_description']
     schedule = params['schedule']
@@ -33,9 +33,9 @@ def get_pr_url_of_new_pr(params: Dict[str, Any], steps_manager: StepsManagerType
             new_files
         )
     except Exception as e:
-        # TODO: error handling
-        print(e)
-        pr_url = None
+        return {
+            'error': str(e)
+        }
 
     return pr_url
 

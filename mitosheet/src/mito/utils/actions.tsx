@@ -1385,8 +1385,8 @@ export const getActions = (
         [ActionEnum.Schedule_Github]: {
             type: 'build-time',
             staticType: ActionEnum.Schedule_Github,
-            toolbarTitle: 'Schedule on Github',
-            longTitle: 'Schedule on Github',
+            toolbarTitle: 'Schedule Automation',
+            longTitle: 'Schedule Automation',
             actionFunction: () => {
                 setEditorState(undefined);
 
