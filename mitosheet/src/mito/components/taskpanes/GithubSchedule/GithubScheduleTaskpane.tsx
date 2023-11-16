@@ -14,6 +14,7 @@ import LabelAndTooltip from "../../elements/LabelAndTooltip";
 import TextArea from "../../elements/TextArea";
 import AutomationSchedule, { AutomationScheduleType } from "../../elements/AutomationSchedulePicker";
 import Spacer from "../../layout/Spacer";
+import LoadingDots from "../../elements/LoadingDots";
 
 
 interface GithubScheduleTaskpaneProps {
@@ -61,9 +62,9 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
             >
                 <Row justify='space-between' align='center'>
                     <Col span={14}>
-                        <LabelAndTooltip tooltip="Give your automation a short, descriptive name describing what it does.">
+                        <p className='text-header-3'>
                             Automation Name
-                        </LabelAndTooltip>
+                        </p>
                     </Col>
                     <Col>
                         <Input
@@ -81,9 +82,9 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                         />
                     </Col>
                 </Row>
-                <LabelAndTooltip tooltip="Describe what your automation does.">
+                <p className='text-header-3'>
                     Automation Description
-                </LabelAndTooltip>
+                </p>
                 <TextArea
                     value={params.automationDescription}
                     onChange={(e) => {
@@ -120,6 +121,11 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                 }
             </DefaultTaskpaneBody>
             <DefaultTaskpaneFooter>
+                {loading &&
+                    <p className='text-subtext-1'>
+                        Scheduling automation<LoadingDots/>
+                    </p>
+                }
                 <TextButton
                     variant='dark'
                     width='block'
@@ -153,10 +159,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                         }
                     }}
                 >
-                    {!loading ? 
-                        "Schedule on Github"
-                        : "Scheduling..."
-                    }
+                    Schedule on Github
                 </TextButton>
             </DefaultTaskpaneFooter>
         </DefaultTaskpane>

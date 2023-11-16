@@ -37,7 +37,7 @@ const AutomationSchedule = (props: AutomationSchedulePickerProps): JSX.Element =
     return (
         <div className="mito-blue-container">
             <Row justify='space-between' align='center'>
-                <Col span={14}>
+                <Col>
                     <LabelAndTooltip tooltip="Select the timeframe to rerun your automation in.">
                         Run on
                     </LabelAndTooltip>
@@ -75,9 +75,9 @@ const AutomationSchedule = (props: AutomationSchedulePickerProps): JSX.Element =
             </Row>
             {schedule.type === 'Every Week' && 
                 <Row justify='space-between' align='center'>
-                    <Col span={14}>
+                    <Col>
                         <LabelAndTooltip tooltip="Select the day of the week to rerun your automation on.">
-                            On day of week
+                            On day
                         </LabelAndTooltip>
                     </Col>
                     <Col>
@@ -104,9 +104,9 @@ const AutomationSchedule = (props: AutomationSchedulePickerProps): JSX.Element =
             }
             {schedule.type === 'Every Month' &&
                 <Row justify='space-between' align='center'>
-                    <Col span={14}>
+                    <Col>
                         <LabelAndTooltip tooltip="Select the day of the month to rerun your automation on.">
-                            On day of month
+                            On day
                         </LabelAndTooltip>
                     </Col>
                     <Col>
@@ -128,7 +128,7 @@ const AutomationSchedule = (props: AutomationSchedulePickerProps): JSX.Element =
                 </Row>
             }
             <Row justify='space-between' align='center'>
-                <Col span={14}>
+                <Col >
                     <LabelAndTooltip tooltip="Select the day of the month to rerun your automation on.">
                         At time
                     </LabelAndTooltip>

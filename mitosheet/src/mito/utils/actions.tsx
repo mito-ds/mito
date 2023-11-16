@@ -68,6 +68,7 @@ import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
 import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
 import FunctionIcon from "../components/icons/FunctionIcon";
+import ScheduleIcon from "../components/icons/ScheduleIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -1386,6 +1387,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Schedule_Github,
             toolbarTitle: 'Schedule Automation',
+            icon: ScheduleIcon,
             longTitle: 'Schedule Automation',
             actionFunction: () => {
                 setEditorState(undefined);
