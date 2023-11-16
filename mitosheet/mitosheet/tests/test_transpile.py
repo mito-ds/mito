@@ -1074,21 +1074,27 @@ def ADDONE(x):
 def custom_import():
     return pd.DataFrame({'A': [1, 2, 3]})
 
+def custom_edit(df: pd.DataFrame) -> pd.DataFrame:
+    return df + 1
+
 def test_code_options_include_functions():
     
-    mito = create_mito_wrapper(sheet_functions=[ADDONE], importers=[custom_import])
+    mito = create_mito_wrapper(sheet_functions=[ADDONE], importers=[custom_import], editors=[custom_edit])
     mito.user_defined_import('custom_import', {})
     mito.set_formula('=ADDONE(A)', 0, 'B', add_column=True)
+    mito.user_defined_edit('custom_edit', {'df': 'df0'})
 
     mito.code_options_update({'as_function': True, 'import_custom_python_code': True, 'call_function': True, 'function_name': 'function', 'function_params': {}})
-    print("\n".join(mito.transpiled_code))
+    print(mito.transpiled_code)
     assert "\n".join(mito.transpiled_code) == """from mitosheet.public.v3 import *
-from mitosheet.tests.test_transpile import custom_import, ADDONE
+from mitosheet.tests.test_transpile import custom_import, ADDONE, custom_edit
 
 def function():
     df0 = custom_import()
     
     df0.insert(1, 'B', ADDONE(df0['A']))
+    
+    df0 = custom_edit(df=df0)
     
     return df0
 
