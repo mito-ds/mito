@@ -109,7 +109,7 @@ export const FormulaTabContents = (
 
     return (<div className='mito-toolbar-bottom'>
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Set_Column_Formula]} />
-        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Add_Column]} />
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Add_Column_Left]} />
 
         <div className="toolbar-vertical-line"/>
 

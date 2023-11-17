@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
+import { ActionEnum, ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
 import { isNumberDtype } from '../../utils/dtypes';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
@@ -11,6 +11,7 @@ import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { getStartingFormula } from './celleditor/cellEditorUtils';
 import { getColumnIndexesInSelections } from './selectionUtils';
+import { Actions } from '../../utils/actions';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -28,6 +29,7 @@ export default function ColumnHeaderDropdown(props: {
     display: boolean;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     gridState: GridState;
+    actions: Actions;
 }): JSX.Element {
 
     // Log opening this dropdown
@@ -49,6 +51,20 @@ export default function ColumnHeaderDropdown(props: {
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
             width='medium'
         >
+            <DropdownItem
+                title='Insert Column Left'
+                onClick={() => {
+                    props.closeOpenEditingPopups();
+                    void props.actions.buildTimeActions[ActionEnum.Add_Column_Left].actionFunction();
+                }}
+            />
+            <DropdownItem
+                title='Insert Column Right'
+                onClick={() => {
+                    props.closeOpenEditingPopups();
+                    void props.actions.buildTimeActions[ActionEnum.Add_Column_Right].actionFunction();
+                }}
+            />
             <DropdownItem 
                 title='Delete Column'
                 onClick={() => {
