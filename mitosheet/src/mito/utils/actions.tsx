@@ -948,7 +948,7 @@ export const getActions = (
                 return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
             },
             searchTerms: ['percent', '%', 'number format', 'format'],
-            tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
+            tooltip: 'Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.'
         },
         [ActionEnum.Fullscreen]: {
             type: 'build-time',
@@ -996,13 +996,13 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Graph_Bar,
             icon: GraphIcon,
-            longTitle: 'Create new graph',
+            longTitle: 'Create new bar chart',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
-            tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
+            tooltip: "Create an interactive bar chart."
         },
         [ActionEnum.Graph_Line]: {
             type: 'build-time',
@@ -1014,19 +1014,19 @@ export const getActions = (
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
-            tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
+            tooltip: "Create an interactive line graph."
         },
         [ActionEnum.Graph_Scatter]: {
             type: 'build-time',
             staticType: ActionEnum.Graph_Scatter,
             icon: ScatterPlotIcon,
-            longTitle: 'Create new graph',
+            longTitle: 'Create new scatter plot',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
-            tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
+            tooltip: "Create an interactive scatter plot."
         },
         [ActionEnum.Help]: {
             type: 'build-time',
@@ -1167,7 +1167,7 @@ export const getActions = (
             },
             isDisabled: () => {return sheetDataArray.length >= 2 ? defaultActionDisabledMessage : 'You need to import at least two dataframes before you can merge them.'},
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
-            tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
+            tooltip: "Merge two dataframes by including each row from the first sheet that doesn't have a match in the second sheet."
         },
         [ActionEnum.Concat_Dataframes]: {
             type: 'build-time',
@@ -1895,7 +1895,7 @@ export const getActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['CodeSnippets'],
-            tooltip: "CodeSnippets"
+            tooltip: "View code snippets. "
         },
         [ActionEnum.CODEOPTIONS]: {
             type: 'build-time',
