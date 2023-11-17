@@ -228,7 +228,7 @@ export const getActions = (
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
-                let newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
+                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
 
                 await mitoAPI.editAddColumn(
                     sheetIndex,
