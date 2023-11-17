@@ -930,7 +930,8 @@ export const enum FeedbackID {
     then by spreadsheet functions
 */
 export enum ActionEnum {
-    Add_Column = 'add column',
+    Add_Column_Right = 'add column to the right',
+    Add_Column_Left = 'add column to the left',
     AntiMerge = 'anti merge',
     Catch_Up = 'catch up',
     Clear = 'clear',

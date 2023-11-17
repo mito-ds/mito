@@ -16,6 +16,7 @@ import { submitRenameColumnHeader } from './columnHeaderUtils';
 import ColumnHeaderDropdown from './ColumnHeaderDropdown';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
+import { Actions } from '../../utils/actions';
 
 export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
 export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
@@ -62,6 +63,7 @@ const ColumnHeader = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    actions: Actions;
 }): JSX.Element => {
 
     const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = useState(false);
@@ -434,6 +436,7 @@ const ColumnHeader = (props: {
                 setEditorState={props.setEditorState}
                 sheetData={props.sheetData}
                 gridState={props.gridState}
+                actions={props.actions}
             />
         </div>
     )

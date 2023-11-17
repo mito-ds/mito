@@ -156,12 +156,12 @@ export const getActions = (
         followed by all of the spreadsheet formulas. 
     */
     const buildTimeActions: Record<ActionEnum, BuildTimeAction> = {
-        [ActionEnum.Add_Column]: {
+        [ActionEnum.Add_Column_Right]: {
             type: 'build-time',
-            staticType: ActionEnum.Add_Column,
+            staticType: ActionEnum.Add_Column_Right,
             icon: AddColumnIcon,
             toolbarTitle: 'Insert',
-            longTitle: 'Add column',
+            longTitle: 'Insert column to the Right',
             actionFunction: async () => {
                 if (sheetDataArray.length === 0) {
                     return;
@@ -208,6 +208,59 @@ export const getActions = (
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
+        },
+        [ActionEnum.Add_Column_Left]: {
+            type: 'build-time',
+            staticType: ActionEnum.Add_Column_Left,
+            icon: AddColumnIcon,
+            toolbarTitle: 'Insert',
+            longTitle: 'Insert Column to the Left',
+            actionFunction: async () => {
+                if (sheetDataArray.length === 0) {
+                    return;
+                }
+
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const newColumnHeader = 'new-column-' + getNewColumnHeader()
+                // The new column should be placed 1 position to the right of the last selected column
+                let newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
+
+                await mitoAPI.editAddColumn(
+                    sheetIndex,
+                    newColumnHeader,
+                    newColumnHeaderIndex
+                )
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            sheetIndex: sheetIndex,
+                            startingRowIndex: -1,
+                            startingColumnIndex: newColumnHeaderIndex,
+                            endingRowIndex: -1,
+                            endingColumnIndex: newColumnHeaderIndex
+                        }]
+                    }
+                })
+                setEditorState({
+                    rowIndex: 0,
+                    columnIndex: newColumnHeaderIndex,
+                    formula: '=',
+                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
+                    editorLocation: 'cell',
+                    editingMode: 'entire_column',
+                    sheetIndex: sheetIndex,
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
+            searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
+            tooltip: "Add a new formula column to the left of your selection."
         },
         [ActionEnum.Catch_Up]: {
             type: 'build-time',
