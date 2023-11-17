@@ -350,3 +350,8 @@
   stroke: var(--mito-text-medium)!important;
   stroke-width: 0.75px;
 }
+
+#mito-editor-tab .mito-toolbar-button-label {
+  overflow: hidden;
+  max-height: 27px;
+}
