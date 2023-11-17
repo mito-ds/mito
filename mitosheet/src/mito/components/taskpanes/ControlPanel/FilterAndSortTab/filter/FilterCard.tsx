@@ -13,6 +13,7 @@ import '../../../../../../../css/taskpanes/ControlPanel/FilterCard.css';
 import { FilterType, Operator, FilterGroupType, ColumnID } from '../../../../../types';
 import DropdownItem from '../../../../elements/DropdownItem';
 import { getEmptyFilterData } from './filterUtils';
+import { isStringDtype } from '../../../../../utils/dtypes';
 
 
 interface FilterCardProps {
@@ -175,6 +176,11 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         <div>
             <div className='text-header-3 mt-15px'>
                 <p> Filter </p>
+                {isStringDtype(props.columnDtype) &&
+                    <p className='text-subtext-1'>
+                        Hint: Filters are case sensitive
+                    </p>
+                }
             </div>
             {props.filters.map((filterOrGroup, index) => {
                 if (isFilterGroup(filterOrGroup)) {

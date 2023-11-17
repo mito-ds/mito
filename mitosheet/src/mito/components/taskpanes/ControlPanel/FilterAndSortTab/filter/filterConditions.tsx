@@ -109,12 +109,12 @@ export const DATETIME_SELECT_OPTIONS: Record<DatetimeFilterCondition, {'long_nam
 
 export const SHARED_SELECT_OPTIONS: Record<string, {'long_name': string, 'short_name': string}> = {
     ['empty']: {
-        long_name: 'is empty',
-        short_name: 'is empty'
+        long_name: 'is empty (NaN)',
+        short_name: 'is empty (NaN)'
     },
     ['not_empty']: {
-        long_name: 'is not empty',
-        short_name: 'is not empty'
+        long_name: 'is not empty (not NaN)',
+        short_name: 'is not empty (not NaN)'
     },
     ['most_frequent']: {
         long_name: 'most frequent N values',
