@@ -182,7 +182,7 @@ export const HomeTabContents = (
         <div className="toolbar-vertical-line"/>
 
         <ToolbarButton
-            action={props.actions.buildTimeActions[ActionEnum.Add_Column_Left]}
+            action={props.actions.buildTimeActions[ActionEnum.Add_Column_Right]}
             highlightToolbarButton={props.highlightAddColButton}
         />
         <ToolbarButton
