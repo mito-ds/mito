@@ -45,6 +45,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
     const [params, setParams] = useState(() => getDefaultParams());
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
+    const [automationURL, setAutomationURL] = useState<string | undefined>(undefined);
     
     return (
         <DefaultTaskpane>
@@ -76,6 +77,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                                         automationName: newAutomationName,
                                     }
                                 })
+                                setAutomationURL(undefined);
                             }}
                             placeholder="Automation Name"
                         />
@@ -94,6 +96,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                                 automationDescription: newAutomationDescription,
                             }
                         })
+                        setAutomationURL(undefined);
                     }}
                     placeholder="Describe what this automation accomplishes"
                     height="small"
@@ -102,19 +105,26 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                 <AutomationSchedule
                     schedule={params.schedule}
                     setSchedule={(newSchedule) => {
-                        console.log(newSchedule);
                         setParams((prevParams) => {
                             return {
                                 ...prevParams,
                                 schedule: newSchedule,
                             }
                         })
+                        setAutomationURL(undefined);
                     }}
                 />
                 {error !== undefined && 
                     <div>
                         <p className="text-color-error">
                             {error}
+                        </p>
+                    </div>
+                }
+                {automationURL !== undefined && 
+                    <div>
+                        <p className="text-body-1">
+                            <a href={automationURL} target="_blank" className="text-body-1-link" >Click here </a> to view your automation on Github.
                         </p>
                     </div>
                 }
@@ -151,6 +161,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                         const urlOrError ='error' in response ? undefined : response.result;
                         if (urlOrError !== undefined && typeof urlOrError === 'string') {
                             // Open in a new tab
+                            setAutomationURL(urlOrError);
                             window.open(urlOrError, '_blank');
                         } else if (urlOrError !== undefined && typeof urlOrError === 'object') {
                             // Handle error
