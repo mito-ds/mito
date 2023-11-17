@@ -69,7 +69,7 @@ export const Toolbar = (
         'Code': <CodeTabContents {...props}/>,
     };
     if (props.actions.runtimeEditActionsList.length > 0) {
-        tabs['Editor'] = <div className='mito-toolbar-bottom' id='mito-editor-tab'>
+        tabs['Custom Edits'] = <div className='mito-toolbar-bottom' id='mito-editor-tab'>
             {props.actions.runtimeEditActionsList.map((action) => {
                 return <ToolbarButton
                     action={action}
