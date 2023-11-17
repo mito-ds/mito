@@ -948,7 +948,7 @@ export const getActions = (
                 return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
             },
             searchTerms: ['percent', '%', 'number format', 'format'],
-            tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
+            tooltip: 'Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.'
         },
         [ActionEnum.Fullscreen]: {
             type: 'build-time',
