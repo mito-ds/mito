@@ -73,6 +73,7 @@ export const Toolbar = (
             {props.actions.runtimeEditActionsList.map((action) => {
                 return <ToolbarButton
                     action={action}
+                    key={action.staticType}
                     iconOverride={action.icon === undefined ? <EditIcon/> : undefined}
                 />
             })}
