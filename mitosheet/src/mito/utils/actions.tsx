@@ -68,6 +68,7 @@ import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
 import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
 import FunctionIcon from "../components/icons/FunctionIcon";
+import ScheduleIcon from "../components/icons/ScheduleIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -1434,6 +1435,28 @@ export const getActions = (
             },
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."
+        },
+        [ActionEnum.Schedule_Github]: {
+            type: 'build-time',
+            staticType: ActionEnum.Schedule_Github,
+            toolbarTitle: 'Schedule Automation',
+            icon: ScheduleIcon,
+            longTitle: 'Schedule Automation',
+            actionFunction: () => {
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.GITHUB_SCHEDULE},
+                        selectedTabType: 'data'
+                    }
+                })
+                
+            },
+            isDisabled: () => {return undefined},
+            searchTerms: ['docs', 'documentation', 'help', 'support'],
+            tooltip: "Open a PR on a Github Repo that "
         },
         [ActionEnum.See_All_Functionality]: {
             type: 'build-time',

@@ -982,6 +982,7 @@ export enum ActionEnum {
     Rename_Dataframe = 'rename dataframe',
     Rename_Graph = 'rename graph',
     See_All_Functionality = 'see all functionality',
+    Schedule_Github = 'schedule github',
     //Search = 'search',
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',

@@ -26,5 +26,6 @@ export const CodeTabContents = (
             iconOverride={<CopyCodeIcon success={clickedCopy}/>}
             action={props.actions.buildTimeActions[ActionEnum.CopyCode]}
         />
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Schedule_Github]}/>
     </div>);
 }

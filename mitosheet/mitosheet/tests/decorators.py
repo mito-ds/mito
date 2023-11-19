@@ -8,6 +8,7 @@ Useful decorators for tests. Specifically, we often only want
 to run specific tests on specific versions of pandas or Python
 """
 
+import os
 import pytest
 import pandas as pd
 import sys
@@ -77,4 +78,9 @@ requires_dash = pytest.mark.skipif(
 requires_open_ai_credentials = pytest.mark.skipif(
     not is_open_ai_credentials_available(),
     reason='Requires a set OPENAI_API_KEY'
+)
+
+only_on_github_actions = pytest.mark.skipif(
+    'GITHUB_ACTIONS' not in os.environ,
+    reason='This test only runs on GitHub Actions'
 )
