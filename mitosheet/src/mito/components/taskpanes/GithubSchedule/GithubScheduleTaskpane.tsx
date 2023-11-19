@@ -124,7 +124,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
                 {automationURL !== undefined && 
                     <div>
                         <p className="text-body-1">
-                            <a href={automationURL} target="_blank" className="text-body-1-link" >Click here </a> to view your automation on Github.
+                            <a href={automationURL} target="_blank" className="text-body-1-link" rel="noreferrer" >Click here </a> to view your automation on Github.
                         </p>
                     </div>
                 }
