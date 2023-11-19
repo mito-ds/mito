@@ -88,7 +88,7 @@ const ToolbarButton = (
                     
                     If the icons have different heights, the text won't line up. 
                 */}
-                <span title={disabledTooltip || props.action.tooltip}>
+                <span title={disabledTooltip ?? props.action.tooltip ?? props.action.toolbarTitle}>
                     <div className='mito-toolbar-button-icon-container'>
                         {props.iconOverride ?? (props.action.icon !== undefined ? <props.action.icon /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}

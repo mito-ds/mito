@@ -18,6 +18,7 @@ import PlanButton from './PlanButton';
 import ToolbarButton from './ToolbarButton';
 import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
+import EditIcon from '../icons/EditIcon';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -67,6 +68,17 @@ export const Toolbar = (
         'Formulas': <FormulaTabContents {...props}/>,
         'Code': <CodeTabContents {...props}/>,
     };
+    if (props.actions.runtimeEditActionsList.length > 0) {
+        tabs['Custom Edits'] = <div className='mito-toolbar-bottom' id='mito-editor-tab'>
+            {props.actions.runtimeEditActionsList.map((action) => {
+                return <ToolbarButton
+                    action={action}
+                    key={action.staticType}
+                    iconOverride={action.icon === undefined ? <EditIcon/> : undefined}
+                />
+            })}
+        </div>
+    }
     const isLoading = () => {
         if (props.uiState.loading.length > 0) {
             for (const loadingInfo of props.uiState.loading) {
