@@ -35,7 +35,6 @@ import DeleteGraphsModal from './components/modals/DeleteGraphsModal';
 import ErrorModal from './components/modals/ErrorModal';
 import ErrorReplayedAnalysisModal from './components/modals/ReplayAnalysisModals';
 import SignUpModal from './components/modals/SignupModal';
-import UpgradeModal from './components/modals/UpgradeModal';
 import { ModalEnum } from './components/modals/modals';
 import AITransformationTaskpane, { AITransformationParams } from './components/taskpanes/AITransformation/AITransformationTaskpane';
 import CannotCreateCommTaskpane from './components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane';
@@ -63,7 +62,7 @@ import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
+import { AnalysisData, DFSource, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { getActions } from './utils/actions';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
@@ -544,12 +543,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     isPro={userProfile.isPro}
                     sheetDataArray={sheetDataArray}
                     analysisData={analysisData}
-                />
-            )
-            case ModalEnum.Upgrade: return (
-                <UpgradeModal
-                    setUIState={setUIState}
-                    mitoAPI={mitoAPI}
                 />
             )
             case ModalEnum.ErrorReplayedAnalysis: return (
