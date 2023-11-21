@@ -1,6 +1,5 @@
 import ast
 from collections import Counter
-import traceback
 from copy import copy
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 import numpy as np
@@ -16,7 +15,7 @@ from mitosheet.state import DATAFRAME_SOURCE_AI, State
 from mitosheet.step_performers.dataframe_steps.dataframe_delete import \
     delete_dataframe_from_state
 from mitosheet.types import (AITransformFrontendResult, ColumnHeader, ColumnID,
-                             ColumnReconData, DataframeReconData, ExecuteThroughTranspileNewColumnParams, ModifiedDataframeReconData)
+                             DataframeReconData, ModifiedDataframeReconData)
 
 def is_df_changed(old: pd.DataFrame, new: pd.DataFrame) -> bool:
     try:

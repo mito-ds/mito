@@ -12,7 +12,7 @@ from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.transpiler.transpile_utils import get_globals_for_exec
-from mitosheet.types import ColumnHeader, ColumnID, ExecuteThroughTranspileNewDataframeParams, ExecuteThroughTranspileNewColumnParams
+from mitosheet.types import ColumnHeader, ColumnID, ExecuteThroughTranspileNewDataframeParams
  
 class StepPerformer(ABC, object):
     """

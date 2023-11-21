@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 from mitosheet.mito_backend import MitoBackend
-from mitosheet.selectionUtils import get_selected_element
+from mitosheet.selection_utils import get_selected_element
 from mitosheet.utils import get_new_id, get_new_id
 from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections, ParamMetadata
 from mitosheet.streamlit.v1 import RunnableAnalysis

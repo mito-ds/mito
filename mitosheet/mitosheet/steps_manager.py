@@ -36,7 +36,7 @@ from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
-from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
+from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
 from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_importers_for_frontend, get_user_defined_editors_for_frontend
 from mitosheet.step_performers.utils.user_defined_function_utils import validate_and_wrap_sheet_functions, validate_user_defined_editors
