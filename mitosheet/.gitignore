@@ -46,3 +46,4 @@ mitosheet/mito_dash/v1/mitoBuild/*.css
 
 
 .streamlit/
+.mypy_cache/

@@ -324,7 +324,7 @@ def get_mito_backend(
 def register_comm_target_on_mito_backend(
         mito_backend: MitoBackend,
         comm_target_id: str=''
-    ):
+    ) -> MitoBackend:
     ipython = get_ipython() # type: ignore
     if not ipython:
         return mito_backend
