@@ -5,21 +5,18 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
+import os
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.export_to_file_code_chunk import ExportToFileCodeChunk
-from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
-import pandas as pd
-import os
 
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.export_to_file_code_chunk import \
+    ExportToFileCodeChunk
+from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
 
-from mitosheet.utils import write_to_excel
-
-from mitosheet.user.utils import is_pro, is_running_test
 
 def get_export_to_csv_sheet_index_to_file_name(file_name: str, sheet_indexes: List[int]) -> Dict[int, str]:
     """

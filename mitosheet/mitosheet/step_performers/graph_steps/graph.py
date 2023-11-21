@@ -4,19 +4,19 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from copy import deepcopy
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
-
 from mitosheet.state import State
-from mitosheet.step_performers.graph_steps.graph_utils import GRAPH_TITLE_LABELS, get_column_header_from_optional_column_id_graph_param, get_html_and_script_from_figure, get_new_graph_tab_name
+from mitosheet.step_performers.graph_steps.graph_utils import (
+    get_column_header_from_optional_column_id_graph_param,
+    get_html_and_script_from_figure, get_new_graph_tab_name)
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
-    get_plotly_express_graph,
-    get_plotly_express_graph_code,
-)
+    get_plotly_express_graph, get_plotly_express_graph_code)
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import GraphID

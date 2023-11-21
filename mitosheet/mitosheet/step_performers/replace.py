@@ -5,21 +5,15 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-import re
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.code_chunks.code_chunk import CodeChunk
-import pandas as pd
-from mitosheet.code_chunks.replace_code_chunk import ReplaceCodeChunk, convert_to_original_type_or_str
 
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.replace_code_chunk import ReplaceCodeChunk
+from mitosheet.errors import make_invalid_replace_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.public.v3.types.bool import cast_string_to_bool
-from mitosheet.errors import MitoError
-from mitosheet.step_performers.column_steps.rename_column import rename_column_headers_in_state
-from mitosheet.errors import make_invalid_replace_error
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnID
+
 
 class ReplaceStepPerformer(StepPerformer):
     """

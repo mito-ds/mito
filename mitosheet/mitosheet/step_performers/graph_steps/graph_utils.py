@@ -4,13 +4,13 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Dict, List, Optional, Any
-from mitosheet.state import State
 import io
-from xmlrpc.client import boolean
+from typing import Any, Dict, List, Optional
 
-from mitosheet.types import ColumnHeader
 import plotly.graph_objects as go
+
+from mitosheet.state import State
+from mitosheet.types import ColumnHeader
 
 # Graph types should be kept consistent with the GraphType in GraphSidebar.tsx
 SCATTER = "scatter"
@@ -90,7 +90,7 @@ def get_new_graph_tab_name(graph_data_dict: Dict[str, Dict[str, Any]]) -> str:
 
 def get_html_and_script_from_figure(
     fig: go.Figure, height: int, width: int,
-    include_plotlyjs: boolean,
+    include_plotlyjs: bool,
 ) -> Dict[str, str]:
     """
     Given a plotly figure, generates HTML from it, and returns

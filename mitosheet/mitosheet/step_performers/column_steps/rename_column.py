@@ -4,17 +4,16 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.no_op_code_chunk import NoOpCodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import RenameColumnsCodeChunk
-
-from mitosheet.errors import make_column_exists_error, raise_error_if_column_ids_do_not_exist
+from mitosheet.code_chunks.step_performers.column_steps.rename_columns_code_chunk import \
+    RenameColumnsCodeChunk
+from mitosheet.errors import make_column_exists_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID
 
 
 class RenameColumnStepPerformer(StepPerformer):
@@ -80,27 +79,3 @@ class RenameColumnStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         return {get_param(params, 'sheet_index')}
-
-
-def rename_column_headers_in_state(
-        post_state: State,
-        sheet_index: int,
-        column_id: ColumnID,
-        new_column_header: ColumnHeader,
-        level: Optional[int]=None
-    ) -> Tuple[Optional[ColumnHeader], float]:
-    """
-    A helper function for updating a column header in the state, which is useful
-    for both this rename step and for the bulk rename step.
-    """
-    old_column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
-
-    # If the level is not set, just do a simple rename
-    post_state.dfs[sheet_index].rename(columns={old_column_header: new_column_header}, inplace=True)
-    
-    # Update the column header
-    pandas_start_time = perf_counter()
-    post_state.column_ids.set_column_header(sheet_index, column_id, new_column_header)
-    pandas_processing_time = perf_counter() - pandas_start_time
-    
-    return old_column_header, pandas_processing_time

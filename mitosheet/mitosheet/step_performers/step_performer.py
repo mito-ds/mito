@@ -4,10 +4,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from abc import ABC, abstractmethod
-from collections import Counter
 from time import perf_counter
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.errors import make_column_exists_error
 from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple
 

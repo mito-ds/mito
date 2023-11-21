@@ -13,22 +13,29 @@ in more detail in docs/README.md.
 
 NOTE: This file is alphabetical order!
 """
-from datetime import datetime
 import decimal
 import math
-from typing import Optional, Union
 import sys
-from mitosheet.errors import MitoError
-from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_int_dtype
-import numpy as np
+from datetime import datetime
+from typing import Optional, Union
 
+import numpy as np
 import pandas as pd
 
+from mitosheet.errors import MitoError
+from mitosheet.is_type_utils import is_datetime_dtype
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.rolling_range import RollingRange
-from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
-from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import DatetimeFunctionReturnType, DatetimeRestrictedInputType, FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType, NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType
+from mitosheet.public.v3.sheet_functions.utils import (
+    get_final_result_series_or_primitive, get_index_from_series,
+    get_series_from_primitive_or_series)
+from mitosheet.public.v3.types.decorators import (
+    cast_values_in_all_args_to_type, cast_values_in_arg_to_type)
+from mitosheet.public.v3.types.sheet_function_types import (
+    DatetimeFunctionReturnType, DatetimeRestrictedInputType,
+    FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType,
+    NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType)
+
 
 @cast_values_in_arg_to_type('arg', 'number')
 @handle_sheet_function_errors
