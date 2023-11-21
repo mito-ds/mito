@@ -311,7 +311,6 @@ with open(os.path.normpath(os.path.join(__file__, '..', 'mito_frontend.css'))) a
 
 def get_mito_backend(
         *args: Any,
-        comm_target_id: str='',
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
@@ -326,6 +325,17 @@ def get_mito_backend(
         user_defined_importers=user_defined_importers,
         user_defined_editors=user_defined_editors
     ) 
+
+    return mito_backend
+
+
+def register_comm_target_on_mito_backend(
+        mito_backend: MitoBackend,
+        comm_target_id: str=''
+    ):
+    ipython = get_ipython() # type: ignore
+    if not ipython:
+        return mito_backend
 
     # We create a callback that runs when the comm is actually created on the frontend
     def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
@@ -342,12 +352,9 @@ def get_mito_backend(
         comm.send({'echo': open_msg['content']['data']}) # type: ignore
 
     # Register the comm target - so the callback gets called
-    ipython = get_ipython() # type: ignore
-    if ipython:
-        ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
+    ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
 
     return mito_backend
-
 
 def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mito_backend: MitoBackend) -> str:
 
@@ -422,13 +429,19 @@ def sheet(
         # a different channel to communicate over
         comm_target_id = get_new_id()
 
+        # Create a new mito backend
         mito_backend = get_mito_backend(
             *args, 
-            comm_target_id=comm_target_id, 
             analysis_to_replay=analysis_to_replay, 
             user_defined_functions=sheet_functions,
             user_defined_importers=importers,
             user_defined_editors=editors,
+        )
+
+        # Setup the comm target on this
+        mito_backend = register_comm_target_on_mito_backend(
+            mito_backend,
+            comm_target_id
         )
 
         # Log they have personal data in the tool if they passed a dataframe
