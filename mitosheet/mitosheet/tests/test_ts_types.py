@@ -5,7 +5,6 @@
 # Distributed under the terms of the GPL License.
 from typing import Any, List, Dict
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
-from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MEC_VERSION_KEYS, MitoConfig
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
@@ -171,15 +170,6 @@ def get_keys_recursive(dictionary: Dict[str, Any], _keys: List[str]) -> List[str
             return get_keys_recursive(value, keys)
     return keys
 
-
-def test_date_type_in_mito_match():
-    data_type_in_mito = get_enum_from_ts_file("./src/mito/types.tsx", "DataTypeInMito")
-    assert len(data_type_in_mito) == 4
-
-    assert data_type_in_mito["NONE"] == DataTypeInMito.NONE.value
-    assert data_type_in_mito["PROVIDED"] == DataTypeInMito.PROVIDED.value
-    assert data_type_in_mito["TUTORIAL"] == DataTypeInMito.TUTORIAL.value
-    assert data_type_in_mito["PERSONAL"] == DataTypeInMito.PERSONAL.value
 
 
 def test_sort_direction_match():

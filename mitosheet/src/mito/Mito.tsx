@@ -954,7 +954,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const getCurrTour = (): JSX.Element => {
 
         // If the user has either no or tutorial data in the tool, don't display the tour
-        if (analysisData.dataTypeInTool === DataTypeInMito.NONE || analysisData.dataTypeInTool === DataTypeInMito.TUTORIAL) {
+        if (sheetDataArray.length == 0) {
             return <></>;
         }
 

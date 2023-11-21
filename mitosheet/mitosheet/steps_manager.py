@@ -14,7 +14,6 @@ import pandas as pd
 from mitosheet.api.get_parameterizable_params import get_parameterizable_params_metadata
 from mitosheet.api.get_path_contents import get_path_parts
 
-from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
@@ -351,10 +350,6 @@ class StepsManager:
         return self.steps_including_skipped[self.curr_step_idx].dfs
 
     @property
-    def data_type_in_mito(self) -> DataTypeInMito:
-        return get_data_type_in_mito(self.dfs)
-
-    @property
     def sheet_data_json(self) -> str:
         """
         sheet_json contains a serialized representation of the data
@@ -399,7 +394,6 @@ class StepsManager:
                 "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
-                "dataTypeInTool": self.data_type_in_mito.value,
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
                 'undoCount': self.undo_count,
