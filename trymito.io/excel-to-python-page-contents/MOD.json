@@ -1,0 +1,98 @@
+{
+    "slug": ["functions", "math", "MOD"],
+    "functionNameShort": "MOD",
+    "functionNameLong": "Modulus",
+    "relatedFunctions": ["DIV", "SUM", "AVERAGE"],
+    "purpose": "Calculate the remainder after a division",
+    "titleCardParagraphs": [
+        "Excel's MOD function returns the remainder after a number is divided. For example, =MOD(10, 3) returns 1, since 10 divided by 3 leaves a remainder of 1.",
+        "This page explains how you on can replicate Excel's MOD function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "In Excel, the MOD function takes two arguments: the number to be divided and the divisor.",
+            "=MOD(number, divisor)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number",
+                "description": "The number to divide",
+                "dataType": "number"
+            },
+            {
+                "parameter": "divisor",
+                "description": "The number to divide by",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MOD(10, 3)",
+                "description": "Finds the remainder when 10 is divided by 3.",
+                "result": "1"
+            },
+            {
+                "formula": "=MOD(-10, 3)",
+                "description": "Finds the remainder when -10 is divided by 3.",
+                "result": "2"
+            },
+            {
+                "formula": "=MOD(10, 10)",
+                "description": "Finds the remainder when 10 is divided by 10.",
+                "result": "0"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To perform modulus operations in Python using pandas, you can use the `%` operator. This works similarly to Excel's MOD function."
+        ],
+        "codeSections": [
+            {
+                "title": "Basic Modulus Operation",
+                "shortTitle": "Basic Mod",
+                "paragraphs": [
+                    "The basic modulus operation in pandas is straightforward. For example, in Excel if you wanted to check if a number is even, you could use =MOD(A2, 2).",
+                    "In pandas, you can use the following code to return 0 if the number is even, and 1 if it's odd."
+                ],
+                "codeLines": [
+                    "df['Result'] = df['Column1'] % 2"
+                ]
+            },
+            {
+                "title": "Applying Modulus Across Rows",
+                "shortTitle": "Modulus in Rows",
+                "paragraphs": [
+                    "To apply the modulus operation across rows, you can use a second column as the divisor instead of hard-coding a number.",
+                    "This would be equivalent to using =MOD(A2, B2) in Excel."
+                ],
+                "codeLines": [  
+                    "df['Result'] = df['Column1'] % df['Column2']"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "When implementing the MOD function in pandas, it's important to be aware of common pitfalls. Here are some to avoid:"
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Data Types",
+                "shortTitle": "Data Type Errors",
+                "paragraphs": [
+                    "Attempting modulus on non-numeric columns will lead to errors. Ensure all columns involved in the operation are numeric. For example, if 'Column1' or 'Column2' contains strings, the code will return an error.",
+                    "To fix it, convert the columns to numeric first. This will convert any non-numeric values to NaN, which can be handled using fillna(1) so that the result is 0 for any NaN divisors."
+                ],
+                "codeLines": [
+                    "# Convert to numeric and fill missing values with 1",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce').fillna(1)",
+                    "df['Column2'] = pd.to_numeric(df['Column2'], errors='coerce').fillna(1)",
+                    "",
+                    "# Perform modulus operation",
+                    "df['Result'] = df['Column1'] % df['Column2']"
+                ]
+            }
+        ]
+    }
+}
