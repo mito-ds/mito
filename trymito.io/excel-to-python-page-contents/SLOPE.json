@@ -1,0 +1,120 @@
+{
+    "slug": ["functions", "math", "SLOPE"],
+    "functionNameShort": "SLOPE",
+    "functionNameLong": "Linear Slope Calculation",
+    "relatedFunctions": ["SUM", "OFFSET", "EXP"],
+    "purpose": "Calculate the slope of a linear relationship between two variables",
+    "titleCardParagraphs": [
+        "The SLOPE function in Excel determines the slope of the line of best fit through a set of points. This is particularly useful in analyzing linear relationships between two variables.",
+        "This page explains how to use pandas to calculate the SLOPE of a linear relationship, similar to Excel's SLOPE function."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The SLOPE function in Excel calculates the slope of the linear regression line through a given set of data points.",
+            "=SLOPE(known_y's, known_x's)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "known_y's",
+                "description": "The dependent data points",
+                "dataType": "range of numbers"
+            },
+            {
+                "parameter": "known_x's",
+                "description": "The independent data points",
+                "dataType": "range of numbers"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SLOPE(B2:B10, A2:A10)",
+                "description": "Calculate the slope of the linear regression line for the data in ranges A2:A10 and B2:B10",
+                "result": "Calculated slope value"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the SLOPE function in pandas, you typically use linear regression methods or custom calculations. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Basic SLOPE Calculation",
+                "shortTitle": "Basic slope",
+                "paragraphs": [
+                    "The basic SLOPE calculation in pandas involves using linear regression methods to determine the slope between two series of data.",
+                    "In Excel, you might use =SLOPE(B2:B10, A2:A10). The pandas equivalent involves fitting a linear model to the data."
+                ],
+                "codeLines": [
+                    "# Import the linregress function from scipy.stats",
+                    "from scipy.stats import linregress",
+                    "",
+                    "slope, _, _, _, _ = linregress(df['ColumnX'], df['ColumnY'])"
+                ]
+            },
+            {
+                "title": "Calculating intercept, standard error, p-value, and r-value",
+                "shortTitle": "Slope with stats",
+                "paragraphs": [
+                    "In addition to the slope, you can also calculate the intercept, standard error, p-value, and r-value of the linear regression model.",
+                    "These additional parameters can help you better understand the relationship between the two variables and are returned by default from the linregress function.",
+                    "The intercept tells you the value of the dependent variable when the independent variable is zero.",
+                    "The standard error is the standard deviation of the estimate of the slope. It's a measure of the accuracy of the predictions.",
+                    "The p-value is the probability that the slope is zero. In other words, it's the probability that the two variables are not related given the observations you provided.",
+                    "The r-value is the correlation coefficient. It's a measure of how closely the two variables are related. It ranges from -1 to 1, with 1 indicating a perfect positive correlation and -1 indicating a perfect negative correlation."
+                ],
+                "codeLines": [
+                    "# Import the linregress function from scipy.stats",
+                    "from scipy.stats import linregress",
+                    "",
+                    "slope, intercept, r_value, p_value, std_err = linregress(df['ColumnX'], df['ColumnY'])"
+                ]
+            },
+            {
+                "title": "Calculate slope of price change over days",
+                "shortTitle": "Financial data slope",
+                "paragraphs": [
+                    "The SLOPE function can also be used to determine trends in financial indicators over time. For example, you can use it to calculate the slope of a stock price over a period of time.",
+                    "This is similar to using the SLOPE function in Excel, but pandas has more flexibility in handling date ranges."
+                ],
+                "codeLines": [
+                    "import pandas as pd",
+                    "import numpy as np",
+                    "from scipy.stats import linregress",
+                    "",
+                    "# Sample data",
+                    "data = {",
+                    "    'Date': pd.date_range(start='2023-01-01', periods=5, freq='D'),",
+                    "    'Value': [100, 105, 110, 115, 120]",
+                    "}",
+                    "df = pd.DataFrame(data)",
+                    "",
+                    "# Convert dates to ordinal numbers",
+                    "df['Date_ordinal'] = df['Date'].apply(lambda x: x.toordinal())",
+                    "",
+                    "# Calculate slope",
+                    "slope, intercept, r_value, p_value, std_err = linregress(df['Date_ordinal'], df['Value'])"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the SLOPE function in pandas, there are several pitfalls that you should be aware of. Here are some common mistakes and their solutions."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Data Types",
+                "shortTitle": "Data type errors",
+                "paragraphs": [
+                    "Calculating SLOPE with incompatible data types in pandas can lead to errors. Ensure that your data columns are numeric.",
+                    "If your data is in string format, you can convert it to numeric using the to_numeric function."
+                ],
+                "codeLines": [
+                    "df['ColumnX'] = pd.to_numeric(df['ColumnX'], errors='coerce')",
+                    "df['ColumnY'] = pd.to_numeric(df['ColumnY'], errors='coerce')"
+                ]
+            }
+        ]
+    }
+}
