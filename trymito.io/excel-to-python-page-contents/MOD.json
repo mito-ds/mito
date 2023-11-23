@@ -69,6 +69,26 @@
                 "codeLines": [  
                     "df['Result'] = df['Column1'] % df['Column2']"
                 ]
+            },
+            {
+                "title": "ISODD function",
+                "shortTitle": "ISODD",
+                "paragraphs": [
+                    "Excel has a built-in ISODD function that returns TRUE if a number is odd, and FALSE if it's even. You can replicate this in pandas using the following code:"
+                ],
+                "codeLines": [
+                    "df['Result'] = df['Column1'] % 2 == 1"
+                ]
+            },
+            {
+                "title": "ISEVEN function",
+                "shortTitle": "ISEVEN",
+                "paragraphs": [
+                    "Excel has a built-in ISEVEN function that returns TRUE if a number is even, and FALSE if it's odd. You can replicate this in pandas using the following code:"
+                ],
+                "codeLines": [
+                    "df['Result'] = df['Column1'] % 2 == 0"
+                ]
             }
         ]
     },
