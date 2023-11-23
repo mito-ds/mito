@@ -96,6 +96,79 @@
                     "# Calculate the weighted average in a dataframe",
                     "weighted_avg = (df['values'] * df['weights']).sum() / df['weights'].sum()"
                 ]
+            },
+            {
+                "title": "Geometric Mean of pandas Series",
+                "shortTitle": "Geometric mean series",
+                "paragraphs": [
+                    "The geometric mean is a type of average that is useful for finding the average growth rate of a quantity over time. For example, if you wanted to calculate the average growth rate of your stock portfolio over the past 5 years, you'd want to use the geometric mean because it accounts for the compounding effect of growth over time.",
+                    "To calculate the geometric mean in Excel, you'd use the formula =GEOMEAN(A1:A10).",
+                    "In Pandas, we can use the following code:"
+                ],
+                "codeLines": [
+                    "# Calculate the geometric mean in a dataframe",
+                    "geometric_mean = df['values'].prod() ** (1 / len(df))"
+                ]
+            },
+            {
+                "title": "Geometric Mean of pandas Dataframe",
+                "shortTitle": "Geometric mean dataframe",
+                "paragraphs": [
+                    "If instead of calculating the geometric mean of a single column, you want to calculate the geometric mean of each row in a dataframe, you can use the following code:"
+                ],
+                "codeLines": [
+                    "# Calculate the geometric mean in a dataframe",
+                    "df['geometric_mean'] = df.apply(lambda x: x.prod() ** (1 / len(x)), axis=1)"
+                ]
+            },
+            {
+                "title": "Harmonic Mean of pandas Series",
+                "shortTitle": "Harmonic mean series",
+                "paragraphs": [
+                    "The harmonic mean is a type of average commonly used in situations where you want to calculate an average rate or ratio. Its calculated by dividing the number of values in the dataset by the sum of the reciprocals of the values. Aka, the formula is: n / (1 / x1 + 1 / x2 + ... + 1 / xn).",
+                    "The harmonic mean is particularly useful in scenarios like calculating average speeds. If you travel the same distance at different speeds, the harmonic mean gives a better average speed than the arithmetic mean. For instance, if you travel 60 km at 30 km/h and another 60 km at 60 km/h, the harmonic mean of the speeds (30 and 60 km/h) gives the correct average speed for the whole trip, which would not be the case if you used the arithmetic mean.",
+                    "To calculate the harmonic mean in Excel, you'd use the formula =HARMEAN(A1:A10). In Pandas, we can use the following code:"
+                ],
+                "codeLines": [
+                    "# Calculate the harmonic mean in a dataframe",
+                    "harmonic_mean = len(df) / (1 / df['values']).sum()"
+                ]
+            },
+            {
+                "title": "Harmonic Mean of pandas Dataframe",
+                "shortTitle": "Harmonic mean dataframe",
+                "paragraphs": [
+                    "If instead of calculating the harmonic mean of a single column, you want to calculate the harmonic mean of each row in a dataframe, you can use the following code:"
+                ],
+                "codeLines": [
+                    "# Calculate the harmonic mean in a dataframe",
+                    "df['harmonic_mean'] = len(df) / (1 / df).sum(axis=1)"
+                ]
+            },
+            {
+                "title": "TRIMMEAN of pandas Series",
+                "shortTitle": "TRIMMEAN series",
+                "paragraphs": [
+                    "The TRIMMEAN is useful for finding the average of a dataset while ignoring outliers. It does this by removing a certain percentage of the largest and smallest values from the dataset before calculating the average of the remaining values.",
+                    "To calculate the TRIMMEAN in Excel, you'd use the formula =TRIMMEAN(A1:A10, 0.1). In Pandas, we can use the following code:"
+                ],
+                "codeLines": [
+                    "def trimean(data, trim_percentage):",
+                    "    # Sort the data",
+                    "    sorted_data = sorted(data)",
+                    "",
+                    "    # Calculate the number of elements to exclude from each end",
+                    "    trim_count = int(len(data) * trim_percentage / 2)",
+                    "",     
+                    "    # Trim the data",
+                    "    trimmed_data = sorted_data[trim_count: -trim_count]",
+                    "",
+                    "    # Calculate and return the mean of the trimmed data",
+                    "    return sum(trimmed_data) / len(trimmed_data)",
+                    "",
+                    "# Calculate the TRIMMEAN in a dataframe",
+                    "trimmed_mean = trimean(df['Values'], 0.9)"
+                ]
             }
         ]
     },
