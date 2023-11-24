@@ -81,6 +81,53 @@
                 ]
             },
             {
+                "title": "Calculate NPV using a pandas Dataframe",
+                "shortTitle": "Dataframe",
+                "paragraphs": [
+                    "If you have a pandas DataFrame with a single column of cash flows, you can use that series to calculate NPV."
+                ],
+                "codeLines": [
+                    "# Create dataframe with cash flows",
+                    "df = pd.DataFrame({'cash_flows': [100, 100, 100]})",
+                    "",
+                    "# Create list from cash_flows column",
+                    "cash_flows = df['cash_flows'].tolist()",
+                    "",
+                    "# Calculate NPV",
+                    "discount_rate = 0.1",
+                    "npv = sum(cf / (1 + discount_rate) ** i for i, cf in enumerate(cash_flows, 1))"
+                ]
+            },
+            {
+                "title": "Calculate NPV for a Series with variable discount rates",
+                "shortTitle": "Series & rates",
+                "paragraphs": [
+                    "In pandas, you can calculate NPV for a Series with variable discount rates by applying the NPV function to each value.",
+                    "This is similar to using the NPV function in Excel with a series of cash flows.",
+                    "In pandas, you can use the apply method to apply the NPV function to each value."
+                ],
+                "codeLines": [
+                    "discount_rates = [0.1, 0.15, 0.2]",
+                    "cash_flows = [100, 150, 200]",
+                    "s = pd.Series(cash_flows)",
+                    "npv = s.apply(lambda cf: np.npv(discount_rate, cf))"
+                ]
+            },
+            {
+                "title": "Calculate NPV for a DataFrame with variable discount rates",
+                "shortTitle": "DataFrame & rates",
+                "paragraphs": [
+                    "In pandas, you can calculate NPV for a DataFrame with variable discount rates by applying the NPV function to each row.",
+                    "This is similar to using the NPV function in Excel with a series of cash flows.",
+                    "In pandas, you can use the apply method to apply the NPV function to each row."
+                ],
+                "codeLines": [
+                    "discount_rates = [0.1, 0.15, 0.2]",
+                    "cash_flows = [100, 150, 200]",
+                    "df = pd.DataFrame({'cash_flows': cash_flows})"
+                ]
+            },
+            {
                 "title": "Calculating Inflation-adjusted NPV",
                 "shortTitle": "Inflation-adjusted NPV",
                 "paragraphs": [
