@@ -1,0 +1,143 @@
+{
+    "slug": ["functions", "financial", "NPV"],
+    "functionNameShort": "NPV",
+    "functionNameLong": "Net Present Value",
+    "relatedFunctions": ["PRICE", "IRR", "XNPV"],
+    "purpose": "Calculate the net present value of a series of cash flows",
+    "titleCardParagraphs": [
+        "NPV is a core financial metric used in capital budgeting to assess the profitability of an investment or project. It's the present value of cash inflows minus the present value of cash outflows over a period of time.",
+        "This page guides you through using Python and pandas to calculate the NPV."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "In Excel, the NPV function calculates the net present value of an investment based on a discount rate and a series of future cash flows.",
+            "=NPV(rate, value1, [value2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "rate",
+                "description": "The rate of discount over the length of one period.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "value1, value2, ...",
+                "description": "The cash flows of the investment. Must be entered in the order they occur.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=NPV(0.1, -100, 50, 60)",
+                "description": "Calculate the NPV of an investment with an initial cost of 100 and cash inflows of 50 and 60 over the next two periods at a 10% discount rate.",
+                "result": "-$4.51"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In Python, using pandas, the calculation of NPV can be done in various ways, depending on the nature of your cash flows and discount rates. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Calculate NPV with consistent cashflows",
+                "shortTitle": "Consistent cashflows",
+                "paragraphs": [
+                    "To calculate NPV with consistent cashflows, use a single discount rate and a series of regular cash flows.",
+                    "In Excel, you would use the NPV function with consistent cash flow values. For example: =NPV(0.1, 100, 100, 100).",
+                    "In pandas, this can be achieved using a simple Python function that multiplies each cash flow with the corresponding discount factor."
+                ],
+                "codeLines": [
+                    "discount_rate = 0.1",
+                    "cash_flows = [100, 100, 100]",
+                    "npv = sum(cf / (1 + discount_rate) ** i for i, cf in enumerate(cash_flows, 1))"
+                ]
+            },
+            {
+                "title": "Calculate NPV with variable cashflows",
+                "shortTitle": "Variable cashflows",
+                "paragraphs": [
+                    "Calculating NPV with variable cashflows involves using a series of different cash flow amounts.",
+                    "In Excel, this would be similar to applying the NPV function with different cash flow values: =NPV(0.1, 100, 150, 200).",
+                    "In pandas, the NPV calculation can be done by iterating over the cash flows and applying the discount rate to each."
+                ],
+                "codeLines": [
+                    "discount_rate = 0.1",
+                    "cash_flows = [100, 150, 200]",
+                    "npv = sum(cf / (1 + discount_rate) ** i for i, cf in enumerate(cash_flows, 1))"
+                ]
+            },
+            {
+                "title": "Calculate NPV with variable cashflows and variable discount rates",
+                "shortTitle": "Variable cashflows & rates",
+                "paragraphs": [
+                    "This method involves calculating NPV with different cash flows and different discount rates for each period.",
+                    "In Excel, this is more complex but can be achieved using a series of calculations.",
+                    "In pandas, you can use a loop to apply each discount rate to the corresponding cash flow."
+                ],
+                "codeLines": [
+                    "discount_rates = [0.1, 0.15, 0.2]",
+                    "cash_flows = [100, 150, 200]",
+                    "npv = sum(cf / (1 + dr) ** i for i, (cf, dr) in enumerate(zip(cash_flows, discount_rates), 1))"
+                ]
+            },
+            {
+                "title": "Calculating Inflation-adjusted NPV",
+                "shortTitle": "Inflation-adjusted NPV",
+                "paragraphs": [
+                    "Adjusting NPV calculations for inflation involves modifying the cash flows to reflect their present value.",
+                    "Just like in Excel, we can adjust each cash flow amoutn for inflation before calculating the NPV."
+                ],
+                "codeLines": [
+                    "inflation_rate = 0.03",
+                    "real_cash_flows = [cf / (1 + inflation_rate) ** i for i, cf in enumerate(cash_flows, 1)]",
+                    "npv = sum(cf / (1 + discount_rate) ** i for i, cf in enumerate(real_cash_flows, 1))"
+                ]
+            },
+            {
+                "title": "Calculating NPV for Loan Amortization",
+                "shortTitle": "Loan Amortization",
+                "paragraphs": [
+                    "Calculating the NPV for loan amortization involves considering periodic loan repayments and interest rates.",
+                    "In Excel, this would use a series of payment amounts over time, adjusted for the loan's interest rate.",
+                    "In pandas, you can simulate the loan repayments as a series of cash flows and calculate the NPV accordingly."
+                ],
+                "codeLines": [
+                    "loan_payments = [-1000, 100, 100, 100, 100, 100]",
+                    "npv = sum(payment / (1 + discount_rate) ** i for i, payment in enumerate(loan_payments, 1))"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing NPV calculations in pandas, certain common pitfalls can lead to inaccurate results. Here are a couple of them and how to avoid these mistakes."
+        ],
+        "codeSections": [
+            {
+                "title": "Confusing NPV with PV",
+                "shortTitle": "NPV vs. PV",
+                "paragraphs": [
+                    "It's important to distinguish between NPV and PV. NPV considers both the inflows and outflows of cash, while PV only considers the present value of future cash inflows.",
+                    "In Excel, PV is calculated without considering any initial investments, whereas NPV includes these.",
+                    "Ensure that you're using the correct formula in pandas to reflect whether you're calculating NPV or just PV."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Incorrect Discount Rate Format",
+                "shortTitle": "Discount rate format",
+                "paragraphs": [
+                    "Using the incorrect format for the discount rate, such as a percentage instead of a decimal, can lead to wrong NPV calculations.",
+                    "In Excel, the discount rate should be entered as a decimal (e.g., 10% as 0.1). The same applies to pandas calculations.",
+                    "Always convert your discount rate to a decimal format before using it in the NPV formula."
+                ],
+                "codeLines": [
+                    "# Correct discount rate format",
+                    "discount_rate = 10 / 100",
+                    "cash_flows = [100, 150, 200]",
+                    "npv = sum(cf / (1 + discount_rate) ** i for i, cf in enumerate(cash_flows, 1))"
+                ]
+            }
+        ]
+    }
+}
