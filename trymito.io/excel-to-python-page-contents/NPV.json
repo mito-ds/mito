@@ -2,7 +2,7 @@
     "slug": ["functions", "financial", "NPV"],
     "functionNameShort": "NPV",
     "functionNameLong": "Net Present Value",
-    "relatedFunctions": ["PRICE", "IRR", "XNPV"],
+    "relatedFunctions": ["PRICE", "IRR"],
     "purpose": "Calculate the net present value of a series of cash flows",
     "titleCardParagraphs": [
         "NPV is a core financial metric used in capital budgeting to assess the profitability of an investment or project. It's the present value of cash inflows minus the present value of cash outflows over a period of time.",
@@ -151,6 +151,30 @@
                 "codeLines": [
                     "loan_payments = [-1000, 100, 100, 100, 100, 100]",
                     "npv = sum(payment / (1 + discount_rate) ** i for i, payment in enumerate(loan_payments, 1))"
+                ]
+            },
+            {
+                "title": "XNPV function to calculate the Net Present Value with Payment Schedule",
+                "shortTitle": "XNPV",
+                "paragraphs": [
+                    "In Excel, the XNPV function can be used to calculate the NPV with a payment schedule.",
+                    "In pandas, you can use the XNPV function from the XIRR package to calculate the NPV with a payment schedule."
+                ],
+                "codeLines": [
+                    "from datetime import datetime",
+                    "",
+                    "def xnpv(rate, cashflows, dates):",
+                    "    min_date = min(dates)",
+                    "    xnpv_value = sum([cf / (1 + rate) ** ((date - min_date).days / 365) for cf, date in zip(cashflows, dates)])",
+                    "",
+                    "    return xnpv_value",
+                    "",
+                    "# Example Usage",
+                    "rate = 0.1  # 10% discount rate",
+                    "cashflows = [-1000, 300, 420, 680]  # Cash flows",
+                    "dates = pd.to_datetime(['2023/1/1', '2023/6/1', '2024/1/1', '2024/6/1'])  # Corresponding dates",
+                    "",
+                    "xnpv_value = xnpv(rate, cashflows, dates)"
                 ]
             }
         ]
