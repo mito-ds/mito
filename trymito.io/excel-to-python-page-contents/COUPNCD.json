@@ -2,7 +2,7 @@
     "slug": ["functions", "financial", "COUPNCD"],
     "functionNameShort": "COUPNCD",
     "functionNameLong": "Next Coupon Date After Settlement Date",
-    "relatedFunctions": ["COUPDAYBS", "COUPDAYS", "COUPNUM"],
+    "relatedFunctions": ["COUPNUM"],
     "purpose": "Finds the next coupon date after the settlement date of a security",
     "titleCardParagraphs": [
         "In financial analysis, understanding the timing of coupon payments for bonds is crucial. The COUPNCD function in Excel helps analysts find the next coupon payment date after a specified settlement date.",
@@ -66,10 +66,6 @@
                     "from dateutil.relativedelta import relativedelta",
                     "",
                     "def get_next_coupon_date(settlement, maturity, freq):",
-                    "    # Convert string dates to datetime objects",
-                    "    settlement_date = datetime.strptime(settlement, \"%m/%d/%y\")",
-                    "    maturity_date = datetime.strptime(maturity, \"%m/%d/%y\")",
-                    "",
                     "    # Calculate the period of coupon payments in months",
                     "    period = 12 // freq",
                     "",
@@ -86,8 +82,34 @@
                     "",
                     "    return next_coupon",
                     "",
+                    "# Get settlement and maturity dates",
+                    "settlement_date = pd.to_datetime(\"1/15/23\")",
+                    "maturity_date = pd.to_datetime(\"1/15/28\")",
+                    "",
                     "# Find the next coupon date for an annual bond",
                     "next_coupon_date = get_next_coupon_date(\"1/15/23\", \"1/15/28\", 1).strftime(\"%m/%d/%y\")"
+                ]
+            },
+            {
+                "title": "Calculating Next Coupon Date for Bonds in Pandas Dataframe",
+                "shortTitle": "Next Coupon Date in df",
+                "paragraphs": [
+                    "If you have a pandas dataframe with a column for settlement date, maturity date, and frequency, you can use the following code to calculate the next coupon date for each bond:"
+                ],
+                "codeLines": [
+                    "# Create pandas DataFrame",
+                    "df = pd.DataFrame({",
+                    "    'settlement': ['1/15/23', '1/15/23', '1/15/23'],",
+                    "    'maturity': ['1/15/28', '1/15/28', '1/15/28'],",
+                    "    'freq': [1, 2, 4]",
+                    "})",
+                    "",
+                    "# Convert string dates to datetime objects",
+                    "df['settlement'] = pd.to_datetime(df['settlement'])",
+                    "df['maturity'] = pd.to_datetime(df['maturity'])",
+                    "",
+                    "# Use the get_next_coupon_date function to calculate the next coupon date",
+                    "df['next_coupon_date'] = df.apply(lambda x: get_next_coupon_date(x['settlement'], x['maturity'], x['freq']), axis=1)"
                 ]
             },
             {
@@ -101,10 +123,6 @@
                     "from dateutil.relativedelta import relativedelta",
                     "",
                     "def get_next_coupon_date(settlement, maturity, freq):",
-                    "    # Convert string dates to datetime objects",
-                    "    settlement_date = datetime.strptime(settlement, \"%m/%d/%y\")",
-                    "    maturity_date = datetime.strptime(maturity, \"%m/%d/%y\")",
-                    "",
                     "    # Calculate the period of coupon payments in months",
                     "    period = 12 // freq",
                     "",
@@ -121,8 +139,12 @@
                     "",
                     "    return next_coupon",
                     "",
+                    "# Get settlement and maturity dates",
+                    "settlement_date = pd.to_datetime(\"1/15/23\")",
+                    "maturity_date = pd.to_datetime(\"1/15/28\")",
+                    "",
                     "# Find the next coupon date for an annual bond",
-                    "next_coupon_date = get_next_coupon_date(\"1/15/23\", \"1/15/28\", 1).strftime(\"%m/%d/%y\")",
+                    "next_coupon_date = get_next_coupon_date(settlement_date, maturity_date, 1).strftime(\"%m/%d/%y\")",
                     "",
                     "# Calculate the number of days until the next coupon date",
                     "days_to_next_coupon = (datetime.strptime(next_coupon_date, \"%m/%d/%y\") - datetime.today()).days"

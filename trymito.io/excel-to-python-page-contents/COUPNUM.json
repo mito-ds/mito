@@ -1,0 +1,150 @@
+{
+    "slug": ["functions", "financial", "COUPNUM"],
+    "functionNameShort": "COUPNUM",
+    "functionNameLong": "Coupon Number",
+    "relatedFunctions": ["COUPNCD"],
+    "purpose": "Calculate the number of coupons payable between the settlement date and the maturity date of a security",
+    "titleCardParagraphs": [
+        "In finance, the COUPNUM function is crucial for understanding the cash flow from fixed-income securities, like bonds. It determines the number of coupon payments to be received between the purchase and maturity dates.",
+        "This page demonstrates how to translate the COUPNUM function from Excel to Python using pandas, making it accessible for analysts familiar with Excel but new to Python."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The COUPNUM function in Excel calculates the number of coupons (interest payments) due between the settlement and maturity dates of a bond.",
+            "=COUPNUM(settlement, maturity, frequency, [basis])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "settlement",
+                "description": "The settlement date of the security.",
+                "dataType": "date"
+            },
+            {
+                "parameter": "maturity",
+                "description": "The maturity date of the security.",
+                "dataType": "date"
+            },
+            {
+                "parameter": "frequency",
+                "description": "The number of coupon payments per year. 1 for annual, 2 for semi-annual, 4 for quarterly.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "basis",
+                "description": "(Optional) The day count basis to use. 0 or omitted for US (NASD) 30/360, 1 for actual/actual, 2 for actual/360, 3 for actual/365, 4 for European 30/360.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=COUPNUM('2023-01-01', '2025-01-01', 2)",
+                "description": "Calculates the number of semi-annual coupon payments between January 1, 2023, and January 1, 2025.",
+                "result": "4"
+            },
+            {
+                "formula": "=COUPNUM('2023-01-01', '2025-01-01', 1)",
+                "description": "Calculates the number of annual coupon payments between January 1, 2023, and January 1, 2025.",
+                "result": "2"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the COUPNUM function in Python using pandas, one must understand date manipulation and financial concepts. Here's how to calculate the number of coupon payments between two dates in pandas."
+        ],
+        "codeSections": [
+            {
+                "title": "Calculating Coupon Count Between Dates",
+                "shortTitle": "Coupon count",
+                "paragraphs": [
+                    "To calculate the number of coupon payments between two dates, you first define the settlement and maturity dates. Then, based on the coupon frequency, you create a date range and count the number of dates falling within this range.",
+                    "In Excel, you would simply use =COUPNUM(). In pandas, you'll need to use a combination of date functions and custom calculations.",
+                    "In the code below, we define a function called get_count_coupons_payable() that takes three arguments: the settlement date, the maturity date, and the coupon frequency. The function returns the number of coupon payments between the settlement and maturity dates."
+                ],
+                "codeLines": [
+                    "from datetime import datetime",
+                    "from dateutil.relativedelta import relativedelta",
+                    "",
+                    "def get_count_coupons_payable(settlement, maturity, freq):",
+                    "    # Calculate the period of coupon payments in months",
+                    "    period = 12 // freq",
+                    "    coupon_date = settlement_date",
+                    "    coupon_count = 0",
+                    "",
+                    "    # Loop until the coupon date is after the maturity date",
+                    "    while coupon_date < maturity_date:",
+                    "        coupon_date += relativedelta(months=period)",
+                    "        if coupon_date <= maturity_date:",
+                    "            coupon_count += 1",
+                    "",
+                    "    return coupon_count",
+                    "",
+                    "# Convert string dates to datetime objects",
+                    "settlement_date = pd.to_datetime(\"1/15/23\")",
+                    "maturity_date = pd.to_datetime(\"1/15/28\")",
+                    "",
+                    "# Calculate the number of coupon payments",
+                    "num_coupon_payments = get_count_coupons_payable(settlement_date, maturity_date, 1)"
+                ]
+            },
+            {
+                "title": "Calculating Coupon Count Between Dates in pandas Dataframe",
+                "shortTitle": "Coupon count in dataframe",
+                "paragraphs": [
+                    "If instead of calculating the number of coupon payments paid out by just one security, you want to calculate the number of coupon payments paid out by multiple securities, you can use the apply() function to apply the count_coupons_payable() function to each row of the dataframe.",
+                    "The code looks like this:"
+                ],
+                "codeLines": [
+                    "# Create a dataframe with the settlement and maturity dates",
+                    "df = pd.DataFrame({",
+                    "    'settlement': ['1/15/23', '1/15/23', '1/15/23'],",
+                    "    'maturity': ['1/15/28', '1/15/28', '1/15/28'],",
+                    "    'freq': [1, 2, 4]",
+                    "})",
+                    "",
+                    "# Convert settlement and maturity columns to datetimes",
+                    "df['settlement'] = pd.to_datetime(df['settlement'])",
+                    "df['maturity'] = pd.to_datetime(df['maturity'])",
+                    "",
+                    "# Apply the get_count_coupons_payable() function to each row of the dataframe",
+                    "df['num_coupon_payments'] = df.apply(lambda x: get_count_coupons_payable(x['settlement'], x['maturity'], x['freq']), axis=1)"
+                ]
+            },
+            {
+                "title": "Calculating Remaining Coupon Payments",
+                "shortTitle": "Remaining coupons",
+                "paragraphs": [
+                    "If instead of calculating the number of coupon payments between two dates, you want to calculate the number of remaining coupon payments, you can use today's date as the settlement date and the maturity date as the maturity date."
+                ],
+                "codeLines": [
+                    "from datetime import datetime",
+                    "",
+                    "# Get input dates",
+                    "today = datetime.today()",
+                    "maturity = pd.to_datetime(\"1/15/28\")",
+                    "",
+                    "# Calculate the number of remaining coupon payments",
+                    "num_coupon_payments = get_count_coupons_payable(today, maturity, 1)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing COUPNUM in pandas, it's crucial ensure that you're using the correct data types. Unlike Excel, pandas cannot interpret dates that are not in a recognized format."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Data Types",
+                "shortTitle": "Data type issues",
+                "paragraphs": [
+                    "A common mistake is using strings for dates. Ensure that the dates are in a recognized format, such as 'YYYY-MM-DD' before using them to calculate the number of coupon payments."
+                ],
+                "codeLines": [
+                    "# Cast string to date",
+                    "settlement_date = pd.to_datetime(\"1/15/23\")"
+                ]
+            }
+        ]
+    }
+}
