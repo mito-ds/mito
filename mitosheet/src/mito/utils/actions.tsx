@@ -196,15 +196,6 @@ export const getActions = (
                         }]
                     }
                 })
-                setEditorState({
-                    rowIndex: 0,
-                    columnIndex: newColumnHeaderIndex,
-                    formula: '=',
-                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
-                    editorLocation: 'cell',
-                    editingMode: 'entire_column',
-                    sheetIndex: sheetIndex,
-                })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
@@ -248,15 +239,6 @@ export const getActions = (
                             endingColumnIndex: newColumnHeaderIndex
                         }]
                     }
-                })
-                setEditorState({
-                    rowIndex: 0,
-                    columnIndex: newColumnHeaderIndex,
-                    formula: '=',
-                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
-                    editorLocation: 'cell',
-                    editingMode: 'entire_column',
-                    sheetIndex: sheetIndex,
                 })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
