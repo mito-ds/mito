@@ -69,6 +69,7 @@ import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
 import FunctionIcon from "../components/icons/FunctionIcon";
 import ScheduleIcon from "../components/icons/ScheduleIcon";
+import { getCodeString } from "../../jupyter/code";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -389,9 +390,14 @@ export const getActions = (
             actionFunction: () => {
                 closeOpenEditingPopups();
 
-                const stringToCopy = analysisData.code.join('\n');
+                const codeToCopy = getCodeString(
+                    analysisData.analysisName,
+                    analysisData.code,
+                    userProfile.telemetryEnabled,
+                    analysisData.publicInterfaceVersion
+                )
 
-                void writeTextToClipboard(stringToCopy);
+                void writeTextToClipboard(codeToCopy);
             },
             isDisabled: () => {
                 if (!analysisData.code || analysisData.code.length === 0) {
