@@ -1442,9 +1442,9 @@ export const getActions = (
                 })
                 
             },
-            isDisabled: () => {return undefined},
-            searchTerms: ['docs', 'documentation', 'help', 'support'],
-            tooltip: "Open a PR on a Github Repo that "
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Please import and edit data before scheduling an automation.'},
+            searchTerms: ['github', 'pull request', 'automation', 'schedule'],
+            tooltip: "Create a GitHub pull request that schedules this analysis to run at a specific time."
         },
         [ActionEnum.See_All_Functionality]: {
             type: 'build-time',
