@@ -37,6 +37,11 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
+.cell-editor-suggestion, .cell-editor-suggestion-subtext {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow: auto;
+}
 
 .text-button:focus-visible {
     /* We clear the outline and border, which is set on JNotebooks for some reason on focus*/
