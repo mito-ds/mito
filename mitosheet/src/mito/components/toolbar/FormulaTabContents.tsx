@@ -59,6 +59,7 @@ export const FormulaTabContents = (
                                 ...props.editorState,
                                 formula: `=${functionObject.function}(${currentFormula.startsWith('=') ? currentFormula.substring(1) : currentFormula}`,
                             })
+                            document.getElementById('cell-editor-input')?.focus();
                         } else {
                             const rowIndex = props.gridState.selections[0].startingRowIndex;
                             const columnIndex = props.gridState.selections[0].startingColumnIndex;
