@@ -637,7 +637,7 @@ export const getActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
-            tooltip: "Export dataframes as a .csv or .xlsx file."
+            tooltip: "Export dataframes as a .csv or .xlsx file. Choose whether or not to include export in the code."
         },
         [ActionEnum.Fill_Na]: {
             type: 'build-time',
@@ -894,8 +894,8 @@ export const getActions = (
             isDisabled: () => {
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
             },
-            searchTerms: ['logic', 'functions'],
-            tooltip: "Perform math on the selected columns."
+            searchTerms: ['formulas', 'functions'],
+            tooltip: "Add formulas to the selected columns."
         },
         [ActionEnum.Currency_Format]: {
             type: 'build-time',
@@ -1060,7 +1060,7 @@ export const getActions = (
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['import', 'upload', 'new', 'excel', 'csv', 'add'],
-            tooltip: "Import any .csv or well-formatted .xlsx file as a new sheet."
+            tooltip: "Import a new sheet from .csv or .xlsx files, dataframe objects, or through Snowflake."
         },
         [ActionEnum.Import_Files]: {
             type: 'build-time',
