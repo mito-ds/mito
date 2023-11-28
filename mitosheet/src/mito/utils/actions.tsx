@@ -69,6 +69,7 @@ import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
 import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
 import FunctionIcon from "../components/icons/FunctionIcon";
 import ScheduleIcon from "../components/icons/ScheduleIcon";
+import { getCodeString } from "../../jupyter/code";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -196,15 +197,6 @@ export const getActions = (
                         }]
                     }
                 })
-                setEditorState({
-                    rowIndex: 0,
-                    columnIndex: newColumnHeaderIndex,
-                    formula: '=',
-                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
-                    editorLocation: 'cell',
-                    editingMode: 'entire_column',
-                    sheetIndex: sheetIndex,
-                })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
@@ -248,15 +240,6 @@ export const getActions = (
                             endingColumnIndex: newColumnHeaderIndex
                         }]
                     }
-                })
-                setEditorState({
-                    rowIndex: 0,
-                    columnIndex: newColumnHeaderIndex,
-                    formula: '=',
-                    arrowKeysScrollInFormula: arrowKeysScrollInFormula,
-                    editorLocation: 'cell',
-                    editingMode: 'entire_column',
-                    sheetIndex: sheetIndex,
                 })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
@@ -407,9 +390,14 @@ export const getActions = (
             actionFunction: () => {
                 closeOpenEditingPopups();
 
-                const stringToCopy = analysisData.code.join('\n');
+                const codeToCopy = getCodeString(
+                    analysisData.analysisName,
+                    analysisData.code,
+                    userProfile.telemetryEnabled,
+                    analysisData.publicInterfaceVersion
+                )
 
-                void writeTextToClipboard(stringToCopy);
+                void writeTextToClipboard(codeToCopy);
             },
             isDisabled: () => {
                 if (!analysisData.code || analysisData.code.length === 0) {
@@ -1454,9 +1442,9 @@ export const getActions = (
                 })
                 
             },
-            isDisabled: () => {return undefined},
-            searchTerms: ['docs', 'documentation', 'help', 'support'],
-            tooltip: "Open a PR on a Github Repo that "
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Please import and edit data before scheduling an automation.'},
+            searchTerms: ['github', 'pull request', 'automation', 'schedule'],
+            tooltip: "Create a GitHub pull request that schedules this analysis to run at a specific time."
         },
         [ActionEnum.See_All_Functionality]: {
             type: 'build-time',
