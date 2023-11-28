@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { AnalysisData } from "../types";
 
 /* 
@@ -7,13 +7,12 @@ import { AnalysisData } from "../types";
 */
 export const useEffectOnUndo = (effect: () => void, analysisData: AnalysisData): void => {
     
-    const undoCountRef = useRef(analysisData.undoCount);
+    const [startingUndoCount] = useState(analysisData.undoCount);
     useEffect(() => {
         
-        if (analysisData.undoCount > undoCountRef.current) {
-            undoCountRef.current = analysisData.undoCount;
+        if (analysisData.undoCount > startingUndoCount) {
             effect();
-        }        
-        
+        }
+
     }, [analysisData.undoCount])
 }
