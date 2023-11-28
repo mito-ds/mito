@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnalysisData } from "../types";
 
 /* 
@@ -6,10 +6,13 @@ import { AnalysisData } from "../types";
     successful undo.
 */
 export const useEffectOnUndo = (effect: () => void, analysisData: AnalysisData): void => {
-   
+    
+    const [startingUndoCount] = useState(analysisData.undoCount);
     useEffect(() => {
-        if (analysisData.undoCount > 0) {
+        
+        if (analysisData.undoCount > startingUndoCount) {
             effect();
-        }        
+        }
+
     }, [analysisData.undoCount])
 }
