@@ -21,6 +21,7 @@ export const FormulaTabContents = (
         editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData;
+        mitoContainerRef: React.RefObject<HTMLDivElement>;
     }): JSX.Element => {
 
     /**
@@ -59,6 +60,7 @@ export const FormulaTabContents = (
                                 ...props.editorState,
                                 formula: `=${functionObject.function}(${currentFormula.startsWith('=') ? currentFormula.substring(1) : currentFormula}`,
                             })
+                            void (props.mitoContainerRef.current?.querySelector('#cell-editor-input') as HTMLElement).focus();
                         } else {
                             const rowIndex = props.gridState.selections[0].startingRowIndex;
                             const columnIndex = props.gridState.selections[0].startingColumnIndex;

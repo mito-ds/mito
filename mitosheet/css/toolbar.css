@@ -242,6 +242,11 @@
   height: 18px;
 }
 
+/* This removes the underline that's automatically added to links */
+.mito-container a.mito-plan-button {
+  text-decoration: none;
+}
+
 .mito-toolbar-button-label {
   width: min-content;
   height: auto;
