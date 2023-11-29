@@ -65,6 +65,9 @@ export const DataTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Split_Text_To_Column]}
         />
         <ToolbarButton
+            action={props.actions.buildTimeActions[ActionEnum.COLUMN_HEADERS_TRANSFORM]}
+        />
+        <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Drop_Duplicates]}
         />
         <div>
