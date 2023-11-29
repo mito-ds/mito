@@ -70,6 +70,7 @@ import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
 import FunctionIcon from "../components/icons/FunctionIcon";
 import ScheduleIcon from "../components/icons/ScheduleIcon";
 import { getCodeString } from "../../jupyter/code";
+import BulkHeaderTransformIcon from "../components/icons/BulkColumnHeaderTransformIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -2046,7 +2047,8 @@ export const getActions = (
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',
             staticType: ActionEnum.COLUMN_HEADERS_TRANSFORM,
-            toolbarTitle: 'Bulk column header transform',
+            icon: BulkHeaderTransformIcon,
+            toolbarTitle: 'Rename Columns',
             longTitle: 'Bulk column headers transform',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
