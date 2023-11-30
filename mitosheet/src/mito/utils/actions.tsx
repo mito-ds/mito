@@ -78,6 +78,8 @@ import TrashIcon from "../components/icons/TrashIcon";
 import EditIcon from "../components/icons/EditIcon";
 import FormatContextMenuIcon from "../components/icons/FormatContextMenuIcon";
 import StarIcon from "../components/icons/StarIcon";
+import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
+import ResetIndexIcon from "../components/icons/ResetIndexIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -330,6 +332,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Column_Summary,
             titleToolbar: 'Column Summary',
+            titleContextMenu: 'Column Summary Stats',
             iconContextMenu: SummaryIcon,
             longTitle: 'View column summary statistics ',
             actionFunction: () => {
@@ -1324,6 +1327,8 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Promote_Row_To_Header,
             titleToolbar: 'Promote to Header',
+            iconContextMenu: PromoteToHeaderIcon,
+            titleContextMenu: 'Promote Row to Header',
             longTitle: 'Promote Row to header',
             actionFunction: async () => {
                 const rowsToPromote = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
@@ -1725,6 +1730,7 @@ export const getActions = (
             staticType: ActionEnum.Unique_Values,
             iconContextMenu: StarIcon,
             titleToolbar: 'Unique Values',
+            titleContextMenu: 'Column Unique Values',
             longTitle: 'View unique values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -2004,6 +2010,7 @@ export const getActions = (
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_KEEP_INDEX,
+            iconContextMenu: ResetIndexIcon,
             titleToolbar: 'Reset and Keep Index',
             longTitle: 'Reset and Keep Index',
             actionFunction: () => {
@@ -2016,6 +2023,8 @@ export const getActions = (
         [ActionEnum.RESET_AND_DROP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_DROP_INDEX,
+            iconContextMenu: ResetIndexIcon,
+            titleContextMenu: 'Reset Index',
             titleToolbar: 'Reset and Drop Index',
             longTitle: 'Reset and Drop Index',
             actionFunction: () => {
