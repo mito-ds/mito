@@ -1026,9 +1026,9 @@ export interface BaseAction<Type, StaticType> {
     longTitle: string
 
     // The optional icon to display for the action
-    toolbarIcon?: React.FC<any>;
+    iconToolbar?: React.FC<any>;
 
-    contextMenuIcon?: React.FC<any>;
+    iconContextMenu?: React.FC<any>;
 
     /* 
         The function to call if the action is taken by the user. This should

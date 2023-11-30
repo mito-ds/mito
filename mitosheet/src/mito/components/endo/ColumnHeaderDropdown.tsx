@@ -46,7 +46,7 @@ export default function ColumnHeaderDropdown(props: {
                 props.closeOpenEditingPopups();
                 void action.actionFunction();
             },
-            icon: action.contextMenuIcon ? <action.contextMenuIcon /> : action.toolbarIcon ? <action.toolbarIcon/> : <StepsIcon/>,
+            icon: action.iconContextMenu ? <action.iconContextMenu /> : action.iconToolbar ? <action.iconToolbar/> : <StepsIcon/>,
             rightText: action.displayKeyboardShortcuts?.mac
         }
     }
