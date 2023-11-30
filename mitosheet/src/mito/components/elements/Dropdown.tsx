@@ -457,14 +457,12 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const scrollRef = useRef<NodeJS.Timer | null>(null);
     const dropdownItemContainerRef = useRef<HTMLDivElement | null>(null);
     const [showScrollUp, setShowScrollUp] = useState(false);
-    const [showScrollDown, setShowScrollDown] = useState(true);
+    const [showScrollDown, setShowScrollDown] = useState(childrenToDisplay.length > 6);
 
     const updateScrollPosition = () => {
         const scrollHeight = dropdownItemContainerRef.current?.scrollHeight ?? 0;
         const scrollTop = dropdownItemContainerRef.current?.scrollTop ?? 0;
         const clientHeight = dropdownItemContainerRef.current?.clientHeight ?? 0;
-        console.log(dropdownItemContainerRef.current)
-        console.log(scrollHeight, scrollTop, clientHeight)
         
         if (dropdownItemContainerRef.current?.scrollTop === 0) {
             setShowScrollUp(false);
@@ -533,7 +531,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             }
                         }}
                     >
-                        ^
+                        ⌃
                     </div>
                     {childrenToDisplay.length > 0 && 
                         <div ref={dropdownItemContainerRef} className='mito-dropdown-items-container'>
