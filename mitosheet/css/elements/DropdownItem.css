@@ -37,7 +37,11 @@
     padding-right: 7px;
 }
 
-.mito-dropdown-item-icon-and-title-container .spacing-row-top-bottom-margin {
+.mito-dropdown-item-icon-and-title-container .mito-dropdown-item-title-and-shortcut-container {
+    display: flex;
+    flex-direction: row;
+    place-content: center space-between;
+    width: 100%;
     margin: 4px 11px 4px 0px;
 }
 

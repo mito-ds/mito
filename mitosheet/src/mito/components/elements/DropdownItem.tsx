@@ -3,7 +3,6 @@ import React from 'react';
 
 import '../../../../css/elements/DropdownItem.css'
 import { classNames } from '../../utils/classNames';
-import Row from '../layout/Row';
 import { DROPDOWN_IGNORE_CLICK_CLASS, DROPDOWN_SUPRESS_FOCUS_ON_CLOSE } from './Dropdown';
 
 interface DropdownItemProps {
@@ -97,7 +96,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                 <div className={classNames('mito-dropdown-item-icon-container')}>
                     {props.icon}
                 </div>}
-                <Row justify='space-between' align='center'>
+                <div className='mito-dropdown-item-title-and-shortcut-container'>
                     {/* 
                         Wrap in a span so that hovering over the HTML element shows the entire 
                         title, in case it is cut off
@@ -112,7 +111,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                             {props.rightText}
                         </span>
                     }
-                </Row>
+                </div>
             </div>
             {props.subtext &&
                 /* 
