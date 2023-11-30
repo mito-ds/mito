@@ -5,10 +5,19 @@ import React from 'react';
 
 const AddColumnIcon = (): JSX.Element => {
     return (
-        <svg width="11" height="15" viewBox="0 0 11 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7.44262 12.3725V13.6741C7.44262 14.0686 7.12049 14.3907 6.72604 14.3907H1.71657C1.32213 14.3907 1 14.0686 1 13.6741V2.07742C1 1.68297 1.32213 1.36084 1.71657 1.36084H6.72604C7.12049 1.36084 7.44262 1.68297 7.44262 2.07742V3.24103" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M7.44141 5.41052V10.3411" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M9.91371 7.87573H4.97656" stroke="var(--mito-text)" strokeMiterlimit="10" strokeLinecap="round"/>
+        <svg width="22" height="28" viewBox="0 0 22 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5.07471" y="26.6406" width="23" height="16" transform="rotate(-90 5.07471 26.6406)" fill="var(--mito-background)" stroke="var(--mito-text)"/>
+            <rect x="10.0747" y="26.6406" width="23" height="6" transform="rotate(-90 10.0747 26.6406)" fill="var(--mito-background)" stroke="var(--mito-text-medium)"/>
+            <rect x="5.07471" y="26.6406" width="23" height="16" transform="rotate(-90 5.07471 26.6406)" stroke="var(--mito-text)"/>
+            <rect x="10.0747" y="26.6406" width="23" height="6" transform="rotate(-90 10.0747 26.6406)" stroke="var(--mito-text-medium)"/>
+            <rect x="5.07471" y="26.6406" width="23" height="16" transform="rotate(-90 5.07471 26.6406)" stroke="var(--mito-text)"/>
+            <line x1="5.57471" y1="10.6406" x2="20.5747" y2="10.6406" stroke="var(--mito-text-medium)"/>
+            <line x1="5.57471" y1="18.6406" x2="20.5747" y2="18.6406" stroke="var(--mito-text-medium)"/>
+            <path d="M9.89575 25.9297L9.89575 0.575022L16.3958 0.635957L16.3958 13.5L16.3958 25.9297L9.89575 25.9297Z" fill="var(--mito-highlight-medium)" stroke="var(--mito-highlight)"/>
+            <path d="M9.57471 8.64062L15.8958 8.64062" stroke="var(--mito-highlight)"/>
+            <path d="M9.57471 16.6406L16.3958 16.6406" stroke="var(--mito-highlight)"/>
+            <path d="M5.5198 16.0596L9.59908 12.52M9.59908 12.52L5.48594 9.0197M9.59908 12.52L2.09917 12.556" stroke="var(--mito-background)" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round"/>
+            <path d="M5.5198 16.0596L9.59908 12.52M9.59908 12.52L5.48594 9.0197M9.59908 12.52L2.09917 12.556" stroke="var(--mito-highlight-medium)" strokeMiterlimit="10" strokeLinecap="round"/>
         </svg>
     )
 }

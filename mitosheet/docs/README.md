@@ -16,6 +16,7 @@ Each function has a single function documentation object in its docstring, which
         "SUM(A, B, D, F)",
         "SUM(A, B, D, F)"
     ],
+    "category": "MATH",
     "syntax": "SUM(value1, [value2, ...])",
     "syntax_elements": [{
             "element": "value1",
@@ -34,6 +35,7 @@ As a TypeScript type:
 interface FunctionDocumentationObject {
     function: string;
     description: string;
+    category?: 'MATH' | 'LOGIC' | 'FINANCE' | 'DATE' | 'TEXT' | 'REFERENCE';
     examples?: (string)[] | null;
     syntax: string;
     syntax_elements?: (SyntaxElementsEntity)[] | null;

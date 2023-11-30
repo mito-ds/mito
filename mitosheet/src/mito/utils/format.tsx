@@ -116,6 +116,18 @@ export const changeFormatOfColumns = async (
     )
 }
 
+/**
+ * Returns the number format applied to the currently selected column.
+ * If there is no number format applied, then returns undefined.
+ */
+export const getColumnAppliedFormat = (
+    sheetData: SheetData | undefined,
+    columnIDs: ColumnID[]
+) => {
+    const numberColumnColumnIDs = getNumberColumnIDs(sheetData, columnIDs);
+    const appliedFormatting = sheetData?.dfFormat.columns[numberColumnColumnIDs[0]];
+    return getFormatTitle(appliedFormatting);
+}
 
 /*
     Returns all of the format type DropdownItems where we only apply the format to the passed column id. 

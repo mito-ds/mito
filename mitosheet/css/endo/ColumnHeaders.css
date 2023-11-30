@@ -132,3 +132,7 @@
     justify-content: space-evenly;
     align-items: center;
 }
+
+.endo-column-header-final-icons:hover path {
+    stroke: var(--mito-highlight);
+}

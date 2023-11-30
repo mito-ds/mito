@@ -3,7 +3,7 @@ import { IJupyterLabPageFixture } from "@jupyterlab/galata";
 export const dfCreationCode = `import pandas as pd
 df = pd.DataFrame({'a': [1], 'b': [4]})\n`;
 
-type ToolbarButton = 'Add Col' | 'Del Col'
+type ToolbarButton = 'Insert' | 'Delete'
 
 export const createNewNotebook = async (page: IJupyterLabPageFixture, firstCellCode?: string) => {
   const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
@@ -29,7 +29,7 @@ export const createNewMitosheetOnlyTest = async (page: IJupyterLabPageFixture, f
 }
 
 export const clickToolbarButton = async (page: IJupyterLabPageFixture, button: ToolbarButton) => {
-  await page.click(`text=${button}`);
+  await page.locator('.mito-toolbar-bottom button', { hasText: button }).click();
 };
 
 export const getNumberOfColumns = async (page: IJupyterLabPageFixture, cellNumber: number) => {

@@ -19,6 +19,7 @@ import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 import { SendFunctionStatus } from "../../api/send";
 import { SearchBar } from "../SearchBar";
+import { Actions } from "../../utils/actions";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -90,7 +91,8 @@ function EndoGrid(props: {
     mitoContainerRef: React.RefObject<HTMLDivElement>
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     sendFunctionStatus: SendFunctionStatus;
-    analysisData: AnalysisData
+    analysisData: AnalysisData;
+    actions: Actions;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -689,6 +691,7 @@ function EndoGrid(props: {
                             setGridState={setGridState}
                             mitoAPI={mitoAPI}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
+                            actions={props.actions}
                         />
                         <IndexHeaders
                             sheetData={sheetData}

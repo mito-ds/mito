@@ -164,7 +164,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             <DefaultTaskpaneFooter>
                 <Row justify='space-between'>
                     {!importButtonStatus.disabled && !isExcelFile(selectedFile) &&
-                        <Col>
+                        <Col style={{ overflow: 'unset', marginRight: '3px', display: 'flex' }}>
                             <TextButton
                                 variant='light'
                                 width='hug-contents'
@@ -195,10 +195,9 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             </TextButton>
                         </Col>
                     }
-                    <Col span={!importButtonStatus.disabled && !isExcelFile(selectedFile) ? 18 : 24}>
+                    <Col style={{ width: '100%' }}>
                         <TextButton
                             variant='dark'
-                            width='block'
                             onClick={() => {
                                 if (isExcelFile(selectedFile)) {
                                     const openExcelImport = async () => {

@@ -351,3 +351,40 @@ def test_change_multiple_dtype_fails_is_atomic():
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))
     mito.change_column_dtype(0, ['A', 'B'], 'timedelta')
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': pd.to_datetime(['12-22-1997', '12-22-1997', '12-22-1997'])}))
+
+def test_change_dtype_to_datetime_mixed_string_type():
+    # https://github.com/mito-ds/mito/issues/1006
+    df = pd.DataFrame({'Date': [pd.to_datetime('1648784800000', unit='ms'), pd.to_datetime('1648784800000', unit='ms'), 'Q1 2023']})
+    mito = create_mito_wrapper(df)
+
+    mito.change_column_dtype(0, ['Date'], 'datetime')
+
+    print(mito.dfs[0])
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame({
+            'Date': [
+                pd.to_datetime('1648784800000', unit='ms'),
+                pd.to_datetime('1648784800000', unit='ms'),
+                pd.NaT
+            ]
+        })
+    )
+
+def test_change_dtype_to_datetime_finds_first_string():
+    df = pd.DataFrame({'Date': [pd.to_datetime('1648784800000', unit='ms'), pd.to_datetime('1648784800000', unit='ms'), '12/22/2023']})
+    mito = create_mito_wrapper(df)
+
+    mito.change_column_dtype(0, ['Date'], 'datetime')
+
+    print(mito.dfs[0])
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame({
+            'Date': [
+                pd.to_datetime('1648784800000', unit='ms'),
+                pd.to_datetime('1648784800000', unit='ms'),
+                pd.to_datetime('12/22/2023')
+            ]
+        })
+    )

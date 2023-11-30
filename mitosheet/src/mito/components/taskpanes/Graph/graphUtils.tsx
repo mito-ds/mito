@@ -1,6 +1,6 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData } from "../../../types"
+import { ColumnID, ColumnIDsMap, EditorState, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData, UIState } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype } from "../../../utils/dtypes"
@@ -8,6 +8,8 @@ import { convertStringToFloatOrUndefined } from "../../../utils/numbers"
 import { convertToStringOrUndefined } from "../../../utils/strings"
 import DropdownItem from "../../elements/DropdownItem"
 import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
+import { MitoAPI, getRandomId } from "../../../api/api"
+import { TaskpaneType } from "../taskpanes"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
@@ -260,3 +262,41 @@ export const convertBackendtoFrontendGraphParams = (graphParamsFrontend: GraphPa
         }
     }
 }
+
+export const openGraphEditor = 
+    async (
+        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+        sheetDataArray: SheetData[],
+        setUIState: React.Dispatch<React.SetStateAction<UIState>>,
+        sheetIndex: number,
+        mitoAPI: MitoAPI,
+        graphType?: GraphType
+    ) => {
+    // We turn off editing mode, if it is on
+        setEditorState(undefined);
+
+        // If there is no data, prompt the user to import and nothing else
+        if (sheetDataArray.length === 0) {
+            setUIState((prevUIState) => {
+                return {
+                    ...prevUIState,
+                    currOpenTaskpane: {
+                        type: TaskpaneType.IMPORT_FIRST,
+                        message: 'Before graphing data, you need to import some!'
+                    }
+                }
+            })
+            return;
+        }
+
+        const newGraphID = getRandomId() // Create a new GraphID
+        const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, graphType)
+
+        await mitoAPI.editGraph(
+            newGraphID,
+            graphParams,
+            '100%',
+            '100%',
+            getRandomId(), 
+        );
+    }

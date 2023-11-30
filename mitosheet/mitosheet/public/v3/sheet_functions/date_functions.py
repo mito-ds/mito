@@ -43,6 +43,7 @@ def DATEVALUE(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
         "function": "DATEVALUE",
         "description": "Converts a given string to a date series.",
         "search_terms": ["datevalue", "date value", "date", "string to date", "datetime", "dtype", "convert"],
+        "category": "DATE",
         "examples": [
             "DATEVALUE(date_column)",
             "DATEVALUE('2012-12-22')"
@@ -66,6 +67,7 @@ def DAY(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "DAY",
         "description": "Returns the day of the month that a specific date falls on, as a number.",
         "search_terms": ["day", "date"],
+        "category": "DATE",
         "examples": [
             "DAY(date_column)",
             "DAY('2012-12-22')"
@@ -92,6 +94,7 @@ def ENDOFBUSINESSMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionRetu
         "function": "ENDOFBUSINESSMONTH",
         "description": "Given a date, returns the end of the buisness month. E.g. the last weekday.",
         "search_terms": ["business", "month", "eom", "eobm", "date", "workday", "end"],
+        "category": "DATE",
         "examples": [
             "ENDOFBUSINESSMONTH(date_column)",
             "ENDOFBUSINESSMONTH('2012-12-22')"
@@ -121,6 +124,7 @@ def ENDOFMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType:
         "function": "ENDOFMONTH",
         "description": "Given a date, returns the end of the month, as a date. E.g. input of 12-22-1997 will return 12-31-1997.",
         "search_terms": ["month", "eom", "date", "workday", "end", "eomonth"],
+        "category": "DATE",
         "examples": [
             "ENDOFMONTH(date_column)",
             "ENDOFMONTH('2012-12-22')"
@@ -149,6 +153,7 @@ def HOUR(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "HOUR",
         "description": "Returns the hour component of a specific date, as a number.",
         "search_terms": ["hour", "hr"],
+        "category": "DATE",
         "examples": [
             "HOUR(date_column)",
             "HOUR('2012-12-22 09:45:00')"
@@ -175,6 +180,7 @@ def MINUTE(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "MINUTE",
         "description": "Returns the minute component of a specific date, as a number.",
         "search_terms": ["minute", "min"],
+        "category": "DATE",
         "examples": [
             "MINUTE(date_column)",
             "MINUTE('2012-12-22 09:45:00')"
@@ -201,6 +207,7 @@ def MONTH(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "MONTH",
         "description": "Returns the month that a specific date falls in, as a number.",
         "search_terms": ["month", "date"],
+        "category": "DATE",
         "examples": [
             "MONTH(date_column)",
             "MONTH('2012-12-22')"
@@ -227,6 +234,7 @@ def MONTHNAME(arg: DatetimeRestrictedInputType) -> StringFunctionReturnType:
         "function": "MONTHNAME",
         "description": "Returns the month that a specific date falls in, as Jan, Feb, Mar, etc.",
         "search_terms": ["month", "monthname", "date"],
+        "category": "DATE",
         "examples": [
             "MONTHNAME(date_column)",
             "MONTHNAME('2012-12-22')"
@@ -253,6 +261,7 @@ def QUARTER(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "QUARTER",
         "description": "Returns the quarter (1-4) that a specific date falls in, as a number.",
         "search_terms": ["quarter"],
+        "category": "DATE",
         "examples": [
             "QUARTER(date_column)",
             "QUARTER('2012-12-22')"
@@ -281,6 +290,7 @@ def STARTOFBUSINESSMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionRe
         "function": "STARTOFBUSINESSMONTH",
         "description": "Given a date, returns the most recent start of the business month, as a state. E.g. the first weekday.",
         "search_terms": ["business", "month", "SOM", "SOBM", "date", "start"],
+        "category": "DATE",
         "examples": [
             "STARTOFBUSINESSMONTH(date_column)",
             "STARTOFBUSINESSMONTH('2012-12-22 09:23:05')"
@@ -309,6 +319,7 @@ def STARTOFMONTH(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnType
         "function": "STARTOFMONTH",
         "description": "Given a date, returns the start of the month, as a date. E.g. input of 12-22-1997 will return 12-1-1997.",
         "search_terms": ["month", "SOM", "date", "start"],
+        "category": "DATE",
         "examples": [
             "STARTOFMONTH(date_column)",
             "STARTOFMONTH('2012-12-22 09:23:05')"
@@ -338,6 +349,7 @@ def STRIPTIMETOMINUTES(arg: DatetimeRestrictedInputType) -> DatetimeFunctionRetu
         "function": "STRIPTIMETOMINUTES",
         "description": "Returns the date with a seconds component of 00.",
         "search_terms": ["time", "date", "minutes", "strip"],
+        "category": "DATE",
         "examples": [
             "STRIPTIMETOMINUTES(date_column)",
             "STRIPTIMETOMINUTES('2012-12-22 09:23:05')"
@@ -366,6 +378,7 @@ def STRIPTIMETOHOURS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturn
         "function": "STRIPTIMETOHOURS",
         "description": "Returns the date with a seconds and minutes component of 00:00.",
         "search_terms": ["time", "date", "hours", "strip"],
+        "category": "DATE",
         "examples": [
             "STRIPTIMETOHOURS(date_column)",
             "STRIPTIMETOHOURS('2012-12-22 09:23:05')"
@@ -394,6 +407,7 @@ def STRIPTIMETODAYS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturnT
         "function": "STRIPTIMETODAYS",
         "description": "Returns the date with a seconds, minutes, and hours component of 00:00:00.",
         "search_terms": ["time", "date", "days", "strip"],
+        "category": "DATE",
         "examples": [
             "STRIPTIMETODAYS(date_column)",
             "STRIPTIMETODAYS('2012-12-22 09:23:05')"
@@ -422,6 +436,7 @@ def STRIPTIMETOMONTHS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionRetur
         "function": "STRIPTIMETOMONTHS",
         "description": "Returns the date adjusted to the start of the month.",
         "search_terms": ["time", "date", "months", "strip"],
+        "category": "DATE",
         "examples": [
             "STRIPTIMETOMONTHS(date_column)",
             "STRIPTIMETOMONTHS('2012-12-22 09:23:05')"
@@ -451,6 +466,7 @@ def STRIPTIMETOYEARS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionReturn
         "function": "STRIPTIMETOYEARS",
         "description": "Returns the date adjusted to the start of the year.",
         "search_terms": ["time", "date", "years", "strip"],
+        "category": "DATE",
         "examples": [
             "STRIPTIMETOYEARS(date_column)",
             "STRIPTIMETOYEARS('2012-12-22 09:23:05')"
@@ -479,6 +495,7 @@ def SECOND(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "SECOND",
         "description": "Returns the seconds component of a specific date, as a number.",
         "search_terms": ["second", "sec"],
+        "category": "DATE",
         "examples": [
             "SECOND(date_column)",
             "SECOND('2012-12-22 09:23:05')"
@@ -507,6 +524,7 @@ def WEEK(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "WEEK",
         "description": "Returns the week (1-52) of a specific date, as a number.",
         "search_terms": ["week", "1", "52"],
+        "category": "DATE",
         "examples": [
             "WEEK(date_column)",
             "WEEK('2012-12-22 09:23:05')"
@@ -539,6 +557,7 @@ def WEEKDAY(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "WEEKDAY",
         "description": "Returns the day of the week that a specific date falls on. 1-7 corresponds to Monday-Sunday.",
         "search_terms": ["weekday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+        "category": "DATE",
         "examples": [
             "WEEKDAY(date_column)",
             "WEEKDAY('2012-12-22')"
@@ -567,6 +586,7 @@ def YEAR(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         "function": "YEAR",
         "description": "Returns the day of the year that a specific date falls in, as a number.",
         "search_terms": ["year", "date"],
+        "category": "DATE",
         "examples": [
             "YEAR(date_column)",
             "YEAR('2012-12-22')"

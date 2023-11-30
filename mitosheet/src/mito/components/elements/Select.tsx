@@ -48,6 +48,16 @@ interface SelectProps {
         * @param [className] - Optional classes to apply to select 
     */
     className?: string
+
+    /**
+     * Custom styles to add to the component
+     */
+    style?: React.CSSProperties
+
+    /**
+     * Custom styles for the icon 
+     */ 
+    iconStyle?: React.CSSProperties
 }
 
 /**
@@ -107,6 +117,7 @@ const Select = (props: SelectProps): JSX.Element => {
     return (
         <div 
             className={classNames('select-container', 'text-body-2', widthClass, dropdownActiveClass, providedClasses, {'select-disabled': props.disabled})}
+            style={props.style}
             onClick={() => {
                 // If the select is disabled, then don't do anything
                 if (props.disabled) {
@@ -127,7 +138,7 @@ const Select = (props: SelectProps): JSX.Element => {
             <p className='select-text'>
                 {displayValue}
             </p>
-            <div className='select-dropdown-icon-container'>
+            <div className='select-dropdown-icon-container' style={props.iconStyle}>
                 <SelectDropdownIcon variant='select'/>
             </div>
             <Dropdown
