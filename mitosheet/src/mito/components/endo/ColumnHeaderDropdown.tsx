@@ -16,6 +16,7 @@ import EditIcon from '../icons/EditIcon';
 import FormatContextMenuIcon from '../icons/FormatContextMenuIcon';
 import SortAscendingIcon from '../icons/SortAscendingIcon';
 import SortDescendingIcon from '../icons/SortDescendingIcon';
+import StarIcon from '../icons/StarIcon';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -60,7 +61,6 @@ export default function ColumnHeaderDropdown(props: {
         <Dropdown
             display={props.display}
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
-            width='large'
         >
             <DropdownItem
                 {...getPropsForDropdownItem(ActionEnum.Copy)}
@@ -113,7 +113,10 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
             <DropdownItem {...getPropsForDropdownItem(ActionEnum.Column_Summary)}/>
-            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Unique_Values)}/>
+            <DropdownItem
+                {...getPropsForDropdownItem(ActionEnum.Unique_Values)}
+                icon={<StarIcon/>}
+            />
         </Dropdown>
     )
 }

@@ -37,6 +37,10 @@
     padding-right: 7px;
 }
 
+.mito-dropdown-item-icon-and-title-container .spacing-row-top-bottom-margin {
+    margin: 4px 11px 4px 0px;
+}
+
 .mito-dropdown-item-icon-container path {
     width: 13px;
     stroke-width: 1;
