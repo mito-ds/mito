@@ -90,7 +90,7 @@ const ToolbarButton = (
                 */}
                 <span title={disabledTooltip ?? props.action.tooltip ?? props.action.toolbarTitle}>
                     <div className='mito-toolbar-button-icon-container'>
-                        {props.iconOverride ?? (props.action.icon !== undefined ? <props.action.icon /> : <StepsIcon />)}
+                        {props.iconOverride ?? (props.action.toolbarIcon !== undefined ? <props.action.toolbarIcon /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                         {props.children !== undefined && props.children}
                     </div>

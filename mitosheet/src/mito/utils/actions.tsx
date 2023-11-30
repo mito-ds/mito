@@ -72,6 +72,12 @@ import ScheduleIcon from "../components/icons/ScheduleIcon";
 import { getCodeString } from "../../jupyter/code";
 import BulkHeaderTransformIcon from "../components/icons/BulkColumnHeaderTransformIcon";
 import SummaryIcon from "../components/icons/SummaryIcon";
+import CopyContextMenuIcon from "../components/icons/CopyContextMenuItem";
+import PlusIcon from "../components/icons/PlusIcon";
+import TrashIcon from "../components/icons/TrashIcon";
+import EditIcon from "../components/icons/EditIcon";
+import FormatContextMenuIcon from "../components/icons/FormatContextMenuIcon";
+import StarIcon from "../components/icons/StarIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -163,7 +169,8 @@ export const getActions = (
         [ActionEnum.Add_Column_Right]: {
             type: 'build-time',
             staticType: ActionEnum.Add_Column_Right,
-            icon: AddColumnIcon,
+            toolbarIcon: AddColumnIcon,
+            contextMenuIcon: PlusIcon,
             toolbarTitle: 'Insert',
             longTitle: 'Insert column to the Right',
             actionFunction: async () => {
@@ -207,7 +214,8 @@ export const getActions = (
         [ActionEnum.Add_Column_Left]: {
             type: 'build-time',
             staticType: ActionEnum.Add_Column_Left,
-            icon: AddColumnIcon,
+            toolbarIcon: AddColumnIcon,
+            contextMenuIcon: PlusIcon,
             toolbarTitle: 'Insert',
             longTitle: 'Insert Column to the Left',
             actionFunction: async () => {
@@ -251,7 +259,7 @@ export const getActions = (
         [ActionEnum.Catch_Up]: {
             type: 'build-time',
             staticType: ActionEnum.Catch_Up,
-            icon: CatchUpIcon,
+            toolbarIcon: CatchUpIcon,
             toolbarTitle: 'Catch Up',
             longTitle: 'Catch up',
             actionFunction: () => {
@@ -266,7 +274,7 @@ export const getActions = (
         [ActionEnum.Change_Dtype]: {
             type: 'build-time',
             staticType: ActionEnum.Change_Dtype,
-            icon: DtypeIcon,
+            toolbarIcon: DtypeIcon,
             toolbarTitle: 'Dtype',
             longTitle: 'Change column dtype',
             actionFunction: () => {
@@ -293,7 +301,7 @@ export const getActions = (
         [ActionEnum.Clear]: {
             type: 'build-time',
             staticType: ActionEnum.Clear,
-            icon: ClearIcon,
+            toolbarIcon: ClearIcon,
             longTitle: "Clear all edits",
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -320,7 +328,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Column_Summary,
             toolbarTitle: 'Column Summary',
-            icon: SummaryIcon,
+            contextMenuIcon: SummaryIcon,
             longTitle: 'View column summary statistics ',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -344,7 +352,8 @@ export const getActions = (
         [ActionEnum.Copy]: {
             type: 'build-time',
             staticType: ActionEnum.Copy,
-            icon: CopyIcon,
+            toolbarIcon: CopyIcon,
+            contextMenuIcon: CopyContextMenuIcon,
             toolbarTitle: 'Copy',
             longTitle: 'Copy',
             actionFunction: () => {
@@ -387,7 +396,7 @@ export const getActions = (
         [ActionEnum.CopyCode]: {
             type: 'build-time',
             staticType: ActionEnum.CopyCode,
-            icon: CopyIcon,
+            toolbarIcon: CopyIcon,
             toolbarTitle: 'Copy Code',
             longTitle: 'Copy Code to Clipboard',
             actionFunction: () => {
@@ -414,7 +423,8 @@ export const getActions = (
         [ActionEnum.Delete]: {
             type: 'build-time',
             staticType: ActionEnum.Delete,
-            icon: DeleteColumnIcon,
+            toolbarIcon: DeleteColumnIcon,
+            contextMenuIcon: TrashIcon,
             toolbarTitle: 'Delete',
             longTitle: 'Delete column / row',
             actionFunction: async () => {
@@ -531,7 +541,7 @@ export const getActions = (
         [ActionEnum.Drop_Duplicates]: {
             type: 'build-time',
             staticType: ActionEnum.Drop_Duplicates,
-            icon: RemoveDuplicatesIcon,
+            toolbarIcon: RemoveDuplicatesIcon,
             toolbarTitle: 'Remove Duplicates',
             longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
@@ -594,7 +604,7 @@ export const getActions = (
         [ActionEnum.Export]: {
             type: 'build-time',
             staticType: ActionEnum.Export,
-            icon: ExportIcon,
+            toolbarIcon: ExportIcon,
             toolbarTitle: 'Download',
             longTitle: 'Download File Now',
             actionFunction: () => {
@@ -622,7 +632,7 @@ export const getActions = (
         [ActionEnum.Export_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Export_Dropdown,
-            icon: ExportIcon,
+            toolbarIcon: ExportIcon,
             toolbarTitle: 'Export',
             longTitle: 'Open Export Dropdown',
             actionFunction: () => {
@@ -645,7 +655,7 @@ export const getActions = (
         [ActionEnum.Fill_Na]: {
             type: 'build-time',
             staticType: ActionEnum.Fill_Na,
-            icon: FillNanIcon,
+            toolbarIcon: FillNanIcon,
             toolbarTitle: 'Fill Missing Values',
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
@@ -674,7 +684,7 @@ export const getActions = (
         [ActionEnum.Filter]: {
             type: 'build-time',
             staticType: ActionEnum.Filter,
-            icon: FilterIcon,
+            toolbarIcon: FilterIcon,
             toolbarTitle: 'Filter',
             longTitle: 'Filter column',
             actionFunction: () => {
@@ -729,7 +739,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Math]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Math,
-            icon: MathFunctionsIcon,
+            toolbarIcon: MathFunctionsIcon,
             longTitle: 'Math Formulas',
             toolbarTitle: 'Math',
             actionFunction: () => {
@@ -750,7 +760,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Logic]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Logic,
-            icon: LogicalFunctionsIcon,
+            toolbarIcon: LogicalFunctionsIcon,
             longTitle: 'Logic Formulas',
             toolbarTitle: 'Logical',
             actionFunction: () => {
@@ -771,7 +781,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Text]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Text,
-            icon: TextFunctionsIcon,
+            toolbarIcon: TextFunctionsIcon,
             longTitle: 'Text Formulas',
             toolbarTitle: 'Text',
             actionFunction: () => {
@@ -792,7 +802,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_DateTime]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_DateTime,
-            icon: DateTimeFunctionsIcon,
+            toolbarIcon: DateTimeFunctionsIcon,
             longTitle: 'Date and Time Formulas',
             toolbarTitle: 'Date & Time',
             actionFunction: () => {
@@ -813,7 +823,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Reference]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Reference,
-            icon: LookupFunctionsIcon,
+            toolbarIcon: LookupFunctionsIcon,
             longTitle: 'Lookup & Reference Formulas',
             toolbarTitle: 'Lookup & Reference',
             actionFunction: () => {
@@ -834,7 +844,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Custom]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Custom,
-            icon: LookupFunctionsIcon,
+            toolbarIcon: LookupFunctionsIcon,
             longTitle: 'Custom Formulas',
             toolbarTitle: 'Custom',
             actionFunction: () => {
@@ -861,7 +871,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Finance]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Finance,
-            icon: FinancialFunctionsIcon,
+            toolbarIcon: FinancialFunctionsIcon,
             longTitle: 'Finance Formulas',
             toolbarTitle: 'Finance',
             actionFunction: () => {
@@ -882,7 +892,7 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_More]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_More,
-            icon: MoreFunctionsIcon,
+            toolbarIcon: MoreFunctionsIcon,
             longTitle: 'More Formulas',
             toolbarTitle: 'More',
             actionFunction: () => {
@@ -903,7 +913,7 @@ export const getActions = (
         [ActionEnum.Currency_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Currency_Format,
-            icon: CurrencyIcon,
+            toolbarIcon: CurrencyIcon,
             longTitle: 'Format as currency',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -924,7 +934,7 @@ export const getActions = (
         [ActionEnum.Percent_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Percent_Format,
-            icon: PercentIcon,
+            toolbarIcon: PercentIcon,
             longTitle: 'Format as percentage',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -974,7 +984,7 @@ export const getActions = (
         [ActionEnum.Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Graph,
-            icon: GraphIcon,
+            toolbarIcon: GraphIcon,
             toolbarTitle: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
@@ -987,7 +997,7 @@ export const getActions = (
         [ActionEnum.Graph_Bar]: {
             type: 'build-time',
             staticType: ActionEnum.Graph_Bar,
-            icon: GraphIcon,
+            toolbarIcon: GraphIcon,
             longTitle: 'Create new bar chart',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR);
@@ -999,7 +1009,7 @@ export const getActions = (
         [ActionEnum.Graph_Line]: {
             type: 'build-time',
             staticType: ActionEnum.Graph_Line,
-            icon: LineChartIcon,
+            toolbarIcon: LineChartIcon,
             longTitle: 'Create new line graph',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
@@ -1011,7 +1021,7 @@ export const getActions = (
         [ActionEnum.Graph_Scatter]: {
             type: 'build-time',
             staticType: ActionEnum.Graph_Scatter,
-            icon: ScatterPlotIcon,
+            toolbarIcon: ScatterPlotIcon,
             longTitle: 'Create new scatter plot',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
@@ -1044,7 +1054,7 @@ export const getActions = (
         [ActionEnum.Import_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Dropdown,
-            icon: ImportIcon,
+            toolbarIcon: ImportIcon,
             toolbarTitle: 'Import',
             longTitle: 'Open import dropdown',
             actionFunction: () => {
@@ -1069,7 +1079,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Import_Files,
             toolbarTitle: 'Import Files',
-            icon: FileImportIcon,
+            toolbarIcon: FileImportIcon,
             longTitle: 'Import files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1094,7 +1104,7 @@ export const getActions = (
         [ActionEnum.Merge]: {
             type: 'build-time',
             staticType: ActionEnum.Merge,
-            icon: MergeIcon,
+            toolbarIcon: MergeIcon,
             toolbarTitle: 'Merge',
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
@@ -1118,7 +1128,7 @@ export const getActions = (
         [ActionEnum.Merge_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Merge_Dropdown,
-            icon: MergeIcon,
+            toolbarIcon: MergeIcon,
             toolbarTitle: 'Merge',
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
@@ -1140,7 +1150,7 @@ export const getActions = (
         [ActionEnum.AntiMerge]: {
             type: 'build-time',
             staticType: ActionEnum.AntiMerge,
-            icon: AntiMergeIcon,
+            toolbarIcon: AntiMergeIcon,
             toolbarTitle: 'Anti-Merge',
             longTitle: 'Merge dataframes unique in left',
             actionFunction: async () => {
@@ -1164,7 +1174,7 @@ export const getActions = (
         [ActionEnum.Concat_Dataframes]: {
             type: 'build-time',
             staticType: ActionEnum.Concat_Dataframes,
-            icon: ConcatIcon,
+            toolbarIcon: ConcatIcon,
             toolbarTitle: 'Concat',
             longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
@@ -1188,7 +1198,7 @@ export const getActions = (
         [ActionEnum.Pivot]: {
             type: 'build-time',
             staticType: ActionEnum.Pivot,
-            icon: PivotIcon,
+            toolbarIcon: PivotIcon,
             toolbarTitle: 'Pivot',
             longTitle: 'Pivot table',
             actionFunction: async () => {
@@ -1255,7 +1265,7 @@ export const getActions = (
         [ActionEnum.Precision_Decrease]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Decrease,
-            icon: LessIcon,
+            toolbarIcon: LessIcon,
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -1283,7 +1293,7 @@ export const getActions = (
         [ActionEnum.Precision_Increase]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Increase,
-            icon: MoreIcon,
+            toolbarIcon: MoreIcon,
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -1331,7 +1341,7 @@ export const getActions = (
         [ActionEnum.Redo]: {
             type: 'build-time',
             staticType: ActionEnum.Redo,
-            icon: RedoIcon,
+            toolbarIcon: RedoIcon,
             longTitle: 'Redo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1354,6 +1364,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Rename_Column,
             toolbarTitle: 'Rename Column',
+            contextMenuIcon: EditIcon,
             longTitle: 'Rename column',
             actionFunction: () => {
                 const columnHeader = getCellDataFromCellIndexes(sheetData, -1, startingColumnIndex).columnHeader;
@@ -1431,7 +1442,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Schedule_Github,
             toolbarTitle: 'Schedule Automation',
-            icon: ScheduleIcon,
+            toolbarIcon: ScheduleIcon,
             longTitle: 'Schedule Automation',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -1509,7 +1520,7 @@ export const getActions = (
         [ActionEnum.Set_Column_Formula]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Column_Formula,
-            icon: FunctionIcon,
+            toolbarIcon: FunctionIcon,
             toolbarTitle: 'Insert Function',
             longTitle: 'Set column formula',
             actionFunction: async () => {  
@@ -1540,7 +1551,7 @@ export const getActions = (
         [ActionEnum.Sort]: {
             type: 'build-time',
             staticType: ActionEnum.Sort,
-            icon: SortIcon,
+            toolbarIcon: SortIcon,
             toolbarTitle: 'Sort',
             longTitle: 'Sort column',
             actionFunction: () => {
@@ -1565,7 +1576,7 @@ export const getActions = (
         [ActionEnum.SortAscending]: {
             type: 'build-time',
             staticType: ActionEnum.SortAscending,
-            icon: SortAscendingIcon,
+            toolbarIcon: SortAscendingIcon,
             longTitle: 'Sort column ascending',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1584,7 +1595,7 @@ export const getActions = (
         [ActionEnum.SortDescending]: {
             type: 'build-time',
             staticType: ActionEnum.SortDescending,
-            icon: SortDescendingIcon,
+            toolbarIcon: SortDescendingIcon,
             longTitle: 'Sort column descending',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1605,7 +1616,7 @@ export const getActions = (
         [ActionEnum.Split_Text_To_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Split_Text_To_Column,
-            icon: TextToColumnsIcon,
+            toolbarIcon: TextToColumnsIcon,
             toolbarTitle: 'Text to Columns',
             longTitle: 'Split text to columns',
             actionFunction: () => {
@@ -1647,7 +1658,7 @@ export const getActions = (
         [ActionEnum.OpenSearch]: {
             type: 'build-time',
             staticType: ActionEnum.OpenSearch,
-            icon: SearchIcon,
+            toolbarIcon: SearchIcon,
             longTitle: 'Search',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1680,7 +1691,7 @@ export const getActions = (
         [ActionEnum.Undo]: {
             type: 'build-time',
             staticType: ActionEnum.Undo,
-            icon: UndoIcon,
+            toolbarIcon: UndoIcon,
             longTitle: 'Undo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1702,6 +1713,7 @@ export const getActions = (
         [ActionEnum.Unique_Values]: {
             type: 'build-time',
             staticType: ActionEnum.Unique_Values,
+            contextMenuIcon: StarIcon,
             toolbarTitle: 'Unique Values',
             longTitle: 'View unique values',
             actionFunction: () => {
@@ -1747,7 +1759,7 @@ export const getActions = (
         [ActionEnum.Transpose]: {
             type: 'build-time',
             staticType: ActionEnum.Transpose,
-            icon: TransposeIcon,
+            toolbarIcon: TransposeIcon,
             toolbarTitle: 'Transpose',
             longTitle: 'Transpose dataframe',
             actionFunction: () => {
@@ -1760,7 +1772,7 @@ export const getActions = (
         [ActionEnum.Melt]: {
             type: 'build-time',
             staticType: ActionEnum.Melt,
-            icon: UnpivotIcon,
+            toolbarIcon: UnpivotIcon,
             toolbarTitle: 'Unpivot',
             longTitle: 'Unpivot dataframe',
             actionFunction: () => {
@@ -1782,7 +1794,7 @@ export const getActions = (
         [ActionEnum.One_Hot_Encoding]: {
             type: 'build-time',
             staticType: ActionEnum.One_Hot_Encoding,
-            icon: OneHotEncodingIcon,
+            toolbarIcon: OneHotEncodingIcon,
             toolbarTitle: 'One-hot Encoding',
             longTitle: 'One-hot Encoding',
             actionFunction: () => {
@@ -1798,7 +1810,8 @@ export const getActions = (
         [ActionEnum.Set_Dataframe_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Dataframe_Format,
-            icon: FormatIcon,
+            toolbarIcon: FormatIcon,
+            contextMenuIcon: FormatContextMenuIcon,
             toolbarTitle: 'Format',
             longTitle: 'Set dataframe colors',
             actionFunction: () => {
@@ -1820,7 +1833,7 @@ export const getActions = (
         [ActionEnum.Conditional_Formatting]: {
             type: 'build-time',
             staticType: ActionEnum.Conditional_Formatting,
-            icon: ConditionalFormatIcon,
+            toolbarIcon: ConditionalFormatIcon,
             toolbarTitle: 'Conditional Formatting',
             longTitle: 'Conditional formatting',
             actionFunction: () => {
@@ -1844,7 +1857,7 @@ export const getActions = (
         [ActionEnum.Dataframe_Import]: {
             type: 'build-time',
             staticType: ActionEnum.Dataframe_Import,
-            icon: DataFrameImportIcon,
+            toolbarIcon: DataFrameImportIcon,
             toolbarTitle: 'Import Dataframes',
             longTitle: 'Import dataframes',
             actionFunction: () => {
@@ -1870,7 +1883,7 @@ export const getActions = (
         [ActionEnum.UPDATEIMPORTS]: {
             type: 'build-time',
             staticType: ActionEnum.UPDATEIMPORTS,
-            icon: GearIcon,
+            toolbarIcon: GearIcon,
             toolbarTitle: 'Change imports',
             longTitle: 'Change imported data',
             actionFunction: () => {
@@ -1892,7 +1905,7 @@ export const getActions = (
         [ActionEnum.CODESNIPPETS]: {
             type: 'build-time',
             staticType: ActionEnum.CODESNIPPETS,
-            icon: CodeSnippetIcon,
+            toolbarIcon: CodeSnippetIcon,
             toolbarTitle: 'Code Snippets',
             longTitle: 'Code Snippets',
             actionFunction: () => {
@@ -1914,7 +1927,7 @@ export const getActions = (
         [ActionEnum.CODEOPTIONS]: {
             type: 'build-time',
             staticType: ActionEnum.CODEOPTIONS,
-            icon: GearIcon,
+            toolbarIcon: GearIcon,
             toolbarTitle: 'Configure Code',
             longTitle: 'Configure Code',
             actionFunction: () => {
@@ -1958,7 +1971,7 @@ export const getActions = (
         [ActionEnum.RESET_INDEX_DROPDOWN]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_INDEX_DROPDOWN,
-            icon: ResetIcon,
+            toolbarIcon: ResetIcon,
             toolbarTitle: 'Reset Index',
             longTitle: 'Reset Index Dropdown',
             actionFunction: () => {
@@ -2005,7 +2018,7 @@ export const getActions = (
         [ActionEnum.SNOWFLAKEIMPORT]: {
             type: 'build-time',
             staticType: ActionEnum.SNOWFLAKEIMPORT,
-            icon: SnowflakeIcon,
+            toolbarIcon: SnowflakeIcon,
             toolbarTitle: 'Snowflake Import',
             longTitle: 'Snowflake Import',
             actionFunction: () => {
@@ -2028,7 +2041,7 @@ export const getActions = (
         [ActionEnum.AI_TRANSFORMATION]: {
             type: 'build-time',
             staticType: ActionEnum.AI_TRANSFORMATION,
-            icon: AIIcon,
+            toolbarIcon: AIIcon,
             toolbarTitle: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
@@ -2049,7 +2062,7 @@ export const getActions = (
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',
             staticType: ActionEnum.COLUMN_HEADERS_TRANSFORM,
-            icon: BulkHeaderTransformIcon,
+            toolbarIcon: BulkHeaderTransformIcon,
             toolbarTitle: 'Rename Columns',
             longTitle: 'Bulk column headers transform',
             actionFunction: () => {

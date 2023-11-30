@@ -9,14 +9,8 @@ import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import StepsIcon from '../icons/StepsIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import PlusIcon from '../icons/PlusIcon';
-import CopyContextMenuIcon from '../icons/CopyContextMenuItem';
-import TrashIcon from '../icons/TrashIcon';
-import EditIcon from '../icons/EditIcon';
-import FormatContextMenuIcon from '../icons/FormatContextMenuIcon';
 import SortAscendingIcon from '../icons/SortAscendingIcon';
 import SortDescendingIcon from '../icons/SortDescendingIcon';
-import StarIcon from '../icons/StarIcon';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -52,7 +46,7 @@ export default function ColumnHeaderDropdown(props: {
                 props.closeOpenEditingPopups();
                 void action.actionFunction();
             },
-            icon: action.icon ? <action.icon /> : <StepsIcon/>,
+            icon: action.contextMenuIcon ? <action.contextMenuIcon /> : action.toolbarIcon ? <action.toolbarIcon/> : <StepsIcon/>,
             rightText: action.displayKeyboardShortcuts?.mac
         }
     }
@@ -62,32 +56,25 @@ export default function ColumnHeaderDropdown(props: {
             display={props.display}
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
         >
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.Copy)}
-                icon={<CopyContextMenuIcon/>}
-            />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Copy)} />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
             <DropdownItem
                 {...getPropsForDropdownItem(ActionEnum.Add_Column_Left)}
                 title='Insert Column Left'
-                icon={<PlusIcon/>}
             />
             <DropdownItem
                 {...getPropsForDropdownItem(ActionEnum.Add_Column_Right)}
                 title='Insert Column Right'
-                icon={<PlusIcon/>}
             />
             <DropdownItem
                 {...getPropsForDropdownItem(ActionEnum.Delete)}
                 title='Delete Column'
-                icon={<TrashIcon/>}
             />
             <DropdownItem
                 {...getPropsForDropdownItem(ActionEnum.Rename_Column)}
                 title='Rename'
-                icon={<EditIcon/>}    
             />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
@@ -105,18 +92,12 @@ export default function ColumnHeaderDropdown(props: {
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.Set_Dataframe_Format)}
-                icon={<FormatContextMenuIcon/>}    
-            />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Set_Dataframe_Format)} />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
             <DropdownItem {...getPropsForDropdownItem(ActionEnum.Column_Summary)}/>
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.Unique_Values)}
-                icon={<StarIcon/>}
-            />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Unique_Values)} />
         </Dropdown>
     )
 }

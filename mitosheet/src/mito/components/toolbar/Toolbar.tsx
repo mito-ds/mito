@@ -74,7 +74,7 @@ export const Toolbar = (
                 return <ToolbarButton
                     action={action}
                     key={action.staticType}
-                    iconOverride={action.icon === undefined ? <EditIcon/> : undefined}
+                    iconOverride={action.toolbarIcon === undefined ? <EditIcon/> : undefined}
                 />
             })}
         </div>
