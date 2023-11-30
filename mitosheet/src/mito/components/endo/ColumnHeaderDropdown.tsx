@@ -17,7 +17,6 @@ import { getPropsForDropdownItem } from './utils';
 */
 export default function ColumnHeaderDropdown(props: {
     mitoAPI: MitoAPI;
-    setOpenColumnHeaderDropdown: React.Dispatch<React.SetStateAction<boolean>>,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     openColumnHeaderEditor: () => void;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
@@ -41,7 +40,7 @@ export default function ColumnHeaderDropdown(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
+            closeDropdown={() => props.setUIState((prevUIState) => ({...prevUIState, currOpenDropdown: undefined}))}
         >
             <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)} />
 

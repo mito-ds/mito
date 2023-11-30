@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { MitoSelection, SheetData } from '../../types';
+import { MitoSelection, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
@@ -19,7 +19,7 @@ export default function IndexHeaderDropdown(props: {
     selections: MitoSelection[];
     display: boolean;
     index: string | number,
-    setOpenIndexHeaderDropdown: React.Dispatch<React.SetStateAction<number | undefined>>,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 
@@ -33,8 +33,8 @@ export default function IndexHeaderDropdown(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setOpenIndexHeaderDropdown(undefined)}
-            width='medium'
+            closeDropdown={() => props.setUIState((prevUIState) => ({...prevUIState, currOpenDropdown: undefined}))}
+            width='large'
         >
             <DropdownItem 
                 title='Delete Rows'

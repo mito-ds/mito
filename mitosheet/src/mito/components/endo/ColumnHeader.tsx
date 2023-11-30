@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { ContextMenu, EditorState, GridState, SheetData, UIState } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -65,8 +65,8 @@ const ColumnHeader = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     actions: Actions;
 }): JSX.Element => {
-
-    const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = useState(false);
+    const currOpenDropdown = (props.uiState.currOpenDropdown as ContextMenu);
+    const openColumnHeaderDropdown = currOpenDropdown?.column;
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
@@ -203,7 +203,15 @@ const ColumnHeader = (props: {
             draggable={!editingColumnHeader ? 'true' : 'false'}
             onContextMenu={(e) => {
                 e.preventDefault()
-                setOpenColumnHeaderDropdown(true);
+                props.setUIState((prevUiState) => {
+                    return {
+                        ...prevUiState,
+                        currOpenDropdown: {
+                            row: -1,
+                            column: props.columnIndex
+                        }
+                    }
+                });
             }}
         >
             {lowerLevelColumnHeaders.map((lowerLevelColumnHeader, levelIndex) => {
@@ -425,13 +433,12 @@ const ColumnHeader = (props: {
             </div>
             <ColumnHeaderDropdown
                 mitoAPI={props.mitoAPI}
-                setOpenColumnHeaderDropdown={setOpenColumnHeaderDropdown}
                 setUIState={props.setUIState}
                 openColumnHeaderEditor={openColumnHeaderEditor}
                 sheetIndex={props.gridState.sheetIndex}
                 columnID={columnID}
                 columnDtype={columnDtype}
-                display={openColumnHeaderDropdown}
+                display={openColumnHeaderDropdown === props.columnIndex}
                 closeOpenEditingPopups={props.closeOpenEditingPopups} 
                 setEditorState={props.setEditorState}
                 sheetData={props.sheetData}
