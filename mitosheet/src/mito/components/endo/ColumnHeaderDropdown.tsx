@@ -41,7 +41,7 @@ export default function ColumnHeaderDropdown(props: {
     const getPropsForDropdownItem = (actionName: ActionEnum) => {
         const action = props.actions.buildTimeActions[actionName];
         return {
-            title: action.titleToolbar ?? action.longTitle,
+            title: action.titleContextMenu ?? action.titleToolbar ?? action.longTitle,
             onClick: () => {
                 props.closeOpenEditingPopups();
                 void action.actionFunction();
