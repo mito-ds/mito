@@ -1,8 +1,9 @@
-import { ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
+import { Action, ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
+import StepsIcon from "../icons/StepsIcon";
 import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
 import { getWidthData } from "./widthUtils";
-
+import React from 'react';
 
 export const isNumberInRangeInclusive = (num: number, start: number, end: number): boolean => {
     return start <= num && num <= end;
@@ -191,4 +192,20 @@ export const getGraphIsSelected = (uiState: UIState): boolean => {
 */
 export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetData[]): boolean => {
     return uiState.selectedTabType === 'data' && sheetDataArray.length !== 0;
+}
+
+/** 
+ * Returns the props to give to a DropdownItem component, given an Action.
+ * Used by the context menus. 
+*/
+export const getPropsForDropdownItem = (action: Action, closeOpenEditingPopups: () => void) => {
+    return {
+        title: action.titleContextMenu ?? action.titleToolbar ?? action.longTitle,
+        onClick: () => {
+            closeOpenEditingPopups();
+            void action.actionFunction();
+        },
+        icon: action.iconContextMenu ? <action.iconContextMenu /> : action.iconToolbar ? <action.iconToolbar/> : <StepsIcon/>,
+        rightText: action.displayKeyboardShortcuts?.mac
+    }
 }
