@@ -75,6 +75,7 @@ export default function ColumnHeaderDropdown(props: {
             <DropdownItem
                 {...getPropsForDropdownItem(ActionEnum.Rename_Column)}
                 title='Rename'
+                supressFocusSettingOnClose
             />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
