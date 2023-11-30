@@ -453,6 +453,28 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             return null;
         }
     });
+
+    const scrollRef = useRef<NodeJS.Timer | null>(null);
+    const dropdownItemContainerRef = useRef<HTMLDivElement | null>(null);
+    const [showScrollUp, setShowScrollUp] = useState(false);
+    const [showScrollDown, setShowScrollDown] = useState(true);
+
+    const updateScrollPosition = () => {
+        const scrollHeight = dropdownItemContainerRef.current?.scrollHeight ?? 0;
+        const scrollTop = dropdownItemContainerRef.current?.scrollTop ?? 0;
+        const clientHeight = dropdownItemContainerRef.current?.clientHeight ?? 0;
+        console.log(dropdownItemContainerRef.current)
+        console.log(scrollHeight, scrollTop, clientHeight)
+        
+        if (dropdownItemContainerRef.current?.scrollTop === 0) {
+            setShowScrollUp(false);
+        } else if (scrollHeight <= scrollTop + clientHeight) {
+            setShowScrollDown(false);
+        } else {
+            setShowScrollDown(true);
+            setShowScrollUp(true);
+        }
+    }
     
     return (
         <div ref={setRef} tabIndex={0}>
@@ -495,8 +517,26 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             />
                         </div>
                     }
+                    <div
+                        style={{ display: showScrollUp ? 'flex' : 'none', justifyContent: 'center'}}
+                        onMouseEnter={() => {
+                            // Scroll down when the mouse enters this div
+                            scrollRef.current = setInterval(() => {
+                                dropdownItemContainerRef.current?.scrollBy(0, -2)
+                                updateScrollPosition();
+                            })
+                        }}
+                        onMouseLeave={() => {
+                            // Stop scrolling when the mouse leaves this div
+                            if (scrollRef.current) {
+                                clearInterval(scrollRef.current);
+                            }
+                        }}
+                    >
+                        ^
+                    </div>
                     {childrenToDisplay.length > 0 && 
-                        <div className='mito-dropdown-items-container'>
+                        <div ref={dropdownItemContainerRef} className='mito-dropdown-items-container'>
                             {childrenToDisplay}
                         </div>
                     }
@@ -506,6 +546,25 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                                 No options to display 
                             </p>
                         </Row>}
+                    
+                    <div
+                        style={{ display: showScrollDown ? 'flex' : 'none', justifyContent: 'center'}}
+                        onMouseEnter={() => {
+                            // Scroll down when the mouse enters this div
+                            scrollRef.current = setInterval(() => {
+                                dropdownItemContainerRef.current?.scrollBy(0, 2)
+                                updateScrollPosition();
+                            })
+                        }}
+                        onMouseLeave={() => {
+                            // Stop scrolling when the mouse leaves this div
+                            if (scrollRef.current) {
+                                clearInterval(scrollRef.current);
+                            }
+                        }}
+                    >
+                        ⌄
+                    </div>
                 </div>,
                 dropdownContainerElement
             )}
