@@ -93,10 +93,10 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
             title={props.tooltip}
         > 
             <div className={classNames('mito-dropdown-item-icon-and-title-container')}>
-                
+                { props.icon !== undefined &&
                 <div className={classNames('mito-dropdown-item-icon-container')}>
                     {props.icon}
-                </div>
+                </div>}
                 <Row justify='space-between' align='center'>
                     {/* 
                         Wrap in a span so that hovering over the HTML element shows the entire 
