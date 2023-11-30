@@ -30,7 +30,16 @@
     width: 100%;
     display: flex;
     flex-direction: row;
-    padding-right: 10px;
+    padding: 0px 10px;
+}
+
+.mito-dropdown-item-icon-and-title-container .mito-dropdown-item-icon-container {
+    padding-right: 7px;
+}
+
+.mito-dropdown-item-icon-container path {
+    width: 13px;
+    stroke-width: 1;
 }
 
 .mito-dropdown-item-icon-container {

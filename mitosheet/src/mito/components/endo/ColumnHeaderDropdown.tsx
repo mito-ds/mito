@@ -3,15 +3,19 @@
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
 import { ActionEnum, ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
-import { isNumberDtype } from '../../utils/dtypes';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
-import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane';
+import StepsIcon from '../icons/StepsIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { getStartingFormula } from './celleditor/cellEditorUtils';
-import { getColumnIndexesInSelections } from './selectionUtils';
-import { Actions } from '../../utils/actions';
+import PlusIcon from '../icons/PlusIcon';
+import CopyContextMenuIcon from '../icons/CopyContextMenuItem';
+import TrashIcon from '../icons/TrashIcon';
+import EditIcon from '../icons/EditIcon';
+import FormatContextMenuIcon from '../icons/FormatContextMenuIcon';
+import SortAscendingIcon from '../icons/SortAscendingIcon';
+import SortDescendingIcon from '../icons/SortDescendingIcon';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -39,188 +43,77 @@ export default function ColumnHeaderDropdown(props: {
         }
     }, [props.display])
         
-
-    // If the user interacts with the column header dropdown, we always default to 
-    // selecting the first row for any action, like setting the column formula. 
-    const rowIndex = 0 
-    const columnIndex = Object.keys(props.sheetData.columnIDsMap).indexOf(props.columnID)
+    const getPropsForDropdownItem = (actionName: ActionEnum) => {
+        const action = props.actions.buildTimeActions[actionName];
+        return {
+            title: action.toolbarTitle ?? action.longTitle,
+            onClick: () => {
+                props.closeOpenEditingPopups();
+                void action.actionFunction();
+            },
+            icon: action.icon ? <action.icon /> : <StepsIcon/>,
+            rightText: action.displayKeyboardShortcuts?.mac
+        }
+    }
 
     return (
         <Dropdown
             display={props.display}
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
-            width='medium'
+            width='large'
         >
             <DropdownItem
+                {...getPropsForDropdownItem(ActionEnum.Copy)}
+                icon={<CopyContextMenuIcon/>}
+            />
+
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+
+            <DropdownItem
+                {...getPropsForDropdownItem(ActionEnum.Add_Column_Left)}
                 title='Insert Column Left'
-                onClick={() => {
-                    props.closeOpenEditingPopups();
-                    void props.actions.buildTimeActions[ActionEnum.Add_Column_Left].actionFunction();
-                }}
+                icon={<PlusIcon/>}
             />
             <DropdownItem
+                {...getPropsForDropdownItem(ActionEnum.Add_Column_Right)}
                 title='Insert Column Right'
-                onClick={() => {
-                    props.closeOpenEditingPopups();
-                    void props.actions.buildTimeActions[ActionEnum.Add_Column_Right].actionFunction();
-                }}
+                icon={<PlusIcon/>}
             />
-            <DropdownItem 
-                title='Delete Column'
-                onClick={() => {
-                    props.closeOpenEditingPopups();
-                    const columnIndexesSelected = getColumnIndexesInSelections(props.gridState.selections);
-                    const columnIDsToDelete = columnIndexesSelected.map(colIdx => props.sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
-
-                    void props.mitoAPI.editDeleteColumn(props.sheetIndex, columnIDsToDelete);
-                }}
-            />
-            <DropdownItem 
-                title='Rename Column'
-                onClick={() => {
-                    props.openColumnHeaderEditor()
-                }}
-                supressFocusSettingOnClose
-            />
-            <DropdownSectionSeperator isDropdownSectionSeperator/>
             <DropdownItem
-                title='Filter'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
-                        }
-                    })
-                }}
+                {...getPropsForDropdownItem(ActionEnum.Delete)}
+                title='Delete Column'
+                icon={<TrashIcon/>}
             />
-            
-            <DropdownItem 
-                title='Sort'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
-                        }
-                    })
-                }}
+            <DropdownItem
+                {...getPropsForDropdownItem(ActionEnum.Rename_Column)}
+                title='Rename'
+                icon={<EditIcon/>}    
             />
-            <DropdownItem 
-                title='Change Dtype'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
-                        }
-                    })
-                }}
-            />
-            <DropdownItem 
-                title='Fill NaN Values'
-                onClick={() => {
-                    const columnIndexesSelected = getColumnIndexesInSelections(props.gridState.selections);
-                    const columnIDsToFillNaN = columnIndexesSelected.map(colIdx => props.sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.FILL_NA, startingColumnIDs: columnIDsToFillNaN},
-                        }
-                    })
-                }}
-            />
-            <DropdownSectionSeperator isDropdownSectionSeperator/>
-            <DropdownItem 
-                title='Format'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONTROL_PANEL},
-                            selectedColumnControlPanelTab: ControlPanelTab.FilterSort
-                        }
-                    })
-                }}
-                disabled={!isNumberDtype(props.columnDtype)}
-                tooltip={!isNumberDtype(props.columnDtype) ? "Only number columns can be formatted currently" : undefined}
-            />
-            <DropdownItem 
-                title='Conditional Format'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        const columnIndexesSelected = getColumnIndexesInSelections(props.gridState.selections);
-                        const columnIDsToFormat = columnIndexesSelected.map(colIdx => props.sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.CONDITIONALFORMATTING, startingColumnIDs: columnIDsToFormat},
-                        }
-                    })
-                }}
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Filter)}/>
+            <DropdownItem
+                {...getPropsForDropdownItem(ActionEnum.SortAscending)}
+                title='Sort A to Z'
+                icon={<SortAscendingIcon aColor='black'/>}
             />
-            <DropdownSectionSeperator isDropdownSectionSeperator/>
-            <DropdownItem 
-                title='Set Column Formula'
-                onClick={() => {
-                    const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, undefined, rowIndex, columnIndex);
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.SortDescending)}
+                title='Sort A to Z'
+                icon={<SortDescendingIcon aColor='black'/>}
+            />
 
-                    props.setEditorState({
-                        rowIndex: 0,
-                        columnIndex: columnIndex,
-                        formula: startingColumnFormula,
-                        arrowKeysScrollInFormula: arrowKeysScrollInFormula,
-                        editorLocation: 'cell',
-                        editingMode: editingMode,
-                        sheetIndex: props.sheetIndex,
-                    })
-                }}
-                supressFocusSettingOnClose
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+
+            <DropdownItem
+                {...getPropsForDropdownItem(ActionEnum.Set_Dataframe_Format)}
+                icon={<FormatContextMenuIcon/>}    
             />
-            <DropdownItem 
-                title='Split Text to Columns'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {type: TaskpaneType.SPLIT_TEXT_TO_COLUMNS, startingColumnID: props.columnID},
-                        }
-                    })
-                }}
-            />
-            <DropdownSectionSeperator isDropdownSectionSeperator/>
-            <DropdownItem 
-                title='View Unique Values'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.CONTROL_PANEL,
-                            },
-                            selectedColumnControlPanelTab: ControlPanelTab.UniqueValues
-                        }
-                    })
-                }}
-            />
-            <DropdownItem 
-                title='View Summary Stats'
-                onClick={() => {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.CONTROL_PANEL,
-                            },
-                            selectedColumnControlPanelTab: ControlPanelTab.SummaryStats
-                        }
-                    })
-                }}
-            />
+
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Column_Summary)}/>
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Unique_Values)}/>
         </Dropdown>
     )
 }

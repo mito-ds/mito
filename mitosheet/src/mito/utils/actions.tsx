@@ -71,6 +71,7 @@ import FunctionIcon from "../components/icons/FunctionIcon";
 import ScheduleIcon from "../components/icons/ScheduleIcon";
 import { getCodeString } from "../../jupyter/code";
 import BulkHeaderTransformIcon from "../components/icons/BulkColumnHeaderTransformIcon";
+import SummaryIcon from "../components/icons/SummaryIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -319,6 +320,7 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Column_Summary,
             toolbarTitle: 'Column Summary',
+            icon: SummaryIcon,
             longTitle: 'View column summary statistics ',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1700,7 +1702,7 @@ export const getActions = (
         [ActionEnum.Unique_Values]: {
             type: 'build-time',
             staticType: ActionEnum.Unique_Values,
-            toolbarTitle: 'Unique Vals',
+            toolbarTitle: 'Unique Values',
             longTitle: 'View unique values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
