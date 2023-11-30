@@ -183,4 +183,17 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('Merge Dataframes')).toBeVisible();
     await expect(mito.getByText('unique in left')).toBeVisible();
   });
+
+  test('Graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await mito.getByTitle('Select columns to graph on the X axis.').getByText('+ Add').click();
+    await mito.locator('.mito-dropdown-item').first().click();
+    await expect(mito.locator('.plotly-graph-div').first()).toBeVisible();
+  });
+
+
 });
