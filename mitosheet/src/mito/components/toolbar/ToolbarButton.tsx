@@ -88,14 +88,14 @@ const ToolbarButton = (
                     
                     If the icons have different heights, the text won't line up. 
                 */}
-                <span title={disabledTooltip ?? props.action.tooltip ?? props.action.toolbarTitle}>
+                <span title={disabledTooltip ?? props.action.tooltip ?? props.action.titleToolbar}>
                     <div className='mito-toolbar-button-icon-container'>
                         {props.iconOverride ?? (props.action.iconToolbar !== undefined ? <props.action.iconToolbar /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                         {props.children !== undefined && props.children}
                     </div>
-                    {(props.toolbarTitle ?? props.action.toolbarTitle) && <p className='mito-toolbar-button-label'> 
-                        {props.toolbarTitle ?? props.action.toolbarTitle}
+                    {(props.toolbarTitle ?? props.action.titleToolbar) && <p className='mito-toolbar-button-label'> 
+                        {props.toolbarTitle ?? props.action.titleToolbar}
                     </p>}
                 </span>
             </button>

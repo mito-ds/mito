@@ -41,7 +41,7 @@ export default function ColumnHeaderDropdown(props: {
     const getPropsForDropdownItem = (actionName: ActionEnum) => {
         const action = props.actions.buildTimeActions[actionName];
         return {
-            title: action.toolbarTitle ?? action.longTitle,
+            title: action.titleToolbar ?? action.longTitle,
             onClick: () => {
                 props.closeOpenEditingPopups();
                 void action.actionFunction();
@@ -60,36 +60,16 @@ export default function ColumnHeaderDropdown(props: {
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.Add_Column_Left)}
-                title='Insert Column Left'
-            />
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.Add_Column_Right)}
-                title='Insert Column Right'
-            />
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.Delete)}
-                title='Delete Column'
-            />
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.Rename_Column)}
-                title='Rename'
-                supressFocusSettingOnClose
-            />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Add_Column_Left)} />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Add_Column_Right)} />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Delete)} />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.Rename_Column)} supressFocusSettingOnClose />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
             <DropdownItem {...getPropsForDropdownItem(ActionEnum.Filter)}/>
-            <DropdownItem
-                {...getPropsForDropdownItem(ActionEnum.SortAscending)}
-                title='Sort A to Z'
-                icon={<SortAscendingIcon aColor='black'/>}
-            />
-            <DropdownItem {...getPropsForDropdownItem(ActionEnum.SortDescending)}
-                title='Sort A to Z'
-                icon={<SortDescendingIcon aColor='black'/>}
-            />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.SortAscending)} icon={<SortAscendingIcon aColor='black'/>} />
+            <DropdownItem {...getPropsForDropdownItem(ActionEnum.SortDescending)} icon={<SortDescendingIcon aColor='black'/>} />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
