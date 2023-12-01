@@ -103,6 +103,9 @@ test.describe('Home Tab Buttons', () => {
     await checkOpenTaskpane(mito, 'Conditional Formatting');
 
     await mito.getByRole('button', { name: 'Add Conditional Formatting Rule' }).click();
+    await page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]').getByRole('button', { name: 'Conditional Formatting' }).click();
+    await page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]').getByTitle('Delete conditional formatting rule').getByRole('img').click();
+    await page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]').getByRole('button', { name: 'Add Conditional Formatting Rule' }).click();
     await mito.locator('div').filter({ hasText: /^Is not empty Applied to 0 columns\.$/ }).first().click();
     await mito.getByRole('checkbox').nth(1).check(); // Check the first column
     await mito.getByRole('textbox').nth(2).fill('#b32929'); // Set the color
@@ -122,11 +125,11 @@ test.describe('Home Tab Buttons', () => {
 
     await checkOpenTaskpane(mito, 'Color Dataframe');
 
-    await mito.locator('div:nth-child(3) > svg').click();
+    await mito.getByText('Column Headers').click();
+    await mito.getByRole('textbox').first().fill('#3850b7');
 
-    // Check that the .mito-grid-row has a background of 
-    // background-color: rgb(208, 227, 201)
-    await expect(mito.locator('.mito-grid-row').first()).toHaveAttribute('style', /background-color: rgb\(208, 227, 201\)/);
+    // Expect the first column header to have a background color of background-color: rgb(56, 80, 183)
+    await expect(mito.locator('.endo-column-header-container').first()).toHaveAttribute('style', /background-color: rgb\(56, 80, 183\)/);
   });
 
   test('Delete Column', async ({ page }) => {
