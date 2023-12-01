@@ -50,6 +50,17 @@ interface SelectProps {
     className?: string
 
     /**
+     * Whether to display by default. Used so that other parts of the
+     * app can control the visibility of the dropdown
+     */
+    display?: boolean;
+
+    /**
+     * Handler for when the dropdown is closed
+     */
+    onClose?: () => void;
+
+    /**
      * Custom styles to add to the component
      */
     style?: React.CSSProperties
@@ -65,7 +76,11 @@ interface SelectProps {
  * closes when the user clicks.
  */ 
 const Select = (props: SelectProps): JSX.Element => {
-    const [displayDropdown, setDisplayDropdown] = useState(false)
+    const [displayDropdown, setDisplayDropdown] = useState(!!props.display)
+    
+    React.useEffect(() => {
+        setDisplayDropdown(!!props.display)
+    }, [props.display])
 
     const width = props.width || 'block'
 
@@ -111,7 +126,7 @@ const Select = (props: SelectProps): JSX.Element => {
                 }
             })
             return finalChild;
-        }        
+        }
     })
 
     return (
@@ -131,6 +146,7 @@ const Select = (props: SelectProps): JSX.Element => {
                     if (!prevDisplayDropdown) {
                         return true;
                     }
+                    props.onClose?.();
                     return prevDisplayDropdown;
                 })
             }}
