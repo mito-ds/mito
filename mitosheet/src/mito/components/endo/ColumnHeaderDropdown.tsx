@@ -10,7 +10,7 @@ import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import SortAscendingIcon from '../icons/SortAscendingIcon';
 import SortDescendingIcon from '../icons/SortDescendingIcon';
-import { getPropsForDropdownItem } from './utils';
+import { getPropsForContextMenuDropdownItem } from './utils';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -43,35 +43,38 @@ export default function ColumnHeaderDropdown(props: {
             display={props.display}
             closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
         >
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)} />
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)} />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Add_Column_Left], props.closeOpenEditingPopups)} />
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Add_Column_Right], props.closeOpenEditingPopups)} />
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete], props.closeOpenEditingPopups)} />
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Rename_Column], props.closeOpenEditingPopups)} supressFocusSettingOnClose />
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Add_Column_Left], props.closeOpenEditingPopups)} />
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Add_Column_Right], props.closeOpenEditingPopups)} />
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete], props.closeOpenEditingPopups)} />
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Rename_Column], props.closeOpenEditingPopups)} supressFocusSettingOnClose />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Filter], props.closeOpenEditingPopups)}/>
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Filter], props.closeOpenEditingPopups)}/>
             <DropdownItem
-                {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.SortAscending], props.closeOpenEditingPopups)}
+                {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.SortAscending], props.closeOpenEditingPopups)}
                 icon={<SortAscendingIcon aColor='black'/>}
             />
             <DropdownItem
-                {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.SortDescending], props.closeOpenEditingPopups)}
+                {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.SortDescending], props.closeOpenEditingPopups)}
                 icon={<SortDescendingIcon aColor='black'/>}
             />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Set_Dataframe_Format], props.closeOpenEditingPopups)} />
+            <DropdownItem
+                {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Format_Number_Columns], props.closeOpenEditingPopups)}
+                supressFocusSettingOnClose
+            />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Column_Summary], props.closeOpenEditingPopups)}/>
-            <DropdownItem {...getPropsForDropdownItem(props.actions.buildTimeActions[ActionEnum.Unique_Values], props.closeOpenEditingPopups)} />
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Column_Summary], props.closeOpenEditingPopups)}/>
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Unique_Values], props.closeOpenEditingPopups)} />
         </Dropdown>
     )
 }
