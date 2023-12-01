@@ -198,7 +198,7 @@ export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetDa
  * Returns the props to give to a DropdownItem component, given an Action.
  * Used by the context menus. 
 */
-export const getPropsForDropdownItem = (action: Action, closeOpenEditingPopups: () => void) => {
+export const getPropsForContextMenuDropdownItem = (action: Action, closeOpenEditingPopups: () => void) => {
     return {
         title: action.titleContextMenu ?? action.titleToolbar ?? action.longTitle,
         onClick: () => {
