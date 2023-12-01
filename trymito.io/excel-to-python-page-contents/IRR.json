@@ -1,0 +1,191 @@
+{
+    "slug": ["functions", "financial", "IRR"],
+    "functionNameShort": "IRR",
+    "functionNameLong": "Internal Rate of Return",
+    "relatedFunctions": ["NPV", "PRICE"],
+    "purpose": "Calculate the internal rate of return for a series of cash flows",
+    "titleCardParagraphs": [
+        "The IRR function calculates an investment's internal rate of return given a series of cash flows. An investment's internal rate of return is the discount rate that makes the net present value of the investment's cash flows equal to zero. It is often used to compare the profitability of different investments.",
+        "This page explains how to use Excel's IRR function in Python using pandas and numpy."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The IRR function in Excel returns the internal rate of return for a series of cash flows represented by the numbers in a list.",
+            "=IRR(values, [guess])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "values",
+                "description": "A range of values representing the series of cash flows.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "guess",
+                "description": "(Optional) A number that you guess is close to the result of IRR. Defaults to 0.1 (10%).",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=IRR(A1:A4)",
+                "description": "Calculate the internal rate of return for cash flows in cells A1 to A4.",
+                "result": "Internal rate of return"
+            },
+            {
+                "formula": "=IRR(A1:A4, 0.8)",
+                "description": "Calculate the IRR for cash flows in cells A1 to A4 with a guess of 8%.",
+                "result": "Internal rate of return"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate Excel's IRR function in Python using pandas, numpy's financial functions can be utilized. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Calculating the IRR with potentially varrying cash flows",
+                "shortTitle": "IRR",
+                "paragraphs": [
+                    "In pandas, you can calculate the IRR by converting a series of cash flows into a list or a pandas Series and then calculating the IRR of those cash flows.",
+                    "Calculating the IRR is not a straight forward operation. In order to model real world scenarios, the IRR calculation essentially involves finding the roots of a polynomial, where the coefficients are the cash flows. To do so, an IRR calculation requires an iterative approach where the rate is adjusted until the NPV of the cash flows is close enough to zero.",
+                    "That is what the code below does."
+                ],
+                "codeLines": [
+                    "# Create a sample dataframe with cash flows",
+                    "df = pd.DataFrame({",
+                    "    'cash_flows': [-1000, 300, 300, 1000]",
+                    "})",
+                    "",
+                    "# Convert the cash flows to a list",
+                    "cash_flows = df['cash_flows'].tolist()",
+                    "",
+                    "# Define the calculate_irr function",
+                    "def calculate_irr(cash_flows, initial_guess=0.1):",
+                    "    rate = initial_guess # Start the iterative search at the initial guess",
+                    "    tolerance=1e-6 # The result should be accurate to 6 decimal places",
+                    "    max_iterations = 1000 # Iterate a max of 1k times to avoid infinite loop",
+                    "    iteration = 0 # Keep track of the number of iterations",
+                    "",
+                    "    while iteration < max_iterations:",
+                    "        # Calculate the NPV with the current rate estimate",
+                    "        npv = sum(cf / (1 + rate) ** i for i, cf in enumerate(cash_flows))",
+                    "        ",
+                    "        if abs(npv) < tolerance:",
+                    "            return rate  # Return the rate if NPV is close enough to zero",
+                    "",
+                    "        # Adjust the rate based on the sign of the NPV",
+                    "        rate += npv / 1000 if npv > 0 else npv / 10000",
+                    "        iteration += 1",
+                    "",
+                    "    return rate  # Return the last calculated rate if max iterations reached",
+                    "",
+                    "# Calculate IRR for the given cash flows",
+                    "irr = calculate_irr(cash_flows) * 100"
+                ]
+            },
+            {
+                "title": "Calculate the IRR with numpy",
+                "shortTitle": "IRR with numpy",
+                "paragraphs": [
+                    "In numpy, you can calculate the IRR by converting a series of cash flows into a list or a numpy array and then calculating the IRR of those cash flows.",
+                    "If you use the numpy financial package, you can calculate the IRR without having to write your own function."
+                ],
+                "codeLines": [
+                    "# Import numpy financial package",
+                    "import numpy_financial as npf",
+                    "",
+                    "# Create a sample dataframe with cash flows",
+                    "df = pd.DataFrame({",
+                    "    'cash_flows': [-1000, 300, 300, 1000]",
+                    "})",
+                    "",
+                    "# Convert the cash flows to a list",
+                    "cash_flows = df['cash_flows'].tolist()",
+                    "",
+                    "# Calculate IRR with numpy",
+                    "irr = npf.irr(cash_flows) * 100"
+                ]
+            },
+            {
+                "title": "Use XIRR to calculate the IRR with varying time periods",
+                "shortTitle": "XIRR",
+                "paragraphs": [
+                    "The above implementation of the IRR function assumes that the cash flows are evenly spaced. If the cash flows are not evenly spaced, you can use the XIRR function to calculate the IRR in Excel.",
+                    "The XIRR function in Excel returns the internal rate of return for a series of cash flows represented by the numbers in a list. The cash flows do not have to be evenly spaced.",
+                    "The XIRR function is similar to the IRR function, except that it takes two lists as arguments. The first list is the cash flows and the second list is the dates of the cash flows.",
+                    "The XIRR function can be replicated in Python using the code below:"
+                ],
+                "codeLines": [
+                    "import pandas as pd",
+                    "from datetime import datetime",
+                    "",
+                    "# Create a sample dataframe with cash flows",
+                    "df = pd.DataFrame({",
+                    "    'cash_flows': [-1000, 300, 300, 1000],",
+                    "    'dates': ['2020-01-01', '2021-01-01', '2022-01-01', '2023-01-01']",
+                    "})",
+                    "",
+                    "# Convert the dates to datetime objects and then to a list",
+                    "df['dates'] = pd.to_datetime(df['dates'])",
+                    "dates = df['dates'].tolist()",
+                    "start_date = dates[0]",
+                    "",
+                    "# Convert dates into time intervals in terms of years since the first cash flow",
+                    "times = [(d - start_date).days / 365.0 for d in dates]",
+                    "",
+                    "# Convert the cash flows to a list",
+                    "cash_flows = df['cash_flows'].tolist()",
+                    "",
+                    "def calculate_xirr(cash_flows, times, initial_guess=0.1):",
+                    "    rate = initial_guess # Start the iterative search at the initial guess",
+                    "    tolerance=1e-6 # The result should be accurate to 6 decimal places",
+                    "    max_iterations = 1000 # Iterate a max of 1k times to avoid infinite loop",
+                    "    iteration = 0 # Keep track of the number of iterations",
+                    "",
+                    "    while iteration < max_iterations:",
+                    "        npv = sum(cf / (1 + rate) ** t for cf, t in zip(cash_flows, times))",
+                    "        ",
+                    "        if abs(npv) < tolerance:",
+                    "            return rate",
+                    "",
+                    "        # Adjust the rate based on the sign of the NPV",
+                    "        rate += npv / 1000 if npv > 0 else npv / 10000",
+                    "        iteration += 1",
+                    "",
+                    "    return rate",
+                    "",
+                    "# Calculate the IRR",
+                    "irr = calculate_xirr(cash_flows, times) * 100  # Converting to percentage"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the IRR function in pandas, there are some pitfalls to be aware of. Here are some common mistakes and their solutions."
+        ],
+        "codeSections": [
+            {
+                "title": "Ignoring the Order of Cash Flows",
+                "shortTitle": "Cash Flow Order",
+                "paragraphs": [
+                    "The order of cash flows is crucial in IRR calculations. Reversing or misordering them can result in incorrect IRR values.",
+                    "Ensure cash flows are entered in the chronological order of their occurrence."
+                ],
+                "codeLines": [
+                    "# Correct order",
+                    "cash_flows = [initial_investment, cf1, cf2, cf3]"
+                ]
+            },
+            {
+                "title": "Assuming Evenly Spaced Cash Flows",
+                "shortTitle": "Evenly Spaced Assumption",
+                "paragraphs": [
+                    "IRR calculations in Excel assume cash flows are evenly spaced. If this is not the case, you would use the XIRR function in Excel."
+                ],
+                "codeLines": []
+            }
+        ]
+    }
+}

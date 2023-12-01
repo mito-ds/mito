@@ -1,0 +1,172 @@
+{
+    "slug": ["functions", "math", "SUMPRODUCT"],
+    "functionNameShort": "SUMPRODUCT",
+    "functionNameLong": "Sum Product",
+    "relatedFunctions": ["SUM", "PRODUCT", "SUMIF"],
+    "purpose": "Calculates the sum of the products of corresponding numbers",
+    "titleCardParagraphs": [
+        "Excel's SUMPRODUCT function multiplies corresponding components in given arrays and returns the sum of those products. This page explains how to use Excel's SUMPRODUCT function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The SUMPRODUCT function in Excel takes two or more arrays and returns the sum of their products.",
+            "=SUMPRODUCT(array1, array2, ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "array1",
+                "description": "The first array for multiplication.",
+                "dataType": "array"
+            },
+            {
+                "parameter": "array2",
+                "description": "The second array for multiplication.",
+                "dataType": "array"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Additional arrays for multiplication",
+                "dataType": "array"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SUMPRODUCT(A1:A2, B1:B2)",
+                "description": "Calculates the sum of products of values in ranges A1:A2 and B1:B2",
+                "result": "Sum of (A1*B1, A2*B2)"
+            },
+            {
+                "formula": "=SUMPRODUCT(A1:A5, B1:B5, C1:C5)",
+                "description": "Calculate the sum of products of values in three ranges.",
+                "result": "Sum of (A1*B1*C1, ..., A5*B5*C5)"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the SUMPRODUCT function in Excel using Python and pandas, you can utilize various approaches depending on your data structure and requirements. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Sumproduct of two Python Lists",
+                "shortTitle": "Two lists",
+                "paragraphs": [
+                    "To calculate the sumproduct of two lists in Python, simply multiply the two lists and then use the `sum()` method.",
+                    "To multiply the two lists, you can use the `zip()` function to iterate over the lists in parallel. In other words, the first element of each list is multiplied, then the second element, and so on."
+                ],
+                "codeLines": [
+                    "# Define two lists",
+                    "list1 = [1,2,3]",
+                    "list2 = [4,5,6]",
+                    "",
+                    "# Calculate the sumproduct using the zip function",
+                    "sumproduct_result = sum([a * b for a, b in zip(list1, list2)])"
+                ]
+            },
+            {
+                "title": "Sumproduct of Two Columns in pandas Dataframe",
+                "shortTitle": "Two columns",
+                "paragraphs": [
+                    "To calculate the sumproduct of two columns in pandas, simply multiply the two series and then use the `sum()` method.",
+                    "Because pandas operations are vectorized (meaning they operate on the entire series row by row), you can simply multiply the two series and then use the `sum()` method to calculate the sumproduct."
+                ],
+                "codeLines": [
+                    "# Calculate the sumproduct of two columns in df",
+                    "sumproduct_result = (df['Column1'] * df['Column2']).sum()"
+                ]
+            },
+            {
+                "title": "Using Sum Product to Implement a Weighted Average",
+                "shortTitle": "Weighted average",
+                "paragraphs": [
+                    "A weighted average is an average where each value is given a different importance in the calculation. In other words, some values contribute more to the average than others.",
+                    "Weighted averages are often useful when calculating financial metrics such as the weighted average cost of capital (WACC) or non-financial metrics such as the weighted average of customer satisfaction scores.",
+                    "Just as in Excel, you could compute the weighted average using =SUMPRODUCT(values, weights)/SUM(weights), in Python you can use a similar approach."
+                ],
+                "codeLines": [
+                    "# Calculate the weighted average using sumproduct divided by sum of weights",
+                    "weighted_average = (df['Values'] * df['Weights']).sum() / df['Weights'].sum()"
+                ]
+            },
+            {
+                "title": "Calculating the Sumproduct of Groups in a Dataframe",
+                "shortTitle": "Groups sumproduct",
+                "paragraphs": [
+                    "If instead of calculating one sumproduct, you want to calculate multiple sumproducts for each group in a dataframe, you can use the pandas GroupBy functionality followed by the sumproduct.",
+                    "Doing this in Excel would require a complex approach involving array formulas, but its quite simple in Python using pandas.",
+                    "For example, if you had a dataframe of sales data with the columns: 'Product', 'Price per Unit', and 'Units Sold', you could calculate the total sales for each product by grouping the data by product and then using the sumproduct to calculate the total sales for each product. The code below shows how to do this."
+                ],
+                "codeLines": [
+                    "# Dataframe of sales data",
+                    "df = pd.DataFrame({",
+                    "    'Product': ['Product A', 'Product A', 'Product B', 'Product B'],",
+                    "    'Price per Unit': [100, 100, 300, 300],",
+                    "    'Units Sold': [10, 20, 30, 40]",
+                    "})",
+                    "",
+                    "# Calculate the revenue generated by each product",
+                    "grouped_sumproduct = df.groupby('Product').apply(lambda x: (x['Price per Unit'] * x['Units Sold']).sum())",
+                    "",
+                    "# Reset the index to make the dataframe easier to work with",
+                    "grouped_sumproduct.reset_index()"
+                ]
+            },
+            {
+                "title": "Conditional Sumproduct in Python",
+                "shortTitle": "Conditional sumproduct",
+                "paragraphs": [
+                    "If you don't want to calculate the sumproduct of all values in a column, but only those that meet certain criteria, you can use conditional sumproduct.",
+                    "For example, if you had a dataframe of sales data with the columns: 'Product', 'Price per Unit', and 'Units Sold', you could exclude returned products from the sumproduct calculation by only including rows where the 'Units Sold' value is greater than 0. The code below shows how to do this."
+                ],
+                "codeLines": [
+                    "# Dataframe of sales data",
+                    "df = pd.DataFrame({",
+                    "    'Product': ['Product A', 'Product A', 'Product B', 'Product B'],",
+                    "    'Price per Unit': [100, 100, 300, 300],",
+                    "    'Units Sold': [10, -10, 30, 40]",
+                    "})",
+                    "",
+                    "# Calculate the revenue generated by sales, excluding returns",
+                    "conditional_sumproduct = (df['Price per Unit'] * df['Units Sold'][df['Units Sold'] > 0]).sum()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the SUMPRODUCT function in pandas, it's easy to make mistakes. Here are some common pitfalls and how to avoid them."
+        ],
+        "codeSections": [
+            {
+                "title": "Mismatched Array Lengths",
+                "shortTitle": "Array lengths",
+                "paragraphs": [
+                    "Attempting to use SUMPRODUCT on arrays (or Series in pandas) of different lengths will result in an error.",
+                    "Ensure that all arrays involved in the operation are of equal length.",
+                    "If the columns are both from the same dataframe, then you don't need to worry about this because pandas will automatically align the two series by index before multiplying them."
+                ],
+                "codeLines": [
+                    "# Ensure arrays have the same length before SUMPRODUCT",
+                    "if len(df1['Column1']) == len(df2['Column2']):",
+                    "    sumproduct_result = (df1['Column1'] * df2['Column2']).sum()",
+                    "else:",
+                    "    print('Arrays are not the same length')"
+                ]
+            },
+            {
+                "title": "Incorrectly Handling Missing Values (NaNs)",
+                "shortTitle": "NaN handling",
+                "paragraphs": [
+                    "NaN inside of a pandas Series will cause the sumproduct to return NaN, so you should decide how to handle missing values before calculating the sumproduct. You could either leave them in the dataset, fill them with 0, or remove them."
+                ],
+                "codeLines": [
+                    "# Fill NaN values with 0 before sumproduct",
+                    "sumproduct_result = (df['Column1'].fillna(0) * df['Column2'].fillna(0)).sum()",
+                    "",
+                    "# Remove NaN values before sumproduct",
+                    "sumproduct_result = (df['Column1'].dropna() * df['Column2'].dropna()).sum()"
+                ]
+            }
+        ]
+    }
+}

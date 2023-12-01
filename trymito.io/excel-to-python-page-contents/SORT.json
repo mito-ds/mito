@@ -2,7 +2,7 @@
     "slug": ["transformations", "Sort"],
     "functionNameShort": "Sort",
     "functionNameLong": "Sort",
-    "relatedFunctions": ["Filter", "IF", "Pivot Table"],
+    "relatedFunctions": ["Filter", "IF", "REVERSE"],
     "purpose": "Sort data based on one or more columns",
     "titleCardParagraphs": [
         "Excel's sorting functionality is pivotal for organizing data in a DataFrame. From arranging sales data by dates to sorting customer information alphabetically, SORT is fundamental in data analysis and reporting.",
