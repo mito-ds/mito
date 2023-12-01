@@ -103,9 +103,6 @@ test.describe('Home Tab Buttons', () => {
     await checkOpenTaskpane(mito, 'Conditional Formatting');
 
     await mito.getByRole('button', { name: 'Add Conditional Formatting Rule' }).click();
-    await page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]').getByRole('button', { name: 'Conditional Formatting' }).click();
-    await page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]').getByTitle('Delete conditional formatting rule').getByRole('img').click();
-    await page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]').getByRole('button', { name: 'Add Conditional Formatting Rule' }).click();
     await mito.locator('div').filter({ hasText: /^Is not empty Applied to 0 columns\.$/ }).first().click();
     await mito.getByRole('checkbox').nth(1).check(); // Check the first column
     await mito.getByRole('textbox').nth(2).fill('#b32929'); // Set the color
