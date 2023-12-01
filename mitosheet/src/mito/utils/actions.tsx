@@ -78,6 +78,7 @@ import TrashIcon from "../components/icons/TrashIcon";
 import EditIcon from "../components/icons/EditIcon";
 import FormatContextMenuIcon from "../components/icons/FormatContextMenuIcon";
 import StarIcon from "../components/icons/StarIcon";
+import NumberFormatIcon from "../components/icons/NumberFormatIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -714,6 +715,8 @@ export const getActions = (
             staticType: ActionEnum.Format_Number_Columns,
             titleToolbar: 'Number',
             longTitle: 'Format number columns',
+            titleContextMenu: 'Format Number Column',
+            iconContextMenu: NumberFormatIcon,
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -1392,11 +1395,7 @@ export const getActions = (
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the dataframe to rename. Add data to the dataframe.'
             },
             searchTerms: ['rename', 'name', 'header'],
-            tooltip: "Rename the selected column.",
-            displayKeyboardShortcuts: {
-                mac: 'Enter',
-                windows: 'Enter'
-            }
+            tooltip: "Rename the selected column."
         },
         [ActionEnum.Rename_Dataframe]: {
             type: 'build-time',
