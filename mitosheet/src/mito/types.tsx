@@ -1020,13 +1020,17 @@ export interface BaseAction<Type, StaticType> {
     staticType: StaticType;
     // The short title for the action. Should be title case, as you want to display it.
     // If undefined, the toolbar will not display a title in the toolbar. 
-    toolbarTitle?: string
+    titleToolbar?: string
 
     // The optional long title for the action.
-    longTitle: string
+    longTitle: string;
+
+    titleContextMenu?: string;
 
     // The optional icon to display for the action
-    icon?: React.FC<any>;
+    iconToolbar?: React.FC<any>;
+
+    iconContextMenu?: React.FC<any>;
 
     /* 
         The function to call if the action is taken by the user. This should
