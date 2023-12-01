@@ -4,9 +4,16 @@ import React from 'react';
 
 const ConcatIcon = (): JSX.Element => {
     return (
-        <svg width="19" height="15" viewBox="0 0 10 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 5.39994C9 3.96397 7.20914 2.79989 5 2.79989C2.79086 2.79989 1 3.96397 1 5.39994C1 6.83592 2.79086 8 5 8C7.20914 8 9 6.83592 9 5.39994Z" stroke="var(--mito-text)" strokeWidth="0.603961" strokeMiterlimit="10" strokeLinecap="round"/>
-            <path d="M9 3.60006C9 2.16409 7.20914 1 5 1C2.79086 1 1 2.16409 1 3.60006C1 5.03603 2.79086 6.20012 5 6.20012C7.20914 6.20012 9 5.03603 9 3.60006Z" stroke="var(--mito-text)" strokeWidth="0.603961" strokeMiterlimit="10" strokeLinecap="round"/>
+        <svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 0.894531)" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 6.10156)" fill="var(--mito-background-off)" stroke="var(--mito-text)"/>
+            <mask id="mask0_7507_341" style={{maskType: 'alpha'}} maskUnits="userSpaceOnUse" x="0" y="7" width="17" height="16">
+                <path d="M8.5 22.5C12.9473 22.5 16.5 19.114 16.5 15C16.5 10.886 12.9473 7.5 8.5 7.5C4.05273 7.5 0.5 10.886 0.5 15C0.5 19.114 4.05273 22.5 8.5 22.5Z" fill="var(--mito-highlight)" stroke="var(--mito-text)"/>
+            </mask>
+            <g mask="url(#mask0_7507_341)">
+                <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 1.89453)" fill="var(--mito-highlight)" stroke="var(--mito-text)"/>
+            </g>
+            <circle cx="8.5" cy="8.5" r="8" transform="matrix(0 1 1 0 0.103516 6.10156)" stroke="var(--mito-text)"/>
         </svg>
     )
 }

@@ -123,27 +123,11 @@ class MitoBackend():
 
     @property
     def fully_parameterized_function(self) -> str:
-        """
-        Returns the fully parameterized function string. This is used for
-        cases where we want to get the function string regardless of the 
-        code options the user provided. 
-        """
-        return '\n'.join(transpile(
-            self.steps_manager,
-            add_comments=False,
-            optimize=True,
-            code_options_override={
-                'import_custom_python_code': True,
-                'as_function': True,
-                'call_function': False,
-                'function_name': self.steps_manager.code_options.get('function_name', 'automate'),
-                'function_params': 'all'
-            }
-        ))
+        return self.steps_manager.fully_parameterized_function
 
     @property
     def param_metadata(self) -> List[ParamMetadata]:
-        return get_parameterizable_params_metadata(self.steps_manager)
+        return self.steps_manager.param_metadata
 
     @property
     def analysis_name(self):

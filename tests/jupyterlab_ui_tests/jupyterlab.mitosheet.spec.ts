@@ -7,14 +7,14 @@ test.describe('Mitosheet JupyterLab integration', () => {
   test('renders a mitosheet.sheet()', async ({ page, tmpPath }) => {
     await createNewNotebook(page, 'import mitosheet\nmitosheet.sheet()');
     const cellOuput = await page.notebook.getCellOutput(0)
-    expect(await cellOuput?.innerHTML()).toContain('Add Col');
+    expect(await cellOuput?.innerHTML()).toContain('Insert');
   });
 
   test.skip('Can run the generated code', async ({ page, tmpPath }) => {    
     // We skip this as it is flakey on Python 3.6... how to handle
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
-    await clickToolbarButton(page, 'Add Col');
+    await clickToolbarButton(page, 'Insert');
 
     await waitForCodeToBeWritten(page, 1);
     await page.notebook.selectCells(1);
@@ -30,7 +30,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
 
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
-    await clickToolbarButton(page, 'Add Col');
+    await clickToolbarButton(page, 'Insert');
     await waitForIdle(page);
     await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
     

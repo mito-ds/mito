@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnalysisData } from "../types";
 
 /* 
@@ -6,8 +6,9 @@ import { AnalysisData } from "../types";
     successful redo.
 */
 export const useEffectOnRedo = (effect: () => void, analysisData: AnalysisData): void => {   
+    const [startingRedoCount] = useState(analysisData.redoCount);
     useEffect(() => {
-        if (analysisData.redoCount > 0) {
+        if (analysisData.redoCount > startingRedoCount) {
             effect();
         }
     }, [analysisData.redoCount])

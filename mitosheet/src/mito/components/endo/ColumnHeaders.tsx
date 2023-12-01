@@ -10,6 +10,7 @@ import { classNames } from '../../utils/classNames';
 import ColumnHeader from './ColumnHeader';
 import { changeColumnWidthDataArray } from './widthUtils';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { Actions } from '../../utils/actions';
 
 
 /* 
@@ -29,6 +30,7 @@ const ColumnHeaders = (props: {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    actions: Actions;
 }): JSX.Element => {
         
     // The div that stores all the column headers
@@ -216,6 +218,7 @@ const ColumnHeaders = (props: {
                                     setUIState={props.setUIState}
                                     mitoAPI={props.mitoAPI}
                                     closeOpenEditingPopups={props.closeOpenEditingPopups}
+                                    actions={props.actions}
                                 />
                             )
                         })}

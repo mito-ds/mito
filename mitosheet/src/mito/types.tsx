@@ -5,6 +5,7 @@ import { GraphType } from "./components/taskpanes/Graph/GraphSetupTab";
 import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 import { FunctionDocumentationObject } from "./data/function_documentation";
+import { TabName } from "./components/toolbar/Toolbar";
 
 /**
  * The different types of data manipulation that Mito supports.
@@ -889,8 +890,9 @@ export interface UIState {
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | undefined;
+    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -928,16 +930,18 @@ export const enum FeedbackID {
     then by spreadsheet functions
 */
 export enum ActionEnum {
-    Add_Column = 'add column',
+    Add_Column_Right = 'add column to the right',
+    Add_Column_Left = 'add column to the left',
+    AntiMerge = 'anti merge',
     Catch_Up = 'catch up',
     Clear = 'clear',
     Change_Dtype = 'change dtype',
     Column_Summary = 'column summary',
     Copy = 'copy',
-    Delete_Column = 'delete column',
+    CopyCode = 'copy code',
+    Delete = 'delete',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
-    Delete_Row = 'delete row',
     Drop_Duplicates = 'drop duplicates',
     Duplicate_Dataframe = 'duplicate dataframe',
     Duplicate_Graph = 'duplicate graph',
@@ -949,25 +953,42 @@ export enum ActionEnum {
     Format_Number_Columns = 'format number columns',
     Fullscreen = 'fullscreen',
     Graph = 'graph',
+    Graph_Bar = 'bar chart',
+    Graph_Line = 'line graph',
+    Graph_Scatter = 'scatter plot',
     Help = 'help',
     Import_Dropdown = 'import dropdown',
     Import_Files = 'import files',
     Merge = 'merge',
+    Merge_Dropdown = 'merge dropdown',
     Concat_Dataframes = 'concat_dataframes', // Note the unfortunate overlap with concat
+    Formulas_Dropdown_DateTime = 'date time formulas dropdown',
+    Formulas_Dropdown_Finance = 'finance formulas dropdown',
+    Formulas_Dropdown_Math = 'math formulas dropdown',
+    Formulas_Dropdown_Logic = 'logical formulas dropdown',
+    Formulas_Dropdown_Text = 'text formulas dropdown',
+    Formulas_Dropdown_Reference = 'reference formulas dropdown',
+    Formulas_Dropdown_Custom = 'custom formulas dropdown',
+    Formulas_Dropdown_More = 'more formulas dropdown',
     OpenSearch = 'open search',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',
+    Currency_Format = 'set format to currency',
+    Percent_Format = 'set format to percent',
     Promote_Row_To_Header = 'promote row to header',
     Redo = 'redo',
     Rename_Column = 'rename column',
     Rename_Dataframe = 'rename dataframe',
     Rename_Graph = 'rename graph',
     See_All_Functionality = 'see all functionality',
+    Schedule_Github = 'schedule github',
     //Search = 'search',
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
+    SortAscending = 'sort ascending',
+    SortDescending = 'sort descending',
     Split_Text_To_Column = 'split text to column',
     Steps = 'steps',
     Undo = 'undo',
@@ -983,6 +1004,7 @@ export enum ActionEnum {
     CODESNIPPETS = 'CodeSnippets',
     CODEOPTIONS = 'CodeOptions',
     EXPORT_TO_FILE = 'Export_To_File',
+    RESET_INDEX_DROPDOWN = 'reset index dropdown',
     RESET_AND_KEEP_INDEX = 'reset and keep index',
     RESET_AND_DROP_INDEX = 'reset and drop index',
     SNOWFLAKEIMPORT = 'SnowflakeImport',
@@ -997,10 +1019,14 @@ export interface BaseAction<Type, StaticType> {
     type: Type;
     staticType: StaticType;
     // The short title for the action. Should be title case, as you want to display it.
-    shortTitle: string
+    // If undefined, the toolbar will not display a title in the toolbar. 
+    toolbarTitle?: string
 
     // The optional long title for the action.
     longTitle: string
+
+    // The optional icon to display for the action
+    icon?: React.FC<any>;
 
     /* 
         The function to call if the action is taken by the user. This should

@@ -28,6 +28,8 @@ analysis = spreadsheet(
     df,
     df_names=['df'],
     import_folder='datasets',
+    sheet_functions=[ADD_ONE],
+    editors=[add_number_to_df, add_diff_number_to_df_and_this_is_a_long_name],
     return_type='analysis'
 )
 

@@ -5,17 +5,72 @@ import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedCol
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { getDefaultGraphParams } from "../components/taskpanes/Graph/graphUtils";
+import { openGraphEditor } from "../components/taskpanes/Graph/graphUtils";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile } from "../types";
+import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
-import { FORMAT_DISABLED_MESSAGE, decreasePrecision, increasePrecision } from "./format";
+import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
 import {getDisplayNameOfPythonVariable} from './userDefinedFunctionUtils'
+import UndoIcon from "../components/icons/UndoIcon";
+import AddColumnIcon from "../components/icons/AddColumnIcon";
+import CatchUpIcon from "../components/icons/CatchUpIcon";
+import DtypeIcon from "../components/icons/DtypeIcon";
+import ClearIcon from "../components/icons/ClearIcon";
+import DeleteColumnIcon from "../components/icons/DeleteColumnIcon";
+import PivotIcon from "../components/icons/PivotIcon";
+import AIIcon from "../components/icons/AIIcon";
+import ImportIcon from "../components/icons/ImportIcon";
+import ExportIcon from "../components/icons/ExportIcon";
+import LessIcon from "../components/icons/LessIcon";
+import MoreIcon from "../components/icons/MoreIcon";
+import GraphIcon from "../components/icons/GraphIcon";
+import SearchIcon from "../components/icons/SearchIcon";
+import RedoIcon from "../components/icons/RedoIcon";
+import ConditionalFormatIcon from "../components/icons/ConditionalFormatIcon";
+import { FilterIcon } from "../components/icons/FilterIcons";
+import FormatIcon from "../components/icons/FormatIcon";
+import CopyIcon from "../components/icons/CopyIcon";
+import PercentIcon from "../components/icons/PercentIcon";
+import CurrencyIcon from "../components/icons/CurrencyIcon";
+import MergeIcon from "../components/icons/MergeIcon";
+import UnpivotIcon from "../components/icons/UnpivotIcon";
+import TransposeIcon from "../components/icons/TransposeIcon";
+import ConcatIcon from "../components/icons/ConcatIcon";
+import AntiMergeIcon from "../components/icons/AntiMergeIcon";
+import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
+import LineChartIcon from "../components/icons/LineChartIcon";
+import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
+import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
+import SortIcon from "../components/icons/SortIcon";
+import SortDescendingIcon from "../components/icons/SortDescendingIcon";
+import SortAscendingIcon from "../components/icons/SortAscendingIcon";
+import GearIcon from "../components/icons/GearIcon";
+import SnowflakeIcon from "../components/icons/SnowflakeIcon";
+import DataFrameImportIcon from "../components/icons/DataFrameImportIcon";
+import FileImportIcon from "../components/icons/FileImportIcon";
+import TextToColumnsIcon from "../components/icons/TextToColumnsIcon";
+import FillNanIcon from "../components/icons/FillNanIcon";
+import OneHotEncodingIcon from "../components/icons/OneHotEncodingIcon";
+import ResetIcon from "../components/icons/ResetIcon";
+import RemoveDuplicatesIcon from "../components/icons/RemoveDuplicatesIcon";
+import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import MathFunctionsIcon from "../components/icons/MathFunctionsIcon";
+import LogicalFunctionsIcon from "../components/icons/LogicalFunctionsIcon";
+import TextFunctionsIcon from "../components/icons/TextFunctionsIcon";
+import DateTimeFunctionsIcon from "../components/icons/DateTimeFunctionsIcon";
+import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
+import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
+import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
+import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
+import FunctionIcon from "../components/icons/FunctionIcon";
+import ScheduleIcon from "../components/icons/ScheduleIcon";
+import { getCodeString } from "../../jupyter/code";
+import BulkHeaderTransformIcon from "../components/icons/BulkColumnHeaderTransformIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -104,12 +159,13 @@ export const getActions = (
         followed by all of the spreadsheet formulas. 
     */
     const buildTimeActions: Record<ActionEnum, BuildTimeAction> = {
-        [ActionEnum.Add_Column]: {
+        [ActionEnum.Add_Column_Right]: {
             type: 'build-time',
-            staticType: ActionEnum.Add_Column,
-            shortTitle: 'Add Col',
-            longTitle: 'Add column',
-            actionFunction: () => {
+            staticType: ActionEnum.Add_Column_Right,
+            icon: AddColumnIcon,
+            toolbarTitle: 'Insert',
+            longTitle: 'Insert column to the Right',
+            actionFunction: async () => {
                 if (sheetDataArray.length === 0) {
                     return;
                 }
@@ -124,20 +180,78 @@ export const getActions = (
                 // The new column should be placed 1 position to the right of the last selected column
                 const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].endingColumnIndex + 1;
 
-                void mitoAPI.editAddColumn(
+                await mitoAPI.editAddColumn(
                     sheetIndex,
                     newColumnHeader,
                     newColumnHeaderIndex
-                );
+                )
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            sheetIndex: sheetIndex,
+                            startingRowIndex: -1,
+                            startingColumnIndex: newColumnHeaderIndex,
+                            endingRowIndex: -1,
+                            endingColumnIndex: newColumnHeaderIndex
+                        }]
+                    }
+                })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the right of your selection."
         },
+        [ActionEnum.Add_Column_Left]: {
+            type: 'build-time',
+            staticType: ActionEnum.Add_Column_Left,
+            icon: AddColumnIcon,
+            toolbarTitle: 'Insert',
+            longTitle: 'Insert Column to the Left',
+            actionFunction: async () => {
+                if (sheetDataArray.length === 0) {
+                    return;
+                }
+
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const newColumnHeader = 'new-column-' + getNewColumnHeader()
+                // The new column should be placed 1 position to the right of the last selected column
+                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
+
+                await mitoAPI.editAddColumn(
+                    sheetIndex,
+                    newColumnHeader,
+                    newColumnHeaderIndex
+                )
+
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            sheetIndex: sheetIndex,
+                            startingRowIndex: -1,
+                            startingColumnIndex: newColumnHeaderIndex,
+                            endingRowIndex: -1,
+                            endingColumnIndex: newColumnHeaderIndex
+                        }]
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
+            searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
+            tooltip: "Add a new formula column to the left of your selection."
+        },
         [ActionEnum.Catch_Up]: {
             type: 'build-time',
             staticType: ActionEnum.Catch_Up,
-            shortTitle: 'Catch Up',
+            icon: CatchUpIcon,
+            toolbarTitle: 'Catch Up',
             longTitle: 'Catch up',
             actionFunction: () => {
                 // Fast forwards to the most recent step, allowing editing
@@ -151,7 +265,8 @@ export const getActions = (
         [ActionEnum.Change_Dtype]: {
             type: 'build-time',
             staticType: ActionEnum.Change_Dtype,
-            shortTitle: 'Dtype',
+            icon: DtypeIcon,
+            toolbarTitle: 'Dtype',
             longTitle: 'Change column dtype',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -177,7 +292,7 @@ export const getActions = (
         [ActionEnum.Clear]: {
             type: 'build-time',
             staticType: ActionEnum.Clear,
-            shortTitle: 'Clear',
+            icon: ClearIcon,
             longTitle: "Clear all edits",
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -203,7 +318,7 @@ export const getActions = (
         [ActionEnum.Column_Summary]: {
             type: 'build-time',
             staticType: ActionEnum.Column_Summary,
-            shortTitle: 'Column Summary',
+            toolbarTitle: 'Column Summary',
             longTitle: 'View column summary statistics ',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -227,7 +342,8 @@ export const getActions = (
         [ActionEnum.Copy]: {
             type: 'build-time',
             staticType: ActionEnum.Copy,
-            shortTitle: 'Copy',
+            icon: CopyIcon,
+            toolbarTitle: 'Copy',
             longTitle: 'Copy',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -266,17 +382,50 @@ export const getActions = (
                 windows: 'Ctrl+C'
             }
         },
-        [ActionEnum.Delete_Column]: {
+        [ActionEnum.CopyCode]: {
             type: 'build-time',
-            staticType: ActionEnum.Delete_Column,
-            shortTitle: 'Del Col',
-            longTitle: 'Delete columns',
+            staticType: ActionEnum.CopyCode,
+            icon: CopyIcon,
+            toolbarTitle: 'Copy Code',
+            longTitle: 'Copy Code to Clipboard',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const codeToCopy = getCodeString(
+                    analysisData.analysisName,
+                    analysisData.code,
+                    userProfile.telemetryEnabled,
+                    analysisData.publicInterfaceVersion
+                )
+
+                void writeTextToClipboard(codeToCopy);
+            },
+            isDisabled: () => {
+                if (!analysisData.code || analysisData.code.length === 0) {
+                    return 'There is no code to copy.';
+                }
+                return getDefaultActionsDisabledMessage(uiState, sendFunctionStatus);
+            },
+            searchTerms: ['copy', 'paste', 'export'],
+            tooltip: "Copy the generated code to the clipboard.",
+        },
+        [ActionEnum.Delete]: {
+            type: 'build-time',
+            staticType: ActionEnum.Delete,
+            icon: DeleteColumnIcon,
+            toolbarTitle: 'Delete',
+            longTitle: 'Delete column / row',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
+
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                }
 
                 if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                     const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
@@ -292,7 +441,12 @@ export const getActions = (
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
-                    return 'There are no columns to delete. Import data.';
+                    return 'There are no columns or rows to delete. Import data.';
+                }
+
+                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                if (rowsToDelete.length > 0) {
+                    return defaultActionDisabledMessage;
                 }
 
                 if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
@@ -302,16 +456,16 @@ export const getActions = (
                         return "The selection contains individual cells. Click on column headers to select entire columns only."
                     }
                 } else {
-                    return "There are no columns in the dataframe to delete. Add data to the sheet."
+                    return "There are no rows or columns in the dataframe to delete. Add data to the sheet."
                 }
             },
-            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
-            tooltip: "Delete all of the selected columns from the sheet."
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete all of the selected columns or rows from the sheet."
         },
         [ActionEnum.Delete_Dataframe]: {
             type: 'build-time',
             staticType: ActionEnum.Delete_Dataframe,
-            shortTitle: 'Delete dataframe',
+            toolbarTitle: 'Delete dataframe',
             longTitle: 'Delete dataframe',
             actionFunction: async () => {
                 // If the sheetIndex is not 0, decrement it.
@@ -339,7 +493,7 @@ export const getActions = (
         [ActionEnum.Delete_Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Delete_Graph,
-            shortTitle: 'Delete Graph',
+            toolbarTitle: 'Delete Graph',
             longTitle: 'Delete graph',
             actionFunction: async () => {
                 if (uiState.selectedGraphID) {
@@ -352,31 +506,10 @@ export const getActions = (
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
         },
-        [ActionEnum.Delete_Row]: {
-            type: 'build-time',
-            staticType: ActionEnum.Delete_Row,
-            shortTitle: 'Delete Row',
-            longTitle: 'Delete row',
-            actionFunction: async () => {
-                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
-                if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
-                }
-            },
-            isDisabled: () => {
-                const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
-                if (rowsToDelete.length > 0) {
-                    return defaultActionDisabledMessage;
-                }
-                return "There are no selected rows to delete."
-            },
-            searchTerms: ['delete', 'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
-            tooltip: "Delete the selected rows."
-        },
         [ActionEnum.Docs]: {
             type: 'build-time',
             staticType: ActionEnum.Docs,
-            shortTitle: 'Docs',
+            toolbarTitle: 'Docs',
             longTitle: 'Documentation',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -396,7 +529,8 @@ export const getActions = (
         [ActionEnum.Drop_Duplicates]: {
             type: 'build-time',
             staticType: ActionEnum.Drop_Duplicates,
-            shortTitle: 'Dedup',
+            icon: RemoveDuplicatesIcon,
+            toolbarTitle: 'Remove Duplicates',
             longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -421,7 +555,7 @@ export const getActions = (
         [ActionEnum.Duplicate_Dataframe]: {
             type: 'build-time',
             staticType: ActionEnum.Duplicate_Dataframe,
-            shortTitle: 'Duplicate Dataframe',
+            toolbarTitle: 'Duplicate Dataframe',
             longTitle: 'Duplicate dataframe',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -438,7 +572,7 @@ export const getActions = (
         [ActionEnum.Duplicate_Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Duplicate_Graph,
-            shortTitle: 'Duplicate Graph',
+            toolbarTitle: 'Duplicate Graph',
             longTitle: 'Duplicate selected graph',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -458,7 +592,8 @@ export const getActions = (
         [ActionEnum.Export]: {
             type: 'build-time',
             staticType: ActionEnum.Export,
-            shortTitle: 'Download',
+            icon: ExportIcon,
+            toolbarTitle: 'Download',
             longTitle: 'Download File Now',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -485,7 +620,8 @@ export const getActions = (
         [ActionEnum.Export_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Export_Dropdown,
-            shortTitle: 'Export',
+            icon: ExportIcon,
+            toolbarTitle: 'Export',
             longTitle: 'Open Export Dropdown',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -502,12 +638,13 @@ export const getActions = (
                 return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
-            tooltip: "Export dataframes as a .csv or .xlsx file."
+            tooltip: "Export dataframes as a .csv or .xlsx file. Choose whether or not to include export in the code."
         },
         [ActionEnum.Fill_Na]: {
             type: 'build-time',
             staticType: ActionEnum.Fill_Na,
-            shortTitle: 'Fill NaN',
+            icon: FillNanIcon,
+            toolbarTitle: 'Fill Missing Values',
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -535,7 +672,8 @@ export const getActions = (
         [ActionEnum.Filter]: {
             type: 'build-time',
             staticType: ActionEnum.Filter,
-            shortTitle: 'Filter',
+            icon: FilterIcon,
+            toolbarTitle: 'Filter',
             longTitle: 'Filter column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -559,7 +697,7 @@ export const getActions = (
         [ActionEnum.Format_Number_Columns]: {
             type: 'build-time',
             staticType: ActionEnum.Format_Number_Columns,
-            shortTitle: 'Number',
+            toolbarTitle: 'Number',
             longTitle: 'Format number columns',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -586,10 +724,225 @@ export const getActions = (
             searchTerms: ['format', 'decimals', 'percent', '%', 'scientific', 'Mill', 'Bill', 'round'],
             tooltip: "Format all of the selected columns as percents, choose the number of decimals, etc. This only changes the display of the data, and does not effect the underlying dataframe."
         },
+        [ActionEnum.Formulas_Dropdown_Math]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Math,
+            icon: MathFunctionsIcon,
+            longTitle: 'Math Formulas',
+            toolbarTitle: 'Math',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-math'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['math', 'functions'],
+            tooltip: "Perform math on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Logic]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Logic,
+            icon: LogicalFunctionsIcon,
+            longTitle: 'Logic Formulas',
+            toolbarTitle: 'Logical',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-logic'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['logic', 'functions'],
+            tooltip: "Perform logic on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Text]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Text,
+            icon: TextFunctionsIcon,
+            longTitle: 'Text Formulas',
+            toolbarTitle: 'Text',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-text'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['text', 'functions'],
+            tooltip: "Perform text operations on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_DateTime]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_DateTime,
+            icon: DateTimeFunctionsIcon,
+            longTitle: 'Date and Time Formulas',
+            toolbarTitle: 'Date & Time',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-date'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['date', 'time', 'datetime', 'functions'],
+            tooltip: "Perform date / time operations on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Reference]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Reference,
+            icon: LookupFunctionsIcon,
+            longTitle: 'Lookup & Reference Formulas',
+            toolbarTitle: 'Lookup & Reference',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-reference'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['reference', 'lookup', 'functions'],
+            tooltip: "Perform lookups on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Custom]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Custom,
+            icon: LookupFunctionsIcon,
+            longTitle: 'Custom Formulas',
+            toolbarTitle: 'Custom',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-custom'
+                    }
+                })
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to perform custom functions on. Import data.'
+                } else if (analysisData.userDefinedFunctions.length === 0) {
+                    return 'There are no custom formulas available.'
+                } else {
+                    return defaultActionDisabledMessage;
+                }
+            },
+            searchTerms: ['custom', 'functions'],
+            tooltip: "Perform custom functions on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_Finance]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_Finance,
+            icon: FinancialFunctionsIcon,
+            longTitle: 'Finance Formulas',
+            toolbarTitle: 'Finance',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-finance'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['financial', 'finance', 'functions'],
+            tooltip: "Perform finance operations on the selected columns."
+        },
+        [ActionEnum.Formulas_Dropdown_More]: {
+            type: 'build-time',
+            staticType: ActionEnum.Formulas_Dropdown_More,
+            icon: MoreFunctionsIcon,
+            longTitle: 'More Formulas',
+            toolbarTitle: 'More',
+            actionFunction: () => {
+                // Open the format toolbar dropdown
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'formula-more'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to perform math on. Import data.'
+            },
+            searchTerms: ['formulas', 'functions'],
+            tooltip: "Add formulas to the selected columns."
+        },
+        [ActionEnum.Currency_Format]: {
+            type: 'build-time',
+            staticType: ActionEnum.Currency_Format,
+            icon: CurrencyIcon,
+            longTitle: 'Format as currency',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.CURRENCY }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['currency', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
+        [ActionEnum.Percent_Format]: {
+            type: 'build-time',
+            staticType: ActionEnum.Percent_Format,
+            icon: PercentIcon,
+            longTitle: 'Format as percentage',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.PERCENTAGE }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['percent', '%', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
         [ActionEnum.Fullscreen]: {
             type: 'build-time',
             staticType: ActionEnum.Fullscreen,
-            shortTitle: 'Fullscreen',
             longTitle: 'Toggle fullscreen',
             actionFunction: () => {
                 // We toggle to the opposite of whatever the fullscreen actually is (as detected by the
@@ -619,45 +972,56 @@ export const getActions = (
         [ActionEnum.Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Graph,
-            shortTitle: 'Graph',
+            icon: GraphIcon,
+            toolbarTitle: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-
-                // If there is no data, prompt the user to import and nothing else
-                if (sheetDataArray.length === 0) {
-                    setUIState((prevUIState) => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.IMPORT_FIRST,
-                                message: 'Before graphing data, you need to import some!'
-                            }
-                        }
-                    })
-                    return;
-                }
-
-                const newGraphID = getRandomId() // Create a new GraphID
-                const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex)
-
-                await mitoAPI.editGraph(
-                    newGraphID,
-                    graphParams,
-                    '100%',
-                    '100%',
-                    getRandomId(), 
-                );
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
             tooltip: "Create an interactive graph. Pick from bar charts, histograms, scatter plots, etc."
         },
+        [ActionEnum.Graph_Bar]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_Bar,
+            icon: GraphIcon,
+            longTitle: 'Create new bar chart',
+            actionFunction: async () => {
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
+            searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
+            tooltip: "Create an interactive bar chart."
+        },
+        [ActionEnum.Graph_Line]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_Line,
+            icon: LineChartIcon,
+            longTitle: 'Create new line graph',
+            actionFunction: async () => {
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
+            searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
+            tooltip: "Create an interactive line graph."
+        },
+        [ActionEnum.Graph_Scatter]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_Scatter,
+            icon: ScatterPlotIcon,
+            longTitle: 'Create new scatter plot',
+            actionFunction: async () => {
+                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
+            searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
+            tooltip: "Create an interactive scatter plot."
+        },
         [ActionEnum.Help]: {
             type: 'build-time',
             staticType: ActionEnum.Help,
-            shortTitle: 'Help',
+            toolbarTitle: 'Help',
             longTitle: 'Help',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -678,7 +1042,8 @@ export const getActions = (
         [ActionEnum.Import_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Dropdown,
-            shortTitle: 'Import',
+            icon: ImportIcon,
+            toolbarTitle: 'Import',
             longTitle: 'Open import dropdown',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -696,12 +1061,13 @@ export const getActions = (
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['import', 'upload', 'new', 'excel', 'csv', 'add'],
-            tooltip: "Import any .csv or well-formatted .xlsx file as a new sheet."
+            tooltip: "Import a new sheet from .csv or .xlsx files, dataframe objects, or through Snowflake."
         },
         [ActionEnum.Import_Files]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Files,
-            shortTitle: 'Import',
+            toolbarTitle: 'Import Files',
+            icon: FileImportIcon,
             longTitle: 'Import files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -726,7 +1092,8 @@ export const getActions = (
         [ActionEnum.Merge]: {
             type: 'build-time',
             staticType: ActionEnum.Merge,
-            shortTitle: 'Merge',
+            icon: MergeIcon,
+            toolbarTitle: 'Merge',
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -746,10 +1113,57 @@ export const getActions = (
             searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
             tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
         },
+        [ActionEnum.Merge_Dropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.Merge_Dropdown,
+            icon: MergeIcon,
+            toolbarTitle: 'Merge',
+            longTitle: 'Merge dataframes',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the merge taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'merge',
+                    }
+                })
+            },
+            isDisabled: () => {return sheetDataArray.length >= 2 ? defaultActionDisabledMessage : 'You need to import at least two dataframes before you can merge them.'},
+            searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
+            tooltip: "Merge two dataframes together using a lookup, left, right, inner, or outer join. Or find the differences between two dataframes."
+        },
+        [ActionEnum.AntiMerge]: {
+            type: 'build-time',
+            staticType: ActionEnum.AntiMerge,
+            icon: AntiMergeIcon,
+            toolbarTitle: 'Anti-Merge',
+            longTitle: 'Merge dataframes unique in left',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the merge taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {type: TaskpaneType.MERGE, defaultMergeType: MergeType.UNIQUE_IN_LEFT},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return sheetDataArray.length >= 2 ? defaultActionDisabledMessage : 'You need to import at least two dataframes before you can merge them.'},
+            searchTerms: ['merge', 'join', 'vlookup', 'lookup', 'anti', 'diff', 'difference', 'unique'],
+            tooltip: "Merge two dataframes by including each row from the first sheet that doesn't have a match in the second sheet."
+        },
         [ActionEnum.Concat_Dataframes]: {
             type: 'build-time',
             staticType: ActionEnum.Concat_Dataframes,
-            shortTitle: 'Concat',
+            icon: ConcatIcon,
+            toolbarTitle: 'Concat',
             longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -772,7 +1186,8 @@ export const getActions = (
         [ActionEnum.Pivot]: {
             type: 'build-time',
             staticType: ActionEnum.Pivot,
-            shortTitle: 'Pivot',
+            icon: PivotIcon,
+            toolbarTitle: 'Pivot',
             longTitle: 'Pivot table',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -838,7 +1253,7 @@ export const getActions = (
         [ActionEnum.Precision_Decrease]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Decrease,
-            shortTitle: 'Less',
+            icon: LessIcon,
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -866,7 +1281,7 @@ export const getActions = (
         [ActionEnum.Precision_Increase]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Increase,
-            shortTitle: 'More',
+            icon: MoreIcon,
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -893,7 +1308,7 @@ export const getActions = (
         [ActionEnum.Promote_Row_To_Header]: {
             type: 'build-time',
             staticType: ActionEnum.Promote_Row_To_Header,
-            shortTitle: 'Promote to Header',
+            toolbarTitle: 'Promote to Header',
             longTitle: 'Promote Row to header',
             actionFunction: async () => {
                 const rowsToPromote = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
@@ -914,7 +1329,7 @@ export const getActions = (
         [ActionEnum.Redo]: {
             type: 'build-time',
             staticType: ActionEnum.Redo,
-            shortTitle: 'Redo',
+            icon: RedoIcon,
             longTitle: 'Redo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -936,7 +1351,7 @@ export const getActions = (
         [ActionEnum.Rename_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Rename_Column,
-            shortTitle: 'Rename Column',
+            toolbarTitle: 'Rename Column',
             longTitle: 'Rename column',
             actionFunction: () => {
                 const columnHeader = getCellDataFromCellIndexes(sheetData, -1, startingColumnIndex).columnHeader;
@@ -965,7 +1380,7 @@ export const getActions = (
         [ActionEnum.Rename_Dataframe]: {
             type: 'build-time',
             staticType: ActionEnum.Rename_Dataframe,
-            shortTitle: 'Rename dataframe',
+            toolbarTitle: 'Rename dataframe',
             longTitle: 'Rename dataframe',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
@@ -990,7 +1405,7 @@ export const getActions = (
         [ActionEnum.Rename_Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Rename_Graph,
-            shortTitle: 'Rename Graph',
+            toolbarTitle: 'Rename Graph',
             longTitle: 'Rename graph',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
@@ -1010,10 +1425,32 @@ export const getActions = (
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."
         },
+        [ActionEnum.Schedule_Github]: {
+            type: 'build-time',
+            staticType: ActionEnum.Schedule_Github,
+            toolbarTitle: 'Schedule Automation',
+            icon: ScheduleIcon,
+            longTitle: 'Schedule Automation',
+            actionFunction: () => {
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.GITHUB_SCHEDULE},
+                        selectedTabType: 'data'
+                    }
+                })
+                
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? undefined : 'Please import and edit data before scheduling an automation.'},
+            searchTerms: ['github', 'pull request', 'automation', 'schedule'],
+            tooltip: "Create a GitHub pull request that schedules this analysis to run at a specific time."
+        },
         [ActionEnum.See_All_Functionality]: {
             type: 'build-time',
             staticType: ActionEnum.See_All_Functionality,
-            shortTitle: 'See All Functionality',
+            toolbarTitle: 'See All Functionality',
             longTitle: 'See all functionality',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1033,7 +1470,7 @@ export const getActions = (
         [ActionEnum.Set_Cell_Value]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Cell_Value,
-            shortTitle: 'Set Cell Value',
+            toolbarTitle: 'Set Cell Value',
             longTitle: 'Set cell value',
             actionFunction: async () => {
                 if (startingColumnID === undefined) {
@@ -1070,7 +1507,8 @@ export const getActions = (
         [ActionEnum.Set_Column_Formula]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Column_Formula,
-            shortTitle: 'Set Column Formula',
+            icon: FunctionIcon,
+            toolbarTitle: 'Insert Function',
             longTitle: 'Set column formula',
             actionFunction: async () => {  
                 
@@ -1100,7 +1538,8 @@ export const getActions = (
         [ActionEnum.Sort]: {
             type: 'build-time',
             staticType: ActionEnum.Sort,
-            shortTitle: 'Sort',
+            icon: SortIcon,
+            toolbarTitle: 'Sort',
             longTitle: 'Sort column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1121,10 +1560,51 @@ export const getActions = (
             searchTerms: ['sort', 'ascending', 'descending', 'arrange'],
             tooltip: "Sort a column in ascending or descending order."
         },
+        [ActionEnum.SortAscending]: {
+            type: 'build-time',
+            staticType: ActionEnum.SortAscending,
+            icon: SortAscendingIcon,
+            longTitle: 'Sort column ascending',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                if (startingColumnID === undefined) {
+                    return 
+                }
+                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
+            },
+            isDisabled: () => {
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+            },
+            searchTerms: ['sort', 'ascending', 'arrange'],
+            tooltip: "Sort a column in ascending order."
+        },
+        [ActionEnum.SortDescending]: {
+            type: 'build-time',
+            staticType: ActionEnum.SortDescending,
+            icon: SortDescendingIcon,
+            longTitle: 'Sort column descending',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                if (startingColumnID === undefined) {
+                    return 
+                }
+
+                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
+            },
+            isDisabled: () => {
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
+            },
+            searchTerms: ['sort', 'descending', 'arrange'],
+            tooltip: "Sort a column in descending order."
+        },
         [ActionEnum.Split_Text_To_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Split_Text_To_Column,
-            shortTitle: 'Split',
+            icon: TextToColumnsIcon,
+            toolbarTitle: 'Text to Columns',
             longTitle: 'Split text to columns',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -1137,14 +1617,15 @@ export const getActions = (
                     }
                 })
             },
-            isDisabled: () => {return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns in the selected sheet. Add data to the sheet.'},
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : "There are no dataframes to operate on. Import data."
+            },
             searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
             tooltip: "Split a column on a delimiter to break it into multiple columns."
         },
         [ActionEnum.Steps]: {
             type: 'build-time',
             staticType: ActionEnum.Steps,
-            shortTitle: 'Steps',
             longTitle: 'Step history',
             actionFunction: () => {
                 void mitoAPI.log('click_open_steps')
@@ -1164,7 +1645,7 @@ export const getActions = (
         [ActionEnum.OpenSearch]: {
             type: 'build-time',
             staticType: ActionEnum.OpenSearch,
-            shortTitle: 'Search',
+            icon: SearchIcon,
             longTitle: 'Search',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1186,7 +1667,7 @@ export const getActions = (
                     })
                 }
             },
-            isDisabled: () => {return defaultActionDisabledMessage},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['search', 'find', 'filter', 'lookup'],
             tooltip: "Search for a value in your data.",
             displayKeyboardShortcuts: {
@@ -1197,7 +1678,7 @@ export const getActions = (
         [ActionEnum.Undo]: {
             type: 'build-time',
             staticType: ActionEnum.Undo,
-            shortTitle: 'Undo',
+            icon: UndoIcon,
             longTitle: 'Undo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1219,7 +1700,7 @@ export const getActions = (
         [ActionEnum.Unique_Values]: {
             type: 'build-time',
             staticType: ActionEnum.Unique_Values,
-            shortTitle: 'Unique Vals',
+            toolbarTitle: 'Unique Vals',
             longTitle: 'View unique values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1243,7 +1724,7 @@ export const getActions = (
         [ActionEnum.Upgrade_To_Pro]: {
             type: 'build-time',
             staticType: ActionEnum.Upgrade_To_Pro,
-            shortTitle: 'Upgrade to Pro',
+            toolbarTitle: 'Upgrade to Pro',
             longTitle: 'Upgrade to Mito Pro',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1264,7 +1745,8 @@ export const getActions = (
         [ActionEnum.Transpose]: {
             type: 'build-time',
             staticType: ActionEnum.Transpose,
-            shortTitle: 'Transpose Dataframe',
+            icon: TransposeIcon,
+            toolbarTitle: 'Transpose',
             longTitle: 'Transpose dataframe',
             actionFunction: () => {
                 void mitoAPI.editTranspose(sheetIndex);
@@ -1276,7 +1758,8 @@ export const getActions = (
         [ActionEnum.Melt]: {
             type: 'build-time',
             staticType: ActionEnum.Melt,
-            shortTitle: 'Unpivot',
+            icon: UnpivotIcon,
+            toolbarTitle: 'Unpivot',
             longTitle: 'Unpivot dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1297,7 +1780,8 @@ export const getActions = (
         [ActionEnum.One_Hot_Encoding]: {
             type: 'build-time',
             staticType: ActionEnum.One_Hot_Encoding,
-            shortTitle: 'One-hot Encoding',
+            icon: OneHotEncodingIcon,
+            toolbarTitle: 'One-hot Encoding',
             longTitle: 'One-hot Encoding',
             actionFunction: () => {
                 if (columnID) {
@@ -1312,7 +1796,8 @@ export const getActions = (
         [ActionEnum.Set_Dataframe_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Dataframe_Format,
-            shortTitle: 'Set Dataframe Colors',
+            icon: FormatIcon,
+            toolbarTitle: 'Format',
             longTitle: 'Set dataframe colors',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1333,7 +1818,8 @@ export const getActions = (
         [ActionEnum.Conditional_Formatting]: {
             type: 'build-time',
             staticType: ActionEnum.Conditional_Formatting,
-            shortTitle: 'Conditional Formatting',
+            icon: ConditionalFormatIcon,
+            toolbarTitle: 'Conditional Formatting',
             longTitle: 'Conditional formatting',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1356,7 +1842,8 @@ export const getActions = (
         [ActionEnum.Dataframe_Import]: {
             type: 'build-time',
             staticType: ActionEnum.Dataframe_Import,
-            shortTitle: 'Import Dataframes',
+            icon: DataFrameImportIcon,
+            toolbarTitle: 'Import Dataframes',
             longTitle: 'Import dataframes',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1381,7 +1868,8 @@ export const getActions = (
         [ActionEnum.UPDATEIMPORTS]: {
             type: 'build-time',
             staticType: ActionEnum.UPDATEIMPORTS,
-            shortTitle: 'Change imports',
+            icon: GearIcon,
+            toolbarTitle: 'Change imports',
             longTitle: 'Change imported data',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1402,7 +1890,8 @@ export const getActions = (
         [ActionEnum.CODESNIPPETS]: {
             type: 'build-time',
             staticType: ActionEnum.CODESNIPPETS,
-            shortTitle: 'Snippets',
+            icon: CodeSnippetIcon,
+            toolbarTitle: 'Code Snippets',
             longTitle: 'Code Snippets',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1418,12 +1907,13 @@ export const getActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: ['CodeSnippets'],
-            tooltip: "CodeSnippets"
+            tooltip: "View code snippets. "
         },
         [ActionEnum.CODEOPTIONS]: {
             type: 'build-time',
             staticType: ActionEnum.CODEOPTIONS,
-            shortTitle: 'Configure',
+            icon: GearIcon,
+            toolbarTitle: 'Configure Code',
             longTitle: 'Configure Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1444,7 +1934,7 @@ export const getActions = (
         [ActionEnum.EXPORT_TO_FILE]: {
             type: 'build-time',
             staticType: ActionEnum.EXPORT_TO_FILE,
-            shortTitle: 'Download File when Executing Code',
+            toolbarTitle: 'Download File when Executing Code',
             longTitle: 'Download File when Executing Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1462,10 +1952,34 @@ export const getActions = (
             searchTerms: ['export', 'download', 'file'],
             tooltip: "Generate code that exports dataframes to files."
         },
+
+        [ActionEnum.RESET_INDEX_DROPDOWN]: {
+            type: 'build-time',
+            staticType: ActionEnum.RESET_INDEX_DROPDOWN,
+            icon: ResetIcon,
+            toolbarTitle: 'Reset Index',
+            longTitle: 'Reset Index Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        toolbarDropdown: 'reset-index'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'Import data before resetting an index.'
+            },
+            searchTerms: ['reset', 'download', 'excel', 'csv'],
+            tooltip: "Reset index"
+        },
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_KEEP_INDEX,
-            shortTitle: 'Reset and Keep Index',
+            toolbarTitle: 'Reset and Keep Index',
             longTitle: 'Reset and Keep Index',
             actionFunction: () => {
                 void mitoAPI.editResetIndex(sheetIndex, false);
@@ -1477,7 +1991,7 @@ export const getActions = (
         [ActionEnum.RESET_AND_DROP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_DROP_INDEX,
-            shortTitle: 'Reset and Drop Index',
+            toolbarTitle: 'Reset and Drop Index',
             longTitle: 'Reset and Drop Index',
             actionFunction: () => {
                 void mitoAPI.editResetIndex(sheetIndex, true);
@@ -1489,7 +2003,8 @@ export const getActions = (
         [ActionEnum.SNOWFLAKEIMPORT]: {
             type: 'build-time',
             staticType: ActionEnum.SNOWFLAKEIMPORT,
-            shortTitle: 'Snowflake Import',
+            icon: SnowflakeIcon,
+            toolbarTitle: 'Snowflake Import',
             longTitle: 'Snowflake Import',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1511,7 +2026,8 @@ export const getActions = (
         [ActionEnum.AI_TRANSFORMATION]: {
             type: 'build-time',
             staticType: ActionEnum.AI_TRANSFORMATION,
-            shortTitle: 'AI',
+            icon: AIIcon,
+            toolbarTitle: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -1531,7 +2047,8 @@ export const getActions = (
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',
             staticType: ActionEnum.COLUMN_HEADERS_TRANSFORM,
-            shortTitle: 'Bulk column header transform',
+            icon: BulkHeaderTransformIcon,
+            toolbarTitle: 'Rename Columns',
             longTitle: 'Bulk column headers transform',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1558,7 +2075,7 @@ export const getActions = (
         return {
             type: 'run-time',
             staticType: f.name,
-            shortTitle: displayName,
+            toolbarTitle: displayName,
             longTitle: displayName,
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1586,7 +2103,7 @@ export const getActions = (
         return {
             type: 'run-time',
             staticType: f.name,
-            shortTitle: displayName,
+            toolbarTitle: displayName,
             longTitle: displayName,
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1626,12 +2143,12 @@ export const getSearchTermToActionEnumMapping = (actions: Record<ActionEnum, Bui
 }
 
 const sortActionHelper = function(actionOne: Action, actionTwo: Action) {
-    const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.shortTitle
-    const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.shortTitle
+    const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.toolbarTitle
+    const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.toolbarTitle
 
 
     // Sort alphabetically
-    if (titleOne < titleTwo) {
+    if (!titleOne || !titleTwo || titleOne < titleTwo) {
         return -1;
     }
     if (titleOne > titleTwo) {

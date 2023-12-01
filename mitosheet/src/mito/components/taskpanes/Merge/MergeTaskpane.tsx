@@ -56,10 +56,11 @@ export type MergeTaskpaneProps = {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     analysisData: AnalysisData;
+    defaultMergeType?: MergeType;
 };
 
 
-export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: MergeParams): MergeParams | undefined => {
+export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: MergeParams, defaultMergeType?: MergeType): MergeParams | undefined => {
     if (sheetDataArray.length < 2) {
         return undefined;
     }
@@ -96,7 +97,7 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
     }
     
     return {
-        how: previousParams ? previousParams.how : 'lookup',
+        how: previousParams ? previousParams.how : (defaultMergeType ?? 'lookup'),
         sheet_index_one: sheetIndexOne,
         sheet_index_two: sheetIndexTwo,
         merge_key_column_ids: suggestedMergeKeys ? [suggestedMergeKeys] : [],
@@ -109,7 +110,7 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
     const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
-        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex),
+        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.defaultMergeType),
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,

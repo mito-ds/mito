@@ -32,9 +32,11 @@ const DEFAULT_TEXT_LIGHT = 'var(--mito-light-gray)';
 const BACKGROUND_VARIABLE_NAME = '--mito-background';
 const BACKGROUND_OFF_VARIABLE_NAME = '--mito-background-off';
 const BACKGROUND_HIGHLIGHT_VARIABLE_NAME = '--mito-background-highlight';
+const TOOLBAR_HOVER_VARIABLE_NAME = '--mito-toolbar-hover';
 const DEFAULT_BACKGROUND = 'var(--mito-white)';
 const DEFAULT_BACKGROUND_OFF = 'var(--mito-very-light-gray)';
 const DEFAULT_BACKGROUND_HIGHLIGHT = 'var(--mito-light-blue)';
+const TOOLBAR_HOVER_BACKGROUND = 'var(--mito-pretty-light-gray)';
 
 const getHighlightTheme = (primaryColor: string | undefined): React.CSSProperties => {
     if (primaryColor === undefined) {
@@ -78,6 +80,7 @@ const getBackgroundColors = (backgroundColor: string | undefined): React.CSSProp
             [BACKGROUND_VARIABLE_NAME]: DEFAULT_BACKGROUND,
             [BACKGROUND_OFF_VARIABLE_NAME]: DEFAULT_BACKGROUND_OFF,
             [BACKGROUND_HIGHLIGHT_VARIABLE_NAME]: DEFAULT_BACKGROUND_HIGHLIGHT,
+            [TOOLBAR_HOVER_VARIABLE_NAME]: TOOLBAR_HOVER_BACKGROUND,
         } as React.CSSProperties
     }
 
@@ -88,6 +91,7 @@ const getBackgroundColors = (backgroundColor: string | undefined): React.CSSProp
         [BACKGROUND_VARIABLE_NAME]: hexToRGBString(backgroundColorHex, 1),
         [BACKGROUND_OFF_VARIABLE_NAME]: offBackground,
         [BACKGROUND_HIGHLIGHT_VARIABLE_NAME]: highlightBackground,
+        [TOOLBAR_HOVER_VARIABLE_NAME]: hexToRGBString(backgroundColorHex, .8),
     } as React.CSSProperties
 }
 

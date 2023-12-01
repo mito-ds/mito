@@ -1,6 +1,5 @@
 .mito-search-bar {
     position: absolute;
-    top: 72px;
     right: 0;
     background-color: var(--mito-background-highlight);
     box-shadow: 0px 3px 11px -4px;

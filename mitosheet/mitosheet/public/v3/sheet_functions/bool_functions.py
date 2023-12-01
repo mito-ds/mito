@@ -31,6 +31,7 @@ def AND(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
     {
         "function": "AND",
         "description": "Returns True if all of the provided arguments are True, and False if any of the provided arguments are False.",
+        "category": "LOGIC",
         "search_terms": ["and", "&", "if", "conditional"],
         "examples": [
             "AND(True, False)",
@@ -68,6 +69,7 @@ def BOOL(series: BoolRestrictedInputType) -> BoolFunctionReturnType:
         "function": "BOOL",
         "description": "Converts the passed arguments to boolean values, either True or False. For numberic values, 0 converts to False while all other values convert to True.",
         "search_terms": ["bool", "boolean", "true", "false", "dtype", "convert"],
+        "category": "LOGIC",
         "examples": [
             "BOOL(Amount_Payed)",
             "AND(BOOL(Amount_Payed), Is_Paying)"
@@ -93,6 +95,7 @@ def IF(condition: pd.Series, true_series: AnyPrimitiveOrSeriesInputType, false_s
         "function": "IF",
         "description": "Returns one value if the condition is True. Returns the other value if the conditon is False.",
         "search_terms": ["if", "conditional", "and", "or"],
+        "category": "LOGIC",
         "examples": [
             "IF(Status == 'success', 1, 0)",
             "IF(Nums > 100, 100, Nums)",
@@ -131,6 +134,7 @@ def IFS(*argv: Optional[IfsInputType]) -> pd.Series:
         "function": "IFS",
         "description": "Returns the value of the first condition that is true. If no conditions are true, returns None.",
         "search_terms": ["ifs", "if", "conditional", "and", "or"],
+        "category": "LOGIC",
         "examples": [
             "IFS(height > 100, 'tall', height > 50, 'medium', height > 0, 'short')"
         ],
@@ -192,6 +196,7 @@ def OR(*argv: Optional[BoolInputType]) -> BoolFunctionReturnType:
         "function": "OR",
         "description": "Returns True if any of the provided arguments are True, and False if all of the provided arguments are False.",
         "search_terms": ["or", "if", "conditional"],
+        "category": "LOGIC",
         "examples": [
             "OR(True, False)",
             "OR(Status == 'success', Status == 'pass', Status == 'passed')"
