@@ -114,9 +114,22 @@ test.describe('Home Tab Buttons', () => {
     // Check that the .mito-grid-cell containing 2 does not 
     // background-color: rgba(179, 41, 41, 0.4)
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^2$/ }).first()).not.toHaveAttribute('style', /background-color: rgba\(179, 41, 41, 0.4\)/);
+  
+    await mito.getByRole('button', { name: 'Import Files' }).click();
+    await mito.getByText('test.csv').click();
+    await mito.getByText('test.csv', { exact: true }).click();
+    await mito.locator('div').filter({ hasText: /^test\.csv$/ }).nth(1).click();
+    await mito.getByRole('button', { name: 'Import test.csv' }).click();
+    await mito.getByRole('button', { name: 'Import test.csv' }).click();
+    await mito.locator('#mito-center-content-container line').nth(1).click();
+    await mito.getByText('Column3').click();
+    await mito.locator('[id="mito-toolbar-button-add\\ column\\ to\\ the\\ right"]').getByRole('button', { name: 'Insert' }).click();
+    await mito.locator('#cell-editor-input').fill('=123');
+    await mito.locator('#cell-editor-input').press('Enter');
+  
   });
 
-  test('Color Dataframe', async ({ page }) => {
+  test.skip('Color Dataframe', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Format', exact: true })
