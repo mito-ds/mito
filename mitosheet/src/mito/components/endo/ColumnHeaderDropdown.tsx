@@ -66,7 +66,10 @@ export default function ColumnHeaderDropdown(props: {
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Set_Dataframe_Format], props.closeOpenEditingPopups)} />
+            <DropdownItem
+                {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Format_Number_Columns], props.closeOpenEditingPopups)}
+                supressFocusSettingOnClose
+            />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 

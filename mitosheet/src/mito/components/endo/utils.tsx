@@ -205,6 +205,7 @@ export const getPropsForContextMenuDropdownItem = (action: Action, closeOpenEdit
             closeOpenEditingPopups();
             void action.actionFunction();
         },
+        disabled: !!action.isDisabled(),
         icon: action.iconContextMenu ? <action.iconContextMenu /> : action.iconToolbar ? <action.iconToolbar/> : <StepsIcon/>,
         rightText: action.displayKeyboardShortcuts?.mac
     }
