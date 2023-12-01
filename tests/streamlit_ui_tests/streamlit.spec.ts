@@ -59,6 +59,7 @@ test('Can render Mito spreadsheet', async ({ page }) => {
 
 
 test.describe('Home Tab Buttons', () => {
+
   test('Import CSV File (Double Click)', async ({ page }) => {
     const mito = await getMitoFrame(page);
     await mito.getByRole('button', { name: 'Import Files' }).click();
@@ -81,7 +82,7 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.endo-column-header-final-container').first()).toHaveAttribute('style', /border-top: 1px dashed black;/);
   });
 
-  test('Formatting Butons', async ({ page }) => {
+  test('Formatting Buttons', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.')
@@ -92,7 +93,14 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('100.0%')).toBeVisible();
     await clickButtonAndAwaitResponse(page, mito, 'Decrease the number of decimal places that are displayed in the selected number columns.')
     await expect(mito.getByText('100%')).toBeVisible();
-    await mito.getByText('100%').click();
+  });
+
+  test('Formatting Select', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+
+    await mito.getByText('Default').first().click();
+    await mito.getByText('Currency').click();
+    await expect(mito.getByText('$1')).toBeVisible();
   });
 
   test.skip('Conditional Formatting', async ({ page }) => {
@@ -113,20 +121,7 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^1$/ }).first()).toHaveAttribute('style', /background-color: rgba\(179, 41, 41, 0.4\)/);
     // Check that the .mito-grid-cell containing 2 does not 
     // background-color: rgba(179, 41, 41, 0.4)
-    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^2$/ }).first()).not.toHaveAttribute('style', /background-color: rgba\(179, 41, 41, 0.4\)/);
-  
-    await mito.getByRole('button', { name: 'Import Files' }).click();
-    await mito.getByText('test.csv').click();
-    await mito.getByText('test.csv', { exact: true }).click();
-    await mito.locator('div').filter({ hasText: /^test\.csv$/ }).nth(1).click();
-    await mito.getByRole('button', { name: 'Import test.csv' }).click();
-    await mito.getByRole('button', { name: 'Import test.csv' }).click();
-    await mito.locator('#mito-center-content-container line').nth(1).click();
-    await mito.getByText('Column3').click();
-    await mito.locator('[id="mito-toolbar-button-add\\ column\\ to\\ the\\ right"]').getByRole('button', { name: 'Insert' }).click();
-    await mito.locator('#cell-editor-input').fill('=123');
-    await mito.locator('#cell-editor-input').press('Enter');
-  
+    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^2$/ }).first()).not.toHaveAttribute('style', /background-color: rgba\(179, 41, 41, 0.4\)/);  
   });
 
   test.skip('Color Dataframe', async ({ page }) => {
@@ -161,6 +156,15 @@ test.describe('Home Tab Buttons', () => {
 
     // Expect there to be 4 column headers
     await expect(mito.locator('.endo-column-header-container')).toHaveCount(4);
+
+    // Check that the column with .endo-column-header-container-selected 
+    // starts with new-column
+    await expect(mito.locator('.endo-column-header-container-selected').first()).toHaveText(/^new-column/);
+
+    // Check that the new column is after Column1
+    await expect(mito.locator('.endo-column-header-container').first()).toHaveText(/^Column1/);
+    await expect(mito.locator('.endo-column-header-container').nth(1)).toHaveText(/^new-column/);
+
   });
 
   test('Filter', async ({ page }) => {
@@ -176,6 +180,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByRole('textbox').click();
     await mito.getByRole('textbox').fill('4');
     await mito.getByText('No rows in dataframe.').click();
+    await expect(mito.getByText('Removed an additional 1 rows')).toBeVisible();
 
     // Add another filter and combine with an OR < 10
     await mito.getByText('+ Add Filter').click();
@@ -188,6 +193,7 @@ test.describe('Home Tab Buttons', () => {
 
     // Check that the .mito-grid-cell containing 1 exists
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^1$/ }).first()).toBeVisible();
+    await expect(mito.getByText('Removed an additional 0 rows')).toBeVisible();
   });
 
   test('Find and Replace', async ({ page }) => {
@@ -298,5 +304,11 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.plotly-graph-div').first()).toBeVisible();
   });
 
+  test('AI Not Exist on Enterprise', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+
+    // Check there is no AI button
+    await expect(mito.getByRole('button', { name: 'AI' })).not.toBeVisible();
+  });
 
 });
