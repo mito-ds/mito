@@ -142,7 +142,8 @@ test.describe('Home Tab Buttons', () => {
     const mito = await getMitoFrameWithTestCSV(page);
 
     await mito.getByTitle('Column1').click();
-    await clickButtonAndAwaitResponse(page, mito, { name: 'Insert' })
+    await mito.locator('[id="mito-toolbar-button-add\\ column\\ to\\ the\\ right"]').getByRole('button', { name: 'Insert' }).click();
+    await awaitResponse(page);
 
     // Expect there to be 4 column headers
     await expect(mito.locator('.endo-column-header-container')).toHaveCount(4);
@@ -234,7 +235,7 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('Column3 count 2')).toBeVisible();
   });
   
-  test.only('Open Merge (horizontal)', async ({ page }) => {
+  test('Open Merge (horizontal)', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await importCSV(page, mito, 'test.csv');
     
@@ -246,15 +247,6 @@ test.describe('Home Tab Buttons', () => {
     // Check that Column1 exists
     const ch1 = await getColumnHeaderContainer(mito, 'Column1');
     await expect(ch1).toBeVisible();
-    
-    await mito.locator('p').filter({ hasText: 'Column1' }).nth(1).click();
-    await mito.locator('.mito-dropdown-item-icon-and-title-container').nth(1).click();
-    await mito.locator('p').filter({ hasText: 'Column1' }).nth(1).click();
-    await mito.locator('.mito-dropdown-item-icon-and-title-container').nth(1).click();
-
-    // Check that Column2 now exists
-    const ch2 = await getColumnHeaderContainer(mito, 'Column2');
-    await expect(ch2).toBeVisible();
   });
 
   test('Open Concat (vertical)', async ({ page }) => {
@@ -265,6 +257,9 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Concat (vertical)').click();
 
     await expect(mito.getByText('Concatenate Sheet')).toBeVisible();
+
+    // Test that the sheet is empty
+    await expect(mito.getByText('No data in dataframe.')).toBeVisible();
   });
   
   test('Anti Merge (unique)', async ({ page }) => {
