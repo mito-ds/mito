@@ -100,6 +100,7 @@ test.describe('Home Tab Buttons', () => {
 
     await mito.getByText('Default').first().click();
     await mito.getByText('Currency').click();
+    await awaitResponse(page);
     await expect(mito.getByText('$1')).toBeVisible();
   });
 
