@@ -50,12 +50,11 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
         error: string | undefined,
         loading: boolean, // This loading indicator is for if the edit message is processing
         startNewStep: () => void, // Allows the consumer of this hook to start a new live updating step
-
     } {
 
     const [params, _setParams] = useState<FrontendParamType | undefined>(defaultParams);
     const [updateNumber, setUpdateNumber] = useState(0);
-    const [stepID, setStepID] = useState<string | undefined>(undefined);
+    const [stepID, setStepID] = useState<string>(() => getRandomId());
     const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
 
@@ -105,35 +104,32 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
         const finalParams = converters.getBackendFromFrontend(params, sheetDataArray);
 
         setLoading(true);
-        const stepIDToSend = stepID || getRandomId();
-        const possibleError = await mitoAPI._edit<BackendParamType>(editEvent, finalParams, stepIDToSend);
+        const possibleError = await mitoAPI._edit<BackendParamType>(editEvent, finalParams, stepID);
         setLoading(false);
 
         // Handle if we return an error
         if ('error' in possibleError) {
             setError(possibleError.error);
-            // Note: we do not clear the stepID in this case, it is still applied
-            // and valid
         } else {
-            setStepID(stepIDToSend);
             setError(undefined)
         }
     }
 
     const refreshParams = async (): Promise<void> => {
-        if (stepID === undefined) {
+
+        // Get the steps with this step ID
+        const steps = analysisData.stepSummaryList.filter(step => step.step_type === stepType);
+
+        // If there are no steps with this ID, then set the default IDs        
+        if (steps.length === 0) {
             _setParams(defaultParams);
-            return;
-        }
-
-        const response = await mitoAPI.getParams<BackendParamType>(stepType, stepID, {});
-        const newBackendParams = 'error' in response ? undefined : response.result;
-
-        if (newBackendParams !== undefined) {
-            _setParams(converters.getFrontendFromBackend(newBackendParams, sheetDataArray));
         } else {
-            _setParams(defaultParams);
+            // Otherwise, we get the last step and set the params to that
+            const lastStep = steps[steps.length - 1];
+            const newBackendParams = lastStep.params as BackendParamType;
+            _setParams(converters.getFrontendFromBackend(newBackendParams, sheetDataArray));
         }
+
         // If we undo or redo, we know we are going to a valid configuration, in which
         // case we clear the error. Note that errors do play a little wacky with undo/redo,
         // as the parameters for errored configurations are _not_ saved (as they don't 
@@ -146,7 +142,7 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
         setParams: setParams,
         error: error,
         loading: loading,
-        startNewStep: () => {setStepID(undefined);}
+        startNewStep: () => {setStepID(getRandomId());}
     }
 }
 
