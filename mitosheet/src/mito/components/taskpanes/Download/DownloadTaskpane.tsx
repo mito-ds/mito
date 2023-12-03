@@ -87,14 +87,19 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
         } else if (props.uiState.exportConfiguration.exportType === 'excel') {
             const response = await props.mitoAPI.getDataframesAsExcel((props.uiState.exportConfiguration as ExcelExportState).sheetIndexes, exportFormatting);
             const excelString = 'error' in response ? '' : response.result;
-            setExportHref(URL.createObjectURL(new Blob(
-                /* 
-                    First, we convert the export string out of base 64 encoding, 
-                    and the convert it back into bytes
-                */
-                [ Uint8Array.from(window.atob(excelString), c => c.charCodeAt(0)) ],
-                { type: 'text/csv' } // TODO: for some reason, text/csv works fine here
-            )));
+            try {
+                const arr = [ Uint8Array.from(window.atob(excelString), c => c.charCodeAt(0)) ];
+                setExportHref(URL.createObjectURL(new Blob(
+                    /* 
+                        First, we convert the export string out of base 64 encoding, 
+                        and the convert it back into bytes
+                    */
+                    arr,
+                    { type: 'text/csv' } // TODO: for some reason, text/csv works fine here
+                )));
+            } catch (e) {
+                console.error(e);
+            }
         }
     }
 
