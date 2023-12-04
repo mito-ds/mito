@@ -701,6 +701,7 @@ function EndoGrid(props: {
                             mitoAPI={mitoAPI}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             sheetIndex={sheetIndex}
+                            actions={props.actions}
                         />
                     </>
                 }

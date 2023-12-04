@@ -53,6 +53,7 @@ export default function ColumnHeaderDropdown(props: {
                     }
                 })
             }}
+            width='medium-large'
         >
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)} />
 

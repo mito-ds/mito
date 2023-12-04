@@ -2,13 +2,14 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { MitoSelection, SheetData, UIState } from '../../types';
+import { MitoSelection, SheetData, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { getSelectedRowLabelsWithEntireSelectedRow } from './selectionUtils';
 import { isCurrOpenDropdownForCell } from './visibilityUtils';
+import { getPropsForContextMenuDropdownItem } from './utils';
+import { Actions } from '../../utils/actions';
 
 /*
     Displays a set of actions one can perform on a row
@@ -22,6 +23,7 @@ export default function IndexHeaderDropdown(props: {
     display: boolean;
     index: string | number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
+    actions: Actions;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 
@@ -42,33 +44,28 @@ export default function IndexHeaderDropdown(props: {
                     currOpenDropdown: isCurrOpenDropdown ? undefined : prevUIState.currOpenDropdown
                 }
             })}
-            width='large'
+            width='medium-large'
         >
-            <DropdownItem 
-                title='Delete Rows'
-                onClick={() => {
-                    void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowLabelsWithEntireSelectedRow(props.selections, props.sheetData));
-                }}
+            <DropdownItem
+                {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}
+                title='Copy Row'
             />
-            <DropdownItem 
-                title='Promote Row to Header'
-                onClick={() => {
-                    void props.mitoAPI.editPromoteRowToHeader(props.sheetIndex, props.index);
-                }}
+
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+
+            <DropdownItem
+                {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete], props.closeOpenEditingPopups)}
+                title='Delete Row'
             />
-            <DropdownSectionSeperator isDropdownSectionSeperator/>
-            <DropdownItem 
-                title='Reset and Drop Index'
-                onClick={() => {
-                    void props.mitoAPI.editResetIndex(props.sheetIndex, true);
-                }}
-            />
-            <DropdownItem 
-                title='Reset Index'
-                onClick={() => {
-                    void props.mitoAPI.editResetIndex(props.sheetIndex, false);
-                }}
-            />
+
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Promote_Row_To_Header], props.closeOpenEditingPopups)}/>
+
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_DROP_INDEX], props.closeOpenEditingPopups)}/>
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_KEEP_INDEX], props.closeOpenEditingPopups)}/>
         </Dropdown>
     )
 }
