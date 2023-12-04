@@ -151,7 +151,8 @@ export const getActions = (
     const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
-    const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    const {columnID, columnFilters, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
@@ -794,9 +795,6 @@ export const getActions = (
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-                const {startingColumnIndex} = gridState.selections[0];
-                const columnID = sheetData.data[startingColumnIndex].columnID;
-                const { columnFilters, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, gridState.selections[0].startingRowIndex, gridState.selections[0].startingColumnIndex);
                 const filters = columnFilters?.filters ?? [];
                 
                 let condition = 'string_exactly';
@@ -812,14 +810,16 @@ export const getActions = (
                     value: cellValue
                 } as FilterType);
 
-                await mitoAPI.editFilter(
-                    sheetIndex,
-                    columnID,
-                    filters,
-                    'And',
-                    ControlPanelTab.FilterSort,
-                    getRandomId()
-                );
+                if (columnID !== undefined) {
+                    await mitoAPI.editFilter(
+                        sheetIndex,
+                        columnID,
+                        filters,
+                        'And',
+                        ControlPanelTab.FilterSort,
+                        getRandomId()
+                    );
+                }
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
