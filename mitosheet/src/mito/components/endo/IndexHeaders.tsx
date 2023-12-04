@@ -7,6 +7,7 @@ import { classNames } from '../../utils/classNames';
 import IndexHeaderDropdown from './IndexHeaderDropdown';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { Actions } from '../../utils/actions';
 
 /* 
     The headers on the side of the sheet that display
@@ -18,6 +19,7 @@ const IndexHeaders = (props: {
     mitoAPI: MitoAPI,
     sheetIndex: number,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    actions: Actions
 }): JSX.Element => {
 
     // NOTE: this is indexed by index in the sheet, not by the label
@@ -71,6 +73,7 @@ const IndexHeaders = (props: {
                                         mitoAPI={props.mitoAPI}
                                         sheetIndex={props.sheetIndex}
                                         selections={props.gridState.selections}
+                                        actions={props.actions}
                                         closeOpenEditingPopups={props.closeOpenEditingPopups}
                                     />
                                 </div>
