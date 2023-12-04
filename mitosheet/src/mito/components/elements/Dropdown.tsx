@@ -12,6 +12,8 @@ import { fuzzyMatch } from '../../utils/strings';
 import Row from '../layout/Row';
 import Input from './Input';
 import { WIDTH_MAPPING } from './sizes.d';
+import DownArrowIcon from '../icons/DownArrowIcon';
+import UpArrowIcon from '../icons/UpArrowIcon';
 
 // NOTE: these must match their definitions in the Dropdown.css
 const MAX_HEIGHT = 250;
@@ -531,7 +533,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             }
                         }}
                     >
-                        ⌃
+                        <UpArrowIcon width='12px' />
                     </div>
                     {childrenToDisplay.length > 0 && 
                         <div ref={dropdownItemContainerRef} className='mito-dropdown-items-container'>
@@ -561,7 +563,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             }
                         }}
                     >
-                        ⌄
+                        <DownArrowIcon width='12px' />
                     </div>
                 </div>,
                 dropdownContainerElement
