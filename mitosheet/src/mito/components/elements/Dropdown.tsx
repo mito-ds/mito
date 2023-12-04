@@ -523,7 +523,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             // Scroll down when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
                                 dropdownItemsContainerRef.current?.scrollBy(0, -2)
-                                updateShowingScrollButtons();
                             })
                         }}
                         onMouseLeave={() => {
@@ -557,7 +556,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             // Scroll down when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
                                 dropdownItemsContainerRef.current?.scrollBy(0, 2)
-                                updateShowingScrollButtons();
                             })
                         }}
                         onMouseLeave={() => {
