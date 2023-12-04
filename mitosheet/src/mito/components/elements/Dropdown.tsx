@@ -461,7 +461,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const [showScrollUp, setShowScrollUp] = useState(false);
     const [showScrollDown, setShowScrollDown] = useState(childrenToDisplay.length > 6);
 
-    const updateScrollPosition = () => {
+    const updateShowingScrollButtons = () => {
         const scrollHeight = dropdownItemsContainerRef.current?.scrollHeight ?? 0;
         const scrollTop = dropdownItemsContainerRef.current?.scrollTop ?? 0;
         const clientHeight = dropdownItemsContainerRef.current?.clientHeight ?? 0;
@@ -523,7 +523,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             // Scroll down when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
                                 dropdownItemsContainerRef.current?.scrollBy(0, -2)
-                                updateScrollPosition();
+                                updateShowingScrollButtons();
                             })
                         }}
                         onMouseLeave={() => {
@@ -539,7 +539,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         <div
                             ref={dropdownItemsContainerRef}
                             className='mito-dropdown-items-container'
-                            onScroll={updateScrollPosition}
+                            onScroll={updateShowingScrollButtons}
                         >
                             {childrenToDisplay}
                         </div>
@@ -557,7 +557,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             // Scroll down when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
                                 dropdownItemsContainerRef.current?.scrollBy(0, 2)
-                                updateScrollPosition();
+                                updateShowingScrollButtons();
                             })
                         }}
                         onMouseLeave={() => {
