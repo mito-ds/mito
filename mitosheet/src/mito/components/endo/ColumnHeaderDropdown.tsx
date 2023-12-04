@@ -1,6 +1,6 @@
 // Copyright (c) Saga Inc.
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MitoAPI } from '../../api/api';
 import { ActionEnum, ColumnID, EditorState, GridState, SheetData, UIState } from '../../types';
 import { Actions } from '../../utils/actions';
@@ -32,13 +32,6 @@ export default function ColumnHeaderDropdown(props: {
     actions: Actions;
 }): JSX.Element {
     const display = isCurrOpenDropdownForCell(props.uiState, -1, props.column)
-
-    // Log opening this dropdown
-    useEffect(() => {
-        if (display) {
-            void props.mitoAPI.log('opened_column_header_dropdown')
-        }
-    }, [display])
 
     return (
         <Dropdown
