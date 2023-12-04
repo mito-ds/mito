@@ -205,8 +205,8 @@ const ColumnHeader = (props: {
                     return {
                         ...prevUiState,
                         currOpenDropdown: {
-                            row: -1,
-                            column: props.columnIndex
+                            rowIndex: -1,
+                            columnIndex: props.columnIndex
                         }
                     }
                 });

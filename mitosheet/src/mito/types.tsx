@@ -862,8 +862,8 @@ export interface ExcelExportState extends ExportState { exportType: 'excel', she
 export type Dropdown = ToolbarDropdown | ContextMenu;
 
 export interface ContextMenu {
-    row: number;
-    column: number;
+    rowIndex: number;
+    columnIndex: number;
 }
 export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
 

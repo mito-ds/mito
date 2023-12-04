@@ -64,8 +64,8 @@ const IndexHeaders = (props: {
                                             return {
                                                 ...prevUiState,
                                                 currOpenDropdown: {
-                                                    row: rowIndex,
-                                                    column: -1
+                                                    rowIndex: rowIndex,
+                                                    columnIndex: -1
                                                 }
                                             }
                                         });
