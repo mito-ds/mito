@@ -2,7 +2,7 @@ import React from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
-import { ContextMenu, EditorState, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { getCellDataFromCellIndexes, getTypeIdentifier } from './utils';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -65,8 +65,7 @@ const ColumnHeader = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     actions: Actions;
 }): JSX.Element => {
-    const currOpenDropdown = (props.uiState.currOpenDropdown as ContextMenu);
-    const openColumnHeaderDropdown = currOpenDropdown?.column;
+    const openColumnHeaderDropdown = typeof props.uiState.currOpenDropdown == 'object' ? props.uiState.currOpenDropdown.column : undefined;
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];

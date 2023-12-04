@@ -2,7 +2,7 @@ import React from 'react';
 import '../../../../css/endo/IndexHeaders.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
-import { GridState, SheetData, UIState, ContextMenu } from '../../types';
+import { GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import IndexHeaderDropdown from './IndexHeaderDropdown';
 import { MitoAPI } from '../../api/api';
@@ -23,8 +23,7 @@ const IndexHeaders = (props: {
 }): JSX.Element => {
 
     // NOTE: this is indexed by index in the sheet, not by the label
-    const currOpenDropdown = (props.uiState.currOpenDropdown as ContextMenu);
-    const openIndexHeaderDropdown = currOpenDropdown?.row;
+    const openIndexHeaderDropdown = typeof props.uiState.currOpenDropdown == 'object' ? props.uiState.currOpenDropdown.row : undefined;
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
 
