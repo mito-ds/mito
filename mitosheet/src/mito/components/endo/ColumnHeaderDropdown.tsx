@@ -11,13 +11,15 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 import SortAscendingIcon from '../icons/SortAscendingIcon';
 import SortDescendingIcon from '../icons/SortDescendingIcon';
 import { getPropsForContextMenuDropdownItem } from './utils';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
 
 /*
     Displays a set of actions one can perform on a column header
 */
 export default function ColumnHeaderDropdown(props: {
     mitoAPI: MitoAPI;
-    setOpenColumnHeaderDropdown: React.Dispatch<React.SetStateAction<boolean>>,
+    column: number;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     openColumnHeaderEditor: () => void;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
@@ -25,23 +27,32 @@ export default function ColumnHeaderDropdown(props: {
     columnID: ColumnID;
     sheetData: SheetData
     columnDtype: string;
-    display: boolean;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     gridState: GridState;
     actions: Actions;
 }): JSX.Element {
+    const display = isCurrOpenDropdownForCell(props.uiState, -1, props.column)
 
     // Log opening this dropdown
     useEffect(() => {
-        if (props.display) {
+        if (display) {
             void props.mitoAPI.log('opened_column_header_dropdown')
         }
-    }, [props.display])
+    }, [display])
 
     return (
         <Dropdown
-            display={props.display}
-            closeDropdown={() => props.setOpenColumnHeaderDropdown(false)}
+            display={display}
+            closeDropdown={() => {
+                props.setUIState((prevUIState) => {
+                    // If the dropdown is open, then close it. Otherwise, don't change the state. 
+                    const display = isCurrOpenDropdownForCell(prevUIState, -1, props.column);
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown
+                    }
+                })
+            }}
             width='medium-large'
         >
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)} />

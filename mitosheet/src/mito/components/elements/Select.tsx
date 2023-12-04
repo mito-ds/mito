@@ -56,9 +56,10 @@ interface SelectProps {
     display?: boolean;
 
     /**
-     * Handler for when the dropdown is closed
+     * Handler for when the dropdown is opened / closed.
+     * Used to set state outside of the component.
      */
-    onClose?: () => void;
+    onChangeDisplay?: (display: boolean) => void;
 
     /**
      * Custom styles to add to the component
@@ -76,8 +77,12 @@ interface SelectProps {
  * closes when the user clicks.
  */ 
 const Select = (props: SelectProps): JSX.Element => {
+    // If there is a display prop, then we use that to set the display of the dropdown
+    // Otherwise, we use the local state to set the display of the dropdown
+    // and default to false.
     const [displayDropdown, setDisplayDropdown] = useState(!!props.display)
-    
+
+    // If the display prop changes, then we update the local state
     React.useEffect(() => {
         setDisplayDropdown(!!props.display)
     }, [props.display])
@@ -142,11 +147,12 @@ const Select = (props: SelectProps): JSX.Element => {
                     /* 
                         Only change the visibility of the dropdown if the button is 
                         not already open because the dropdown handles closing itself
-                    */ 
+                    */
+                    props.onChangeDisplay?.(!prevDisplayDropdown)
                     if (!prevDisplayDropdown) {
                         return true;
                     }
-                    props.onClose?.();
+                    
                     return prevDisplayDropdown;
                 })
             }}
@@ -159,7 +165,10 @@ const Select = (props: SelectProps): JSX.Element => {
             </div>
             <Dropdown
                 display={displayDropdown}
-                closeDropdown={() => setDisplayDropdown(false)}
+                closeDropdown={() => {
+                    props.onChangeDisplay?.(false)
+                    setDisplayDropdown(false)
+                }}
                 searchable={props.searchable}
                 width={props.dropdownWidth}
             >

@@ -696,6 +696,8 @@ function EndoGrid(props: {
                         <IndexHeaders
                             sheetData={sheetData}
                             gridState={gridState}
+                            uiState={uiState}
+                            setUIState={setUIState}
                             mitoAPI={mitoAPI}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             sheetIndex={sheetIndex}

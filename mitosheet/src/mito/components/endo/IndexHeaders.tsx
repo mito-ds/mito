@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../../../../css/endo/IndexHeaders.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
-import { GridState, SheetData } from '../../types';
+import { GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import IndexHeaderDropdown from './IndexHeaderDropdown';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
 import { Actions } from '../../utils/actions';
 
 /* 
@@ -17,14 +18,14 @@ const IndexHeaders = (props: {
     sheetData: SheetData,
     gridState: GridState,
     mitoAPI: MitoAPI,
+    uiState: UIState,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     sheetIndex: number,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     actions: Actions
 }): JSX.Element => {
 
     // NOTE: this is indexed by index in the sheet, not by the label
-    const [openIndexHeaderDropdown, setOpenIndexHeaderDropdown] = useState<number | undefined>(undefined);
-
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
 
@@ -61,14 +62,23 @@ const IndexHeaders = (props: {
                                     onContextMenu={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        setOpenIndexHeaderDropdown(rowIndex);
+                                        props.setUIState((prevUiState) => {
+                                            return {
+                                                ...prevUiState,
+                                                currOpenDropdown: {
+                                                    rowIndex: rowIndex,
+                                                    columnIndex: -1
+                                                }
+                                            }
+                                        });
                                     }}
                                 >
                                     {indexHeader}
                                     <IndexHeaderDropdown
                                         sheetData={props.sheetData}
-                                        setOpenIndexHeaderDropdown={setOpenIndexHeaderDropdown}
-                                        display={openIndexHeaderDropdown === rowIndex}
+                                        setUIState={props.setUIState}
+                                        rowIndex={rowIndex}
+                                        display={isCurrOpenDropdownForCell(props.uiState, rowIndex, -1)}
                                         index={indexHeader}
                                         mitoAPI={props.mitoAPI}
                                         sheetIndex={props.sheetIndex}

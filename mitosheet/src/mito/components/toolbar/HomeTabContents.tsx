@@ -79,16 +79,16 @@ export const HomeTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Import_Dropdown]}
         >
             <Dropdown
-                display={props.uiState.toolbarDropdown === 'import'}
+                display={props.uiState.currOpenDropdown === 'import'}
                 closeDropdown={() => 
                     props.setUIState(prevUIState => {
-                        if (prevUIState.toolbarDropdown !== 'import') {
+                        if (prevUIState.currOpenDropdown !== 'import') {
                             return prevUIState;
                         }
 
                         return {
                             ...prevUIState,
-                            toolbarDropdown: undefined
+                            currOpenDropdown: undefined
                         }
                     })
                 }
@@ -102,16 +102,16 @@ export const HomeTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Export_Dropdown]}
         >
             <Dropdown
-                display={props.uiState.toolbarDropdown === 'export'}
+                display={props.uiState.currOpenDropdown === 'export'}
                 closeDropdown={() => 
                     props.setUIState(prevUIState => {
-                        if (prevUIState.toolbarDropdown !== 'export') {
+                        if (prevUIState.currOpenDropdown !== 'export') {
                             return prevUIState;
                         }
 
                         return {
                             ...prevUIState,
-                            toolbarDropdown: undefined
+                            currOpenDropdown: undefined
                         }
                     })
                 }
@@ -151,12 +151,12 @@ export const HomeTabContents = (
                 iconStyle={{ width: '18px' }}
                 disabled={!!props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
                 value={getColumnAppliedFormat(props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData))}
-                display={props.uiState.toolbarDropdown === 'format'}
-                onClose={() => {
+                display={props.uiState.currOpenDropdown === 'format'}
+                onChangeDisplay={(display) => {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            toolbarDropdown: undefined
+                            currOpenDropdown: display ? 'format' : undefined
                         }
                     })
                 }}
@@ -210,16 +210,16 @@ export const HomeTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}
         >  
             <Dropdown
-                display={props.uiState.toolbarDropdown === 'dtype'}
+                display={props.uiState.currOpenDropdown === 'dtype'}
                 closeDropdown={() => 
                     props.setUIState(prevUIState => {
-                        if (prevUIState.toolbarDropdown !== 'dtype') {
+                        if (prevUIState.currOpenDropdown !== 'dtype') {
                             return prevUIState;
                         }
 
                         return {
                             ...prevUIState,
-                            toolbarDropdown: undefined
+                            currOpenDropdown: undefined
                         }
                     })
                 }
@@ -246,16 +246,16 @@ export const HomeTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Merge_Dropdown]}
         >
             <Dropdown
-                display={props.uiState.toolbarDropdown === 'merge'}
+                display={props.uiState.currOpenDropdown === 'merge'}
                 closeDropdown={() => 
                     props.setUIState(prevUIState => {
-                        if (prevUIState.toolbarDropdown !== 'merge') {
+                        if (prevUIState.currOpenDropdown !== 'merge') {
                             return prevUIState;
                         }
 
                         return {
                             ...prevUIState,
-                            toolbarDropdown: undefined
+                            currOpenDropdown: undefined
                         }
                     })
                 }
