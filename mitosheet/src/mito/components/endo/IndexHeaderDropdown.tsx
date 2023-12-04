@@ -8,6 +8,7 @@ import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { getSelectedRowLabelsWithEntireSelectedRow } from './selectionUtils';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
 
 /*
     Displays a set of actions one can perform on a row
@@ -16,6 +17,7 @@ export default function IndexHeaderDropdown(props: {
     mitoAPI: MitoAPI;
     sheetData: SheetData;
     sheetIndex: number;
+    rowIndex: number;
     selections: MitoSelection[];
     display: boolean;
     index: string | number,
@@ -33,7 +35,13 @@ export default function IndexHeaderDropdown(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setUIState((prevUIState) => ({...prevUIState, currOpenDropdown: undefined}))}
+            closeDropdown={() => props.setUIState((prevUIState) => {
+                const isCurrOpenDropdown = isCurrOpenDropdownForCell(prevUIState, props.rowIndex, -1);
+                return {
+                    ...prevUIState,
+                    currOpenDropdown: isCurrOpenDropdown ? undefined : prevUIState.currOpenDropdown
+                }
+            })}
             width='large'
         >
             <DropdownItem 

@@ -46,7 +46,7 @@ export default function ColumnHeaderDropdown(props: {
             closeDropdown={() => {
                 props.setUIState((prevUIState) => {
                     // If the dropdown is open, then close it. Otherwise, don't change the state. 
-                    const display = isCurrOpenDropdownForCell(prevUIState, props.sheetIndex, props.column);
+                    const display = isCurrOpenDropdownForCell(prevUIState, -1, props.column);
                     return {
                         ...prevUIState,
                         currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown
