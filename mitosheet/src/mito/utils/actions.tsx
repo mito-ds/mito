@@ -81,6 +81,7 @@ import StarIcon from "../components/icons/StarIcon";
 import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
 import ResetIndexIcon from "../components/icons/ResetIndexIcon";
 import NumberFormatIcon from "../components/icons/NumberFormatIcon";
+import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -2022,7 +2023,7 @@ export const getActions = (
         [ActionEnum.RESET_AND_DROP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_DROP_INDEX,
-            iconContextMenu: ResetIndexIcon,
+            iconContextMenu: ResetAndDropIndexIcon,
             titleContextMenu: 'Reset Index',
             titleToolbar: 'Reset and Drop Index',
             longTitle: 'Reset and Drop Index',
