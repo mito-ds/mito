@@ -16,7 +16,7 @@ import { isCurrOpenDropdownForCell } from './visibilityUtils';
 /*
     Displays a set of actions one can perform on a column header
 */
-export default function ColumnHeaderDropdown(props: {
+export default function ColumnHeaderContextMenu(props: {
     mitoAPI: MitoAPI;
     column: number;
     uiState: UIState;

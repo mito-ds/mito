@@ -9,10 +9,10 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
-import CellDropdown from './CellDropdown';
 import { Actions } from '../../utils/actions';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { isCurrOpenDropdownForCell } from './visibilityUtils';
+import CellContextMenu from './CellContextMenu';
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
 export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
@@ -143,7 +143,7 @@ const GridData = (props: {
                                     title={displayCellData}
                                 >
                                     {displayCellData}
-                                    <CellDropdown
+                                    <CellContextMenu
                                         display={displayDropdown}
                                         rowIndex={rowIndex}
                                         colIndex={columnIndex}

@@ -4,7 +4,7 @@ import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
 import { GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import IndexHeaderDropdown from './IndexHeaderDropdown';
+import IndexHeaderDropdown from './IndexHeaderContextMenu';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { isCurrOpenDropdownForCell } from './visibilityUtils';

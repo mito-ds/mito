@@ -13,7 +13,7 @@ import { Actions } from '../../utils/actions';
 /*
     Displays a set of actions one can perform on a row
 */
-export default function IndexHeaderDropdown(props: {
+export default function IndexHeaderContextMenu(props: {
     display: boolean;
     rowIndex: number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,

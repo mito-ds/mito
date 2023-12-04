@@ -13,7 +13,7 @@ import { isCurrOpenDropdownForCell } from './visibilityUtils';
 /*
     Displays a set of actions one can perform on a row
 */
-export default function CellDropdown(props: {
+export default function CellContextMenu(props: {
     display: boolean;
     rowIndex: number;
     colIndex: number;

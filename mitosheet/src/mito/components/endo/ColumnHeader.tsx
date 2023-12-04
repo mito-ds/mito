@@ -13,7 +13,7 @@ import { getColumnHeaderParts, getDisplayColumnHeader } from '../../utils/column
 import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
-import ColumnHeaderDropdown from './ColumnHeaderDropdown';
+import ColumnHeaderContextMenu from './ColumnHeaderContextMenu';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 import { Actions } from '../../utils/actions';
@@ -429,7 +429,7 @@ const ColumnHeader = (props: {
                     </form>
                 }
             </div>
-            <ColumnHeaderDropdown
+            <ColumnHeaderContextMenu
                 mitoAPI={props.mitoAPI}
                 column={props.columnIndex}
                 uiState={props.uiState}
