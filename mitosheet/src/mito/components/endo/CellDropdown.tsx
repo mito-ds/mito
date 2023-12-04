@@ -56,7 +56,7 @@ export default function CellDropdown(props: {
                 {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Filter], props.closeOpenEditingPopups)}
                 title='Create a Filter'
             />
-            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_KEEP_INDEX], props.closeOpenEditingPopups)}/>
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.FilterToCellValue], props.closeOpenEditingPopups)}/>
         </Dropdown>
     )
 }

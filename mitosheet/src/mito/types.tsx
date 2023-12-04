@@ -957,6 +957,7 @@ export enum ActionEnum {
     Export_Dropdown = 'export dropdown',
     Fill_Na = 'fill na',
     Filter = 'filter',
+    FilterToCellValue = 'filter to cell value',
     Format_Number_Columns = 'format number columns',
     Fullscreen = 'fullscreen',
     Graph = 'graph',

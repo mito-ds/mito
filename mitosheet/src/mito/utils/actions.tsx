@@ -10,7 +10,7 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum } from "../types";
+import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum, FilterType } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
@@ -515,7 +515,6 @@ export const getActions = (
             searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
             tooltip: "Delete all of the selected columns or rows from the sheet."
         },
-
         [ActionEnum.Delete_Col]: {
             type: 'build-time',
             staticType: ActionEnum.Delete_Col,
@@ -781,6 +780,58 @@ export const getActions = (
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to filter in the selected sheet. Add data to the sheet.'
+            },
+            searchTerms: ['filter', 'remove', 'delete'],
+            tooltip: "Filter this dataframe based on the data in a column."
+        },
+
+        [ActionEnum.FilterToCellValue]: {
+            type: 'build-time',
+            staticType: ActionEnum.FilterToCellValue,
+            titleContextMenu: 'Filter to Cell Value',
+            iconContextMenu: FilterIcon,
+            longTitle: 'Filter column',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                const {startingColumnIndex} = gridState.selections[0];
+                const columnID = sheetData.data[startingColumnIndex].columnID;
+                const { columnFilters, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, gridState.selections[0].startingRowIndex, gridState.selections[0].startingColumnIndex);
+                const filters = columnFilters?.filters ?? [];
+                
+                let condition = 'string_exactly';
+                if (columnDtype === 'number') {
+                    condition = 'number_exactly';
+                } else if (columnDtype === 'boolean') {
+                    condition = cellValue ? 'boolean_is_true' : 'boolean_is_false';
+                } else if (columnDtype === 'datetime') {
+                    condition = 'datetime_exactly';
+                }
+                filters.push({
+                    condition: condition,
+                    value: cellValue
+                } as FilterType);
+
+                await mitoAPI.editFilter(
+                    sheetIndex,
+                    columnID,
+                    filters,
+                    'And',
+                    ControlPanelTab.FilterSort,
+                    getRandomId()
+                );
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to filter in the selected sheet. Import data.'
+                }
+                if (gridState.selections.length === 1 &&
+                    gridState.selections[0].startingRowIndex === gridState.selections[0].endingRowIndex &&
+                    gridState.selections[0].startingColumnIndex === gridState.selections[0].endingColumnIndex) {
+                    return defaultActionDisabledMessage;
+                } else {
+                    return 'This action can only be applied to a single cell.'
+                }
             },
             searchTerms: ['filter', 'remove', 'delete'],
             tooltip: "Filter this dataframe based on the data in a column."
