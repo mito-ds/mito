@@ -40,7 +40,7 @@ export default function ColumnHeaderDropdown(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setUIState((prevUIState) => ({...prevUIState, currOpenDropdown: undefined}))}
+            closeDropdown={() => {}}
         >
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)} />
 

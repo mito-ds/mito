@@ -151,12 +151,12 @@ export const HomeTabContents = (
                 iconStyle={{ width: '18px' }}
                 disabled={!!props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
                 value={getColumnAppliedFormat(props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData))}
-                display={props.uiState.toolbarDropdown === 'format'}
-                onClose={() => {
+                display={props.uiState.currOpenDropdown === 'format'}
+                onChangeDisplay={(display) => {
                     props.setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            toolbarDropdown: undefined
+                            currOpenDropdown: display ? 'format' : undefined
                         }
                     })
                 }}
