@@ -834,7 +834,7 @@ export const getActions = (
                 }
             },
             searchTerms: ['filter', 'remove', 'delete'],
-            tooltip: "Filter this dataframe based on the data in a column."
+            tooltip: "Filter this column to only show rows with the same value as the selected cell."
         },
         [ActionEnum.Format_Number_Columns]: {
             type: 'build-time',
