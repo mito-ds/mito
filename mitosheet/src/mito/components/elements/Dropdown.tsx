@@ -18,6 +18,9 @@ import UpArrowIcon from '../icons/UpArrowIcon';
 // NOTE: these must match their definitions in the Dropdown.css
 const MAX_HEIGHT = 250;
 
+const MITO_SCROLL_DOWN_CLASS = 'mito-dropdown-scroll-down'
+const MITO_SCROLL_UP_CLASS = 'mito-dropdown-scroll-up'
+
 /* 
     Helper functions for figuring out where to place the dropdown
     so that it is not out of bounds of the screen.
@@ -218,6 +221,18 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             return;
         }
 
+        // If the user clicks on the scroll up or scroll down buttons,
+        // then we don't want to close the dropdown
+        if (eventTarget !== null && eventTarget !== undefined) {
+            if ((eventTarget as Element).className === MITO_SCROLL_DOWN_CLASS) {
+                dropdownItemsContainerRef.current?.scrollBy(0, 50)
+                return;
+            } else if ((eventTarget as Element).className === MITO_SCROLL_UP_CLASS) {
+                dropdownItemsContainerRef.current?.scrollBy(0, -50)
+                return;
+            }
+        }
+        
         // Close the dropdown
         props.closeDropdown();
 
@@ -465,17 +480,15 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         const scrollHeight = dropdownItemsContainerRef.current?.scrollHeight ?? 0;
         const scrollTop = dropdownItemsContainerRef.current?.scrollTop ?? 0;
         const clientHeight = dropdownItemsContainerRef.current?.clientHeight ?? 0;
-        
-        if (dropdownItemsContainerRef.current?.scrollTop === 0) {
-            setShowScrollUp(false);
-        } else if (scrollHeight <= scrollTop + clientHeight) {
-            setShowScrollDown(false);
-        } else {
-            setShowScrollDown(true);
-            setShowScrollUp(true);
-        }
+
+        setShowScrollUp(scrollTop > 0);
+        setShowScrollDown(scrollHeight > scrollTop + clientHeight);
     }
     
+    React.useEffect(() => {
+        updateShowingScrollButtons();
+    }, [props.display]);
+
     return (
         <div ref={setRef} tabIndex={0}>
             {/* 
@@ -518,9 +531,10 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         </div>
                     }
                     <div
+                        className={MITO_SCROLL_UP_CLASS}
                         style={{ display: showScrollUp ? 'flex' : 'none', justifyContent: 'center'}}
                         onMouseEnter={() => {
-                            // Scroll down when the mouse enters this div
+                            // Scroll up when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
                                 dropdownItemsContainerRef.current?.scrollBy(0, -2)
                             })
@@ -531,8 +545,13 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                                 clearInterval(scrollTimerRef.current);
                             }
                         }}
+                        onClick={() => {
+                            if (scrollTimerRef.current){
+                                clearInterval(scrollTimerRef.current)
+                            }
+                        }}
                     >
-                        <UpArrowIcon width='12px' />
+                        <UpArrowIcon width='12' height='15' />
                     </div>
                     {childrenToDisplay.length > 0 && 
                         <div
@@ -551,6 +570,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         </Row>}
                     
                     <div
+                        className={MITO_SCROLL_DOWN_CLASS}
                         style={{ display: showScrollDown ? 'flex' : 'none', justifyContent: 'center'}}
                         onMouseEnter={() => {
                             // Scroll down when the mouse enters this div
@@ -564,8 +584,13 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                                 clearInterval(scrollTimerRef.current);
                             }
                         }}
+                        onClick={() => {
+                            if (scrollTimerRef.current){
+                                clearInterval(scrollTimerRef.current)
+                            }
+                        }}
                     >
-                        <DownArrowIcon width='12px' />
+                        <DownArrowIcon width='12' height='15' />
                     </div>
                 </div>,
                 dropdownContainerElement
