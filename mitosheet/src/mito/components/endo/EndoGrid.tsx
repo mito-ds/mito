@@ -741,6 +741,7 @@ function EndoGrid(props: {
                             transform: `translate(${gridState.scrollPosition.scrollLeft - translate.x}px, ${gridState.scrollPosition.scrollTop - translate.y}px)`,
                         }}
                         onContextMenu={() => {
+                            console.log('right clicked on renderer container')
                             // We also log if the user tries to right click on the sheet data
                             void props.mitoAPI.log('right_clicked_on_sheet_data');
                         }}
@@ -748,8 +749,13 @@ function EndoGrid(props: {
                         <GridData
                             sheetData={sheetData}
                             gridState={gridState}
+                            setGridState={setGridState}
+                            sheetIndex={sheetIndex}
                             uiState={uiState}
+                            setUIState={setUIState}
                             editorState={editorState}
+                            actions={props.actions}
+                            closeOpenEditingPopups={props.closeOpenEditingPopups}
                         />
                     </div>
                 </div>

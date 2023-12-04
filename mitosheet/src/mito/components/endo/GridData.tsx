@@ -9,16 +9,25 @@ import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
 import { hexToRGBString } from '../../utils/colors';
+import CellDropdown from './CellDropdown';
+import { Actions } from '../../utils/actions';
+import { TaskpaneType } from '../taskpanes/taskpanes';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
 
 export const EVEN_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background)';
 export const ODD_ROW_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-off)';
 export const ROW_TEXT_COLOR_DEFAULT = 'var(--mito-text)';
 
 const GridData = (props: {
-    sheetData: SheetData | undefined,
-    gridState: GridState,
-    uiState: UIState
+    sheetData: SheetData | undefined;
+    gridState: GridState;
+    setGridState: React.Dispatch<React.SetStateAction<GridState>>;
+    sheetIndex: number;
+    uiState: UIState;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     editorState: EditorState | undefined;
+    actions: Actions;
+    closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element => {
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
@@ -92,6 +101,8 @@ const GridData = (props: {
                             // Format the cell
                             const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)
 
+                            const displayDropdown = isCurrOpenDropdownForCell(props.uiState, rowIndex, columnIndex);
+
                             return (
                                 <div 
                                     className={className} key={columnIndex}
@@ -100,12 +111,46 @@ const GridData = (props: {
                                         ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex),
                                         ...(conditionalFormat || {})
                                     }}
+                                    onContextMenu={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        props.setUIState((prevUiState) => {
+                                            return {
+                                                ...prevUiState,
+                                                currOpenDropdown: {
+                                                    rowIndex: rowIndex,
+                                                    columnIndex: columnIndex
+                                                }
+                                            }
+                                        });
+                                        props.setGridState((prevGridState: GridState) => {
+                                            return {
+                                                ...prevGridState,
+                                                selections: [{
+                                                    startingRowIndex: rowIndex,
+                                                    endingRowIndex: rowIndex,
+                                                    startingColumnIndex: columnIndex,
+                                                    endingColumnIndex: columnIndex,
+                                                    sheetIndex: props.sheetIndex
+                                                }]
+                                            }
+                                        });
+                                    
+                                    }}
                                     tabIndex={-1}
                                     mito-col-index={columnIndex}
                                     mito-row-index={rowIndex}
                                     title={displayCellData}
                                 >
                                     {displayCellData}
+                                    <CellDropdown
+                                        display={displayDropdown}
+                                        rowIndex={rowIndex}
+                                        colIndex={columnIndex}
+                                        setUiState={props.setUIState}
+                                        actions={props.actions}
+                                        closeOpenEditingPopups={props.closeOpenEditingPopups}
+                                    />
                                 </div>
                             )
                         })}

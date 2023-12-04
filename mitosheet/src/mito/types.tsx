@@ -945,6 +945,8 @@ export enum ActionEnum {
     Copy = 'copy',
     CopyCode = 'copy code',
     Delete = 'delete',
+    Delete_Row = 'delete row',
+    Delete_Col = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
     Drop_Duplicates = 'drop duplicates',

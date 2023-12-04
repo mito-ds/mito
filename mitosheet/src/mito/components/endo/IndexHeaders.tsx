@@ -75,14 +75,9 @@ const IndexHeaders = (props: {
                                 >
                                     {indexHeader}
                                     <IndexHeaderDropdown
-                                        sheetData={props.sheetData}
-                                        setUIState={props.setUIState}
                                         rowIndex={rowIndex}
                                         display={isCurrOpenDropdownForCell(props.uiState, rowIndex, -1)}
-                                        index={indexHeader}
-                                        mitoAPI={props.mitoAPI}
-                                        sheetIndex={props.sheetIndex}
-                                        selections={props.gridState.selections}
+                                        setUIState={props.setUIState}
                                         actions={props.actions}
                                         closeOpenEditingPopups={props.closeOpenEditingPopups}
                                     />

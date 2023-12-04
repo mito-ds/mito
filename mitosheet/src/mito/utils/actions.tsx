@@ -1,7 +1,7 @@
 import fscreen from "fscreen";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
@@ -477,6 +477,77 @@ export const getActions = (
                     }
                 } else {
                     return "There are no rows or columns in the dataframe to delete. Add data to the sheet."
+                }
+            },
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete all of the selected columns or rows from the sheet."
+        },
+        [ActionEnum.Delete_Row]: {
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Row,
+            iconContextMenu: TrashIcon,
+            titleContextMenu: 'Delete Row',
+            longTitle: 'Delete column / row',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (rowsToDelete.length > 0) {
+                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns or rows to delete. Import data.';
+                }
+
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (rowsToDelete.length > 0) {
+                    return defaultActionDisabledMessage;
+                } else {
+                    return 'There are no rows selected.'
+                }
+            },
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete all of the selected columns or rows from the sheet."
+        },
+
+        [ActionEnum.Delete_Col]: {
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Col,
+            iconContextMenu: TrashIcon,
+            titleContextMenu: 'Delete Column',
+            longTitle: 'Delete column',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
+
+                if (columnIDsToDelete !== undefined) {
+                    await mitoAPI.editDeleteColumn(
+                        sheetIndex,
+                        columnIDsToDelete
+                    )
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to delete. Import data.';
+                }
+                
+                if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
+                    return defaultActionDisabledMessage
+                } else {
+                    return "There are no columns in the dataframe to delete. Add data to the sheet."
                 }
             },
             searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
