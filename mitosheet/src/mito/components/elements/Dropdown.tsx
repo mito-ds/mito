@@ -456,17 +456,17 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         }
     });
 
-    const scrollRef = useRef<NodeJS.Timer | null>(null);
-    const dropdownItemContainerRef = useRef<HTMLDivElement | null>(null);
+    const scrollTimerRef = useRef<NodeJS.Timer | null>(null);
+    const dropdownItemsContainerRef = useRef<HTMLDivElement | null>(null);
     const [showScrollUp, setShowScrollUp] = useState(false);
     const [showScrollDown, setShowScrollDown] = useState(childrenToDisplay.length > 6);
 
     const updateScrollPosition = () => {
-        const scrollHeight = dropdownItemContainerRef.current?.scrollHeight ?? 0;
-        const scrollTop = dropdownItemContainerRef.current?.scrollTop ?? 0;
-        const clientHeight = dropdownItemContainerRef.current?.clientHeight ?? 0;
+        const scrollHeight = dropdownItemsContainerRef.current?.scrollHeight ?? 0;
+        const scrollTop = dropdownItemsContainerRef.current?.scrollTop ?? 0;
+        const clientHeight = dropdownItemsContainerRef.current?.clientHeight ?? 0;
         
-        if (dropdownItemContainerRef.current?.scrollTop === 0) {
+        if (dropdownItemsContainerRef.current?.scrollTop === 0) {
             setShowScrollUp(false);
         } else if (scrollHeight <= scrollTop + clientHeight) {
             setShowScrollDown(false);
@@ -521,22 +521,22 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         style={{ display: showScrollUp ? 'flex' : 'none', justifyContent: 'center'}}
                         onMouseEnter={() => {
                             // Scroll down when the mouse enters this div
-                            scrollRef.current = setInterval(() => {
-                                dropdownItemContainerRef.current?.scrollBy(0, -2)
+                            scrollTimerRef.current = setInterval(() => {
+                                dropdownItemsContainerRef.current?.scrollBy(0, -2)
                                 updateScrollPosition();
                             })
                         }}
                         onMouseLeave={() => {
                             // Stop scrolling when the mouse leaves this div
-                            if (scrollRef.current) {
-                                clearInterval(scrollRef.current);
+                            if (scrollTimerRef.current) {
+                                clearInterval(scrollTimerRef.current);
                             }
                         }}
                     >
                         <UpArrowIcon width='12px' />
                     </div>
                     {childrenToDisplay.length > 0 && 
-                        <div ref={dropdownItemContainerRef} className='mito-dropdown-items-container'>
+                        <div ref={dropdownItemsContainerRef} className='mito-dropdown-items-container'>
                             {childrenToDisplay}
                         </div>
                     }
@@ -551,15 +551,15 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         style={{ display: showScrollDown ? 'flex' : 'none', justifyContent: 'center'}}
                         onMouseEnter={() => {
                             // Scroll down when the mouse enters this div
-                            scrollRef.current = setInterval(() => {
-                                dropdownItemContainerRef.current?.scrollBy(0, 2)
+                            scrollTimerRef.current = setInterval(() => {
+                                dropdownItemsContainerRef.current?.scrollBy(0, 2)
                                 updateScrollPosition();
                             })
                         }}
                         onMouseLeave={() => {
                             // Stop scrolling when the mouse leaves this div
-                            if (scrollRef.current) {
-                                clearInterval(scrollRef.current);
+                            if (scrollTimerRef.current) {
+                                clearInterval(scrollTimerRef.current);
                             }
                         }}
                     >
