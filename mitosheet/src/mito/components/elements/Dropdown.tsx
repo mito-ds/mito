@@ -536,7 +536,11 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         <UpArrowIcon width='12px' />
                     </div>
                     {childrenToDisplay.length > 0 && 
-                        <div ref={dropdownItemsContainerRef} className='mito-dropdown-items-container'>
+                        <div
+                            ref={dropdownItemsContainerRef}
+                            className='mito-dropdown-items-container'
+                            onScroll={updateScrollPosition}
+                        >
                             {childrenToDisplay}
                         </div>
                     }
