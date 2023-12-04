@@ -11,5 +11,7 @@ export const WIDTH_MAPPING = {
     'small': 100,
     'medium': 170,
     'medium-large': 250,
-    'large': 345
+    'large': 345,
+    'block': 345,
+    'hug-contents': 345,
 }
