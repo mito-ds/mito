@@ -551,7 +551,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             }
                         }}
                     >
-                        <UpArrowIcon width='12' height='15' />
+                        <UpArrowIcon width='12' height='19' />
                     </div>
                     {childrenToDisplay.length > 0 && 
                         <div
@@ -590,7 +590,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             }
                         }}
                     >
-                        <DownArrowIcon width='12' height='15' />
+                        <DownArrowIcon width='12' height='19' />
                     </div>
                 </div>,
                 dropdownContainerElement
