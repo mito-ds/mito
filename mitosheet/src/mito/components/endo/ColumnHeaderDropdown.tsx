@@ -11,6 +11,7 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 import SortAscendingIcon from '../icons/SortAscendingIcon';
 import SortDescendingIcon from '../icons/SortDescendingIcon';
 import { getPropsForContextMenuDropdownItem } from './utils';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
 
 /*
     Displays a set of actions one can perform on a column header
@@ -30,8 +31,7 @@ export default function ColumnHeaderDropdown(props: {
     gridState: GridState;
     actions: Actions;
 }): JSX.Element {
-    const openColumnHeaderDropdown = typeof props.uiState.currOpenDropdown == 'object' ? props.uiState.currOpenDropdown.column : undefined;
-    const display = openColumnHeaderDropdown === props.column;
+    const display = isCurrOpenDropdownForCell(props.uiState, -1, props.column)
 
     // Log opening this dropdown
     useEffect(() => {
@@ -46,8 +46,7 @@ export default function ColumnHeaderDropdown(props: {
             closeDropdown={() => {
                 props.setUIState((prevUIState) => {
                     // If the dropdown is open, then close it. Otherwise, don't change the state. 
-                    const openColumnHeaderDropdown = typeof prevUIState.currOpenDropdown == 'object' ? prevUIState.currOpenDropdown.column : undefined;
-                    const display = openColumnHeaderDropdown === props.column;
+                    const display = isCurrOpenDropdownForCell(prevUIState, props.sheetIndex, props.column);
                     return {
                         ...prevUIState,
                         currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown

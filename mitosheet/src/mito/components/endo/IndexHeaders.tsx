@@ -7,6 +7,7 @@ import { classNames } from '../../utils/classNames';
 import IndexHeaderDropdown from './IndexHeaderDropdown';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
 
 /* 
     The headers on the side of the sheet that display
@@ -23,7 +24,6 @@ const IndexHeaders = (props: {
 }): JSX.Element => {
 
     // NOTE: this is indexed by index in the sheet, not by the label
-    const openIndexHeaderDropdown = typeof props.uiState.currOpenDropdown == 'object' ? props.uiState.currOpenDropdown.row : undefined;
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
 
@@ -75,7 +75,7 @@ const IndexHeaders = (props: {
                                     <IndexHeaderDropdown
                                         sheetData={props.sheetData}
                                         setUIState={props.setUIState}
-                                        display={openIndexHeaderDropdown === rowIndex}
+                                        display={isCurrOpenDropdownForCell(props.uiState, rowIndex, -1)}
                                         index={indexHeader}
                                         mitoAPI={props.mitoAPI}
                                         sheetIndex={props.sheetIndex}
