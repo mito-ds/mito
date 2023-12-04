@@ -201,6 +201,7 @@ export const getDataframeIsSelected = (uiState: UIState, sheetDataArray: SheetDa
 export const getPropsForContextMenuDropdownItem = (action: Action, closeOpenEditingPopups: () => void) => {
     return {
         title: action.titleContextMenu ?? action.titleToolbar ?? action.longTitle,
+        tooltip: action.isDisabled() ?? action.tooltip,
         onClick: () => {
             closeOpenEditingPopups();
             void action.actionFunction();

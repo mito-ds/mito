@@ -487,7 +487,7 @@ export const getActions = (
             staticType: ActionEnum.Delete_Row,
             iconContextMenu: TrashIcon,
             titleContextMenu: 'Delete Row',
-            longTitle: 'Delete column / row',
+            longTitle: 'Delete row',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -502,7 +502,7 @@ export const getActions = (
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
-                    return 'There are no columns or rows to delete. Import data.';
+                    return 'There are no rows to delete. Import data.';
                 }
 
                 const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
@@ -512,8 +512,8 @@ export const getActions = (
                     return 'There are no rows selected.'
                 }
             },
-            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
-            tooltip: "Delete all of the selected columns or rows from the sheet."
+            searchTerms: ['delete row', 'delete row', 'del row', 'remove row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete the row of the selected cell."
         },
         [ActionEnum.Delete_Col]: {
             type: 'build-time',
@@ -549,8 +549,8 @@ export const getActions = (
                     return "There are no columns in the dataframe to delete. Add data to the sheet."
                 }
             },
-            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
-            tooltip: "Delete all of the selected columns or rows from the sheet."
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
+            tooltip: "Delete the column of the selected cell."
         },
         [ActionEnum.Delete_Dataframe]: {
             type: 'build-time',
