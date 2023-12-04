@@ -17,6 +17,8 @@ import { getPropsForContextMenuDropdownItem } from './utils';
 */
 export default function ColumnHeaderDropdown(props: {
     mitoAPI: MitoAPI;
+    column: number;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     openColumnHeaderEditor: () => void;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
@@ -24,23 +26,34 @@ export default function ColumnHeaderDropdown(props: {
     columnID: ColumnID;
     sheetData: SheetData
     columnDtype: string;
-    display: boolean;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     gridState: GridState;
     actions: Actions;
 }): JSX.Element {
+    const openColumnHeaderDropdown = typeof props.uiState.currOpenDropdown == 'object' ? props.uiState.currOpenDropdown.column : undefined;
+    const display = openColumnHeaderDropdown === props.column;
 
     // Log opening this dropdown
     useEffect(() => {
-        if (props.display) {
+        if (display) {
             void props.mitoAPI.log('opened_column_header_dropdown')
         }
-    }, [props.display])
+    }, [display])
 
     return (
         <Dropdown
-            display={props.display}
-            closeDropdown={() => {}}
+            display={display}
+            closeDropdown={() => {
+                props.setUIState((prevUIState) => {
+                    // If the dropdown is open, then close it. Otherwise, don't change the state. 
+                    const openColumnHeaderDropdown = typeof prevUIState.currOpenDropdown == 'object' ? prevUIState.currOpenDropdown.column : undefined;
+                    const display = openColumnHeaderDropdown === props.column;
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown
+                    }
+                })
+            }}
         >
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)} />
 

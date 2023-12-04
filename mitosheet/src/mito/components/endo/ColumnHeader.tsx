@@ -65,7 +65,6 @@ const ColumnHeader = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     actions: Actions;
 }): JSX.Element => {
-    const openColumnHeaderDropdown = typeof props.uiState.currOpenDropdown == 'object' ? props.uiState.currOpenDropdown.column : undefined;
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
@@ -432,12 +431,13 @@ const ColumnHeader = (props: {
             </div>
             <ColumnHeaderDropdown
                 mitoAPI={props.mitoAPI}
+                column={props.columnIndex}
+                uiState={props.uiState}
                 setUIState={props.setUIState}
                 openColumnHeaderEditor={openColumnHeaderEditor}
                 sheetIndex={props.gridState.sheetIndex}
                 columnID={columnID}
                 columnDtype={columnDtype}
-                display={openColumnHeaderDropdown === props.columnIndex}
                 closeOpenEditingPopups={props.closeOpenEditingPopups} 
                 setEditorState={props.setEditorState}
                 sheetData={props.sheetData}
