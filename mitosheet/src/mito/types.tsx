@@ -859,7 +859,7 @@ export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' }
 export interface CSVExportState extends ExportState { exportType: 'csv' }
 export interface ExcelExportState extends ExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type Dropdown = ToolbarDropdown | ContextMenu;
+export type OpenDropdownType = ToolbarDropdown | ContextMenu;
 
 export interface ContextMenu {
     rowIndex: number;
@@ -895,7 +895,7 @@ export interface UIState {
     selectedSheetIndex: number;
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
-    currOpenDropdown: undefined | Dropdown;
+    currOpenDropdown: undefined | OpenDropdownType;
     currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
     currOpenPopups: {
