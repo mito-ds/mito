@@ -2,11 +2,12 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { ActionEnum, MitoSelection, SheetData } from '../../types';
+import { MitoSelection, SheetData, ActionEnum, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
 import { getPropsForContextMenuDropdownItem } from './utils';
 import { Actions } from '../../utils/actions';
 
@@ -17,11 +18,12 @@ export default function IndexHeaderDropdown(props: {
     mitoAPI: MitoAPI;
     sheetData: SheetData;
     sheetIndex: number;
+    rowIndex: number;
     selections: MitoSelection[];
     display: boolean;
     index: string | number,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     actions: Actions;
-    setOpenIndexHeaderDropdown: React.Dispatch<React.SetStateAction<number | undefined>>,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
 
@@ -35,7 +37,13 @@ export default function IndexHeaderDropdown(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setOpenIndexHeaderDropdown(undefined)}
+            closeDropdown={() => props.setUIState((prevUIState) => {
+                const isCurrOpenDropdown = isCurrOpenDropdownForCell(prevUIState, props.rowIndex, -1);
+                return {
+                    ...prevUIState,
+                    currOpenDropdown: isCurrOpenDropdown ? undefined : prevUIState.currOpenDropdown
+                }
+            })}
             width='medium-large'
         >
             <DropdownItem

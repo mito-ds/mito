@@ -84,16 +84,16 @@ export const DataTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.RESET_INDEX_DROPDOWN]}
         >
             <Dropdown
-                display={props.uiState.toolbarDropdown === 'reset-index'}
+                display={props.uiState.currOpenDropdown === 'reset-index'}
                 closeDropdown={() => 
                     props.setUIState(prevUIState => {
-                        if (prevUIState.toolbarDropdown !== 'reset-index') {
+                        if (prevUIState.currOpenDropdown !== 'reset-index') {
                             return prevUIState;
                         }
 
                         return {
                             ...prevUIState,
-                            toolbarDropdown: undefined
+                            currOpenDropdown: undefined
                         }
                     })
                 }

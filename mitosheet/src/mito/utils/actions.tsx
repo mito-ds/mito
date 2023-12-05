@@ -290,7 +290,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'dtype'
+                        currOpenDropdown: 'dtype'
                     }
                 })
             },
@@ -650,7 +650,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'export'
+                        currOpenDropdown: 'export'
                     }
                 })
             },
@@ -732,7 +732,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'format'
+                        currOpenDropdown: 'format'
                     }
                 })
             },
@@ -757,7 +757,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-math'
+                        currOpenDropdown: 'formula-math'
                     }
                 })
             },
@@ -778,7 +778,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-logic'
+                        currOpenDropdown: 'formula-logic'
                     }
                 })
             },
@@ -799,7 +799,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-text'
+                        currOpenDropdown: 'formula-text'
                     }
                 })
             },
@@ -820,7 +820,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-date'
+                        currOpenDropdown: 'formula-date'
                     }
                 })
             },
@@ -841,7 +841,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-reference'
+                        currOpenDropdown: 'formula-reference'
                     }
                 })
             },
@@ -862,7 +862,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-custom'
+                        currOpenDropdown: 'formula-custom'
                     }
                 })
             },
@@ -889,7 +889,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-finance'
+                        currOpenDropdown: 'formula-finance'
                     }
                 })
             },
@@ -910,7 +910,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-more'
+                        currOpenDropdown: 'formula-more'
                     }
                 })
             },
@@ -1077,7 +1077,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'import'
+                        currOpenDropdown: 'import'
                     }
                 })
             },
@@ -1149,7 +1149,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'merge',
+                        currOpenDropdown: 'merge',
                     }
                 })
             },
@@ -1997,7 +1997,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'reset-index'
+                        currOpenDropdown: 'reset-index'
                     }
                 })
             },

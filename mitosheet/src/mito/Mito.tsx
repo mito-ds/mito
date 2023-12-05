@@ -127,8 +127,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(analysisData.graphDataDict)[0],
         selectedTabType: 'data',
-        currOpenToolbarDropdown: undefined,
-        toolbarDropdown: undefined,
+        currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
         currentToolbarTab: 'Home',
         currOpenPopups: {

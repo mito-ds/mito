@@ -1,4 +1,4 @@
-import { GridState, SheetView } from "../../types";
+import { GridState, SheetView, UIState } from "../../types";
 import { DEFAULT_HEIGHT } from "./EndoGrid";
 import { columnIsVisible, rowIsVisible } from "./sheetViewUtils";
 import { isNumberInRangeInclusive } from "./utils";
@@ -96,5 +96,8 @@ export const ensureCellVisible = (containerDiv: HTMLDivElement | null, scrollAnd
             setTimeout(() => scrollColumnIntoView(containerDiv, scrollAndRenderedContainerDiv, currentSheetView, gridState, columnIndex), 50);
         }
     }
+}
 
+export const isCurrOpenDropdownForCell = (uiState: UIState, rowIndex: number, columnIndex: number): boolean =>  {
+    return typeof uiState.currOpenDropdown == 'object' && uiState.currOpenDropdown.rowIndex === rowIndex && uiState.currOpenDropdown.columnIndex === columnIndex;
 }
