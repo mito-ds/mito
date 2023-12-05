@@ -473,16 +473,16 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
 
     const scrollTimerRef = useRef<NodeJS.Timer | null>(null);
     const dropdownItemsContainerRef = useRef<HTMLDivElement | null>(null);
-    const [showScrollUp, setShowScrollUp] = useState(false);
-    const [showScrollDown, setShowScrollDown] = useState(childrenToDisplay.length > 6);
+    const [upArrowHeight, setShowScrollUp] = useState(0);
+    const [downArrowHeight, setShowScrollDown] = useState(childrenToDisplay.length > 6 ? 19 : 0);
 
     const updateShowingScrollButtons = () => {
         const scrollHeight = dropdownItemsContainerRef.current?.scrollHeight ?? 0;
         const scrollTop = dropdownItemsContainerRef.current?.scrollTop ?? 0;
         const clientHeight = dropdownItemsContainerRef.current?.clientHeight ?? 0;
 
-        setShowScrollUp(scrollTop > 0);
-        setShowScrollDown(scrollHeight > scrollTop + clientHeight);
+        setShowScrollUp(Math.min(scrollTop, 19));
+        setShowScrollDown(Math.min(19, scrollHeight - (scrollTop + clientHeight)));
     }
     
     React.useEffect(() => {
@@ -532,7 +532,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                     }
                     <div
                         className={MITO_SCROLL_UP_CLASS}
-                        style={{ display: showScrollUp ? 'flex' : 'none', justifyContent: 'center'}}
+                        style={{ display: 'flex', justifyContent: 'center'}}
                         onMouseEnter={() => {
                             // Scroll up when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
@@ -551,7 +551,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             }
                         }}
                     >
-                        <UpArrowIcon width='12' height='19' />
+                        <UpArrowIcon width='12' height={`${upArrowHeight}`} />
                     </div>
                     {childrenToDisplay.length > 0 && 
                         <div
@@ -571,7 +571,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                     
                     <div
                         className={MITO_SCROLL_DOWN_CLASS}
-                        style={{ display: showScrollDown ? 'flex' : 'none', justifyContent: 'center'}}
+                        style={{ display: 'flex', justifyContent: 'center'}}
                         onMouseEnter={() => {
                             // Scroll down when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
@@ -590,7 +590,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             }
                         }}
                     >
-                        <DownArrowIcon width='12' height='19' />
+                        <DownArrowIcon width='12' height={`${downArrowHeight}`} />
                     </div>
                 </div>,
                 dropdownContainerElement
