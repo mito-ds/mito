@@ -60,6 +60,9 @@ const IndexHeaders = (props: {
                                         ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, -1, props.sheetData.numRows, false)
                                     }}
                                     onContextMenu={(e) => {
+                                        if (e.shiftKey) {
+                                            return;
+                                        }
                                         e.preventDefault();
                                         e.stopPropagation();
                                         props.setUIState((prevUiState) => {

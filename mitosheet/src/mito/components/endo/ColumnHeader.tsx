@@ -200,6 +200,9 @@ const ColumnHeader = (props: {
             // see here: https://newbedev.com/prevent-drag-event-to-interfere-with-input-elements-in-firefox-using-html5-drag-drop
             draggable={!editingColumnHeader ? 'true' : 'false'}
             onContextMenu={(e) => {
+                if (e.shiftKey) {
+                    return;
+                }
                 e.preventDefault()
                 props.setUIState((prevUiState) => {
                     return {
