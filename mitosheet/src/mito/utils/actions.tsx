@@ -82,6 +82,7 @@ import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
 import ResetIndexIcon from "../components/icons/ResetIndexIcon";
 import NumberFormatIcon from "../components/icons/NumberFormatIcon";
 import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
+import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -152,6 +153,7 @@ export const getActions = (
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID, columnFilters, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    const filters = columnFilters?.filters ?? [];
     
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
@@ -795,8 +797,8 @@ export const getActions = (
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-                const filters = columnFilters?.filters ?? [];
-                
+
+                const isNaN = cellValue === undefined || isValueNone(cellValue)
                 let condition = 'string_exactly';
                 if (columnDtype === 'number') {
                     condition = 'number_exactly';
@@ -805,6 +807,10 @@ export const getActions = (
                 } else if (columnDtype === 'datetime') {
                     condition = 'datetime_exactly';
                 }
+                if (isNaN) {
+                    condition = 'empty'
+                }
+
                 filters.push({
                     condition: condition,
                     value: cellValue
