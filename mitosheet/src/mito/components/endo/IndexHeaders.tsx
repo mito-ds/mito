@@ -4,7 +4,7 @@ import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
 import { GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import IndexHeaderDropdown from './IndexHeaderDropdown';
+import IndexHeaderDropdown from './IndexHeaderContextMenu';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { isCurrOpenDropdownForCell } from './visibilityUtils';
@@ -60,6 +60,9 @@ const IndexHeaders = (props: {
                                         ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, -1, props.sheetData.numRows, false)
                                     }}
                                     onContextMenu={(e) => {
+                                        if (e.shiftKey) {
+                                            return;
+                                        }
                                         e.preventDefault();
                                         e.stopPropagation();
                                         props.setUIState((prevUiState) => {
@@ -75,14 +78,9 @@ const IndexHeaders = (props: {
                                 >
                                     {indexHeader}
                                     <IndexHeaderDropdown
-                                        sheetData={props.sheetData}
-                                        setUIState={props.setUIState}
                                         rowIndex={rowIndex}
                                         display={isCurrOpenDropdownForCell(props.uiState, rowIndex, -1)}
-                                        index={indexHeader}
-                                        mitoAPI={props.mitoAPI}
-                                        sheetIndex={props.sheetIndex}
-                                        selections={props.gridState.selections}
+                                        setUIState={props.setUIState}
                                         actions={props.actions}
                                         closeOpenEditingPopups={props.closeOpenEditingPopups}
                                     />

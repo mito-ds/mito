@@ -1,7 +1,7 @@
 import fscreen from "fscreen";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
@@ -10,7 +10,7 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum } from "../types";
+import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum, FilterType } from "../types";
 import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
@@ -82,6 +82,7 @@ import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
 import ResetIndexIcon from "../components/icons/ResetIndexIcon";
 import NumberFormatIcon from "../components/icons/NumberFormatIcon";
 import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
+import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -151,7 +152,8 @@ export const getActions = (
     const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
-    const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    const {columnID, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
@@ -482,6 +484,76 @@ export const getActions = (
             searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
             tooltip: "Delete all of the selected columns or rows from the sheet."
         },
+        [ActionEnum.Delete_Row]: {
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Row,
+            iconContextMenu: TrashIcon,
+            titleContextMenu: 'Delete Row',
+            longTitle: 'Delete row',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (rowsToDelete.length > 0) {
+                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no rows to delete. Import data.';
+                }
+
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (rowsToDelete.length > 0) {
+                    return defaultActionDisabledMessage;
+                } else {
+                    return 'There are no rows selected.'
+                }
+            },
+            searchTerms: ['delete row', 'delete row', 'del row', 'remove row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete the row of the selected cell."
+        },
+        [ActionEnum.Delete_Col]: {
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Col,
+            iconContextMenu: TrashIcon,
+            titleContextMenu: 'Delete Column',
+            longTitle: 'Delete column',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
+
+                if (columnIDsToDelete !== undefined) {
+                    await mitoAPI.editDeleteColumn(
+                        sheetIndex,
+                        columnIDsToDelete
+                    )
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to delete. Import data.';
+                }
+                
+                if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
+                    return defaultActionDisabledMessage
+                } else {
+                    return "There are no columns in the dataframe to delete. Add data to the sheet."
+                }
+            },
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
+            tooltip: "Delete the column of the selected cell."
+        },
         [ActionEnum.Delete_Dataframe]: {
             type: 'build-time',
             staticType: ActionEnum.Delete_Dataframe,
@@ -713,6 +785,49 @@ export const getActions = (
             },
             searchTerms: ['filter', 'remove', 'delete'],
             tooltip: "Filter this dataframe based on the data in a column."
+        },
+
+        [ActionEnum.FilterToCellValue]: {
+            type: 'build-time',
+            staticType: ActionEnum.FilterToCellValue,
+            titleContextMenu: 'Filter to Cell Value',
+            iconContextMenu: FilterIcon,
+            longTitle: 'Filter column',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                if (columnID !== undefined) {
+                    const condition = getEqualityFilterCondition(cellValue, columnDtype);
+                    await mitoAPI.editFilter(
+                        sheetIndex,
+                        columnID,
+                        [
+                            {
+                                condition: condition,
+                                value: cellValue
+                            } as FilterType
+                        ],
+                        'And',
+                        ControlPanelTab.FilterSort,
+                        getRandomId()
+                    );
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to filter in the selected sheet. Import data.'
+                }
+                if (gridState.selections.length === 1 &&
+                    gridState.selections[0].startingRowIndex === gridState.selections[0].endingRowIndex &&
+                    gridState.selections[0].startingColumnIndex === gridState.selections[0].endingColumnIndex) {
+                    return defaultActionDisabledMessage;
+                } else {
+                    return 'This action can only be applied to a single cell.'
+                }
+            },
+            searchTerms: ['filter', 'remove', 'delete'],
+            tooltip: "Filter this column to only show rows with the same value as the selected cell."
         },
         [ActionEnum.Format_Number_Columns]: {
             type: 'build-time',
