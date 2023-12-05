@@ -472,6 +472,8 @@ function EndoGrid(props: {
         const newSelections = [...gridState.selections]
         newSelections[newSelections.length - 1] = newLastSelection
 
+        // If this is a ctrl + click, then we want to make the selection just this cell / column / row.
+        // The component itself will handle opening the context menu through the onContextMenu handler.
         if (e.ctrlKey && rowIndex !== undefined && columnIndex !== undefined) {
             setGridState((gridState) => {
                 return {
