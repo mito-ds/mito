@@ -11,7 +11,7 @@ import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum, FilterType } from "../types";
-import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
+import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
@@ -772,6 +772,23 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {
@@ -1720,7 +1737,13 @@ export const getActions = (
                 if (startingColumnID === undefined) {
                     return 
                 }
-                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
+
+                let columnIndex = startingColumnIndex;
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.ASCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -1742,7 +1765,12 @@ export const getActions = (
                     return 
                 }
 
-                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
+                let columnIndex = startingColumnIndex;
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.DESCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
