@@ -82,7 +82,7 @@ import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
 import ResetIndexIcon from "../components/icons/ResetIndexIcon";
 import NumberFormatIcon from "../components/icons/NumberFormatIcon";
 import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
-import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
+import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -152,8 +152,7 @@ export const getActions = (
     const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
-    const {columnID, columnFilters, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    const filters = columnFilters?.filters ?? [];
+    const {columnID, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
     
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
@@ -798,29 +797,17 @@ export const getActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                const isNaN = cellValue === undefined || isValueNone(cellValue)
-                let condition = 'string_exactly';
-                if (columnDtype === 'number') {
-                    condition = 'number_exactly';
-                } else if (columnDtype === 'boolean') {
-                    condition = cellValue ? 'boolean_is_true' : 'boolean_is_false';
-                } else if (columnDtype === 'datetime') {
-                    condition = 'datetime_exactly';
-                }
-                if (isNaN) {
-                    condition = 'empty'
-                }
-
-                filters.push({
-                    condition: condition,
-                    value: cellValue
-                } as FilterType);
-
                 if (columnID !== undefined) {
+                    const condition = getEqualityFilterCondition(cellValue, columnDtype);
                     await mitoAPI.editFilter(
                         sheetIndex,
                         columnID,
-                        filters,
+                        [
+                            {
+                                condition: condition,
+                                value: cellValue
+                            } as FilterType
+                        ],
                         'And',
                         ControlPanelTab.FilterSort,
                         getRandomId()

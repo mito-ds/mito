@@ -302,3 +302,25 @@ export const getFilterOptions = (columnDtype: string | undefined, nameLength: 'l
 
     return filterOptions;
 }
+
+/**
+ * Returns the appropriate filter condition for the given column dtype and value
+ * @param columnDtype - column dtype for cell
+ * @param value - cell value
+ * @returns a filter condition
+ */
+export const getEqualityFilterCondition = (value: any, columnDtype?: string): string => {
+    const isNaN = value === undefined || isValueNone(value)
+    let condition = 'string_exactly';
+    if (columnDtype === 'number') {
+        condition = 'number_exactly';
+    } else if (columnDtype === 'boolean') {
+        condition = value ? 'boolean_is_true' : 'boolean_is_false';
+    } else if (columnDtype === 'datetime') {
+        condition = 'datetime_exactly';
+    }
+    if (isNaN) {
+        condition = 'empty'
+    }
+    return condition;
+}
