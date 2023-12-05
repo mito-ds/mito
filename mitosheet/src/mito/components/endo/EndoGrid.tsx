@@ -329,7 +329,7 @@ function EndoGrid(props: {
                         }
                     })
                 // The next step of conditions handle when meta or ctrl key is pressed and shift is not
-                } else {
+                } else if (e.metaKey) {
                     if (rowIndex === -1) {
                         // If column is in selection, then remove it
                         // By passing -1 as the row index, getIsCellSelected checks if the entire column is selected
@@ -475,6 +475,12 @@ function EndoGrid(props: {
         // If this is a ctrl + click, then we want to make the selection just this cell / column / row.
         // The component itself will handle opening the context menu through the onContextMenu handler.
         if (e.ctrlKey && rowIndex !== undefined && columnIndex !== undefined) {
+            // If the user is clicking within a current selection, then we don't change the selection.
+            // This is because we want to allow the user to open the context menu on a selection of cells
+            // without changing the selection.
+            if (getIsCellSelected(gridState.selections, rowIndex, columnIndex)) {
+                return;
+            }
             setGridState((gridState) => {
                 return {
                     ...gridState,
