@@ -1014,15 +1014,20 @@ export const Mito = (props: MitoProps): JSX.Element => {
         'mito-taskpane-container-narrow': narrowTaskpaneOpen,
     })
 
+    /**
+     * We scroll (up or down) in any dropdown if the mouse is positioned outside of the dropdown.
+     * These variables are used to keep track of the timer and the clientY position of the mouse
+     * so that we can scroll in the correct direction.
+     */
     const scrollTimerRef = useRef<NodeJS.Timer | undefined>(undefined);
     const scrollTimerClientYRef = useRef<number | undefined>(undefined);
-    const getScrollDirection = (clientY: number, dropdownDiv: HTMLDivElement) => {
+    const getScrollDifference = (clientY: number, dropdownDiv: HTMLDivElement) => {
         if (clientY < dropdownDiv.getBoundingClientRect().top) {
-            return 'up';
+            return (-1) * Math.min(10, dropdownDiv.getBoundingClientRect().top - clientY);
         } else if (clientY > dropdownDiv.getBoundingClientRect().bottom) {
-            return 'down';
+            return Math.min(10, clientY - dropdownDiv.getBoundingClientRect().bottom);
         } else {
-            return undefined;
+            return 0;
         }
     }
 
@@ -1045,12 +1050,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             scrollTimerRef.current = undefined;
                             return;
                         }
-                        const currentDirection = getScrollDirection(scrollTimerClientYRef.current ?? 0, document.querySelector(".mito-dropdown-items-container") as HTMLDivElement);
-                        if (currentDirection === 'up') {
-                            dropdownDiv.scrollTop -= 10;
-                        } else if (currentDirection === 'down') {
-                            dropdownDiv.scrollTop += 10;
-                        }
+                        dropdownDiv.scrollTop += getScrollDifference(scrollTimerClientYRef.current ?? 0, dropdownDiv as HTMLDivElement);
                     }, 10);
                 }
             }}
