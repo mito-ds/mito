@@ -345,6 +345,23 @@ export const getActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
+
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
@@ -1885,6 +1902,23 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {
