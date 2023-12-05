@@ -471,7 +471,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         }
     });
 
-    const scrollTimerRef = useRef<NodeJS.Timer | null>(null);
     const dropdownItemsContainerRef = useRef<HTMLDivElement | null>(null);
     const [upArrowHeight, setShowScrollUp] = useState(0);
     const [downArrowHeight, setShowScrollDown] = useState(childrenToDisplay.length > 6 ? 19 : 0);
@@ -540,23 +539,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             top: `-${upArrowHeight-2}px`,
                             width: '100%'
                         }}
-                        onMouseEnter={() => {
-                            // Scroll up when the mouse enters this div
-                            scrollTimerRef.current = setInterval(() => {
-                                dropdownItemsContainerRef.current?.scrollBy(0, -2)
-                            })
-                        }}
-                        onMouseLeave={() => {
-                            // Stop scrolling when the mouse leaves this div
-                            if (scrollTimerRef.current) {
-                                clearInterval(scrollTimerRef.current);
-                            }
-                        }}
-                        onClick={() => {
-                            if (scrollTimerRef.current){
-                                clearInterval(scrollTimerRef.current)
-                            }
-                        }}
                     >
                         <UpArrowIcon width='12' height={`${upArrowHeight}`} />
                     </div>
@@ -585,23 +567,6 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                             bottom: `-${downArrowHeight-2}px`,
                             backgroundColor: 'white',
                             width: '100%'
-                        }}
-                        onMouseEnter={() => {
-                            // Scroll down when the mouse enters this div
-                            scrollTimerRef.current = setInterval(() => {
-                                dropdownItemsContainerRef.current?.scrollBy(0, 2)
-                            })
-                        }}
-                        onMouseLeave={() => {
-                            // Stop scrolling when the mouse leaves this div
-                            if (scrollTimerRef.current) {
-                                clearInterval(scrollTimerRef.current);
-                            }
-                        }}
-                        onClick={() => {
-                            if (scrollTimerRef.current){
-                                clearInterval(scrollTimerRef.current)
-                            }
                         }}
                     >
                         <DownArrowIcon width='12' height={`${downArrowHeight}`} />

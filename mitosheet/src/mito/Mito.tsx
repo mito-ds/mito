@@ -1014,10 +1014,46 @@ export const Mito = (props: MitoProps): JSX.Element => {
         'mito-taskpane-container-narrow': narrowTaskpaneOpen,
     })
 
+    const scrollTimerRef = useRef<NodeJS.Timer | undefined>(undefined);
+    const scrollTimerClientYRef = useRef<number | undefined>(undefined);
+    const getScrollDirection = (clientY: number, dropdownDiv: HTMLDivElement) => {
+        if (clientY < dropdownDiv.getBoundingClientRect().top) {
+            return 'up';
+        } else if (clientY > dropdownDiv.getBoundingClientRect().bottom) {
+            return 'down';
+        } else {
+            return undefined;
+        }
+    }
+
     return (
         <div 
             className="mito-container" 
             data-jp-suppress-context-menu 
+            onMouseMove={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                scrollTimerClientYRef.current = e.clientY;
+                if (uiState.currOpenDropdown === undefined || scrollTimerRef.current !== undefined) {
+                    return;
+                }
+                if (e.target instanceof HTMLElement && !e.target.classList.contains('mito-dropdown-items-container')) {
+                    // If the user moves the mouse outside of the dropdown, we can scroll based on the mouse position
+                    // If there is no scroller timer, we start one
+                    scrollTimerRef.current = setInterval(() => {
+                        const dropdownDiv = document.querySelector(".mito-dropdown-items-container");
+                        if (dropdownDiv === null || dropdownDiv === undefined || scrollTimerClientYRef.current === undefined) {
+                            clearInterval(scrollTimerRef.current)
+                            scrollTimerRef.current = undefined;
+                            return;
+                        }
+                        const currentDirection = getScrollDirection(scrollTimerClientYRef.current ?? 0, document.querySelector(".mito-dropdown-items-container") as HTMLDivElement);
+                        if (currentDirection === 'up') {
+                            dropdownDiv.scrollTop -= 10;
+                        } else if (currentDirection === 'down') {
+                            dropdownDiv.scrollTop += 10;
+                        }
+                    }, 10);
+                }
+            }}
             ref={mitoContainerRef} 
             tabIndex={0}
             onKeyDown={(e) => {
