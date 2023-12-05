@@ -112,6 +112,9 @@ const GridData = (props: {
                                         ...(conditionalFormat || {})
                                     }}
                                     onContextMenu={(e) => {
+                                        if (e.shiftKey) {
+                                            return;
+                                        }
                                         e.preventDefault();
                                         e.stopPropagation();
                                         props.setUIState((prevUiState) => {
