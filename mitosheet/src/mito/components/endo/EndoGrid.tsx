@@ -305,7 +305,6 @@ function EndoGrid(props: {
                 return;
             }
             
-
             if (e.metaKey || e.ctrlKey) {
                 /* 
                     These are the cases where we add a new selection. A user can add to their selection by:
@@ -472,6 +471,23 @@ function EndoGrid(props: {
         const newLastSelection = getNewSelectionAfterMouseUp(gridState.selections[gridState.selections.length - 1], rowIndex, columnIndex);
         const newSelections = [...gridState.selections]
         newSelections[newSelections.length - 1] = newLastSelection
+
+        if (e.ctrlKey && rowIndex !== undefined && columnIndex !== undefined) {
+            setGridState((gridState) => {
+                return {
+                    ...gridState,
+                    selections: [{
+                        startingColumnIndex: columnIndex,
+                        endingColumnIndex: columnIndex,
+                        startingRowIndex: rowIndex,
+                        endingRowIndex: rowIndex,
+                        sheetIndex: sheetIndex,
+                    }]
+                }
+            })
+            return;
+        }
+
         // We only update the selection if has changed, so we don't rerender unnecessarily
         if (!equalSelections(newLastSelection, gridState.selections[gridState.selections.length - 1])) {
             setGridState((gridState) => {
