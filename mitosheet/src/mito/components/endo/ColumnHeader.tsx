@@ -13,7 +13,7 @@ import { getColumnHeaderParts, getDisplayColumnHeader } from '../../utils/column
 import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
-import ColumnHeaderDropdown from './ColumnHeaderDropdown';
+import ColumnHeaderContextMenu from './ColumnHeaderContextMenu';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 import { Actions } from '../../utils/actions';
@@ -200,6 +200,9 @@ const ColumnHeader = (props: {
             // see here: https://newbedev.com/prevent-drag-event-to-interfere-with-input-elements-in-firefox-using-html5-drag-drop
             draggable={!editingColumnHeader ? 'true' : 'false'}
             onContextMenu={(e) => {
+                if (e.shiftKey) {
+                    return;
+                }
                 e.preventDefault()
                 props.setUIState((prevUiState) => {
                     return {
@@ -429,7 +432,7 @@ const ColumnHeader = (props: {
                     </form>
                 }
             </div>
-            <ColumnHeaderDropdown
+            <ColumnHeaderContextMenu
                 mitoAPI={props.mitoAPI}
                 column={props.columnIndex}
                 uiState={props.uiState}
