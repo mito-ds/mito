@@ -1497,7 +1497,12 @@ export const getActions = (
             iconContextMenu: EditIcon,
             longTitle: 'Rename column',
             actionFunction: () => {
-                const columnHeader = getCellDataFromCellIndexes(sheetData, -1, startingColumnIndex).columnHeader;
+                let columnIndex = startingColumnIndex;
+                // If this is being triggered by a context menu, then we need to find the column that was clicked on
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnHeader = getCellDataFromCellIndexes(sheetData, -1, columnIndex).columnHeader;
 
                 // Get the pieces of the column header. If the column header is not a MultiIndex header, then
                 // lowerLevelColumnHeaders will be an empty array
@@ -1506,7 +1511,7 @@ export const getActions = (
 
                 setEditorState({
                     rowIndex: -1,
-                    columnIndex: startingColumnIndex,
+                    columnIndex: columnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
                     editorLocation: 'cell',
                     editingMode: 'specific_index_labels',
