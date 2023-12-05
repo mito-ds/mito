@@ -532,7 +532,14 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                     }
                     <div
                         className={MITO_SCROLL_UP_CLASS}
-                        style={{ display: 'flex', justifyContent: 'center'}}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            position: 'absolute',
+                            backgroundColor: 'white',
+                            top: `-${upArrowHeight-2}px`,
+                            width: '100%'
+                        }}
                         onMouseEnter={() => {
                             // Scroll up when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {
@@ -571,7 +578,14 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                     
                     <div
                         className={MITO_SCROLL_DOWN_CLASS}
-                        style={{ display: 'flex', justifyContent: 'center'}}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            position: 'absolute',
+                            bottom: `-${downArrowHeight-2}px`,
+                            backgroundColor: 'white',
+                            width: '100%'
+                        }}
                         onMouseEnter={() => {
                             // Scroll down when the mouse enters this div
                             scrollTimerRef.current = setInterval(() => {

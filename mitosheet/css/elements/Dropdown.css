@@ -1,7 +1,6 @@
 .mito-dropdown {
     display: flex;
     flex-direction: column;
-    overflow-y: hidden;
 
     z-index: 3;
     position: absolute;
