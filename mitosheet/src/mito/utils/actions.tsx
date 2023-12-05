@@ -193,7 +193,8 @@ export const getActions = (
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
-                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].endingColumnIndex + 1;
+                const selection = gridState.selections[gridState.selections.length - 1];
+                const newColumnHeaderIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex) + 1;
 
                 await mitoAPI.editAddColumn(
                     sheetIndex,
@@ -238,8 +239,9 @@ export const getActions = (
                 closeOpenEditingPopups();
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
-                // The new column should be placed 1 position to the right of the last selected column
-                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
+                // The new column should be placed 1 position to the left of the first selected column
+                const selection = gridState.selections[gridState.selections.length - 1];
+                const newColumnHeaderIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
 
                 await mitoAPI.editAddColumn(
                     sheetIndex,
