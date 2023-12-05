@@ -1023,9 +1023,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const scrollTimerClientYRef = useRef<number | undefined>(undefined);
     const getScrollDifference = (clientY: number, dropdownDiv: HTMLDivElement) => {
         if (clientY < dropdownDiv.getBoundingClientRect().top) {
-            return (-1) * Math.min(10, dropdownDiv.getBoundingClientRect().top - clientY);
+            return (-1) * Math.min(10, (dropdownDiv.getBoundingClientRect().top - clientY)/3);
         } else if (clientY > dropdownDiv.getBoundingClientRect().bottom) {
-            return Math.min(10, clientY - dropdownDiv.getBoundingClientRect().bottom);
+            return Math.min(10, (clientY - dropdownDiv.getBoundingClientRect().bottom)/3);
         } else {
             return 0;
         }
