@@ -100,6 +100,8 @@ class PivotStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
+
+        print("CODE LINES", params.get('extra_code'))
         
         final_destination_sheet_index = destination_sheet_index if destination_sheet_index is not None else len(prev_state.dfs)
 
@@ -110,6 +112,7 @@ class PivotStepPerformer(StepPerformer):
             # actually used by the backend (which is kinda confusing and should be renamed)
             'destination_sheet_index': final_destination_sheet_index,
             'new_df_name': new_df_name,
+            'extra_code': params.get('extra_code')
         }
 
         try:
@@ -148,6 +151,7 @@ class PivotStepPerformer(StepPerformer):
                 get_param(params, 'flatten_column_headers'),
                 get_param(params, 'public_interface_version'),
                 get_param(execution_data if execution_data is not None else {}, 'new_df_name'),
+                get_param(execution_data if execution_data is not None else {}, 'extra_code'),
             )
         ]
 

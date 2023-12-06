@@ -96,7 +96,7 @@ def execute_step_list_from_index(
 
         # Set the previous state of the new step, and then update
         # what the last valid step is
-        new_step.set_prev_state_and_execute(last_valid_step.final_defined_state)
+        new_step.set_prev_state_and_execute(last_valid_step.final_defined_state, new_step_list)
         last_valid_step = new_step
 
         new_step_list.append(new_step)

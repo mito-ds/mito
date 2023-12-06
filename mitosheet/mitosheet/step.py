@@ -6,6 +6,7 @@
 
 from typing import Any, Dict, List, Optional, Set, Type
 import json
+from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.column_steps.set_column_formula import SetColumnFormulaStepPerformer
 from mitosheet.step_performers.filter import FilterStepPerformer
@@ -130,7 +131,7 @@ class Step:
         return self.post_state if self.post_state is not None else \
             (self.prev_state if self.prev_state is not None else State([], 1))
 
-    def set_prev_state_and_execute(self, new_prev_state: State) -> bool:
+    def set_prev_state_and_execute(self, new_prev_state: State, previous_steps: List["Step"]) -> bool:
         """
         Changes the prev_state of this step, which in turns triggers
         a reexecution with the same parameters. 
@@ -148,6 +149,31 @@ class Step:
         # TODO: this should fill in the execution data - hopefully
         # we can get all of it without executing. I think we probably can
         params = self.step_performer.saturate(new_prev_state, self.params)
+
+        # If this is a pivot step, that has a destination sheet index, then we're going to 
+        # go look for the original step that created this pivot
+        if self.step_type == 'pivot' and params.get('destination_sheet_index') is not None:
+            destination_sheet_index = params['destination_sheet_index']
+            for index, step in enumerate(reversed(previous_steps)):
+                if step.step_type == 'pivot' and 'destination_sheet_index' in step.params and step.params['destination_sheet_index'] == destination_sheet_index:
+                    params['extra_code'] = step.execution_data.get('extra_code')
+                    break
+                elif step.step_type == 'pivot' and len(step.dfs) == destination_sheet_index + 1:
+                    starting_index = len(previous_steps) - index - 1
+
+                    previous_steps = previous_steps[starting_index + 1:]
+                    previous_steps = [step for step in previous_steps if step.step_performer.get_modified_dataframe_indexes(step.params) == {destination_sheet_index}]
+                    code_chunks: List["CodeChunk"] = []
+                    for step in previous_steps:
+                        code_chunks += step.step_performer.transpile(step.prev_state, step.params, step.execution_data)
+                    
+                    all_code = []
+                    for code_chunk in code_chunks:
+                        import_lines, code_lines = code_chunk.get_code()
+                        all_code += import_lines
+                        all_code += code_lines
+
+                    params['extra_code'] = all_code
 
         # Actually execute the data transformation
         post_state_and_execution_data = self.step_performer.execute(new_prev_state, params)
