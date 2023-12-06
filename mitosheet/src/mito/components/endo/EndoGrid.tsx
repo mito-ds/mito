@@ -311,6 +311,9 @@ function EndoGrid(props: {
                     1. Being on Mac, and command+clicking
                     2. Being on Windows, and ctrl+clicking
                 */
+               const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
+                    ? 'mac'
+                    : 'windows'
 
                 if (e.shiftKey) {
                     // Just add the new click locaton to a new selection at the end of the selections list
@@ -329,7 +332,7 @@ function EndoGrid(props: {
                         }
                     })
                 // The next step of conditions handle when meta or ctrl key is pressed and shift is not
-                } else if (e.metaKey) {
+                } else if ((operatingSystem === 'mac' && e.metaKey) || (operatingSystem === 'windows' && e.ctrlKey)) {
                     if (rowIndex === -1) {
                         // If column is in selection, then remove it
                         // By passing -1 as the row index, getIsCellSelected checks if the entire column is selected
