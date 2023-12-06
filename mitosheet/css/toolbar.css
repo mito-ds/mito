@@ -250,6 +250,9 @@
 .mito-toolbar-button-label {
   width: min-content;
   height: auto;
+  
+  /* In notebook, the line height is set higher, so we need to set it back to normal */
+  line-height: normal;
 }
 
 .mito-toolbar-button span {
