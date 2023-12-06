@@ -11,7 +11,7 @@ import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
 import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum, FilterType } from "../types";
-import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
+import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
@@ -193,7 +193,8 @@ export const getActions = (
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
-                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].endingColumnIndex + 1;
+                const selection = gridState.selections[gridState.selections.length - 1];
+                const newColumnHeaderIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex) + 1;
 
                 await mitoAPI.editAddColumn(
                     sheetIndex,
@@ -238,8 +239,9 @@ export const getActions = (
                 closeOpenEditingPopups();
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
-                // The new column should be placed 1 position to the right of the last selected column
-                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
+                // The new column should be placed 1 position to the left of the first selected column
+                const selection = gridState.selections[gridState.selections.length - 1];
+                const newColumnHeaderIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
 
                 await mitoAPI.editAddColumn(
                     sheetIndex,
@@ -342,6 +344,23 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {
@@ -770,6 +789,23 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {
@@ -1495,7 +1531,12 @@ export const getActions = (
             iconContextMenu: EditIcon,
             longTitle: 'Rename column',
             actionFunction: () => {
-                const columnHeader = getCellDataFromCellIndexes(sheetData, -1, startingColumnIndex).columnHeader;
+                let columnIndex = startingColumnIndex;
+                // If this is being triggered by a context menu, then we need to find the column that was clicked on
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnHeader = getCellDataFromCellIndexes(sheetData, -1, columnIndex).columnHeader;
 
                 // Get the pieces of the column header. If the column header is not a MultiIndex header, then
                 // lowerLevelColumnHeaders will be an empty array
@@ -1504,7 +1545,7 @@ export const getActions = (
 
                 setEditorState({
                     rowIndex: -1,
-                    columnIndex: startingColumnIndex,
+                    columnIndex: columnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
                     editorLocation: 'cell',
                     editingMode: 'specific_index_labels',
@@ -1713,7 +1754,13 @@ export const getActions = (
                 if (startingColumnID === undefined) {
                     return 
                 }
-                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
+
+                let columnIndex = startingColumnIndex;
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.ASCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -1735,7 +1782,12 @@ export const getActions = (
                     return 
                 }
 
-                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
+                let columnIndex = startingColumnIndex;
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.DESCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -1850,6 +1902,23 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {

@@ -1074,6 +1074,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         })
                         const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;
                         focusGrid(endoGridContainer);
+                    } else if (uiState.currOpenDropdown !== undefined) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenDropdown: undefined
+                            }
+                        })
+                        const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;
+                        focusGrid(endoGridContainer);
                     }
                 }
             }}
