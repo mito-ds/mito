@@ -127,8 +127,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(analysisData.graphDataDict)[0],
         selectedTabType: 'data',
-        currOpenToolbarDropdown: undefined,
-        toolbarDropdown: undefined,
+        currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
         currentToolbarTab: 'Home',
         currOpenPopups: {
@@ -1035,6 +1034,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                     currentMatchIndex: -1,
                                     matches: []
                                 }
+                            }
+                        })
+                        const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;
+                        focusGrid(endoGridContainer);
+                    } else if (uiState.currOpenDropdown !== undefined) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenDropdown: undefined
                             }
                         })
                         const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;

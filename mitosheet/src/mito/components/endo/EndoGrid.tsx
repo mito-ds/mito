@@ -305,13 +305,15 @@ function EndoGrid(props: {
                 return;
             }
             
-
             if (e.metaKey || e.ctrlKey) {
                 /* 
                     These are the cases where we add a new selection. A user can add to their selection by:
                     1. Being on Mac, and command+clicking
                     2. Being on Windows, and ctrl+clicking
                 */
+               const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
+                    ? 'mac'
+                    : 'windows'
 
                 if (e.shiftKey) {
                     // Just add the new click locaton to a new selection at the end of the selections list
@@ -330,7 +332,7 @@ function EndoGrid(props: {
                         }
                     })
                 // The next step of conditions handle when meta or ctrl key is pressed and shift is not
-                } else {
+                } else if ((operatingSystem === 'mac' && e.metaKey) || (operatingSystem === 'windows' && e.ctrlKey)) {
                     if (rowIndex === -1) {
                         // If column is in selection, then remove it
                         // By passing -1 as the row index, getIsCellSelected checks if the entire column is selected
@@ -472,6 +474,31 @@ function EndoGrid(props: {
         const newLastSelection = getNewSelectionAfterMouseUp(gridState.selections[gridState.selections.length - 1], rowIndex, columnIndex);
         const newSelections = [...gridState.selections]
         newSelections[newSelections.length - 1] = newLastSelection
+
+        // If this is a ctrl + click, then we want to make the selection just this cell / column / row.
+        // The component itself will handle opening the context menu through the onContextMenu handler.
+        if (e.ctrlKey && rowIndex !== undefined && columnIndex !== undefined) {
+            // If the user is clicking within a current selection, then we don't change the selection.
+            // This is because we want to allow the user to open the context menu on a selection of cells
+            // without changing the selection.
+            if (getIsCellSelected(gridState.selections, rowIndex, columnIndex)) {
+                return;
+            }
+            setGridState((gridState) => {
+                return {
+                    ...gridState,
+                    selections: [{
+                        startingColumnIndex: columnIndex,
+                        endingColumnIndex: columnIndex,
+                        startingRowIndex: rowIndex,
+                        endingRowIndex: rowIndex,
+                        sheetIndex: sheetIndex,
+                    }]
+                }
+            })
+            return;
+        }
+
         // We only update the selection if has changed, so we don't rerender unnecessarily
         if (!equalSelections(newLastSelection, gridState.selections[gridState.selections.length - 1])) {
             setGridState((gridState) => {
@@ -696,9 +723,12 @@ function EndoGrid(props: {
                         <IndexHeaders
                             sheetData={sheetData}
                             gridState={gridState}
+                            uiState={uiState}
+                            setUIState={setUIState}
                             mitoAPI={mitoAPI}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             sheetIndex={sheetIndex}
+                            actions={props.actions}
                         />
                     </>
                 }
@@ -737,16 +767,17 @@ function EndoGrid(props: {
                         style={{
                             transform: `translate(${gridState.scrollPosition.scrollLeft - translate.x}px, ${gridState.scrollPosition.scrollTop - translate.y}px)`,
                         }}
-                        onContextMenu={() => {
-                            // We also log if the user tries to right click on the sheet data
-                            void props.mitoAPI.log('right_clicked_on_sheet_data');
-                        }}
                     >
                         <GridData
                             sheetData={sheetData}
                             gridState={gridState}
+                            setGridState={setGridState}
+                            sheetIndex={sheetIndex}
                             uiState={uiState}
+                            setUIState={setUIState}
                             editorState={editorState}
+                            actions={props.actions}
+                            closeOpenEditingPopups={props.closeOpenEditingPopups}
                         />
                     </div>
                 </div>

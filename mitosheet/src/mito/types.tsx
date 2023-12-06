@@ -859,7 +859,13 @@ export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' }
 export interface CSVExportState extends ExportState { exportType: 'csv' }
 export interface ExcelExportState extends ExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'Code' | 'View' | 'Custom Edits' | 'Help';
+export type OpenDropdownType = ToolbarDropdown | ContextMenu;
+
+export interface ContextMenu {
+    rowIndex: number;
+    columnIndex: number;
+}
+export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
 
 export enum PopupType {
     EphemeralMessage = 'ephemeral_message',
@@ -889,10 +895,9 @@ export interface UIState {
     selectedSheetIndex: number;
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
-    currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    currOpenDropdown: undefined | OpenDropdownType;
     currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -940,6 +945,8 @@ export enum ActionEnum {
     Copy = 'copy',
     CopyCode = 'copy code',
     Delete = 'delete',
+    Delete_Row = 'delete row',
+    Delete_Col = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
     Drop_Duplicates = 'drop duplicates',
@@ -950,6 +957,7 @@ export enum ActionEnum {
     Export_Dropdown = 'export dropdown',
     Fill_Na = 'fill na',
     Filter = 'filter',
+    FilterToCellValue = 'filter to cell value',
     Format_Number_Columns = 'format number columns',
     Fullscreen = 'fullscreen',
     Graph = 'graph',
@@ -1020,13 +1028,17 @@ export interface BaseAction<Type, StaticType> {
     staticType: StaticType;
     // The short title for the action. Should be title case, as you want to display it.
     // If undefined, the toolbar will not display a title in the toolbar. 
-    toolbarTitle?: string
+    titleToolbar?: string
 
     // The optional long title for the action.
-    longTitle: string
+    longTitle: string;
+
+    titleContextMenu?: string;
 
     // The optional icon to display for the action
-    icon?: React.FC<any>;
+    iconToolbar?: React.FC<any>;
+
+    iconContextMenu?: React.FC<any>;
 
     /* 
         The function to call if the action is taken by the user. This should

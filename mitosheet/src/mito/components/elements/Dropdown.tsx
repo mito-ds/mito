@@ -11,7 +11,7 @@ import { isInStreamlit } from '../../utils/location';
 import { fuzzyMatch } from '../../utils/strings';
 import Row from '../layout/Row';
 import Input from './Input';
-import { WIDTH_MAPPING } from './sizes.d';
+import { WIDTH_MAPPING, Width } from './sizes.d';
 
 // NOTE: these must match their definitions in the Dropdown.css
 const MAX_HEIGHT = 250;
@@ -72,7 +72,7 @@ interface DropdownProps {
     /**
         * @param [width] - The width of the dropdown that gets created
      */
-    width?: 'small' | 'medium' | 'large';
+    width?: Width;
 
     theme?: MitoTheme
 }

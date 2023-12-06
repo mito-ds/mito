@@ -1,7 +1,7 @@
 import fscreen from "fscreen";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
@@ -10,8 +10,8 @@ import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/t
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum } from "../types";
-import { getColumnHeaderParts, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
+import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum, FilterType } from "../types";
+import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { SendFunctionStatus } from "../api/send";
@@ -71,6 +71,18 @@ import FunctionIcon from "../components/icons/FunctionIcon";
 import ScheduleIcon from "../components/icons/ScheduleIcon";
 import { getCodeString } from "../../jupyter/code";
 import BulkHeaderTransformIcon from "../components/icons/BulkColumnHeaderTransformIcon";
+import SummaryIcon from "../components/icons/SummaryIcon";
+import CopyContextMenuIcon from "../components/icons/CopyContextMenuItem";
+import PlusIcon from "../components/icons/PlusIcon";
+import TrashIcon from "../components/icons/TrashIcon";
+import EditIcon from "../components/icons/EditIcon";
+import FormatContextMenuIcon from "../components/icons/FormatContextMenuIcon";
+import StarIcon from "../components/icons/StarIcon";
+import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
+import ResetIndexIcon from "../components/icons/ResetIndexIcon";
+import NumberFormatIcon from "../components/icons/NumberFormatIcon";
+import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
+import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -140,7 +152,8 @@ export const getActions = (
     const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
-    const {columnID} = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    const {columnID, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
+    
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
@@ -162,8 +175,10 @@ export const getActions = (
         [ActionEnum.Add_Column_Right]: {
             type: 'build-time',
             staticType: ActionEnum.Add_Column_Right,
-            icon: AddColumnIcon,
-            toolbarTitle: 'Insert',
+            iconToolbar: AddColumnIcon,
+            iconContextMenu: PlusIcon,
+            titleToolbar: 'Insert',
+            titleContextMenu: 'Insert Column Right',
             longTitle: 'Insert column to the Right',
             actionFunction: async () => {
                 if (sheetDataArray.length === 0) {
@@ -178,7 +193,8 @@ export const getActions = (
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
-                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].endingColumnIndex + 1;
+                const selection = gridState.selections[gridState.selections.length - 1];
+                const newColumnHeaderIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex) + 1;
 
                 await mitoAPI.editAddColumn(
                     sheetIndex,
@@ -206,9 +222,11 @@ export const getActions = (
         [ActionEnum.Add_Column_Left]: {
             type: 'build-time',
             staticType: ActionEnum.Add_Column_Left,
-            icon: AddColumnIcon,
-            toolbarTitle: 'Insert',
+            iconToolbar: AddColumnIcon,
+            iconContextMenu: PlusIcon,
+            titleToolbar: 'Insert',
             longTitle: 'Insert Column to the Left',
+            titleContextMenu: 'Insert Column Left',
             actionFunction: async () => {
                 if (sheetDataArray.length === 0) {
                     return;
@@ -221,8 +239,9 @@ export const getActions = (
                 closeOpenEditingPopups();
 
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
-                // The new column should be placed 1 position to the right of the last selected column
-                const newColumnHeaderIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
+                // The new column should be placed 1 position to the left of the first selected column
+                const selection = gridState.selections[gridState.selections.length - 1];
+                const newColumnHeaderIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
 
                 await mitoAPI.editAddColumn(
                     sheetIndex,
@@ -250,8 +269,8 @@ export const getActions = (
         [ActionEnum.Catch_Up]: {
             type: 'build-time',
             staticType: ActionEnum.Catch_Up,
-            icon: CatchUpIcon,
-            toolbarTitle: 'Catch Up',
+            iconToolbar: CatchUpIcon,
+            titleToolbar: 'Catch Up',
             longTitle: 'Catch up',
             actionFunction: () => {
                 // Fast forwards to the most recent step, allowing editing
@@ -265,8 +284,8 @@ export const getActions = (
         [ActionEnum.Change_Dtype]: {
             type: 'build-time',
             staticType: ActionEnum.Change_Dtype,
-            icon: DtypeIcon,
-            toolbarTitle: 'Dtype',
+            iconToolbar: DtypeIcon,
+            titleToolbar: 'Dtype',
             longTitle: 'Change column dtype',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -275,7 +294,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'dtype'
+                        currOpenDropdown: 'dtype'
                     }
                 })
             },
@@ -292,7 +311,7 @@ export const getActions = (
         [ActionEnum.Clear]: {
             type: 'build-time',
             staticType: ActionEnum.Clear,
-            icon: ClearIcon,
+            iconToolbar: ClearIcon,
             longTitle: "Clear all edits",
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -318,11 +337,30 @@ export const getActions = (
         [ActionEnum.Column_Summary]: {
             type: 'build-time',
             staticType: ActionEnum.Column_Summary,
-            toolbarTitle: 'Column Summary',
+            titleToolbar: 'Column Summary',
+            titleContextMenu: 'Column Summary Stats',
+            iconContextMenu: SummaryIcon,
             longTitle: 'View column summary statistics ',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {
@@ -342,8 +380,9 @@ export const getActions = (
         [ActionEnum.Copy]: {
             type: 'build-time',
             staticType: ActionEnum.Copy,
-            icon: CopyIcon,
-            toolbarTitle: 'Copy',
+            iconToolbar: CopyIcon,
+            iconContextMenu: CopyContextMenuIcon,
+            titleToolbar: 'Copy',
             longTitle: 'Copy',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -385,8 +424,8 @@ export const getActions = (
         [ActionEnum.CopyCode]: {
             type: 'build-time',
             staticType: ActionEnum.CopyCode,
-            icon: CopyIcon,
-            toolbarTitle: 'Copy Code',
+            iconToolbar: CopyIcon,
+            titleToolbar: 'Copy Code',
             longTitle: 'Copy Code to Clipboard',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -412,8 +451,10 @@ export const getActions = (
         [ActionEnum.Delete]: {
             type: 'build-time',
             staticType: ActionEnum.Delete,
-            icon: DeleteColumnIcon,
-            toolbarTitle: 'Delete',
+            iconToolbar: DeleteColumnIcon,
+            iconContextMenu: TrashIcon,
+            titleToolbar: 'Delete',
+            titleContextMenu: 'Delete Column',
             longTitle: 'Delete column / row',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -462,10 +503,80 @@ export const getActions = (
             searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col',  'delete row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
             tooltip: "Delete all of the selected columns or rows from the sheet."
         },
+        [ActionEnum.Delete_Row]: {
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Row,
+            iconContextMenu: TrashIcon,
+            titleContextMenu: 'Delete Row',
+            longTitle: 'Delete row',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (rowsToDelete.length > 0) {
+                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no rows to delete. Import data.';
+                }
+
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (rowsToDelete.length > 0) {
+                    return defaultActionDisabledMessage;
+                } else {
+                    return 'There are no rows selected.'
+                }
+            },
+            searchTerms: ['delete row', 'delete row', 'del row', 'remove row', 'filter rows', 'rows', 'remove rows', 'hide rows'],
+            tooltip: "Delete the row of the selected cell."
+        },
+        [ActionEnum.Delete_Col]: {
+            type: 'build-time',
+            staticType: ActionEnum.Delete_Col,
+            iconContextMenu: TrashIcon,
+            titleContextMenu: 'Delete Column',
+            longTitle: 'Delete column',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // we close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
+
+                if (columnIDsToDelete !== undefined) {
+                    await mitoAPI.editDeleteColumn(
+                        sheetIndex,
+                        columnIDsToDelete
+                    )
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to delete. Import data.';
+                }
+                
+                if (doesColumnExist(startingColumnID, sheetIndex, sheetDataArray)) {
+                    return defaultActionDisabledMessage
+                } else {
+                    return "There are no columns in the dataframe to delete. Add data to the sheet."
+                }
+            },
+            searchTerms: ['delete column', 'delete col', 'del col', 'del column', 'remove column', 'remove col'],
+            tooltip: "Delete the column of the selected cell."
+        },
         [ActionEnum.Delete_Dataframe]: {
             type: 'build-time',
             staticType: ActionEnum.Delete_Dataframe,
-            toolbarTitle: 'Delete dataframe',
+            titleToolbar: 'Delete dataframe',
             longTitle: 'Delete dataframe',
             actionFunction: async () => {
                 // If the sheetIndex is not 0, decrement it.
@@ -493,7 +604,7 @@ export const getActions = (
         [ActionEnum.Delete_Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Delete_Graph,
-            toolbarTitle: 'Delete Graph',
+            titleToolbar: 'Delete Graph',
             longTitle: 'Delete graph',
             actionFunction: async () => {
                 if (uiState.selectedGraphID) {
@@ -509,7 +620,7 @@ export const getActions = (
         [ActionEnum.Docs]: {
             type: 'build-time',
             staticType: ActionEnum.Docs,
-            toolbarTitle: 'Docs',
+            titleToolbar: 'Docs',
             longTitle: 'Documentation',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -529,8 +640,8 @@ export const getActions = (
         [ActionEnum.Drop_Duplicates]: {
             type: 'build-time',
             staticType: ActionEnum.Drop_Duplicates,
-            icon: RemoveDuplicatesIcon,
-            toolbarTitle: 'Remove Duplicates',
+            iconToolbar: RemoveDuplicatesIcon,
+            titleToolbar: 'Remove Duplicates',
             longTitle: 'Deduplicate dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -555,7 +666,7 @@ export const getActions = (
         [ActionEnum.Duplicate_Dataframe]: {
             type: 'build-time',
             staticType: ActionEnum.Duplicate_Dataframe,
-            toolbarTitle: 'Duplicate Dataframe',
+            titleToolbar: 'Duplicate Dataframe',
             longTitle: 'Duplicate dataframe',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -572,7 +683,7 @@ export const getActions = (
         [ActionEnum.Duplicate_Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Duplicate_Graph,
-            toolbarTitle: 'Duplicate Graph',
+            titleToolbar: 'Duplicate Graph',
             longTitle: 'Duplicate selected graph',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -592,8 +703,8 @@ export const getActions = (
         [ActionEnum.Export]: {
             type: 'build-time',
             staticType: ActionEnum.Export,
-            icon: ExportIcon,
-            toolbarTitle: 'Download',
+            iconToolbar: ExportIcon,
+            titleToolbar: 'Download',
             longTitle: 'Download File Now',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -620,8 +731,8 @@ export const getActions = (
         [ActionEnum.Export_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Export_Dropdown,
-            icon: ExportIcon,
-            toolbarTitle: 'Export',
+            iconToolbar: ExportIcon,
+            titleToolbar: 'Export',
             longTitle: 'Open Export Dropdown',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -630,7 +741,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'export'
+                        currOpenDropdown: 'export'
                     }
                 })
             },
@@ -643,8 +754,8 @@ export const getActions = (
         [ActionEnum.Fill_Na]: {
             type: 'build-time',
             staticType: ActionEnum.Fill_Na,
-            icon: FillNanIcon,
-            toolbarTitle: 'Fill Missing Values',
+            iconToolbar: FillNanIcon,
+            titleToolbar: 'Fill Missing Values',
             longTitle: 'Fill NaN Values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -672,12 +783,29 @@ export const getActions = (
         [ActionEnum.Filter]: {
             type: 'build-time',
             staticType: ActionEnum.Filter,
-            icon: FilterIcon,
-            toolbarTitle: 'Filter',
+            iconToolbar: FilterIcon,
+            titleToolbar: 'Filter',
             longTitle: 'Filter column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {
@@ -694,11 +822,56 @@ export const getActions = (
             searchTerms: ['filter', 'remove', 'delete'],
             tooltip: "Filter this dataframe based on the data in a column."
         },
+
+        [ActionEnum.FilterToCellValue]: {
+            type: 'build-time',
+            staticType: ActionEnum.FilterToCellValue,
+            titleContextMenu: 'Filter to Cell Value',
+            iconContextMenu: FilterIcon,
+            longTitle: 'Filter column',
+            actionFunction: async () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                if (columnID !== undefined) {
+                    const condition = getEqualityFilterCondition(cellValue, columnDtype);
+                    await mitoAPI.editFilter(
+                        sheetIndex,
+                        columnID,
+                        [
+                            {
+                                condition: condition,
+                                value: cellValue
+                            } as FilterType
+                        ],
+                        'And',
+                        ControlPanelTab.FilterSort,
+                        getRandomId()
+                    );
+                }
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to filter in the selected sheet. Import data.'
+                }
+                if (gridState.selections.length === 1 &&
+                    gridState.selections[0].startingRowIndex === gridState.selections[0].endingRowIndex &&
+                    gridState.selections[0].startingColumnIndex === gridState.selections[0].endingColumnIndex) {
+                    return defaultActionDisabledMessage;
+                } else {
+                    return 'This action can only be applied to a single cell.'
+                }
+            },
+            searchTerms: ['filter', 'remove', 'delete'],
+            tooltip: "Filter this column to only show rows with the same value as the selected cell."
+        },
         [ActionEnum.Format_Number_Columns]: {
             type: 'build-time',
             staticType: ActionEnum.Format_Number_Columns,
-            toolbarTitle: 'Number',
+            titleToolbar: 'Number',
             longTitle: 'Format number columns',
+            titleContextMenu: 'Format Number Column',
+            iconContextMenu: NumberFormatIcon,
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -710,7 +883,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'format'
+                        currOpenDropdown: 'format'
                     }
                 })
             },
@@ -727,15 +900,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Math]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Math,
-            icon: MathFunctionsIcon,
+            iconToolbar: MathFunctionsIcon,
             longTitle: 'Math Formulas',
-            toolbarTitle: 'Math',
+            titleToolbar: 'Math',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-math'
+                        currOpenDropdown: 'formula-math'
                     }
                 })
             },
@@ -748,15 +921,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Logic]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Logic,
-            icon: LogicalFunctionsIcon,
+            iconToolbar: LogicalFunctionsIcon,
             longTitle: 'Logic Formulas',
-            toolbarTitle: 'Logical',
+            titleToolbar: 'Logical',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-logic'
+                        currOpenDropdown: 'formula-logic'
                     }
                 })
             },
@@ -769,15 +942,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Text]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Text,
-            icon: TextFunctionsIcon,
+            iconToolbar: TextFunctionsIcon,
             longTitle: 'Text Formulas',
-            toolbarTitle: 'Text',
+            titleToolbar: 'Text',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-text'
+                        currOpenDropdown: 'formula-text'
                     }
                 })
             },
@@ -790,15 +963,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_DateTime]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_DateTime,
-            icon: DateTimeFunctionsIcon,
+            iconToolbar: DateTimeFunctionsIcon,
             longTitle: 'Date and Time Formulas',
-            toolbarTitle: 'Date & Time',
+            titleToolbar: 'Date & Time',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-date'
+                        currOpenDropdown: 'formula-date'
                     }
                 })
             },
@@ -811,15 +984,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Reference]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Reference,
-            icon: LookupFunctionsIcon,
+            iconToolbar: LookupFunctionsIcon,
             longTitle: 'Lookup & Reference Formulas',
-            toolbarTitle: 'Lookup & Reference',
+            titleToolbar: 'Lookup & Reference',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-reference'
+                        currOpenDropdown: 'formula-reference'
                     }
                 })
             },
@@ -832,15 +1005,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Custom]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Custom,
-            icon: LookupFunctionsIcon,
+            iconToolbar: LookupFunctionsIcon,
             longTitle: 'Custom Formulas',
-            toolbarTitle: 'Custom',
+            titleToolbar: 'Custom',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-custom'
+                        currOpenDropdown: 'formula-custom'
                     }
                 })
             },
@@ -859,15 +1032,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_Finance]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_Finance,
-            icon: FinancialFunctionsIcon,
+            iconToolbar: FinancialFunctionsIcon,
             longTitle: 'Finance Formulas',
-            toolbarTitle: 'Finance',
+            titleToolbar: 'Finance',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-finance'
+                        currOpenDropdown: 'formula-finance'
                     }
                 })
             },
@@ -880,15 +1053,15 @@ export const getActions = (
         [ActionEnum.Formulas_Dropdown_More]: {
             type: 'build-time',
             staticType: ActionEnum.Formulas_Dropdown_More,
-            icon: MoreFunctionsIcon,
+            iconToolbar: MoreFunctionsIcon,
             longTitle: 'More Formulas',
-            toolbarTitle: 'More',
+            titleToolbar: 'More',
             actionFunction: () => {
                 // Open the format toolbar dropdown
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'formula-more'
+                        currOpenDropdown: 'formula-more'
                     }
                 })
             },
@@ -901,7 +1074,7 @@ export const getActions = (
         [ActionEnum.Currency_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Currency_Format,
-            icon: CurrencyIcon,
+            iconToolbar: CurrencyIcon,
             longTitle: 'Format as currency',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -922,7 +1095,7 @@ export const getActions = (
         [ActionEnum.Percent_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Percent_Format,
-            icon: PercentIcon,
+            iconToolbar: PercentIcon,
             longTitle: 'Format as percentage',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -972,8 +1145,8 @@ export const getActions = (
         [ActionEnum.Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Graph,
-            icon: GraphIcon,
-            toolbarTitle: 'Graph',
+            iconToolbar: GraphIcon,
+            titleToolbar: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI);
@@ -985,7 +1158,7 @@ export const getActions = (
         [ActionEnum.Graph_Bar]: {
             type: 'build-time',
             staticType: ActionEnum.Graph_Bar,
-            icon: GraphIcon,
+            iconToolbar: GraphIcon,
             longTitle: 'Create new bar chart',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR);
@@ -997,7 +1170,7 @@ export const getActions = (
         [ActionEnum.Graph_Line]: {
             type: 'build-time',
             staticType: ActionEnum.Graph_Line,
-            icon: LineChartIcon,
+            iconToolbar: LineChartIcon,
             longTitle: 'Create new line graph',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
@@ -1009,7 +1182,7 @@ export const getActions = (
         [ActionEnum.Graph_Scatter]: {
             type: 'build-time',
             staticType: ActionEnum.Graph_Scatter,
-            icon: ScatterPlotIcon,
+            iconToolbar: ScatterPlotIcon,
             longTitle: 'Create new scatter plot',
             actionFunction: async () => {
                 await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
@@ -1021,7 +1194,7 @@ export const getActions = (
         [ActionEnum.Help]: {
             type: 'build-time',
             staticType: ActionEnum.Help,
-            toolbarTitle: 'Help',
+            titleToolbar: 'Help',
             longTitle: 'Help',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1042,8 +1215,8 @@ export const getActions = (
         [ActionEnum.Import_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Dropdown,
-            icon: ImportIcon,
-            toolbarTitle: 'Import',
+            iconToolbar: ImportIcon,
+            titleToolbar: 'Import',
             longTitle: 'Open import dropdown',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1055,7 +1228,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'import'
+                        currOpenDropdown: 'import'
                     }
                 })
             },
@@ -1066,8 +1239,8 @@ export const getActions = (
         [ActionEnum.Import_Files]: {
             type: 'build-time',
             staticType: ActionEnum.Import_Files,
-            toolbarTitle: 'Import Files',
-            icon: FileImportIcon,
+            titleToolbar: 'Import Files',
+            iconToolbar: FileImportIcon,
             longTitle: 'Import files',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1092,8 +1265,8 @@ export const getActions = (
         [ActionEnum.Merge]: {
             type: 'build-time',
             staticType: ActionEnum.Merge,
-            icon: MergeIcon,
-            toolbarTitle: 'Merge',
+            iconToolbar: MergeIcon,
+            titleToolbar: 'Merge',
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -1116,8 +1289,8 @@ export const getActions = (
         [ActionEnum.Merge_Dropdown]: {
             type: 'build-time',
             staticType: ActionEnum.Merge_Dropdown,
-            icon: MergeIcon,
-            toolbarTitle: 'Merge',
+            iconToolbar: MergeIcon,
+            titleToolbar: 'Merge',
             longTitle: 'Merge dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -1127,7 +1300,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'merge',
+                        currOpenDropdown: 'merge',
                     }
                 })
             },
@@ -1138,8 +1311,8 @@ export const getActions = (
         [ActionEnum.AntiMerge]: {
             type: 'build-time',
             staticType: ActionEnum.AntiMerge,
-            icon: AntiMergeIcon,
-            toolbarTitle: 'Anti-Merge',
+            iconToolbar: AntiMergeIcon,
+            titleToolbar: 'Anti-Merge',
             longTitle: 'Merge dataframes unique in left',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -1162,8 +1335,8 @@ export const getActions = (
         [ActionEnum.Concat_Dataframes]: {
             type: 'build-time',
             staticType: ActionEnum.Concat_Dataframes,
-            icon: ConcatIcon,
-            toolbarTitle: 'Concat',
+            iconToolbar: ConcatIcon,
+            titleToolbar: 'Concat',
             longTitle: 'Concatenate dataframes',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -1186,8 +1359,8 @@ export const getActions = (
         [ActionEnum.Pivot]: {
             type: 'build-time',
             staticType: ActionEnum.Pivot,
-            icon: PivotIcon,
-            toolbarTitle: 'Pivot',
+            iconToolbar: PivotIcon,
+            titleToolbar: 'Pivot',
             longTitle: 'Pivot table',
             actionFunction: async () => {
                 // We turn off editing mode, if it is on
@@ -1253,7 +1426,7 @@ export const getActions = (
         [ActionEnum.Precision_Decrease]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Decrease,
-            icon: LessIcon,
+            iconToolbar: LessIcon,
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -1281,7 +1454,7 @@ export const getActions = (
         [ActionEnum.Precision_Increase]: {
             type: 'build-time',
             staticType: ActionEnum.Precision_Increase,
-            icon: MoreIcon,
+            iconToolbar: MoreIcon,
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
@@ -1308,7 +1481,9 @@ export const getActions = (
         [ActionEnum.Promote_Row_To_Header]: {
             type: 'build-time',
             staticType: ActionEnum.Promote_Row_To_Header,
-            toolbarTitle: 'Promote to Header',
+            titleToolbar: 'Promote to Header',
+            iconContextMenu: PromoteToHeaderIcon,
+            titleContextMenu: 'Promote Row to Header',
             longTitle: 'Promote Row to header',
             actionFunction: async () => {
                 const rowsToPromote = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
@@ -1329,7 +1504,7 @@ export const getActions = (
         [ActionEnum.Redo]: {
             type: 'build-time',
             staticType: ActionEnum.Redo,
-            icon: RedoIcon,
+            iconToolbar: RedoIcon,
             longTitle: 'Redo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1351,10 +1526,17 @@ export const getActions = (
         [ActionEnum.Rename_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Rename_Column,
-            toolbarTitle: 'Rename Column',
+            titleToolbar: 'Rename Column',
+            titleContextMenu: 'Rename',
+            iconContextMenu: EditIcon,
             longTitle: 'Rename column',
             actionFunction: () => {
-                const columnHeader = getCellDataFromCellIndexes(sheetData, -1, startingColumnIndex).columnHeader;
+                let columnIndex = startingColumnIndex;
+                // If this is being triggered by a context menu, then we need to find the column that was clicked on
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnHeader = getCellDataFromCellIndexes(sheetData, -1, columnIndex).columnHeader;
 
                 // Get the pieces of the column header. If the column header is not a MultiIndex header, then
                 // lowerLevelColumnHeaders will be an empty array
@@ -1363,7 +1545,7 @@ export const getActions = (
 
                 setEditorState({
                     rowIndex: -1,
-                    columnIndex: startingColumnIndex,
+                    columnIndex: columnIndex,
                     formula: getDisplayColumnHeader(finalColumnHeader),
                     editorLocation: 'cell',
                     editingMode: 'specific_index_labels',
@@ -1380,7 +1562,7 @@ export const getActions = (
         [ActionEnum.Rename_Dataframe]: {
             type: 'build-time',
             staticType: ActionEnum.Rename_Dataframe,
-            toolbarTitle: 'Rename dataframe',
+            titleToolbar: 'Rename dataframe',
             longTitle: 'Rename dataframe',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
@@ -1405,7 +1587,7 @@ export const getActions = (
         [ActionEnum.Rename_Graph]: {
             type: 'build-time',
             staticType: ActionEnum.Rename_Graph,
-            toolbarTitle: 'Rename Graph',
+            titleToolbar: 'Rename Graph',
             longTitle: 'Rename graph',
             actionFunction: () => {
                 // Use a query selector to get the div and then double click on it
@@ -1428,8 +1610,8 @@ export const getActions = (
         [ActionEnum.Schedule_Github]: {
             type: 'build-time',
             staticType: ActionEnum.Schedule_Github,
-            toolbarTitle: 'Schedule Automation',
-            icon: ScheduleIcon,
+            titleToolbar: 'Schedule Automation',
+            iconToolbar: ScheduleIcon,
             longTitle: 'Schedule Automation',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -1450,7 +1632,7 @@ export const getActions = (
         [ActionEnum.See_All_Functionality]: {
             type: 'build-time',
             staticType: ActionEnum.See_All_Functionality,
-            toolbarTitle: 'See All Functionality',
+            titleToolbar: 'See All Functionality',
             longTitle: 'See all functionality',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1470,7 +1652,7 @@ export const getActions = (
         [ActionEnum.Set_Cell_Value]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Cell_Value,
-            toolbarTitle: 'Set Cell Value',
+            titleToolbar: 'Set Cell Value',
             longTitle: 'Set cell value',
             actionFunction: async () => {
                 if (startingColumnID === undefined) {
@@ -1507,8 +1689,8 @@ export const getActions = (
         [ActionEnum.Set_Column_Formula]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Column_Formula,
-            icon: FunctionIcon,
-            toolbarTitle: 'Insert Function',
+            iconToolbar: FunctionIcon,
+            titleToolbar: 'Insert Function',
             longTitle: 'Set column formula',
             actionFunction: async () => {  
                 
@@ -1538,8 +1720,8 @@ export const getActions = (
         [ActionEnum.Sort]: {
             type: 'build-time',
             staticType: ActionEnum.Sort,
-            icon: SortIcon,
-            toolbarTitle: 'Sort',
+            iconToolbar: SortIcon,
+            titleToolbar: 'Sort',
             longTitle: 'Sort column',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1563,7 +1745,8 @@ export const getActions = (
         [ActionEnum.SortAscending]: {
             type: 'build-time',
             staticType: ActionEnum.SortAscending,
-            icon: SortAscendingIcon,
+            iconToolbar: SortAscendingIcon,
+            titleContextMenu: 'Sort A to Z',
             longTitle: 'Sort column ascending',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1571,7 +1754,13 @@ export const getActions = (
                 if (startingColumnID === undefined) {
                     return 
                 }
-                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.ASCENDING)
+
+                let columnIndex = startingColumnIndex;
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.ASCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -1582,7 +1771,8 @@ export const getActions = (
         [ActionEnum.SortDescending]: {
             type: 'build-time',
             staticType: ActionEnum.SortDescending,
-            icon: SortDescendingIcon,
+            iconToolbar: SortDescendingIcon,
+            titleContextMenu: 'Sort Z to A',
             longTitle: 'Sort column descending',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1592,7 +1782,12 @@ export const getActions = (
                     return 
                 }
 
-                void mitoAPI.editSortColumn(sheetIndex, startingColumnID, SortDirection.DESCENDING)
+                let columnIndex = startingColumnIndex;
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.DESCENDING)
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -1603,8 +1798,8 @@ export const getActions = (
         [ActionEnum.Split_Text_To_Column]: {
             type: 'build-time',
             staticType: ActionEnum.Split_Text_To_Column,
-            icon: TextToColumnsIcon,
-            toolbarTitle: 'Text to Columns',
+            iconToolbar: TextToColumnsIcon,
+            titleToolbar: 'Text to Columns',
             longTitle: 'Split text to columns',
             actionFunction: () => {
                 closeOpenEditingPopups();
@@ -1645,7 +1840,7 @@ export const getActions = (
         [ActionEnum.OpenSearch]: {
             type: 'build-time',
             staticType: ActionEnum.OpenSearch,
-            icon: SearchIcon,
+            iconToolbar: SearchIcon,
             longTitle: 'Search',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1678,7 +1873,7 @@ export const getActions = (
         [ActionEnum.Undo]: {
             type: 'build-time',
             staticType: ActionEnum.Undo,
-            icon: UndoIcon,
+            iconToolbar: UndoIcon,
             longTitle: 'Undo',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1700,11 +1895,30 @@ export const getActions = (
         [ActionEnum.Unique_Values]: {
             type: 'build-time',
             staticType: ActionEnum.Unique_Values,
-            toolbarTitle: 'Unique Vals',
+            iconContextMenu: StarIcon,
+            titleToolbar: 'Unique Values',
+            titleContextMenu: 'Column Unique Values',
             longTitle: 'View unique values',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
+
+                if (typeof uiState.currOpenDropdown === 'object') {
+                    const rowIndex = uiState.currOpenDropdown.rowIndex;
+                    const columnIndex = uiState.currOpenDropdown.columnIndex;
+                    setGridState(prevGridState => {
+                        return {
+                            ...prevGridState,
+                            selections: [{
+                                sheetIndex: sheetIndex,
+                                startingRowIndex: rowIndex,
+                                startingColumnIndex: columnIndex,
+                                endingRowIndex: rowIndex,
+                                endingColumnIndex: columnIndex
+                            }]
+                        }
+                    })
+                }
 
                 setUIState(prevUIState => {
                     return {
@@ -1724,7 +1938,7 @@ export const getActions = (
         [ActionEnum.Upgrade_To_Pro]: {
             type: 'build-time',
             staticType: ActionEnum.Upgrade_To_Pro,
-            toolbarTitle: 'Upgrade to Pro',
+            titleToolbar: 'Upgrade to Pro',
             longTitle: 'Upgrade to Mito Pro',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1745,8 +1959,8 @@ export const getActions = (
         [ActionEnum.Transpose]: {
             type: 'build-time',
             staticType: ActionEnum.Transpose,
-            icon: TransposeIcon,
-            toolbarTitle: 'Transpose',
+            iconToolbar: TransposeIcon,
+            titleToolbar: 'Transpose',
             longTitle: 'Transpose dataframe',
             actionFunction: () => {
                 void mitoAPI.editTranspose(sheetIndex);
@@ -1758,8 +1972,8 @@ export const getActions = (
         [ActionEnum.Melt]: {
             type: 'build-time',
             staticType: ActionEnum.Melt,
-            icon: UnpivotIcon,
-            toolbarTitle: 'Unpivot',
+            iconToolbar: UnpivotIcon,
+            titleToolbar: 'Unpivot',
             longTitle: 'Unpivot dataframe',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1780,8 +1994,8 @@ export const getActions = (
         [ActionEnum.One_Hot_Encoding]: {
             type: 'build-time',
             staticType: ActionEnum.One_Hot_Encoding,
-            icon: OneHotEncodingIcon,
-            toolbarTitle: 'One-hot Encoding',
+            iconToolbar: OneHotEncodingIcon,
+            titleToolbar: 'One-hot Encoding',
             longTitle: 'One-hot Encoding',
             actionFunction: () => {
                 if (columnID) {
@@ -1796,8 +2010,9 @@ export const getActions = (
         [ActionEnum.Set_Dataframe_Format]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Dataframe_Format,
-            icon: FormatIcon,
-            toolbarTitle: 'Format',
+            iconToolbar: FormatIcon,
+            iconContextMenu: FormatContextMenuIcon,
+            titleToolbar: 'Format',
             longTitle: 'Set dataframe colors',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1818,8 +2033,8 @@ export const getActions = (
         [ActionEnum.Conditional_Formatting]: {
             type: 'build-time',
             staticType: ActionEnum.Conditional_Formatting,
-            icon: ConditionalFormatIcon,
-            toolbarTitle: 'Conditional Formatting',
+            iconToolbar: ConditionalFormatIcon,
+            titleToolbar: 'Conditional Formatting',
             longTitle: 'Conditional formatting',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1842,8 +2057,8 @@ export const getActions = (
         [ActionEnum.Dataframe_Import]: {
             type: 'build-time',
             staticType: ActionEnum.Dataframe_Import,
-            icon: DataFrameImportIcon,
-            toolbarTitle: 'Import Dataframes',
+            iconToolbar: DataFrameImportIcon,
+            titleToolbar: 'Import Dataframes',
             longTitle: 'Import dataframes',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1868,8 +2083,8 @@ export const getActions = (
         [ActionEnum.UPDATEIMPORTS]: {
             type: 'build-time',
             staticType: ActionEnum.UPDATEIMPORTS,
-            icon: GearIcon,
-            toolbarTitle: 'Change imports',
+            iconToolbar: GearIcon,
+            titleToolbar: 'Change imports',
             longTitle: 'Change imported data',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1890,8 +2105,8 @@ export const getActions = (
         [ActionEnum.CODESNIPPETS]: {
             type: 'build-time',
             staticType: ActionEnum.CODESNIPPETS,
-            icon: CodeSnippetIcon,
-            toolbarTitle: 'Code Snippets',
+            iconToolbar: CodeSnippetIcon,
+            titleToolbar: 'Code Snippets',
             longTitle: 'Code Snippets',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1912,8 +2127,8 @@ export const getActions = (
         [ActionEnum.CODEOPTIONS]: {
             type: 'build-time',
             staticType: ActionEnum.CODEOPTIONS,
-            icon: GearIcon,
-            toolbarTitle: 'Configure Code',
+            iconToolbar: GearIcon,
+            titleToolbar: 'Configure Code',
             longTitle: 'Configure Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1934,7 +2149,7 @@ export const getActions = (
         [ActionEnum.EXPORT_TO_FILE]: {
             type: 'build-time',
             staticType: ActionEnum.EXPORT_TO_FILE,
-            toolbarTitle: 'Download File when Executing Code',
+            titleToolbar: 'Download File when Executing Code',
             longTitle: 'Download File when Executing Code',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -1956,8 +2171,8 @@ export const getActions = (
         [ActionEnum.RESET_INDEX_DROPDOWN]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_INDEX_DROPDOWN,
-            icon: ResetIcon,
-            toolbarTitle: 'Reset Index',
+            iconToolbar: ResetIcon,
+            titleToolbar: 'Reset Index',
             longTitle: 'Reset Index Dropdown',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -1966,7 +2181,7 @@ export const getActions = (
                 setUIState(prevUIState => {
                     return {
                         ...prevUIState,
-                        toolbarDropdown: 'reset-index'
+                        currOpenDropdown: 'reset-index'
                     }
                 })
             },
@@ -1979,7 +2194,8 @@ export const getActions = (
         [ActionEnum.RESET_AND_KEEP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_KEEP_INDEX,
-            toolbarTitle: 'Reset and Keep Index',
+            iconContextMenu: ResetIndexIcon,
+            titleToolbar: 'Reset and Keep Index',
             longTitle: 'Reset and Keep Index',
             actionFunction: () => {
                 void mitoAPI.editResetIndex(sheetIndex, false);
@@ -1991,7 +2207,9 @@ export const getActions = (
         [ActionEnum.RESET_AND_DROP_INDEX]: {
             type: 'build-time',
             staticType: ActionEnum.RESET_AND_DROP_INDEX,
-            toolbarTitle: 'Reset and Drop Index',
+            iconContextMenu: ResetAndDropIndexIcon,
+            titleContextMenu: 'Reset Index',
+            titleToolbar: 'Reset and Drop Index',
             longTitle: 'Reset and Drop Index',
             actionFunction: () => {
                 void mitoAPI.editResetIndex(sheetIndex, true);
@@ -2003,8 +2221,8 @@ export const getActions = (
         [ActionEnum.SNOWFLAKEIMPORT]: {
             type: 'build-time',
             staticType: ActionEnum.SNOWFLAKEIMPORT,
-            icon: SnowflakeIcon,
-            toolbarTitle: 'Snowflake Import',
+            iconToolbar: SnowflakeIcon,
+            titleToolbar: 'Snowflake Import',
             longTitle: 'Snowflake Import',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -2026,8 +2244,8 @@ export const getActions = (
         [ActionEnum.AI_TRANSFORMATION]: {
             type: 'build-time',
             staticType: ActionEnum.AI_TRANSFORMATION,
-            icon: AIIcon,
-            toolbarTitle: 'AI',
+            iconToolbar: AIIcon,
+            titleToolbar: 'AI',
             longTitle: 'AI Transformation',
             actionFunction: () => {
                 setEditorState(undefined);
@@ -2047,8 +2265,8 @@ export const getActions = (
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',
             staticType: ActionEnum.COLUMN_HEADERS_TRANSFORM,
-            icon: BulkHeaderTransformIcon,
-            toolbarTitle: 'Rename Columns',
+            iconToolbar: BulkHeaderTransformIcon,
+            titleToolbar: 'Rename Columns',
             longTitle: 'Bulk column headers transform',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -2143,8 +2361,8 @@ export const getSearchTermToActionEnumMapping = (actions: Record<ActionEnum, Bui
 }
 
 const sortActionHelper = function(actionOne: Action, actionTwo: Action) {
-    const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.toolbarTitle
-    const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.toolbarTitle
+    const titleOne = actionOne.longTitle ? actionOne.longTitle : actionOne.titleToolbar
+    const titleTwo = actionTwo.longTitle ? actionTwo.longTitle : actionTwo.titleToolbar
 
 
     // Sort alphabetically

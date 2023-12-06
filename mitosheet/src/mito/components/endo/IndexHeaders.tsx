@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../../../../css/endo/IndexHeaders.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
-import { GridState, SheetData } from '../../types';
+import { GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
-import IndexHeaderDropdown from './IndexHeaderDropdown';
+import IndexHeaderDropdown from './IndexHeaderContextMenu';
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { isCurrOpenDropdownForCell } from './visibilityUtils';
+import { Actions } from '../../utils/actions';
 
 /* 
     The headers on the side of the sheet that display
@@ -16,13 +18,14 @@ const IndexHeaders = (props: {
     sheetData: SheetData,
     gridState: GridState,
     mitoAPI: MitoAPI,
+    uiState: UIState,
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     sheetIndex: number,
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    actions: Actions
 }): JSX.Element => {
 
     // NOTE: this is indexed by index in the sheet, not by the label
-    const [openIndexHeaderDropdown, setOpenIndexHeaderDropdown] = useState<number | undefined>(undefined);
-
     const currentSheetView = calculateCurrentSheetView(props.gridState);
     const translate = calculateTranslate(props.gridState);
 
@@ -57,20 +60,28 @@ const IndexHeaders = (props: {
                                         ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, -1, props.sheetData.numRows, false)
                                     }}
                                     onContextMenu={(e) => {
+                                        if (e.shiftKey) {
+                                            return;
+                                        }
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        setOpenIndexHeaderDropdown(rowIndex);
+                                        props.setUIState((prevUiState) => {
+                                            return {
+                                                ...prevUiState,
+                                                currOpenDropdown: {
+                                                    rowIndex: rowIndex,
+                                                    columnIndex: -1
+                                                }
+                                            }
+                                        });
                                     }}
                                 >
                                     {indexHeader}
                                     <IndexHeaderDropdown
-                                        sheetData={props.sheetData}
-                                        setOpenIndexHeaderDropdown={setOpenIndexHeaderDropdown}
-                                        display={openIndexHeaderDropdown === rowIndex}
-                                        index={indexHeader}
-                                        mitoAPI={props.mitoAPI}
-                                        sheetIndex={props.sheetIndex}
-                                        selections={props.gridState.selections}
+                                        rowIndex={rowIndex}
+                                        display={isCurrOpenDropdownForCell(props.uiState, rowIndex, -1)}
+                                        setUIState={props.setUIState}
+                                        actions={props.actions}
                                         closeOpenEditingPopups={props.closeOpenEditingPopups}
                                     />
                                 </div>

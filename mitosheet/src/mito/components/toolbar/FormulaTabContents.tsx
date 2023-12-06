@@ -88,16 +88,16 @@ export const FormulaTabContents = (
         return (
             <ToolbarButton action={props.actions.buildTimeActions[action]}> 
                 <Dropdown
-                    display={props.uiState.toolbarDropdown === toolbarDropdown}
+                    display={props.uiState.currOpenDropdown === toolbarDropdown}
                     closeDropdown={() => 
                         props.setUIState(prevUIState => {
-                            if (prevUIState.toolbarDropdown !== toolbarDropdown) {
+                            if (prevUIState.currOpenDropdown !== toolbarDropdown) {
                                 return prevUIState;
                             }
 
                             return {
                                 ...prevUIState,
-                                toolbarDropdown: undefined
+                                currOpenDropdown: undefined
                             }
                         })
                     }

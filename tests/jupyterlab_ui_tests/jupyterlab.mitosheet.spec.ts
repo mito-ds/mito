@@ -1,4 +1,4 @@
-import { expect, IJupyterLabPageFixture, test } from '@jupyterlab/galata';
+import { expect, test } from '@jupyterlab/galata';
 import { clickToolbarButton, createNewNotebook, dfCreationCode, getNumberOfColumns, waitForCodeToBeWritten, waitForIdle } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
