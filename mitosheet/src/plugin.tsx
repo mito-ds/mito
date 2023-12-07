@@ -321,9 +321,12 @@ function activateMitosheetExtension(
             const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
 
             app.commands.addKeyBinding({
+                // Note: This action should be added as a command as well.
+                // See app.commands.addCommand('mitosheet:open-search', ...) 
                 command: shortcut.jupyterLabAction,
                 args: {},
                 selector: '.mito-container',
+                // TODO: if there are multiple keys or the shortcut doesn't use the "accel" key, this won't work.
                 keys: ['Accel '+keyCombo.key[0].toUpperCase()]
             });
         }
