@@ -16,6 +16,7 @@ import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
+import { keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -319,12 +320,21 @@ function activateMitosheetExtension(
         If Command + F is pressed in this context, we go and get the search input, and
         focus on it, so the user can just starting typing in it!
     */
-    app.commands.addKeyBinding({
-        command: 'mitosheet:open-search',
-        args: {},
-        keys: ['Accel F'],
-        selector: '.mito-container'
-    });
+    for (const shortcut of keyboardShortcuts) {
+        if (shortcut.jupyterLabAction !== undefined) {
+            const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
+            ? 'mac'
+            : 'windows'
+            const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
+            console.log('Accel '+keyCombo.key[0].toUpperCase())
+            app.commands.addKeyBinding({
+                command: shortcut.jupyterLabAction,
+                args: {},
+                selector: '.mito-container',
+                keys: ['Accel '+keyCombo.key[0].toUpperCase()]
+            });
+        }
+    }
     app.commands.addCommand('mitosheet:open-search', {
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
@@ -339,12 +349,6 @@ function activateMitosheetExtension(
         }
     });
 
-    app.commands.addKeyBinding({
-        command: 'mitosheet:mito-undo',
-        args: {},
-        keys: ['Accel Z'],
-        selector: '.mito-container'
-    });
     app.commands.addCommand('mitosheet:mito-undo', {
         label: 'Clicks the undo button once',
         execute: async (): Promise<void> => {
@@ -362,12 +366,6 @@ function activateMitosheetExtension(
         }
     });
 
-    app.commands.addKeyBinding({
-        command: 'mitosheet:mito-redo',
-        args: {},
-        keys: ['Accel Y'],
-        selector: '.mito-container'
-    });
     app.commands.addCommand('mitosheet:mito-redo', {
         label: 'Clicks the redo button once',
         execute: async (): Promise<void> => {

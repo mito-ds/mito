@@ -808,6 +808,29 @@ export interface MitoConfig {
     [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
 }
 
+
+export interface KeyBinding {
+    key: string[];
+    ctrlKey?: boolean;
+    altKey?: boolean;
+    shiftKey?: boolean;
+    metaKey?: boolean;
+}
+
+export interface KeyboardShorcut {
+	macKeyCombo: KeyBinding
+	winKeyCombo: KeyBinding
+	action: ActionEnum
+	
+	// Include this string so that you can automatically override some of the JL
+	// keybindings
+	jupyterLabAction?: string
+
+	// For some keybindings (ex: cmd + y), we'd want to stop propagation
+	// so that they don't open something in your browser
+	preventDefaultAndStopPropagation?: boolean
+}
+
 /**
  * An object represending this user
  * 
