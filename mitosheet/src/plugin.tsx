@@ -312,21 +312,14 @@ function activateMitosheetExtension(
      * Thus, for now, we split up our keyboard shortcut handling across multiple places.
      * We will address this in the future, when we can figure out why it is occuring!
      */
-
-    /* 
-        To make Command + F focus on search, we add these commands as a key-binding
-        that specifically is captured inside the mito-container.
-
-        If Command + F is pressed in this context, we go and get the search input, and
-        focus on it, so the user can just starting typing in it!
-    */
     for (const shortcut of keyboardShortcuts) {
+        // Only add the keyboard shortcut if it has a jupyterLabAction defined. 
         if (shortcut.jupyterLabAction !== undefined) {
             const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
-            ? 'mac'
-            : 'windows'
+                ? 'mac'
+                : 'windows'
             const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
-            console.log('Accel '+keyCombo.key[0].toUpperCase())
+
             app.commands.addKeyBinding({
                 command: shortcut.jupyterLabAction,
                 args: {},

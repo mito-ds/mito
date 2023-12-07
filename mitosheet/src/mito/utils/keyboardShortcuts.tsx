@@ -1,6 +1,9 @@
 import { ActionEnum, KeyboardShorcut } from "../types"
 import { Actions } from "./actions"
 
+/**
+ * A list of all keyboard shortcuts in the app.
+ */
 export const keyboardShortcuts: KeyboardShorcut[] = [
     {
         macKeyCombo: {
@@ -52,6 +55,11 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     }
 ]
 
+/**
+ * Handles keyboard shortcuts. If a keyboard shortcut is pressed, the corresponding action is executed.
+ * @param e The keyboard event.
+ * @param actions The actions object.
+ */
 export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions) => {
     const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
                     ? 'mac'
