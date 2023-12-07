@@ -104,6 +104,7 @@ class StepPerformer(ABC, object):
         execution_data: Optional[Dict[str, Any]]=None,
         new_dataframe_params: Optional[ExecuteThroughTranspileNewDataframeParams]=None,
         column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None,
+        optional_code_lines: Optional[List[str]]=None,
         use_deprecated_id_algorithm: bool=False
     ) -> Tuple[State, Dict[str, Any]]:
         """
@@ -152,6 +153,19 @@ class StepPerformer(ABC, object):
         
         pandas_start_time = perf_counter()
         exec(final_code, exec_globals, exec_locals)
+
+        executed_optional_lines = []
+        for optional_code_line in optional_code_lines or []:
+            print("EXECUTING OPTIONAL CODE LINE", optional_code_line)
+            # TODO: we should make it so it rolls back the state if this fails
+            try:
+                exec(optional_code_line, exec_globals, exec_locals)
+                print("EXECUTED OPTIONAL CODE LINE", exec_globals.get('df1_pivot'))
+                executed_optional_lines.append(optional_code_line)
+            except Exception as e:
+                print("ERROR EXECUTING OPTIONAL CODE LINE", optional_code_line)
+                break
+
         pandas_processing_time = perf_counter() - pandas_start_time
 
         for modified_dataframe_index in modified_dataframe_indexes:
@@ -176,6 +190,7 @@ class StepPerformer(ABC, object):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
+            'executed_optional_lines': executed_optional_lines,
             **execution_data
         }
         

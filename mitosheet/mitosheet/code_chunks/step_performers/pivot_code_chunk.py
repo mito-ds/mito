@@ -105,7 +105,7 @@ class PivotCodeChunk(CodeChunk):
         flatten_column_headers: Optional[bool],
         public_interface_version: int,
         new_df_name: str,
-        extra_code: Optional[List[str]] = None
+        executed_optional_lines: Optional[List[str]] = None
     ):
         super().__init__(prev_state)
         self.sheet_index = sheet_index
@@ -116,7 +116,7 @@ class PivotCodeChunk(CodeChunk):
         self.values_column_ids_map = values_column_ids_map
         self.flatten_column_headers = flatten_column_headers
         self.public_interface_version = public_interface_version
-        self.extra_code = extra_code
+        self.extra_code = executed_optional_lines
 
         # On earlier pandas versions (e.g. 0.24.2), the pivot table function returned
         # a series from the above function call. Thus, we need to move it to a df for
@@ -126,7 +126,6 @@ class PivotCodeChunk(CodeChunk):
 
         self.old_df_name = self.prev_state.df_names[self.sheet_index]
         self.new_df_name = new_df_name
-
 
     def get_display_name(self) -> str:
         return 'Pivoted'
@@ -199,14 +198,10 @@ class PivotCodeChunk(CodeChunk):
         # Finially, reset the column name, and the indexes!
         transpiled_code.append(f'{self.new_df_name} = pivot_table.reset_index()')
 
-        # If there is extra code, we run it here
-        if self.extra_code:
-            print("HAS EXTRA CODE", self.extra_code)
-            transpiled_code = transpiled_code + self.extra_code
-        else:
-            print("NO EXTRA CODE")
-
         return transpiled_code, [] # TODO: we might actually need pd to be defined!
+    
+    def get_optional_code_lines(self) -> List[str]:
+        return self.extra_code or []
 
     def _combine_right_with_pivot_code_chunk(self, pivot_code_chunk: "PivotCodeChunk") -> Optional["CodeChunk"]:
         """

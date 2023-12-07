@@ -154,26 +154,36 @@ class Step:
         # go look for the original step that created this pivot
         if self.step_type == 'pivot' and params.get('destination_sheet_index') is not None:
             destination_sheet_index = params['destination_sheet_index']
+            starting_index = None
+            extra_code = []
+
             for index, step in enumerate(reversed(previous_steps)):
                 if step.step_type == 'pivot' and 'destination_sheet_index' in step.params and step.params['destination_sheet_index'] == destination_sheet_index:
-                    params['extra_code'] = step.execution_data.get('extra_code')
+                    extra_code = step.execution_data.get('extra_code')
+                    if extra_code is None:
+                        extra_code = []
+                    starting_index = len(previous_steps) - index - 1
                     break
                 elif step.step_type == 'pivot' and len(step.dfs) == destination_sheet_index + 1:
+                    print('found pivot step that created this pivot')
                     starting_index = len(previous_steps) - index - 1
+                    break
+            
+            if starting_index is not None:
+                previous_steps = previous_steps[starting_index + 1:]
+                previous_steps = [step for step in previous_steps if step.step_performer.get_modified_dataframe_indexes(step.params) == {destination_sheet_index}]
+                code_chunks: List["CodeChunk"] = []
+                for step in previous_steps:
+                    code_chunks += step.step_performer.transpile(step.prev_state, step.params, step.execution_data)
+                
+                all_code = []
+                for code_chunk in code_chunks:
+                    import_lines, code_lines = code_chunk.get_code()
+                    all_code += import_lines
+                    all_code += code_lines
 
-                    previous_steps = previous_steps[starting_index + 1:]
-                    previous_steps = [step for step in previous_steps if step.step_performer.get_modified_dataframe_indexes(step.params) == {destination_sheet_index}]
-                    code_chunks: List["CodeChunk"] = []
-                    for step in previous_steps:
-                        code_chunks += step.step_performer.transpile(step.prev_state, step.params, step.execution_data)
-                    
-                    all_code = []
-                    for code_chunk in code_chunks:
-                        import_lines, code_lines = code_chunk.get_code()
-                        all_code += import_lines
-                        all_code += code_lines
-
-                    params['extra_code'] = all_code
+                extra_code += all_code
+                self.params['extra_code'] = extra_code
 
         # Actually execute the data transformation
         post_state_and_execution_data = self.step_performer.execute(new_prev_state, params)

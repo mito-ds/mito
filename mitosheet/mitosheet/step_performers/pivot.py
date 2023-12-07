@@ -125,6 +125,7 @@ class PivotStepPerformer(StepPerformer):
                     'new_df_names': [new_df_name],
                     'sheet_index_to_overwrite': destination_sheet_index
                 },
+                optional_code_lines=params.get('extra_code'),
                 use_deprecated_id_algorithm=get_param(params, 'use_deprecated_id_algorithm')
             )
         except KeyError as e:
@@ -151,7 +152,7 @@ class PivotStepPerformer(StepPerformer):
                 get_param(params, 'flatten_column_headers'),
                 get_param(params, 'public_interface_version'),
                 get_param(execution_data if execution_data is not None else {}, 'new_df_name'),
-                get_param(execution_data if execution_data is not None else {}, 'extra_code'),
+                get_param(execution_data if execution_data is not None else {}, 'executed_optional_lines'),
             )
         ]
 

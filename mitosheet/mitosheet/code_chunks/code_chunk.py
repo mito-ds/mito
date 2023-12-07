@@ -49,7 +49,15 @@ class CodeChunk:
         is the imports required for the code. ie: import pandas as pd
         """
         raise NotImplementedError('Implement in subclass')
-
+    
+    def get_optional_code_lines(self) -> List[str]:
+        """
+        Returns a list of extra code that is applied after this code chunk, for example
+        the code that runs in the pivot table. Notably, these are _optional_ code lines,
+        as they are not required to run the code chunk.
+        """
+        return []
+        
     # TODO: we could add a function that returns a list of params and execution
     # data that you're allowed to reference, and then check this when you create
     # the step, for strong typing!

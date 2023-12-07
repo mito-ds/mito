@@ -72,12 +72,14 @@ def transpile(
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment().strip().replace('\n', '\n# ')
         (gotten_code, code_chunk_imports) = code_chunk.get_code()
+        optional_code_lines = code_chunk.get_optional_code_lines()
 
         # Make sure to not generate comments or code for steps with no code 
         if len(gotten_code) > 0:
             if add_comments:
                 gotten_code.insert(0, comment)
             code.extend(gotten_code)
+            code.extend(optional_code_lines)
 
             # Then add a line of whitespace
             code.append('')
