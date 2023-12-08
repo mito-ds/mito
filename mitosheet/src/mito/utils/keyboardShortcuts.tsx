@@ -38,6 +38,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             ctrlKey: true,
             keys: ['z']
         },
+        preventDefaultAndStopPropagation: true,
         jupyterLabCommand: 'mitosheet:mito-undo',
         action: ActionEnum.Undo
     },
