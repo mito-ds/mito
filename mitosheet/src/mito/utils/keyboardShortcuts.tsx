@@ -67,18 +67,14 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
 
     const shortcut = keyboardShortcuts.find(shortcut => {
         const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
-        if (e.metaKey && !keyCombo.metaKey) {
+        // If the special key combination doesn't match, return false.
+        if (!!e.metaKey !== !!keyCombo.metaKey ||
+            !!e.ctrlKey !== !!keyCombo.ctrlKey ||
+            !!e.shiftKey !== !!keyCombo.shiftKey ||
+            !!e.altKey !== !!keyCombo.altKey) {
             return false;
         }
-        if (e.ctrlKey && !keyCombo.ctrlKey) {
-            return false;
-        }
-        if (e.shiftKey && !keyCombo.shiftKey) {
-            return false;
-        }
-        if (e.altKey && !keyCombo.altKey) {
-            return false;
-        }
+        // If the special keys matched, check if the key is the same.
         return keyCombo.key.includes(e.key);
     })
     
