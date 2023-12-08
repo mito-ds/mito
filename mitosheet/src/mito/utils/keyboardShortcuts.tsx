@@ -63,8 +63,8 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
  */
 export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions) => {
     const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
-                    ? 'mac'
-                    : 'windows'
+        ? 'mac'
+        : 'windows'
 
     const shortcut = keyboardShortcuts.find(shortcut => {
         const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
