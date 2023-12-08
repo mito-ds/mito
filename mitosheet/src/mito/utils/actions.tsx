@@ -1922,7 +1922,7 @@ export const getActions = (
             tooltip: "Go to the next sheet.",
             displayKeyboardShortcuts: {
                 mac: 'Option+Right Arrow',
-                windows: 'Ctrl+Page Up'
+                windows: 'Alt+Right Arrow'
             }
         },
         [ActionEnum.Open_Previous_Sheet]: {
@@ -1946,7 +1946,7 @@ export const getActions = (
             tooltip: "Go to the previous sheet.",
             displayKeyboardShortcuts: {
                 mac: 'Option+Left Arrow',
-                windows: 'Ctrl+Page Down'
+                windows: 'Alt+Left Arrow'
             }
         },
         [ActionEnum.Undo]: {
