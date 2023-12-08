@@ -45,7 +45,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     // totalMatches is undefined when we're making the API call to get the total number of matches.
     const [ totalMatches, setTotalMatches ] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
-    const [ isExpanded, setIsExpanded ] = React.useState<boolean>(false);
+    const [ isExpanded, setIsExpanded ] = React.useState<boolean>(!!uiState.currOpenSearch.isExpanded);
     const [ replaceValue, setReplaceValue ] = React.useState<string>('');
 
     const scrollMatchIntoViewAndUpdateSelection = (match?: { rowIndex: number; colIndex: number }) => {

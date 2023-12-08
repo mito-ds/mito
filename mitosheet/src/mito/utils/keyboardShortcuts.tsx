@@ -52,6 +52,40 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         },
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Redo
+    },
+    {
+        macKeyCombo: {
+            altKey: true,
+            key: ['ArrowLeft']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            key: ['PageUp']
+        },
+        action: ActionEnum.Open_Previous_Sheet
+    },
+    {
+        macKeyCombo: {
+            altKey: true,
+            key: ['ArrowRight']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            key: ['PageDown']
+        },
+        action: ActionEnum.Open_Next_Sheet
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            key: ['F']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            key: ['h']
+        },
+        action: ActionEnum.OpenSearchAndReplace
     }
 ]
 

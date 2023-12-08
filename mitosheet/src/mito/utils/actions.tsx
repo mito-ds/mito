@@ -1870,6 +1870,86 @@ export const getActions = (
                 windows: 'Ctrl+F'
             }
         },
+        [ActionEnum.OpenSearchAndReplace]: {
+            type: 'build-time',
+            staticType: ActionEnum.OpenSearchAndReplace,
+            longTitle: 'Search and Replace',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                if (uiState.currOpenSearch.isOpen) {
+                    const searchInput = mitoContainerRef.current?.querySelector<HTMLInputElement>('#mito-search-bar-input');
+                    if (searchInput) {
+                        // If the search bar is already open, then we focus on the input and select all
+                        // to make it easier to search something new without removing the previous search
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                } else {
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenSearch: { ...prevUIState.currOpenSearch, isOpen: true, isExpanded: true },
+                        }
+                    })
+                }
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
+            searchTerms: ['search', 'find', 'filter', 'lookup'],
+            tooltip: "Search for a value in your data and replace with another value.",
+            displayKeyboardShortcuts: {
+                mac: 'Shift+Ctrl+F',
+                windows: 'Ctrl+H'
+            }
+        },
+        [ActionEnum.Open_Next_Sheet]: {
+            type: 'build-time',
+            staticType: ActionEnum.Open_Next_Sheet,
+            longTitle: 'Open Next Sheet',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                if (uiState.selectedSheetIndex < sheetDataArray.length - 1) {
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            selectedSheetIndex: prevUIState.selectedSheetIndex + 1
+                        }
+                    })
+                }
+            },
+            isDisabled: () => {return (uiState.selectedSheetIndex < sheetDataArray.length - 1) ? defaultActionDisabledMessage : 'No next sheet.'},
+            searchTerms: ['sheet', 'index', 'next', 'forward'],
+            tooltip: "Go to the next sheet.",
+            displayKeyboardShortcuts: {
+                mac: 'Option+Right Arrow',
+                windows: 'Ctrl+Page Up'
+            }
+        },
+        [ActionEnum.Open_Previous_Sheet]: {
+            type: 'build-time',
+            staticType: ActionEnum.Open_Previous_Sheet,
+            longTitle: 'Open Previous Sheet',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                if (uiState.selectedSheetIndex > 0) {
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            selectedSheetIndex: prevUIState.selectedSheetIndex - 1
+                        }
+                    })
+                }
+            },
+            isDisabled: () => {return (uiState.selectedSheetIndex > 0) ? defaultActionDisabledMessage : 'No previous sheet.'},
+            searchTerms: ['sheet', 'index', 'previous', 'last'],
+            tooltip: "Go to the previous sheet.",
+            displayKeyboardShortcuts: {
+                mac: 'Option+Left Arrow',
+                windows: 'Ctrl+Page Down'
+            }
+        },
         [ActionEnum.Undo]: {
             type: 'build-time',
             staticType: ActionEnum.Undo,
