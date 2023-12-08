@@ -810,7 +810,7 @@ export interface MitoConfig {
 
 
 export interface KeyBinding {
-    key: string[];
+    keys: string[];
     ctrlKey?: boolean;
     altKey?: boolean;
     shiftKey?: boolean;
@@ -823,8 +823,9 @@ export interface KeyboardShorcut {
 	action: ActionEnum
 	
 	// Include this string so that you can automatically override some of the JL
-	// keybindings
-	jupyterLabAction?: string
+	// keybindings. For example, 'mitosheet:mito-undo' will add a keybinding for
+    // the command registered to that ID in plugin.tsx.
+	jupyterLabCommand?: string
 
 	// For some keybindings (ex: cmd + y), we'd want to stop propagation
 	// so that they don't open something in your browser

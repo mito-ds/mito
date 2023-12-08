@@ -314,7 +314,7 @@ function activateMitosheetExtension(
      */
     for (const shortcut of keyboardShortcuts) {
         // Only add the keyboard shortcut if it has a jupyterLabAction defined. 
-        if (shortcut.jupyterLabAction !== undefined) {
+        if (shortcut.jupyterLabCommand !== undefined) {
             const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
                 ? 'mac'
                 : 'windows'
@@ -323,11 +323,11 @@ function activateMitosheetExtension(
             app.commands.addKeyBinding({
                 // Note: This action should be added as a command as well.
                 // See app.commands.addCommand('mitosheet:open-search', ...) 
-                command: shortcut.jupyterLabAction,
+                command: shortcut.jupyterLabCommand,
                 args: {},
                 selector: '.mito-container',
                 // TODO: if there are multiple keys or the shortcut doesn't use the "accel" key, this won't work.
-                keys: ['Accel '+keyCombo.key[0].toUpperCase()]
+                keys: ['Accel '+keyCombo.keys[0].toUpperCase()]
             });
         }
     }

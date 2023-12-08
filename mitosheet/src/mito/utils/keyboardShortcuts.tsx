@@ -8,47 +8,47 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['c']
+            keys: ['c']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['c']
+            keys: ['c']
         },
         action: ActionEnum.Copy
     },
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['f']
+            keys: ['f']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['f']
+            keys: ['f']
         },
         preventDefaultAndStopPropagation: true,
-        jupyterLabAction: 'mitosheet:open-search',
+        jupyterLabCommand: 'mitosheet:open-search',
         action: ActionEnum.OpenSearch
     },
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['z']
+            keys: ['z']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['z']
+            keys: ['z']
         },
-        jupyterLabAction: 'mitosheet:mito-undo',
+        jupyterLabCommand: 'mitosheet:mito-undo',
         action: ActionEnum.Undo
     },
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['y']
+            keys: ['y']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['y']
+            keys: ['y']
         },
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Redo
@@ -75,7 +75,7 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
             return false;
         }
         // If the special keys matched, check if the key is the same.
-        return keyCombo.key.includes(e.key);
+        return keyCombo.keys.includes(e.key);
     })
     
     if (shortcut !== undefined) {
