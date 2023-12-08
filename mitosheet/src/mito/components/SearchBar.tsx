@@ -291,7 +291,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     }}
                     className='mito-input'
                     placeholder='Replace...'
-                    autoFocus
+                    autoFocus={searchValue !== undefined && searchValue !== ''}
                 />
                 <button className='mito-search-button' onClick={() => {
                     handleReplace()
