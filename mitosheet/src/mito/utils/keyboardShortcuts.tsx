@@ -59,8 +59,10 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             key: ['ArrowLeft']
         },
         winKeyCombo: {
-            ctrlKey: true,
-            key: ['PageUp']
+            altKey: true,
+            // TODO: this  is not consistent with the Excel shortcut in windows. 
+            // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
+            key: ['ArrowLeft']
         },
         action: ActionEnum.Open_Previous_Sheet
     },
@@ -70,8 +72,10 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             key: ['ArrowRight']
         },
         winKeyCombo: {
-            ctrlKey: true,
-            key: ['PageDown']
+            altKey: true,
+            // TODO: this  is not consistent with the Excel shortcut in windows. 
+            // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
+            key: ['ArrowRight']
         },
         action: ActionEnum.Open_Next_Sheet
     },
