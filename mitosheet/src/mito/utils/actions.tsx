@@ -1885,14 +1885,13 @@ export const getActions = (
                         searchInput.focus();
                         searchInput.select();
                     }
-                } else {
-                    setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenSearch: { ...prevUIState.currOpenSearch, isOpen: true, isExpanded: true },
-                        }
-                    })
                 }
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenSearch: { ...prevUIState.currOpenSearch, isOpen: true, isExpanded: true },
+                    }
+                })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['search', 'find', 'filter', 'lookup'],
