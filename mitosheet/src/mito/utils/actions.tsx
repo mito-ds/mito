@@ -1908,14 +1908,13 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-                if (uiState.selectedSheetIndex < sheetDataArray.length - 1) {
-                    setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            selectedSheetIndex: prevUIState.selectedSheetIndex + 1
-                        }
-                    })
-                }
+                setUIState(prevUIState => {
+                    const sheetIndex = prevUIState.selectedSheetIndex;
+                    return {
+                        ...prevUIState,
+                        selectedSheetIndex: sheetIndex < sheetDataArray.length - 1 ? sheetIndex + 1 : 0
+                    }
+                })
             },
             isDisabled: () => {return (uiState.selectedSheetIndex < sheetDataArray.length - 1) ? defaultActionDisabledMessage : 'No next sheet.'},
             searchTerms: ['sheet', 'index', 'next', 'forward'],
@@ -1932,14 +1931,13 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-                if (uiState.selectedSheetIndex > 0) {
-                    setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            selectedSheetIndex: prevUIState.selectedSheetIndex - 1
-                        }
-                    })
-                }
+                setUIState(prevUIState => {
+                    const sheetIndex = prevUIState.selectedSheetIndex;
+                    return {
+                        ...prevUIState,
+                        selectedSheetIndex: sheetIndex > 0 ? sheetIndex - 1 : sheetDataArray.length - 1
+                    }
+                })
             },
             isDisabled: () => {return (uiState.selectedSheetIndex > 0) ? defaultActionDisabledMessage : 'No previous sheet.'},
             searchTerms: ['sheet', 'index', 'previous', 'last'],
