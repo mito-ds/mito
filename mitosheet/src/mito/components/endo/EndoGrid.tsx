@@ -311,7 +311,7 @@ function EndoGrid(props: {
                     1. Being on Mac, and command+clicking
                     2. Being on Windows, and ctrl+clicking
                 */
-               const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
+                const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
                     ? 'mac'
                     : 'windows'
 
