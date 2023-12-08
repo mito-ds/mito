@@ -1837,11 +1837,11 @@ export const getActions = (
             searchTerms: ['steps', 'history'],
             tooltip: "View a list of all the edits you've made to your data."
         },
-        [ActionEnum.OpenSearch]: {
+        [ActionEnum.OpenFind]: {
             type: 'build-time',
-            staticType: ActionEnum.OpenSearch,
+            staticType: ActionEnum.OpenFind,
             iconToolbar: SearchIcon,
-            longTitle: 'Search',
+            longTitle: 'Find',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -1870,10 +1870,10 @@ export const getActions = (
                 windows: 'Ctrl+F'
             }
         },
-        [ActionEnum.OpenSearchAndReplace]: {
+        [ActionEnum.OpenFindAndReplace]: {
             type: 'build-time',
-            staticType: ActionEnum.OpenSearchAndReplace,
-            longTitle: 'Search and Replace',
+            staticType: ActionEnum.OpenFindAndReplace,
+            longTitle: 'Find and Replace',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);

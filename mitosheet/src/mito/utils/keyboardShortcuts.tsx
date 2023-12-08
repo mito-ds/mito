@@ -27,7 +27,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         },
         preventDefaultAndStopPropagation: true,
         jupyterLabAction: 'mitosheet:open-search',
-        action: ActionEnum.OpenSearch
+        action: ActionEnum.OpenFind
     },
     {
         macKeyCombo: {
@@ -89,7 +89,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             ctrlKey: true,
             key: ['h']
         },
-        action: ActionEnum.OpenSearchAndReplace
+        action: ActionEnum.OpenFindAndReplace
     }
 ]
 

@@ -203,7 +203,7 @@ export const HomeTabContents = (
             iconOverride={<FilterIcon sortIncluded />}
         />
         <ToolbarButton
-            action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
+            action={props.actions.buildTimeActions[ActionEnum.OpenFind]}
             toolbarTitle='Find & Replace'
         />
         <ToolbarButton
