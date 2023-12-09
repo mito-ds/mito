@@ -5,6 +5,8 @@ exports = require('@jupyterlab/galata/lib/playwright-config');
 
 module.exports = {
     ...exports,
+    timeout: 15_000,
+    workers: 4,
     use: {
         ...exports.use,
         permissions: ['clipboard-read'],
