@@ -51,6 +51,14 @@ const INTEGRATION_FEATURES: Feature[] = [
     }
   },
   {
+    feature: 'Mito in Dash',
+    planSupport: {
+      'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
     feature: 'CSV, XLSX Import',
     planSupport: {
       'Open Source': true,
@@ -740,7 +748,7 @@ const Plans: NextPage = () => {
               <FAQCard title='Where is Mito installable?'>
                 <div>
                   <p>
-                    Out of the box, Mito is installable in Jupyter Lab 3.0, Jupyter Notebooks, and Streamlit. If you want to install Mito in VSCode, Google Collab or a custom app, <a href={"mailto:jake@sagacollab.com?subject=Change Plan"} className={pageStyles.link}>email us</a>. 
+                    Out of the box, Mito is installable in Jupyter Lab 3.0, Jupyter Notebooks, Streamlit, and Dash. If you want to install Mito in VSCode, Google Collab or a custom app, <a href={"mailto:jake@sagacollab.com?subject=Change Plan"} className={pageStyles.link}>email us</a>. 
                   </p>
                 </div>
               </FAQCard>
