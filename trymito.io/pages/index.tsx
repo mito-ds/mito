@@ -119,7 +119,7 @@ const Home: NextPage = () => {
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
-                  All in <span className='text-color-jupyter-orange'>Jupyter</span> and <span className='text-color-streamlit-red'>Streamlit</span>
+                  All in <span className='text-color-jupyter-orange'>Jupyter</span>, <span className='text-color-streamlit-red'>Streamlit</span>, and <span className='text-highlight'>Dash</span>
                 </h2>
                 <p className='display-mobile-only'> 
                   Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
