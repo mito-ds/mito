@@ -1916,7 +1916,7 @@ export const getActions = (
                     }
                 })
             },
-            isDisabled: () => {return (uiState.selectedSheetIndex < sheetDataArray.length - 1) ? defaultActionDisabledMessage : 'No next sheet.'},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['sheet', 'index', 'next', 'forward'],
             tooltip: "Go to the next sheet.",
             displayKeyboardShortcuts: {
@@ -1939,7 +1939,7 @@ export const getActions = (
                     }
                 })
             },
-            isDisabled: () => {return (uiState.selectedSheetIndex > 0) ? defaultActionDisabledMessage : 'No previous sheet.'},
+            isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['sheet', 'index', 'previous', 'last'],
             tooltip: "Go to the previous sheet.",
             displayKeyboardShortcuts: {

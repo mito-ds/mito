@@ -313,3 +313,51 @@ test.describe('Home Tab Buttons', () => {
   });
 
 });
+
+test.describe('Keyboard Shortcuts', () => {
+  test('Next Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Alt+ArrowRight');
+    await awaitResponse(page);
+    let tab = await mito.locator('div').filter({ hasText: /^test$/ }).first();
+    expect(tab).toHaveClass(/tab-selected/);
+    await awaitResponse(page);
+
+    await page.keyboard.press('Alt+ArrowRight');
+    await awaitResponse(page);
+    tab = await mito.locator('div').filter({ hasText: /^test_1$/ }).first();
+    expect(tab).toHaveClass(/tab-selected/);
+  });
+
+  test('Previous Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Alt+ArrowLeft');
+    await awaitResponse(page);
+    let tab = await mito.locator('div').filter({ hasText: /^test_1$/ }).first();
+    expect(tab).toHaveClass(/tab-selected/);
+    await awaitResponse(page);
+
+    await page.keyboard.press('Alt+ArrowLeft');
+    await awaitResponse(page);
+    tab = await mito.locator('div').filter({ hasText: /^test$/ }).first();
+    expect(tab).toHaveClass(/tab-selected/);
+    await awaitResponse(page);
+
+    await page.keyboard.press('Alt+ArrowLeft');
+    await awaitResponse(page);
+    tab = await mito.locator('div').filter({ hasText: /^test_2$/ }).first();
+    expect(tab).toHaveClass(/tab-selected/);
+  });
+
+  test('Find and Replace', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+Shift+F');
+    await expect(mito.getByPlaceholder('Find...')).toBeVisible()
+    await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
+  })
+});
