@@ -1663,9 +1663,11 @@ export const getActions = (
                 // We open the column selection taskpane
                 let newStartingColumnIndex = gridState.selections[0].startingColumnIndex;
                 let newEndingColumnIndex = gridState.selections[0].endingColumnIndex;
-                for (const selection of gridState.selections) {
-                    newStartingColumnIndex = Math.min(newStartingColumnIndex, selection.startingColumnIndex);
-                    newEndingColumnIndex = Math.max(newEndingColumnIndex, selection.endingColumnIndex);
+                if (newStartingColumnIndex === -1) {
+                    newStartingColumnIndex = 0;
+                }
+                if (newEndingColumnIndex === -1) {
+                    newEndingColumnIndex = 0;
                 }
                 setGridState(prevGridState => {
                     return {
@@ -1698,10 +1700,11 @@ export const getActions = (
                 // We open the column selection taskpane
                 let newStartingRowIndex = gridState.selections[0].startingRowIndex;
                 let newEndingRowIndex = gridState.selections[0].endingRowIndex;
-                for (const selection of gridState.selections) {
-                    console.log(selection)
-                    newStartingRowIndex = Math.min(newStartingRowIndex, selection.startingRowIndex);
-                    newEndingRowIndex = Math.max(newEndingRowIndex, selection.endingRowIndex);
+                if (newStartingRowIndex === -1) {
+                    newStartingRowIndex = 0;
+                }
+                if (newEndingRowIndex === -1) {
+                    newEndingRowIndex = 0;
                 }
                 setGridState(prevGridState => {
                     return {
@@ -1723,7 +1726,7 @@ export const getActions = (
         [ActionEnum.Select_All]: {
             type: 'build-time',
             staticType: ActionEnum.Select_All,
-            longTitle: 'Select all cells',
+            longTitle: 'Select all columns',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -1736,8 +1739,8 @@ export const getActions = (
                     return {
                         ...prevGridState,
                         selections: [{
-                            startingRowIndex: 0,
-                            endingRowIndex: sheetData.numRows - 1,
+                            startingRowIndex: -1,
+                            endingRowIndex: -1,
                             startingColumnIndex: 0,
                             endingColumnIndex: sheetData.numColumns - 1,
                             sheetIndex: sheetIndex
@@ -1746,8 +1749,8 @@ export const getActions = (
                 });
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no cells to select. Import data.'},
-            searchTerms: ['select', 'cells', 'select all cells'],
-            tooltip: "Select all cells in current sheet."
+            searchTerms: ['select', 'cells', 'select all columns'],
+            tooltip: "Select all columns in current sheet."
         },
         [ActionEnum.Set_Cell_Value]: {
             type: 'build-time',
