@@ -1667,7 +1667,7 @@ export const getActions = (
                     newStartingColumnIndex = 0;
                 }
                 if (newEndingColumnIndex === -1) {
-                    newEndingColumnIndex = 0;
+                    newEndingColumnIndex = sheetData.numColumns - 1;
                 }
                 setGridState(prevGridState => {
                     return {
@@ -1704,7 +1704,7 @@ export const getActions = (
                     newStartingRowIndex = 0;
                 }
                 if (newEndingRowIndex === -1) {
-                    newEndingRowIndex = 0;
+                    newEndingRowIndex = sheetData.numRows - 1;
                 }
                 setGridState(prevGridState => {
                     return {
