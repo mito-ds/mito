@@ -8,47 +8,48 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['c']
+            keys: ['c']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['c']
+            keys: ['c']
         },
         action: ActionEnum.Copy
     },
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['f']
+            keys: ['f']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['f']
+            keys: ['f']
         },
         preventDefaultAndStopPropagation: true,
-        jupyterLabAction: 'mitosheet:open-search',
-        action: ActionEnum.OpenFind
+        action: ActionEnum.OpenFind,
+        jupyterLabCommand: 'mitosheet:open-search',
     },
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['z']
+            keys: ['z']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['z']
+            keys: ['z']
         },
-        jupyterLabAction: 'mitosheet:mito-undo',
+        preventDefaultAndStopPropagation: true,
+        jupyterLabCommand: 'mitosheet:mito-undo',
         action: ActionEnum.Undo
     },
     {
         macKeyCombo: {
             metaKey: true,
-            key: ['y']
+            keys: ['y']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['y']
+            keys: ['y']
         },
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Redo
@@ -56,26 +57,26 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     {
         macKeyCombo: {
             altKey: true,
-            key: ['ArrowLeft']
+            keys: ['ArrowLeft']
         },
         winKeyCombo: {
             altKey: true,
             // TODO: this  is not consistent with the Excel shortcut in windows. 
             // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
-            key: ['ArrowLeft']
+            keys: ['ArrowLeft']
         },
         action: ActionEnum.Open_Previous_Sheet
     },
     {
         macKeyCombo: {
             altKey: true,
-            key: ['ArrowRight']
+            keys: ['ArrowRight']
         },
         winKeyCombo: {
             altKey: true,
             // TODO: this  is not consistent with the Excel shortcut in windows. 
             // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
-            key: ['ArrowRight']
+            keys: ['ArrowRight']
         },
         action: ActionEnum.Open_Next_Sheet
     },
@@ -83,11 +84,11 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            key: ['F']
+            keys: ['F']
         },
         winKeyCombo: {
             ctrlKey: true,
-            key: ['h']
+            keys: ['h']
         },
         action: ActionEnum.OpenFindAndReplace
     }
@@ -100,8 +101,8 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
  */
 export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions) => {
     const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
-                    ? 'mac'
-                    : 'windows'
+        ? 'mac'
+        : 'windows'
 
     const shortcut = keyboardShortcuts.find(shortcut => {
         const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
@@ -113,7 +114,7 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
             return false;
         }
         // If the special keys matched, check if the key is the same.
-        return keyCombo.key.includes(e.key);
+        return keyCombo.keys.includes(e.key);
     })
     
     if (shortcut !== undefined) {
