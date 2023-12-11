@@ -117,7 +117,7 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
         return keyCombo.keys.includes(e.key);
     })
     
-    if (shortcut !== undefined) {
+    if (shortcut !== undefined && actions.buildTimeActions[shortcut.action].isDisabled() !== undefined) {
         actions.buildTimeActions[shortcut.action].actionFunction()
         if (shortcut.preventDefaultAndStopPropagation) {
             e.preventDefault();
