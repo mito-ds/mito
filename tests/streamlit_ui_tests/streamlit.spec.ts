@@ -443,12 +443,17 @@ test.describe('Code Tab Buttons', () => {
     // TODO: There are some bugs with Playwrite, that make it hard to check the clipboard contents
   });
 
-  test('Test Configure Code', async ({ page }) => {
+  test.only('Test Configure Code', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await clickTab(page, mito, 'Code');
 
     await mito.getByRole('button', { name: 'Configure Code' }).click();
     await checkOpenTaskpane(mito, 'Generated Code Options');
+
+    await mito.locator('.toggle').first().click();
+    await mito.getByRole('textbox').fill('new name');
+    // Wanna check some output
+    
   });
 
   test('Test Code Snippets', async ({ page }) => {
