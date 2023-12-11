@@ -443,7 +443,7 @@ test.describe('Code Tab Buttons', () => {
     // TODO: There are some bugs with Playwrite, that make it hard to check the clipboard contents
   });
 
-  test.only('Test Configure Code', async ({ page }) => {
+  test('Test Configure Code', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await clickTab(page, mito, 'Code');
 
@@ -453,7 +453,7 @@ test.describe('Code Tab Buttons', () => {
     await mito.locator('.toggle').first().click();
     await mito.getByRole('textbox').fill('new name');
     // Wanna check some output
-    
+
   });
 
   test('Test Code Snippets', async ({ page }) => {
