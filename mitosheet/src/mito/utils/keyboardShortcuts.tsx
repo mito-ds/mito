@@ -173,6 +173,20 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         },
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Merge
+    },
+    {
+        macKeyCombo: {
+            shiftKey: true,
+            ctrlKey: true,
+            keys: ['L']
+        },
+        winKeyCombo: {
+            shiftKey: true,
+            ctrlKey: true,
+            keys: ['L']
+        },
+        preventDefaultAndStopPropagation: true,
+        action: ActionEnum.Pivot
     }
 ]
 
