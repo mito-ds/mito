@@ -56,6 +56,41 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     },
     {
         macKeyCombo: {
+            ctrlKey: true,
+            keys: [' ']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            keys: [' ']
+        },
+        action: ActionEnum.Select_Columns
+    },
+    {
+        macKeyCombo: {
+            shiftKey: true,
+            keys: [' ']
+        },
+        winKeyCombo: {
+            shiftKey: true,
+            keys: [' ']
+        },
+        preventDefaultAndStopPropagation: true,
+        action: ActionEnum.Select_Rows
+    },
+    {
+        macKeyCombo: {
+            metaKey: true,
+            keys: ['a']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            keys: ['a']
+        },
+        preventDefaultAndStopPropagation: true,
+        action: ActionEnum.Select_All
+    },
+    {
+        macKeyCombo: {
             altKey: true,
             keys: ['ArrowLeft']
         },

@@ -1731,6 +1731,104 @@ export const getActions = (
             searchTerms: ['docs', 'documentation', 'help', 'support'],
             tooltip: "Documentation, tutorials, and how-tos on all functionality in Mito."
         },
+        [ActionEnum.Select_Columns]: {
+            type: 'build-time',
+            staticType: ActionEnum.Select_Columns,
+            longTitle: 'Select column',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const minColumnIndex = Math.min(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
+                const maxColumnIndex = Math.max(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
+                const newStartingColumnIndex = Math.max(minColumnIndex, 0);
+                const newEndingColumnIndex = Math.min(maxColumnIndex, sheetData.numColumns - 1);
+
+                // Select the columns that are in the currently selected range. 
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            startingColumnIndex: newStartingColumnIndex,
+                            endingColumnIndex: newEndingColumnIndex,
+                            startingRowIndex: -1,
+                            endingRowIndex: -1,
+                            sheetIndex: sheetIndex
+                        }]
+                    }
+                });
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to select. Import data.'},
+            searchTerms: ['select', 'columns', 'select columns'],
+            tooltip: "Select columns for all cells in currently selected range."
+        },
+        [ActionEnum.Select_Rows]: {
+            type: 'build-time',
+            staticType: ActionEnum.Select_Rows,
+            longTitle: 'Select row',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const minRowIndex = Math.min(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
+                const maxRowIndex = Math.max(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
+
+                const newStartingRowIndex = Math.max(minRowIndex, 0);
+                const newEndingRowIndex = Math.min(maxRowIndex, sheetData.numRows - 1);
+
+                // Select the rows that are in the currently selected range
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            startingRowIndex: newStartingRowIndex,
+                            endingRowIndex: newEndingRowIndex,
+                            startingColumnIndex: -1,
+                            endingColumnIndex: -1,
+                            sheetIndex: sheetIndex
+                        }]
+                    }
+                });
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no rows to select. Import data.'},
+            searchTerms: ['select', 'rows', 'select rows'],
+            tooltip: "Select rows for all cells in currently selected range."
+        },
+        [ActionEnum.Select_All]: {
+            type: 'build-time',
+            staticType: ActionEnum.Select_All,
+            longTitle: 'Select all columns',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                // Select all columns
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            startingRowIndex: -1,
+                            endingRowIndex: -1,
+                            startingColumnIndex: 0,
+                            endingColumnIndex: sheetData.numColumns - 1,
+                            sheetIndex: sheetIndex
+                        }]
+                    }
+                });
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no cells to select. Import data.'},
+            searchTerms: ['select', 'cells', 'select all columns'],
+            tooltip: "Select all data in current sheet."
+        },
         [ActionEnum.Set_Cell_Value]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Cell_Value,
