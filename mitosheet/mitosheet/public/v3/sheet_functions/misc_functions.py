@@ -203,8 +203,6 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
             return None
         else:
             return matching_row.iloc[0, index-1]
-    
-    # If the lookup_value is a series, we use it, otherwise, we create a series with the where index
 
     value = get_series_from_primitive_or_series(lookup_value, where.index)
 
