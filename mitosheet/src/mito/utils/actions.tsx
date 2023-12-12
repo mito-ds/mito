@@ -1694,15 +1694,8 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                console.log('gridState in action', gridState.selections)
-
                 let minRowIndex = Math.min(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
                 let maxRowIndex = Math.max(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
-                console.log(gridState.selections)
-                for (const selection of gridState.selections) {
-                    minRowIndex = Math.min(minRowIndex, selection.startingRowIndex, selection.endingRowIndex);
-                    maxRowIndex = Math.max(maxRowIndex, selection.startingRowIndex, selection.endingRowIndex);
-                }
 
                 const newStartingRowIndex = Math.max(minRowIndex, 0);
                 const newEndingRowIndex = Math.min(maxRowIndex, sheetData.numRows - 1);
