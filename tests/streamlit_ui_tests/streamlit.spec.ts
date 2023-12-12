@@ -101,7 +101,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Default').first().click();
     await mito.getByText('Currency').click();
     await awaitResponse(page);
-    await expect(mito.getByText('$1')).toBeVisible();
+    await expect(mito.getByText('$1', { exact: true })).toBeVisible();
   });
 
   test.skip('Conditional Formatting', async ({ page }) => {
@@ -175,7 +175,7 @@ test.describe('Home Tab Buttons', () => {
 
     await checkOpenTaskpane(mito, 'Column1');
 
-    // Filter out all rows, with a > 4 filter
+    // Filter out all rows, with a > 10 filter
     await mito.getByText('+ Add Filter').click();
     await mito.locator('div').filter({ hasText: /^Add a Filter$/ }).first().click();
     await mito.getByRole('textbox').click();
@@ -210,15 +210,15 @@ test.describe('Home Tab Buttons', () => {
 
     // Replace in selected columns shouldn't work, as Column2 isn't selected
     await mito.locator('#mito-center-content-container').getByRole('button').first().click();
-    await mito.getByPlaceholder('Replace...').fill('4');
+    await mito.getByPlaceholder('Replace...').fill('13');
     await mito.getByRole('button', { name: 'Replace in Selected Columns' }).click();
-    await expect(mito.getByText('Column4')).not.toBeVisible();
-    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^4$/ }).first()).not.toBeVisible();
+    await expect(mito.getByText('Column13')).not.toBeVisible();
+    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).not.toBeVisible();
 
     // Then, replace all, should work
     await mito.getByRole('button', { name: 'Replace All' }).click();
-    await expect(mito.getByText('Column4')).toBeVisible();
-    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^4$/ }).first()).toBeVisible();
+    await expect(mito.getByText('Column13')).toBeVisible();
+    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).toBeVisible();
   });
 
   test('Change Dtype Dropdown', async ({ page }) => {
