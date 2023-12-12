@@ -13,6 +13,8 @@ import pandas as pd
 from mitosheet.public.v3.sheet_functions.misc_functions import VLOOKUP
 
 from mitosheet.errors import MitoError
+from mitosheet.tests.test_utils import create_mito_wrapper
+from mitosheet.types import FC_NUMBER_EXACTLY
 
 VLOOKUP_VALID_TESTS = [
     # Tests for when the lookup value is a series
@@ -133,7 +135,7 @@ VLOOKUP_VALID_TESTS = [
             pd.DataFrame({'A': [3, 2], 'B': ['b', 'c']}, index=[10, 11]),
             2
         ],
-        pd.Series([None, 'c', 'b'])
+        pd.Series([None, 'c', 'b'], index=['i', 'j', 'k'])
     ),
     # Vlookup only returns first match
     (
@@ -178,7 +180,7 @@ VLOOKUP_VALID_TESTS = [
             pd.DataFrame({'A': ['a', 'b'], 'B': ['Match1', 'Match2']}, index=[10, 11]),
             2
         ],
-        pd.Series(['Match1', 'Match2', 'Match1'])
+        pd.Series(['Match1', 'Match2', 'Match1'], index=['i', 'j', 'k'])
     ),
     # No matches
     (
@@ -226,3 +228,27 @@ def test_invalid_args_error(_argv, expected):
         assert e_info.value.error_dict['error_type'] == 'invalid_args_error'
         assert e_info.value.error_dict['function_name'] == 'VLOOKUP'
         assert e_info.value.error_dict['error_message'] == expected
+
+
+def test_filter_then_vlookup():
+    df1 = pd.DataFrame({
+        'A': [1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
+        'B': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    })
+
+    df2 = pd.DataFrame({
+        'A': [1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
+        'C': [1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
+    })
+
+    mito = create_mito_wrapper(df1, df2)
+    mito.filter(0, "B", "And", FC_NUMBER_EXACTLY, 0)
+    mito.set_formula('=VLOOKUP(A1,df2!A:C, 2)', 0, 'C', True)
+
+    result = mito.get_column(0, 'C', True)
+    expected = pd.Series([2,4,1,3,5], index=[1,3,5,7,9])
+
+    assert result == list(expected)
+
+
+
