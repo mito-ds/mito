@@ -24,6 +24,12 @@ const getMitoFrameWithTestCSV = async (page: Page): Promise<FrameLocator> => {
   return mito;
 }
 
+const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator> => {
+  const mito = await getMitoFrame(page);
+  await importCSV(page, mito, 'types.csv');
+  return mito;
+}
+
 const awaitResponse = async (page: Page): Promise<void> => {
   // Wait at least 25 ms for the message to send
   await page.waitForTimeout(100);
@@ -403,11 +409,14 @@ test.describe('Keyboard Shortcuts', () => {
   });
 
   test('Set Datetime Dtype', async ({ page }) => {
-    const mito = await getMitoFrameWithTestCSV(page);
+    const mito = await getMitoFrameWithTypeCSV(page);
     await mito.getByTitle('Column1').click();
 
     await page.keyboard.press('Control+Shift+@');
     await awaitResponse(page);
-    await expect(mito.getByText('1970-01-01')).toHaveCount(4);
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveText(/date/);
+    await expect(mito.locator('#root')).toContainText('1990-10-12 00:00:00');
+    await expect(mito.locator('#root')).toContainText('2000-01-02 00:00:00');
+    await expect(mito.locator('#root')).toContainText('1961-12-29 00:00:00');
   });
 });
