@@ -136,7 +136,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['`']
+            keys: ['~']
         },
         action: ActionEnum.Set_Format_Default
     },
@@ -149,7 +149,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['1']
+            keys: ['!']
         },
         action: ActionEnum.Set_Format_Number
     },
@@ -175,7 +175,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['3']
+            keys: ['#']
         },
         action: ActionEnum.Set_DateTime_Dtype
     },
@@ -188,7 +188,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['4']
+            keys: ['$']
         },
         action: ActionEnum.Set_Format_Currency
     },
@@ -201,7 +201,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['5']
+            keys: ['%']
         },
         action: ActionEnum.Set_Format_Percent
     },
