@@ -733,7 +733,8 @@ export type UserDefinedFunctionParamNameToType = Record<UserDefinedFunctionParam
 export type UserDefinedFunction = {
     name: string,
     docstring: string,
-    parameters: UserDefinedFunctionParamNameToType
+    parameters: UserDefinedFunctionParamNameToType,
+    domain?: string
 }
 
 

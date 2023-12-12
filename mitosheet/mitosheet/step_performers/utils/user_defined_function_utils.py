@@ -144,6 +144,24 @@ def get_param_names_to_types_for_user_defined_functon(f: Callable) -> Dict[str, 
 
     return param_names_to_types
 
+def get_domain_from_user_defined_importer(f: Callable) -> Optional[str]:
+    """
+    Given a user defined importer, return the domain that it's associated with. If it's not associated with a domain, return None.
+
+    Currently, we just support starting a doc string line with "Domain: " to specify the domain.
+    TODO: make this more robust in the future
+    """
+    
+    docstring = f.__doc__
+    if docstring is None:
+        return None
+
+    for line in docstring.lower().split('\n'):
+        if line.strip().startswith('domain: '):
+            return line.strip().split('domain: ')[1].strip()
+    
+    return None
+
 def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]:
     if state is None:
         return []
@@ -153,6 +171,7 @@ def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]
             'name': f.__name__,
             'docstring': f.__doc__,
             'parameters': get_param_names_to_types_for_user_defined_functon(f),
+            'domain': get_domain_from_user_defined_importer(f)
         }
         for f in state.user_defined_importers
     ]

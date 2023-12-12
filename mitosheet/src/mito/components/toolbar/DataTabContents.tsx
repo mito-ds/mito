@@ -30,6 +30,7 @@ export const DataTabContents = (
         {props.actions.runtimeImportActionsList.map(action => {
             return (<ToolbarButton
                 action={action}
+                toolbarTitle={action.titleToolbar}
                 iconOverride={<ImportIcon />}
                 key={action.staticType}
             />)

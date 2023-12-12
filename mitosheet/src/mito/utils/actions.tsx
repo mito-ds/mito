@@ -2370,7 +2370,7 @@ export const getActions = (
         return {
             type: 'run-time',
             staticType: f.name,
-            toolbarTitle: displayName,
+            titleToolbar: displayName,
             longTitle: displayName,
             actionFunction: () => {
                 // We turn off editing mode, if it is on

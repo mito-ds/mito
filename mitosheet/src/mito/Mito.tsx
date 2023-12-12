@@ -179,6 +179,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
         void mitoAPI.log('mitosheet_rendered');
     }, [mitoAPI])
 
+    console.log(analysisData.userDefinedImporters)
+
     useEffect(() => {
         /**
          * The mitosheet is rendered first when the mitosheet.sheet() call is made,
