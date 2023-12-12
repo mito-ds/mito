@@ -153,6 +153,9 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         },
         action: ActionEnum.Set_Format_Number
     },
+    // Both ctrl+shift+2 and ctrl+shift+3 are used to set datetime type, because in Excel
+    // ctrl+shift+2 is used to set "time" and ctrl+shift+3 is used to set "date". For our purposes,
+    // we just set it to the same type.
     {
         macKeyCombo: {
             ctrlKey: true,

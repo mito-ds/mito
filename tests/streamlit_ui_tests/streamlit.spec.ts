@@ -401,4 +401,13 @@ test.describe('Keyboard Shortcuts', () => {
     await awaitResponse(page);
     await expect(mito.getByText('1.00', { exact: true })).toBeVisible();
   });
+
+  test('Set Datetime Dtype', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').click();
+
+    await page.keyboard.press('Control+Shift+@');
+    await awaitResponse(page);
+    await expect(mito.getByText('1970-01-01')).toHaveCount(4);
+  });
 });

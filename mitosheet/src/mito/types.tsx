@@ -1012,7 +1012,7 @@ export enum ActionEnum {
     Set_Format_Currency = 'set format to currency',
     Set_Format_Percent = 'set format to percent',
     Set_Format_Default = 'set format to default',
-    Set_DateTime_Dtype = 'set datetime format',
+    Set_DateTime_Dtype = 'set datetime type',
     Set_Format_Scientific = 'set format to scientific notation',
     Set_Format_Number = 'set format to number (two decimal places)',
     Promote_Row_To_Header = 'promote row to header',
