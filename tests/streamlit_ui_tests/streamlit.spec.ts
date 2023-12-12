@@ -315,7 +315,7 @@ test.describe('Home Tab Buttons', () => {
 });
 
 test.describe('Keyboard Shortcuts', () => {
-  test.only('Next Sheet', async ({ page }) => {
+  test('Next Sheet', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await importCSV(page, mito, 'test.csv');
 
@@ -336,8 +336,7 @@ test.describe('Keyboard Shortcuts', () => {
     await importCSV(page, mito, 'test.csv');
 
     await page.keyboard.press('Alt+ArrowLeft');
-    let tab = await mito.locator('div').filter({ hasText: /^test_1$/ }).first();
-    expect(tab).toHaveClass(/tab-selected/);
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
   });
 
   test('Find and Replace', async ({ page }) => {
