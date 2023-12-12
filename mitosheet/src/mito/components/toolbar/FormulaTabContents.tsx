@@ -49,6 +49,7 @@ export const FormulaTabContents = (
             return (
                 <DropdownItem
                     title={functionObject.function}
+                    tooltip={functionObject.description}
                     key={functionObject.function}
                     supressFocusSettingOnClose
                     onClick={(e) => {
