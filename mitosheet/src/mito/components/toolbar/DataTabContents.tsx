@@ -11,6 +11,13 @@ import DropdownItem from '../elements/DropdownItem';
 import ImportIcon from '../icons/ImportIcon';
 import { toTitleCase } from '../../utils/strings';
 
+
+/**
+ * This function returns a list of toolbar buttons for all the user defined imports:
+ * 1. Any action with no domain gets its own button
+ * 2. Any domain with a single action gets its own button
+ * 3. Any domain with multiple actions gets a dropdown
+ */
 const getToolbarButtonsForUserDefinedImports = (
     actions: Actions,
     uiState: UIState,
