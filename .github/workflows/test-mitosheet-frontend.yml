@@ -90,10 +90,10 @@ jobs:
         npm run test:streamlit
     - name: Upload test-results if failure
       uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
+      if: always()
       with:
-        name: test-results
-        path: test-results
+        name: playwright-report
+        path: tests/playwright-report/
         retention-days: 14
 
   test-mitosheet-frontend-dash:

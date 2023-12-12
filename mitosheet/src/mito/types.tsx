@@ -935,6 +935,8 @@ export interface UIState {
 
 export interface SearchInfo {
     isOpen: boolean;
+    // Optionally specify whether the search bar should be expanded or not
+    isExpanded?: boolean;
     searchValue?: string;
     matches: {rowIndex: number; colIndex: number}[];
     currentMatchIndex: number;
@@ -1002,7 +1004,8 @@ export enum ActionEnum {
     Formulas_Dropdown_Reference = 'reference formulas dropdown',
     Formulas_Dropdown_Custom = 'custom formulas dropdown',
     Formulas_Dropdown_More = 'more formulas dropdown',
-    OpenSearch = 'open search',
+    OpenFind = 'open search',
+    OpenFindAndReplace = 'open search and replace',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',
@@ -1029,6 +1032,8 @@ export enum ActionEnum {
     Transpose = 'transpose',
     Melt = 'melt',
     One_Hot_Encoding = 'one_hot_encoding',
+    Open_Next_Sheet = 'open next sheet',
+    Open_Previous_Sheet = 'open previous sheet',
     Set_Dataframe_Format = 'set_dataframe_format',
     Conditional_Formatting = 'ConditionalFormatting',
     Dataframe_Import = 'Dataframe_Import',

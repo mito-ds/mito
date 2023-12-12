@@ -26,8 +26,8 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             keys: ['f']
         },
         preventDefaultAndStopPropagation: true,
+        action: ActionEnum.OpenFind,
         jupyterLabCommand: 'mitosheet:open-search',
-        action: ActionEnum.OpenSearch
     },
     {
         macKeyCombo: {
@@ -53,6 +53,44 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         },
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Redo
+    },
+    {
+        macKeyCombo: {
+            altKey: true,
+            keys: ['ArrowLeft']
+        },
+        winKeyCombo: {
+            altKey: true,
+            // TODO: this  is not consistent with the Excel shortcut in windows. 
+            // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
+            keys: ['ArrowLeft']
+        },
+        action: ActionEnum.Open_Previous_Sheet
+    },
+    {
+        macKeyCombo: {
+            altKey: true,
+            keys: ['ArrowRight']
+        },
+        winKeyCombo: {
+            altKey: true,
+            // TODO: this  is not consistent with the Excel shortcut in windows. 
+            // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
+            keys: ['ArrowRight']
+        },
+        action: ActionEnum.Open_Next_Sheet
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['F']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            keys: ['h']
+        },
+        action: ActionEnum.OpenFindAndReplace
     }
 ]
 
@@ -79,7 +117,7 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
         return keyCombo.keys.includes(e.key);
     })
     
-    if (shortcut !== undefined) {
+    if (shortcut !== undefined && !actions.buildTimeActions[shortcut.action].isDisabled()) {
         actions.buildTimeActions[shortcut.action].actionFunction()
         if (shortcut.preventDefaultAndStopPropagation) {
             e.preventDefault();

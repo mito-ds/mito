@@ -313,3 +313,37 @@ test.describe('Home Tab Buttons', () => {
   });
 
 });
+
+test.describe('Keyboard Shortcuts', () => {
+  test('Next Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+
+    // Check that the tab with .tab-selected is the second tab, 
+    // with the text test_1
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
+
+    await page.keyboard.press('Alt+ArrowRight');
+
+    // Check that the tab with .tab-selected is the first tab
+    // with the text test
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
+  });
+
+  test('Previous Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Alt+ArrowLeft');
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
+  });
+
+  test('Find and Replace', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+h');
+    await awaitResponse(page);
+    await expect(mito.getByPlaceholder('Find...')).toBeVisible()
+    await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
+  })
+});
