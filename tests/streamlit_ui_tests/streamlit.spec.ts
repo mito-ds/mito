@@ -90,7 +90,7 @@ test.describe('Home Tab Buttons', () => {
     const mito = await getMitoFrameWithTestCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.')
-    await expect(mito.getByText('$1')).toBeVisible();
+    await expect(mito.getByText('$1', {exact: true})).toBeVisible();
     await clickButtonAndAwaitResponse(page, mito, 'Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.')
     await expect(mito.getByText('100%')).toBeVisible();
     await clickButtonAndAwaitResponse(page, mito, 'Increase the number of decimal places that are displayed in the selected number columns.')
@@ -105,7 +105,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Default').first().click();
     await mito.getByText('Currency').click();
     await awaitResponse(page);
-    await expect(mito.getByText('$1')).toBeVisible();
+    await expect(mito.getByText('$1', { exact: true })).toBeVisible();
   });
 
   test.skip('Conditional Formatting', async ({ page }) => {
@@ -179,13 +179,13 @@ test.describe('Home Tab Buttons', () => {
 
     await checkOpenTaskpane(mito, 'Column1');
 
-    // Filter out all rows, with a > 4 filter
+    // Filter out all rows, with a > 10 filter
     await mito.getByText('+ Add Filter').click();
     await mito.locator('div').filter({ hasText: /^Add a Filter$/ }).first().click();
     await mito.getByRole('textbox').click();
-    await mito.getByRole('textbox').fill('4');
+    await mito.getByRole('textbox').fill('10');
     await mito.getByText('No rows in dataframe.').click();
-    await expect(mito.getByText('Removed an additional 1 rows')).toBeVisible();
+    await expect(mito.getByText('Removed an additional 4 rows')).toBeVisible();
 
     // Add another filter and combine with an OR < 10
     await mito.getByText('+ Add Filter').click();
@@ -194,7 +194,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Or', { exact: true }).click();
     await mito.getByText('>').nth(1).click();
     await mito.getByText('<').click();
-    await mito.locator('div').filter({ hasText: /^Or<$/ }).getByRole('textbox').fill('10');
+    await mito.locator('div').filter({ hasText: /^Or<$/ }).getByRole('textbox').fill('12');
 
     // Check that the .mito-grid-cell containing 1 exists
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^1$/ }).first()).toBeVisible();
@@ -210,19 +210,19 @@ test.describe('Home Tab Buttons', () => {
 
     // Check finds 2 in both the cell and the header
     await mito.getByPlaceholder('Find...').fill('2');
-    await expect(mito.getByText('0 of 2')).toBeVisible();
+    await expect(mito.getByText('0 of 3')).toBeVisible();
 
     // Replace in selected columns shouldn't work, as Column2 isn't selected
     await mito.locator('#mito-center-content-container').getByRole('button').first().click();
-    await mito.getByPlaceholder('Replace...').fill('4');
+    await mito.getByPlaceholder('Replace...').fill('13');
     await mito.getByRole('button', { name: 'Replace in Selected Columns' }).click();
-    await expect(mito.getByText('Column4')).not.toBeVisible();
-    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^4$/ }).first()).not.toBeVisible();
+    await expect(mito.getByText('Column13')).not.toBeVisible();
+    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).not.toBeVisible();
 
     // Then, replace all, should work
     await mito.getByRole('button', { name: 'Replace All' }).click();
-    await expect(mito.getByText('Column4')).toBeVisible();
-    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^4$/ }).first()).toBeVisible();
+    await expect(mito.getByText('Column13')).toBeVisible();
+    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).toBeVisible();
   });
 
   test('Change Dtype Dropdown', async ({ page }) => {
@@ -471,4 +471,68 @@ test.describe('Code Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Schedule Automation' }).click();
     await checkOpenTaskpane(mito, 'Schedule on Github');
   });
+});
+  
+test.describe('Keyboard Shortcuts', () => {
+  test('Select Column', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByText('5').click();
+    await page.keyboard.press('Control+ ');
+    await expect(mito.locator('.endo-column-header-container-selected .endo-column-header-final-text')).toHaveText('Column2');
+  })
+
+  test('Select Row', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('5').click();
+    await page.keyboard.press('Shift+ ');
+    await expect(mito.locator('.index-header-selected')).toHaveText('1');
+  })
+
+  test('Select Row with multiple rows', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('5').click();
+    await mito.getByTitle('8').click({ modifiers: ['Shift']});
+    await page.keyboard.press('Shift+ ');
+    await expect(mito.locator('.index-header-selected')).toHaveCount(2);
+    await expect(mito.locator('.index-header-selected').first()).toHaveText('1');
+    await expect(mito.locator('.index-header-selected').nth(1)).toHaveText('2');
+  })
+
+  test('Select All', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+a');
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(3);
+  });
+  
+  test('Next Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+
+    // Check that the tab with .tab-selected is the second tab, 
+    // with the text test_1
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
+
+    await page.keyboard.press('Alt+ArrowRight');
+
+    // Check that the tab with .tab-selected is the first tab
+    // with the text test
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
+  });
+
+  test('Previous Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Alt+ArrowLeft');
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
+  });
+
+  test('Find and Replace', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+h');
+    await awaitResponse(page);
+    await expect(mito.getByPlaceholder('Find...')).toBeVisible()
+    await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
+  })
 });

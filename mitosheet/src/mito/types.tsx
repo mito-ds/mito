@@ -808,6 +808,30 @@ export interface MitoConfig {
     [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
 }
 
+
+export interface KeyBinding {
+    keys: string[];
+    ctrlKey?: boolean;
+    altKey?: boolean;
+    shiftKey?: boolean;
+    metaKey?: boolean;
+}
+
+export interface KeyboardShorcut {
+    macKeyCombo: KeyBinding
+    winKeyCombo: KeyBinding
+    action: ActionEnum
+	
+    // Include this string so that you can automatically override some of the JL
+    // keybindings. For example, 'mitosheet:mito-undo' will add a keybinding for
+    // the command registered to that ID in plugin.tsx.
+    jupyterLabCommand?: string
+
+    // For some keybindings (ex: cmd + y), we'd want to stop propagation
+    // so that they don't open something in your browser
+    preventDefaultAndStopPropagation?: boolean
+}
+
 /**
  * An object represending this user
  * 
@@ -911,6 +935,8 @@ export interface UIState {
 
 export interface SearchInfo {
     isOpen: boolean;
+    // Optionally specify whether the search bar should be expanded or not
+    isExpanded?: boolean;
     searchValue?: string;
     matches: {rowIndex: number; colIndex: number}[];
     currentMatchIndex: number;
@@ -978,7 +1004,8 @@ export enum ActionEnum {
     Formulas_Dropdown_Reference = 'reference formulas dropdown',
     Formulas_Dropdown_Custom = 'custom formulas dropdown',
     Formulas_Dropdown_More = 'more formulas dropdown',
-    OpenSearch = 'open search',
+    OpenFind = 'open search',
+    OpenFindAndReplace = 'open search and replace',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',
@@ -991,7 +1018,9 @@ export enum ActionEnum {
     Rename_Graph = 'rename graph',
     See_All_Functionality = 'see all functionality',
     Schedule_Github = 'schedule github',
-    //Search = 'search',
+    Select_Columns = 'select columns',
+    Select_Rows = 'select rows',
+    Select_All = 'select all',
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
@@ -1005,6 +1034,8 @@ export enum ActionEnum {
     Transpose = 'transpose',
     Melt = 'melt',
     One_Hot_Encoding = 'one_hot_encoding',
+    Open_Next_Sheet = 'open next sheet',
+    Open_Previous_Sheet = 'open previous sheet',
     Set_Dataframe_Format = 'set_dataframe_format',
     Conditional_Formatting = 'ConditionalFormatting',
     Dataframe_Import = 'Dataframe_Import',

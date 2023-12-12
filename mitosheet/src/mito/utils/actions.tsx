@@ -1649,6 +1649,104 @@ export const getActions = (
             searchTerms: ['docs', 'documentation', 'help', 'support'],
             tooltip: "Documentation, tutorials, and how-tos on all functionality in Mito."
         },
+        [ActionEnum.Select_Columns]: {
+            type: 'build-time',
+            staticType: ActionEnum.Select_Columns,
+            longTitle: 'Select column',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const minColumnIndex = Math.min(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
+                const maxColumnIndex = Math.max(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
+                const newStartingColumnIndex = Math.max(minColumnIndex, 0);
+                const newEndingColumnIndex = Math.min(maxColumnIndex, sheetData.numColumns - 1);
+
+                // Select the columns that are in the currently selected range. 
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            startingColumnIndex: newStartingColumnIndex,
+                            endingColumnIndex: newEndingColumnIndex,
+                            startingRowIndex: -1,
+                            endingRowIndex: -1,
+                            sheetIndex: sheetIndex
+                        }]
+                    }
+                });
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to select. Import data.'},
+            searchTerms: ['select', 'columns', 'select columns'],
+            tooltip: "Select columns for all cells in currently selected range."
+        },
+        [ActionEnum.Select_Rows]: {
+            type: 'build-time',
+            staticType: ActionEnum.Select_Rows,
+            longTitle: 'Select row',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                const minRowIndex = Math.min(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
+                const maxRowIndex = Math.max(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
+
+                const newStartingRowIndex = Math.max(minRowIndex, 0);
+                const newEndingRowIndex = Math.min(maxRowIndex, sheetData.numRows - 1);
+
+                // Select the rows that are in the currently selected range
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            startingRowIndex: newStartingRowIndex,
+                            endingRowIndex: newEndingRowIndex,
+                            startingColumnIndex: -1,
+                            endingColumnIndex: -1,
+                            sheetIndex: sheetIndex
+                        }]
+                    }
+                });
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no rows to select. Import data.'},
+            searchTerms: ['select', 'rows', 'select rows'],
+            tooltip: "Select rows for all cells in currently selected range."
+        },
+        [ActionEnum.Select_All]: {
+            type: 'build-time',
+            staticType: ActionEnum.Select_All,
+            longTitle: 'Select all columns',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We close the editing taskpane if its open
+                closeOpenEditingPopups();
+
+                // Select all columns
+                setGridState(prevGridState => {
+                    return {
+                        ...prevGridState,
+                        selections: [{
+                            startingRowIndex: -1,
+                            endingRowIndex: -1,
+                            startingColumnIndex: 0,
+                            endingColumnIndex: sheetData.numColumns - 1,
+                            sheetIndex: sheetIndex
+                        }]
+                    }
+                });
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no cells to select. Import data.'},
+            searchTerms: ['select', 'cells', 'select all columns'],
+            tooltip: "Select all data in current sheet."
+        },
         [ActionEnum.Set_Cell_Value]: {
             type: 'build-time',
             staticType: ActionEnum.Set_Cell_Value,
@@ -1837,11 +1935,11 @@ export const getActions = (
             searchTerms: ['steps', 'history'],
             tooltip: "View a list of all the edits you've made to your data."
         },
-        [ActionEnum.OpenSearch]: {
+        [ActionEnum.OpenFind]: {
             type: 'build-time',
-            staticType: ActionEnum.OpenSearch,
+            staticType: ActionEnum.OpenFind,
             iconToolbar: SearchIcon,
-            longTitle: 'Search',
+            longTitle: 'Find',
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
@@ -1868,6 +1966,83 @@ export const getActions = (
             displayKeyboardShortcuts: {
                 mac: 'Cmd+F',
                 windows: 'Ctrl+F'
+            }
+        },
+        [ActionEnum.OpenFindAndReplace]: {
+            type: 'build-time',
+            staticType: ActionEnum.OpenFindAndReplace,
+            longTitle: 'Find and Replace',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                if (uiState.currOpenSearch.isOpen) {
+                    const searchInput = mitoContainerRef.current?.querySelector<HTMLInputElement>('#mito-search-bar-input');
+                    if (searchInput) {
+                        // If the search bar is already open, then we focus on the input and select all
+                        // to make it easier to search something new without removing the previous search
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                }
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenSearch: { ...prevUIState.currOpenSearch, isOpen: true, isExpanded: true },
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
+            searchTerms: ['search', 'find', 'filter', 'lookup'],
+            tooltip: "Search for a value in your data and replace with another value.",
+            displayKeyboardShortcuts: {
+                mac: 'Shift+Ctrl+F',
+                windows: 'Ctrl+H'
+            }
+        },
+        [ActionEnum.Open_Next_Sheet]: {
+            type: 'build-time',
+            staticType: ActionEnum.Open_Next_Sheet,
+            longTitle: 'Open Next Sheet',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                setUIState(prevUIState => {
+                    const sheetIndex = prevUIState.selectedSheetIndex;
+                    return {
+                        ...prevUIState,
+                        selectedSheetIndex: sheetIndex < sheetDataArray.length - 1 ? sheetIndex + 1 : 0
+                    }
+                })
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['sheet', 'index', 'next', 'forward'],
+            tooltip: "Go to the next sheet.",
+            displayKeyboardShortcuts: {
+                mac: 'Option+Right Arrow',
+                windows: 'Alt+Right Arrow'
+            }
+        },
+        [ActionEnum.Open_Previous_Sheet]: {
+            type: 'build-time',
+            staticType: ActionEnum.Open_Previous_Sheet,
+            longTitle: 'Open Previous Sheet',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+                setUIState(prevUIState => {
+                    const sheetIndex = prevUIState.selectedSheetIndex;
+                    return {
+                        ...prevUIState,
+                        selectedSheetIndex: sheetIndex > 0 ? sheetIndex - 1 : sheetDataArray.length - 1
+                    }
+                })
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['sheet', 'index', 'previous', 'last'],
+            tooltip: "Go to the previous sheet.",
+            displayKeyboardShortcuts: {
+                mac: 'Option+Left Arrow',
+                windows: 'Alt+Left Arrow'
             }
         },
         [ActionEnum.Undo]: {
