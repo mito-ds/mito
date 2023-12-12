@@ -1660,21 +1660,24 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                // We open the column selection taskpane
                 let newStartingColumnIndex = gridState.selections[0].startingColumnIndex;
                 let newEndingColumnIndex = gridState.selections[0].endingColumnIndex;
+                // If the user has selected an entire row, then we select the cells from the entire rows.
+                // But we don't want the rows themselves to be selected. 
                 if (newStartingColumnIndex === -1) {
                     newStartingColumnIndex = 0;
                 }
                 if (newEndingColumnIndex === -1) {
                     newEndingColumnIndex = sheetData.numColumns - 1;
                 }
+
+                // Select the columns that are in the currently selected range. 
                 setGridState(prevGridState => {
                     return {
                         ...prevGridState,
                         selections: [{
-                            startingColumnIndex: newStartingColumnIndex ?? 0,
-                            endingColumnIndex: newEndingColumnIndex ?? 0,
+                            startingColumnIndex: newStartingColumnIndex,
+                            endingColumnIndex: newEndingColumnIndex,
                             startingRowIndex: -1,
                             endingRowIndex: -1,
                             sheetIndex: sheetIndex
@@ -1697,21 +1700,25 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                // We open the column selection taskpane
                 let newStartingRowIndex = gridState.selections[0].startingRowIndex;
                 let newEndingRowIndex = gridState.selections[0].endingRowIndex;
+
+                // If the user has selected an entire column, then we select the cells from the entire column.
+                // But we don't want the columns themselves to be selected. 
                 if (newStartingRowIndex === -1) {
                     newStartingRowIndex = 0;
                 }
                 if (newEndingRowIndex === -1) {
                     newEndingRowIndex = sheetData.numRows - 1;
                 }
+
+                // Select the rows that are in the currently selected range
                 setGridState(prevGridState => {
                     return {
                         ...prevGridState,
                         selections: [{
-                            startingRowIndex: newStartingRowIndex ?? 0,
-                            endingRowIndex: newEndingRowIndex ?? 0,
+                            startingRowIndex: newStartingRowIndex,
+                            endingRowIndex: newEndingRowIndex,
                             startingColumnIndex: -1,
                             endingColumnIndex: -1,
                             sheetIndex: sheetIndex
@@ -1734,7 +1741,7 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                // We open the column selection taskpane
+                // Select all columns
                 setGridState(prevGridState => {
                     return {
                         ...prevGridState,
@@ -1750,7 +1757,7 @@ export const getActions = (
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no cells to select. Import data.'},
             searchTerms: ['select', 'cells', 'select all columns'],
-            tooltip: "Select all columns in current sheet."
+            tooltip: "Select all data in current sheet."
         },
         [ActionEnum.Set_Cell_Value]: {
             type: 'build-time',
