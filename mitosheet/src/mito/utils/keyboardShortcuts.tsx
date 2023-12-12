@@ -91,6 +91,97 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             keys: ['h']
         },
         action: ActionEnum.OpenFindAndReplace
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['`']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['`']
+        },
+        action: ActionEnum.Set_Format_Default
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['1']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['1']
+        },
+        action: ActionEnum.Set_Format_Number
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['@']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['@']
+        },
+        action: ActionEnum.Set_DateTime_Dtype
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['3']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['3']
+        },
+        action: ActionEnum.Set_DateTime_Dtype
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['4']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['4']
+        },
+        action: ActionEnum.Set_Format_Currency
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['5']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['5']
+        },
+        action: ActionEnum.Set_Format_Percent
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['^']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['^']
+        },
+        action: ActionEnum.Set_Format_Scientific
     }
 ]
 
