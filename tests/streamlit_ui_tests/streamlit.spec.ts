@@ -376,4 +376,34 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.getByPlaceholder('Find...')).toBeVisible()
     await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
   })
+
+  test('Create Graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Alt+F1');
+    await awaitResponse(page);
+    await expect(mito.getByText('Setup Graph')).toBeVisible();
+  })
+
+  test('Open File Import', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+o');
+    await awaitResponse(page);
+    await expect(mito.getByText('Import Files')).toBeVisible();
+  });
+
+  test('Create a Filter', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Alt+ArrowDown');
+    await awaitResponse(page);
+    await expect(mito.getByText('Add Filter')).toBeVisible();
+  });
+
+  test('Merge', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Control+m');
+    await awaitResponse(page);
+    await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+  });
 });
