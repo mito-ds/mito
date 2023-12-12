@@ -131,12 +131,12 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['`']
+            keys: ['`', '~']
         },
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['~']
+            keys: ['`', '~']
         },
         action: ActionEnum.Set_Format_Default
     },
@@ -144,12 +144,12 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['1']
+            keys: ['1', '!']
         },
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['!']
+            keys: ['1', '!']
         },
         action: ActionEnum.Set_Format_Number
     },
@@ -160,12 +160,12 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['@']
+            keys: ['@', '2']
         },
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['@']
+            keys: ['@', '2']
         },
         action: ActionEnum.Set_DateTime_Dtype
     },
@@ -173,12 +173,12 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['3']
+            keys: ['3', '#']
         },
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['#']
+            keys: ['3', '#']
         },
         action: ActionEnum.Set_DateTime_Dtype
     },
@@ -186,12 +186,12 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['4']
+            keys: ['4', '$']
         },
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['$']
+            keys: ['4', '$']
         },
         action: ActionEnum.Set_Format_Currency
     },
@@ -199,12 +199,12 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['5']
+            keys: ['5', '%']
         },
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['%']
+            keys: ['5', '%']
         },
         action: ActionEnum.Set_Format_Percent
     },
@@ -212,12 +212,12 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['^']
+            keys: ['6', '^']
         },
         winKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
-            keys: ['^']
+            keys: ['6', '^']
         },
         action: ActionEnum.Set_Format_Scientific
     }
