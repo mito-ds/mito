@@ -208,6 +208,7 @@ const ColumnHeader = (props: {
                     return {
                         ...prevUiState,
                         currOpenDropdown: {
+                            type: 'context-menu',
                             rowIndex: -1,
                             columnIndex: props.columnIndex
                         }

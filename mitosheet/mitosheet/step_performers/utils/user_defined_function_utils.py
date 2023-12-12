@@ -144,7 +144,7 @@ def get_param_names_to_types_for_user_defined_functon(f: Callable) -> Dict[str, 
 
     return param_names_to_types
 
-def get_domain_from_user_defined_importer(f: Callable) -> Optional[str]:
+def get_domain_from_user_defined_function(f: Callable) -> Optional[str]:
     """
     Given a user defined importer, return the domain that it's associated with. If it's not associated with a domain, return None.
 
@@ -162,6 +162,23 @@ def get_domain_from_user_defined_importer(f: Callable) -> Optional[str]:
     
     return None
 
+def get_docstring_for_user_defined_function(f: Callable) -> Optional[str]:
+    """
+    Given a user defined importer, return the docstring for it. Will cleanup extra
+    whitespace due to the way that docstrings are formatted in Python.
+
+    Will also get rid of the domain line if it exists.
+    """
+
+    docstring = f.__doc__
+    if docstring is None:
+        return None
+    
+    lines = docstring.split("\n")
+    # Remove the domain line if it exists
+    lines = [line for line in lines if not line.strip().lower().startswith('domain: ')]
+    return ' '.join(lines)
+
 def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]:
     if state is None:
         return []
@@ -169,9 +186,9 @@ def get_user_defined_importers_for_frontend(state: Optional[State]) -> List[Any]
     return [
         {
             'name': f.__name__,
-            'docstring': f.__doc__,
+            'docstring': get_docstring_for_user_defined_function(f),
             'parameters': get_param_names_to_types_for_user_defined_functon(f),
-            'domain': get_domain_from_user_defined_importer(f)
+            'domain': get_domain_from_user_defined_function(f)
         }
         for f in state.user_defined_importers
     ]

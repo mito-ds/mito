@@ -121,6 +121,7 @@ const GridData = (props: {
                                             return {
                                                 ...prevUiState,
                                                 currOpenDropdown: {
+                                                    type: 'context-menu',
                                                     rowIndex: rowIndex,
                                                     columnIndex: columnIndex
                                                 }

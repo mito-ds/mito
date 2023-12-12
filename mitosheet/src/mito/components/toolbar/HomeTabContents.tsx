@@ -204,7 +204,7 @@ export const HomeTabContents = (
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.OpenFind]}
-            toolbarTitle='Find & Replace'
+            titleToolbar='Find & Replace'
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}

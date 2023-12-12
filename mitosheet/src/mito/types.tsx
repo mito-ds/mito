@@ -884,13 +884,22 @@ export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' }
 export interface CSVExportState extends ExportState { exportType: 'csv' }
 export interface ExcelExportState extends ExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type OpenDropdownType = ToolbarDropdown | ContextMenu;
 
 export interface ContextMenu {
+    type: 'context-menu';
     rowIndex: number;
     columnIndex: number;
 }
 export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
+
+export interface DataTabImportDomainDropdown {
+    type: 'import-domain-dropdown';
+    domain: string;
+}
+
+
+export type OpenDropdownType = ToolbarDropdown | ContextMenu | DataTabImportDomainDropdown;
+
 
 export enum PopupType {
     EphemeralMessage = 'ephemeral_message',
@@ -1099,7 +1108,6 @@ export interface BaseAction<Type, StaticType> {
     // The tooltip to display in the toolbar or search bar when this is hovered over
     tooltip: string
 
-
     // If this action has a keyboard shortcut, then you can display this by setting these values
     displayKeyboardShortcuts?: {
         mac: string,
@@ -1108,6 +1116,11 @@ export interface BaseAction<Type, StaticType> {
 
     // If this action is only available for pro users
     requiredPlan?: 'pro' | 'enterprise'
+
+    // If this action is in the context of a specific domain, then you can set this
+    // This is useful for user defined functions, importers, or editors, which 
+    // can be then grouped by domain in the UI
+    domain?: string
 }
 export type BuildTimeAction = BaseAction<'build-time', ActionEnum>
 export type RunTimeAction = BaseAction<'run-time', string>
