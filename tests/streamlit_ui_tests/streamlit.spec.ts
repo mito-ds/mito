@@ -324,9 +324,19 @@ test.describe('Keyboard Shortcuts', () => {
 
   test('Select Row', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByText('5').click();
+    await mito.getByTitle('5').click();
     await page.keyboard.press('Shift+ ');
     await expect(mito.locator('.index-header-selected')).toHaveText('1');
+  })
+
+  test('Select Row with multiple rows', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('5').click();
+    await mito.getByTitle('8').click({ modifiers: ['Shift']});
+    await page.keyboard.press('Shift+ ');
+    await expect(mito.locator('.index-header-selected')).toHaveCount(2);
+    await expect(mito.locator('.index-header-selected').first()).toHaveText('1');
+    await expect(mito.locator('.index-header-selected').nth(1)).toHaveText('2');
   })
 
   test('Select All', async ({ page }) => {
