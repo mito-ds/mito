@@ -7,22 +7,27 @@ const UserDefinedFunctionDocumentationSection = (props: {
     userDefinedFunction: UserDefinedFunction,
 }): JSX.Element => {
 
-    const hasDocString = props.userDefinedFunction.docstring !== undefined && props.userDefinedFunction.docstring !== null && props.userDefinedFunction.docstring !== '';
-
-    if (!hasDocString) {
-        return <></>;
-    }
-
     return (
         <>
-            <CollapsibleSection title='Documentation'>
-                <p>
-                    {props.userDefinedFunction.docstring}
+            <CollapsibleSection title='Importer Documentation'>
+                <p className="text-subtext-1">
+                    <span className="text-bold">Function Name:</span> {props.userDefinedFunction.name}
                 </p>
+                {props.userDefinedFunction.docstring !== undefined && props.userDefinedFunction.docstring !== null && props.userDefinedFunction.docstring !== '' &&
+                    <>
+                        <Spacer px={5}/>
+                        <p className="text-subtext-1">
+                            <span className="text-bold">Description:</span> {props.userDefinedFunction.docstring}
+                        </p>
+                    </>
+                }
                 {props.userDefinedFunction.domain !== undefined && props.userDefinedFunction.domain !== null &&
-                    <p>
-                        Domain: {props.userDefinedFunction.domain}
-                    </p>
+                    <>
+                        <Spacer px={5}/>
+                        <p className="text-subtext-1">
+                            <span className="text-bold">Domain:</span>  {props.userDefinedFunction.domain}
+                        </p>
+                    </>
                 }
             </CollapsibleSection>
             <Spacer px={10} />
