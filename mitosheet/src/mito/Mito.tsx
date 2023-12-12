@@ -1021,6 +1021,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 if (e.key === 'Escape') {
                     if (editorState !== undefined) {
                         setEditorState(undefined)
+                    } else if (uiState.currOpenTaskpane.type !== TaskpaneType.NONE) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {
+                                    type: TaskpaneType.NONE
+                                },
+                            }
+                        });
                     } else if (uiState.currOpenSearch.isOpen) {
                         setUIState(prevUIState => {
                             return {
