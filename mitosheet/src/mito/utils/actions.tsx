@@ -1660,16 +1660,10 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                let newStartingColumnIndex = gridState.selections[0].startingColumnIndex;
-                let newEndingColumnIndex = gridState.selections[0].endingColumnIndex;
-                // If the user has selected an entire row, then we select the cells from the entire rows.
-                // But we don't want the rows themselves to be selected. 
-                if (newStartingColumnIndex === -1) {
-                    newStartingColumnIndex = 0;
-                }
-                if (newEndingColumnIndex === -1) {
-                    newEndingColumnIndex = sheetData.numColumns - 1;
-                }
+                const minColumnIndex = Math.min(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
+                const maxColumnIndex = Math.max(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
+                const newStartingColumnIndex = Math.max(minColumnIndex, 0);
+                const newEndingColumnIndex = Math.min(maxColumnIndex, sheetData.numColumns - 1);
 
                 // Select the columns that are in the currently selected range. 
                 setGridState(prevGridState => {
@@ -1700,17 +1694,18 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                let newStartingRowIndex = gridState.selections[0].startingRowIndex;
-                let newEndingRowIndex = gridState.selections[0].endingRowIndex;
+                console.log('gridState in action', gridState.selections)
 
-                // If the user has selected an entire column, then we select the cells from the entire column.
-                // But we don't want the columns themselves to be selected. 
-                if (newStartingRowIndex === -1) {
-                    newStartingRowIndex = 0;
+                let minRowIndex = Math.min(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
+                let maxRowIndex = Math.max(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
+                console.log(gridState.selections)
+                for (const selection of gridState.selections) {
+                    minRowIndex = Math.min(minRowIndex, selection.startingRowIndex, selection.endingRowIndex);
+                    maxRowIndex = Math.max(maxRowIndex, selection.startingRowIndex, selection.endingRowIndex);
                 }
-                if (newEndingRowIndex === -1) {
-                    newEndingRowIndex = sheetData.numRows - 1;
-                }
+
+                const newStartingRowIndex = Math.max(minRowIndex, 0);
+                const newEndingRowIndex = Math.min(maxRowIndex, sheetData.numRows - 1);
 
                 // Select the rows that are in the currently selected range
                 setGridState(prevGridState => {
