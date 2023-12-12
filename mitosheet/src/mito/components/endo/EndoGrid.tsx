@@ -584,10 +584,10 @@ function EndoGrid(props: {
 
             if (!isNavigationKeyPressed(e.key)) {
                 
-                
+
                 // If the metaKey is pressed, the user might be refreshing the page for example, 
                 // so we just return here
-                if (e.metaKey || e.key === 'Escape') {
+                if (e.metaKey || e.key === 'Escape' || e.shiftKey) {
                     return;
                 }
 
