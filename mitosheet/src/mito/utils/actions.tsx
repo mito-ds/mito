@@ -1177,23 +1177,25 @@ export const getActions = (
         [ActionEnum.Set_DateTime_Dtype]: {
             type: 'build-time',
             staticType: ActionEnum.Set_DateTime_Dtype,
-            iconToolbar: PercentIcon,
-            longTitle: 'Format as percentage',
+            longTitle: 'Set datetime type',
             actionFunction: () => {
                 closeOpenEditingPopups();
 
-                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
-                void mitoAPI.editChangeColumnDtype(sheetIndex, selectedNumberSeriesColumnIDs, ColumnDtypes.DATETIME, getRandomId())
+                const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                const columnIDs = columnIndexesSelected
+                    .filter(colIdx => sheetData.data.length > colIdx)
+                    .map(colIdx => sheetData.data[colIdx]?.columnID)
+                
+                void mitoAPI.editChangeColumnDtype(sheetIndex, columnIDs, ColumnDtypes.DATETIME, getRandomId())
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
                     return 'There are no columns to format. Import data.'
                 }
-                
-                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+                return defaultActionDisabledMessage;
             },
-            searchTerms: ['percent', '%', 'number format', 'format'],
-            tooltip: 'Set datatype of all of the selected number columns to datetime.'
+            searchTerms: ['datetime', 'dtype'],
+            tooltip: 'Set datatype of all of the selected columns to datetime.'
         },
         [ActionEnum.Fullscreen]: {
             type: 'build-time',
