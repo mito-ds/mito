@@ -319,9 +319,15 @@ test.describe('Keyboard Shortcuts', () => {
     const mito = await getMitoFrameWithTestCSV(page);
     await importCSV(page, mito, 'test.csv');
 
+    // Check that the tab with .tab-selected is the second tab, 
+    // with the text test_1
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
+
     await page.keyboard.press('Alt+ArrowRight');
-    let tab = await mito.locator('div').filter({ hasText: /^test$/ }).first();
-    expect(tab).toHaveClass(/tab-selected/);
+
+    // Check that the tab with .tab-selected is the first tab
+    // with the text test
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
   });
 
   test('Previous Sheet', async ({ page }) => {
