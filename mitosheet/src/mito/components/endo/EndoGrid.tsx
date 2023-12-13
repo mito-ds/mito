@@ -20,6 +20,7 @@ import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 import { SendFunctionStatus } from "../../api/send";
 import { SearchBar } from "../SearchBar";
 import { Actions } from "../../utils/actions";
+import { getOperatingSystem } from "../../utils/keyboardShortcuts";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -311,9 +312,7 @@ function EndoGrid(props: {
                     1. Being on Mac, and command+clicking
                     2. Being on Windows, and ctrl+clicking
                 */
-                const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
-                    ? 'mac'
-                    : 'windows'
+                const operatingSystem = getOperatingSystem();
 
                 if (e.shiftKey) {
                     // Just add the new click locaton to a new selection at the end of the selections list

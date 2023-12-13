@@ -286,15 +286,19 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     }
 ]
 
+export const getOperatingSystem = () => {
+    return window.navigator.userAgent.toUpperCase().includes('MAC')
+        ? 'mac'
+        : 'windows';
+}
+
 /**
  * Handles keyboard shortcuts. If a keyboard shortcut is pressed, the corresponding action is executed.
  * @param e The keyboard event.
  * @param actions The actions object.
  */
 export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions) => {
-    const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
-        ? 'mac'
-        : 'windows'
+    const operatingSystem = getOperatingSystem();
 
     const shortcut = keyboardShortcuts.find(shortcut => {
         const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
