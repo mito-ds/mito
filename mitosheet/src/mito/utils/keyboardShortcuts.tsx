@@ -316,7 +316,11 @@ export const getKeyboardShortcutString = (action: Action) => {
 
     // For mac, use the symbol associated with command key. For windows, use the word "Meta".
     const metaKey = getOperatingSystem() === 'mac' ? '⌘' : 'Meta';
+
+    // If a key is a single character, make it uppercase. Otherwise, leave it as is.
     const key = keyCombo.keys[0].length === 1 ? keyCombo.keys[0].toUpperCase() : keyCombo.keys[0];
+
+    // Create a string describing the keyboard shortcut.
     const keyComboString = `${keyCombo.ctrlKey ? 'Ctrl+' : ''}${keyCombo.shiftKey ? 'Shift+' : ''}${keyCombo.altKey ? 'Alt+' : ''}${keyCombo.metaKey ? `${metaKey}+` : ''}${key}`
     return keyComboString;
 }
