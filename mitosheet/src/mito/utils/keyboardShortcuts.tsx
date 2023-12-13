@@ -139,6 +139,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         action: ActionEnum.Graph
     },
     {
+        // Note: safari grabs this shortcut and doesn't allow us to override it.
         macKeyCombo: {
             metaKey: true,
             keys: ['o']
@@ -163,6 +164,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
         action: ActionEnum.Filter
     },
     {
+        // Note: safari grabs this shortcut and doesn't allow us to override it.
         macKeyCombo: {
             metaKey: true,
             keys: ['m']
