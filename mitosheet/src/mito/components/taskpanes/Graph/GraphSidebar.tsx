@@ -155,9 +155,8 @@ const GraphSidebar = (props: {
         const boundingRect: DOMRect | undefined = props.mitoContainerRef.current
             ?.querySelector('#graph-div')
             ?.getBoundingClientRect();
-        const usingDefaultGraphParams = JSON.stringify(graphParams) === JSON.stringify(getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray));
 
-        if (boundingRect !== undefined && !usingDefaultGraphParams) {
+        if (boundingRect !== undefined) {
             await props.mitoAPI.editGraph(
                 graphID,
                 graphParams,
