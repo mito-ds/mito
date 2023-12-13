@@ -24,6 +24,12 @@ const getMitoFrameWithTestCSV = async (page: Page): Promise<FrameLocator> => {
   return mito;
 }
 
+const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator> => {
+  const mito = await getMitoFrame(page);
+  await importCSV(page, mito, 'types.csv');
+  return mito;
+}
+
 const awaitResponse = async (page: Page): Promise<void> => {
   // Wait at least 25 ms for the message to send
   await page.waitForTimeout(100);
@@ -405,5 +411,42 @@ test.describe('Keyboard Shortcuts', () => {
     await page.keyboard.press('Control+m');
     await awaitResponse(page);
     await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+  });
+  
+  test('Set Number Format', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').click();
+
+    await page.keyboard.press('Control+Shift+1');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+4');
+    await awaitResponse(page);
+    await expect(mito.getByText('$1.00', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+5');
+    await awaitResponse(page);
+    await expect(mito.getByText('100.00%', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+^');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00e+0', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+`');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00', { exact: true })).toBeVisible();
+  });
+
+  test('Set Datetime Dtype', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+    await mito.getByTitle('Column1').click();
+
+    await page.keyboard.press('Control+Shift+@');
+    await awaitResponse(page);
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveText(/date/);
+    await expect(mito.locator('#root')).toContainText('1990-10-12 00:00:00');
+    await expect(mito.locator('#root')).toContainText('2000-01-02 00:00:00');
+    await expect(mito.locator('#root')).toContainText('1961-12-29 00:00:00');
   });
 });

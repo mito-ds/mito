@@ -83,6 +83,7 @@ import ResetIndexIcon from "../components/icons/ResetIndexIcon";
 import NumberFormatIcon from "../components/icons/NumberFormatIcon";
 import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
 import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
+import { ColumnDtypes } from "../components/taskpanes/ControlPanel/FilterAndSortTab/DtypeCard";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -1071,9 +1072,69 @@ export const getActions = (
             searchTerms: ['formulas', 'functions'],
             tooltip: "Add formulas to the selected columns."
         },
-        [ActionEnum.Currency_Format]: {
+        [ActionEnum.Set_Format_Default]: {
             type: 'build-time',
-            staticType: ActionEnum.Currency_Format,
+            staticType: ActionEnum.Set_Format_Default,
+            longTitle: 'Format as default',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.PLAIN_TEXT }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['plain', 'default', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as default (plain text). This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
+        [ActionEnum.Set_Format_Number]: {
+            type: 'build-time',
+            staticType: ActionEnum.Set_Format_Number,
+            longTitle: 'Format as number (two decimal places)',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { precision: 2 }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['accounting', 'number', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as number with two decimal places. This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
+        [ActionEnum.Set_Format_Scientific]: {
+            type: 'build-time',
+            staticType: ActionEnum.Set_Format_Scientific,
+            longTitle: 'Format as scientific notation',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
+                void changeFormatOfColumns(sheetIndex, sheetData, selectedNumberSeriesColumnIDs, { type: NumberColumnFormatEnum.SCIENTIFIC_NOTATION }, mitoAPI)
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                
+                return getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData).length > 0 ? defaultActionDisabledMessage : FORMAT_DISABLED_MESSAGE
+            },
+            searchTerms: ['scientific notation', 'number format', 'format'],
+            tooltip: 'Format all of the selected columns as scientific notation. This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
+        [ActionEnum.Set_Format_Currency]: {
+            type: 'build-time',
+            staticType: ActionEnum.Set_Format_Currency,
             iconToolbar: CurrencyIcon,
             longTitle: 'Format as currency',
             actionFunction: () => {
@@ -1092,9 +1153,9 @@ export const getActions = (
             searchTerms: ['currency', 'number format', 'format'],
             tooltip: 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.'
         },
-        [ActionEnum.Percent_Format]: {
+        [ActionEnum.Set_Format_Percent]: {
             type: 'build-time',
-            staticType: ActionEnum.Percent_Format,
+            staticType: ActionEnum.Set_Format_Percent,
             iconToolbar: PercentIcon,
             longTitle: 'Format as percentage',
             actionFunction: () => {
@@ -1112,6 +1173,29 @@ export const getActions = (
             },
             searchTerms: ['percent', '%', 'number format', 'format'],
             tooltip: 'Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.'
+        },
+        [ActionEnum.Set_DateTime_Dtype]: {
+            type: 'build-time',
+            staticType: ActionEnum.Set_DateTime_Dtype,
+            longTitle: 'Set datetime type',
+            actionFunction: () => {
+                closeOpenEditingPopups();
+
+                const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                const columnIDs = columnIndexesSelected
+                    .filter(colIdx => sheetData.data.length > colIdx)
+                    .map(colIdx => sheetData.data[colIdx]?.columnID)
+                
+                void mitoAPI.editChangeColumnDtype(sheetIndex, columnIDs, ColumnDtypes.DATETIME, getRandomId())
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no columns to format. Import data.'
+                }
+                return defaultActionDisabledMessage;
+            },
+            searchTerms: ['datetime', 'dtype'],
+            tooltip: 'Set datatype of all of the selected columns to datetime.'
         },
         [ActionEnum.Fullscreen]: {
             type: 'build-time',
