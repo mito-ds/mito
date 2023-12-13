@@ -126,6 +126,100 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             keys: ['h']
         },
         action: ActionEnum.OpenFindAndReplace
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['`', '~']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['`', '~']
+        },
+        action: ActionEnum.Set_Format_Default
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['1', '!']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['1', '!']
+        },
+        action: ActionEnum.Set_Format_Number
+    },
+    // Both ctrl+shift+2 and ctrl+shift+3 are used to set datetime type, because in Excel
+    // ctrl+shift+2 is used to set "time" and ctrl+shift+3 is used to set "date". For our purposes,
+    // we just set it to the same type.
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['@', '2']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['@', '2']
+        },
+        action: ActionEnum.Set_DateTime_Dtype
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['3', '#']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['3', '#']
+        },
+        action: ActionEnum.Set_DateTime_Dtype
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['4', '$']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['4', '$']
+        },
+        action: ActionEnum.Set_Format_Currency
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['5', '%']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['5', '%']
+        },
+        action: ActionEnum.Set_Format_Percent
+    },
+    {
+        macKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['6', '^']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            shiftKey: true,
+            keys: ['6', '^']
+        },
+        action: ActionEnum.Set_Format_Scientific
     }
 ]
 
