@@ -4,7 +4,7 @@ import React from 'react';
 import { BuildTimeAction, RunTimeAction } from '../../types';
 import { classNames } from '../../utils/classNames';
 import StepsIcon from '../icons/StepsIcon';
-import { getOperatingSystem, keyboardShortcuts } from '../../utils/keyboardShortcuts';
+import { getKeyboardShortcutString } from '../../utils/keyboardShortcuts';
 
 /**
  * The ToolbarButton component is used to create each
@@ -61,17 +61,8 @@ const ToolbarButton = (
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
     const hasDropdown = props.children !== undefined;
     const orientation = props.orientation ?? 'vertical';
-    const shortcut = keyboardShortcuts.find(shortcut => {
-        return shortcut.action === props.action.staticType
-    });
     let tooltip = disabledTooltip ?? props.action.tooltip ?? props.action.titleToolbar;
-    if (shortcut !== undefined) {
-        const keyCombo = shortcut[window.navigator.userAgent.toUpperCase().includes('MAC') ? 'macKeyCombo' : 'winKeyCombo']
-        const metaKey = getOperatingSystem() === 'mac' ? '⌘' : 'Meta';
-        const key = keyCombo.keys[0].length === 1 ? keyCombo.keys[0].toUpperCase() : keyCombo.keys[0];
-        const keyComboString = `${keyCombo.ctrlKey ? 'Ctrl+' : ''}${keyCombo.shiftKey ? 'Shift+' : ''}${keyCombo.altKey ? 'Alt+' : ''}${keyCombo.metaKey ? `${metaKey}+` : ''}${key}`
-        tooltip += `(${keyComboString})`
-    }
+    tooltip += getKeyboardShortcutString(props.action) ?? '';
     
     return (
         <div 

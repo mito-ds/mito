@@ -1,4 +1,4 @@
-import { ActionEnum, KeyboardShorcut } from "../types"
+import { Action, ActionEnum, KeyboardShorcut } from "../types"
 import { Actions } from "./actions"
 
 /**
@@ -286,10 +286,39 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     }
 ]
 
+/**
+ * Used to determine if the user is on a mac or windows.
+ * @returns 'mac' if the user is on a mac, 'windows' otherwise.
+ */
 export const getOperatingSystem = () => {
     return window.navigator.userAgent.toUpperCase().includes('MAC')
         ? 'mac'
         : 'windows';
+}
+
+/**
+ * @param action - The action to get the keyboard shortcut for.
+ * @returns A string describing the keyboard shortcut for the given action.
+ */
+export const getKeyboardShortcutString = (action: Action) => {
+    // Find the keyboard shortcut for the given action.
+    const shortcut = keyboardShortcuts.find(shortcut => {
+        return shortcut.action === action.staticType
+    });
+
+    // If there is no keyboard shortcut for the given action, return undefined.
+    if (shortcut === undefined) {
+        return undefined;
+    }
+
+    // Get the key combo for the current operating system.
+    const keyCombo = shortcut[window.navigator.userAgent.toUpperCase().includes('MAC') ? 'macKeyCombo' : 'winKeyCombo']
+
+    // For mac, use the symbol associated with command key. For windows, use the word "Meta".
+    const metaKey = getOperatingSystem() === 'mac' ? '⌘' : 'Meta';
+    const key = keyCombo.keys[0].length === 1 ? keyCombo.keys[0].toUpperCase() : keyCombo.keys[0];
+    const keyComboString = `${keyCombo.ctrlKey ? 'Ctrl+' : ''}${keyCombo.shiftKey ? 'Shift+' : ''}${keyCombo.altKey ? 'Alt+' : ''}${keyCombo.metaKey ? `${metaKey}+` : ''}${key}`
+    return keyComboString;
 }
 
 /**
