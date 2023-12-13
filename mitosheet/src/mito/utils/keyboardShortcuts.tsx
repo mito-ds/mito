@@ -129,6 +129,69 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     },
     {
         macKeyCombo: {
+            altKey: true,
+            keys: ['F1']
+        },
+        winKeyCombo: {
+            altKey: true,
+            keys: ['F1']
+        },
+        action: ActionEnum.Graph
+    },
+    {
+        // Note: safari grabs this shortcut and doesn't allow us to override it.
+        macKeyCombo: {
+            metaKey: true,
+            keys: ['o']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            keys: ['o']
+        },
+        preventDefaultAndStopPropagation: true,
+        action: ActionEnum.Import_Files
+    },
+    {
+        macKeyCombo: {
+            altKey: true,
+            keys: ['ArrowDown']
+        },
+        winKeyCombo: {
+            altKey: true,
+            keys: ['ArrowDown']
+        },
+        preventDefaultAndStopPropagation: true,
+        action: ActionEnum.Filter
+    },
+    {
+        // Note: safari grabs this shortcut and doesn't allow us to override it.
+        macKeyCombo: {
+            metaKey: true,
+            keys: ['m']
+        },
+        winKeyCombo: {
+            ctrlKey: true,
+            keys: ['m']
+        },
+        preventDefaultAndStopPropagation: true,
+        action: ActionEnum.Merge
+    },
+    {
+        macKeyCombo: {
+            shiftKey: true,
+            ctrlKey: true,
+            keys: ['L']
+        },
+        winKeyCombo: {
+            shiftKey: true,
+            ctrlKey: true,
+            keys: ['L']
+        },
+        preventDefaultAndStopPropagation: true,
+        action: ActionEnum.Pivot
+    },
+    {   
+        macKeyCombo: {
             ctrlKey: true,
             shiftKey: true,
             keys: ['`', '~']
@@ -245,7 +308,7 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
         // If the special keys matched, check if the key is the same.
         return keyCombo.keys.includes(e.key);
     })
-    
+
     if (shortcut !== undefined && !actions.buildTimeActions[shortcut.action].isDisabled()) {
         actions.buildTimeActions[shortcut.action].actionFunction()
         if (shortcut.preventDefaultAndStopPropagation) {
