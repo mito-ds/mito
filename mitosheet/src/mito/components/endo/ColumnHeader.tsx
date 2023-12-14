@@ -17,6 +17,7 @@ import ColumnHeaderContextMenu from './ColumnHeaderContextMenu';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 import { Actions } from '../../utils/actions';
+import { stopPropagationForCmdA } from '../../utils/keyboardShortcuts';
 
 export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
 export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
@@ -309,6 +310,8 @@ const ColumnHeader = (props: {
                                     onKeyDown={(e) => {
                                         if (e.key === 'Escape') {
                                             closeColumnHeaderEditor()
+                                        } else {
+                                            stopPropagationForCmdA(e);
                                         }
                                     }}
                                     autoFocus
@@ -420,6 +423,8 @@ const ColumnHeader = (props: {
                             onKeyDown={(e) => {
                                 if (e.key === 'Escape') {
                                     closeColumnHeaderEditor()
+                                } else {
+                                    stopPropagationForCmdA(e);
                                 }
                             }}
                             // We submit the column header if the user focuses outside the input

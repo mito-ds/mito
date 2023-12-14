@@ -317,3 +317,18 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
         }
     }
 }
+
+/**
+ * Given a keyboard event, stop propagation if the event is cmd+a or ctrl+a.
+ * This is used to prevent the mitosheet from selecting all cells when the user presses cmd+a or ctrl+a
+ * while an editor is open.
+ * @param e The keyboard event.
+ */
+export const stopPropagationForCmdA = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const operatingSystem = getOperatingSystem();
+    const macCmdAll = operatingSystem === 'mac' && e.metaKey && e.key === 'a';
+    const windowsCtrlAll = operatingSystem !== 'mac' && e.ctrlKey && e.key === 'a';
+    if (macCmdAll || windowsCtrlAll) {
+        e.stopPropagation();
+    }
+}
