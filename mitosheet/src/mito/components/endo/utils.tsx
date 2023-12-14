@@ -1,4 +1,4 @@
-import { Action, ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
+import { Action, ActionEnum, ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getKeyboardShortcutString } from "../../utils/keyboardShortcuts";
 import StepsIcon from "../icons/StepsIcon";
@@ -209,6 +209,6 @@ export const getPropsForContextMenuDropdownItem = (action: Action, closeOpenEdit
         },
         disabled: !!action.isDisabled(),
         icon: action.iconContextMenu ? <action.iconContextMenu /> : action.iconToolbar ? <action.iconToolbar/> : <StepsIcon/>,
-        rightText: getKeyboardShortcutString(action),
+        rightText: getKeyboardShortcutString(action.staticType as ActionEnum),
     }
 }

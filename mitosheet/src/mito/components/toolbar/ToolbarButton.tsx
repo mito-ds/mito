@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { BuildTimeAction, RunTimeAction } from '../../types';
+import { ActionEnum, BuildTimeAction, RunTimeAction } from '../../types';
 import { classNames } from '../../utils/classNames';
 import StepsIcon from '../icons/StepsIcon';
 import { getKeyboardShortcutString } from '../../utils/keyboardShortcuts';
@@ -62,7 +62,7 @@ const ToolbarButton = (
     const hasDropdown = props.children !== undefined;
     const orientation = props.orientation ?? 'vertical';
     let tooltip = disabledTooltip ?? props.action.tooltip ?? props.action.titleToolbar;
-    tooltip += ` (${getKeyboardShortcutString(props.action)})` ?? '';
+    tooltip += ` (${getKeyboardShortcutString(props.action.staticType as ActionEnum)})` ?? '';
     
     return (
         <div 

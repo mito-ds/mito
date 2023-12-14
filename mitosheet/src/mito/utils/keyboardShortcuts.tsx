@@ -1,4 +1,4 @@
-import { Action, ActionEnum, KeyboardShorcut } from "../types"
+import { ActionEnum, KeyboardShorcut } from "../types"
 import { Actions } from "./actions"
 
 /**
@@ -286,6 +286,8 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     }
 ]
 
+export const keyboardShortcutsMap = new Map<ActionEnum, KeyboardShorcut>(keyboardShortcuts.map(shortcut => [shortcut.action, shortcut]))
+
 /**
  * Used to determine if the user is on a mac or windows.
  * @returns 'mac' if the user is on a mac, 'windows' otherwise.
@@ -300,11 +302,9 @@ export const getOperatingSystem = () => {
  * @param action - The action to get the keyboard shortcut for.
  * @returns A string describing the keyboard shortcut for the given action.
  */
-export const getKeyboardShortcutString = (action: Action) => {
+export const getKeyboardShortcutString = (action: ActionEnum) => {
     // Find the keyboard shortcut for the given action.
-    const shortcut = keyboardShortcuts.find(shortcut => {
-        return shortcut.action === action.staticType
-    });
+    const shortcut = keyboardShortcutsMap.get(action);
 
     // If there is no keyboard shortcut for the given action, return undefined.
     if (shortcut === undefined) {
