@@ -830,7 +830,7 @@ export interface KeyboardShortcut {
 
     /**
      * Some keyboard shortcuts should only be triggered if the user is not in a text input. 
-     * For example. cmd+a
+     * For example. cmd+a should select the text in the input field, not select all the cells.
      */
     skipIfInTextInput?: boolean
 
