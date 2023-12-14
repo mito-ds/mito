@@ -48,16 +48,26 @@ class SnowflakeImportCodeChunk(CodeChunk):
                 'cur = con.cursor()',
             ]
         else:
+            # Get rid of user, password, and account
+            new_connection_params = copy(self.connection_params_dict)
+            new_connection_params.pop('user')
+            new_connection_params.pop('password')
+            new_connection_params.pop('account')
+
+            connection_param_transpiled_code = get_param_dict_as_code(new_connection_params, tab_level=0)
+
             imports.append('import os')
             snowflake_connection_code = [
                 'con = snowflake.connector.connect(',
                 f'    user=os.environ[\'SNOWFLAKE_USERNAME\'],',
                 f'    password=os.environ[\'SNOWFLAKE_PASSWORD\'],',
                 f'    account=os.environ[\'SNOWFLAKE_ACCOUNT\'],',
+                f'    {connection_param_transpiled_code.strip()}',
                 ')',
                 '',
                 'cur = con.cursor()',
             ]
+            print(snowflake_connection_code)
 
         df_creation_code = ['']
         for sql_query, df_name in zip(self.sql_queries, self.new_df_names):
