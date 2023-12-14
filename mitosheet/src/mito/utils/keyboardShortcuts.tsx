@@ -291,7 +291,7 @@ export const keyboardShortcuts: KeyboardShortcut[] = [
     }
 ]
 
-export const keyboardShortcutsMap = new Map<ActionEnum, KeyboardShorcut>(keyboardShortcuts.map(shortcut => [shortcut.action, shortcut]))
+export const keyboardShortcutsMap = new Map<ActionEnum, KeyboardShortcut>(keyboardShortcuts.map(shortcut => [shortcut.action, shortcut]))
 
 /**
  * Used to determine if the user is on a mac or windows.
