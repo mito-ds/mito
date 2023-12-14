@@ -1807,9 +1807,6 @@ export const getActions = (
             staticType: ActionEnum.Select_All,
             longTitle: 'Select all columns',
             actionFunction: () => {
-                if (document.activeElement instanceof HTMLElement && document.activeElement.tagName.toLowerCase() === 'input') {
-                    return;
-                }
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 

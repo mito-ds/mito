@@ -818,7 +818,7 @@ export interface KeyBinding {
     metaKey?: boolean;
 }
 
-export interface KeyboardShorcut {
+export interface KeyboardShortcut {
     macKeyCombo: KeyBinding
     winKeyCombo: KeyBinding
     action: ActionEnum
@@ -827,6 +827,12 @@ export interface KeyboardShorcut {
     // keybindings. For example, 'mitosheet:mito-undo' will add a keybinding for
     // the command registered to that ID in plugin.tsx.
     jupyterLabCommand?: string
+
+    /**
+     * Some keyboard shortcuts should only be triggered if the user is not in a text input. 
+     * For example. cmd+a
+     */
+    skipIfInTextInput?: boolean
 
     // For some keybindings (ex: cmd + y), we'd want to stop propagation
     // so that they don't open something in your browser
