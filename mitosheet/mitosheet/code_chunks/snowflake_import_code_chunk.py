@@ -18,11 +18,13 @@ class SnowflakeImportCodeChunk(CodeChunk):
         self, 
         prev_state: State, 
         connection_params_dict: Dict[str, str], 
+        credentials_are_in_env: bool,
         sql_queries: List[str],
         new_df_names: List[str]
     ):
         super().__init__(prev_state)
         self.connection_params_dict = connection_params_dict
+        self.credentials_are_in_env = credentials_are_in_env
         self.sql_queries = sql_queries
 
         self.new_df_names = new_df_names
@@ -36,13 +38,26 @@ class SnowflakeImportCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
 
-        connection_param_transpiled_code = get_param_dict_as_code(self.connection_params_dict)
+        imports = ['import snowflake.connector']
 
-        snowflake_connection_code = [
-            f'con = snowflake.connector.connect({connection_param_transpiled_code})',
-            '',
-            'cur = con.cursor()',
-        ]
+        if not self.credentials_are_in_env:
+            connection_param_transpiled_code = get_param_dict_as_code(self.connection_params_dict)
+            snowflake_connection_code = [
+                f'con = snowflake.connector.connect({connection_param_transpiled_code})',
+                '',
+                'cur = con.cursor()',
+            ]
+        else:
+            imports.append('import os')
+            snowflake_connection_code = [
+                'con = snowflake.connector.connect(',
+                f'    user=os.environ[\'SNOWFLAKE_USERNAME\'],',
+                f'    password=os.environ[\'SNOWFLAKE_PASSWORD\'],',
+                f'    account=os.environ[\'SNOWFLAKE_ACCOUNT\'],',
+                ')',
+                '',
+                'cur = con.cursor()',
+            ]
 
         df_creation_code = ['']
         for sql_query, df_name in zip(self.sql_queries, self.new_df_names):
@@ -54,7 +69,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
 
         all_code = snowflake_connection_code + df_creation_code + close_connection_code
                         
-        return all_code, ['import snowflake.connector']
+        return all_code, imports
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.new_df_names))]
