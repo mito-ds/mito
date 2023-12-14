@@ -27,9 +27,10 @@ __cached_snowflake_credentials: Optional[SnowflakeCredentials] = None
 def get_cached_snowflake_credentials() -> Optional[SnowflakeCredentials]:
     global __cached_snowflake_credentials
 
-    # If the snowflake connector is importer, and the SNOWFLAKE_ACCOUNT environment variable is set,
-    # then we can use that to prepopulate the snowflake credentials.
-    if SNOWFLAKE_CONNECTOR_IMPORTED and 'SNOWFLAKE_ACCOUNT' in os.environ:
+    # If we can auth off of the env variables, then we do so and cache the credentials
+    if SNOWFLAKE_CONNECTOR_IMPORTED \
+        and 'SNOWFLAKE_ACCOUNT' in os.environ and 'SNOWFLAKE_USERNAME' in os.environ and 'SNOWFLAKE_PASSWORD' in os.environ \
+        and __cached_snowflake_credentials is None:
         # Check if the snowflake credentials are valid
         exception = get_exception_from_snowflake_credentials(
             os.environ['SNOWFLAKE_USERNAME'],
