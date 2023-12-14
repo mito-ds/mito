@@ -1,5 +1,6 @@
-import { Action, ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
+import { Action, ActionEnum, ColumnFilters, ColumnFormatType, ColumnHeader, ColumnID, GridState, IndexLabel, SheetData, UIState } from "../../types";
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
+import { getKeyboardShortcutString } from "../../utils/keyboardShortcuts";
 import StepsIcon from "../icons/StepsIcon";
 import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
 import { getWidthData } from "./widthUtils";
@@ -208,6 +209,6 @@ export const getPropsForContextMenuDropdownItem = (action: Action, closeOpenEdit
         },
         disabled: !!action.isDisabled(),
         icon: action.iconContextMenu ? <action.iconContextMenu /> : action.iconToolbar ? <action.iconToolbar/> : <StepsIcon/>,
-        rightText: action.displayKeyboardShortcuts?.mac
+        rightText: getKeyboardShortcutString(action.staticType as ActionEnum),
     }
 }

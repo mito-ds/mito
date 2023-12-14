@@ -323,21 +323,21 @@ test.describe('Home Tab Buttons', () => {
 test.describe('Keyboard Shortcuts', () => {
   test('Select Column', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByText('5').click();
+    await mito.getByText('5', { exact: true }).click();
     await page.keyboard.press('Control+ ');
     await expect(mito.locator('.endo-column-header-container-selected .endo-column-header-final-text')).toHaveText('Column2');
   })
 
   test('Select Row', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByTitle('5').click();
+    await mito.getByTitle('5', { exact: true }).click();
     await page.keyboard.press('Shift+ ');
     await expect(mito.locator('.index-header-selected')).toHaveText('1');
   })
 
   test('Select Row with multiple rows', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByTitle('5').click();
+    await mito.getByTitle('5', {exact: true}).click();
     await mito.getByTitle('8').click({ modifiers: ['Shift']});
     await page.keyboard.press('Shift+ ');
     await expect(mito.locator('.index-header-selected')).toHaveCount(2);
@@ -448,5 +448,12 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('#root')).toContainText('1990-10-12 00:00:00');
     await expect(mito.locator('#root')).toContainText('2000-01-02 00:00:00');
     await expect(mito.locator('#root')).toContainText('1961-12-29 00:00:00');
+  });
+
+  test('Select All isn\'t triggered when column header is editing', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').dblclick();
+    await page.keyboard.press('Control+a');
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(1);
   });
 });

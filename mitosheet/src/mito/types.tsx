@@ -818,7 +818,7 @@ export interface KeyBinding {
     metaKey?: boolean;
 }
 
-export interface KeyboardShorcut {
+export interface KeyboardShortcut {
     macKeyCombo: KeyBinding
     winKeyCombo: KeyBinding
     action: ActionEnum
@@ -827,6 +827,18 @@ export interface KeyboardShorcut {
     // keybindings. For example, 'mitosheet:mito-undo' will add a keybinding for
     // the command registered to that ID in plugin.tsx.
     jupyterLabCommand?: string
+
+    /**
+     * Some keyboard shortcuts should only be triggered if the user is not in a text input. 
+     * For example. cmd+a should select the text in the input field, not select all the cells.
+     */
+    skipIfInTextInput?: boolean
+
+    /**
+     * Some keyboard shortcuts should only be triggered if the user does not have text selected.
+     * For example, cmd+c should copy the text in the input field, not copy the cells.
+     */
+    skipIfTextSelected?: boolean
 
     // For some keybindings (ex: cmd + y), we'd want to stop propagation
     // so that they don't open something in your browser
@@ -1113,12 +1125,6 @@ export interface BaseAction<Type, StaticType> {
 
     // The tooltip to display in the toolbar or search bar when this is hovered over
     tooltip: string
-
-    // If this action has a keyboard shortcut, then you can display this by setting these values
-    displayKeyboardShortcuts?: {
-        mac: string,
-        windows: string
-    }
 
     // If this action is only available for pro users
     requiredPlan?: 'pro' | 'enterprise'

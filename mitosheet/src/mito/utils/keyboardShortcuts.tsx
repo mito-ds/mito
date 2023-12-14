@@ -1,10 +1,10 @@
-import { ActionEnum, KeyboardShorcut } from "../types"
+import { ActionEnum, KeyboardShortcut } from "../types"
 import { Actions } from "./actions"
 
 /**
  * A list of all keyboard shortcuts in the app.
  */
-export const keyboardShortcuts: KeyboardShorcut[] = [
+export const keyboardShortcuts: KeyboardShortcut[] = [
     {
         macKeyCombo: {
             metaKey: true,
@@ -14,6 +14,8 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             ctrlKey: true,
             keys: ['c']
         },
+        skipIfInTextInput: true,
+        skipIfTextSelected: true,
         action: ActionEnum.Copy
     },
     {
@@ -86,6 +88,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             ctrlKey: true,
             keys: ['a']
         },
+        skipIfInTextInput: true,
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Select_All
     },
@@ -100,6 +103,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
             keys: ['ArrowLeft']
         },
+        skipIfInTextInput: true,
         action: ActionEnum.Open_Previous_Sheet
     },
     {
@@ -113,6 +117,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
             keys: ['ArrowRight']
         },
+        skipIfInTextInput: true,
         action: ActionEnum.Open_Next_Sheet
     },
     {
@@ -286,15 +291,52 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
     }
 ]
 
+export const keyboardShortcutsMap = new Map<ActionEnum, KeyboardShorcut>(keyboardShortcuts.map(shortcut => [shortcut.action, shortcut]))
+
+/**
+ * Used to determine if the user is on a mac or windows.
+ * @returns 'mac' if the user is on a mac, 'windows' otherwise.
+ */
+export const getOperatingSystem = () => {
+    return window.navigator.userAgent.toUpperCase().includes('MAC')
+        ? 'mac'
+        : 'windows';
+}
+
+/**
+ * @param action - The action to get the keyboard shortcut for.
+ * @returns A string describing the keyboard shortcut for the given action.
+ */
+export const getKeyboardShortcutString = (action: ActionEnum) => {
+    // Find the keyboard shortcut for the given action.
+    const shortcut = keyboardShortcutsMap.get(action);
+
+    // If there is no keyboard shortcut for the given action, return undefined.
+    if (shortcut === undefined) {
+        return undefined;
+    }
+
+    // Get the key combo for the current operating system.
+    const keyCombo = shortcut[window.navigator.userAgent.toUpperCase().includes('MAC') ? 'macKeyCombo' : 'winKeyCombo']
+
+    // For mac, use the symbol associated with command key. For windows, use the word "Meta".
+    const metaKey = getOperatingSystem() === 'mac' ? '⌘' : 'Meta';
+
+    // If a key is a single character, make it uppercase. Otherwise, leave it as is.
+    const key = keyCombo.keys[0].length === 1 ? keyCombo.keys[0].toUpperCase() : keyCombo.keys[0];
+
+    // Create a string describing the keyboard shortcut.
+    const keyComboString = `${keyCombo.ctrlKey ? 'Ctrl+' : ''}${keyCombo.shiftKey ? 'Shift+' : ''}${keyCombo.altKey ? 'Alt+' : ''}${keyCombo.metaKey ? `${metaKey}+` : ''}${key}`
+    return keyComboString;
+}
+
 /**
  * Handles keyboard shortcuts. If a keyboard shortcut is pressed, the corresponding action is executed.
  * @param e The keyboard event.
  * @param actions The actions object.
  */
 export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions) => {
-    const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
-        ? 'mac'
-        : 'windows'
+    const operatingSystem = getOperatingSystem();
 
     const shortcut = keyboardShortcuts.find(shortcut => {
         const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
@@ -309,7 +351,15 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
         return keyCombo.keys.includes(e.key);
     })
 
-    if (shortcut !== undefined && !actions.buildTimeActions[shortcut.action].isDisabled()) {
+    if (shortcut === undefined) {
+        return;
+    }
+    
+    const shortcutIsDisabled = actions.buildTimeActions[shortcut.action].isDisabled();
+    const isInTextInput = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+    const isTextSelected = document.getSelection()?.toString() !== '';
+
+    if (!shortcutIsDisabled && !(shortcut.skipIfInTextInput && isInTextInput) && !(shortcut.skipIfTextSelected && isTextSelected)) {
         actions.buildTimeActions[shortcut.action].actionFunction()
         if (shortcut.preventDefaultAndStopPropagation) {
             e.preventDefault();

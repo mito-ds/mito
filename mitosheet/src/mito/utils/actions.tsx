@@ -416,11 +416,7 @@ export const getActions = (
                 return getDataframeIsSelected(uiState, sheetDataArray) ? defaultActionDisabledMessage : "There is no selected data to copy."
             },
             searchTerms: ['copy', 'paste', 'export'],
-            tooltip: "Copy the current selection to the clipboard.",
-            displayKeyboardShortcuts: {
-                mac: 'Cmd+C',
-                windows: 'Ctrl+C'
-            }
+            tooltip: "Copy the current selection to the clipboard."
         },
         [ActionEnum.CopyCode]: {
             type: 'build-time',
@@ -1601,11 +1597,7 @@ export const getActions = (
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['redo', 'undo'],
-            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo.",
-            displayKeyboardShortcuts: {
-                mac: 'Cmd+Y',
-                windows: 'Ctrl+Y'
-            }
+            tooltip: "Reapplies the last step that you undid, as long as you haven't made any edits since the undo."
         },
         [ActionEnum.Rename_Column]: {
             type: 'build-time',
@@ -2047,10 +2039,6 @@ export const getActions = (
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['search', 'find', 'filter', 'lookup'],
             tooltip: "Search for a value in your data.",
-            displayKeyboardShortcuts: {
-                mac: 'Cmd+F',
-                windows: 'Ctrl+F'
-            }
         },
         [ActionEnum.OpenFindAndReplace]: {
             type: 'build-time',
@@ -2077,11 +2065,7 @@ export const getActions = (
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no sheets to pivot. Import data.'},
             searchTerms: ['search', 'find', 'filter', 'lookup'],
-            tooltip: "Search for a value in your data and replace with another value.",
-            displayKeyboardShortcuts: {
-                mac: 'Shift+Ctrl+F',
-                windows: 'Ctrl+H'
-            }
+            tooltip: "Search for a value in your data and replace with another value."
         },
         [ActionEnum.Open_Next_Sheet]: {
             type: 'build-time',
@@ -2100,11 +2084,7 @@ export const getActions = (
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['sheet', 'index', 'next', 'forward'],
-            tooltip: "Go to the next sheet.",
-            displayKeyboardShortcuts: {
-                mac: 'Option+Right Arrow',
-                windows: 'Alt+Right Arrow'
-            }
+            tooltip: "Go to the next sheet."
         },
         [ActionEnum.Open_Previous_Sheet]: {
             type: 'build-time',
@@ -2123,11 +2103,7 @@ export const getActions = (
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['sheet', 'index', 'previous', 'last'],
-            tooltip: "Go to the previous sheet.",
-            displayKeyboardShortcuts: {
-                mac: 'Option+Left Arrow',
-                windows: 'Alt+Left Arrow'
-            }
+            tooltip: "Go to the previous sheet."
         },
         [ActionEnum.Undo]: {
             type: 'build-time',
@@ -2145,11 +2121,7 @@ export const getActions = (
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['undo', 'go back', 'redo'],
-            tooltip: 'Undo the most recent edit.',
-            displayKeyboardShortcuts: {
-                mac: 'Cmd+Z',
-                windows: 'Ctrl+Z'
-            }
+            tooltip: 'Undo the most recent edit.'
         },
         [ActionEnum.Unique_Values]: {
             type: 'build-time',
