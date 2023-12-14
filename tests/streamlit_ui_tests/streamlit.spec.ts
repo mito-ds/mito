@@ -449,4 +449,11 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('#root')).toContainText('2000-01-02 00:00:00');
     await expect(mito.locator('#root')).toContainText('1961-12-29 00:00:00');
   });
+
+  test('Select All isn\'t triggered when column header is editing', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').dblclick();
+    await page.keyboard.press('Control+a');
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(1);
+  });
 });

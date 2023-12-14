@@ -1,10 +1,10 @@
-import { ActionEnum, KeyboardShorcut } from "../types"
+import { ActionEnum, KeyboardShortcut } from "../types"
 import { Actions } from "./actions"
 
 /**
  * A list of all keyboard shortcuts in the app.
  */
-export const keyboardShortcuts: KeyboardShorcut[] = [
+export const keyboardShortcuts: KeyboardShortcut[] = [
     {
         macKeyCombo: {
             metaKey: true,
@@ -14,6 +14,8 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             ctrlKey: true,
             keys: ['c']
         },
+        skipIfInTextInput: true,
+        skipIfTextSelected: true,
         action: ActionEnum.Copy
     },
     {
@@ -86,6 +88,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             ctrlKey: true,
             keys: ['a']
         },
+        skipIfInTextInput: true,
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Select_All
     },
@@ -100,6 +103,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
             keys: ['ArrowLeft']
         },
+        skipIfInTextInput: true,
         action: ActionEnum.Open_Previous_Sheet
     },
     {
@@ -113,6 +117,7 @@ export const keyboardShortcuts: KeyboardShorcut[] = [
             // But Edge grabs focus when pressing ctrl+PageUp/PageDown (which is the Excel shortcut)
             keys: ['ArrowRight']
         },
+        skipIfInTextInput: true,
         action: ActionEnum.Open_Next_Sheet
     },
     {
@@ -346,7 +351,15 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
         return keyCombo.keys.includes(e.key);
     })
 
-    if (shortcut !== undefined && !actions.buildTimeActions[shortcut.action].isDisabled()) {
+    if (shortcut === undefined) {
+        return;
+    }
+    
+    const shortcutIsDisabled = actions.buildTimeActions[shortcut.action].isDisabled();
+    const isInTextInput = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+    const isTextSelected = document.getSelection()?.toString() !== '';
+
+    if (!shortcutIsDisabled && !(shortcut.skipIfInTextInput && isInTextInput) && !(shortcut.skipIfTextSelected && isTextSelected)) {
         actions.buildTimeActions[shortcut.action].actionFunction()
         if (shortcut.preventDefaultAndStopPropagation) {
             e.preventDefault();
