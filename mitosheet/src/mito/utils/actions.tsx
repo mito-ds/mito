@@ -346,7 +346,7 @@ export const getActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                if (typeof uiState.currOpenDropdown === 'object') {
+                if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     const rowIndex = uiState.currOpenDropdown.rowIndex;
                     const columnIndex = uiState.currOpenDropdown.columnIndex;
                     setGridState(prevGridState => {
@@ -791,7 +791,7 @@ export const getActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                if (typeof uiState.currOpenDropdown === 'object') {
+                if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     const rowIndex = uiState.currOpenDropdown.rowIndex;
                     const columnIndex = uiState.currOpenDropdown.columnIndex;
                     setGridState(prevGridState => {
@@ -1617,7 +1617,7 @@ export const getActions = (
             actionFunction: () => {
                 let columnIndex = startingColumnIndex;
                 // If this is being triggered by a context menu, then we need to find the column that was clicked on
-                if (typeof uiState.currOpenDropdown === 'object') {
+                if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     columnIndex = uiState.currOpenDropdown.columnIndex;
                 }
                 const columnHeader = getCellDataFromCellIndexes(sheetData, -1, columnIndex).columnHeader;
@@ -1938,7 +1938,7 @@ export const getActions = (
                 }
 
                 let columnIndex = startingColumnIndex;
-                if (typeof uiState.currOpenDropdown === 'object') {
+                if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     columnIndex = uiState.currOpenDropdown.columnIndex;
                 }
                 const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
@@ -1965,7 +1965,7 @@ export const getActions = (
                 }
 
                 let columnIndex = startingColumnIndex;
-                if (typeof uiState.currOpenDropdown === 'object') {
+                if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     columnIndex = uiState.currOpenDropdown.columnIndex;
                 }
                 const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
@@ -2162,7 +2162,7 @@ export const getActions = (
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
 
-                if (typeof uiState.currOpenDropdown === 'object') {
+                if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     const rowIndex = uiState.currOpenDropdown.rowIndex;
                     const columnIndex = uiState.currOpenDropdown.columnIndex;
                     setGridState(prevGridState => {
@@ -2552,7 +2552,7 @@ export const getActions = (
         return {
             type: 'run-time',
             staticType: f.name,
-            toolbarTitle: displayName,
+            titleToolbar: displayName,
             longTitle: displayName,
             actionFunction: () => {
                 // We turn off editing mode, if it is on
@@ -2571,7 +2571,8 @@ export const getActions = (
             },
             isDisabled: () => {return undefined},
             searchTerms: displayName.split(' '),
-            tooltip: f.docstring
+            tooltip: f.docstring,
+            domain: f.domain
         }
     })
 
@@ -2580,7 +2581,7 @@ export const getActions = (
         return {
             type: 'run-time',
             staticType: f.name,
-            toolbarTitle: displayName,
+            titleToolbar: displayName,
             longTitle: displayName,
             actionFunction: () => {
                 // We turn off editing mode, if it is on
