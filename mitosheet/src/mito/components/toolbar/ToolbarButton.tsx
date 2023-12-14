@@ -30,7 +30,7 @@ const ToolbarButton = (
         /**
          * Optional override of the action's title. 
          */
-        toolbarTitle?: string;
+        titleToolbar?: string;
 
         /**
         * @param [highlightToolbarButton] - Used to draw attention to the toolbar item. Defaults to False. 
@@ -97,8 +97,8 @@ const ToolbarButton = (
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                         {props.children !== undefined && props.children}
                     </div>
-                    {(props.toolbarTitle ?? props.action.titleToolbar) && <p className='mito-toolbar-button-label'> 
-                        {props.toolbarTitle ?? props.action.titleToolbar}
+                    {(props.titleToolbar ?? props.action.titleToolbar) && <p className='mito-toolbar-button-label'> 
+                        {props.titleToolbar ?? props.action.titleToolbar}
                     </p>}
                 </span>
             </button>

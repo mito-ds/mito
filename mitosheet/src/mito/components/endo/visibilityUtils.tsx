@@ -99,5 +99,5 @@ export const ensureCellVisible = (containerDiv: HTMLDivElement | null, scrollAnd
 }
 
 export const isCurrOpenDropdownForCell = (uiState: UIState, rowIndex: number, columnIndex: number): boolean =>  {
-    return typeof uiState.currOpenDropdown == 'object' && uiState.currOpenDropdown.rowIndex === rowIndex && uiState.currOpenDropdown.columnIndex === columnIndex;
+    return typeof uiState.currOpenDropdown == 'object' && uiState.currOpenDropdown.type === 'context-menu' && uiState.currOpenDropdown.rowIndex === rowIndex && uiState.currOpenDropdown.columnIndex === columnIndex;
 }
