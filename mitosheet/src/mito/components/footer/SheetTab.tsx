@@ -15,7 +15,6 @@ import { ModalEnum } from '../modals/modals';
 import GraphIcon from '../icons/GraphIcon';
 import DataSheetTabActions from './DataSheetTabActions';
 import GraphSheetTabActions from './GraphSheetTabActions';
-import { stopPropagationForCmdA } from '../../utils/keyboardShortcuts';
 
 export const selectPreviousGraphSheetTab = (
     graphDataDict: GraphDataDict, 
@@ -198,9 +197,6 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                             value={newTabName} 
                             onChange={(e) => {setNewTabName(e.target.value)}}
                             autoFocus
-                            onKeyDown={(e) => {
-                                stopPropagationForCmdA(e);
-                            }}
                             onEscape={() => {
                                 setIsRename(false);
                                 setNewTabName(props.tabName);
