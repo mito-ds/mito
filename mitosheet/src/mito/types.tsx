@@ -1114,12 +1114,6 @@ export interface BaseAction<Type, StaticType> {
     // The tooltip to display in the toolbar or search bar when this is hovered over
     tooltip: string
 
-    // If this action has a keyboard shortcut, then you can display this by setting these values
-    displayKeyboardShortcuts?: {
-        mac: string,
-        windows: string
-    }
-
     // If this action is only available for pro users
     requiredPlan?: 'pro' | 'enterprise'
 
