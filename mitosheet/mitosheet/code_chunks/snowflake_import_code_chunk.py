@@ -67,7 +67,6 @@ class SnowflakeImportCodeChunk(CodeChunk):
                 '',
                 'cur = con.cursor()',
             ]
-            print(snowflake_connection_code)
 
         df_creation_code = ['']
         for sql_query, df_name in zip(self.sql_queries, self.new_df_names):
@@ -98,6 +97,7 @@ class SnowflakeImportCodeChunk(CodeChunk):
         return SnowflakeImportCodeChunk(
             self.prev_state,
             self.connection_params_dict,
+            self.credentials_are_in_env,
             all_sql_queries,
             all_df_names
         )        
