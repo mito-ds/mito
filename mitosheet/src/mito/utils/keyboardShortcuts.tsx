@@ -14,6 +14,8 @@ export const keyboardShortcuts: KeyboardShortcut[] = [
             ctrlKey: true,
             keys: ['c']
         },
+        skipIfInTextInput: true,
+        skipIfTextSelected: true,
         action: ActionEnum.Copy
     },
     {
@@ -318,8 +320,9 @@ export const handleKeyboardShortcuts = (e: React.KeyboardEvent, actions: Actions
     
     const shortcutIsDisabled = actions.buildTimeActions[shortcut.action].isDisabled();
     const isInTextInput = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+    const isTextSelected = document.getSelection()?.toString() !== '';
 
-    if (!shortcutIsDisabled && !(shortcut.skipIfInTextInput && isInTextInput)) {
+    if (!shortcutIsDisabled && !(shortcut.skipIfInTextInput && isInTextInput) && !(shortcut.skipIfTextSelected && isTextSelected)) {
         actions.buildTimeActions[shortcut.action].actionFunction()
         if (shortcut.preventDefaultAndStopPropagation) {
             e.preventDefault();

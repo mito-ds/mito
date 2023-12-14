@@ -834,6 +834,12 @@ export interface KeyboardShortcut {
      */
     skipIfInTextInput?: boolean
 
+    /**
+     * Some keyboard shortcuts should only be triggered if the user does not have text selected.
+     * For example, cmd+c should copy the text in the input field, not copy the cells.
+     */
+    skipIfTextSelected?: boolean
+
     // For some keybindings (ex: cmd + y), we'd want to stop propagation
     // so that they don't open something in your browser
     preventDefaultAndStopPropagation?: boolean
