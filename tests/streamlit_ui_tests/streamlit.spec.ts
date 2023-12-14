@@ -337,7 +337,7 @@ test.describe('Keyboard Shortcuts', () => {
 
   test('Select Row with multiple rows', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByTitle('5').click();
+    await mito.getByTitle('5', {exact: true}).click();
     await mito.getByTitle('8').click({ modifiers: ['Shift']});
     await page.keyboard.press('Shift+ ');
     await expect(mito.locator('.index-header-selected')).toHaveCount(2);
