@@ -30,7 +30,7 @@ export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDa
     deleting, duplicating, or renaming, and creating a sheet.
 */
 export default function SheetTabContextMenu(props: {
-    setDisplayActions: React.Dispatch<React.SetStateAction<boolean>>,
+    setDisplayContextMenu: (display: boolean) => void;
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
@@ -197,7 +197,7 @@ export default function SheetTabContextMenu(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setDisplayActions(false)}
+            closeDropdown={() => props.setDisplayContextMenu(false)}
             width='medium'
         >
             {dropdownItems}

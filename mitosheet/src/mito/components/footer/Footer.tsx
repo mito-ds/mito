@@ -34,6 +34,7 @@ function Footer(props: FooterProps): JSX.Element {
     const selectedSheetIndex = props.uiState.selectedSheetIndex
     const selectedGraphID = props.uiState.selectedGraphID
     const selectedTabType = props.uiState.selectedTabType
+    const [displayContextMenuForIndex, setDisplayContextMenuForIndex] = React.useState<number | string | null>(null);
 
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
@@ -79,10 +80,18 @@ function Footer(props: FooterProps): JSX.Element {
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
                             dfSources={props.dfSources}
+                            display={displayContextMenuForIndex === idx}
+                            setDisplayContextMenu={(display: boolean) => {
+                                if (display) {
+                                    setDisplayContextMenuForIndex(idx);
+                                } else {
+                                    setDisplayContextMenuForIndex(null);
+                                }
+                            }}
                         />
                     )
                 })}
-                {Object.entries(props.graphDataDict || {}).map(([graphID, graphData]) => {
+                {Object.entries(props.graphDataDict || {}).map(([graphID, graphData], index) => {
                     return (
                         <SheetTab
                             key={graphID}
@@ -98,6 +107,14 @@ function Footer(props: FooterProps): JSX.Element {
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
                             dfSources={props.dfSources}
+                            display={displayContextMenuForIndex === (props.sheetDataArray.length + index)}
+                            setDisplayContextMenu={(display: boolean) => {
+                                if (display) {
+                                    setDisplayContextMenuForIndex(props.sheetDataArray.length + index);
+                                } else {
+                                    setDisplayContextMenuForIndex(null);
+                                }
+                            }}
                         />
                     )
                 })}
