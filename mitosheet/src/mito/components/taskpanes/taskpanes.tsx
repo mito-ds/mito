@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import { SendFunctionError } from "../../api/send";
-import { ColumnID, GraphID, GraphSidebarTab } from "../../types"
+import { BackendMergeParams, ColumnID, GraphID, GraphSidebarTab } from "../../types"
 import { BackendPivotParams } from "../../types"
 import { MergeType } from "./Merge/MergeTaskpane";
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
@@ -73,7 +73,7 @@ export type TaskpaneInfo =
         graphSidebarTab?: GraphSidebarTab
     }    
     | {type: TaskpaneType.IMPORT_FILES}
-    | {type: TaskpaneType.MERGE, defaultMergeType?: MergeType}
+    | {type: TaskpaneType.MERGE, defaultMergeType?: MergeType, existingParams?: BackendMergeParams}
     | {type: TaskpaneType.CONCAT}
     | {type: TaskpaneType.NONE}
     | {

@@ -1,10 +1,10 @@
 // Copyright (c) Mito
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MitoAPI } from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { DFSource, EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -13,7 +13,7 @@ import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownI
 import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
 import { ModalEnum } from '../modals/modals';
 import GraphIcon from '../icons/GraphIcon';
-import DataSheetTabActions from './DataSheetTabActions';
+import SheetTabContextMenu from './SheetTabContextMenu';
 import GraphSheetTabActions from './GraphSheetTabActions';
 
 export const selectPreviousGraphSheetTab = (
@@ -81,6 +81,7 @@ type SheetTabProps = {
     graphDataDict: GraphDataDict;
     sheetDataArray: SheetData[]
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    dfSources: DFSource[]
 };
 
 /*
@@ -89,10 +90,7 @@ type SheetTabProps = {
     clicked.
 */
 export default function SheetTab(props: SheetTabProps): JSX.Element {
-
-    
     // We only set this as open if it the currOpenSheetTabActions
-    const openDropdownDivRef = useRef<HTMLDivElement>(null);
     const [displayActions, setDisplayActions] = useState(false);
     const [isRename, setIsRename] = useState<boolean>(false);
     const [newTabName, setNewTabName] = useState<string>(props.tabName);
@@ -178,7 +176,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
             onContextMenu={(e) => {
                 // If the user right clicks, show the dropdown for the sheet tabs
                 e.preventDefault();
-                openDropdownDivRef.current?.click();
+                setDisplayActions(true);
             }}
         >
             <div className='tab-content'>
@@ -211,14 +209,13 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 }
                 {/* Display the dropdown that allows a user to perform some action */}
                 <div 
-                    ref={openDropdownDivRef}
                     onClick={() => {setDisplayActions(true)}}
                 >
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
             </div>
             {props.tabIDObj.tabType === 'data' &&
-                <DataSheetTabActions 
+                <SheetTabContextMenu 
                     setDisplayActions={setDisplayActions}
                     setUIState={props.setUIState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
@@ -228,6 +225,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     graphDataDict={props.graphDataDict}
                     sheetDataArray={props.sheetDataArray}
                     display={displayActions && props.tabIDObj.tabType === 'data'}
+                    dfSources={props.dfSources}
                 />
             }
             {props.tabIDObj.tabType === 'graph' &&

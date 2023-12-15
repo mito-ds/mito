@@ -24,9 +24,11 @@ def add_diff_number_to_df_and_this_is_a_long_name(df: pd.DataFrame, number_to_ad
 
 
 df = pd.DataFrame({ 'A': [1, 2, 3], 'B': [4, 5, 6] })
+df1 = pd.DataFrame({ 'A': [1, 2, 3], 'B': [4, 5, 6] })
 analysis = spreadsheet(
     df,
-    df_names=['df'],
+    df1,
+    df_names=['df', 'df1'],
     import_folder='datasets',
     sheet_functions=[ADD_ONE],
     editors=[add_number_to_df, add_diff_number_to_df_and_this_is_a_long_name],

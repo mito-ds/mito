@@ -492,6 +492,16 @@ export interface BackendPivotParams {
     destination_sheet_index?: number;
 }
 
+export interface BackendMergeParams {
+    how: string;
+    destination_sheet_index?: number;
+    sheet_index_one: number;
+    sheet_index_two: number;
+    merge_key_column_ids: [ColumnID, ColumnID][];
+    selected_column_ids_one: ColumnID[];
+    selected_column_ids_two: ColumnID[];
+}
+
 // The parameters used by the frontend. The type of the params is different between the 
 // backend and the frontend, due to it being easier to manipulate as an array on the 
 // frontend while keeping the ordering for values

@@ -3,7 +3,7 @@
 import React from 'react';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
 import { MitoAPI } from '../../../api/api';
-import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, BackendMergeParams, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleColumns from '../../elements/MultiToggleColumns';
 import Select from '../../elements/Select';
@@ -40,19 +40,12 @@ export enum MergeType {
     UNIQUE_IN_RIGHT = 'unique in right'
 }
 
-export interface MergeParams {
-    how: string,
-    sheet_index_one: number,
-    sheet_index_two: number,
-    merge_key_column_ids: [ColumnID, ColumnID][],
-    selected_column_ids_one: ColumnID[],
-    selected_column_ids_two: ColumnID[],
-}
-
 
 export type MergeTaskpaneProps = {
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
+    existingParams?: BackendMergeParams,
+    destinationSheetIndex?: number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     analysisData: AnalysisData;
@@ -60,7 +53,7 @@ export type MergeTaskpaneProps = {
 };
 
 
-export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: MergeParams, defaultMergeType?: MergeType): MergeParams | undefined => {
+export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: BackendMergeParams, defaultMergeType?: MergeType, destinationSheetIndex?: number): BackendMergeParams | undefined => {
     if (sheetDataArray.length < 2) {
         return undefined;
     }
@@ -109,8 +102,8 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
-        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.defaultMergeType),
+    const {params, setParams, error} = useLiveUpdatingParams<BackendMergeParams, BackendMergeParams>(
+        () => props.existingParams ?? getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.defaultMergeType),
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,
