@@ -404,6 +404,18 @@ def test_edit_merge_optimizes_after_delete_with_other_edit():
 
     assert mito.transpiled_code == ["from mitosheet.public.v3 import *", "", "df1.insert(2, 'Test', 0)", ""]
 
+def test_edit_merge_optimizes_after_delete_with_other_edit_after():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+    mito.delete_dataframe(2)
+    mito.add_column(0, 'Test')
+
+    assert mito.transpiled_code == ["from mitosheet.public.v3 import *", "", "df1.insert(2, 'Test', 0)", ""]
+
+
 OTHER_MERGE_TESTS = [
     (
         'lookup',
