@@ -37,12 +37,19 @@ class MergeStepPerformer(StepPerformer):
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
+        destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
+        
+        final_destination_sheet_index = destination_sheet_index if destination_sheet_index is not None else len(prev_state.dfs)
 
-        new_df_name = get_first_unused_dataframe_name(prev_state.df_names, "df_merge")
+        new_df_name = get_first_unused_dataframe_name(prev_state.df_names, "df_merge") if destination_sheet_index is None else prev_state.df_names[destination_sheet_index]
 
         execution_data = {
-            'new_df_name': new_df_name
+            # NOTE: we return the final destination name so frontend merges can match on this execution data - it's not
+            # actually used by the backend (which is kinda confusing and should be renamed)
+            'destination_sheet_index': final_destination_sheet_index,
+            'new_df_name': new_df_name,
         }
+
         try:
             return cls.execute_through_transpile(
                 prev_state, 
@@ -51,7 +58,7 @@ class MergeStepPerformer(StepPerformer):
                 new_dataframe_params={
                     'df_source': DATAFRAME_SOURCE_MERGED,
                     'new_df_names': [new_df_name],
-                    'sheet_index_to_overwrite': None
+                    'sheet_index_to_overwrite': destination_sheet_index
                 }
             )
 
@@ -92,6 +99,7 @@ class MergeStepPerformer(StepPerformer):
             MergeCodeChunk(
                 prev_state, 
                 get_param(params, 'how'),
+                get_param(params, 'destination_sheet_index'),
                 get_param(params, 'sheet_index_one'),
                 get_param(params, 'sheet_index_two'),
                 get_param(params, 'merge_key_column_ids'),
@@ -101,6 +109,10 @@ class MergeStepPerformer(StepPerformer):
             )
         ]
     
+    
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
+        destination_sheet_index = get_param(params, 'destination_sheet_index')
+        if destination_sheet_index: # If editing an existing sheet, that is what is changed
+            return {destination_sheet_index}
         return {-1}

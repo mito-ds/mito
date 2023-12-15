@@ -323,6 +323,15 @@ def test_merge_unique(input_dfs, how, sheet_index_one, sheet_index_two, merge_ke
         assert actual.equals(expected)
 
 
+def test_simple_merge_edit():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2], 'B': [2], 'A_df2': [2]}))
+    assert len(mito.dfs) == 3
+
 OTHER_MERGE_TESTS = [
     (
         'lookup',
