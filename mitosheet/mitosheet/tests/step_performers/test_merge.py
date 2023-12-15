@@ -382,6 +382,20 @@ def test_merge_edit_optimizes_on_delete():
     assert len(mito.transpiled_code) == 0
 
 
+def test_merge_edit_optimizes_with_edit_to_merge():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.add_column(2, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', '', 
+        "df2_tmp = df2.drop(['B'], axis=1)", 
+        "df_merge = df1.merge(df2_tmp, left_on=['A'], right_on=['A'], how='inner', suffixes=['_df1', '_df2'])", ''
+    ]
+
 def test_merge_edit_optimizes_after_delete_with_edit_to_merge():
     df1 = pd.DataFrame({'A': [2], 'B': [2]})
     df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
