@@ -332,6 +332,45 @@ def test_simple_merge_edit():
     pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2], 'B': [2], 'A_df2': [2]}))
     assert len(mito.dfs) == 3
 
+def test_merge_two_edits():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.merge_sheets('outer', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2.0, None], 'B': [2, 1], 'A_df2': [2, 1]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_with_deletion():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.delete_columns(2, ['A_df1'])
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'B': [2], 'A_df2': [2]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_with_deletion_overwrite():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.delete_columns(2, ['B_df1'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2], 'B': [2], 'A_df2': [2]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_different_selected_columns():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A': [2], 'B': [2]}))
+    assert len(mito.dfs) == 3
+
 OTHER_MERGE_TESTS = [
     (
         'lookup',
