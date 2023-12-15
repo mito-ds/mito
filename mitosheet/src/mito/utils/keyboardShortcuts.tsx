@@ -65,7 +65,6 @@ export const keyboardShortcuts: KeyboardShortcut[] = [
             ctrlKey: true,
             keys: [' ']
         },
-        skipIfInTextInput: true,
         action: ActionEnum.Select_Columns
     },
     {
@@ -77,6 +76,7 @@ export const keyboardShortcuts: KeyboardShortcut[] = [
             shiftKey: true,
             keys: [' ']
         },
+        skipIfInTextInput: true,
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Select_Rows
     },
