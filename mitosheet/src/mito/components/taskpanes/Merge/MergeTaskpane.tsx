@@ -53,7 +53,7 @@ export type MergeTaskpaneProps = {
 };
 
 
-export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: BackendMergeParams, defaultMergeType?: MergeType, destinationSheetIndex?: number): BackendMergeParams | undefined => {
+export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: BackendMergeParams, defaultMergeType?: MergeType): BackendMergeParams | undefined => {
     if (sheetDataArray.length < 2) {
         return undefined;
     }

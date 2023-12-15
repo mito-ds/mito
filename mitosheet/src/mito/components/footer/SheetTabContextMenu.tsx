@@ -191,7 +191,7 @@ export default function SheetTabContextMenu(props: {
                     })
                 }}
             />)
-        : undefined
+            : undefined
     ].filter(element => element !== null && element !== undefined) as JSX.Element[];
 
     return (
