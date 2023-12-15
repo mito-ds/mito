@@ -375,7 +375,7 @@ def test_optimized_snowflake_imports():
     assert mito.dfs[0].equals(expected_df)
     assert len(mito.dfs) == 2
 
-    assert len(mito.optimized_code_chunks) == 2
+    assert len(mito.optimized_code_chunks) == 1
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only
