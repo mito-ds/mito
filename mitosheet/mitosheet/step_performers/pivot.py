@@ -154,7 +154,7 @@ class PivotStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         destination_sheet_index = get_param(params, 'destination_sheet_index')
-        if destination_sheet_index: # If editing an existing sheet, that is what is changed
+        if destination_sheet_index is not None: # If editing an existing sheet, that is what is changed
             return {destination_sheet_index}
         return {-1}
     
