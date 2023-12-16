@@ -16,7 +16,7 @@ import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
-import { keyboardShortcuts } from './mito/utils/keyboardShortcuts';
+import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -315,9 +315,7 @@ function activateMitosheetExtension(
     for (const shortcut of keyboardShortcuts) {
         // Only add the keyboard shortcut if it has a jupyterLabAction defined. 
         if (shortcut.jupyterLabCommand !== undefined) {
-            const operatingSystem = window.navigator.userAgent.toUpperCase().includes('MAC')
-                ? 'mac'
-                : 'windows'
+            const operatingSystem = getOperatingSystem();
             const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
 
             app.commands.addKeyBinding({

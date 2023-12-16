@@ -1,6 +1,7 @@
 import React from "react";
 import { AnalysisData, SheetData, UserDefinedFunction } from "../../../types";
 import { getInitialParamNameToParamValueMap } from '../../../utils/userDefinedFunctionUtils';
+import UserDefinedFunctionDocumentationSection from "./UserDefinedFunctionDocumentationSection";
 import UserDefinedFunctionParamConfigSection from "./UserDefinedFunctionParamConfigSection";
 import { UserDefinedImportParams, getNoImportMessage } from "./UserDefinedImportTaskpane";
 
@@ -31,6 +32,13 @@ const UserDefinedImportImportConfig = (props: {
 
     return (
         <>
+            {userDefinedImporter !== undefined &&
+                <>
+                    <UserDefinedFunctionDocumentationSection
+                        userDefinedFunction={userDefinedImporter}
+                    />
+                </>
+            }
             {params === undefined &&
                 <p>
                     {getNoImportMessage()}

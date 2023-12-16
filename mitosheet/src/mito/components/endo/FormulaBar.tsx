@@ -93,15 +93,24 @@ const FormulaBar = (props: {
                     <div 
                         className="formula-bar-formula text-header-3 text-overflow-hide element-width-block" 
                         onClick={() => {
-                            props.setEditorState({
-                                rowIndex: rowIndex,
-                                columnIndex: colIndex,
-                                formula: formulaBarValue,
-                                arrowKeysScrollInFormula: true,
-                                editorLocation: 'formula bar',
-                                editingMode: columnFormulaLocation || 'entire_column',
-                                sheetIndex: props.editorState?.sheetIndex ?? props.sheetIndex,
-                            })
+                            if (props.editorState === undefined) {
+                                props.setEditorState({
+                                    rowIndex: rowIndex,
+                                    columnIndex: colIndex,
+                                    formula: formulaBarValue,
+                                    arrowKeysScrollInFormula: true,
+                                    editorLocation: 'formula bar',
+                                    editingMode: columnFormulaLocation || 'entire_column',
+                                    sheetIndex: props.sheetIndex,
+                                })
+                            // If we're opening the formula cell editor while the cell editor is currently open,
+                            // then we should keep the cell editor state the same, but just change the editor location.
+                            } else {
+                                props.setEditorState({
+                                    ...props.editorState,
+                                    editorLocation: 'formula bar',
+                                })
+                            }
                         }}
                     >
                         {formulaBarValue}
