@@ -8,10 +8,16 @@ const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
 };
 
 const importCSV = async (page: Page, mito: FrameLocator, filename: string): Promise<void> => {
+  // Check how many .tab exist
+  const numTabs = await mito.locator('.tab').count();
+
   await mito.getByRole('button', { name: '▾ Import' }).click();
   await mito.getByTitle('Import Files').getByText('Import Files').click();
   await mito.getByText(filename).dblclick();
-  await expect(mito.getByTitle('Column1')).toBeVisible(); 
+
+  // Wait until the number of tabs has increased by 1
+  await expect(mito.locator('.tab')).toHaveCount(numTabs + 1);
+
   await awaitResponse(page);
   // Close the taskpane, by clicking default-taskpane-header-exit-button-div
   await mito.locator('.default-taskpane-header-exit-button-div').click();
