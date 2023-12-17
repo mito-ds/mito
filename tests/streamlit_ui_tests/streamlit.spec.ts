@@ -536,7 +536,7 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
   });
 
-  test.only('Previous Sheet', async ({ page }) => {
+  test('Previous Sheet', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await importCSV(page, mito, 'test.csv');
     await importCSV(page, mito, 'test.csv');
