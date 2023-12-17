@@ -9,7 +9,12 @@ const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
 
 const importCSV = async (page: Page, mito: FrameLocator, filename: string): Promise<void> => {
   // Case if there are 0 .tab 
-  const tabCount = await page.$$eval('.tab', tabs => tabs.length);
+  let tabCount = 0;
+  try {
+    tabCount = (await mito.locator('.tab').all()).length;
+  } catch (e) {
+    console.log('No tabs found');
+  }
 
   await mito.getByRole('button', { name: '▾ Import' }).click();
   await mito.getByTitle('Import Files').getByText('Import Files').click();
@@ -531,7 +536,7 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
   });
 
-  test('Previous Sheet', async ({ page }) => {
+  test.only('Previous Sheet', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await importCSV(page, mito, 'test.csv');
     await importCSV(page, mito, 'test.csv');
