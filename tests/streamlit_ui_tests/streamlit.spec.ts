@@ -13,7 +13,8 @@ const importCSV = async (page: Page, mito: FrameLocator, filename: string): Prom
   try {
     tabCount = (await mito.locator('.tab').all()).length;
   } catch (e) {
-    console.log('No tabs found');
+    // The .tab element doesn't exist -- so we don't need to do anything
+    // as tabCount is already 0
   }
 
   await mito.getByRole('button', { name: '▾ Import' }).click();
@@ -581,14 +582,35 @@ test.describe('Data Tab Buttons', () => {
   });
 
   test('Test Fill Missing Values', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await importCSV(page, mito, 'types.csv');
+    await clickTab(page, mito, 'Data');
 
+    // Check there is one NaN
+    await expect(mito.getByText('NaN', { exact: true}).first()).toBeVisible();
+
+    await mito.getByText('Column2').click();
+
+    await mito.getByRole('button', { name: 'Fill Missing Values' }).click();
+    await mito.getByRole('button', { name: 'Fill NaNs in Column2' }).click();
+
+    // Check there are no NaNs
+    await expect(mito.getByText('NaN', { exact: true}).first()).not.toBeVisible();
   });
 
   test('Test One-hot Encoding', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await importCSV(page, mito, 'types.csv');
+    await clickTab(page, mito, 'Data');
 
+    await mito.getByText('Column3').click();
+    await mito.getByRole('button', { name: 'One-hot Encoding' }).click();
+
+    // Check there are 6 columns
+    await expect(mito.locator('.endo-column-header-container')).toHaveCount(6);
   });
 
-  test.only('Test Reset and Keep Index', async ({ page }) => {
+  test('Test Reset and Keep Index', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await clickTab(page, mito, 'Data');
 
@@ -597,10 +619,11 @@ test.describe('Data Tab Buttons', () => {
     await awaitResponse(page);
 
     // Check there is a header called index
-    await expect(mito.getByText('index')).toBeVisible();
+    const indexColumnHeader = await getColumnHeaderContainer(mito, 'index');
+    await expect(indexColumnHeader).toBeVisible();
   });
 
-  test.only('Test Reset and Drop Index', async ({ page }) => {
+  test('Test Reset and Drop Index', async ({ page }) => {
       const mito = await getMitoFrameWithTestCSV(page);
       await clickTab(page, mito, 'Data');
 
@@ -614,7 +637,8 @@ test.describe('Data Tab Buttons', () => {
       await awaitResponse(page);
 
       // Check there is no header called index
-      await expect(mito.getByText('index')).not.toBeVisible();
+      const indexColumnHeader = await getColumnHeaderContainer(mito, 'index');
+      await expect(indexColumnHeader).not.toBeVisible();
 
       // Check that the first .mito-grid-cell has text 10
       await expect(mito.locator('.mito-grid-cell').first()).toHaveText('10');
