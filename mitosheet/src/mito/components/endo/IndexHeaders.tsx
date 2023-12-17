@@ -69,6 +69,7 @@ const IndexHeaders = (props: {
                                             return {
                                                 ...prevUiState,
                                                 currOpenDropdown: {
+                                                    type: 'context-menu',
                                                     rowIndex: rowIndex,
                                                     columnIndex: -1
                                                 }

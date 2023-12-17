@@ -47,6 +47,13 @@ jobs:
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
         npm run test:jupyterlab
+    - name: Upload test-results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: jupyterlab-playwright-report
+        path: tests/playwright-report/
+        retention-days: 14
 
   test-mitosheet-frontend-streamlit:
     runs-on: ubuntu-20.04
@@ -88,11 +95,11 @@ jobs:
         source venv/bin/activate
         streamlit run streamlit-test.py --server.port 8555 &
         npm run test:streamlit
-    - name: Upload test-results if failure
+    - name: Upload test-results
       uses: actions/upload-artifact@v3
       if: always()
       with:
-        name: playwright-report
+        name: streamlit-playwright-report
         path: tests/playwright-report/
         retention-days: 14
 

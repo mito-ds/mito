@@ -8,10 +8,21 @@ const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
 };
 
 const importCSV = async (page: Page, mito: FrameLocator, filename: string): Promise<void> => {
+  // Case if there are 0 .tab 
+  let tabCount = 0;
+  try {
+    tabCount = (await mito.locator('.tab').all()).length;
+  } catch (e) {
+    console.log('No tabs found');
+  }
+
   await mito.getByRole('button', { name: '▾ Import' }).click();
   await mito.getByTitle('Import Files').getByText('Import Files').click();
   await mito.getByText(filename).dblclick();
-  await expect(mito.getByTitle('Column1')).toBeVisible(); 
+
+  // Wait until the number of tabs has increased by 1
+  await expect(mito.locator('.tab')).toHaveCount(tabCount + 1);
+
   await awaitResponse(page);
   // Close the taskpane, by clicking default-taskpane-header-exit-button-div
   await mito.locator('.default-taskpane-header-exit-button-div').click();
@@ -21,6 +32,12 @@ const importCSV = async (page: Page, mito: FrameLocator, filename: string): Prom
 const getMitoFrameWithTestCSV = async (page: Page): Promise<FrameLocator> => {
   const mito = await getMitoFrame(page);
   await importCSV(page, mito, 'test.csv');
+  return mito;
+}
+
+const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator> => {
+  const mito = await getMitoFrame(page);
+  await importCSV(page, mito, 'types.csv');
   return mito;
 }
 
@@ -651,21 +668,21 @@ test.describe('Code Tab Buttons', () => {
 test.describe('Keyboard Shortcuts', () => {
   test('Select Column', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByText('5').click();
+    await mito.getByText('5', { exact: true }).click();
     await page.keyboard.press('Control+ ');
     await expect(mito.locator('.endo-column-header-container-selected .endo-column-header-final-text')).toHaveText('Column2');
   })
 
   test('Select Row', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByTitle('5').click();
+    await mito.getByTitle('5', { exact: true }).click();
     await page.keyboard.press('Shift+ ');
     await expect(mito.locator('.index-header-selected')).toHaveText('1');
   })
 
   test('Select Row with multiple rows', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.getByTitle('5').click();
+    await mito.getByTitle('5', {exact: true}).click();
     await mito.getByTitle('8').click({ modifiers: ['Shift']});
     await page.keyboard.press('Shift+ ');
     await expect(mito.locator('.index-header-selected')).toHaveCount(2);
@@ -710,4 +727,78 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.getByPlaceholder('Find...')).toBeVisible()
     await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
   })
+
+  test('Create Graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Alt+F1');
+    await awaitResponse(page);
+    await expect(mito.getByText('Setup Graph')).toBeVisible();
+  })
+
+  test('Open File Import', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+o');
+    await awaitResponse(page);
+    await expect(mito.getByText('Import Files')).toBeVisible();
+  });
+
+  test('Create a Filter', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Alt+ArrowDown');
+    await awaitResponse(page);
+    await expect(mito.getByText('Add Filter')).toBeVisible();
+  });
+
+  test('Merge', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Control+m');
+    await awaitResponse(page);
+    await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+  });
+  
+  test('Set Number Format', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').click();
+
+    await page.keyboard.press('Control+Shift+1');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+4');
+    await awaitResponse(page);
+    await expect(mito.getByText('$1.00', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+5');
+    await awaitResponse(page);
+    await expect(mito.getByText('100.00%', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+^');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00e+0', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+`');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00', { exact: true })).toBeVisible();
+  });
+
+  test('Set Datetime Dtype', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+    await mito.getByTitle('Column1').click();
+
+    await page.keyboard.press('Control+Shift+@');
+    await awaitResponse(page);
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveText(/date/);
+    await expect(mito.locator('#root')).toContainText('1990-10-12 00:00:00');
+    await expect(mito.locator('#root')).toContainText('2000-01-02 00:00:00');
+    await expect(mito.locator('#root')).toContainText('1961-12-29 00:00:00');
+  });
+
+  test('Select All isn\'t triggered when column header is editing', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').dblclick();
+    await page.keyboard.press('Control+a');
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(1);
+  });
 });

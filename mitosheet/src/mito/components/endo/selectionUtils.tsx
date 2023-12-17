@@ -163,6 +163,7 @@ export const getNewSelectionAfterKeyPress = (selection: MitoSelection, e: Keyboa
 
     const shiftPressed = e.shiftKey; 
     const metaKeyPressed = e.metaKey;
+    const altPressed = e.altKey;
 
     // Do this all inside a selection callback, so it gets ordered correctly
     let startingRowIndex = selection.startingRowIndex;
@@ -208,6 +209,10 @@ export const getNewSelectionAfterKeyPress = (selection: MitoSelection, e: Keyboa
             } else {
                 endingRowIndex = Math.min(selection.endingRowIndex + 1, numRows - 1);
             }
+        } else if (altPressed) {
+            // If alt+arrowdown is pressed, the keyboard shortcut for filtering is triggered
+            // We don't want to change the selection
+            return selection;
         } else {
             if (metaKeyPressed) {
                 startingRowIndex = numRows - 1
