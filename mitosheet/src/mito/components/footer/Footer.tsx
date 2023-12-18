@@ -78,7 +78,6 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
-                            dfSources={props.dfSources}
                         />
                     )
                 })}
@@ -97,7 +96,6 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
-                            dfSources={props.dfSources}
                         />
                     )
                 })}

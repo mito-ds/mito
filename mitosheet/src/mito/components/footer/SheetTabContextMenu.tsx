@@ -39,7 +39,6 @@ export default function SheetTabContextMenu(props: {
     graphDataDict: GraphDataDict
     sheetDataArray: SheetData[]
     display: boolean
-    dfSources: DFSource[]
 }): JSX.Element {
 
     const imported = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Imported;
@@ -121,6 +120,8 @@ export default function SheetTabContextMenu(props: {
         })
     }
 
+    const dfSource = props.sheetDataArray[props.sheetIndex].dfSource;
+
     const dropdownItems: JSX.Element[] = [
         <DropdownItem
             key='Create graph'
@@ -172,7 +173,7 @@ export default function SheetTabContextMenu(props: {
                 void onDelete()
             }}
         />,
-        props.dfSources[props.sheetIndex] === DFSource.Merged ? 
+        dfSource === DFSource.Merged ? 
             (<DropdownItem
                 key={'Edit Merge'}
                 title={'Edit Merge'}
