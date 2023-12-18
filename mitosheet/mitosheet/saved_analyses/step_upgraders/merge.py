@@ -163,7 +163,7 @@ def upgrade_merge_4_to_5(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
             merge_key_column_ids: [[old.merge_key_column_id_one, old.merge_key_column_id_two]],
             selected_column_ids_one: List[_ids_],
             selected_column_ids_two: List[_ids_],
-            destination_sheet_index: 2
+            destination_sheet_index: None
         }
     }
     """
