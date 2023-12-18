@@ -29,7 +29,7 @@ class MergeStepPerformer(StepPerformer):
 
     @classmethod
     def step_version(cls) -> int:
-        return 4
+        return 5
 
     @classmethod
     def step_type(cls) -> str:
