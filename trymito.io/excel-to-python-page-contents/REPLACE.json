@@ -1,0 +1,150 @@
+{
+    "slug": ["functions", "text", "REPLACE"],
+    "functionNameShort": "REPLACE",
+    "functionNameLong": "replace",
+    "relatedFunctions": ["SUBSTITUTE", "FILLNA", "FIND"],
+    "purpose": "Replaces characters in a string by location.",
+    "titleCardParagraphs": [
+        "There are several formulas in Excel designed to help you replace characters in a string.", 
+        "The REPLACE function in Excel replaces characters in a string by location.",
+        "The SUBSTITUTE function in Excel replaces chracters in strring by finding matching substrings."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "In Excel, you can use the REPLACE function to replace specific characters in a string by location. For example, to replace the first three characters of a string with 'ABC', you'd use the formula =REPLACE(A1, 1, 3, 'ABC')."
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "old_text",
+                "description": "The original text or the text which contains the characters you want to replace.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "start_num",
+                "description": "The starting position of the character in old_text you want to replace. The first position in text is 1.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "num_chars",
+                "description": "The number of characters in old_text that you want to replace. If omitted, it will replace all characters from start_num to the end of old_text.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "new_text",
+                "description": "The text string that will replace the characters in old_text.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=REPLACE(\"Hello World\", 7, 5, \"Pandas\")",
+                "description": "Replaces the text 'World' with 'Pandas' starting at the 7th position.",
+                "result": "Hello Pandas"
+            },
+            {
+                "formula": "=REPLACE(\"123456\", 2, 3, \"ABC\")",
+                "description": "Replaces three characters starting from the 2nd position with 'ABC'.",
+                "result": "1ABC56"
+            },
+            {
+                "formula": "=REPLACE(\"ABCDE\", 1, 0, \"X\")",
+                "description": "Inserts 'X' at the 1st position without replacing any characters.",
+                "result": "XABCDE"
+            },
+            {
+                "formula": "=REPLACE(\"ABCDE\", 3, 2, \"XY\")",
+                "description": "Replaces two characters starting from the 3rd position with 'XY'.",
+                "result": "ABXYE"
+            }
+        ]        
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Pandas offers the replace method which is versatile and can be used for a wide range of replacements. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Replacing characters from the front of a string",
+                "shortTitle": "Front of string",
+                "paragraphs": [
+                    "Excel's REPLACE function allows you to replace a substring by specifying the starting position and the number of characters to be replaced.",
+                    "In pandas, you can achieve this using the string slicing syntax. For example, to replace the first three characters of a string with 'ABC' in Excel, you'd use the formula =REPLACE(A1, 1, 3, \"ABC\"). In Pandas you'd use:"
+                ],
+                "codeLines": [
+                    "# Replace the first three characters with 'ABC'",
+                    "df['column_name'] = 'ABC' + df['column_name'].str[3:]"
+                ]
+            },
+            {
+                "title": "Replacing characters from the end of a string ",
+                "shortTitle": "End of string",
+                "paragraphs": [
+                    "To replace the last three characters from the end of a string in Excel, you'd use the formula =REPLACE(A1, LEN(A1) - 2, 3, \"ABC\"). In Pandas you'd use:"
+                ],
+                "codeLines": [
+                    "# Replace the last three characters with 'ABC'",
+                    "df['column_name'] = df['column_name'].str[:-3] + 'ABC'"
+                ]
+            },
+            {
+                "title": "Replacing characters from the middle of a string ",
+                "shortTitle": "Middle of string",
+                "paragraphs": [
+                    "To replace characters from the middle of a string in Excel, you'd use the formula =REPLACE(A1, 3, 3, \"ABC\"). In Pandas you'd use:"
+                ],
+                "codeLines": [
+                    "# Replace three characters starting from the 3rd position with 'ABC'",
+                    "df['column_name'] = df['column_name'].str[:2] + 'ABC' + df['column_name'].str[5:]"
+                ]
+            },
+            {
+                "title": "Replacing specific values in a column",
+                "shortTitle": "Specific values",
+                "paragraphs": [
+                    "To replace specific values in a column in Excel, you'd use the 'Find & Replace' feature or the SUBSTITUTE formula instead of the REPLACE functionality.",
+                    "For more extensive documentation on the SUBSTITUTE formula, refer to the SUBSTITUTE page."
+                ],
+                "codeLines": []
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "The replace method in pandas is powerful, but certain pitfalls might produce unexpected results. Here are some of the common mistakes and how to address them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect data types",
+                "shortTitle": "Incorrext data types",
+                "paragraphs": [
+                    "The string slicing method that we use above only works on string columns. If you try to use it on a numeric column, you'll get an error.",
+                    "To avoid this, you can convert the column to a string using the astype method."
+                ],
+                "codeLines": [
+                    "# Convert a column to a string before replacing characters",
+                    "df['column_name'] = df['column_name'].astype(str).str[3:]"
+                ]
+            },
+            {
+                "title": "Handling missing values",
+                "shortTitle": "Handling missing values",
+                "paragraphs": [
+                    "If you having missing values in your column, the string slicing method will return an error. To avoid this, you can use the fillna method to replace missing values with an empty string."
+                ],
+                "codeLines": [
+                    "# Replace missing values with an empty string",
+                    "df['column_name'] = df['column_name'].fillna('').str[3:]"
+                ]
+            },
+            {
+                "title": "Replacing by value",
+                "shortTitle": "Replacing by value",
+                "paragraphs": [
+                    "The string slicing method is useful when you want to replace a specific number of characters from the front, end or middle of a string. However, if you want to replace a specific value, you can use the replace method directly.",
+                    "To learn more about the replace method, refer to the SUBSITUTE page."
+                ],
+                "codeLines": []
+            }
+        ]
+    }
+}

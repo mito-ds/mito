@@ -1,0 +1,182 @@
+{
+    "slug": ["functions", "math", "SUM"],
+    "functionNameShort": "SUM",
+    "functionNameLong": "Addition",
+    "relatedFunctions": ["ABS", "AVERAGE", "PRODUCT"],
+    "purpose": "Calculates the sum of numbers",
+    "titleCardParagraphs": [
+        "Excel's SUM function calculates the sum of a range of values. This simple yet powerful function is essential in many analytical tasks, ranging from financial modeling to scientific data analysis.",
+        "This page explains how to implement Excel's SUM function in Python using pandas, thus helping automate Excel reports with the power of Python."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The SUM function in Excel takes one or more arguments (ranges of numbers) and returns their sum.",
+            "=SUM(number1, [number2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number1",
+                "description": "The first number you want to sum.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "number2",
+                "description": "(Optional) The second number you want to sum. You can input up to 255 numbers.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 numbers in total.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SUM(1, 2)",
+                "description": "Calculate the sum of values from 1 and 2.",
+                "result": "3"
+            },
+            {
+                "formula": "=SUM(A1:A10)",
+                "description": "Calculate the sum of values from A1 to A10.",
+                "result": "A1 + A2 ... A10"
+            },
+            {
+                "formula": "=SUM(A1, B1)",
+                "description": "Calculate the sum of values in cells A1 and B1.",
+                "result": "A1 + B1"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the SUM function in Excel using Python and pandas, you have several options depending on your specific needs. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Summing values in the same row",
+                "shortTitle": "Row sum",
+                "paragraphs": [
+                    "Calculating the sum of values in a row is as simple as entering =SUM(A1, B1) in Excel.",
+                    "The syntax for summing values in the same row in pandas is similar to Excel. The following code creates a new column called Total that contains the sum of values in columns Col1 and Col2:"
+                ],
+                "codeLines": [
+                    "df['Total'] = df['Col1'] + df['Col2']"
+                ]
+            },
+            {
+                "title": "Summing a single column",
+                "shortTitle": "Column sum",
+                "paragraphs": [
+                    "Calculating the sum of a column in Excel is as simple as entering =SUM(A:A). To calculate the sum of a single column in pandas, use the sum method on the column:"
+                ],
+                "codeLines": [
+                    "total = df['Column1'].sum()"
+                ]
+            },
+            {
+                "title": "Summing an entire dataframe",
+                "shortTitle": "Dataframe sum",
+                "paragraphs": [
+                    "Calculating the sum of an entire table in Excel is as simple as entering =SUM(A1:D10). To calculate the sum of a single an entire pandas dataframe, use the following code:"
+                ],
+                "codeLines": [
+                    "total = df.sum().sum()"
+                ]
+            },
+            {
+                "title": "Rolling Sum",
+                "shortTitle": "Rolling sum",
+                "paragraphs": [
+                    "A rolling sum calculates the sum of values in a sliding window of rows. For example, a rolling sum of size 3 would calculate the sum of the current row and the two previous rows.", 
+                    "To calculate a rolling sum in Excel, the formula in B5 would look like this: =SUM(A3:A5). The range A3:A5 is relative, so when you copy the formula to B6, the range will shift to A4:A6",
+                    "To calculate a rolling sum in pandas, use the rolling method:"
+                ],
+                "codeLines": [
+                    "df['Rolling_Sum'] = df['Column1'].rolling(window=3).sum()"
+                ]
+            },
+            {
+                "title": "Cumulative Sum",
+                "shortTitle": "Cumulative sum",
+                "paragraphs": [
+                    "The cumulative sum is the sum of values from the start of the dataset to the current row. You could calculate the cumulative sum of column A in Excel using the following formula in B5: =SUM($A$1:A5) or =SUM(B4, A5).",
+                    "To calculate the cumulative sum in pandas, use the cumsum method:"
+                ],
+                "codeLines": [
+                    "df['Cumulative_Sum'] = df['Column1'].cumsum()"
+                ]
+            },
+            {
+                "title": "Weighted Sum",
+                "shortTitle": "Weighted sum",
+                "paragraphs": [
+                    "To sum values in a column based on weights in another column, multiply the values and weights together and then sum the result:"
+                ],
+                "codeLines": [
+                    "df['Weighted_Sum'] = (df['Values'] * df['Weights']).sum()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Implementing the SUM function in pandas can have some pitfalls if you're not careful. Here are some common mistakes and how to avoid them."
+        ],
+        "codeSections": [
+            {
+                "title": "Ignoring Missing Values",
+                "shortTitle": "Missing values",
+                "paragraphs": [
+                    "Pandas might not handle `NaN` values as you'd expect during summation, leading to unexpected results. By default, `.sum()` skips `NaN` values, just like how Excle's SUM function ignores blank cells."
+                ],
+                "codeLines": [
+                    "# Fill NaN values with 0 before summing",
+                    "df['Column1'] = df['Column1'].fillna(0)",
+                    "",
+                    "# Calculate the sum",
+                    "total = df['Column1'].sum()"
+                ]
+            },
+            {
+                "title": "Data Type Mismatch",
+                "shortTitle": "Data type issues",
+                "paragraphs": [
+                    "Attempting to sum columns with non-numeric data types raises a TypeError. Your data must be either a float or decimal before calculating the sum."
+                ],
+                "codeLines": [
+                    "# Convert to numeric and then sum",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce')",
+                    "total = df['Column1'].sum()"
+                ]
+            },
+            {
+                "title": "Trying to Sum a Column of $ Amounts",
+                "shortTitle": "$ amounts sum",
+                "paragraphs": [
+                    "If a column contains $ signs or other non-numeric characters, direct summation will result in a TypeError. You can use the replace method to remove non-numeric characters from strings before summing."
+                ],
+                "codeLines": [
+                    "# Remove $ sign and convert to float",
+                    "df['Amount'] = df['Amount'].replace('[\\$,]', '', regex=True).astype(float)",
+                    "",
+                    "total = df['Amount'].sum()"
+                ]
+            },
+            {
+                "title": "Axis Confusion",
+                "shortTitle": "Axis issues",
+                "paragraphs": [
+                    "It's easy to get confused about which axis to sum over. Make sure you're summing rows (axis=1) or columns (axis=0) as needed."
+                ],
+                "codeLines": [
+                    "# Summing across rows",
+                    "df['Total'] = df[['Col1', 'Col2']].sum(axis=1)",
+                    "",
+                    "# Summing down columns",
+                    "column_total = df[['Col1', 'Col2']].sum(axis=0)"
+                ]
+            }
+        ]
+    }
+}

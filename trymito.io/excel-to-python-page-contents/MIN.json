@@ -1,0 +1,125 @@
+{
+    "slug": ["functions", "math", "MIN"],
+    "functionNameShort": "MIN",
+    "functionNameLong": "Minimum Value",
+    "relatedFunctions": ["MAX", "AVERAGE", "ABS"],
+    "purpose": "Find the minimum value in a set of numbers",
+    "titleCardParagraphs": [
+        "Excel's MIN function returns the smallest value from the numbers provided. This page shows how to implement Excel's MIN function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The MIN function in Excel takes one or more arguments (ranges of numbers or individual numbers) and returns the smallest value among them.",
+            "=MIN(number1, [number2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number1",
+                "description": "The first number you want to compare.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "number2",
+                "description": "(Optional) Additional numbers you want to compare.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 numbers you want to compare.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MIN(1, 5, 7)",
+                "description": "Find the smallest value among 1, 5, and 7.",
+                "result": "1"
+            },
+            {
+                "formula": "=MIN(A1:A10)",
+                "description": "Find the minimum value in the range A1 to A10.",
+                "result": "Minimum in range "
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "There are a few common ways to use the MIN function. Below are copy-ready Python implementations for some of the most common use cases."
+        ],
+        "codeSections": [
+            {
+                "title": "Finding the Minimum Value between two numbers",
+                "shortTitle": "Two numbers",
+                "paragraphs": [
+                    "To find the minimum between two numbers in Excel, you might use a formula like =MIN(A1, B1).",
+                    "In pandas, to achieve the same, you'd typically use Python's built-in `min` function:"
+                ],
+                "codeLines": [
+                    "min_value = min(1, 2)"
+                ]
+            },
+            {
+                "title": "Finding the Minimum Value Across Rows in dataframe",
+                "shortTitle": "Row Min",
+                "paragraphs": [
+                    "To find the minimum values in each row of your pandas dataframe, you can use the `min` method along with specifying which columns to include in the row-wise calculation:"
+                ],
+                "codeLines": [
+                    "# Find the minimum value in column A, B, or C for each row",
+                    "df['Min_Value'] = df[['A', 'B', 'C']].min(axis=1)"
+                ]
+            },
+            {
+                "title": "Finding the Minimum Value in a Series",
+                "shortTitle": "In a Series",
+                "paragraphs": [
+                    "In Excel, if you want to find the minimum value in a column, you'd use the formula =MIN(A:A). The formula returns the smallest value in the range A:A.",
+                    "Similarly in Pandas, you can use the `min` method on a Series to find the minimum value in a column:"
+                ],
+                "codeLines": [
+                    "# Find the minimum value in column A",
+                    "min_value = df['A'].min()"
+                ]
+            },
+            {
+                "title": "Finding the Minimum in a dataframe",
+                "shortTitle": "In a dataframe",
+                "paragraphs": [
+                    "If you want to determine the smallest value in an entire Excel sheet, you'd use the MIN function on the entire range. For example, if you had data in column A through G, you'd use the formula =MIN(A:G).",
+                    "In pandas, to find the minimum value in an entire DataFrame, use the `min` function first to find the minimum value in each column, and again to find the minimum value among those results:"
+                ],
+                "codeLines": [
+                    "# Find the minimum value in the entire dataframe",
+                    "min_value = df.min().min()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using the MIN function in pandas, here are some common mistakes to watch out for, and how to resolve them."
+        ],
+        "codeSections": [
+            {
+                "title": "Mismatched Data Types",
+                "shortTitle": "Data type issues",
+                "paragraphs": [
+                    "Attempting to find the minimum in a series with mixed data types can lead to a TypeError. It's essential to ensure data consistency before performing such operations."
+                ],
+                "codeLines": [
+                    "# Convert to numeric and then find min",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce')",
+                    "min_value = df['Column1'].min()"
+                ]
+            },
+            {
+                "title": "Ignoring NaN Values",
+                "shortTitle": "NaN values",
+                "paragraphs": [
+                    "Just like Excel, by default, pandas excludes NaN values (aka missing values) when calculating the minimum. However, if the entire column or row contains only NaNs, the result will be NaN."
+                ],
+                "codeLines": []
+            }
+        ]
+    }
+}

@@ -1,0 +1,111 @@
+{
+    "slug": ["functions", "date", "SECOND"],
+    "functionNameShort": "SECOND",
+    "functionNameLong": "Second Extraction",
+    "relatedFunctions": ["HOUR", "MONTH", "DAY"],
+    "purpose": "Extract the second from a datetime",
+    "titleCardParagraphs": [
+        "Excel's SECOND function extracts the second from a time value.",
+        "This page explains how to implement Excel's SECOND function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The SECOND function in Excel returns the second of a time value, ranging from 0 to 59.",
+            "=SECOND(serial_number)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "serial_number",
+                "description": "The time value from which you want to extract the second.",
+                "dataType": "A valid Excel time"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SECOND(\"5/21/2021 9:30:05 PM\")",
+                "description": "Extracts the second from the given time.",
+                "result": "5"
+            },
+            {
+                "formula": "=SECOND(\"21-May-2021 6:30:05 AM\")",
+                "description": "Extracts the second from the given time.",
+                "result": "5"
+            },
+            {
+                "formula": "=SECOND(\"5/21/2021 9:59 PM\")",
+                "description": "Extracts the second from the given time.",
+                "result": "0"
+            },
+            {
+                "formula": "=SECOND(\"5/21/2021\")",
+                "description": "Extracts the second from the given time.",
+                "result": "0"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Recreating Excel's SECOND function behavior in Python requires a combination of pandas operations. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Extracting Second from Datetime",
+                "shortTitle": "Second Extraction",
+                "paragraphs": [
+                    "In Excel, if you have a datetime value, you can use the SECOND function to return the second component. Similarly, in pandas, you can use the `.dt` accessor followed by the `second` attribute.",
+                    "For example, in Excel you might use =SECOND(A2). In pandas:"
+                ],
+                "codeLines": [
+                    "df['Second'] = df['Datetime_Column'].dt.second"
+                ]
+            },
+            {
+                "title": "Converting string to datetime and then extracting the second",
+                "shortTitle": "String to Second",
+                "paragraphs": [
+                    "Often, Pandas will infer the data type of your column as string, even if the data to you looks like a date, ie: 1/2/23 12:30:05. In these cases, you need to convert the string to datetime before extracting the second.",
+                    "To do this in pandas, first use `pd.to_datetime` to convert the column to a datetime column, and then extract the second:"
+                ],
+                "codeLines": [
+                    "# Convert the string to datetime",
+                    "df['Datetime_Column'] = pd.to_datetime(df['String_Column'])",
+                    "",
+                    "# Extract the second from the datetime column",
+                    "df['Second'] = df['Datetime_Column'].dt.second"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the SECOND function equivalent in pandas, a few common pitfalls might occur. Here's how to navigate them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect datatypes",
+                "shortTitle": "Incorrect datatypes",
+                "paragraphs": [
+                    "The `.dt` accessor is exclusive to pandas Series with datetime64 data types. Using it on non-datetime columns will raise an AttributeError.",
+                    "For example, if you have a column called 'Date', but it actually has an object data type, you'll need to convert it to datetime before using the `.dt` accessor. You can check the data type of a column using `df.dtypes`."
+                ],
+                "codeLines": [
+                    "# Ensure the column is of datetime dtype",
+                    "df['Datetime_Column'] = pd.to_datetime(df['Datetime_Column'])",
+                    "df['Second'] = df['Datetime_Column'].dt.second"
+                ]
+            },
+            {
+                "title": "Forgetting to Handle Null Values",
+                "shortTitle": "Handling NaTs",
+                "paragraphs": [
+                    "If your dataset has missing or NaT (Not-a-Timestamp) values in the datetime column, trying to extract the second from them will result in NaN (Not a Number) values. Make sure to handle or filter them out as necessary."
+                ],
+                "codeLines": [
+                    "# Drop rows with NaT values before extracting second",
+                    "df.dropna(subset=['Datetime_Column'], inplace=True)",
+                    "df['Second'] = df['Datetime_Column'].dt.second"
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,104 @@
+{
+    "slug": ["functions", "math", "SQRT"],
+    "functionNameShort": "SQRT",
+    "functionNameLong": "Square Root",
+    "relatedFunctions": ["EXP", "SUM", "AVERAGE"],
+    "purpose": "Compute the non-negative square root of a number",
+    "titleCardParagraphs": [
+        "Excel's SQRT function returns the positive square root of a given number. It's a fundamental mathematical operation commonly used in geometry, physics, finance, and many other fields.",
+        "This page explains how to use Excel's SQRT function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The SQRT function in Excel takes a single number and returns its positive square root.",
+            "=SQRT(number)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number",
+                "description": "The number you want to find the square root of.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SQRT(4)",
+                "description": "Calculate the square root of 4.",
+                "result": "2"
+            },
+            {
+                "formula": "=SQRT(81)",
+                "description": "Calculate the square root of 81.",
+                "result": "9"
+            },
+            {
+                "formula": "=SQRT(-4)",
+                "description": "Calculate the square root of -4.",
+                "result": "#NUM!"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the SQRT function in Excel using Python and pandas, you can utilize the numpy library, which provides a square root function that works seamlessly with pandas."
+        ],
+        "codeSections": [
+            {
+                "title": "Single value",
+                "shortTitle": "Single value",
+                "paragraphs": [
+                    "Finding the square root of a single value in Excel is straightforward using the SQRT function. For instance, =SQRT(16) would return 4.",
+                    "In pandas, the equivalent can be achieved using numpy's sqrt function:"
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "sqrt_value = np.sqrt(16)"
+                ]
+            },
+            {
+                "title": "Entire column",
+                "shortTitle": "Entire column",
+                "paragraphs": [
+                    "If you want to compute the square root of each value in a column in Excel, you would apply the SQRT function to each cell of the column.",
+                    "To compute the square root of an entire column in pandas, apply numpy's sqrt function to the desired DataFrame column"
+                ],
+                "codeLines": [
+                    "# Calculate the square root of each number",
+                    "df['sqrt'] = np.sqrt(df['number'])"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While applying the SQRT function in pandas is straightforward, there are some pitfalls to watch out for. Here are some common mistakes and how to address them."
+        ],
+        "codeSections": [
+            {
+                "title": "Negative Values",
+                "shortTitle": "Negative values",
+                "paragraphs": [
+                    "Just like in Excel, attempting to find the square root of negative numbers using numpy's sqrt function will not return a number. In Excel it returns the #NUM! error, while in pandas it returns NaN (not a number)."
+                ],
+                "codeLines": [
+                    "# Filter out negative values before applying square root",
+                    "df = df[df['original_column'] >= 0]",
+                    "df['sqrt_column'] = np.sqrt(df['original_column'])"
+                ]
+            },
+            {
+                "title": "Data Type Mismatch",
+                "shortTitle": "Data type issues",
+                "paragraphs": [
+                    "Attempting to apply the square root function on non-numeric columns will raise a TypeError.",
+                    "Ensure that the column you're applying the square root function to is of a numeric data type."
+                ],
+                "codeLines": [
+                    "# Convert column to numeric type if it isn't already",
+                    "df['original_column'] = pd.to_numeric(df['original_column'], errors='coerce')",
+                    "df['sqrt_column'] = np.sqrt(df['original_column'])"
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,125 @@
+{
+    "slug": ["functions", "math", "MAX"],
+    "functionNameShort": "MAX",
+    "functionNameLong": "Maximum Value",
+    "relatedFunctions": ["MIN", "AVERAGE", "ABS"],
+    "purpose": "Find the maximum value in a set of numbers",
+    "titleCardParagraphs": [
+        "Excel's MAX function returns the largest value from the numbers provided. This page shows how to implement Excel's MAX function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The MAX function in Excel takes one or more arguments (ranges of numbers or individual numbers) and returns the largest value among them.",
+            "=MAX(number1, [number2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number1",
+                "description": "The first number you want to compare.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "number2",
+                "description": "(Optional) Additional numbers you want to compare.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 numbers you want to compare.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MAX(1, 5, 7)",
+                "description": "Find the largest value among 1, 5, and 7.",
+                "result": "7"
+            },
+            {
+                "formula": "=MAX(A1:A10)",
+                "description": "Find the maximum value in the range A1 to A10.",
+                "result": "Maximum in range "
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "There are a few common ways to use the MAX function. Below are copy-ready Python implementations for some of the most common use cases."
+        ],
+        "codeSections": [
+            {
+                "title": "Finding the Maximum Value between two numbers",
+                "shortTitle": "Two numbers",
+                "paragraphs": [
+                    "To find the maximum between two numbers in Excel, you might use a formula like =MAX(A1, B1).",
+                    "In pandas, to achieve the same, you'd typically use Python's built-in `max` function:"
+                ],
+                "codeLines": [
+                    "max_value = max(1, 2)"
+                ]
+            },
+            {
+                "title": "Finding the Maximum Value Across Rows in dataframe",
+                "shortTitle": "Row Max",
+                "paragraphs": [
+                    "To find the maximum values in each row of your pandas dataframe, you can use the `max` method along with specifying which columns to include in the row-wise calculation:"
+                ],
+                "codeLines": [
+                    "# Find the maximum value in column A, B, or C for each row",
+                    "df['Max_Value'] = df[['A', 'B', 'C']].max(axis=1)"
+                ]
+            },
+            {
+                "title": "Finding the Maximum Value in a Series",
+                "shortTitle": "In a Series",
+                "paragraphs": [
+                    "In Excel, if you want to find the maximum value in a column, you'd use the formula =MAX(A:A). The formula returns the highest value in the range A:A.",
+                    "Similarly in Pandas, you can use the `max` method on a Series to find the maximum value in a column:"
+                ],
+                "codeLines": [
+                    "# Find the maximum value in column A",
+                    "max_value = df['A'].max()"
+                ]
+            },
+            {
+                "title": "Finding the Maximum in a dataframe",
+                "shortTitle": "In a dataframe",
+                "paragraphs": [
+                    "If you want to determine the highest value in an entire Excel sheet, you'd use the MAX function on the entire range. For example, if you had data in column A through G, you'd use the formula =MAX(A:G).",
+                    "In pandas, to find the maximum value in an entire DataFrame, use the `max` function first to find the maximum value in each column, and again to find the maximum value among those results:"
+                ],
+                "codeLines": [
+                    "# Find the maximum value in the entire dataframe",
+                    "max_value = df.max().max()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using the MAX function in pandas, here are some common mistakes to watch out for, and how to resolve them."
+        ],
+        "codeSections": [
+            {
+                "title": "Mismatched Data Types",
+                "shortTitle": "Data type issues",
+                "paragraphs": [
+                    "Attempting to find the maximum in a series with mixed data types can lead to a TypeError. It's essential to ensure data consistency before performing such operations."
+                ],
+                "codeLines": [
+                    "# Convert to numeric and then find max",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce')",
+                    "max_value = df['Column1'].max()"
+                ]
+            },
+            {
+                "title": "Ignoring NaN Values",
+                "shortTitle": "NaN values",
+                "paragraphs": [
+                    "Just like Excel, by default, pandas excludes NaN values (aka missing values) when calculating the maximum. However, if the entire column or row contains only NaNs, the result will be NaN."
+                ],
+                "codeLines": []
+            }
+        ]
+    }
+}

@@ -1,0 +1,75 @@
+{
+    "slug": ["functions", "text", "CLEAN"],
+    "functionNameShort": "CLEAN",
+    "functionNameLong": "Data Cleaning",
+    "relatedFunctions": ["TRIM", "REPLACE", "SUBSTITUTE"],
+    "purpose": "Remove non-printable characters from text",
+    "titleCardParagraphs": [
+        "Pandas' data cleaning capabilities are vital for preparing datasets for analysis. By cleaning data, analysts ensure that their datasets are accurate and that their analyses are reliable.",
+        "A helpful, but sometimes forgotten Excel function is CLEAN. This function removes all non-printable characters from text, including line breaks, tabs, and other non-printable characters.",
+        "This page guides you through the process repllicating Excel's CLEAN function in pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The CLEAN function in Excel removes all non-printable characters from text. That is, it removes the first 32 non-printable characters in the 7-bit ASCII code (values 0 through 31), if any are found, and returns the result. Text without these characters is returned unchanged.",
+            "=CLEAN(text)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text from which you want to remove non-printable characters.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=CLEAN(\"This is a test\\n\")",
+                "description": "Removes the line break from the text.",
+                "result": "\"This is a test\""
+            },
+            {
+                "formula": "=CLEAN(A1)",
+                "description": "Removes non-printable characters from the text in cell A1.",
+                "result": "Cleaned text"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To remove non-printable characters in pandas, you often need to employ regular expressions alongside pandas' string methods. This ensures that your DataFrame only contains printable and useful data."
+        ],
+        "codeSections": [
+            {
+                "title": "Remove Non-Printable Characters",
+                "shortTitle": "Non-Printable",
+                "paragraphs": [
+                    "The Excel CLEAN function removes removes the first 32 non-printable characters from the provided text. To implement the same functionality in pandas, you need to use a regular expression to match non-printable characters and replace them with an empty string."
+                ],
+                "codeLines": [
+                    "# Remove non-printable characters",
+                    "df['A'] = df['A'].str.replace(r'[\\x00-\\x1F]', '', regex=True)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While cleaning data with pandas is a powerful process, there are pitfalls that can lead to incorrect data manipulation or loss. Here's how to avoid some of the most common mistakes."
+        ],
+        "codeSections": [
+            {
+                "title": "Data Loss During Cleaning",
+                "shortTitle": "Data Loss",
+                "paragraphs": [
+                    "It's possible to accidentally remove valuable data when cleaning. For instance, using a broad regex pattern might catch and remove characters that are actually part of the data you need.",
+                    "Ensure your regex patterns in the str.replace method are specific and test them on a subset of data to prevent unintended data loss",
+                    "For example, the following code removes all non-printable characters and all extra white spaces from the column"
+                ],
+                "codeLines": [
+                    "# Test the pattern on a small subset first",
+                    "df['test_column'] = df['Column'].str.replace('[\\x00-\\x1F\\x7F]', '', regex=True)"
+                ]
+            }
+        ]
+    }
+}

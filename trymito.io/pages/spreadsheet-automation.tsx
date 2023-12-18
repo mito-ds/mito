@@ -64,9 +64,9 @@ const SpreadsheetAutomation: NextPage = () => {
                 <Image src={'/code_snippet.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
               </div>
               <div className={textImageSplitStyles.functionality_text}>
-                <h1>
+                <h2>
                   The easiest way to <span className='text-highlight'>write Python code</span>
-                </h1>
+                </h2>
                 <p>
                   Every edit made in the Mito spreadsheet is automatically converted to Python code. 
                 </p>
@@ -83,9 +83,9 @@ const SpreadsheetAutomation: NextPage = () => {
             </div>
             <div className={pageStyles.subsection}>
               <div className={textImageSplitStyles.functionality_text}>
-                <h1>
+                <h2>
                   <span className='text-highlight'>Explore</span> your data visually
-                </h1>
+                </h2>
                 <p> 
                   There&apos;s no replacement for scrolling through your data. Enter fullscreen mode and build intuition about your analysis.
                 </p>
@@ -102,9 +102,9 @@ const SpreadsheetAutomation: NextPage = () => {
                 <Image src={'/export_to_excel.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
               </div>
               <div className={textImageSplitStyles.functionality_text}>
-                <h1>
+                <h2>
                   Generate <span className='text-highlight'>formatted Excel files</span>
-                </h1>
+                </h2>
                 <p>
                   Apply conditional formatting, set table colors, and format numbers using Mito. Don&apos;t waste time trying to understand the xlsxwriter API -- it&apos;s confusing even to engineers!
                 </p>

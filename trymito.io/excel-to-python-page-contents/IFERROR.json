@@ -1,0 +1,129 @@
+{
+    "slug": ["functions", "conditional", "IFERROR"],
+    "functionNameShort": "IFERROR",
+    "functionNameLong": "IFERROR",
+    "relatedFunctions": ["IF", "ISNA"],
+    "purpose": "Returns a value if the formula evaluates to an error",
+    "titleCardParagraphs": [
+      "In Excel, the IFERROR function is used to catch and handle errors produced by other formulas. If the formula does not produce an error, IFERROR will simply return the original result. If there is an error, you can specify an alternate value or action.",
+      "In Python's pandas library, there isn't a direct IFERROR function. Instead, various techniques and methods are employed to achieve similar error handling. Below are some equivalent ways to perform IFERROR-like operations in pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The IFERROR function checks the first value (formula or expression) and returns that value if no error is found. If an error is found, it returns the second value.",
+            "=IFERROR(value, value_if_error)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "value",
+                "description": "The value to check for an error.",
+                "dataType": "Any"
+            },
+            {
+                "parameter": "value_if_error",
+                "description": "The value to return if an error is found.",
+                "dataType": "Any"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=IFERROR(1/0, 0)",
+                "description": "Returns 0 because the formula 1/0 produces an error.",
+                "result": 0
+            },
+            {
+                "formula": "=IFERROR(1/1, 0)",
+                "description": "Returns 1 because the formula 1/1 does not produce an error.",
+                "result": 1
+            },
+            {
+                "formula": "=IFERROR(#N/A, 0)",
+                "description": "Returns 0 because #N/A is an error.",
+                "result": 0
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, there isn't a direct IFERROR function. Below are some equivalent ways to perform IFERROR-like operations in pandas.",
+            "Often when formula 'error' in pandas they return NaN values. NaN stands for 'Not a Number' and are used to represent missing or undefined values."
+        ],
+        "codeSections": [
+            {
+                "title": "Filling Missing Values with 0",
+                "shortTitle": "Fill NaN with 0",
+                "paragraphs": [
+                    "In pandas, you can use the fillna() function to replace NaN values with a specified value, similar to how you use the IFERROR formula in Excel.",
+                    "Let's say that you have a DataFrame with a column that contains NaN values. You can use the fillna() function to replace the NaN values with 0."
+                ],
+                "codeLines": [
+                    "# Fill NaN values with 0",
+                    "df['column_name'].fillna(0)"
+                ]
+            },
+            {
+                "title": "Casing on Missing Values in Conditionals",
+                "shortTitle": "Casing on NaN values",
+                "paragraphs": [
+                    "In pandas, you can use the isna() function to check if a value is NaN. It returns true if the value is NaN, and false otherwise. You can then use the result of the isna() function in a conditional to perform an action based on whether the value is NaN or not."
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "",
+                    "# Create a custom function that squares values",
+                    "def label_values(value):",
+                    "    if np.isnan(value):",
+                    "        return \"Value is None\"",
+                    "    else:",
+                    "        return \"Value is not None\"",
+                    "",
+                    "# Apply the function to the DataFrame",
+                    "df['Category'] = df['A'].apply(label_values)"
+                ]
+            },
+            {
+                "title": "Using Try Catch Statements to Gracefully Handle Errors",
+                "shortTitle": "Try Catch Statements",
+                "paragraphs": [
+                    "In pandas, you can use try catch statements to gracefully handle errors. You can use the try statement to run a block of code that might produce an error. If an error is produced, the except statement will run. You can then use the except statement to handle the error in a specified way."
+                ],
+                "codeLines": [
+                    "# Using Try Catch Statements to Gracefully Handle Errors",
+                    "try:",
+                    "    result = 100 / denominator",
+                    "except:",
+                    "    result = 0"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Below are some common mistakes to avoid when using IFERROR in Excel."
+        ],
+        "codeSections": [
+            {
+                "title": "Confusing NaN and None values",
+                "shortTitle": "NaN vs None",
+                "paragraphs": [
+                    "Both None and NaN are special values in Python that represent missing or null data. However, they come from different parts of the Python ecosystem and have different behaviors and use cases.",
+                    "None is a built-in constant in Python that indicates the absence of a value or a null value. It is of type NoneType.",
+                    "NaN stands for Not a Number and is a special floating-point value used primarily within the numpy and pandas libraries.",
+                    "To check if a value is None, you can use the `is None` syntax. To check if a value is NaN, you can use the isna() function."
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "",
+                    "# Check if a value is None",
+                    "if value is None:",
+                    "    print('Value is None')",
+                    "",
+                    "# Check if a value is NaN",
+                    "if np.isnan(value):",
+                    "    print('Value is NaN')"
+                ]
+            }
+        ]
+    }
+}
+  

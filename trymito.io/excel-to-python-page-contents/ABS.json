@@ -1,0 +1,126 @@
+{
+    "slug": ["functions", "math", "ABS"],
+    "functionNameShort": "ABS",
+    "functionNameLong": "Absolute Value",
+    "relatedFunctions": ["SUM", "ROUND", "CEIL"],
+    "purpose": "Find the absolute value of a number",
+    "titleCardParagraphs": [
+        "Excel's ABS function finds the absolute value of a number. The absolute value of a function is the non-negative value of a number. The absolute value function is commonly used, for example, to calculate the distance between two points. Regardless of the order we look at the points, the distance should always be positive.",
+        "This page explains how to implement Excel's ABS function in Python, so you can automate Excel reports using Python and Pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The ABS function in Excel takes a single parameters and returns its absolute value.",
+            "=ABS(number)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number",
+                "description": "The number for which you want to find the absolute value.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=ABS(-1)",
+                "description": "Calculate the absolute value of -1",
+                "result": "1"
+            },
+            {
+                "formula": "=ABS(1)",
+                "description": "Calculate the absolute value of 1",
+                "result": "1"
+            },
+            {
+                "formula": "=ABS(2*-2)",
+                "description": "Calculate the absolute value of 2 * -2",
+                "result": "4"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the ABS function in Excel using Python and Pandas, you can use the `abs()` function available in Pandas. Below are examples of how to achieve the same functionality."
+        ],
+        "codeSections": [
+            {
+                "title": "Calculate the absolute value of every cell in a Pandas series",
+                "shortTitle": "ABS of every cell",
+                "paragraphs": [
+                    "The most common way to use the function in Excel is to apply it directly to a column or series of numbers in a Pandas DataFrame."
+                ],
+                "codeLines": [
+                    "# Calculate the absolute value of the Numbers column",
+                    "df['ABS_Result'] = df['Numbers'].abs()"
+                ]
+            },
+            {
+                "title": "Finding the absolute difference between two columns",
+                "shortTitle": "ABS difference",
+                "paragraphs": [
+                    "To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column."
+                ],
+                "codeLines": [
+                    "# Calculate the absolute difference between Column1 and Column2",
+                    "df['Absolute_Difference'] = (df['Column1'] - df['Column2']).abs()"
+                ]
+            },
+            {
+                "title": "Using ABS as part of a more complex operation",
+                "shortTitle": "Complex ABS operations",
+                "paragraphs": [
+                    "To use the absolute value as part of a more complex operation, you can use the `apply()` function to apply the operation to every element in an pandas dataframe column."
+                ],
+                "codeLines": [
+                    "# Define a function to calculate the absolute sum of a row",
+                    "def abs_sum(row):",
+                    "   return row.abs().sum()",
+                    "",
+                    "# Create a new column 'ABS_SUM' by applying the custom function",
+                    "df['ABS_SUM'] = df.apply(abs_sum, axis=1)" 
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "When implementing the ABS function in Python, there are a few common challenges that you might run into."
+        ],
+        "codeSections": [
+            {
+                "title": "Handling Missing Values",
+                "shortTitle": "Missing values",
+                "paragraphs": [
+                    "If you execute the ABS value function on a cell that contains new data in Excel, it will simply return 0. However, in Pandas, empty cells are represented by the Python NoneType. Using the .abs() function on the NoneType will create this error `TypeError: bad operand type for abs(): 'NoneType'`.",
+                    "To resolve this error, before calling the absolute value function, use the fillnan function to replace all missing values with 0. Doing so will make your absolute value function handle missing values exactly the same as Excel."
+                ],
+                "codeLines": [
+                    "# Fill missing values with 0 so it is handled the same was as Excel",
+                    "df.fillna(0, inplace=True)",
+                    "",
+                    "# Calculate the absolute value",
+                    "df['ABS_SUM'] = df['A'].abs()"
+                ]
+            },
+            {
+                "title": "Handling Non-numeric Values",
+                "shortTitle": "Non-numeric values",
+                "paragraphs": [
+                    "In Python, when you use the ABS function you don't have to think about the data types of the input numbers. In fact, most of the time you never have to think about the datatypes of your data in Excel. However, in Python, each column has an explicit data type and each function exepcts a specific data type as the input.",
+                    "Python's .abs function expects the input to be an int (integer) or float (number with decimals). Before calling the .abs function you can make sure that the input is the correct dtype using Pandas .astype formula."
+                ],
+                "codeLines": [
+                    "# Convert the columns to numeric data types (float)",
+                    "df[A] = df['A'].astype(float)",
+                    "",
+                    "# Then, replace any cell that could not be converted to a float",
+                    "# with the value 0, so it's handled the same as Excel.",
+                    "df.fillna(0, inplace=True)",
+                    "",
+                    "# Calculate the absolute value",
+                    "df['ABS_SUM'] = df['A'].abs()"
+                ]
+            }
+        ]
+    }
+}

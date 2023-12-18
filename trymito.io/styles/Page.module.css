@@ -12,6 +12,10 @@
     align-items: center;
 }
 
+.main_left_align {
+    align-items: flex-start;
+}
+
 .background_card {
     background-color: var(--color-light-background);
 }
