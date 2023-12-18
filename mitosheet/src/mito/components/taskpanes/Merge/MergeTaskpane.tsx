@@ -3,7 +3,7 @@
 import React from 'react';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
 import { MitoAPI } from '../../../api/api';
-import { AnalysisData, BackendMergeParams, ColumnID, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, MergeParams, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleColumns from '../../elements/MultiToggleColumns';
 import Select from '../../elements/Select';
@@ -44,7 +44,7 @@ export enum MergeType {
 export type MergeTaskpaneProps = {
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
-    existingParams?: BackendMergeParams,
+    existingParams?: MergeParams,
     destinationSheetIndex?: number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
@@ -53,7 +53,7 @@ export type MergeTaskpaneProps = {
 };
 
 
-export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: BackendMergeParams, defaultMergeType?: MergeType): BackendMergeParams | undefined => {
+export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOne: number, _sheetIndexTwo?: number, previousParams?: MergeParams, defaultMergeType?: MergeType): MergeParams | undefined => {
     if (sheetDataArray.length < 2) {
         return undefined;
     }
@@ -102,7 +102,7 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
-    const {params, setParams, error} = useLiveUpdatingParams<BackendMergeParams, BackendMergeParams>(
+    const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
         () => props.existingParams ?? getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.defaultMergeType),
         StepType.Merge,
         props.mitoAPI,

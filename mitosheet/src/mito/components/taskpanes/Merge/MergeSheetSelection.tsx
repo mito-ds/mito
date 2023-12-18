@@ -5,13 +5,13 @@ import Select from "../../elements/Select";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import { getDefaultMergeParams } from "./MergeTaskpane";
-import { BackendMergeParams } from "../../../types";
+import { MergeParams } from "../../../types";
 import '../../../../../css/taskpanes/Merge/MergeSheetAndKeySelection.css'
 
 
 const MergeSheetSection = (props: {
-    params: BackendMergeParams,
-    setParams: React.Dispatch<React.SetStateAction<BackendMergeParams>>,
+    params: MergeParams,
+    setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
     sheetDataArray: SheetData[]
 }): JSX.Element => {
 
