@@ -8,13 +8,13 @@ import XIcon from "../../icons/XIcon";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
-import { BackendMergeParams } from "../../../types";
+import { MergeParams } from "../../../types";
 import { getFirstSuggestedMergeKeys } from "./mergeUtils";
 
 
 const MergeKeysSelectionSection = (props: {
-    params: BackendMergeParams,
-    setParams: React.Dispatch<React.SetStateAction<BackendMergeParams>>,
+    params: MergeParams,
+    setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
     sheetDataArray: SheetData[],
     error: string | undefined;
 }): JSX.Element => {

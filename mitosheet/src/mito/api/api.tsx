@@ -16,7 +16,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, BackendMergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
 
@@ -375,8 +375,8 @@ export class MitoAPI {
         Gets the parameters for the merge at desination sheet
         index, or nothing if there are no params
     */
-    async getMergeParams(destinationSheetIndex: number): Promise<MitoAPIResult<BackendMergeParams | undefined>> {
-        return await this.getParams<BackendMergeParams>('merge', undefined, {
+    async getMergeParams(destinationSheetIndex: number): Promise<MitoAPIResult<MergeParams | undefined>> {
+        return await this.getParams<MergeParams>('merge', undefined, {
             'destination_sheet_index': destinationSheetIndex
         })
     }

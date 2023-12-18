@@ -492,7 +492,7 @@ export interface BackendPivotParams {
     destination_sheet_index?: number;
 }
 
-export interface BackendMergeParams {
+export interface MergeParams {
     how: string;
     destination_sheet_index?: number;
     sheet_index_one: number;

@@ -90,7 +90,6 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
-                            dfSources={props.dfSources}
                             display={displayContextMenuForIndex === idx}
                             setDisplayContextMenu={(display: boolean) => {
                                 if (display) {
@@ -117,7 +116,6 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
-                            dfSources={props.dfSources}
                             display={displayContextMenuForIndex === (props.sheetDataArray.length + index)}
                             setDisplayContextMenu={(display: boolean) => {
                                 if (display) {

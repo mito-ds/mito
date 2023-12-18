@@ -39,7 +39,6 @@ export default function SheetTabContextMenu(props: {
     graphDataDict: GraphDataDict
     sheetDataArray: SheetData[]
     display: boolean
-    dfSources: DFSource[]
 }): JSX.Element {
 
     const imported = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Imported;
@@ -121,6 +120,8 @@ export default function SheetTabContextMenu(props: {
         })
     }
 
+    const dfSource = props.sheetDataArray[props.sheetIndex].dfSource;
+
     const dropdownItems: JSX.Element[] = [
         <DropdownItem
             key='Create graph'
@@ -150,6 +151,26 @@ export default function SheetTabContextMenu(props: {
                 }
             })
         }}/> : undefined,
+        dfSource === DFSource.Merged ? 
+            (<DropdownItem
+                key={'Edit Merge'}
+                title={'Edit Merge'}
+                onClick={async () => {
+                    props.closeOpenEditingPopups();
+                    const response = await props.mitoAPI.getMergeParams(props.sheetIndex);
+                    const existingMergeParams = 'error' in response ? undefined : response.result;
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                type: TaskpaneType.MERGE,
+                                existingParams: existingMergeParams
+                            }
+                        }
+                    })
+                }}
+            />)
+            : undefined,
         <DropdownSectionSeperator key='sep' isDropdownSectionSeperator={true} />,
         <DropdownItem 
             key='Duplicate'
@@ -171,27 +192,7 @@ export default function SheetTabContextMenu(props: {
                 e?.stopPropagation()
                 void onDelete()
             }}
-        />,
-        props.dfSources[props.sheetIndex] === DFSource.Merged ? 
-            (<DropdownItem
-                key={'Edit Merge'}
-                title={'Edit Merge'}
-                onClick={async () => {
-                    props.closeOpenEditingPopups();
-                    const response = await props.mitoAPI.getMergeParams(props.sheetIndex);
-                    const existingMergeParams = 'error' in response ? undefined : response.result;
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                type: TaskpaneType.MERGE,
-                                existingParams: existingMergeParams
-                            }
-                        }
-                    })
-                }}
-            />)
-        : undefined
+        />
     ].filter(element => element !== null && element !== undefined) as JSX.Element[];
 
     return (

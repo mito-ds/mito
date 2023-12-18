@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { MitoAPI } from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { DFSource, EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
@@ -81,7 +81,6 @@ type SheetTabProps = {
     graphDataDict: GraphDataDict;
     sheetDataArray: SheetData[]
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
-    dfSources: DFSource[];
     display: boolean;
     setDisplayContextMenu: (display: boolean) => void;
 };
@@ -226,7 +225,6 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     graphDataDict={props.graphDataDict}
                     sheetDataArray={props.sheetDataArray}
                     display={props.display}
-                    dfSources={props.dfSources}
                 />
             }
             {props.tabIDObj.tabType === 'graph' &&

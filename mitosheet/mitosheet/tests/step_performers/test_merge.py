@@ -7,6 +7,8 @@
 Contains tests for merging events.
 """
 from cmath import exp
+from mitosheet.state import NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PLAIN_TEXT
+from mitosheet.tests.step_performers.test_set_dataframe_format import SET_DATAFRAME_FORMAT_TESTS, get_dataframe_format
 import numpy as np
 import pytest
 import pandas as pd
@@ -350,6 +352,26 @@ def test_merge_edit_with_deletion():
     mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
     mito.delete_columns(2, ['A_df1'])
     pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'B': [2], 'A_df2': [2]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_with_format_filter_rename():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('outer', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    df_format = get_dataframe_format(
+        columns={'A': {'type': NUMBER_FORMAT_PLAIN_TEXT}},
+        headers={'color': '#FFFFFF', 'backgroundColor': '#549D3A'},
+        rowsOdd={'color': '#494650', 'backgroundColor': '#D0E3C9'}, 
+        rowsEven={'color': '#494650', 'backgroundColor': '#FFFFFF'},
+        border={'borderStyle': 'solid', 'borderColor': '#000000'}
+    )
+    mito.set_dataframe_format(2, df_format)
+    print(mito.dfs[2])
+    mito.filter(2, 'A', 'and', 'greater_than_or_equal', 1)
+    mito.rename_column(2, 'B_df1', 'B_df1_renamed')
+    mito.merge_sheets('outer', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2.0, None], 'B': [2, 1], 'A_df2': [2, 1]}))
     assert len(mito.dfs) == 3
 
 def test_merge_edit_with_deletion_overwrite():
