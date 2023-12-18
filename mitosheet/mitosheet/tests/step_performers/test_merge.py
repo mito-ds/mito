@@ -7,6 +7,8 @@
 Contains tests for merging events.
 """
 from cmath import exp
+from mitosheet.state import NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PLAIN_TEXT
+from mitosheet.tests.step_performers.test_set_dataframe_format import SET_DATAFRAME_FORMAT_TESTS, get_dataframe_format
 import numpy as np
 import pytest
 import pandas as pd
@@ -321,6 +323,133 @@ def test_merge_unique(input_dfs, how, sheet_index_one, sheet_index_two, merge_ke
         print(actual)
         print(expected)
         assert actual.equals(expected)
+
+
+def test_simple_merge_edit():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2], 'B': [2], 'A_df2': [2]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_two_edits():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.merge_sheets('outer', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2.0, None], 'B': [2, 1], 'A_df2': [2, 1]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_with_deletion():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.delete_columns(2, ['A_df1'])
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'B': [2], 'A_df2': [2]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_with_format_filter_rename():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('outer', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    df_format = get_dataframe_format(
+        columns={'A': {'type': NUMBER_FORMAT_PLAIN_TEXT}},
+        headers={'color': '#FFFFFF', 'backgroundColor': '#549D3A'},
+        rowsOdd={'color': '#494650', 'backgroundColor': '#D0E3C9'}, 
+        rowsEven={'color': '#494650', 'backgroundColor': '#FFFFFF'},
+        border={'borderStyle': 'solid', 'borderColor': '#000000'}
+    )
+    mito.set_dataframe_format(2, df_format)
+    print(mito.dfs[2])
+    mito.filter(2, 'A', 'and', 'greater_than_or_equal', 1)
+    mito.rename_column(2, 'B_df1', 'B_df1_renamed')
+    mito.merge_sheets('outer', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2.0, None], 'B': [2, 1], 'A_df2': [2, 1]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_with_deletion_overwrite():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.delete_columns(2, ['B_df1'])
+    mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2], 'B': [2], 'A_df2': [2]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_different_selected_columns():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A': [2], 'B': [2]}))
+    assert len(mito.dfs) == 3
+
+def test_merge_edit_optimizes_on_delete():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+    mito.delete_dataframe(2)
+
+    assert len(mito.transpiled_code) == 0
+
+
+def test_merge_edit_optimizes_with_edit_to_merge():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.add_column(2, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', '', 
+        "df2_tmp = df2.drop(['B'], axis=1)", 
+        "df_merge = df1.merge(df2_tmp, left_on=['A'], right_on=['A'], how='inner', suffixes=['_df1', '_df2'])", ''
+    ]
+
+def test_merge_edit_optimizes_after_delete_with_edit_to_merge():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.add_column(2, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+    mito.delete_dataframe(2)
+
+    assert len(mito.transpiled_code) == 0
+
+def test_edit_merge_optimizes_after_delete_with_other_edit():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.add_column(0, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+    mito.delete_dataframe(2)
+
+    assert mito.transpiled_code == ["from mitosheet.public.v3 import *", "", "df1.insert(2, 'Test', 0)", ""]
+
+def test_edit_merge_optimizes_after_delete_with_other_edit_after():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
+    mito.delete_dataframe(2)
+    mito.add_column(0, 'Test')
+
+    assert mito.transpiled_code == ["from mitosheet.public.v3 import *", "", "df1.insert(2, 'Test', 0)", ""]
 
 
 OTHER_MERGE_TESTS = [
