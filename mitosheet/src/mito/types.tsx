@@ -912,6 +912,10 @@ export interface ContextMenu {
     rowIndex: number;
     columnIndex: number;
 }
+export interface FooterContextMenu {
+    sheetIndex: number;
+    type: 'footer-context-menu';
+}
 export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
 
 export interface DataTabImportDomainDropdown {
@@ -920,7 +924,7 @@ export interface DataTabImportDomainDropdown {
 }
 
 
-export type OpenDropdownType = ToolbarDropdown | ContextMenu | DataTabImportDomainDropdown;
+export type OpenDropdownType = ToolbarDropdown | ContextMenu | FooterContextMenu | DataTabImportDomainDropdown;
 
 
 export enum PopupType {
