@@ -136,3 +136,42 @@ def upgrade_merge_3_to_4(step: Dict[str, Any], later_steps: List[Dict[str, Any]]
         "step_type": "merge", 
         "params": params
     }] + later_steps
+
+
+def upgrade_merge_4_to_5(step: Dict[str, Any], later_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Support for destination_sheet_index to make edits to merges. 
+
+    OLD: {
+        "step_version": 4, 
+        "step_type": "merge", 
+        "params": {
+            sheet_index_one: 0,
+            sheet_index_two: 1,
+            merge_key_column_ids: [[old.merge_key_column_id_one, old.merge_key_column_id_two]],
+            selected_column_ids_one: List[_ids_],
+            selected_column_ids_two: List[_ids_],
+        }
+    }
+
+    NEW: {
+        "step_version": 5, 
+        "step_type": "merge", 
+        "params": {
+            sheet_index_one: 0,
+            sheet_index_two: 1,
+            merge_key_column_ids: [[old.merge_key_column_id_one, old.merge_key_column_id_two]],
+            selected_column_ids_one: List[_ids_],
+            selected_column_ids_two: List[_ids_],
+            destination_sheet_index: 2
+        }
+    }
+    """
+    params = step['params']
+    params['destination_sheet_index'] = None
+
+    return [{
+        "step_version": 5, 
+        "step_type": "merge", 
+        "params": params
+    }] + later_steps
