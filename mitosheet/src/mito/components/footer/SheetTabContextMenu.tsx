@@ -197,7 +197,16 @@ export default function SheetTabContextMenu(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setDisplayContextMenu(false)}
+            closeDropdown={() => {
+                props.setUIState((prevUIState) => {
+                    // If the dropdown is open, then close it. Otherwise, don't change the state. 
+                    const display = typeof prevUIState.currOpenDropdown === 'object' && prevUIState.currOpenDropdown.type === 'footer-context-menu' && prevUIState.currOpenDropdown.sheetIndex === props.sheetIndex;
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown
+                    }
+                });
+            }}
             width='medium'
         >
             {dropdownItems}
