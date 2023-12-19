@@ -12,7 +12,6 @@ from mitosheet.code_chunks.step_performers.column_steps.delete_column_code_chunk
 from mitosheet.code_chunks.step_performers.filter_code_chunk import FilterCodeChunk
 from mitosheet.code_chunks.step_performers.sort_code_chunk import SortCodeChunk
 from mitosheet.pro.code_chunks.code_chunk_pro_utils import optimize_code_chunks
-from mitosheet.types import ColumnHeader
 
 if TYPE_CHECKING:
     from mitosheet.step import Step

@@ -5,22 +5,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-import os
-from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
-
-import pandas as pd
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.import_steps.excel_range_import_code_chunk import (
-    EXCEL_RANGE_IMPORT_TYPE_RANGE,
-    get_table_range_params,
-    ExcelRangeImportCodeChunk)
-from mitosheet.errors import make_range_not_found_error
-from mitosheet.excel_utils import (get_col_and_row_indexes_from_range,
-                                   get_column_from_column_index)
-from mitosheet.public.v2 import get_table_range
-from mitosheet.public.v2.excel_utils import convert_csv_file_to_xlsx_file
+from mitosheet.code_chunks.step_performers.import_steps.excel_range_import_code_chunk import \
+    ExcelRangeImportCodeChunk
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param

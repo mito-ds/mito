@@ -4,24 +4,19 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from mitosheet.step_performers.graph_steps.graph_utils import (
-    BAR,
-    BOX,
-    DENSITY_CONTOUR,
-    DENSITY_HEATMAP,
-    ECDF,
-    HISTOGRAM,
-    LINE,
-    SCATTER,
-    STRIP,
-    VIOLIN,
-    get_graph_title,
-)
+
+from mitosheet.step_performers.graph_steps.graph_utils import (BAR, BOX,
+                                                               DENSITY_CONTOUR,
+                                                               DENSITY_HEATMAP,
+                                                               ECDF, HISTOGRAM,
+                                                               LINE, SCATTER,
+                                                               STRIP, VIOLIN,
+                                                               get_graph_title)
 from mitosheet.transpiler.transpile_utils import get_param_dict_as_code
 from mitosheet.types import ColumnHeader
 from mitosheet.user.location import is_streamlit

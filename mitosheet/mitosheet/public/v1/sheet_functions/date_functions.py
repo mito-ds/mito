@@ -15,7 +15,9 @@ NOTE: This file is alphabetical order!
 """
 import pandas as pd
 
-from mitosheet.public.v1.sheet_functions.types.decorators import convert_arg_to_series_type, filter_nans, handle_sheet_function_errors
+from mitosheet.public.v1.sheet_functions.types.decorators import (
+    convert_arg_to_series_type, filter_nans, handle_sheet_function_errors)
+
 
 # Inspired by: https://stackoverflow.com/questions/69345845/why-does-dateoffset-rollback-not-work-the-way-i-expect-it-to-with-days-hours
 # Given a datetime and a frequency (ie: business month begin), sets the 

@@ -13,7 +13,6 @@ import os
 import json
 from typing import Any, Dict, List, Optional
 from mitosheet._version import __version__
-from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeOptions, StepsManagerType
 from mitosheet.utils import NpEncoder
 from mitosheet.save_paths import MITO_FOLDER

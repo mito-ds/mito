@@ -5,14 +5,14 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.reset_index_code_chunk import ResetIndexCodeChunk
-
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
+
 
 class ResetIndexStepPerformer(StepPerformer):
     """

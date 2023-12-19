@@ -4,13 +4,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from copy import copy
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.concat_code_chunk import ConcatCodeChunk
+from mitosheet.code_chunks.step_performers.concat_code_chunk import \
+    ConcatCodeChunk
 from mitosheet.state import DATAFRAME_SOURCE_CONCAT, State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param

@@ -1,15 +1,10 @@
-
-
-
-
-import string
 from typing import List, Optional, Tuple, Union
 
 import pandas as pd
 
 from mitosheet.transpiler.transpile_utils import (
-    CLOSE_BRACKET, NEWLINE, OPEN_BRACKET,
-    get_column_header_list_as_transpiled_code, get_column_header_as_transpiled_code)
+    CLOSE_BRACKET, NEWLINE, OPEN_BRACKET, get_column_header_as_transpiled_code,
+    get_column_header_list_as_transpiled_code)
 from mitosheet.types import Selection
 
 MAX_TOKENS = 4096
