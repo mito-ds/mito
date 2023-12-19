@@ -114,7 +114,6 @@ def rename_column_headers_in_state(
     """
     old_column_header = post_state.column_ids.get_column_header_by_id(sheet_index, column_id)
 
-    # If the level is not set, just do a simple rename
     post_state.dfs[sheet_index].rename(columns={old_column_header: new_column_header}, inplace=True)
     
     # Update the column header

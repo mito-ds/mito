@@ -436,12 +436,6 @@ def sheet(
             comm_target_id
         )
 
-        # We now just low whenever they pass any data to the tool, as it was impossible
-        # to keep all the data from the docs marked as from the docs. So this log is a lit
-        # little bit misleading
-        if len(mito_backend.steps_manager.dfs) > 0:
-            log('used_personal_data')
-
     except:
         log('mitosheet_sheet_call_failed', failed=True)
         raise
