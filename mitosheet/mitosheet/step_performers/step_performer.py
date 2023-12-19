@@ -155,24 +155,26 @@ class StepPerformer(ABC, object):
         pandas_start_time = perf_counter()
         exec(final_code, exec_globals, exec_locals)
 
+        # Go through the optional code lines, and take special care to not 
+        # add the comments for the code unless the code itself executes successfully
         optional_code_that_successfully_executed = []
+        non_code_lines_before_optional_line = []
         for optional_code_line in optional_code or []:
 
             # We don't need to exec spaces
-            if optional_code_line == '':
-                optional_code_that_successfully_executed.append(optional_code_line)
+            if optional_code_line == '' or optional_code_line.strip().startswith('#'):
+                non_code_lines_before_optional_line.append(optional_code_line)
                 continue
 
             # TODO: we should make it so it rolls back the state if this fails
-            # because we 
+            # but it's fine for now -- since partial updates don't seem to 
+            # manifest in practice
             try:
                 exec(optional_code_line, exec_globals, exec_locals)
+                optional_code_that_successfully_executed.extend(non_code_lines_before_optional_line)
                 optional_code_that_successfully_executed.append(optional_code_line)
+                non_code_lines_before_optional_line = []
             except Exception as e:
-
-                # TODO: If we hit an error, we remove lines up to last non-comment 
-                # or empty line
-
                 break
 
         pandas_processing_time = perf_counter() - pandas_start_time

@@ -81,8 +81,8 @@ class CodeChunk:
         we have to have a notion of a) optional code lines, and b) the code chunk needs to know
         which of these optional lines was executed correctly. 
 
-        In the above example, fi the rename step failed, then this function would return the 
-        code to add a column to the pivot table, and that's it. 
+        In the above example, if the rename step failed, then this function would return the 
+        code to add a column to the pivot table, and not the code to rename or filter.
         """
         return self.optional_code_that_successfully_executed
         

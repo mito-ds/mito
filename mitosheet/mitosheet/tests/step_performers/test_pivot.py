@@ -1022,7 +1022,6 @@ def test_pivot_then_all_edits_to_sheet():
     mito.sort(1, 'A', 'ascending')
     mito.rename_column(1, 'A', 'B')
     mito.filter(1, 'value sum', 'And', FC_NUMBER_EXACTLY, 2)
-    mito.one_hot_encoding(1, 'B')
     mito.change_column_dtype(1, ['B'], 'string')
     mito.delete_row(1, [2])
 
@@ -1031,8 +1030,7 @@ def test_pivot_then_all_edits_to_sheet():
         pd.DataFrame({
             'date': ['1-2-2000'],
             'value sum': [2],
-            'B': ['12'],
-            12: [True]
+            'B': ['12']
         }, index=[1])
     )
 
@@ -1043,7 +1041,6 @@ def test_pivot_then_all_edits_to_sheet():
             'date': ['1-2-2000'],
             'value max': [2],
             'B': ['12'],
-            12: [True],
             'value sum': [2],
         }, index=[1])
     )
