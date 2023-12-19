@@ -36,8 +36,14 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
 
     return (
         <div onMouseDown={() => {
-            setHasClicked(true);
-            props.onChange(props.selectedColumnIDs)
+            // If there is a warning displayed about missing columns
+            // we want to hide it after the user clicks (assuming they are addressing the warning)
+            if (!hasClicked) {
+                setHasClicked(true);
+                props.onChange(props.selectedColumnIDs.filter((columnID) => {
+                    return columnIDsMap[columnID] !== undefined;
+                }))
+            }
         }}>
             {(nonExistentColumnIDs.length > 0 && !hasClicked) &&
                 <div className='caution-text-wrapper'>
