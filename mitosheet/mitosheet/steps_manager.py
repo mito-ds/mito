@@ -14,7 +14,6 @@ import pandas as pd
 from mitosheet.api.get_parameterizable_params import get_parameterizable_params_metadata
 from mitosheet.api.get_path_contents import get_path_parts
 
-from mitosheet.data_in_mito import DataTypeInMito, get_data_type_in_mito
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
@@ -37,7 +36,7 @@ from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
-from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
+from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
 from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_importers_for_frontend, get_user_defined_editors_for_frontend
 from mitosheet.step_performers.utils.user_defined_function_utils import validate_and_wrap_sheet_functions, validate_user_defined_editors
@@ -351,10 +350,6 @@ class StepsManager:
         return self.steps_including_skipped[self.curr_step_idx].dfs
 
     @property
-    def data_type_in_mito(self) -> DataTypeInMito:
-        return get_data_type_in_mito(self.dfs)
-
-    @property
     def sheet_data_json(self) -> str:
         """
         sheet_json contains a serialized representation of the data
@@ -399,7 +394,6 @@ class StepsManager:
                 "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
-                "dataTypeInTool": self.data_type_in_mito.value,
                 "graphDataDict": self.curr_step.graph_data_dict,
                 'updateEventCount': self.update_event_count,
                 'undoCount': self.undo_count,

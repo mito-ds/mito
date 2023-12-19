@@ -10,7 +10,6 @@ current user.
 import getpass
 import hashlib
 import os
-from datetime import datetime
 import sys
 from typing import Optional
 

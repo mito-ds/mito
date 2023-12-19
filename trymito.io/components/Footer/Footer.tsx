@@ -71,6 +71,9 @@ const Footer = (): JSX.Element => {
                         <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
+                        <Link href='/excel-to-python/'>Excel to Python</Link>
+                    </li>
+                    <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/blog'>Blog</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>

@@ -21,7 +21,6 @@ from IPython.display import HTML, display
 
 from mitosheet.kernel_utils import get_current_kernel_id, Comm
 from mitosheet.api import API
-from mitosheet.data_in_mito import DataTypeInMito
 from mitosheet.enterprise.mito_config import MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH, MITO_CONFIG_CUSTOM_IMPORTERS_PATH, MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
@@ -31,19 +30,14 @@ from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
 from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
-from mitosheet.user import is_local_deployment
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
 from mitosheet.user.location import is_dash, is_in_google_colab, is_in_vs_code, is_streamlit
-from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES,
-                                    UJ_RECEIVED_CHECKLISTS, UJ_RECEIVED_TOURS,
+from mitosheet.user.schemas import (UJ_MITOSHEET_LAST_FIFTY_USAGES, UJ_RECEIVED_TOURS,
                                     UJ_USER_EMAIL, UJ_AI_PRIVACY_POLICY)
 from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_running_test
 from mitosheet.utils import get_new_id
-from mitosheet.transpiler.transpile_utils import get_script_as_function
-from mitosheet.transpiler.transpile import transpile
 from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
-from mitosheet.api.get_parameterizable_params import get_parameterizable_params_metadata
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
 
@@ -114,7 +108,6 @@ class MitoBackend():
         # have to recompute them on each update
         last_50_usages = get_user_field(UJ_MITOSHEET_LAST_FIFTY_USAGES)
         self.num_usages = len(last_50_usages if last_50_usages is not None else [])
-        self.is_local_deployment = is_local_deployment()
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
         self.mito_send: Callable = lambda x: None # type: ignore
@@ -155,7 +148,6 @@ class MitoBackend():
             # Static over a single analysis
             'pythonVersion': get_python_version(),
             'pandasVersion': get_pandas_version(),
-            'isLocalDeployment': self.is_local_deployment,
             'numUsages': self.num_usages,
             'mitoConfig': self.steps_manager.mito_config.get_mito_config(),
             'snowflakeCredentials': get_cached_snowflake_credentials(),
@@ -311,7 +303,6 @@ with open(os.path.normpath(os.path.join(__file__, '..', 'mito_frontend.css'))) a
 
 def get_mito_backend(
         *args: Any,
-        comm_target_id: str='',
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
@@ -326,6 +317,17 @@ def get_mito_backend(
         user_defined_importers=user_defined_importers,
         user_defined_editors=user_defined_editors
     ) 
+
+    return mito_backend
+
+
+def register_comm_target_on_mito_backend(
+        mito_backend: MitoBackend,
+        comm_target_id: str=''
+    ) -> MitoBackend:
+    ipython = get_ipython() # type: ignore
+    if not ipython:
+        return mito_backend
 
     # We create a callback that runs when the comm is actually created on the frontend
     def on_comm_creation(comm: Comm, open_msg: Dict[str, Any]) -> None:
@@ -342,12 +344,9 @@ def get_mito_backend(
         comm.send({'echo': open_msg['content']['data']}) # type: ignore
 
     # Register the comm target - so the callback gets called
-    ipython = get_ipython() # type: ignore
-    if ipython:
-        ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
+    ipython.kernel.comm_manager.register_target(comm_target_id, on_comm_creation)
 
     return mito_backend
-
 
 def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mito_backend: MitoBackend) -> str:
 
@@ -422,19 +421,20 @@ def sheet(
         # a different channel to communicate over
         comm_target_id = get_new_id()
 
+        # Create a new mito backend
         mito_backend = get_mito_backend(
             *args, 
-            comm_target_id=comm_target_id, 
             analysis_to_replay=analysis_to_replay, 
             user_defined_functions=sheet_functions,
             user_defined_importers=importers,
             user_defined_editors=editors,
         )
 
-        # Log they have personal data in the tool if they passed a dataframe
-        # that is not tutorial data or sample data from import docs
-        if mito_backend.steps_manager.data_type_in_mito == DataTypeInMito.PERSONAL:
-            log('used_personal_data')
+        # Setup the comm target on this
+        mito_backend = register_comm_target_on_mito_backend(
+            mito_backend,
+            comm_target_id
+        )
 
     except:
         log('mitosheet_sheet_call_failed', failed=True)

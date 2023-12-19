@@ -40,7 +40,7 @@ const DataApp: NextPage = () => {
                     Convert one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='download' align='center' displayProCTA={false}/>
+                    <CTAButtons variant='download' align='center' displaySecondaryCTA={false}/>
                 </div>
                     
                 <div id='video'>
@@ -55,9 +55,9 @@ const DataApp: NextPage = () => {
             <section className={textImageSplitStyles.text_image_section_container}>
                 <div className={pageStyles.subsection}>
                     <div className={textImageSplitStyles.functionality_text}>
-                        <h1>
+                        <h2>
                             From Python script, to <span className='text-highlight'>data app</span>
-                        </h1>
+                        </h2>
                         <p>
                             It only takes one analyst to build a script for an entire team to automate their similar workflows. 
                             Mito-enabled Streamlit dashboards let other users customize existing automation solutions to their data.
@@ -75,9 +75,9 @@ const DataApp: NextPage = () => {
                         <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
                     </div>
                     <div className={textImageSplitStyles.functionality_text}>
-                        <h1>
+                        <h2>
                             Make your data explorable to non-technical users
-                        </h1>
+                        </h2>
                         <p> 
                             Finding the right dataset can be hard even for data scientists. 
                         </p>
@@ -125,9 +125,9 @@ const DataApp: NextPage = () => {
             <section className={textImageSplitStyles.text_image_section_container}>
                 <div className={pageStyles.subsection}>
                     <div className={textImageSplitStyles.functionality_text}>
-                        <h1>
+                        <h2>
                             Build locally, then deploy to your entire team
-                        </h1>
+                        </h2>
                         <p>
                             Analysts build Streamlit apps on their computer, and when the app is useful to their entire team, they can deploy it to a server.
                         </p>

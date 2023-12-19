@@ -45,7 +45,6 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     // totalMatches is undefined when we're making the API call to get the total number of matches.
     const [ totalMatches, setTotalMatches ] = React.useState<number | undefined>(undefined);
     const [ showCautionMessage, setShowCautionMessage ] = React.useState<boolean>(false);
-    const [ isExpanded, setIsExpanded ] = React.useState<boolean>(false);
     const [ replaceValue, setReplaceValue ] = React.useState<string>('');
 
     const scrollMatchIntoViewAndUpdateSelection = (match?: { rowIndex: number; colIndex: number }) => {
@@ -212,11 +211,19 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
     return (<div className='mito-search-bar' style={{ top: uiState.currentToolbarTab !== undefined ? '117px': '57px'}}>
         <button
             onClick={() => {
-                setIsExpanded(!isExpanded);
+                setUIState(prevUiState => {
+                    return {
+                        ...prevUiState,
+                        currOpenSearch: {
+                            ...prevUiState.currOpenSearch,
+                            isExpanded: !uiState.currOpenSearch.isExpanded
+                        }
+                    }
+                });
             }}
             className='mito-search-button'
         >
-            <ExpandCollapseIcon action={isExpanded ? 'collapse' : 'expand'} strokeColor='var(--mito-text)' strokeWidth={1}/>
+            <ExpandCollapseIcon action={uiState.currOpenSearch.isExpanded ? 'collapse' : 'expand'} strokeColor='var(--mito-text)' strokeWidth={1}/>
         </button>
         <div className='mito-search-bar-content'>
             <div className='mito-search-bar-search'>
@@ -271,7 +278,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     <XIcon strokeWidth='1' width='15' height='15' />
                 </button>
             </div>
-            {isExpanded && <div className='mito-search-bar-replace'>
+            {uiState.currOpenSearch.isExpanded && <div className='mito-search-bar-replace'>
                 <Input
                     value={replaceValue}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -284,7 +291,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                     }}
                     className='mito-input'
                     placeholder='Replace...'
-                    autoFocus
+                    autoFocus={searchValue !== undefined && searchValue !== ''}
                 />
                 <button className='mito-search-button' onClick={() => {
                     handleReplace()
@@ -298,7 +305,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 </button>
             </div>}
         </div>
-        {showCautionMessage && <div style={{top: isExpanded ? '71px' : '40px'}} className='mito-search-caution'>
+        {showCautionMessage && <div style={{top: uiState.currOpenSearch.isExpanded ? '71px' : '40px'}} className='mito-search-caution'>
             <CautionIcon />
             <span>Only the first 1500 rows are displayed.</span>
         </div>}

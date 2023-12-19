@@ -4,9 +4,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of The Mito Enterprise license.
 
-import json
 from typing import Any, Dict, List, Optional
-import requests #type: ignore
+
+import requests  # type: ignore
+
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.transpiler.transpile_utils import NEWLINE, NEWLINE_TAB
 from mitosheet.types import CodeSnippet

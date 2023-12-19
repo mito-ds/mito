@@ -3,17 +3,15 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import deepcopy
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import SplitTextToColumnsCodeChunk, get_split_param_dict
+from mitosheet.code_chunks.step_performers.column_steps.split_text_to_columns_code_chunk import (
+    SplitTextToColumnsCodeChunk, get_split_param_dict)
 from mitosheet.is_type_utils import is_datetime_dtype, is_timedelta_dtype
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
-from mitosheet.step_performers.utils.utils import add_columns_to_df, get_param
+from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader, ColumnID
 
 

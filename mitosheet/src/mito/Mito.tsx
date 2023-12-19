@@ -35,7 +35,6 @@ import DeleteGraphsModal from './components/modals/DeleteGraphsModal';
 import ErrorModal from './components/modals/ErrorModal';
 import ErrorReplayedAnalysisModal from './components/modals/ReplayAnalysisModals';
 import SignUpModal from './components/modals/SignupModal';
-import UpgradeModal from './components/modals/UpgradeModal';
 import { ModalEnum } from './components/modals/modals';
 import AITransformationTaskpane, { AITransformationParams } from './components/taskpanes/AITransformation/AITransformationTaskpane';
 import CannotCreateCommTaskpane from './components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane';
@@ -60,10 +59,9 @@ import SnowflakeImportTaskpane from './components/taskpanes/SnowflakeImport/Snow
 import SplitTextToColumnsTaskpane from './components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane';
 import UpdateImportsTaskpane from './components/taskpanes/UpdateImports/UpdateImportsTaskpane';
 import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/UserDefinedImportTaskpane';
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
+import { AnalysisData, DFSource, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { getActions } from './utils/actions';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
@@ -85,6 +83,7 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
 import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
+import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -545,12 +544,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                 />
             )
-            case ModalEnum.Upgrade: return (
-                <UpgradeModal
-                    setUIState={setUIState}
-                    mitoAPI={mitoAPI}
-                />
-            )
             case ModalEnum.ErrorReplayedAnalysis: return (
                 <ErrorReplayedAnalysisModal
                     setUIState={setUIState}
@@ -938,10 +931,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     )
 
 
-    // Hook for using keyboard shortcuts. NOTE: do not return before this hook, it will cause
-    // issues.
-    useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
-
     /* 
         Send all users through the intro tour unless:
         1. They disabled tours
@@ -953,7 +942,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const getCurrTour = (): JSX.Element => {
 
         // If the user has either no or tutorial data in the tool, don't display the tour
-        if (analysisData.dataTypeInTool === DataTypeInMito.NONE || analysisData.dataTypeInTool === DataTypeInMito.TUTORIAL) {
+        if (sheetDataArray.length == 0) {
             return <></>;
         }
 
@@ -1025,6 +1014,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 if (e.key === 'Escape') {
                     if (editorState !== undefined) {
                         setEditorState(undefined)
+                    } else if (uiState.currOpenTaskpane.type !== TaskpaneType.NONE) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {
+                                    type: TaskpaneType.NONE
+                                },
+                            }
+                        });
                     } else if (uiState.currOpenSearch.isOpen) {
                         setUIState(prevUIState => {
                             return {
@@ -1038,8 +1036,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         })
                         const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;
                         focusGrid(endoGridContainer);
+                    } else if (uiState.currOpenDropdown !== undefined) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenDropdown: undefined
+                            }
+                        })
+                        const endoGridContainer = mitoContainerRef.current?.querySelector('.endo-grid-container') as HTMLDivElement | null | undefined;
+                        focusGrid(endoGridContainer);
                     }
                 }
+                handleKeyboardShortcuts(e, actions);
             }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>

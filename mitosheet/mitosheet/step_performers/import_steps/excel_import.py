@@ -5,13 +5,11 @@
 # Distributed under the terms of the GPL License.
 
 import os
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-import pandas as pd
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.excel_import_code_chunk import \
-    ExcelImportCodeChunk, build_read_excel_params
+    ExcelImportCodeChunk
 from mitosheet.errors import make_file_not_found_error
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer

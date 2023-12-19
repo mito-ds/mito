@@ -16,9 +16,7 @@ experiment, do the following:
 That's it! We can continue to optimize this over time, but that is fine for now.
 """
 
-
 import json
-import random
 from typing import Dict, Optional
 
 from mitosheet.user.db import USER_JSON_PATH, get_user_field

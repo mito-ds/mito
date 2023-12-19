@@ -8,10 +8,24 @@ const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
 };
 
 const importCSV = async (page: Page, mito: FrameLocator, filename: string): Promise<void> => {
+  let tabCount = 0;
+  try {
+    // If there are 0 tabs, this will throw an error, as the locator
+    // cannot find anything. As such, we leave tabCount as 0 in this
+    // case.
+    tabCount = (await mito.locator('.tab').all()).length;
+  } catch (e) {
+    // The .tab element doesn't exist -- so we don't need to do anything
+    // as tabCount is already 0
+  }
+
   await mito.getByRole('button', { name: '▾ Import' }).click();
   await mito.getByTitle('Import Files').getByText('Import Files').click();
   await mito.getByText(filename).dblclick();
-  await expect(mito.getByTitle('Column1')).toBeVisible(); 
+
+  // Wait until the number of tabs has increased by 1
+  await expect(mito.locator('.tab')).toHaveCount(tabCount + 1);
+
   await awaitResponse(page);
   // Close the taskpane, by clicking default-taskpane-header-exit-button-div
   await mito.locator('.default-taskpane-header-exit-button-div').click();
@@ -21,6 +35,12 @@ const importCSV = async (page: Page, mito: FrameLocator, filename: string): Prom
 const getMitoFrameWithTestCSV = async (page: Page): Promise<FrameLocator> => {
   const mito = await getMitoFrame(page);
   await importCSV(page, mito, 'test.csv');
+  return mito;
+}
+
+const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator> => {
+  const mito = await getMitoFrame(page);
+  await importCSV(page, mito, 'types.csv');
   return mito;
 }
 
@@ -49,6 +69,10 @@ const getColumnHeaderContainer = async (mito: FrameLocator, columnName: string):
   return mito.locator('.endo-column-header-container').locator('div').filter({ hasText: columnName }).first();
 }
 
+const clickTab = async (page: Page, mito: FrameLocator, tabName: string): Promise<void> => {
+  // Button with .mito-toolbar-tabbar-tabname that has text tabName
+  await mito.locator('.mito-toolbar-tabbar-tabname').filter({ hasText: tabName }).first().click();
+}
 
 
 test('Can render Mito spreadsheet', async ({ page }) => {
@@ -86,7 +110,7 @@ test.describe('Home Tab Buttons', () => {
     const mito = await getMitoFrameWithTestCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.')
-    await expect(mito.getByText('$1')).toBeVisible();
+    await expect(mito.getByText('$1', {exact: true})).toBeVisible();
     await clickButtonAndAwaitResponse(page, mito, 'Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.')
     await expect(mito.getByText('100%')).toBeVisible();
     await clickButtonAndAwaitResponse(page, mito, 'Increase the number of decimal places that are displayed in the selected number columns.')
@@ -101,7 +125,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Default').first().click();
     await mito.getByText('Currency').click();
     await awaitResponse(page);
-    await expect(mito.getByText('$1')).toBeVisible();
+    await expect(mito.getByText('$1', { exact: true })).toBeVisible();
   });
 
   test.skip('Conditional Formatting', async ({ page }) => {
@@ -175,13 +199,13 @@ test.describe('Home Tab Buttons', () => {
 
     await checkOpenTaskpane(mito, 'Column1');
 
-    // Filter out all rows, with a > 4 filter
+    // Filter out all rows, with a > 10 filter
     await mito.getByText('+ Add Filter').click();
     await mito.locator('div').filter({ hasText: /^Add a Filter$/ }).first().click();
     await mito.getByRole('textbox').click();
-    await mito.getByRole('textbox').fill('4');
+    await mito.getByRole('textbox').fill('10');
     await mito.getByText('No rows in dataframe.').click();
-    await expect(mito.getByText('Removed an additional 1 rows')).toBeVisible();
+    await expect(mito.getByText('Removed an additional 4 rows')).toBeVisible();
 
     // Add another filter and combine with an OR < 10
     await mito.getByText('+ Add Filter').click();
@@ -190,7 +214,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Or', { exact: true }).click();
     await mito.getByText('>').nth(1).click();
     await mito.getByText('<').click();
-    await mito.locator('div').filter({ hasText: /^Or<$/ }).getByRole('textbox').fill('10');
+    await mito.locator('div').filter({ hasText: /^Or<$/ }).getByRole('textbox').fill('12');
 
     // Check that the .mito-grid-cell containing 1 exists
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^1$/ }).first()).toBeVisible();
@@ -206,19 +230,19 @@ test.describe('Home Tab Buttons', () => {
 
     // Check finds 2 in both the cell and the header
     await mito.getByPlaceholder('Find...').fill('2');
-    await expect(mito.getByText('0 of 2')).toBeVisible();
+    await expect(mito.getByText('0 of 3')).toBeVisible();
 
     // Replace in selected columns shouldn't work, as Column2 isn't selected
     await mito.locator('#mito-center-content-container').getByRole('button').first().click();
-    await mito.getByPlaceholder('Replace...').fill('4');
+    await mito.getByPlaceholder('Replace...').fill('13');
     await mito.getByRole('button', { name: 'Replace in Selected Columns' }).click();
-    await expect(mito.getByText('Column4')).not.toBeVisible();
-    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^4$/ }).first()).not.toBeVisible();
+    await expect(mito.getByText('Column13')).not.toBeVisible();
+    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).not.toBeVisible();
 
     // Then, replace all, should work
     await mito.getByRole('button', { name: 'Replace All' }).click();
-    await expect(mito.getByText('Column4')).toBeVisible();
-    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^4$/ }).first()).toBeVisible();
+    await expect(mito.getByText('Column13')).toBeVisible();
+    await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).toBeVisible();
   });
 
   test('Change Dtype Dropdown', async ({ page }) => {
@@ -312,4 +336,495 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByRole('button', { name: 'AI' })).not.toBeVisible();
   });
 
+});
+
+test.describe('Insert Tab Buttons', () => {
+
+  test('Test Pivot', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Pivot', exact: true });
+
+    await checkOpenTaskpane(mito, 'Create Pivot Table test_pivot');
+    // We test functionality elsewhere, so we skip here
+  });
+
+  test('Test Unpivot', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Unpivot');
+    await checkOpenTaskpane(mito, 'Unpivot Dataframe');
+
+    // Check that column headers variable and value exist
+    const variable = await getColumnHeaderContainer(mito, 'variable');
+    await expect(variable).toBeVisible();
+    const value = await getColumnHeaderContainer(mito, 'value');
+    await expect(value).toBeVisible();
+
+    // Toggle .multi-toggle-box-row with text Column1
+    await mito.locator('.multi-toggle-box-row').filter({ hasText: 'Column1' }).first().click();
+    await awaitResponse(page);
+
+    // Check that column1 is now in the variable column
+    const Column1 = await getColumnHeaderContainer(mito, 'Column1');
+    await expect(Column1).toBeVisible();
+  });
+
+  test('Test Transpose', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Transpose');
+
+    // Check that the .endo-column-header-container with text Column1 exists
+    const Column0 = await getColumnHeaderContainer(mito, '0');
+    await expect(Column0).toBeVisible();
+  });
+
+  test('Test Merge', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Merge', exact: true });
+
+    await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+    // We test merge functionality elsewhere, so we skip here
+  });
+
+  test('Test Concat', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Concat');
+
+    await expect(mito.getByText('Concatenate Sheet')).toBeVisible();
+    // We test concat functionality elsewhere, so we skip here
+
+  });
+
+  test('Test Anti-merge', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Anti-merge');
+
+    await checkOpenTaskpane(mito, 'Merge Dataframes');
+    await expect(mito.getByText('unique in left')).toBeVisible();
+    // We test anti-merge functionality elsewhere, so we skip here
+  });
+
+  test('Test Graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph', exact: true });
+
+    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    // We test graph functionality elsewhere, so we skip here
+  });
+
+  test('Test Graph (scatter)', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' });
+
+    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.getByText('Scatter')).toBeVisible();
+  });
+
+  test('Test Graph (line)', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Insert');
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive line graph.' });
+
+    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.getByText('line', {exact: true})).toBeVisible();
+
+  });
+
+})
+
+test.describe('Data Tab Buttons', () => {
+
+  test('Test Import Files', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Import Files');
+    await expect(mito.getByText('test.csv')).toBeVisible();
+  });
+  
+  test('Test Import Dataframes', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Import Dataframes');
+    // Check Import Dataframes is open taskpane
+    await checkOpenTaskpane(mito, 'Import Dataframes');
+
+    // TODO: Test functionality
+  });
+
+  test('Test Snowflake Import', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Snowflake Import');
+    // Check Snowflake Import is open taskpane
+    await checkOpenTaskpane(mito, 'Import from Snowflake');
+
+    // TODO: Test functionality
+  });
+
+  test('Test Change Imports', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Change Imports');
+    // Check Change Imports is open taskpane
+    await checkOpenTaskpane(mito, 'Change Imports');
+
+    await mito.getByText('test.csv').click();
+    await mito.getByText('Replace with file').click();
+    await mito.getByText('strings.csv').dblclick();
+    await mito.getByRole('button', { name: 'Change Imports', exact: true }).click();
+    await mito.getByText('Successfully replayed analysis on new data').click();
+  });
+
+  test('Test Sort Descending', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByRole('button', { name: 'Sort a column in descending order.' }).click();
+
+    // Check that the first .mito-grid-cell has text 10
+    await expect(mito.locator('.mito-grid-cell').first()).toHaveText('10');
+  });
+
+  test('Test Sort Ascending', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByRole('button', { name: 'Sort a column in descending order.' }).click();
+    await mito.getByRole('button', { name: 'Sort a column in ascending order.' }).click();
+
+    // Check that the first .mito-grid-cell has text 1
+    await expect(mito.locator('.mito-grid-cell').first()).toHaveText('1');
+  });
+
+  test('Test Sort', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByRole('button', { name: 'Sort', exact: true }).click();
+
+    // Expect that Column1 is open taskpane
+    await checkOpenTaskpane(mito, 'Column1');
+  });
+
+  test('Test Filter', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByRole('button', { name: 'Filter', exact: true }).click();
+
+    // Expect that Column1 is open taskpane
+    await checkOpenTaskpane(mito, 'Column1');
+  });
+
+  test('Test Text To Columns', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await importCSV(page, mito, 'strings.csv');
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByText('Column2').click();
+    await mito.getByRole('button', { name: 'Text to Columns' }).click();
+    await mito.locator('input[name="Dash"]').check();
+    await mito.getByRole('button', { name: 'Split on delimiter' }).click();
+
+    // Check that there are 4 columsn
+    await expect(mito.locator('.endo-column-header-container')).toHaveCount(4);
+  });
+
+  test('Test Bulk Rename Columns', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByRole('button', { name: 'Rename Columns' }).click();
+
+    await mito.getByRole('button', { name: 'Uppercase 3 Headers' }).click();
+    await expect(mito.getByText('COLUMN1', { exact: true}).first()).toBeVisible();
+
+    await mito.getByRole('button', { name: 'Lowercase 3 Headers' }).click();
+    await expect(mito.getByText('column1', { exact: true}).first()).toBeVisible();
+
+    await mito.getByRole('textbox').first().fill('column');
+    await mito.getByRole('textbox').nth(1).fill('dork');
+    await mito.getByRole('button', { name: 'Replace in 3 Headers' }).click();
+    await expect(mito.getByText('dork1', { exact: true}).first()).toBeVisible();
+  });
+
+  test('Test Remove Duplicates', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await importCSV(page, mito, 'strings.csv');
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByRole('button', { name: 'Remove Duplicates' }).click();
+    await mito.getByRole('button', { name: 'Drop duplicates in 2 columns' }).click();
+
+    // Check that Removed 1 rows. is visible
+    await expect(mito.getByText('Removed 1 rows.')).toBeVisible();
+  });
+
+  test('Test Fill Missing Values', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await importCSV(page, mito, 'types.csv');
+    await clickTab(page, mito, 'Data');
+
+    // Check there is one NaN
+    await expect(mito.getByText('NaN', { exact: true}).first()).toBeVisible();
+
+    await mito.getByText('Column2').click();
+
+    await mito.getByRole('button', { name: 'Fill Missing Values' }).click();
+    await mito.getByRole('button', { name: 'Fill NaNs in Column2' }).click();
+
+    // Check there are no NaNs
+    await expect(mito.getByText('NaN', { exact: true}).first()).not.toBeVisible();
+  });
+
+  test('Test One-hot Encoding', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await importCSV(page, mito, 'types.csv');
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByText('Column3').click();
+    await mito.getByRole('button', { name: 'One-hot Encoding' }).click();
+
+    // Check there are 6 columns
+    await expect(mito.locator('.endo-column-header-container')).toHaveCount(6);
+  });
+
+  test('Test Reset and Keep Index', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await mito.getByRole('button', { name: '▾ Reset Index' }).click();
+    await mito.getByText('Reset and Keep Index').click();
+    await awaitResponse(page);
+
+    // Check there is a header called index
+    const indexColumnHeader = await getColumnHeaderContainer(mito, 'index');
+    await expect(indexColumnHeader).toBeVisible();
+  });
+
+  test('Test Reset and Drop Index', async ({ page }) => {
+      const mito = await getMitoFrameWithTestCSV(page);
+      await clickTab(page, mito, 'Data');
+
+      // Sort descending
+      await mito.getByRole('button', { name: 'Sort a column in descending order.' }).click();
+      await awaitResponse(page);
+
+      // Reset and Drop Index
+      await mito.getByRole('button', { name: '▾ Reset Index' }).click();
+      await mito.getByText('Reset and Drop Index').click();
+      await awaitResponse(page);
+
+      // Check there is no header called index
+      const indexColumnHeader = await getColumnHeaderContainer(mito, 'index');
+      await expect(indexColumnHeader).not.toBeVisible();
+
+      // Check that the first .mito-grid-cell has text 10
+      await expect(mito.locator('.mito-grid-cell').first()).toHaveText('10');
+
+      // Check the first .index-header-container has text 0
+      await expect(mito.locator('.index-header-container').first()).toHaveText('0');
+  });
+
+});
+test.describe('Code Tab Buttons', () => {
+
+  test('Test Copy Code', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Code');
+
+    await mito.getByRole('button', { name: 'Copy Code' }).click();
+    // Check the code is copied to the clipboard
+    // TODO: There are some bugs with Playwrite, that make it hard to check the clipboard contents
+  });
+
+  test('Test Configure Code', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Code');
+
+    await mito.getByRole('button', { name: 'Configure Code' }).click();
+    await checkOpenTaskpane(mito, 'Generated Code Options');
+
+    await mito.locator('.toggle').first().click();
+    await mito.getByRole('textbox').fill('new name');
+    // Wanna check some output
+
+  });
+
+  test('Test Code Snippets', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Code');
+
+    await mito.getByRole('button', { name: 'Code Snippets' }).click();
+    await checkOpenTaskpane(mito, 'Code Snippets');
+  });
+
+  test('Test Schedule Automation', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Code');
+
+    await mito.getByRole('button', { name: 'Schedule Automation' }).click();
+    await checkOpenTaskpane(mito, 'Schedule on Github');
+  });
+});
+  
+test.describe('Keyboard Shortcuts', () => {
+  test('Select Column', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByText('5', { exact: true }).click();
+    await page.keyboard.press('Control+ ');
+    await expect(mito.locator('.endo-column-header-container-selected .endo-column-header-final-text')).toHaveText('Column2');
+  })
+
+  test('Select Row', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('5', { exact: true }).click();
+    await page.keyboard.press('Shift+ ');
+    await expect(mito.locator('.index-header-selected')).toHaveText('1');
+  })
+
+  test('Select Row with multiple rows', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('5', {exact: true}).click();
+    await mito.getByTitle('8').click({ modifiers: ['Shift']});
+    await page.keyboard.press('Shift+ ');
+    await expect(mito.locator('.index-header-selected')).toHaveCount(2);
+    await expect(mito.locator('.index-header-selected').first()).toHaveText('1');
+    await expect(mito.locator('.index-header-selected').nth(1)).toHaveText('2');
+  })
+
+  test('Select All', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+a');
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(3);
+  });
+  
+  test('Next Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+
+    // Check that the tab with .tab-selected is the second tab, 
+    // with the text test_1
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
+
+    await page.keyboard.press('Alt+ArrowRight');
+
+    // Check that the tab with .tab-selected is the first tab
+    // with the text test
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
+  });
+
+  test('Previous Sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Alt+ArrowLeft');
+    await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
+  });
+
+  test('Find and Replace', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+h');
+    await awaitResponse(page);
+    await expect(mito.getByPlaceholder('Find...')).toBeVisible()
+    await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
+  })
+
+  test('Create Graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Alt+F1');
+    await awaitResponse(page);
+    await expect(mito.getByText('Setup Graph')).toBeVisible();
+  })
+
+  test('Open File Import', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Control+o');
+    await awaitResponse(page);
+    await expect(mito.getByText('Import Files')).toBeVisible();
+  });
+
+  test('Create a Filter', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await page.keyboard.press('Alt+ArrowDown');
+    await awaitResponse(page);
+    await expect(mito.getByText('Add Filter')).toBeVisible();
+  });
+
+  test('Merge', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'test.csv');
+
+    await page.keyboard.press('Control+m');
+    await awaitResponse(page);
+    await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+  });
+  
+  test('Set Number Format', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').click();
+
+    await page.keyboard.press('Control+Shift+1');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+4');
+    await awaitResponse(page);
+    await expect(mito.getByText('$1.00', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+5');
+    await awaitResponse(page);
+    await expect(mito.getByText('100.00%', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+^');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00e+0', { exact: true })).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+`');
+    await awaitResponse(page);
+    await expect(mito.getByText('1.00', { exact: true })).toBeVisible();
+  });
+
+  test('Set Datetime Dtype', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+    await mito.getByTitle('Column1').click();
+
+    await page.keyboard.press('Control+Shift+@');
+    await awaitResponse(page);
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveText(/date/);
+    await expect(mito.locator('#root')).toContainText('1990-10-12 00:00:00');
+    await expect(mito.locator('#root')).toContainText('2000-01-02 00:00:00');
+    await expect(mito.locator('#root')).toContainText('1961-12-29 00:00:00');
+  });
+
+  test('Select All isn\'t triggered when column header is editing', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByTitle('Column1').dblclick();
+    await page.keyboard.press('Control+a');
+    await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(1);
+  });
 });

@@ -1,6 +1,3 @@
-
-
-
 from typing import Callable, List, Optional, Tuple, TypeVar, Union
 import numpy as np
 from datetime import datetime, timedelta

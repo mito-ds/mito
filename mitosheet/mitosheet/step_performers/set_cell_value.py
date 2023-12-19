@@ -3,20 +3,18 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import deepcopy
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.set_cell_value_code_chunk import \
     SetCellValueCodeChunk
-from mitosheet.errors import (make_cast_value_to_type_error,
-                              make_no_column_error)
-from mitosheet.public.v1.sheet_functions.types import get_function_to_convert_to_series
-from mitosheet.is_type_utils import (is_int_dtype, is_none_type,
-                                                   is_number_dtype,
-                                                   is_string_dtype)
+from mitosheet.errors import make_cast_value_to_type_error
+from mitosheet.is_type_utils import (is_none_type, is_number_dtype,
+                                     is_string_dtype)
+from mitosheet.public.v1.sheet_functions.types import \
+    get_function_to_convert_to_series
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param

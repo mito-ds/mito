@@ -1,0 +1,139 @@
+{
+    "slug": ["transformations", "Sort"],
+    "functionNameShort": "Sort",
+    "functionNameLong": "Sort",
+    "relatedFunctions": ["Filter", "IF", "REVERSE"],
+    "purpose": "Sort data based on one or more columns",
+    "titleCardParagraphs": [
+        "Excel's sorting functionality is pivotal for organizing data in a DataFrame. From arranging sales data by dates to sorting customer information alphabetically, SORT is fundamental in data analysis and reporting.",
+        "This page explains how to use Excel's sorting features in Python using pandas."
+    ],
+    "equivalentCode": {
+        "introParagraphs": [
+            "To implement Excel's sorting functionality in Python, you'll need to use the sort_values function in pandas. Here are some common use cases."
+        ],
+        "codeSections": [
+            {
+                "title": "Using pandas sort_values",
+                "shortTitle": "Basic Sorting",
+                "paragraphs": [
+                    "The sort_values method in pandas is the equivalent of Excel's basic column sorting. It allows you to sort a DataFrame based on one or more columns.",
+                    "In Excel, you might click a column header and choose 'Sort A to Z'. In pandas, you can use the following code.",
+                    "Notice in the code below that we use the `inplace` parameter to modify the original DataFrame. We also use the `ignore_index` parameter to reset the index after sorting."
+                ],
+                "codeLines": [
+                    "# Sort in ascending order",
+                    "df.sort_values(by='Column1', ascending=True, inplace=True, ignore_index=True)"
+                ]
+            },
+            {
+                "title": "Sort Multiple Columns",
+                "shortTitle": "Multi-Column Sort",
+                "paragraphs": [
+                    "Sorting by multiple columns is similar to sorting by a single column. The only difference is that you need to pass a list of columns to the by parameter."
+                ],
+                "codeLines": [
+                    "# Sort Column1 in ascending order, then Column2 in descending order",
+                    "df.sort_values(by=['Column1', 'Column2'], ascending=[True, False], inplace=True, ignore_index=True)"
+                ]
+            },
+            {
+                "title": "Sort by Date",
+                "shortTitle": "Date Sorting",
+                "paragraphs": [
+                    "Similar to Excel's date sorting, pandas requires the date column in a datetime format for accurate sorting."
+                ],
+                "codeLines": [
+                    "# Convert Column1 to datetime format, then sort",
+                    "df['Column1'] = pd.to_datetime(df['Column1'])",
+                    "df.sort_values(by='Column2', ascending=True, inplace=True, ignore_index=True)"
+                ]
+            },
+            {
+                "title": "Sort by Specific Categorical Order",
+                "shortTitle": "Categorical Order",
+                "paragraphs": [
+                    "Sorting by a specific categorical order is a bit more complex. In pandas, this involves setting a categorical data type with an order, and then sorting."
+                ],
+                "codeLines": [
+                    "# Set the order of the Day",
+                    "df['Day'] = pd.Categorical(df['Day'], categories=['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'], ordered=True)",
+                    "",
+                    "# Sort by Day of week",
+                    "df.sort_values(by='Day', ascending=True, inplace=True, ignore_index=True)"
+                ]
+            },
+            {
+                "title": "Sort NaN Values",
+                "shortTitle": "NaN Values",
+                "paragraphs": [
+                    "Just like Excel, by default, pandas sorts NaN values last. If you want to sort NaN values first, you can use the na_position parameter."
+                ],
+                "codeLines": [
+                    "# Sort in ascending order with NaN values at the beginning",
+                    "df.sort_values(by='Column1', ascending=True, na_position='first', inplace=True, ignore_index=True)"
+                ]
+            },
+            {
+                "title": "Sort Series",
+                "shortTitle": "Series Sort",
+                "paragraphs": [
+                    "Sorting a Series (a single column in a DataFrame) is similar to sorting a full DataFrame. The method is the same but applied to a Series object."
+                ],
+                "codeLines": [
+                    "series.sort_values(ascending=True, inplace=True, ignore_index=True)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the SORT function in pandas, these are common mistakes that can lead to incorrect results or errors. Here's how to avoid them."
+        ],
+        "codeSections": [
+            {
+                "title": "Ignoring Data Types",
+                "shortTitle": "Data Types",
+                "paragraphs": [
+                    "Sorting mixed data types can lead to unexpected behavior. Ensure columns have consistent data types before sorting.",
+                    "In Excel, sorting handles different data types implicitly, but in pandas, it's crucial to be explicit."
+                ],
+                "codeLines": [
+                    "# Convert Column1 to string, then sort",
+                    "df['Column1'] = df['Column1'].astype(str)",
+                    "# Sort by Column1",
+                    "df.sort_values(by='Column1', ascending=True, inplace=True, ignore_index=True)"
+                ]
+            },
+            {
+                "title": "Forgetting to sort inplace",
+                "shortTitle": "In-Place Sorting",
+                "paragraphs": [
+                    "By default, pandas' sort_values returns a new DataFrame. If you want to modify the original DataFrame, you need to set the inplace parameter to True or assign the result to a variable."
+                ],
+                "codeLines": [
+                    "# Incorrect: Sort without inplace",
+                    "df.sort_values(by='Column1', ascending=True, ignore_index=True)",
+                    "",
+                    "# Correct: Sort with inplace",
+                    "df.sort_values(by='Column1', ascending=True, inplace=True, ignore_index=True)",
+                    "",
+                    "# Correct: Sort with inplace and assign to variable",
+                    "df = df.sort_values(by='Column1', ascending=True, ignore_index=True)"
+                ]
+            },
+            {
+                "title": "NaN Values",
+                "shortTitle": "Handling NaN",
+                "paragraphs": [
+                    "NaN values can affect sorting order. In pandas, you have the option to place NaN values at the beginning or end of the sorted series.",
+                    "Excel's sorting treats blank cells differently than pandas' NaN values."
+                ],
+                "codeLines": [
+                    "# Sort in ascending order with NaN values at the end",
+                    "df.sort_values(by='Column1', na_position='last')"
+                ]
+            }
+        ]
+    }
+}

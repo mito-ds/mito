@@ -1,0 +1,103 @@
+{
+    "slug": ["functions", "text", "LEFT"],
+    "functionNameShort": "LEFT",
+    "functionNameLong": "Extract Left Characters",
+    "relatedFunctions": ["RIGHT", "MID", "LEN"],
+    "purpose": "Extract characters from the left side of a string",
+    "titleCardParagraphs": [
+        "Excel's LEFT function allows you to extract a specific number of characters from the start of a text string. This is commonly used in data preparation tasks such as splitting columns, extracting codes, or cleaning up data.",
+        "This page explains how to use Excel's LEFT function in Python using pandas"
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The LEFT function in Excel returns the first N characters in a text string, based on the number of characters you specify.",
+            "=LEFT(text, [num_chars])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text string containing the characters you want to extract.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "num_chars",
+                "description": "(Optional) The number characters you want to extract. Defaults to 1.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=LEFT(\"Mito\", 2)",
+                "description": "Extract the first four characters of the word 'Mito'.",
+                "result": "Mi"
+            },
+            {
+                "formula": "=LEFT(\"Word\")",
+                "description": "Extract the year from the date 'Word'.",
+                "result": "W"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, replicating the LEFT function's behavior involves using string slicing or the str accessor. Here are ways to achieve the functionality:"
+        ],
+        "codeSections": [
+            {
+                "title": "Extracting First N Characters",
+                "shortTitle": "First N Characters",
+                "paragraphs": [
+                    "In Excel, you would use =LEFT(A1, 2) to extract the first two letters from A1. To achieve the same in pandas, you can use string slicing.",
+                    "The following code extracts the first two characters from the 'text_column' of a DataFrame:"
+                ],
+                "codeLines": [
+                    "df['extracted'] = df['text_column'].str[:2]"
+                ]
+            },
+            {
+                "title": "Extracting Characters up to another character",
+                "shortTitle": "Up to a character",
+                "paragraphs": [
+                    "Often you will not want to extract the same number of characters for each cell. For example, if you're extracting the first name from a full name, you'll want to split on the first space.",
+                    "In Excel, you would use the formula =LEFT(A1, FIND(\" \", A1) - 1) to extract the first name from a full name in A1.",
+                    "In pandas, you can use the 'str.split()' method to split the string on a space, and then use string slicing to extract the first element of the resulting list."
+                ],
+                "codeLines": [
+                    "# Split the full name on the space and extract the firt name",
+                    "df['first name'] = df['full name'].str.split(' ').str[0]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the equivalent of the LEFT function in pandas, there are potential pitfalls. Here are some common mistakes and their remedies."
+        ],
+        "codeSections": [
+            {
+                "title": "Misunderstanding String Indices",
+                "shortTitle": "String indices",
+                "paragraphs": [
+                    "In Python, string indexing starts at 0, not 1. This can be a source of confusion for those transitioning from Excel.",
+                    "For instance, to get the first character, you'd use index 0, ie: string[0], not string[1]."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Wrong Data Type",
+                "shortTitle": "Data type issues",
+                "paragraphs": [
+                    "Applying string operations to a column that isn't of string type will raise an error. Always ensure that the column you're working with is of type string (object in pandas terms).",
+                    "You can convert a column to a string using the 'astype' method."
+                ],
+                "codeLines": [
+                    "# Convert to string type",
+                    "df['column_name'] = df['column_name'].astype(str)",
+                    "",
+                    "# Extract first 2 characters",
+                    "df['extracted'] = df['column_name'].str[:2]"
+                ]
+            }
+        ]
+    }
+}

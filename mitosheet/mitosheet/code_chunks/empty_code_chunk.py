@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 

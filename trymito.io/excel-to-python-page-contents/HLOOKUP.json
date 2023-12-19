@@ -1,0 +1,187 @@
+{
+    "slug": ["functions", "lookup", "HLOOKUP"],
+    "functionNameShort": "HLOOKUP",
+    "functionNameLong": "Horizontal Lookup",
+    "relatedFunctions": ["VLOOKUP", "INDEX MATCH"],
+    "purpose": "Search for a value in the first row and return a value in the same column from a specified row",
+    "titleCardParagraphs": [
+        "Excel's HLOOKUP function searches for a value in the first row of a table and returns a value in the same column from a specified row. It's essential for horizontal data lookups, especially when working with wide data sets.",
+        "This page explains how to use Excel's HLOOKUP function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The HLOOKUP function in Excel searches for a value in the first row of a table and returns a value in the same column from a specified row.",
+            "=HLOOKUP(lookup_value, table_array, row_index_num, [range_lookup])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "lookup_value",
+                "description": "The value to search for in the first row.",
+                "dataType": "number/string/date"
+            },
+            {
+                "parameter": "table_array",
+                "description": "The table of data where the first row contains the values to search.",
+                "dataType": "range"
+            },
+            {
+                "parameter": "row_index_num",
+                "description": "The row number in the table_array from which the matching value is returned.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "range_lookup",
+                "description": "(Optional) Set to TRUE to find the closest match. Set to FALSE to find an exact match.",
+                "dataType": "boolean"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=HLOOKUP(\"Jan\", A1:D4, 2, FALSE)",
+                "description": "Search for 'Jan' in the first row and return the value from the second row in the same column.",
+                "result": "Value in second row under 'Jan'"
+            },
+            {
+                "formula": "=HLOOKUP(10, A1:D4, 3, TRUE)",
+                "description": "Search for the closest match to 10 in the first row and return the value from the third row in the same column.",
+                "result": "Value in third row under closest match to 10"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the HLOOKUP function in Excel using Python and pandas, you have several methods depending on your specific needs. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Basic HLOOKUP using .loc",
+                "shortTitle": "Basic HLOOKUP",
+                "paragraphs": [
+                    "To perform a horizontal lookup operation similar to Excel's HLOOKUP, you can use pandas' .loc method. For example, if you were to search for 'Jan' in the first row and get the value from the second row in the same column in Excel, you'd use: =HLOOKUP(\"Jan\", A1:D4, 2, FALSE).",
+                    "In pandas, you'd find the column named 'Jan' and return get the value from the second row in that column as follows:"
+                ],
+                "codeLines": [
+                    "# Find column called Jan and return second value",
+                    "result = df1['Jan'][1]"
+                ]
+            },
+            {
+                "title": "Returning Table from VLookup",
+                "shortTitle": "Returning Table",
+                "paragraphs": [
+                    "Oftentimes, instead of just retunring a single value, you'll to use the HLOOKUP function to retrun multiple values from the column",
+                    "For example consider that you have a table of student names in Row 1 along with their grades in Math, English, etc in each column below their name. You want to return the grades for a specific student. In Excel, you'd use: =HLOOKUP(\"Martha\", A1:D5, 2, FALSE).",
+                    "You can implement the same functionality in pandas"
+                ],
+                "codeLines": [
+                    "grades = pd.DataFrame({",
+                    "    'Subject': ['Math', 'English', 'History', 'Science', 'Gym', 'Art'],",
+                    "    'aaron': [88, 92, 95, 89, 50, 95],",
+                    "    'jake': [92, 94, 90, 87, 99, 33],",
+                    "    'martha': [100, 91, 92, 88, 92, 87],",
+                    "    'nate': [89, 90, 91, 90, 93, 76]",
+                    "})",
+                    "",
+                    "student_records = pd.DataFrame({",
+                    "    'Name': ['Martha', 'Nate', 'Aaron'],",
+                    "    'Year': [2016, 2016, 2016],",
+                    "})",
+                    "", 
+                    "# Transpose the DataFrame",
+                    "grades_transposed = grades.set_index('Subject').T",
+                    "",
+                    "# Drop the colums Gym and Art from the grades DataFrame because we don't want",
+                    "# to include them in the student_records.",
+                    "grades_transposed = grades_transposed.drop(['Gym', 'Art'], axis=1)",
+                    "",
+                    "# Reset index and rename columns",
+                    "grades_transposed = grades_transposed.reset_index()",
+                    "grades_transposed.columns = ['Name', 'Math', 'English', 'History', 'Science']",
+                    "", 
+                    "# Merge the dataframes together to find the grades for each student",
+                    "student_records = student_records.merge(grades_transposed, left_on='Name', right_on='Name')"
+                ]
+            },
+            {
+                "title": "Case-insensitive HLOOKUP",
+                "shortTitle": "Case-insensitive",
+                "paragraphs": [
+                    "Excel's lookup functions, including HLOOKUP, are case insensitive. Python's merge function, on the other hand, is case sensitive. This is a sneaky source of disrepancies that arise when trying to convert Excel's HLOOKUP to Python.",
+                    "To make the merge case insensitive, you can convert the merge keys to lowercase before merging the dataframes."
+                ],
+                "codeLines": [
+                    "grades = pd.DataFrame({",
+                    "    'Subject': ['Math', 'English', 'History', 'Science', 'Gym', 'Art'],",
+                    "    'aaron': [88, 92, 95, 89, 50, 95],",
+                    "    'jake': [92, 94, 90, 87, 99, 33],",
+                    "    'martha': [100, 91, 92, 88, 92, 87],",
+                    "    'nate': [89, 90, 91, 90, 93, 76]",
+                    "})",
+                    "",
+                    "student_records = pd.DataFrame({",
+                    "    'Name': ['Martha', 'Nate', 'Aaron'],",
+                    "    'Year': [2016, 2016, 2016],",
+                    "})",
+                    "", 
+                    "# Transpose the DataFrame",
+                    "grades_transposed = grades.set_index('Subject').T",
+                    "",
+                    "# Drop the colums Gym and Art from the grades DataFrame because we don't want",
+                    "# to include them in the student_records.",
+                    "grades_transposed = grades_transposed.drop(['Gym', 'Art'], axis=1)",
+                    "",
+                    "# Reset index and rename columns",
+                    "grades_transposed = grades_transposed.reset_index()",
+                    "grades_transposed.columns = ['Name', 'Math', 'English', 'History', 'Science']",
+                    "",
+                    "# Convert Names to lowercase for case insensitive merge",
+                    "grades_transposed['Name'] = grades_transposed['Name'].str.lower()",
+                    "student_records['Name'] = student_records['Name'].str.lower()",
+                    "",
+                    "# Merge the dataframes together to find the grades for each student",
+                    "student_records = student_records.merge(grades_transposed, left_on='Name', right_on='Name')"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Implementing the HLOOKUP function in pandas can present some pitfalls if you're not attentive. Here are some common mistakes and their solutions."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Axis Specification",
+                "shortTitle": "Incorrect Axis",
+                "paragraphs": [
+                    "HLOOKUP is designed for horizontal lookups, which means it operates across rows. However, it's easy to mistakenly use pandas operations that work down columns instead of across rows.",
+                    "Always ensure that you're searching across the correct axis. For HLOOKUP, this is typically the columns of the DataFrame."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Mismatched Data Types",
+                "shortTitle": "Data Types",
+                "paragraphs": [
+                    "It's crucial to ensure that the data types in your lookup value and DataFrame match. If you're searching for a string in a column of numbers or vice versa, the lookup will not find any matches.",
+                    "Before attempting the lookup, always check and, if necessary, convert the data types so they align."
+                ],
+                "codeLines": [
+                    "# Convert numbers to strings",
+                    "df['A'] = df['A'].astype(str)"
+                ]
+            },
+            {
+                "title": "Case Sensitivity Oversights",
+                "shortTitle": "Case Sensitivity",
+                "paragraphs": [
+                    "In Python, string comparisons are case-sensitive by default. This means that 'Jan' and 'JAN' would be considered different values. On the other hand, Excel is by default case insenstitive!",
+                    "Make sure to account for case sensitivity, especially if the data source might have variations."
+                ],
+                "codeLines": [
+                    "# Convert values to lowercase",
+                    "df['A'] = df['A'].str.lower()"
+                ]
+            }
+        ]
+    }
+}

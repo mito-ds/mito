@@ -10,8 +10,8 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
@@ -26,6 +26,7 @@ from mitosheet.types import (
     FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
     FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
     FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
+
 
 # If there are multiple conditions, we combine them together, with the
 # given operator in the middle

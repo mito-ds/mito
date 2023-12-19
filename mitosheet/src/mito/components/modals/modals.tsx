@@ -43,9 +43,6 @@ interface StreamlitSignUpModalInfo {
     type: ModalEnum.DashboardSignup;
 }
 
-interface UpgradeModalInfo {
-    type: ModalEnum.Upgrade;
-}
 
 interface ClearAnalysisInfo {
     type: ModalEnum.ClearAnalysis;
@@ -72,7 +69,6 @@ export type ModalInfo =
     | NoneModalInfo 
     | ErrorModalInfo
     | SignUpModalInfo
-    | UpgradeModalInfo
     | ClearAnalysisInfo
     | DeleteGraphsModalInfo
     | ErrorReplayedAnalysisInfo

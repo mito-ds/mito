@@ -2,9 +2,7 @@
 
 
 import string
-from typing import Optional, Tuple, Union
-
-from openpyxl import load_workbook
+from typing import Tuple
 
 from mitosheet.errors import make_invalid_range_error
 

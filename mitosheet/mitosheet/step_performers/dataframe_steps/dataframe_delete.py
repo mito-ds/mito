@@ -3,11 +3,11 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import copy
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_delete_code_chunk import DataframeDeleteCodeChunk
 
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_delete_code_chunk import \
+    DataframeDeleteCodeChunk
 from mitosheet.state import State
 from mitosheet.types import StepType
 from mitosheet.step_performers.step_performer import StepPerformer

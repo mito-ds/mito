@@ -8,17 +8,16 @@
 import traceback
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-import pandas as pd
-
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.user_defined_import_code_chunk import \
     UserDefinedImportCodeChunk
 from mitosheet.errors import MitoError
 from mitosheet.state import DATAFRAME_SOURCE_IMPORTED, State
 from mitosheet.step_performers.step_performer import StepPerformer
+from mitosheet.step_performers.utils.user_defined_function_utils import \
+    get_user_defined_function_param_type_and_execute_value_and_transpile_value
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.utils import get_first_unused_dataframe_name
-from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_function_param_type_and_execute_value_and_transpile_value
 
 
 class UserDefinedImportStepPerformer(StepPerformer):

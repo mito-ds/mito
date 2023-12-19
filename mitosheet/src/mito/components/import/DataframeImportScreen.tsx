@@ -100,7 +100,7 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
-                header={props.isUpdate ? 'Import Dataframes' : 'Update Import'}
+                header={props.isUpdate ?  'Update Import' : 'Import Dataframes'}
                 setUIState={props.setUIState} 
                 backCallback={props.backCallback}    
             />

@@ -1,0 +1,93 @@
+{
+    "slug": ["functions", "text", "TRIM"],
+    "functionNameShort": "TRIM",
+    "functionNameLong": "Trimming Whitespace Characters",
+    "relatedFunctions": ["REPLACE", "CLEAN", "MID"],
+    "purpose": "Remove whitespace from the start and end of string",
+    "titleCardParagraphs": [
+        "Excel's TRIM function is widely used for removing all spaces from text except for single spaces between words. It's a crucial (and too often forgotten) step in cleaning and preparing data.",
+        "This page demonstrates how to achieve similar functionality in Python using pandas, enhancing data cleaning processes for automation."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "In Excel, the TRIM function is used to remove extra spaces from text, leaving only single spaces between words and no space characters at the start or end of the text.",
+            "=TRIM(text)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text from which you want to remove spaces.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=TRIM(\"  Hello  World  \")",
+                "description": "Removes all spaces from the text except for single spaces between words.",
+                "result": "\"Hello World\""
+            },
+            {
+                "formula": "=TRIM(A1)",
+                "description": "Removes all the spaces from the text in cell A1.",
+                "result": "Text without leading or trailing spaces and with only single spaces between words."
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, the equivalent of Excel's TRIM function is the `str.strip` method, which removes leading and trailing whitespace from a string. To replicate Excel's TRIM functionality that also condenses internal spaces, a combination of `str.replace` and `str.strip` can be used."
+        ],
+        "codeSections": [
+            {
+                "title": "Remove Extra Spaces",
+                "shortTitle": "Trim Spaces",
+                "paragraphs": [
+                    "In pandas, you can use the `str.strip` method to remove leading and trailing spaces from strings in a DataFrame column. This mirrors the basic functionality of Excel's TRIM function.",
+                    "To remove all spaces from a text string except for single spaces between words, you can combine `str.strip` with `str.replace`. This will ensure that your data is cleanly formatted, similar to how it would be after using Excel's TRIM function."
+                ],
+                "codeLines": [
+                    "# Remove leading and trailing spaces",
+                    "df['Column'] = df['Column'].str.strip()",
+                    "",
+                    "# Replace multiple spaces with a single space",
+                    "df['Column'] = df['Column'].str.replace(r'\\s+', ' ', regex=True)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using pandas to trim strings, there are several pitfalls that can lead to incorrect data cleaning. Here are some common mistakes to watch out for."
+        ],
+        "codeSections": [
+            {
+                "title": "Not accounting for different types of whitespace characters",
+                "shortTitle": "Whitespace Varieties",
+                "paragraphs": [
+                    "When using `str.strip`, it's important to remember that it only removes standard spaces. If your text contains other whitespace characters like tabs or new lines, you'll need to handle them separately."
+                ],
+                "codeLines": [
+                    "# Remove standard spaces",
+                    "df['Column'] = df['Column'].str.strip()",
+                    "",
+                    "# Remove tabs and new lines as well",
+                    "df['Column'] = df['Column'].str.replace(r'\\t|\\n|\\r', '', regex=True)"
+                ]
+            },
+            {
+                "title": "Ignoring NaN values during trim operations",
+                "shortTitle": "NaN Handling",
+                "paragraphs": [
+                    "Pandas' string methods will return `NaN` when the input value is `NaN`. If that is not the behavior you want, before attempting to trim strings, ensure that you have handled `NaN` values appropriately, either by filling them in or by removing the rows that contain them."
+                ],
+                "codeLines": [
+                    "# Fill NaN values with empty strings before trimming",
+                    "df['Column'] = df['Column'].fillna('')",
+                    "",
+                    "# Now it's safe to trim",
+                    "df['Column'] = df['Column'].str.strip()"
+                ]
+            }
+        ]
+    }
+}

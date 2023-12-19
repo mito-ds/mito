@@ -165,10 +165,10 @@ export const HomeTabContents = (
             </Select>
             <div className='mito-toolbar-number-precision'>
                 <ToolbarButton
-                    action={props.actions.buildTimeActions[ActionEnum.Currency_Format]}
+                    action={props.actions.buildTimeActions[ActionEnum.Set_Format_Currency]}
                 />
                 <ToolbarButton
-                    action={props.actions.buildTimeActions[ActionEnum.Percent_Format]}
+                    action={props.actions.buildTimeActions[ActionEnum.Set_Format_Percent]}
                 />
                 <ToolbarButton
                     action={props.actions.buildTimeActions[ActionEnum.Precision_Increase]}
@@ -203,8 +203,8 @@ export const HomeTabContents = (
             iconOverride={<FilterIcon sortIncluded />}
         />
         <ToolbarButton
-            action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
-            toolbarTitle='Find & Replace'
+            action={props.actions.buildTimeActions[ActionEnum.OpenFind]}
+            titleToolbar='Find & Replace'
         />
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Change_Dtype]}

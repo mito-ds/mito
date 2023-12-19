@@ -5,7 +5,7 @@ from typing import Any, Callable
 try:
     import os
     from ipykernel import get_connection_file
-    from ipykernel.comm import Comm
+    from ipykernel.comm import Comm 
 
     def get_current_kernel_id() -> str:
         """

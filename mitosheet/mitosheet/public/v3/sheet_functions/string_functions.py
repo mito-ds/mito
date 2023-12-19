@@ -8,16 +8,19 @@ Contains all functions that can be used in a sheet that operate on strings.
 
 NOTE: This file is alphabetical order!
 """
-from typing import Callable, Optional, Union
-import sys
-import numpy as np
+from typing import Callable, Optional
 
 import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
-from mitosheet.public.v3.sheet_functions.utils import get_final_result_series_or_primitive, get_index_from_series, get_series_from_primitive_or_series
-from mitosheet.public.v3.types.decorators import cast_values_in_all_args_to_type, cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import StringInputType, StringRestrictedInputType, StringFunctionReturnType, IntRestrictedInputType, IntFunctionReturnType
+from mitosheet.public.v3.sheet_functions.utils import (
+    get_final_result_series_or_primitive, get_index_from_series,
+    get_series_from_primitive_or_series)
+from mitosheet.public.v3.types.decorators import (
+    cast_values_in_all_args_to_type, cast_values_in_arg_to_type)
+from mitosheet.public.v3.types.sheet_function_types import (
+    IntFunctionReturnType, IntRestrictedInputType, StringFunctionReturnType,
+    StringInputType, StringRestrictedInputType)
 
 
 @cast_values_in_arg_to_type('arg', 'str')

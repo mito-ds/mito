@@ -1,0 +1,146 @@
+{
+    "slug": ["functions", "math", "SUMIF"],
+    "functionNameShort": "SUMIF",
+    "functionNameLong": "Sum with Condition",
+    "relatedFunctions": ["COUNTIF", "AVERAGEIF", "MAXIF"],
+    "purpose": "Sum the values of numeric cells that match a condition",
+    "titleCardParagraphs": [
+        "Excel's SUMIF function is commonly used to sum the values of numeric cells that meet some predefined conditions. Often, its used to group and sum values based on a single condition, but it can also be used to sum values based on multiple conditions.",
+        "This page provides several common examples of how to use replicate the SUMIF function in Python with pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The SUMIF function in Excel takes three arguments: a range of cells you want to evaluate against the criteria, the criterion to apply before calculating the sum, and the range of values you want to sum", 
+            "=SUMIF(range, criteria, sum_range)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "range",
+                "description": "The range of cells you want to check against the criteria.",
+                "dataType": "range"
+            },
+            {
+                "parameter": "criteria",
+                "description": "The condition that determines which cells to sum.",
+                "dataType": "conditional"
+            },
+            {
+                "parameter": "sum_range",
+                "description": "The range of cells you want to sum if the criteria is met.",
+                "dataType": "range"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SUMIF(A1:A10, \">5\", B1:B10)",
+                "description": "Sums the values in range B1:B10 where the corresponding cells in range A1:A10 are greater than 5.",
+                "result": "Sum of cells in B1:B10 where A1:A10 > 5"
+            },
+            {
+                "formula": "=SUMIF(A1:A10, \"banana\", B1:B10)",
+                "description": "Sums the values in range B1:B10 where the corresponding cells in range A1:A10 are the word 'banana'.",
+                "result": "Sum of cells in B1:B10 where A1:A10 is 'banana'"
+            },
+            {
+                "formula": "=SUMIF(A1:A10, \"*banana*\", B1:B10)",
+                "description": "Sums the values in range B1:B10 where the corresponding cells in range A1:A10 contain the word 'banana' anywhere in the text.",
+                "result": "Sum of cells in B1:B10 with 'banana' in A1:A10 text"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To use SUMIF in Python, you can use conditional expressions, like 'df['A'] > 5', combined with the `sum` method to sum the values that match the condition."
+        ],
+        "codeSections": [
+            {
+                "title": "Summing Based on a Single Condition",
+                "shortTitle": "Single condition",
+                "paragraphs": [
+                    "In pandas, you can sum the values of a column based on a condition from another column using a simple comparison and the `sum` method.",
+                    "For example, the Excel formula =SUMIF(A:A, \">5\", B:B) counts the values in column B where the corresponding values in column A are greater than 5. In pandas, you can implement the same functionality with the following code:"
+                ],
+                "codeLines": [
+                    "# Sum the values from 'B' where values in 'A' are greater than 5",
+                    "total_sum = df.loc[df['A'] > 5, 'B'].sum()"
+                ]
+            },
+            {
+                "title": "Creating a table using SUMIF",
+                "shortTitle": "Table using SUMIF",
+                "paragraphs": [
+                    "You can also use the SUMIF function in Excel to create a table of values based on a condition.",
+                    "For example, let's say that you have a spreadsheet with a list of remaining cars for sale at your car dealership. You want to find the value of the unsold inventory by car manufacturer. You could use the SUMIF function to create a new table that has two columns: Manufacturer and Inventory Value. The Manufacturer column would contain the unique manufacturer names, and the Inventory Value column would contain the sum of the remaining inventory for each manufacturer.",
+                    "You can replicate this same behavior in Python by building a pivot table that groups the data by manufacturer and then sums the inventory values in each bucket."
+                ],
+                "codeLines": [
+                    "# Create sample dataframe",
+                    "df1 = pd.DataFrame({",
+                    "    'Manufacturer': ['Honda', 'Honda', 'Honda', 'Tesla', 'Tesla'],",
+                    "    'Color': ['White', 'White', 'Black', 'Blue', 'White'],",
+                    "    'Price': [35000, 29999, 42000, 45000, 135000],",
+                    "})",
+                    "",
+                    "# Create a new table that has two columns: Manufacturer and Price",
+                    "df2 = df1.pivot_table(index=['Manufacturer'], aggfunc={'Price': 'sum'})",
+                    "",
+                    "# Rename the Price column to Inventory Value",
+                    "df2 = df2.rename(columns={'Price': 'Inventory Value'})",
+                    "",
+                    "# Reset the index",
+                    "df2 = df2.reset_index()"
+                ]
+            },
+            {
+                "title": "Creating a table using SUMIF with condition",
+                "shortTitle": "Table using SUMIF with condition",
+                "paragraphs": [
+                    "Let's say that instead of just wanting to group the data by manufacturer, you are now interested in findinding the inventory value of white cars only.",
+                    "You can implement this in Python by applying a filter before creating the pivot table."
+                ],
+                "codeLines": [
+                    "# Create sample dataframe",
+                    "df1 = pd.DataFrame({",
+                    "    'Manufacturer': ['Honda', 'Honda', 'Honda', 'Tesla', 'Tesla'],",
+                    "    'Color': ['White', 'White', 'Black', 'Blue', 'White'],",
+                    "    'Price': [35000, 29999, 42000, 45000, 135000],",
+                    "})",
+                    "",
+                    "# Create a copy of the data first to preserve the original data",
+                    "temp_df = df1.copy()",
+                    "",
+                    "# Filter the data to only include rows with white cars",
+                    "temp_df = temp_df[temp_df['Color'] == 'White']",
+                    "",
+                    "# Create a new table that has two columns: Manufacturer and Price",
+                    "df2 = temp_df.pivot_table(index=['Manufacturer'], aggfunc={'Price': 'sum'})",
+                    "",
+                    "# Rename the Price column to Inventory Value",
+                    "df2 = df2.rename(columns={'Price': 'Inventory Value'})",
+                    "",
+                    "# Reset the index",
+                    "df2 = df2.reset_index()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using pandas to replicate the SUMIF function"
+        ],
+        "codeSections": [
+            {
+                "title": "Not resetting the index",
+                "shortTitle": "Not resetting the index",
+                "paragraphs": [
+                    "When you create a pivot table in pandas, the index of the resulting dataframe is the column that you grouped by. In the example above, the index of df2 is the Manufacturer column.",
+                    "To make it easier to work with the data, you may want to reset the index so that the Manufacturer column becomes a regular column in the dataframe. You can do this by calling the `reset_index` method on the dataframe."
+                ],
+                "codeLines": [
+                    "# Reset the index",
+                    "df2 = df2.reset_index()"
+                ]
+            }
+        ]
+    }
+}
