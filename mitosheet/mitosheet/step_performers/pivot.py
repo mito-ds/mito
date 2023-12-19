@@ -114,8 +114,6 @@ class PivotStepPerformer(StepPerformer):
             'new_df_name': new_df_name,
         }
 
-        print("BLAH", params.get('optional_code'))
-
         try:
             return cls.execute_through_transpile(
                 prev_state, 

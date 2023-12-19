@@ -1026,6 +1026,7 @@ def test_pivot_then_all_edits_to_sheet():
     mito.change_column_dtype(1, ['B'], 'string')
     mito.delete_row(1, [2])
 
+    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame({
             'date': ['1-2-2000'],
