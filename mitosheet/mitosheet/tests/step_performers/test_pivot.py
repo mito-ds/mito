@@ -944,7 +944,6 @@ def test_pivot_then_add_column_reapplies():
 
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value sum': [6], 'A': [10]}))
 
 def test_pivot_then_add_column_reapplies_multiple_edits():
@@ -957,7 +956,6 @@ def test_pivot_then_add_column_reapplies_multiple_edits():
 
     mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10]}))
 
 def test_pivot_then_add_column_reapplies_after_multiple_edits():
@@ -970,7 +968,6 @@ def test_pivot_then_add_column_reapplies_after_multiple_edits():
 
     mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10]}))
 
 def test_pivot_then_add_column_reapplies_after_multiple_edits_with_additional_edits():
@@ -984,7 +981,6 @@ def test_pivot_then_add_column_reapplies_after_multiple_edits_with_additional_ed
 
     mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10], 'B': [0]}))
 
 def test_pivot_then_rename_then_edit_replays():
@@ -1025,7 +1021,6 @@ def test_pivot_then_all_edits_to_sheet():
     mito.change_column_dtype(1, ['B'], 'string')
     mito.delete_row(1, [2])
 
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame({
             'date': ['1-2-2000'],
