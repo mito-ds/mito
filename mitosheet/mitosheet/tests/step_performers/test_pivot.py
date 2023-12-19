@@ -970,7 +970,22 @@ def test_pivot_then_add_column_reapplies_after_multiple_edits():
 
     mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
+    print(mito.dfs[1])
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10]}))
+
+def test_pivot_then_add_column_reapplies_after_multiple_edits_with_additional_edits():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A')
+    mito.set_formula('=10', 1, 'A', add_column=False)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['min']}, destination_sheet_index=1)
+    mito.add_column(1, 'B')
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    print(mito.dfs[1])
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10], 'B': [0]}))
 
 def test_pivot_then_rename_then_edit_replays():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})

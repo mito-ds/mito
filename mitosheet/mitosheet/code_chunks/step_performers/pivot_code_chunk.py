@@ -105,7 +105,7 @@ class PivotCodeChunk(CodeChunk):
         flatten_column_headers: Optional[bool],
         public_interface_version: int,
         new_df_name: str,
-        executed_optional_lines: Optional[List[str]] = None
+        optional_code_that_successfully_executed: Optional[List[str]] = None
     ):
         super().__init__(prev_state)
         self.sheet_index = sheet_index
@@ -116,7 +116,9 @@ class PivotCodeChunk(CodeChunk):
         self.values_column_ids_map = values_column_ids_map
         self.flatten_column_headers = flatten_column_headers
         self.public_interface_version = public_interface_version
-        self.extra_code = executed_optional_lines
+
+        if optional_code_that_successfully_executed is not None:
+            self.optional_code_that_successfully_executed = optional_code_that_successfully_executed
 
         # On earlier pandas versions (e.g. 0.24.2), the pivot table function returned
         # a series from the above function call. Thus, we need to move it to a df for
@@ -199,9 +201,6 @@ class PivotCodeChunk(CodeChunk):
         transpiled_code.append(f'{self.new_df_name} = pivot_table.reset_index()')
 
         return transpiled_code, [] # TODO: we might actually need pd to be defined!
-    
-    def get_optional_code_lines(self) -> List[str]:
-        return self.extra_code or []
 
     def _combine_right_with_pivot_code_chunk(self, pivot_code_chunk: "PivotCodeChunk") -> Optional["CodeChunk"]:
         """
@@ -224,7 +223,7 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.flatten_column_headers,
                 pivot_code_chunk.public_interface_version,
                 pivot_code_chunk.new_df_name,
-                pivot_code_chunk.extra_code
+                pivot_code_chunk.optional_code_that_successfully_executed
             )
 
         # If one of the pivots if creating the code chunk that the new one is overwriting, then we can optimize
@@ -242,7 +241,7 @@ class PivotCodeChunk(CodeChunk):
                 pivot_code_chunk.flatten_column_headers,
                 pivot_code_chunk.public_interface_version,
                 pivot_code_chunk.new_df_name,
-                pivot_code_chunk.extra_code
+                pivot_code_chunk.optional_code_that_successfully_executed
             )
 
         return None
@@ -273,7 +272,7 @@ class PivotCodeChunk(CodeChunk):
                 self.flatten_column_headers,
                 self.public_interface_version,
                 self.new_df_name,
-                self.extra_code
+                self.optional_code_that_successfully_executed
             )
 
         return None

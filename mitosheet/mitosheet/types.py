@@ -35,10 +35,13 @@ if TYPE_CHECKING:
     MitoWidgetType = MitoBackend
     from mitosheet.state import State
     StateType = State
+    from mitosheet.step import Step
+    StepType = Step
 else:
     StepsManagerType = Any
     MitoWidgetType = Any
     StateType = Any
+    StepType = Any
 
 IndexType = Union[str, int, bool, float]
 

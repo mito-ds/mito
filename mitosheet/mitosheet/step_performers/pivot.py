@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from distutils.version import LooseVersion
 import warnings
+from distutils.version import LooseVersion
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from time import perf_counter
@@ -10,10 +10,13 @@ from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 
+from mitosheet.array_utils import deduplicate_array
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
     USE_INPLACE_PIVOT, PivotCodeChunk)
-from mitosheet.errors import make_invalid_pivot_error, make_invalid_pivot_filter_error, make_no_column_error
+from mitosheet.errors import (make_invalid_pivot_error,
+                              make_invalid_pivot_filter_error,
+                              make_no_column_error)
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
 from mitosheet.step_performers.filter import (combine_filters,
                                               get_applied_filter)
@@ -22,11 +25,9 @@ from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
                              ColumnHeaderWithPivotTransform, ColumnID,
-                             ColumnIDWithFilter, ColumnIDWithPivotTransform)
-from mitosheet.array_utils import deduplicate_array
+                             ColumnIDWithFilter, ColumnIDWithPivotTransform,
+                             StepType)
 from mitosheet.utils import is_prev_version
-
-
 
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
@@ -80,7 +81,7 @@ class PivotStepPerformer(StepPerformer):
         return 'pivot'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
         """
         We filter out any duplicated aggregation keys, as they
         result in errors without adding any data to the pivot.
@@ -93,6 +94,11 @@ class PivotStepPerformer(StepPerformer):
                     new_aggregation_function_names.append(i)
             params['values_column_ids_map'][column_id] = new_aggregation_function_names
 
+        # Add in any optional code that we want to try and execute, because 
+        # it'
+        optional_code = get_optional_code_to_replay_on_pivot(previous_steps, params)
+        params['optional_code'] = optional_code
+
         return params
     
 
@@ -100,8 +106,6 @@ class PivotStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
-
-        print("CODE LINES", params.get('extra_code'))
         
         final_destination_sheet_index = destination_sheet_index if destination_sheet_index is not None else len(prev_state.dfs)
 
@@ -112,8 +116,9 @@ class PivotStepPerformer(StepPerformer):
             # actually used by the backend (which is kinda confusing and should be renamed)
             'destination_sheet_index': final_destination_sheet_index,
             'new_df_name': new_df_name,
-            'extra_code': params.get('extra_code')
         }
+
+        print("BLAH", params.get('optional_code'))
 
         try:
             return cls.execute_through_transpile(
@@ -125,7 +130,7 @@ class PivotStepPerformer(StepPerformer):
                     'new_df_names': [new_df_name],
                     'sheet_index_to_overwrite': destination_sheet_index
                 },
-                optional_code_lines=params.get('extra_code'),
+                optional_code=params.get('optional_code'),
                 use_deprecated_id_algorithm=get_param(params, 'use_deprecated_id_algorithm')
             )
         except KeyError as e:
@@ -152,7 +157,7 @@ class PivotStepPerformer(StepPerformer):
                 get_param(params, 'flatten_column_headers'),
                 get_param(params, 'public_interface_version'),
                 get_param(execution_data if execution_data is not None else {}, 'new_df_name'),
-                get_param(execution_data if execution_data is not None else {}, 'executed_optional_lines'),
+                get_param(execution_data if execution_data is not None else {}, 'optional_code_that_successfully_executed'),
             )
         ]
 
@@ -177,3 +182,55 @@ def get_new_pivot_df_name(prev_state: State, sheet_index: int) -> str:
         curr_df_name = f'{new_df_name_original}_{multiple_sheet_indicator}'
         multiple_sheet_indicator += 1
     return curr_df_name
+
+
+def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params: Dict[str, Any]) -> List[str]:
+    """
+    This function is a utility used to replay edits on top of pivot tables - specifically, 
+    it finds the code to try and execute on top of the a pivot table that is being edited.    
+    """
+    # If this is a pivot step, that has a destination sheet index, then we're going to 
+    # go look for the original step that created this pivot
+    if params.get('destination_sheet_index') is None:
+        return []
+
+    destination_sheet_index = params['destination_sheet_index']
+
+    extra_code = []
+
+    # First, find the index of the step we have to start looking from
+    # for steps that edit the pivot table
+    starting_index = None
+    for index, step in enumerate(reversed(previous_steps)):
+        # Case 1: we find the last step that edited this pivot, and get it's extra code 
+        # that successfully executed, as we want to start by replaying this
+        if step.step_type == 'pivot' and 'destination_sheet_index' in step.params and step.params['destination_sheet_index'] == destination_sheet_index:
+            extra_code = step.execution_data.get('optional_code_that_successfully_executed')
+            starting_index = len(previous_steps) - index - 1
+            break
+
+        # Case 2: we find the pivot step that created this extra step
+        elif step.step_type == 'pivot' and len(step.dfs) == destination_sheet_index + 1:
+            starting_index = len(previous_steps) - index - 1
+            break
+    
+    # Then, go through and find all of the steps after this creating step that 
+    # modify the pivot table only -- and we get the code for all of them
+    if starting_index is not None:
+        previous_steps = previous_steps[starting_index + 1:]
+        previous_steps = [step for step in previous_steps if step.step_performer.get_modified_dataframe_indexes(step.params) == {destination_sheet_index}]
+        code_chunks: List["CodeChunk"] = []
+        for step in previous_steps:
+            code_chunks += step.step_performer.transpile(step.prev_state, step.params, step.execution_data)
+        
+        all_code = []
+        for code_chunk in code_chunks:
+            comment = '# ' + code_chunk.get_description_comment().strip().replace('\n', '\n# ')
+            import_lines, code_lines = code_chunk.get_code()
+            all_code += ['', comment]
+            all_code += import_lines
+            all_code += code_lines
+
+        extra_code += all_code
+
+    return extra_code

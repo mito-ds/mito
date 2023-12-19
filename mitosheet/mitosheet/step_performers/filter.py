@@ -15,7 +15,7 @@ from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, OperatorType
+from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, OperatorType, StepType
 from mitosheet.types import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
@@ -54,7 +54,7 @@ class FilterStepPerformer(StepPerformer):
         return "filter_column"
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
         """
         Saturates the filter event with a `has_non_empty_filter` - which is useful
         for for logging

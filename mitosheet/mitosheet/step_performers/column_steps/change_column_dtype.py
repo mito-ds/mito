@@ -21,7 +21,7 @@ from mitosheet.public.v1.sheet_functions.types.utils import get_to_datetime_para
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnID, StepType
 
 
 class ChangeColumnDtypeStepPerformer(StepPerformer):
@@ -41,7 +41,7 @@ class ChangeColumnDtypeStepPerformer(StepPerformer):
         return 'change_column_dtype'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
         sheet_index: int = params['sheet_index']
         column_ids: List[ColumnID] = params['column_ids']
 

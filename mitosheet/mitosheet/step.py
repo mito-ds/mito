@@ -148,43 +148,7 @@ class Step:
         # Saturate the event to get up to date parameters
         # TODO: this should fill in the execution data - hopefully
         # we can get all of it without executing. I think we probably can
-        params = self.step_performer.saturate(new_prev_state, self.params)
-
-        # If this is a pivot step, that has a destination sheet index, then we're going to 
-        # go look for the original step that created this pivot
-        if self.step_type == 'pivot' and params.get('destination_sheet_index') is not None:
-            destination_sheet_index = params['destination_sheet_index']
-            starting_index = None
-            extra_code = []
-
-            for index, step in enumerate(reversed(previous_steps)):
-                if step.step_type == 'pivot' and 'destination_sheet_index' in step.params and step.params['destination_sheet_index'] == destination_sheet_index:
-                    extra_code = step.execution_data.get('extra_code')
-                    if extra_code is None:
-                        extra_code = []
-                    starting_index = len(previous_steps) - index - 1
-                    break
-                elif step.step_type == 'pivot' and len(step.dfs) == destination_sheet_index + 1:
-                    starting_index = len(previous_steps) - index - 1
-                    break
-            
-            if starting_index is not None:
-                previous_steps = previous_steps[starting_index + 1:]
-                previous_steps = [step for step in previous_steps if step.step_performer.get_modified_dataframe_indexes(step.params) == {destination_sheet_index}]
-                code_chunks: List["CodeChunk"] = []
-                for step in previous_steps:
-                    code_chunks += step.step_performer.transpile(step.prev_state, step.params, step.execution_data)
-                
-                all_code = []
-                for code_chunk in code_chunks:
-                    comment = '# ' + code_chunk.get_description_comment().strip().replace('\n', '\n# ')
-                    import_lines, code_lines = code_chunk.get_code()
-                    all_code += ['', comment]
-                    all_code += import_lines
-                    all_code += code_lines
-
-                extra_code += all_code
-                self.params['extra_code'] = extra_code
+        params = self.step_performer.saturate(new_prev_state, self.params, previous_steps)
 
         # Actually execute the data transformation
         post_state_and_execution_data = self.step_performer.execute(new_prev_state, params)
@@ -193,12 +157,6 @@ class Step:
             # If we don't get anything new back, then we just make this
             # step a no-op, and don't do anything
             (new_post_state, execution_data) = post_state_and_execution_data
-
-            # Another option is that we exec this code here. The benefit of this
-            # is that we don't mess with the pivot step at all, and this is 
-            # just general infrastructure in the proper sense
-
-            # Do we need to
 
         else:
             # Sometimes step execution returns None, which functionally means that 

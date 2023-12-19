@@ -9,6 +9,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.dataframe_steps.dataframe_rename_code_chunk import DataframeRenameCodeChunk
 
 from mitosheet.state import State
+from mitosheet.types import StepType
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.utils import get_valid_dataframe_name
@@ -29,7 +30,7 @@ class DataframeRenameStepPerformer(StepPerformer):
         return 'dataframe_rename'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
         sheet_index = params['sheet_index']
         old_dataframe_name = prev_state.df_names[sheet_index]
         params['old_dataframe_name'] = old_dataframe_name

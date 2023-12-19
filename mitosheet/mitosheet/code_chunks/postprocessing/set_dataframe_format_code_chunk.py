@@ -297,6 +297,7 @@ class SetDataframeFormatCodeChunk(CodeChunk):
     """
 
     def __init__(self, prev_state: State, post_state: State):
+        super().__init__(prev_state)
         self.prev_state = prev_state
         self.post_state = post_state
 

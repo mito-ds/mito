@@ -4,16 +4,16 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from abc import ABC, abstractmethod
-from collections import Counter
 from time import perf_counter
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.errors import make_column_exists_error
-from mitosheet.state import State
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import get_globals_for_exec
-from mitosheet.types import ColumnHeader, ColumnID, ExecuteThroughTranspileNewDataframeParams, ExecuteThroughTranspileNewColumnParams
- 
+from mitosheet.types import (ColumnHeader, ColumnID,
+                             ExecuteThroughTranspileNewDataframeParams, StepType)
+
+
 class StepPerformer(ABC, object):
     """
     The abstract base class for a step performer, which are the set
@@ -47,7 +47,7 @@ class StepPerformer(ABC, object):
         return f'{cls.step_type()}_edit'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
         """
         Given the parameters of the step, will saturate the event with
         more parameters based on the passed prev_state. 
@@ -104,7 +104,7 @@ class StepPerformer(ABC, object):
         execution_data: Optional[Dict[str, Any]]=None,
         new_dataframe_params: Optional[ExecuteThroughTranspileNewDataframeParams]=None,
         column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None,
-        optional_code_lines: Optional[List[str]]=None,
+        optional_code: Optional[List[str]]=None,
         use_deprecated_id_algorithm: bool=False
     ) -> Tuple[State, Dict[str, Any]]:
         """
@@ -150,29 +150,28 @@ class StepPerformer(ABC, object):
         # but in practice is seems to work...
         exec_globals = get_globals_for_exec(post_state, post_state.public_interface_version)
         exec_locals = {**exec_globals}
-
-        print("exec_globals", exec_globals.get('df1_pivot'))
         
         pandas_start_time = perf_counter()
         exec(final_code, exec_globals, exec_locals)
 
-        executed_optional_lines = []
-        for optional_code_line in optional_code_lines or []:
+        optional_code_that_successfully_executed = []
+        for optional_code_line in optional_code or []:
 
             # We don't need to exec spaces
             if optional_code_line == '':
-                executed_optional_lines.append(optional_code_line)
+                optional_code_that_successfully_executed.append(optional_code_line)
                 continue
 
-            print("EXECUTING OPTIONAL CODE LINE", optional_code_line)
             # TODO: we should make it so it rolls back the state if this fails
             # because we 
             try:
                 exec(optional_code_line, exec_globals, exec_locals)
-                print("EXECUTED OPTIONAL CODE LINE", exec_globals.get('df1_pivot'))
-                executed_optional_lines.append(optional_code_line)
+                optional_code_that_successfully_executed.append(optional_code_line)
             except Exception as e:
-                print("ERROR EXECUTING OPTIONAL CODE LINE", optional_code_line)
+
+                # TODO: If we hit an error, we remove lines up to last non-comment 
+                # or empty line
+
                 break
 
         pandas_processing_time = perf_counter() - pandas_start_time
@@ -199,7 +198,7 @@ class StepPerformer(ABC, object):
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
-            'executed_optional_lines': executed_optional_lines,
+            'optional_code_that_successfully_executed': optional_code_that_successfully_executed,
             **execution_data
         }
         
