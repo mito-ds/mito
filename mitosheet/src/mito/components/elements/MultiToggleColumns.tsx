@@ -26,18 +26,20 @@ interface MultiToggleColumnsProps {
 const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
 
     const columnIDsMap = props.sheetData?.columnIDsMap || {};
+    const [hasClicked, setHasClicked] = React.useState(false);
     const columnIDsAndDtype: [ColumnID, string][] = Object.entries(props.sheetData?.columnDtypeMap || {});
     const columnIDs: ColumnID[] = columnIDsAndDtype.map(([cid, ]) => {return cid});
-    console.log(columnIDsAndDtype)
     const nonExistentColumnIDs = props.selectedColumnIDs.filter((columnID) => {
         return columnIDsMap[columnID] === undefined;
     });
     const onlyOneMissingColumn = nonExistentColumnIDs.length > 0;
-    console.log('nonExistentColumnIDs', nonExistentColumnIDs)
 
     return (
-        <>
-            {nonExistentColumnIDs.length > 0 &&
+        <div onMouseDown={() => {
+            setHasClicked(true);
+            props.onChange(props.selectedColumnIDs)
+        }}>
+            {(nonExistentColumnIDs.length > 0 && !hasClicked) &&
                 <div className='caution-text-wrapper'>
                     <CautionIcon color='var(--mito-status-warning-dark)'/>
                     <p className='caution-text'>The column{(onlyOneMissingColumn ? ' ' : 's ') + `${nonExistentColumnIDs.join(', ')}` + (onlyOneMissingColumn ? ' was' : ' were')} included in this merge but {onlyOneMissingColumn ? 'is' : 'are'} no longer available. Please review selections.</p>
@@ -80,7 +82,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
                 })
             ]}
             </MultiToggleBox>
-        </>
+        </div>
     )
 }
 

@@ -21,7 +21,6 @@ const MergeKeysSelectionSection = (props: {
 
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
-
     const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
 
     /*
