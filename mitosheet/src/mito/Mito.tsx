@@ -1131,7 +1131,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoContainerRef={mitoContainerRef}
                     setEditorState={setEditorState}
-                    dfSources={dfSources}
                 />
                 {getCurrentModalComponent()}
                 <BottomLeftPopup
