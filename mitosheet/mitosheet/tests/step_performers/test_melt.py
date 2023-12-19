@@ -69,6 +69,8 @@ def test_melt(input_dfs, sheet_index, id_vars, value_vars, output_dfs):
 
     assert len(mito.dfs) == len(output_dfs)
     for actual, expected in zip(mito.dfs, output_dfs):
+        print(actual)
+        print(expected)
         assert actual.equals(expected)
 
 def test_melt_with_empty_values_is_empty():

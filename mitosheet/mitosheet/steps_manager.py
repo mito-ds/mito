@@ -94,7 +94,9 @@ def execute_step_list_from_index(
         new_step = Step(step.step_type, step.step_id, step.params)
 
         # Set the previous state of the new step, and then update
-        # what the last valid step is
+        # what the last valid step is. Note that new_step_list is 
+        # the previous steps to the new_step -- so this parameter
+        # is correctly passed 
         new_step.set_prev_state_and_execute(last_valid_step.final_defined_state, new_step_list)
         last_valid_step = new_step
 

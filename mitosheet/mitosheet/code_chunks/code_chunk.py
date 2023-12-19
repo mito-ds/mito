@@ -31,7 +31,7 @@ class CodeChunk:
     ):
         self.prev_state = prev_state
 
-        self.optional_code_that_successfully_executed = []
+        self.optional_code_that_successfully_executed: List[str] = []
 
     def __repr__(self) -> str:
         return self.__class__.__name__

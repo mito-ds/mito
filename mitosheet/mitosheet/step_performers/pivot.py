@@ -192,7 +192,7 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
 
     destination_sheet_index = params['destination_sheet_index']
 
-    extra_code = []
+    extra_code: List[str] = []
 
     # First, find the index of the step we have to start looking from
     # for steps that edit the pivot table
@@ -201,7 +201,7 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
         # Case 1: we find the last step that edited this pivot, and get it's extra code 
         # that successfully executed, as we want to start by replaying this
         if step.step_type == 'pivot' and 'destination_sheet_index' in step.params and step.params['destination_sheet_index'] == destination_sheet_index:
-            extra_code = step.execution_data.get('optional_code_that_successfully_executed')
+            extra_code = step.execution_data.get('optional_code_that_successfully_executed', [])
             starting_index = len(previous_steps) - index - 1
             break
 
@@ -217,7 +217,7 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
         previous_steps = [step for step in previous_steps if step.step_performer.get_modified_dataframe_indexes(step.params) == {destination_sheet_index}]
         code_chunks: List["CodeChunk"] = []
         for step in previous_steps:
-            code_chunks += step.step_performer.transpile(step.prev_state, step.params, step.execution_data)
+            code_chunks += step.step_performer.transpile(step.initial_defined_state, step.params, step.execution_data)
         
         all_code = []
         for code_chunk in code_chunks:
