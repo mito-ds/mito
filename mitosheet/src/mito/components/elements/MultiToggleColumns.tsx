@@ -37,33 +37,35 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
             }}
             height='medium'
         >
-            {columnIDsAndDtype.map(([columnID, columnDtype], index) => {
-                const columnHeader = columnIDsMap[columnID];
+            <>
+                {columnIDsAndDtype.map(([columnID, columnDtype], index) => {
+                    const columnHeader = columnIDsMap[columnID];
 
-                const toggle = props.selectedColumnIDs.includes(columnID);
-                const disabled = (props.disabledColumnIDs !== undefined && props.disabledColumnIDs.includes(columnID)) 
-                    || (props.getIsDisabledColumnID !== undefined && props.getIsDisabledColumnID(columnID, columnHeader, columnDtype));
+                    const toggle = props.selectedColumnIDs.includes(columnID);
+                    const disabled = (props.disabledColumnIDs !== undefined && props.disabledColumnIDs.includes(columnID)) 
+                        || (props.getIsDisabledColumnID !== undefined && props.getIsDisabledColumnID(columnID, columnHeader, columnDtype));
 
-                const displayColumnHeader = props.getDisplayColumnHeaderOverride !== undefined 
-                    ? props.getDisplayColumnHeaderOverride(columnID, columnHeader)
-                    : getDisplayColumnHeader(columnHeader);
+                    const displayColumnHeader = props.getDisplayColumnHeaderOverride !== undefined 
+                        ? props.getDisplayColumnHeaderOverride(columnID, columnHeader)
+                        : getDisplayColumnHeader(columnHeader);
 
-                return (
-                    <MultiToggleItem
-                        key={index}
-                        index={index}
-                        title={displayColumnHeader}
-                        rightText={getDtypeValue(columnDtype)}
-                        toggled={toggle}
-                        onToggle={() => {
-                            const newSelectedColumnIds = [...props.selectedColumnIDs];
-                            toggleInArray(newSelectedColumnIds, columnID);
-                            props.onChange(newSelectedColumnIds);
-                        }}
-                        disabled={disabled}
-                    />
-                ) 
-            })}
+                    return (
+                        <MultiToggleItem
+                            key={index}
+                            index={index}
+                            title={displayColumnHeader}
+                            rightText={getDtypeValue(columnDtype)}
+                            toggled={toggle}
+                            onToggle={() => {
+                                const newSelectedColumnIds = [...props.selectedColumnIDs];
+                                toggleInArray(newSelectedColumnIds, columnID);
+                                props.onChange(newSelectedColumnIds);
+                            }}
+                            disabled={disabled}
+                        />
+                    ) 
+                })}
+            </>
         </MultiToggleBox>
     )
 }

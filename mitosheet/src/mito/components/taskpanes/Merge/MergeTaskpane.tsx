@@ -101,13 +101,18 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
 
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
-
     const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
         () => props.existingParams ?? getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.defaultMergeType),
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,
-        50 // 50 ms debounce delay
+        50, // 50 ms debounce delay
+        undefined,
+        {
+            // If we have a destination sheet index, we make sure to not overwrite the pivot
+            // that is there by default
+            doNotSendDefaultParams: props.destinationSheetIndex !== undefined,
+        }
     )
 
     /*

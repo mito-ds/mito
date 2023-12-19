@@ -24,6 +24,16 @@ const MergeKeysSelectionSection = (props: {
 
     const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
 
+    /*
+        If the merge key column IDs don't exist in the sheet, then we can't merge.
+    */
+    const nonExistentMergeKeysOne = props.params.selected_column_ids_one.filter((mergeKeyColumnID) => {
+        return sheetDataOne.columnIDsMap[mergeKeyColumnID] === undefined;
+    });
+    const nonExistentMergeKeysTwo = props.params.selected_column_ids_two.filter((mergeKeyColumnID) => {
+        return sheetDataTwo.columnIDsMap[mergeKeyColumnID] === undefined;
+    });
+    
     return (
         <div className="expandable-content-card">
             <Row suppressTopBottomMargin>
@@ -112,6 +122,18 @@ const MergeKeysSelectionSection = (props: {
                 <p className='text-color-error'>
                     {props.error}
                 </p>    
+            }
+            {
+                nonExistentMergeKeysOne.length > 0 &&
+                <p className='text-color-error'>
+                    {`The column${nonExistentMergeKeysOne.join(', ')} does not exist in this sheet anymore. Delete it to make this pivot valid. `}
+                </p>
+            }
+            {
+                nonExistentMergeKeysTwo.length > 0 &&
+                <p className='text-color-error'>
+                    {`The column ${nonExistentMergeKeysTwo.join(', ')} does not exist in this sheet anymore. Delete it to make this pivot valid. `}
+                </p>
             }
             <Spacer px={15}/>
             <TextButton 
