@@ -12,7 +12,7 @@ import datetime
 from distutils.version import LooseVersion
 import re
 import warnings
-from typing import Any, Callable, List, Optional, Set, Tuple, Union
+from typing import Any, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 

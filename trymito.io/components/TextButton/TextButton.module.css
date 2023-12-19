@@ -3,9 +3,6 @@
   font-style: medium;
   font-weight: 400;
   font-size: 2rem;
-  color: var(--color-text-primary);
-
-  background-color: var(--color-purple);
   max-width: 20rem;
   padding: 10px 15px;
   border-radius: 10px;
@@ -22,8 +19,22 @@
   display: inline-block;
 }
 
-.text_button:hover {
+.highlight {
+  color: var(--color-text-primary);
+  background-color: var(--color-purple);
+}
+
+.highlight:hover {
   background-color: var(--color-light-purple);
+}
+
+.primary {
+  color: var(--color-background);
+  background-color: var(--color-text-primary);
+}
+
+.primary:hover {
+  background-color: var(--color-text-secondary);
 }
 
 .text_button button,
@@ -32,9 +43,21 @@
   line-height: 2.5rem;
 }
 
+.button_size_small {
+  max-width: 10rem;
+  font-size: 1.25rem;
+  padding: 5px 10px;
+
+}
+
 @media only screen and (min-width: 50em) {
-  .text_button {
+
+  .large {
     font-size: 1.5rem;
+  }
+
+  .small {
+    font-size: 1rem;
   }
 
   .text_button button,

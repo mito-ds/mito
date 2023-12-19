@@ -66,14 +66,14 @@ def get_data_files_from_data_files_spec(
 
         offset = len(directory_to_search) + 1
 
-        for fname in files:
-            relative_path = str(Path(fname).parent)[offset:]
+        for file_name in files:
+            relative_path = str(Path(file_name).parent)[offset:]
             full_data_file_path = Path().joinpath(data_file_path, relative_path).as_posix()
 
             if full_data_file_path not in file_data:
                 file_data[full_data_file_path] = []
 
-            file_data[full_data_file_path].append(fname)
+            file_data[full_data_file_path].append(file_name)
 
     # Turn to list and sort by length, to be consistent (and maybe cuz we need to for folder creation?)
     data_files = sorted(file_data.items(), key=lambda x: len(x[0]))

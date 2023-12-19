@@ -1,15 +1,17 @@
-from copy import deepcopy
 import json
 import time
 from queue import Queue
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
+
 from mitosheet.mito_backend import MitoBackend
-from mitosheet.selectionUtils import get_selected_element
-from mitosheet.utils import get_new_id, get_new_id
-from mitosheet.types import CodeOptions, MitoTheme, MitoFrontendIndexAndSelections, ParamMetadata
+from mitosheet.selection_utils import get_selected_element
 from mitosheet.streamlit.v1 import RunnableAnalysis
+from mitosheet.types import (CodeOptions, MitoFrontendIndexAndSelections,
+                             MitoTheme, ParamMetadata)
+from mitosheet.utils import get_new_id
+
 
 class SpreadsheetResult():
 
@@ -56,7 +58,8 @@ ID_TYPE = 'spreadsheet'
          
 try:
     from dash.development.base_component import Component
-    from dash import Input, Output, callback, State
+
+    from dash import Input, Output, State, callback
 
 
     class Spreadsheet(Component):

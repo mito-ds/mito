@@ -9,6 +9,9 @@ import traceback
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+import pandas as pd
+
+from mitosheet.ai.recon import update_state_by_reconing_dataframes
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.user_defined_edit_code_chunk import \
     UserDefinedEditCodeChunk
@@ -17,10 +20,7 @@ from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.user_defined_function_utils import \
     get_user_defined_function_param_type_and_execute_value_and_transpile_value
-from mitosheet.ai.recon import update_state_by_reconing_dataframes
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnID
-import pandas as pd
 
 
 class UserDefinedEditStepPerformer(StepPerformer):

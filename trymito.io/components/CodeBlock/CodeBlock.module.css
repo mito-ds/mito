@@ -1,0 +1,52 @@
+.container_div {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+}
+
+.code_container {
+    margin-top: 2rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100%;
+}
+
+.code_container code[class*=language-], .code_container pre[class*=language-] {
+    text-shadow: none !important;
+    width: 100%; 
+    overflow-x: auto; /* Enables horizontal scrolling */
+}
+
+.clipboard_container {
+    display: none;
+}
+
+@media only screen and (min-width: 50em) {
+
+    .container_div .clipboard_container {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        top: 10px;
+        right: 10px;
+    }
+
+    .clipboard_container {
+        margin-top: 2rem;
+        margin-left: 1rem;
+    }
+
+    .copy_text {
+        display: none;
+        color: var(--color-text-primary);
+        margin-right: 10px;
+    }
+
+    .container_div:hover .copy_text {
+        display: inline-block
+    }
+}

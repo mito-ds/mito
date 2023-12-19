@@ -1,0 +1,14 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.item {
+    margin-top: 1rem;
+    font-size: .9rem;
+    cursor: pointer;
+}
+
+.indent {
+    margin-left: 1rem;
+}

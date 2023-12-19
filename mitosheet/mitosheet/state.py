@@ -9,9 +9,8 @@ from typing import Any, Callable, Collection, List, Dict, Optional, Set, Union
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
-from mitosheet.types import FrontendFormulaAndLocation, ModifiedDataframeReconData
+from mitosheet.types import FrontendFormulaAndLocation
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
-from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import  get_first_unused_dataframe_name
 
 # Constants for where the dataframe in the state came from

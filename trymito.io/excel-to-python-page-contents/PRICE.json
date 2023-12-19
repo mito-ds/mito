@@ -1,0 +1,207 @@
+{
+    "slug": ["functions", "financial", "PRICE"],
+    "functionNameShort": "PRICE",
+    "functionNameLong": "Security Pricing",
+    "relatedFunctions": ["YIELD", "DURATION", "PV"],
+    "purpose": "Calculate the present value or price of a security based on its coupon payments, yield, and other parameters",
+    "titleCardParagraphs": [
+        "Excel's PRICE function calculates the price of a security based on its coupon, yield, and other parameters. Understanding security pricing is essential for investors, analysts, and finance professionals.",
+        "This page explains how to calculate security prices in Python using pandas and other finance-related libraries."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The PRICE function in Excel calculates the price of a security given its rate, periods, yield, redemption value, and basis.",
+            "=PRICE(settlement, maturity, rate, yld, redemption, frequency, [basis])"
+        ],
+        "syntaxTable": [
+            {"parameter": "settlement", "description": "The security's settlement date.", "dataType": "date"},
+            {"parameter": "maturity", "description": "The security's maturity date.", "dataType": "date"},
+            {"parameter": "rate", "description": "The security's annual coupon rate.", "dataType": "number"},
+            {"parameter": "yld", "description": "The security's annual yield.", "dataType": "number"},
+            {"parameter": "redemption", "description": "The security's redemption value at maturity.", "dataType": "number"},
+            {"parameter": "frequency", "description": "Number of coupon payments per year.", "dataType": "number"},
+            {"parameter": "basis", "description": "(Optional) The day count basis to use.", "dataType": "number"}
+        ],
+        "examplesTable": [
+            {
+                "formula": "=PRICE(\"1/1/2020\", \"1/1/2025\", 0.05, 0.04, 100, 2)", 
+                "description": "Calculates the price of a security with a 5% coupon rate, 4% yield, and 100 redemption value, with semi-annual payments.",
+                "result": "104.4912925"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Security pricing in Python can be tricky. Not only can the financial formulas be confusing and complicated, but any small mistake can lead to large and important outcome differences. Luckily we've implemented some copy-and-paste ready common use cases below."
+        ],
+        "codeSections": [
+            {
+                "title": "Pricing a Securtiy",
+                "shortTitle": "Pricing a Security",
+                "paragraphs": [
+                    "The basic formula for security pricing is the present value of its future cash flows, which includes the present value of its future coupon payments and the present value of its face value.",
+                    "In Excel, you might use the `PV` and `FV` functions in tandem with `PRICE`. In Python, the `numpy` library can be handy for this.",
+                    "Here, we use `numpy's` `pv` function for the present value calculation:"
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "", 
+                    "# Define the security characteristics", 
+                    "face_value = 100",
+                    "coupon_rate = 0.05",
+                    "years_to_maturity = 10",
+                    "payment_frequency = 2",
+                    "annual_yield_to_maturity = 0.04",
+                    "",
+                    "# Calculate periodic coupon payment",
+                    "coupon_payment = (face_value * coupon_rate) / payment_frequency",
+                    "",
+                    "# Compute the price of the security",
+                    "def calc_security_price(face_value, coupon_payment, annual_yield_to_maturity, years_to_maturity, payment_frequency):",
+                    "",
+                    "    # Calculate periodic yield",
+                    "    periodic_ytm = ytm / payment_frequency",
+                    "",    
+                    "    # Compute present value of future coupon payments",
+                    "    coupons_pv = sum([coupon_payment / (1 + periodic_ytm)**(i) for i in range(1, int(years_to_maturity*payment_frequency) + 1)])",
+                    "",    
+                    "    # Compute present value of face value paid at maturity",
+                    "    face_value_pv = face_value / (1 + periodic_ytm)**(int(years_to_maturity*payment_frequency))",
+                    "",    
+                    "    # Return total security price",
+                    "    return coupons_pv + face_value_pv",
+                    "",
+                    "# Calculate security price and store it in the dataframe",
+                    "security_price = calc_security_price(",
+                    "    face_value,", 
+                    "    coupon_payment,", 
+                    "    annual_yield_to_maturity,", 
+                    "    years_to_maturity,", 
+                    "    payment_frequency",
+                    ")",
+                    "",
+                    "print(security_price)"
+                ]
+            },
+            {
+                "title": "Pricing a security with variable payments",
+                "shortTitle": "Variable payments",
+                "paragraphs": [
+                    "In some cases, the coupon payments may vary over time. In this case, the security price is the present value of the future cash flows, which includes the present value of its future coupon payments and the present value of its face value."
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "",
+                    "# Define the security characteristics",
+                    "face_value = 100",
+                    "years_to_maturity = 10",
+                    "payment_frequency = 2",
+                    "annual_yield_to_maturity = 0.04",
+                    "",
+                    "# Variable coupon payments over the security's lifetime",
+                    "# Example: Starting with a 5% annual coupon for the first 5 years and 6%",
+                    "# for the next 5 years (with semi-annual payments).",
+                    "df = pd.DataFrame({'coupon_rates': [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05,", 
+                    "                                0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]})",
+                    "",
+                    "# Create a 'coupon_payments' column in the dataframe. One entry for each coupon payment received.",
+                    "df['coupon_payments'] = face_value * df['coupon_rates'] / payment_frequency",
+                    "",
+                    "# Compute the price of the security",
+                    "def calc_security_price(face_value, coupon_payments, annual_yield_to_maturity, payment_frequency):",
+                    "",
+                    "    # Calculate periodic yield",
+                    "    periodic_ytm = annual_yield_to_maturity / payment_frequency",
+                    "",    
+                    "    # Compute present value of future coupon payments",
+                    "    coupons_pv = sum([coupon / (1 + periodic_ytm)**(i) for i, coupon in enumerate(coupon_payments, 1)])",
+                    "",    
+                    "    # Compute present value of face value paid at maturity",
+                    "    face_value_pv = face_value / (1 + periodic_ytm)**(len(coupon_payments))",
+                    "",    
+                    "    # Return total security price",
+                    "    return coupons_pv + face_value_pv",
+                    "",
+                    "# Calculate security price and store it in the dataframe",
+                    "security_price = calc_security_price(",
+                    "    face_value,", 
+                    "    df['coupon_payments'],", 
+                    "    annual_yield_to_maturity,", 
+                    "    payment_frequency",
+                    ")",
+                    "",
+                    "print(security_price)"
+                ]
+            },
+            {
+                "title": "Zero-Coupon Bond Pricing",
+                "shortTitle": "Zero-Coupon",
+                "paragraphs": [
+                    "A zero-coupon security doesn't make periodic interest payments. Instead, it's sold at a discount and pays the face value at maturity.",
+                    "In Excel, you might determine the price by using `=(Face Value)/(1+Yield)^Years`. You can calculate this in Python using the following code:"
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "",
+                    "# Define the bond characteristics",
+                    "face_value = 100",
+                    "years_to_maturity = 10",
+                    "annual_yield_to_maturity = 0.04",
+                    "", 
+                    "# Compute the price of the bond",
+                    "def calc_security_price(face_value, annual_yield_to_maturity, years_to_maturity):",
+                    "",
+                    "    # Compute present value of face value paid at maturity",
+                    "    face_value_pv = face_value / (1 + annual_yield_to_maturity)**years_to_maturity",
+                    "",    
+                    "    # Return total bond price",
+                    "    return face_value_pv",
+                    "",
+                    "# Calculate bond price",
+                    "security_price = calc_security_price(",
+                    "    face_value,", 
+                    "    annual_yield_to_maturity,",
+                    "    years_to_maturity",
+                    ")",
+                    "",
+                    "print(security_price)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "As you can tell from the code snippets abvoe, calculating security prices in pandas and Python can be a bit complicated. Here are some common mistakes and how to address them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Interest Rate Period",
+                "shortTitle": "Rate period",
+                "paragraphs": [
+                    "Often, there's confusion between annual and semi-annual rates, leading to incorrect security price calculations.",
+                    "Just like in Excel, in Python, you need to make sure that you're using the interest rate the corresponds to the number of periods.",
+                    "For example, the following code adjusts the annual rate to a semi-annual rate:"
+                ],
+                "codeLines": [
+                    "annual_rate = .5",
+                    "periods_per_year = 2",
+                    "period_rate = annual_rate / periods_per_year"
+                ]
+            },
+            {
+                "title": "Ignoring Currency Exchange Rate",
+                "shortTitle": "Currency exchange",
+                "paragraphs": [
+                    "If dealing with foreign bonds, the currency exchange rate plays a significant role in determining the security's price in the home currency.",
+                    "In Excel, you might multiply the security's price by the current exchange rate. Similarly, in Python, ensure that the exchange rate is factored into the calculation:",
+                    "Here's how you can account for the currency exchange rate in the security pricing:"
+                ],
+                "codeLines": [
+                    "bond_price_in_foreign_currency = 100",
+                    "exchange_rate = 1.1",
+                    "bond_price_in_home_currency = bond_price_in_foreign_currency * exchange_rate"
+                ]
+            }
+        ]
+    }
+}

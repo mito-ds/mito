@@ -22,7 +22,7 @@ const HeaderDropdownItem = (props: {
   return (
     <li>
       <Link href={props.href}>
-        <div className={classNames(headerStyles.dropdown_item)}>
+        <a className={classNames(headerStyles.dropdown_item)}>
           <div className={classNames(headerStyles.dropdown_item_row)}>
             <Image src={props.iconSrc} alt={props.altText} width={20} height={20} />
             <p className='margin-top-0'> 
@@ -36,7 +36,7 @@ const HeaderDropdownItem = (props: {
               </p>
             </div> 
           }
-        </div>
+        </a>
       </Link>                 
     </li>
   )
@@ -113,7 +113,6 @@ const Header = (): JSX.Element => {
                 {/* Industries Dropdown */}
                 <HeaderDropdown dropdownButtonTitle="Industries">
                   <HeaderDropdownItem
-
                     title='Financial Services'
                     href='/industries/financial-services'
                     iconSrc='/financial-services.svg'
@@ -144,6 +143,12 @@ const Header = (): JSX.Element => {
                     href='/blog'
                     iconSrc='/blog.svg'
                     altText="Blog"
+                  />
+                  <HeaderDropdownItem
+                    title='Excel to Python Glossary'
+                    href='/excel-to-python'
+                    iconSrc='/blog.svg'
+                    altText="Excel to Python Glossary"
                   />
                 </HeaderDropdown>
 
@@ -225,6 +230,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/blog'>Blog</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/excel-to-python'>Excel to Python Glossary</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>

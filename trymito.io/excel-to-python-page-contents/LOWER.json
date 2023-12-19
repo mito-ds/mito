@@ -1,0 +1,147 @@
+{
+    "slug": ["functions", "text", "LOWER"],
+    "functionNameShort": "LOWER",
+    "functionNameLong": "Convert to Lowercase",
+    "relatedFunctions": ["UPPER", "CAPITALIZE", "LEN"],
+    "purpose": "Converts a text string to lowercase.",
+    "titleCardParagraphs": [
+        "Excel users often rely on the LOWER function to convert text to lowercase. While Pandas doesn't have a direct function named LOWER, it offers a method called `str.lower()` that performs the same operation.",
+        "This page explains how to use the `str.lower()` method in pandas to emulate Excel's LOWER function, guiding you in automating your Excel tasks with Python."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "In Excel, the LOWER function converts a text string to lowercase.",
+            "=LOWER(text)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text string you want to convert to lowercase.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=LOWER(\"Hello World\")",
+                "description": "Convert the string 'Hello World' to lowercase.",
+                "result": "hello world"
+            },
+            {
+                "formula": "=LOWER(123)",
+                "description": "Convert the number 123 to a lowercase string.",
+                "result": "123"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Using pandas in Python, you can replicate the LOWER functionality of Excel with the `str.lower()` method. Here are some typical scenarios and how to tackle them:"
+        ],
+        "codeSections": [
+            {
+                "title": "Converting a Single Column to Lowercase",
+                "shortTitle": "Single Column",
+                "paragraphs": [
+                    "In Excel, to convert a column of text to lowercase, you'd apply the LOWER function to each cell. In pandas, this is achieved by applying the `str.lower()` method to the column.",
+                    "Here's a code snippet that converts a column named 'Text' in a dataframe `df` to lowercase:"
+                ],
+                "codeLines": [
+                    "df['Text'] = df['Text'].str.lower()"
+                ]
+            },
+            {
+                "title": "Combining str.lower() with Other String Methods",
+                "shortTitle": "Combining Methods",
+                "paragraphs": [
+                    "Sometimes in Excel, after converting to lowercase, you want to check if the cell contains a specific keyword. In pandas, after using `str.lower()`, you can chain it with `str.contains()` to filter rows based on a keyword.",
+                    "The following code filters rows where the 'Text' column contains the keyword 'hello' after converting to lowercase."
+                ],
+                "codeLines": [
+                    "filtered_df = df[df['Text'].str.lower().str.contains('hello')]"
+                ]
+            },
+            {
+                "title": "Check if Two Strings are Equal After Converting to Lowercase",
+                "shortTitle": "String Comparison",
+                "paragraphs": [
+                    "In Excel, you'd use the LOWER function on both cells and then compare them. Similarly in Pandas you can convert both strings to lowercase and then compare them using ==.",
+                    "The following code creates a new column 'Are_Equal' that indicates if the values in 'Col1' and 'Col2' are the same when compared case-insensitively."
+                ],
+                "codeLines": [
+                    "df['Are_Equal'] = df['Col1'].str.lower() == df['Col2'].str.lower()"
+                ]
+            },
+            {
+                "title": "Converting Part of the String to Lowercase",
+                "shortTitle": "Partial Lowercase",
+                "paragraphs": [
+                    "Converting only part of a string to lowercase uses a similar approach in both Excel and Pandas: slice the string to isolate the substring you want to convert to lowercase, and then combine the substrings back together.",
+                    "For instance, to convert only the first 5 characters of the 'Text' column to lowercase we use pandas slice notation `str[:5]` to get the first 5 characters, convert them to lowercase, and then combine them with the rest of the string."
+                ],
+                "codeLines": [
+                    "df['Modified_Text'] = df['Text'].str[:5].str.lower() + df['Text'].str[5:]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While the `str.lower()` method in pandas is straightforward, there are some common traps that users fall into. Here are some frequent mistakes and how to rectify them."
+        ],
+        "codeSections": [
+            {
+                "title": "Forgetting to use .str before .lower()",
+                "shortTitle": "Forgetting .str",
+                "paragraphs": [
+                    "The `str.lower()` method is a string method. It does not exist on the series object. So to use it, you need to use the `.str` accessor before calling the `.lower` method.",
+                    "For instance, `df['Column'].str.lower()` converts the 'Column' column to lowercase, but `df['Column'].lower()` will throw an error."
+                ],
+                "codeLines": [
+                    "# Correct usage of .lower()",
+                    "df['Column'].str.lower()",
+                    "",
+                    "# Incorrect usage of .lower()",
+                    "df['Column'].lower()"
+                ]
+            },
+            {
+                "title": "Assuming All Data Types are Strings",
+                "shortTitle": "Data Types",
+                "paragraphs": [
+                    "Applying `str.lower()` on non-string columns will throw this error `AttributeError: Can only use .str accessor with string values!`. If your column is not of type string, you need to convert it to a string before applying the .str.lower() method.",
+                    "Notice in the code below that the syntax for converting a column to a string is `df['Column'].astype(str)`, which is different than the syntax for converting a column to lowercase `df['Column'].str.lower()`."
+                ],
+                "codeLines": [
+                    "df['Column'] = df['Column'].astype(str).str.lower()"
+                ]
+            },
+            {
+                "title": "Incorrect Method Chaining",
+                "shortTitle": "Method Chaining",
+                "paragraphs": [
+                    "Just like in Excel, When chaining multiple string methods, the order matters. Placing `str.lower()` in the wrong order can lead to unexpected results.",
+                    "In Excel, the order of operations is from inside of formula to outside. In pandas, on the other hand, the order of operations is from left to right.",
+                    "For instance, if filtering rows based on a keyword after converting to lowercase, ensure `str.lower()` comes before `str.contains()`."
+                ],
+                "codeLines": [
+                    "# Incorrect order: str.contains() before str.lower()",
+                    "df[df['Text'].str.contains('keyword').str.lower()]", 
+                    "",
+                    "# Correct order: str.lower() before str.contains()",
+                    "df[df['Text'].str.lower().str.contains('keyword')]"
+                ]
+            },
+            {
+                "title": "Forgetting to Assign Back",
+                "shortTitle": "Assigning Back",
+                "paragraphs": [
+                    "After converting a column to lowercase, you need to ensure the result is assigned back to the column or to a new column. Failing to do so will mean the dataframe remains unchanged.",
+                    "In the below code, the 'Text' columns is converted to lowercase and the result is saved back to the 'Text' column. That means the next time you access the 'Text' column, the values will be in lowercase."
+                ],
+                "codeLines": [
+                    "df['Text'] = df['Text'].str.lower()"
+                ]
+            }
+        ]
+    }
+}

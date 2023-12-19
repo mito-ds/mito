@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
-from mitosheet.selectionUtils import get_selected_element
+from mitosheet.selection_utils import get_selected_element
 from mitosheet.types import CodeOptions, ParamMetadata, ParamType
 from mitosheet.utils import get_new_id
 

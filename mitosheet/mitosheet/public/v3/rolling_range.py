@@ -1,6 +1,6 @@
 
 from datetime import datetime, timedelta
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 import pandas as pd
 

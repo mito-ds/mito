@@ -1,0 +1,166 @@
+{
+    "slug": ["functions", "math", "ROUND"],
+    "functionNameShort": "ROUND",
+    "functionNameLong": "Rounding",
+    "relatedFunctions": ["CEIL", "FLOOR"],
+    "purpose": "Round a number to a specified number of decimals",
+    "titleCardParagraphs": [
+        "Excel's ROUND function adjusts a number to a specified number of digits. Often used in finance, for example, for format dollar values with two decimal places.",
+        "This page explains how to implement Excel's ROUND function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The ROUND function in Excel adjusts a number to the specified number of digits, rounding up when the last significant digit is 5 or greater, and rounding down when the last significant digit is less than 5.",
+            "=ROUND(number, num_digits)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number",
+                "description": "The number you want to round.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "num_digits",
+                "description": "The number of digits to which you want to round the number.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=ROUND(2.689, 1)",
+                "description": "Rounds 2.689 to one decimal place.",
+                "result": "2.7"
+            },
+            {
+                "formula": "=ROUND(2.689, 0)",
+                "description": "Rounds 2.689 to the nearest whole number.",
+                "result": "3"
+            },
+            {
+                "formula": "=ROUND(3.5, 0)",
+                "description": "Rounds 3.5 to the nearest whole number.",
+                "result": "4"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Here are some common ways of using the round function in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Basic Rounding",
+                "shortTitle": "Basic Rounding",
+                "paragraphs": [
+                    "Similar to how =ROUND(A1, 2) rounds the value in cell A1 to 2 decimal places in Excel, in pandas, you use the `round` function.",
+                    "For instance, to round all values in column 'A' to 2 decimal places, you can use the following code snippet.",
+                    "However, its important to note that pandas' `round` function rounds to the nearest even number when the last significant digit is 5. This is often referred to as 'bankers' rounding'. This is different from Excel! To round using the same technique as Excel, see the next section." 
+                ],
+                "codeLines": [
+                    "# Round column 'A' to 2 decimal places",
+                    "df['A'] = df['A'].round(2)"
+                ]
+            },
+            {
+                "title": "Rounding like Excel",
+                "shortTitle": "Rounding like Excel",
+                "paragraphs": [
+                    "Excel and Python have different default rounding behavior. In Excel, 2.5 and 3.5 both round to 3. In Python, 2.5 rounds to 2, and 3.5 rounds to 4.",
+                    "This is because Excel uses what most consider as normal rounding (.5 always rounds up), whereas Python uses 'bankers' rounding' (round to the nearest even number).",
+                    "To implement Excel's rounding behavior in Python, you can use the following code:"
+                ], 
+                "codeLines": [
+                    "import decimal",
+                    "",
+                    "# Define a fucntion excel_round that rounds like Excel",
+                    "# by setting the rounding method to ROUND_HALF_UP",
+
+                    "def excel_round(number, digits):",
+                    "   # Similar to Excel, if the number is missing return 0",
+                    "   if number is None or pd.isna(number):",
+                    "        return 0",
+                    "",
+                    "   context = decimal.getcontext()",
+                    "   context.rounding = decimal.ROUND_HALF_UP",
+                    "   number = decimal.Decimal(number)",
+                    "   rounded_number = round(number, digits)",
+                    "   return float(rounded_number)",
+                    "",
+                    "# Round column 'A' to 0 decimal places",
+                    "df['A'] = df['A'].apply(lambda x: excel_round(x, 0))"
+                ]
+            },
+            {
+                "title": "Rounding Up",
+                "shortTitle": "Rounding Up",
+                "paragraphs": [
+                    "In Excel, you might use the =ROUNDUP(A1, 0) to round a value up. In pandas, for rounding up, you can use the `numpy.ceil` function."
+                ],
+                "codeLines": [
+                    "# Round column A up to the nearest integer",
+                    "df['A'] = df['A'].apply(np.ceil)"
+                ]
+            },
+            {
+                "title": "Rounding Down",
+                "shortTitle": "Rounding Down",
+                "paragraphs": [
+                    "To round values down in Excel, you might use =ROUNDDOWN(A1, 0). In pandas, you can achieve rounding down with the `numpy.floor` function."
+                ],
+                "codeLines": [
+                    "# Round column A down to the nearest integer",
+                    "df['A'] = df['A'].apply(np.floor)"
+                ]
+            },
+            {
+                "title": "Rounding Financial Data",
+                "shortTitle": "Financial Rounding",
+                "paragraphs": [
+                    "When dealing with financial data in Excel, it is easy to format numbers as currency and still apply rounding. For example, you can use =ROUND(A1, 2) to round a number to 2 decimal places, and then apply the currency format to the cell.",
+                    "In Pandas, however, you might have values that look like $10.99, that are actually stored as strings. In this case, you can use the `astype` method to convert the column to a numeric type, and then use the `round` method to round the values."
+                ],
+                "codeLines": [
+                    "# Remove the $ sign from the values in column 'A'",
+                    "df['A'] = df['A'].str.replace('$', '')",
+                    "", 
+                    "# Convert column 'A' to a numeric dtype",
+                    "df['A'] = df['A'].astype(float)",
+                    "",
+                    "# Round column 'A' to 0 decimal places",
+                    "df['A'] = df['A'].round(0)",
+                    "",
+                    "# Add the $ sign back to the values in column 'A'",
+                    "df['A'] = '$' + df['A'].astype(str)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Rounding numbers in pandas might seem straightforward, but it has certain nuances that can trip up those new to Python and pandas, especially if you're expecting pandas rounding to behave exactly like Excel. Here are some pitfalls to watch out for:"
+        ],
+        "codeSections": [
+            {
+                "title": "Expecting round(0) to convert to an int",
+                "shortTitle": "round(0) as float",
+                "paragraphs": [
+                    "In pandas, when using `.round(0)` on a DataFrame or series, the result remains as float, unlike in some other environments where rounding to 0 decimals might convert the result to an integer.",
+                    "To ensure the result is an integer type in pandas, you need to use the `astype` function after rounding."
+                ],
+                "codeLines": [
+                    "# Round column A to 0 decimal places and convert to int",
+                    "df['A'] = df['A'].round(0).astype(int)"
+                ]
+            },
+            {
+                "title": "Assuming Default Behavior",
+                "shortTitle": "Default Rounding",
+                "paragraphs": [
+                    "By default, pandas uses the 'round half to even' method, often referred to as 'bankers' rounding'. This might differ from the expected behavior in Excel which rounds 0.5 always up.",
+                    "For instance, 2.5 and 3.5 both round to 3 in pandas by default. To mirror Excel's behavior in pandas, you need a custom rounding function."
+                ],
+                "codeLines": []
+            }
+        ]
+    }
+}

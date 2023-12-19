@@ -1,0 +1,118 @@
+{
+    "slug": ["functions", "date", "MINUTE"],
+    "functionNameShort": "MINUTE",
+    "functionNameLong": "Minute Extraction",
+    "relatedFunctions": ["HOUR", "MONTH", "DAY"],
+    "purpose": "Extract the minute from a datetime",
+    "titleCardParagraphs": [
+        "Excel's MINUTE function extracts the minute from a time value.",
+        "This page explains how to implement Excel's MINUTE function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The MINUTE function in Excel returns the minute of a time value, ranging from 0 to 59.",
+            "=MINUTE(serial_number)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "serial_number",
+                "description": "The time value from which you want to extract the minute.",
+                "dataType": "A valid Excel time"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MINUTE(\"5/21/2021 9:30 PM\")",
+                "description": "Extracts the minute from the given time.",
+                "result": "0"
+            },
+            {
+                "formula": "=MINUTE(\"21-May-2021 6:30 AM\")",
+                "description": "Extracts the minute from the given time.",
+                "result": "30"
+            },
+            {
+                "formula": "=MINUTE(\"5/21/2021 9:59 PM\")",
+                "description": "Extracts the minute from the given time.",
+                "result": "59"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Recreating Excel's MINUTE function behavior in Python requires a combination of pandas operations. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Extracting Minute from Datetime",
+                "shortTitle": "Minute Extraction",
+                "paragraphs": [
+                    "In Excel, if you have a datetime value, you can use the MINUTE function to return the minute component. Similarly, in pandas, you can use the `.dt` accessor followed by the `minute` attribute.",
+                    "For example, in Excel you might use =MINUTE(A2). In pandas:"
+                ],
+                "codeLines": [
+                    "df['Minute'] = df['Datetime_Column'].dt.minute"
+                ]
+            },
+            {
+                "title": "Converting string to datetime and then extracting the minute",
+                "shortTitle": "String to Minute",
+                "paragraphs": [
+                    "Often, Pandas will infer the data type of your column as string, even if the data to you looks like a date, ie: 1/2/23 12:30:00. In these cases, you need to convert the string to datetime before extracting the minute.",
+                    "To do this in pandas, first use `pd.to_datetime` to convert the column to a datetime column, and then extract the minute:"
+                ],
+                "codeLines": [
+                    "# Convert the string to datetime",
+                    "df['Datetime_Column'] = pd.to_datetime(df['String_Column'])",
+                    "",
+                    "# Extract the minute from the datetime column",
+                    "df['Minute'] = df['Datetime_Column'].dt.minute"
+                ]
+            },
+            {
+                "title": "Grouping Data by Minute",
+                "shortTitle": "Grouping by Minute",
+                "paragraphs": [
+                    "There are situations where you want to aggregate data based on minute. In Excel, you might use a pivot table after extracting the minute. Similarly, in pandas, after extracting the minute, you can use the `groupby` method",
+                    "For example, if you have a column called 'Date' and a column called 'Website Traffic', you might want to group the data by minute and sum the traffic for each minute."
+                ],
+                "codeLines": [
+                    "df['Minute'] = df['Date'].dt.minute",
+                    "grouped_data = df.groupby('Minute').agg({'Website Traffic': 'sum'}).reset_index()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the MINUTE function equivalent in pandas, a few common pitfalls might occur. Here's how to navigate them."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect datatypes",
+                "shortTitle": "Incorrect datatypes",
+                "paragraphs": [
+                    "The `.dt` accessor is exclusive to pandas Series with datetime64 data types. Using it on non-datetime columns will raise an AttributeError.",
+                    "For example, if you have a column called 'Date', but it actually has an object data type, you'll need to convert it to datetime before using the `.dt` accessor. You can check the data type of a column using `df.dtypes`."
+                ],
+                "codeLines": [
+                    "# Ensure the column is of datetime dtype",
+                    "df['Datetime_Column'] = pd.to_datetime(df['Datetime_Column'])",
+                    "df['Minute'] = df['Datetime_Column'].dt.minute"
+                ]
+            },
+            {
+                "title": "Forgetting to Handle Null Values",
+                "shortTitle": "Handling NaTs",
+                "paragraphs": [
+                    "If your dataset has missing or NaT (Not-a-Timestamp) values in the datetime column, trying to extract the minute from them will result in NaN (Not a Number) values. Make sure to handle or filter them out as necessary."
+                ],
+                "codeLines": [
+                    "# Drop rows with NaT values before extracting minute",
+                    "df.dropna(subset=['Datetime_Column'], inplace=True)",
+                    "df['Minute'] = df['Datetime_Column'].dt.minute"
+                ]
+            }
+        ]
+    }
+}

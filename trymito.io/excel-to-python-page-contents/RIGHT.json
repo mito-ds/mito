@@ -1,0 +1,110 @@
+{
+    "slug": ["functions", "text", "RIGHT"],
+    "functionNameShort": "RIGHT",
+    "functionNameLong": "Extracting characters from the right",
+    "relatedFunctions": ["LEFT", "MID", "LEN"],
+    "purpose": "Extract characters from the right side of a string",
+    "titleCardParagraphs": [
+        "Excel's RIGHT function is used to extract a specific number of characters from the right end of a text string. This can be especially useful in data preprocessing tasks like extracting the last name from a full name or extracting a unit label from a number.",
+        "This page explains how to achieve similar functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The RIGHT function in Excel takes two arguments: the text from which to extract characters, and the number of characters to extract.",
+            "=RIGHT(text, [num_chars])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text string that contains the characters you want to extract.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "num_chars",
+                "description": "(Optional) The number of characters you want to extract. Defaults to 1.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=RIGHT(\"Hello World\", 5)",
+                "description": "Extracts the last 5 characters from the text.",
+                "result": "World"
+            },
+            {
+                "formula": "=RIGHT(\"Python\")",
+                "description": "Extracts the last character from the text.",
+                "result": "n"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, string operations can be executed on string columns using the `.str` accessor. Below are some common ways to use pandas to replicate the RIGHT function in Excel:"
+        ],
+        "codeSections": [
+            {
+                "title": "Extracting Fixed Number of Characters",
+                "shortTitle": "Fixed Characters",
+                "paragraphs": [
+                    "In Excel, you would use a formula like =RIGHT(A1, 3) to extract the last 3 characters of the text in cell A1.",
+                    "In pandas, you can achieve the same result by using the `.str` accessor followed by the slicing notation. Notice in the code below, that a negative value is used to indicate that the characters should be extracted from the right end of the string instead of the front."
+                ],
+                "codeLines": [
+                    "# Extract the last 3 chracters",
+                    "df['Extracted'] = df['Text'].str[-3:]"
+                ]
+            },
+            {
+                "title": "Extracting Variable Number of Characters",
+                "shortTitle": "Variable Characters",
+                "paragraphs": [
+                    "Sometimes you'll want to extract a variable number of characters based on the position of a character in the string. For example, extract the last name from a full name column by finding the position of the space character and extracting the characters after it.",
+                    "In Excel, the formula would look like =RIGHT(A1, LEN(A1) - FIND(\" \", A1))"
+                ],
+                "codeLines": [
+                    "# Extract the last name from full name",
+                    "df['Extracted'] = df['Text'].str.split(' ').str[-1]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "When trying to replicate the RIGHT function's behavior in pandas, there are a few pitfalls to be aware of. Below are some of the common mistakes:"
+        ],
+        "codeSections": [
+            {
+                "title": "String vs Non-String",
+                "shortTitle": "String issues",
+                "paragraphs": [
+                    "A common mistake is to attempt to use string functions on non-string columns without first converting them.",
+                    "In Excel, the RIGHT function works on cells containing text and numbers. In pandas, if a column is not of string type, you'll encounter an error. It's important to ensure that the column you're working with is a string type before applying string operations.",
+                    "You can convert a column to string using `astype(str)`."
+                ],
+                "codeLines": [
+                    "# Convert column to string",
+                    "df['Text'] = df['Text'].astype(str)",
+                    "",
+                    "# Extract the last 3 chracters",
+                    "df['Extracted'] = df['Text'].str[-3:]"
+                ]
+            },
+            {
+                "title": "Forgetting the negative signs",
+                "shortTitle": "Missing negative signs",
+                "paragraphs": [
+                    "String slicing in pandas uses ths syntax `str[start:end]` where `start` and `end` are the positions of the characters to extract. By using a starting position like 3 and omitting the end condition, pandas returns all characters starting from position 3 to the end of the string.",
+                    "However, if you want to extract characters from the right end of the string, you need to use a negative value for the starting position. This indicates that the characters should be extracted from the right end of the string instead of the front."
+                ],
+                "codeLines": [
+                    "# Extract 3 characters from the front of the string",
+                    "df['Extracted'] = df['Text'].str[3:]",
+                    "",
+                    "# Extract 3 charactes from the end of the string",
+                    "df['Extracted'] = df['Text'].str[-3:]"
+                ]
+            }
+        ]
+    }
+}

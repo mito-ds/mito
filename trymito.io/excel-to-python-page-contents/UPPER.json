@@ -1,0 +1,71 @@
+{
+    "slug": ["functions", "text", "UPPER"],
+    "functionNameShort": "UPPER",
+    "functionNameLong": "Convert String to Uppercase",
+    "relatedFunctions": ["LOWER", "TITLE", "LEFT"],
+    "purpose": "Convert all characters in a string to uppercase",
+    "titleCardParagraphs": [
+        "Excel's UPPER function is used to change all letters in a given text to uppercase. This function can be particularly useful for normalizing data entries or ensuring data consistency before merging or grouping data.",
+        "This page explains how to use Excel's UPPER function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The UPPER function in Excel requires only one argument: the text you want to convert to uppercase.",
+            "=UPPER(text)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text you want to convert to uppercase.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=UPPER(\"hello\")",
+                "description": "Converts the word 'hello' to uppercase.",
+                "result": "HELLO"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the UPPER function in Excel using Python and pandas, you can utilize the `.str.upper()` method. Here's how you can use it:"
+        ],
+        "codeSections": [
+            {
+                "title": "Convert a Column to Uppercase",
+                "shortTitle": "Column to uppercase",
+                "paragraphs": [
+                    "In Excel, you would use the UPPER function on each cell of a column to convert the entire column's text to uppercase.",
+                    "In pandas, to achieve the same effect, apply the `.str.upper()` method to the desired column. The following code demonstrates how to convert the 'name' column to uppercase:"
+                ],
+                "codeLines": [
+                    "df['name'] = df['name'].str.upper()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "When using the `.str.upper()` method in pandas to replicate Excel's UPPER function, the most common source of error is forgetting to use the `.str` accessor."
+        ],
+        "codeSections": [
+            {
+                "title": "Not Using .str Accessor",
+                "shortTitle": "Missing .str accessor",
+                "paragraphs": [
+                    "A frequent oversight is forgetting to use the `.str` accessor before applying string functions to a pandas Series.",
+                    "If you mistakenly use `df['column'].upper()` instead of the correct `df['column'].str.upper()`, you'll encounter an AttributeError."
+                ],
+                "codeLines": [
+                    "# Incorrect approach",
+                    "df['column'].upper()",
+                    "",
+                    "# Correct approach",
+                    "df['column'].str.upper()"
+                ]
+            }
+        ]
+    }
+}

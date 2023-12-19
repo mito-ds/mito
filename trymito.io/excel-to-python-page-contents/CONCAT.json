@@ -1,0 +1,127 @@
+{
+    "slug": ["functions", "text", "CONCAT"],
+    "functionNameShort": "CONCAT",
+    "functionNameLong": "String Concatenation",
+    "relatedFunctions": ["JOIN", "MERGE", "APPEND"],
+    "purpose": "Join text together",
+    "titleCardParagraphs": [
+        "Excel's CONCAT function combines two or more strings into one. It's a powerful tool in text-based data analysis, and is often used to combine fields or create unique identifiers.",
+        "This page explains how to implement Excel's CONCAT function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The CONCAT function in Excel takes two or more string arguments and combines them into one continuous string.",
+            "=CONCAT(text1, [text2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text1",
+                "description": "The first text value you want to concatenate.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "text2",
+                "description": "(Optional) Additional text values to concatenate.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 text values.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=CONCAT(\"Hello\", \" \", \"World\")",
+                "description": "Combine the words 'Hello' and 'World' with a space in between.",
+                "result": "Hello World"
+            },
+            {
+                "formula": "=CONCAT(A1, \"-\", B1)",
+                "description": "Combine the words in A1 and B1 with a - in between.",
+                "result": "value_of_A1-value_of_B1"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the CONCAT function in Excel using Python and pandas, there are several methods depending on the specific need. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Basic Column Concatenation",
+                "shortTitle": "Same row",
+                "paragraphs": [
+                    "Combining values in a row is similar to entering =CONCAT(A1, B1) in Excel.",
+                    "The following code shows how to concatenate values in columns 'Col1' and 'Col2' into a new column 'Combined':"
+                ],
+                "codeLines": [
+                    "df['Combined'] = df['Col1'] + df['Col2']"
+                ]
+            },
+            {
+                "title": "Adding a Separator",
+                "shortTitle": "With separator",
+                "paragraphs": [
+                    "To introduce a separator, like a space or a hyphen, between concatenated values in Excel, you would use =CONCAT(A1, \"-\", B1).",
+                    "Similarly in pandas, you'd add the separator string in between columns:"
+                ],
+                "codeLines": [
+                    "df['Combined'] = df['Col1'] + '-' + df['Col2']"
+                ]
+            },
+            {
+                "title": "Concatenating Numbers and Strings",
+                "shortTitle": "Numbers and strings",
+                "paragraphs": [
+                    "If you need to concatenate numbers with strings, it's essential to convert numbers to string format first.",
+                    "Excel takes care of data type handling for you, so you could write the formula =CONCAT(A1, B1) where A1 is text and B1 is a number without any problems. However, in Pandas, you need to explicitly convert the number to a string before concatenating:"
+                ],
+                "codeLines": [
+                    "df['Combined'] = df['StringCol'] + df['NumberCol'].astype(str)"
+                ]
+            },
+            {
+                "title": "Conditional Concatenation",
+                "shortTitle": "Conditional concat",
+                "paragraphs": [
+                    "There might be scenarios where you want to concatenate only if a certain condition is met.",
+                    "For example, in Excel: =IF(C1>10, CONCAT(A1, B1), A1). In pandas, you can use the `.loc` to conditionally select columns that meet a criteria:"
+                ],
+                "codeLines": [
+                    "df.loc[df['C'] > 10, 'Combined'] = df['A'] + df['B']",
+                    "df.loc[df['C'] <= 10, 'Combined'] = df['A']"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using pandas for concatenation, there are certain pitfalls that might be encountered. Here are some common mistakes and their resolutions."
+        ],
+        "codeSections": [
+            {
+                "title": "Inconsistent Data Types",
+                "shortTitle": "Data type issues",
+                "paragraphs": [
+                    "Excel formulas handle data types dynamically, so you could write the formula =CONCAT(A1, B1) where A1 is text and B1 is a number without any problems. However, in Pandas, attempting to concatenate columns with different data types raises a TypeError.",
+                    "You should explicitly convert any non-string columns to strings before concatenating:"
+                ],
+                "codeLines": [
+                    "df['Combined'] = df['Col1'].astype(str) + df['Col2'].astype(str)"
+                ]
+            },
+            {
+                "title": "NaN Values",
+                "shortTitle": "NaN values",
+                "paragraphs": [
+                    "Again, Excel takes care of missing values for you, but in pandas, you need to explicitly handle them.",
+                    "If any of the values in the columns being concatenated are NaN, the result will be NaN. To avoid this, use the `fillna()` method to replace NaN values with empty strings."
+                ],
+                "codeLines": [
+                    "df['Combined'] = df['Col1'].fillna('') + df['Col2'].fillna('')"
+                ]
+            }
+        ]
+    }
+}

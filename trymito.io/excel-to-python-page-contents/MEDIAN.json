@@ -1,0 +1,131 @@
+{
+    "slug": ["functions", "math", "MEDIAN"],
+    "functionNameShort": "MEDIAN",
+    "functionNameLong": "Median",
+    "relatedFunctions": ["SUM", "COUNT", "AVERAGE"],
+    "purpose": "Calculate the median value of a set of numbers",
+    "titleCardParagraphs": [
+        "Excel's MEDIAN function calculates the median of a range of values. This guide explains how to replicate Excel's MEDIAN functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The MEDIAN function in Excel takes one or more arguments (ranges of numbers) and returns their median.",
+            "=MEDIAN(number1, [number2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number1",
+                "description": "The first number you want to include in the median.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "number2",
+                "description": "(Optional) Additional numbers you want to include in the median.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 numbers you want to include in the median.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MEDIAN(1, 2, 3)",
+                "description": "Calculate the median of values 1, 2, and 3.",
+                "result": "2"
+            },
+            {
+                "formula": "=MEDIAN(A1:A10)",
+                "description": "Calculate the median of values from A1 to A10.",
+                "result": "Median of A1 to A10"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the MEDIAN function from Excel in pandas, there are several approaches depending on your specific needs. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Median value in each row",
+                "shortTitle": "Row-wise median",
+                "paragraphs": [
+                    "In Excel, to median values in cells A1, B1, and C1, you'd use =MEDIAN(A1, B1, C1).",
+                    "In pandas, finding the median of values across columns for a given row can be done similarly. Below is how you'd compute the median of 'Col1', 'Col2', and 'Col3' for each row:"
+                ],
+                "codeLines": [
+                    "# Calculate the median of Col1, Col2, Col3",
+                    "df['Median'] = df[['Col1', 'Col2', 'Col3']].median(axis=1)"
+                ]
+            },
+            {
+                "title": "Entire column median",
+                "shortTitle": "Column median",
+                "paragraphs": [
+                    "In Excel, to find the median of an entire column, you'd use =MEDIAN(A:A).",
+                    "In pandas, you can use the median method on the desired column to get a similar result:"
+                ],
+                "codeLines": [
+                    "# Calculate the median of the entire column",
+                    "col_median = df['Column1'].median()"
+                ]
+            },
+            {
+                "title": "Entire dataframe median",
+                "shortTitle": "Dataframe median",
+                "paragraphs": [
+                    "In Excel, to find the median of an entire table, you'd use =MEDIAN(A1:D10).",
+                    "In pandas, you can use the median method on the entire dataframe to get a similar result:"
+                ],
+                "codeLines": [
+                    "# Flatten the DataFrame and get the median value",
+                    "df_values = df.values.flatten().tolist()",
+                    "median_value = pd.Series(df_values).median()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) that you might run into while calculating medians in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Finding the Median of Strings",
+                "shortTitle": "String Median",
+                "paragraphs": [
+                    "Attempting to calculate the median on columns with string values raises a TypeError. For example: `TypeError: could not convert string to float`. You must convert these strings to numeric types before computing the median.",
+                    "For example, if you have values with the format $1.99, $2.99, etc. you must convert them to float values before calculating the median"
+                ],
+                "codeLines": [
+                    "# Convert $ values to float",
+                    "df['Column'] = df['Column'].str.replace('$', '').astype(float)",
+                    "",
+                    "# Calculate the median",
+                    "median = df['Column'].median()"
+                ]
+            },
+            {
+                "title": "Ignoring Missing Values",
+                "shortTitle": "Handling NaNs",
+                "paragraphs": [
+                    "Not managing `NaN` values correctly can lead to inaccurate averages. By default, pandas skips `NaN` values, similar to how Excel's MEDIAN function disregards blank cells. However, you can also choose to treat `NaN` values as 0 when calculating the median, or return NaN if any of the values are NaN."
+                ],
+                "codeLines": [
+                    "# Create a sample dataframe",
+                    "df = pd.DataFrame({'Column': [1, 2, 3, None]})",
+                    "",
+                    "# Calculate median with NaN values",
+                    "df['Column'].median(skipna=False)        # Resut: NaN",
+                    "", 
+                    "# Calculate median without NaN values", 
+                    "df['Column'].median(skipna=True)         # Result: 2.0",
+                    "",
+                    "# Calculate median with NaN values treated as 0",
+                    "df['Column'].fillna(0).median()          # Result: 1.5"
+                ]
+            }
+        ]
+    }
+}

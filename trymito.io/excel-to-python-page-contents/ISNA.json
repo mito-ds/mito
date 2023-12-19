@@ -1,0 +1,138 @@
+{
+    "slug": ["functions", "conditional", "ISNA"],
+    "functionNameShort": "ISNA",
+    "functionNameLong": "Detecting Missing Data",
+    "relatedFunctions": ["FILLNA", "IF", "COUNT"],
+    "purpose": "Detect if a value is missing",
+    "titleCardParagraphs": [
+        "Excel's ISNA function checks if a value is #N/A (not available). In Python, the equivalent concept of missing data is represented by NaN (Not a Number). Knowing how to detect and handle missing data is crucial for data cleaning and analysis.",
+        "This page explains how to identify and manage missing data in Python using pandas, making it easier to transition and automate Excel processes in Python."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The ISNA function in Excel returns TRUE if the value is #N/A, otherwise it returns FALSE.",
+            "=ISNA(value)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "value",
+                "description": "The value you want to check.",
+                "dataType": "any"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=ISNA(#N/A)",
+                "description": "Check if #N/A is #N/A.",
+                "result": "TRUE"
+            },
+            {
+                "formula": "=ISNA(100)",
+                "description": "Check if 100 is #N/A.",
+                "result": "FALSE"
+            },
+            {
+                "formula": "=ISNA(A1)",
+                "description": "Check if cell A1 is #N/A.",
+                "result": "TRUE or FALSE"
+            },
+            
+            {
+                "formula": "=ISNA(VLOOKUP(100, A1:B10, 2, FALSE))",
+                "description": "Check if VLOOKUP returns a #N/A error.",
+                "result": "TRUE or FALSE"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "Detecting missing data in pandas is straightforward and provides more flexibility than Excel. Here are some common implementations to detect and manage missing values using pandas:"
+        ],
+        "codeSections": [
+            {
+                "title": "Detecting Missing Values in a Columns",
+                "shortTitle": "Detect missing values in column",
+                "paragraphs": [
+                    "To check for missing values in a column (called a Series in pandas), you can use the `.isna()` method. This will return a series of the same shape with True for missing values and False otherwise.",
+                    "In Excel, you would use `=ISNA(A1)`. In pandas, the process is similar but can be applied to entire columns at once.",
+                    "The primary function to use in pandas is the `.isna()` method:"
+                ],
+                "codeLines": [
+                    "missing_values = df['Column'].isna()"
+                ]
+            },
+            {
+                "title": "Detecting Missing Values in a DataFrame",
+                "shortTitle": "Detect missing values in dataframe",
+                "paragraphs": [
+                    "To check for missing values in a Dataframe, you can again use the `.isna()` function, this time, on the entire dataframe. It will return a dataframe of the same shape with True for missing values and False otherwise."
+                ],
+                "codeLines": [
+                    "missing_values = df['Column'].isna()"
+                ]
+            },
+            {
+                "title": "Filtering out Rows with Missing Values",
+                "shortTitle": "Filter out missing values",
+                "paragraphs": [
+                    "To filter out or drop rows with missing values from a DataFrame, use the `dropna()` method."
+                ],
+                "codeLines": [
+                    "df_cleaned = df.dropna(subset=['Column'])"
+                ]
+            },
+            {
+                "title": "Counting Missing Values",
+                "shortTitle": "Count missing values",
+                "paragraphs": [
+                    "To count the number of missing values in a DataFrame or Series, you can chain the `.isna()` method with `sum()`. This works because `True` is treated as 1 and `False` as 0."
+                ],
+                "codeLines": [
+                    "missing_count = df['Column'].isna().sum()"
+                ]
+            },
+            { 
+                "title": "Detecting if a single value is None",
+                "shortTitle": "Detect None",
+                "paragraphs": [
+                    "Outside of the Pandas dataframes and series, missing values are often represented in Python by `None`.",
+                    "In Excel, if you want to check if a value is `None`, you would use `=ISNA(A1)`. Here's how you can do it in pandas:"
+                ],
+                "codeLines": [
+                    "x = None",
+                    "if x is None:",
+                    "    print('x is None')",
+                    "else:",
+                    "    print('x is not None')"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Handling missing data in pandas is common, but there are pitfalls to avoid. Here are some common mistakes and their solutions."
+        ],
+        "codeSections": [
+            {
+                "title": "Misunderstanding NaN vs. None",
+                "shortTitle": "NaN vs None",
+                "paragraphs": [
+                    "In pandas, `NaN` and `None` can both represent missing data, but they are distinct. `NaN` is a special floating-point value, while `None` is Python's representation of a null object. This distinction can cause issues in certain operations.",
+                    "For instance, in Excel, there's a clear distinction between an empty cell and a cell with a value. In pandas, be cautious about the type of missing value you're dealing with."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Inaccurate Count of Missing Values",
+                "shortTitle": "Counting NaN inaccurately",
+                "paragraphs": [
+                    "A common mistake is to use methods that don't accurately count missing values. Using the length of a filtered DataFrame or the wrong method can lead to inaccuracies.",
+                    "In Excel, you'd count `TRUE` values from `ISNA`. In pandas, chain `.isna()` with `sum()` for accurate counts."
+                ],
+                "codeLines": [
+                    "missing_count = df['Column'].isna().sum()"
+                ]
+            }
+        ]
+    }
+}

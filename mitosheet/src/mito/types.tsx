@@ -694,18 +694,6 @@ export interface GridState {
     widthDataArray: WidthData[];
 }
 
-/**
- * The type of data that is in this current Mito analysis.
- * 
- * @remark this should be the same as the file in the Python code
- * which is in data_in_mito.py
- */
-export enum DataTypeInMito {
-    NONE = 'none',
-    PROVIDED = 'provided',
-    TUTORIAL = 'tutorial',
-    PERSONAL = 'personal',
-}
 
 export type ExperimentID = 
     | 'title_name';
@@ -757,7 +745,6 @@ export type UserDefinedFunction = {
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
- * @param dataTypeInTool - the type of data in the tool in this analysis
  * @param graphDataDict - a mapping from graphID to all of the relevant graph information
  * @param updateEventCount - the number of update events that have been successfully processed by the frontend
  * @param undoCount - the number of undos
@@ -784,7 +771,6 @@ export interface AnalysisData {
     code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,
-    dataTypeInTool: DataTypeInMito;
     graphDataDict: GraphDataDict;
     updateEventCount: number;
     undoCount: number,
@@ -865,7 +851,6 @@ export interface KeyboardShortcut {
  * @param pythonVersion - the version of the user's python installation
  * @param pandasVersion - ther version of th user's pandas isntallation
  * @param telemetryEnabled - if the user has telemetry enabled
- * @param isLocalDeployment - if the user is deployed locally or not
  * @param shouldUpgradeMitosheet - if the user should upgrade their mitosheet
  * @param numUsages - the number of times the user has used the tool (maxes out at 50 currently)
  * @param usageTriggeredFeedbackID - the id of the usage triggered feedback id to display to the user
@@ -881,7 +866,6 @@ export interface UserProfile {
     pythonVersion: string;
 
     telemetryEnabled: boolean;
-    isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
     snowflakeCredentials: SnowflakeCredentials | null;

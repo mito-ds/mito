@@ -1,0 +1,155 @@
+{
+    "slug": ["functions", "math", "COUNT"],
+    "functionNameShort": "COUNT",
+    "functionNameLong": "COUNT",
+    "relatedFunctions": ["IFNA", "AVERAGE", "PRODUCT"],
+    "purpose": "Count number of cells that contain numbers",
+    "titleCardParagraphs": [
+        "Excel's COUNT function calculates the number of cells that contain numbers. It's a pivotal function for various data analysis tasks, from understanding data distribution to ensuring data quality.",
+        "This page explains how to implement Excel's COUNT function in Python using pandas, making the transition to automating Excel reports in Python smoother."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The COUNT function in Excel returns the number of cells in a range that contain numbers.",
+            "=COUNT(value1, [value2], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "value1",
+                "description": "The first cell or range that you want to count.",
+                "dataType": "cell/range"
+            },
+            {
+                "parameter": "value2",
+                "description": "(Optional) Additional cells or ranges to count.",
+                "dataType": "cell/range"
+            }, 
+            {
+                "parameter": "...",
+                "description": "(Optional) Add up to 255 additional cells or ranges to count.",
+                "dataType": "cell/range"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=COUNT(A1, A2)",
+                "description": "Count cells A1 and A2 if they contain numbers.",
+                "result": "Number of cells with numbers"
+            },
+            {
+                "formula": "=COUNT(A1:A10)",
+                "description": "Count number of cells in the range A1:A10 that contain numbers.",
+                "result": "Number of cells with numbers"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "There are a few different approaches to implementing the COUNT function in Pandas depending on what you're trying to accomplish. Here are a few of the most common use cases:"
+        ],
+        "codeSections": [
+            {
+                "title": "Counting the number of cells that can be converted to a number in a single column",
+                "shortTitle": "Numeric cell count",
+                "paragraphs": [
+                    "Pandas's `count()` method returns the number of non-NA cells in a Series or DataFrame. This is different thatn Excel's count function which shows the number of cells that are or can be converted to numbers.",
+                    "For example, if you have a column with the values 1, 2, 3, and 'ABC', the `count()` method will return 4, while Excel's COUNT function will return 3.",
+                    "So to implement Excel's COUNT formula in Pandas we need to convert the column to numeric first, then use the `count()` method. Doing so will convert non-numeric values to NaN, which the `count()` method will ignore."
+                ],
+                "codeLines": [
+                    "# Convert column to numeric, errors='coerce' transforms non-numeric values to NaN",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce')",
+                    "",
+                    "# Count the number of non-NA cells in the column",
+                    "print(df['Column1'].count())"
+                ]
+            },
+            {
+                "title": "Counting the number of cells that can be converted to a number for each column",
+                "shortTitle": "Numeric cell count for each column",
+                "paragraphs": [
+                    "If we wanted to count the number of cells that can be converted to a number for each column, we could use the `apply()` method to apply the `pd.to_numeric()` function to each column, then use the `count()` method to count the number of non-NA cells in each column."
+                ],
+                "codeLines": [
+                    "# Convert each column in the dataframe to a numeric column",
+                    "df = df.apply(pd.to_numeric, errors='coerce')",
+                    "", 
+                    "# For each column, print the number of non-NA cells",
+                    "print(df.count())"
+                ]
+            },
+            {
+                "title": "Counting the number of cells that can be converted to a number in the dataframe",
+                "shortTitle": "Numeric cell count for dataframe",
+                "paragraphs": [
+                    "If we wanted to count the number of cells that can be converted to a number in the entire dataframe, we could again use the `apply()` method to apply the `pd.to_numeric()` function to each column, then use the `count()` method to count the number of non-NA cells in the entire dataframe."
+                ],
+                "codeLines": [
+                    "# Convert each column in the dataframe to a numeric column",
+                    "df = df.apply(pd.to_numeric, errors='coerce')",
+                    "", 
+                    "# Print the number of non-NA cells in the dataframe",
+                    "print(df.count().sum())"
+                ]
+            },
+            {
+                "title": "Counting Non-NA Cells for Each Column",
+                "shortTitle": "Non-NA count",
+                "paragraphs": [
+                    "If instead, we did want to count only the number of non-NA cells, not caring if the value is a number or not, we coudl use Pandas's `count()` method without converting the column to numeric first."
+                ],
+                "codeLines": [
+                    "# Count the number of non-NA cells in the column",
+                    "print(df['Column1'].count())"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While implementing the COUNT function in pandas, there are some common pitfalls. Here are some usual errors and their remedies."
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrectly Counting Non-NA Cells",
+                "shortTitle": "Count vs. Length",
+                "paragraphs": [
+                    "A common error is to use the `len()` function or the `size` attribute instead of the `count()` method. The size and length attributes include NaN values in the tally. Unlike Excel's COUNT, which only counts cells that can be converted to a number."
+                ],
+                "codeLines": [
+                    "# Incorrect",
+                    "total_cells = len(df['Column1'])",
+                    "",
+                    "# Correct",
+                    "non_na_cells = df['Column1'].count()"
+                ]
+            },
+            {
+                "title": "Overlooking String vs. Numeric Values",
+                "shortTitle": "Strings as numbers",
+                "paragraphs": [
+                    "Pandas treats string representations of numbers ('1') differently from actual numeric values (1). This distinction might cause discrepancies in count results if not handled properly."
+                ],
+                "codeLines": [
+                    "# Convert column to numeric, errors='coerce' transforms non-numeric values to NaN",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce')",
+                    "numeric_cells_count = df['Column1'].count()"
+                ]
+            },
+            {
+                "title": "Misusing nunique() and count()",
+                "shortTitle": "nunique vs. count",
+                "paragraphs": [
+                    "The `nunique()` method counts unique non-NA values, while `count()` tallies non-NA cells. Mixing up these methods can yield different results."
+                ],
+                "codeLines": [
+                    "# Incorrect: counts unique cells",
+                    "unique_cells = df['Column1'].nunique()",
+                    "",
+                    "# Correct: counts number of non-na cells",
+                    "non_na_cells = df['Column1'].count()"
+                ]
+            }
+        ]
+    }
+}

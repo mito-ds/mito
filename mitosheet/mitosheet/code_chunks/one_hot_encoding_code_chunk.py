@@ -4,7 +4,7 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code

@@ -83,9 +83,36 @@
     height: auto;
 }
 
+.post_content table {
+    border-collapse: collapse;
+    color: white;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden; 
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    font-size: 1.5rem;
+}
+
+.post_content table th,
+.post_content table td {
+  padding: 20px;
+  text-align: left;
+  border: none; 
+  border-bottom: 1.5px solid black; 
+}
+
+.post_content table thead {
+    background-color: black;
+    border-radius: 1rem;
+}
+
 @media only screen and (min-width: 50em) {
     .post_content blockquote {
         font-size: 1.5rem;
     }
     
+    .post_content table {
+        font-size: 1rem;
+    }
 }

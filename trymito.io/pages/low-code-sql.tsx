@@ -52,7 +52,7 @@ const LowCodeSQL: NextPage = () => {
                     Connect to your data sources, so you&apos;re always working with the most up to date data
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' align='center' displayProCTA={false}/>
+                    <CTAButtons variant='contact' align='center' displaySecondaryCTA={false}/>
                 </div>
                 <div id='video'>
                     <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>

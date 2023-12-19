@@ -1,0 +1,157 @@
+{
+    "slug": ["functions", "math", "COUNTIF"],
+    "functionNameShort": "COUNTIF",
+    "functionNameLong": "Count with Condition",
+    "relatedFunctions": ["SUMIF", "AVERAGEIF", "MAXIF"],
+    "purpose": "Count the number of cells that match a condition",
+    "titleCardParagraphs": [
+        "Excel's COUNTIF function is used to count the number of cells that meet a single condition within a range. It's a fundamental function for basic data analysis tasks.",
+        "This page provides examples on using Excem's COUNTIF's functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The COUNTIF function in Excel takes two arguments: a range of cells and a criterion that defines which cells to count. Excel's COUNTIF function is case insensitive.", 
+            "=COUNTIF(range, criteria)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "range",
+                "description": "The range of cells you want to apply the criteria to.",
+                "dataType": "range"
+            },
+            {
+                "parameter": "criteria",
+                "description": "The condition that determines which cells to count.",
+                "dataType": "conditional"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=COUNTIF(A1:A10, \">5\")",
+                "description": "Counts the number of cells in range A1:A10 that are greater than 5.",
+                "result": "Number of cells greater than 5"
+            },
+            {
+                "formula": "=COUNTIF(A1:A10, \"apple\")",
+                "description": "Counts the number of cells in range A1:A10 that are the word 'apple'.",
+                "result": "Number 'apple' cells"
+            },
+            {
+                "formula": "=COUNTIF(A1:A10, \"*apple*\")",
+                "description": "Counts the number of cells in range A1:A10 that contain the word 'apple' anywhere in the text.",
+                "result": "Number of cells with 'apple' in text"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the COUNTIF functionality in Python with pandas, you can use conditional expressions combined with the `sum` method to count the occurrences that match your specified conditions."
+        ],
+        "codeSections": [
+            {
+                "title": "Counting Based on a Single Condition",
+                "shortTitle": "Single condition",
+                "paragraphs": [
+                    "In pandas, you can count the number of times a certain condition is met within a column using a simple comparison and the `sum` method.",
+                    "For instance, the Excel formula =COUNTIF(A:A, \">5\") is equivalent to the following pandas code.",
+                    "This code snippet creates a boolean series where each item is True if the condition is met, and False otherwise. The sum method then counts the number of True values."
+                ],
+                "codeLines": [
+                    "# Count the cells greater than 5",
+                    "count = (df['A'] > 5).sum()"
+                ]
+            },
+            {
+                "title": "Counting the number of times each value appears in a column",
+                "shortTitle": "Creating a table",
+                "paragraphs": [
+                    "Let's say that you have the columns 'Category', 'Price', and 'Food'. You want to count how many times each category appears",
+                    "In Excel, you might create a list of unique categories in column D and then use the formula in column E: =COUNTIF(A:A, D1), dragging the formula down to the last category.",
+                    "In pandas, you can achieve the same result using a pivot table"
+                ],
+                "codeLines": [
+                    "# Create same dataframe",
+                    "df1 = pd.DataFrame({",
+                    "    'Category': ['Fruit', 'Fruit', 'Vegetable', 'Vegetable', 'Vegetable'],",
+                    "    'Price': ['Inexpensive', 'Expensive', 'Inexpensive', 'Inexpensive', 'Expensive'],",
+                    "    'Food': ['Apple', 'Orange', 'Spinach', 'Onion', 'Kale'],",
+                    "})",
+                    "",
+                    "# Create a new table that has two columns: Category and Category Count",
+                    "df2 = df1.pivot_table(index=['Category'], aggfunc={'Category': 'count'})",
+                    "",
+                    "# Rename the Category column to Category Count",
+                    "df2 = df2.rename(columns={'Category': 'Category Count'})",
+                    "",
+                    "# Reset the index",
+                    "df2 = df2.reset_index()"
+                ]
+            },
+            {
+                "title": "Counting the number of times each values appears, with a condition applied",
+                "shortTitle": "Creating a table with a condition",
+                "paragraphs": [
+                    "Let's say again that you have the columns 'Category', Price', and 'Food'. This time, you want to count how many times each category appears, but only if the price is 'Inexpensive'.",
+                    "In Excel, you would write the formula =COUNTIFS(A:A, D1, B:B, \"Inexpensive\") in column E, dragging the formula down to the last category.",
+                    "In pandas, you can achieve the same result using a pivot table with a filter applied."
+                ],
+                "codeLines": [
+                    "# Create same dataframe",
+                    "df1 = pd.DataFrame({",
+                    "    'Category': ['Fruit', 'Fruit', 'Vegetable', 'Vegetable', 'Vegetable'],",
+                    "    'Price': ['Inexpensive', 'Expensive', 'Inexpensive', 'Inexpensive', 'Expensive'],",
+                    "    'Food': ['Apple', 'Orange', 'Spinach', 'Onion', 'Kale'],",
+                    "})",
+                    "",
+                    "# Create a copy of the data first so we don't modify the original",
+                    "temp_df = df1.copy()",
+                    "",
+                    "# Filter the data to only include rows where the price is 'Inexpensive'",
+                    "temp_df = temp_df[temp_df['Price'] == 'Inexpensive']",
+                    "",
+                    "# Create a new table that has two columns: Category and Category Count",
+                    "df2 = temp_df.pivot_table(index=['Category'], aggfunc={'Category': 'count'})",
+                    "",
+                    "# Rename the Category column to Category Count",
+                    "df2 = df2.rename(columns={'Category': 'Category Count'})",
+                    "",
+                    "# Reset the index",
+                    "df2 = df2.reset_index()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using pandas to replicate the COUNTIF function"
+        ],
+        "codeSections": [
+            {
+                "title": "Using .count when you want to use .pivot_table with count aggregation",
+                "shortTitle": "count vs .pivot_table count",
+                "paragraphs": [
+                    "Often in Excel, you'll use COUNTIF to create a table of values, not just a single value. For instance, you might create a list of unique categories in column D and then use the formula in column E: =COUNTIF(A:A, D1), dragging the formula down to the last category.",
+                    "When you want to implement the same functionality in Python, you should use .pivot_table with a count aggreation instead of a single .count method.",
+                    "The pivot table will return a new dataframe with the count applied to each bucket of grouped data, while the .count method will return a single value."
+                ],
+                "codeLines": []
+            },
+            {
+                "title": "Expecting case insensitivity",
+                "shortTitle": "Case insensitivity",
+                "paragraphs": [
+                    "In Excel, COUNTIF is case insensitive. For instance, the formula =COUNTIF(A:A, \"apple\") will count both \"apple\" and \"Apple\".",
+                    "In pandas, however, the comparison is case sensitive. If you want to replicate the case insensitivity, you'll need to convert the column to lowercase before comparing it to the value you're looking for."
+                ],
+                "codeLines": [
+                    "# Convert to lowercase before comparing",
+                    "df['A'] = df['A'].str.lower()",
+                    "",
+                    "# Find the number of cells that contain 'apple'",
+                    "count = (df['A'] == 'apple').sum()"
+                ]
+            }
+        ]
+    }
+}
+               

@@ -35,7 +35,6 @@ import DeleteGraphsModal from './components/modals/DeleteGraphsModal';
 import ErrorModal from './components/modals/ErrorModal';
 import ErrorReplayedAnalysisModal from './components/modals/ReplayAnalysisModals';
 import SignUpModal from './components/modals/SignupModal';
-import UpgradeModal from './components/modals/UpgradeModal';
 import { ModalEnum } from './components/modals/modals';
 import AITransformationTaskpane, { AITransformationParams } from './components/taskpanes/AITransformation/AITransformationTaskpane';
 import CannotCreateCommTaskpane from './components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane';
@@ -62,7 +61,7 @@ import UpdateImportsTaskpane from './components/taskpanes/UpdateImports/UpdateIm
 import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/UserDefinedImportTaskpane';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
+import { AnalysisData, DFSource, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { getActions } from './utils/actions';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
@@ -545,12 +544,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                 />
             )
-            case ModalEnum.Upgrade: return (
-                <UpgradeModal
-                    setUIState={setUIState}
-                    mitoAPI={mitoAPI}
-                />
-            )
             case ModalEnum.ErrorReplayedAnalysis: return (
                 <ErrorReplayedAnalysisModal
                     setUIState={setUIState}
@@ -950,7 +943,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const getCurrTour = (): JSX.Element => {
 
         // If the user has either no or tutorial data in the tool, don't display the tour
-        if (analysisData.dataTypeInTool === DataTypeInMito.NONE || analysisData.dataTypeInTool === DataTypeInMito.TUTORIAL) {
+        if (sheetDataArray.length == 0) {
             return <></>;
         }
 

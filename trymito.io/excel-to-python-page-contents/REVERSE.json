@@ -1,0 +1,90 @@
+{
+    "slug": ["functions", "misc", "REVERSE"],
+    "functionNameShort": "REVERSE",
+    "functionNameLong": "Reversing Data",
+    "relatedFunctions": ["SORT", "MID", "FIND"],
+    "purpose": "Reverse the order of data in pandas",
+    "titleCardParagraphs": [
+        "Reversing data can be done at many different levels. You might want to reverse the order of a single value, a list, a pandas series, or an entire dataframe. This page offers a comprehensive guide to implementing Excel's data reversing functionalities in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "Excel does not have a direct REVERSE function, but similar outcomes can be achieved through creative uses other Excel formulas.",
+            "For example, if you wanted to reverse the text in A1, you could use the complicated formula: =TEXTJOIN(\"\", TRUE, MID(A1, LEN(A1) + 1 - ROW(INDIRECT(\"1:\" & LEN(A1))), 1)), which works by using the MID function to extract each character from the text in A1, starting from the end of the text and working backwards.",
+            "Or instead, if you wanted to reverse the order of cells A1:A10, you could first label each row with a number using the formula '=ROW()' in B1:B10. Then, you could sort the values in A1:A10 by arranging the values in B1:B10 in descending order. The formula would look like '=SORT(A1:B10, 2, -1)'.",
+            "The good news is that reversing data in pandas is much easier than in Excel."
+        ],
+        "syntaxTable": [],
+        "examplesTable": []
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, reversing data is straightforward and can be applied to different structures such as lists, DataFrames, or specific columns. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Reverse a single value",
+                "shortTitle": "Single value",
+                "paragraphs": [
+                    "Reversing a single value in Python is straighforward -- simply use slicing with [::-1].",
+                    "In the below example, if original_value = 'hello', then reversed_value = 'olleh'."
+                ],
+                "codeLines": [
+                    "reversed_value = original_value[::-1]"
+                ]
+            },
+            {
+                "title": "Reverse a list",
+                "shortTitle": "List reversal",
+                "paragraphs": [
+                    "Reversing an entire list in pandas is similar to reverseing a single value. Instead of applying the sliceing to a single value, apply it to the entire list!",
+                    "In the below example, if original_list = [1, 2, 3], then reversed_list = [3, 2, 1]."
+                ],
+                "codeLines": [
+                    "reversed_list = original_list[::-1]"
+                ]
+            },
+            {
+                "title": "Reverse every value in pandas series",
+                "shortTitle": "Series reversal",
+                "paragraphs": [
+                    "To reverse every value in a pandas series, apply the same string slicing method to the entire series using the .apply() function.",
+                    "In the below example, if df['A'] = ['hello', 'world'], then the reversed df['A'] = ['olleh', 'dlrow']."
+                ],
+                "codeLines": [
+                    "# Reverse every value in series",
+                    "df['A'] = df['A'].apply(lambda x: x[::-1])"
+                ]
+            },
+            {
+                "title": "Reverse an entire dataframe",
+                "shortTitle": "Full DataFrame reversal",
+                "paragraphs": [
+                    "Reversing the order of rows in a dataframe can be done using similar Python code. This time, instead of applying the slicing to the series, apply it to the entire dataframe.",
+                    "In the below example if df = {'A': [1, 2], 'B': [3, 4]}, then the reversed df = {'A': [2, 1], 'B': [4, 3]}."
+                ],
+                "codeLines": [
+                    "df = df[::-1].reset_index(drop=True)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While reversing data in pandas is generally straightforward, there are some common mistakes you might run into."
+        ],
+        "codeSections": [
+            {
+                "title": "Forgetting to Reset Index",
+                "shortTitle": "Index reset",
+                "paragraphs": [
+                    "After reversing a dataframe, the index order will also be reversed. However, its most common to operate on pandas Dataframes whose indexes are in ascending order starting from 0.",
+                    "In order to reset the index to the default ascending order, use the df.reset_index() function after reverssing the dataframe."
+                ],
+                "codeLines": [
+                    "df = df.iloc[::-1].reset_index(drop=True)"
+                ]
+            }
+        ]
+    }
+}
