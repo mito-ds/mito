@@ -8,9 +8,11 @@ const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
 };
 
 const importCSV = async (page: Page, mito: FrameLocator, filename: string): Promise<void> => {
-  // Case if there are 0 .tab 
   let tabCount = 0;
   try {
+    // If there are 0 tabs, this will throw an error, as the locator
+    // cannot find anything. As such, we leave tabCount as 0 in this
+    // case.
     tabCount = (await mito.locator('.tab').all()).length;
   } catch (e) {
     // The .tab element doesn't exist -- so we don't need to do anything
@@ -411,7 +413,7 @@ test.describe('Insert Tab Buttons', () => {
 
     await clickButtonAndAwaitResponse(page, mito, 'Anti-merge');
 
-    await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+    await checkOpenTaskpane(mito, 'Merge Dataframes');
     await expect(mito.getByText('unique in left')).toBeVisible();
     // We test anti-merge functionality elsewhere, so we skip here
   });

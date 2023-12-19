@@ -97,8 +97,6 @@ const DataframeImportScreen = (props: DataframeImportTaskpaneProps): JSX.Element
         )
     }
 
-    console.log("props.isUpdate", props.isUpdate)
-
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
