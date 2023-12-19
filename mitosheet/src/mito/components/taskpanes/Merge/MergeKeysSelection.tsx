@@ -27,12 +27,14 @@ const MergeKeysSelectionSection = (props: {
     /*
         If the merge key column IDs don't exist in the sheet, then we can't merge.
     */
-    const nonExistentMergeKeysOne = props.params.selected_column_ids_one.filter((mergeKeyColumnID) => {
-        return sheetDataOne.columnIDsMap[mergeKeyColumnID] === undefined;
-    });
-    const nonExistentMergeKeysTwo = props.params.selected_column_ids_two.filter((mergeKeyColumnID) => {
-        return sheetDataTwo.columnIDsMap[mergeKeyColumnID] === undefined;
-    });
+    const nonExistentMergeKeysOne = props.params.merge_key_column_ids
+        .map((mergeKeys) => mergeKeys[0])
+        .filter((mergeKeyColumnID) => sheetDataOne.columnIDsMap[mergeKeyColumnID] === undefined);
+    const nonExistentMergeKeysTwo = props.params.merge_key_column_ids
+        .map((mergeKeys) => mergeKeys[1])
+        .filter((mergeKeyColumnID) => sheetDataTwo.columnIDsMap[mergeKeyColumnID] === undefined);
+    
+    const nonExistentMergeKeys = [...nonExistentMergeKeysOne, ...nonExistentMergeKeysTwo]
     
     return (
         <div className="expandable-content-card">
@@ -124,15 +126,9 @@ const MergeKeysSelectionSection = (props: {
                 </p>    
             }
             {
-                nonExistentMergeKeysOne.length > 0 &&
+                nonExistentMergeKeys.length > 0 &&
                 <p className='text-color-error'>
-                    {`The column${nonExistentMergeKeysOne.join(', ')} does not exist in this sheet anymore. Delete it to make this pivot valid. `}
-                </p>
-            }
-            {
-                nonExistentMergeKeysTwo.length > 0 &&
-                <p className='text-color-error'>
-                    {`The column ${nonExistentMergeKeysTwo.join(', ')} does not exist in this sheet anymore. Delete it to make this pivot valid. `}
+                    {`The column ${nonExistentMergeKeys.join(', ')} does not exist in this sheet anymore. Delete it to make this merge valid. `}
                 </p>
             }
             <Spacer px={15}/>

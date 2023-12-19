@@ -24,6 +24,8 @@
     /* Color for errors and success */
     --mito-status-error: #CF0000;
     --mito-status-success: #10710D;
+    --mito-status-warning: #FAECC0;
+    --mito-status-warning-dark: #97683E;
 
     /* Colors used in recon */
     --mito-recon-created-background-color: #E4EFDC;

@@ -7,6 +7,7 @@ import { getDtypeValue } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeC
 import MultiToggleBox from './MultiToggleBox';
 import MultiToggleItem from './MultiToggleItem';
 import { Height } from './sizes.d';
+import CautionIcon from '../icons/CautionIcon';
 
 interface MultiToggleColumnsProps {
     sheetData: SheetData | undefined;
@@ -27,18 +28,30 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
     const columnIDsMap = props.sheetData?.columnIDsMap || {};
     const columnIDsAndDtype: [ColumnID, string][] = Object.entries(props.sheetData?.columnDtypeMap || {});
     const columnIDs: ColumnID[] = columnIDsAndDtype.map(([cid, ]) => {return cid});
+    console.log(columnIDsAndDtype)
+    const nonExistentColumnIDs = props.selectedColumnIDs.filter((columnID) => {
+        return columnIDsMap[columnID] === undefined;
+    });
+    const onlyOneMissingColumn = nonExistentColumnIDs.length > 0;
+    console.log('nonExistentColumnIDs', nonExistentColumnIDs)
 
     return (
-        <MultiToggleBox
-            searchable
-            onToggleAll={(newSelectedIndexes) => {
-                const newSelectedColumnIDs = newSelectedIndexes.map(index => {return columnIDs[index]});
-                props.onChange(newSelectedColumnIDs);
-            }}
-            height='medium'
-        >
-            <>
-                {columnIDsAndDtype.map(([columnID, columnDtype], index) => {
+        <>
+            {nonExistentColumnIDs.length > 0 &&
+                <div className='caution-text-wrapper'>
+                    <CautionIcon color='var(--mito-status-warning-dark)'/>
+                    <p className='caution-text'>The column{(onlyOneMissingColumn ? ' ' : 's ') + `${nonExistentColumnIDs.join(', ')}` + (onlyOneMissingColumn ? ' was' : ' were')} included in this merge but {onlyOneMissingColumn ? 'is' : 'are'} no longer available. Please review selections.</p>
+                </div> 
+            }
+            <MultiToggleBox
+                searchable
+                onToggleAll={(newSelectedIndexes) => {
+                    const newSelectedColumnIDs = newSelectedIndexes.map(index => {return columnIDs[index]});
+                    props.onChange(newSelectedColumnIDs);
+                }}
+                height='medium'
+            >
+                {[...columnIDsAndDtype.map(([columnID, columnDtype], index) => {
                     const columnHeader = columnIDsMap[columnID];
 
                     const toggle = props.selectedColumnIDs.includes(columnID);
@@ -64,9 +77,10 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
                             disabled={disabled}
                         />
                     ) 
-                })}
-            </>
-        </MultiToggleBox>
+                })
+            ]}
+            </MultiToggleBox>
+        </>
     )
 }
 

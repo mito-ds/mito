@@ -18,6 +18,26 @@
     background-color: var(--mito-background-off);
 }
 
+.caution-text-wrapper {
+    background-color: var(--mito-status-warning);
+    border: 1px solid var(--mito-status-warning-dark);
+    display: flex;
+    padding: 5px;
+    align-items: center;
+}
+
+.caution-text-wrapper svg {
+    height: 50px;
+    width: 50px;
+    height: 30px;
+    padding: 0 5px 0 0;
+}
+
+.caution-text {
+    color: var(--mito-status-warning-dark);
+    font-size: 11px;
+}
+
 .multi-toggle-box-row {
     display: flex;
     flex-direction: row;
