@@ -995,5 +995,4 @@ def test_pivot_then_edit_that_invalidates_steps_still_applies():
 
     mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
-    print(mito.dfs[1])
     assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [0], 'B': [0]}))

@@ -158,6 +158,7 @@ class StepPerformer(ABC, object):
         for optional_code_line in optional_code_lines or []:
             print("EXECUTING OPTIONAL CODE LINE", optional_code_line)
             # TODO: we should make it so it rolls back the state if this fails
+            # because we 
             try:
                 exec(optional_code_line, exec_globals, exec_locals)
                 print("EXECUTED OPTIONAL CODE LINE", exec_globals.get('df1_pivot'))

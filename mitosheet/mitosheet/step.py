@@ -165,7 +165,6 @@ class Step:
                     starting_index = len(previous_steps) - index - 1
                     break
                 elif step.step_type == 'pivot' and len(step.dfs) == destination_sheet_index + 1:
-                    print('found pivot step that created this pivot')
                     starting_index = len(previous_steps) - index - 1
                     break
             
@@ -178,7 +177,9 @@ class Step:
                 
                 all_code = []
                 for code_chunk in code_chunks:
+                    comment = '# ' + code_chunk.get_description_comment().strip().replace('\n', '\n# ')
                     import_lines, code_lines = code_chunk.get_code()
+                    all_code += ['', comment]
                     all_code += import_lines
                     all_code += code_lines
 
@@ -192,6 +193,13 @@ class Step:
             # If we don't get anything new back, then we just make this
             # step a no-op, and don't do anything
             (new_post_state, execution_data) = post_state_and_execution_data
+
+            # Another option is that we exec this code here. The benefit of this
+            # is that we don't mess with the pivot step at all, and this is 
+            # just general infrastructure in the proper sense
+
+            # Do we need to
+
         else:
             # Sometimes step execution returns None, which functionally means that 
             # nothing changed in the step (but we need not error). In this case, we
