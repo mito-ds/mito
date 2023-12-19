@@ -150,12 +150,20 @@ class StepPerformer(ABC, object):
         # but in practice is seems to work...
         exec_globals = get_globals_for_exec(post_state, post_state.public_interface_version)
         exec_locals = {**exec_globals}
+
+        print("exec_globals", exec_globals.get('df1_pivot'))
         
         pandas_start_time = perf_counter()
         exec(final_code, exec_globals, exec_locals)
 
         executed_optional_lines = []
         for optional_code_line in optional_code_lines or []:
+
+            # We don't need to exec spaces
+            if optional_code_line == '':
+                executed_optional_lines.append(optional_code_line)
+                continue
+
             print("EXECUTING OPTIONAL CODE LINE", optional_code_line)
             # TODO: we should make it so it rolls back the state if this fails
             # because we 
