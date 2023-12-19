@@ -457,3 +457,51 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(1);
   });
 });
+
+test.describe('Context Menus', () => {
+  test('Column Header', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await expect(mito.locator('.mito-dropdown')).not.toBeVisible();
+    await mito.getByTitle('Column1').click({ button: 'right' });
+    await expect(mito.locator('.mito-dropdown')).toBeVisible();
+  })
+
+  test('Index Header', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.locator('.endo-index-headers-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
+    await expect(mito.locator('.mito-dropdown')).toBeVisible();
+  })
+
+  test('Cell', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.locator('.endo-renderer-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
+    await expect(mito.locator('.mito-dropdown')).toBeVisible();
+  });
+
+  test('Cell (with multiple cells)', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.locator('.endo-renderer-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
+    await mito.locator('.endo-renderer-container').first().getByTitle('2', { exact: true }).click({ button: 'right' });
+    await expect(mito.locator('.mito-dropdown')).toBeVisible();
+  });
+
+  test('Open cell context menu then open column header context menu', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.locator('.endo-renderer-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
+    await expect(mito.locator('.mito-dropdown')).toBeVisible();
+    await mito.getByTitle('Column1').click({ button: 'right' });
+    await expect(mito.locator('.mito-dropdown')).toHaveCount(1);
+  });
+
+
+  test('Open sheet tab context menu then open number format dropdown', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByText('test').click({ button: 'right' });
+    await expect(mito.locator('.mito-dropdown')).toBeVisible();
+
+    await mito.getByText('Default').click();
+    await expect(mito.getByText('Currency')).toBeVisible();
+    await expect(mito.locator('.mito-dropdown')).toHaveCount(1)
+  });
+
+});
