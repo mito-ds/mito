@@ -1,78 +1,7 @@
-import { test, expect, Page, FrameLocator, Locator } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, importCSV } from './utils'
 
 test.describe.configure({ mode: 'parallel' });
-
-const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
-  await page.goto('http://localhost:8555/');
-  return page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]');
-};
-
-const importCSV = async (page: Page, mito: FrameLocator, filename: string): Promise<void> => {
-  let tabCount = 0;
-  try {
-    // If there are 0 tabs, this will throw an error, as the locator
-    // cannot find anything. As such, we leave tabCount as 0 in this
-    // case.
-    tabCount = (await mito.locator('.tab').all()).length;
-  } catch (e) {
-    // The .tab element doesn't exist -- so we don't need to do anything
-    // as tabCount is already 0
-  }
-
-  await mito.getByRole('button', { name: '▾ Import' }).click();
-  await mito.getByTitle('Import Files').getByText('Import Files').click();
-  await mito.getByText(filename).dblclick();
-
-  // Wait until the number of tabs has increased by 1
-  await expect(mito.locator('.tab')).toHaveCount(tabCount + 1);
-
-  await awaitResponse(page);
-  // Close the taskpane, by clicking default-taskpane-header-exit-button-div
-  await mito.locator('.default-taskpane-header-exit-button-div').click();
-
-}
-
-const getMitoFrameWithTestCSV = async (page: Page): Promise<FrameLocator> => {
-  const mito = await getMitoFrame(page);
-  await importCSV(page, mito, 'test.csv');
-  return mito;
-}
-
-const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator> => {
-  const mito = await getMitoFrame(page);
-  await importCSV(page, mito, 'types.csv');
-  return mito;
-}
-
-const awaitResponse = async (page: Page): Promise<void> => {
-  // Wait at least 25 ms for the message to send
-  await page.waitForTimeout(100);
-  // Then, wait for Streamlit to finish processing the message
-  await expect(page.getByText("Running")).toHaveCount(0);
-}
-
-const clickButtonAndAwaitResponse = async (page: Page, mito: FrameLocator, nameOrOptions: string | any): Promise<void> => {
-  const button = mito.getByRole('button', typeof nameOrOptions === 'string' ? { name: nameOrOptions} : nameOrOptions);
-  // Scroll button into view
-  await button.scrollIntoViewIfNeeded();
-  // Click button
-  await button.click();
-  await awaitResponse(page);
-}
-
-const checkOpenTaskpane = async (mito: FrameLocator, taskpaneName: string): Promise<void> => {
-  // Check there is a class default-taskpane-header-div, that contains a nested div with text "taskpaneName"
-  await expect(mito.locator('.default-taskpane-header-div').locator('div').filter({ hasText: new RegExp(taskpaneName) }).first()).toBeVisible();
-}
-
-const getColumnHeaderContainer = async (mito: FrameLocator, columnName: string): Promise<Locator> => {
-  return mito.locator('.endo-column-header-container').locator('div').filter({ hasText: columnName }).first();
-}
-
-const clickTab = async (page: Page, mito: FrameLocator, tabName: string): Promise<void> => {
-  // Button with .mito-toolbar-tabbar-tabname that has text tabName
-  await mito.locator('.mito-toolbar-tabbar-tabname').filter({ hasText: tabName }).first().click();
-}
 
 
 test('Can render Mito spreadsheet', async ({ page }) => {
@@ -261,7 +190,7 @@ test.describe('Home Tab Buttons', () => {
     await checkOpenTaskpane(mito, 'Create Pivot Table test_pivot');
 
     // Check new empty tab
-    await page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]').getByText('test_pivot', { exact: true }).click();
+    await mito.getByText('test_pivot', { exact: true }).click();
     await expect(mito.getByText('test_pivot', { exact: true })).toBeVisible();
     await expect(mito.getByText('No data in dataframe.')).toBeVisible();
     
