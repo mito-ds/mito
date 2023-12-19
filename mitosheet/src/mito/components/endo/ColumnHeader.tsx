@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FilterIcon } from '../icons/FilterIcons';
 import '../../../../css/endo/ColumnHeaders.css';
 import { DEFAULT_BORDER_STYLE, getBorderStyle, getIsCellSelected, getColumnIndexesInSelections} from './selectionUtils';
@@ -13,7 +13,7 @@ import { getColumnHeaderParts, getDisplayColumnHeader } from '../../utils/column
 import { DEFAULT_HEIGHT } from './EndoGrid';
 import { ControlPanelTab } from '../taskpanes/ControlPanel/ControlPanelTaskpane'
 import { submitRenameColumnHeader } from './columnHeaderUtils';
-import ColumnHeaderDropdown from './ColumnHeaderDropdown';
+import ColumnHeaderContextMenu from './ColumnHeaderContextMenu';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 import { Actions } from '../../utils/actions';
@@ -65,8 +65,6 @@ const ColumnHeader = (props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     actions: Actions;
 }): JSX.Element => {
-
-    const [openColumnHeaderDropdown, setOpenColumnHeaderDropdown] = useState(false);
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
     const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
@@ -202,8 +200,20 @@ const ColumnHeader = (props: {
             // see here: https://newbedev.com/prevent-drag-event-to-interfere-with-input-elements-in-firefox-using-html5-drag-drop
             draggable={!editingColumnHeader ? 'true' : 'false'}
             onContextMenu={(e) => {
+                if (e.shiftKey) {
+                    return;
+                }
                 e.preventDefault()
-                setOpenColumnHeaderDropdown(true);
+                props.setUIState((prevUiState) => {
+                    return {
+                        ...prevUiState,
+                        currOpenDropdown: {
+                            type: 'context-menu',
+                            rowIndex: -1,
+                            columnIndex: props.columnIndex
+                        }
+                    }
+                });
             }}
         >
             {lowerLevelColumnHeaders.map((lowerLevelColumnHeader, levelIndex) => {
@@ -423,15 +433,15 @@ const ColumnHeader = (props: {
                     </form>
                 }
             </div>
-            <ColumnHeaderDropdown
+            <ColumnHeaderContextMenu
                 mitoAPI={props.mitoAPI}
-                setOpenColumnHeaderDropdown={setOpenColumnHeaderDropdown}
+                column={props.columnIndex}
+                uiState={props.uiState}
                 setUIState={props.setUIState}
                 openColumnHeaderEditor={openColumnHeaderEditor}
                 sheetIndex={props.gridState.sheetIndex}
                 columnID={columnID}
                 columnDtype={columnDtype}
-                display={openColumnHeaderDropdown}
                 closeOpenEditingPopups={props.closeOpenEditingPopups} 
                 setEditorState={props.setEditorState}
                 sheetData={props.sheetData}

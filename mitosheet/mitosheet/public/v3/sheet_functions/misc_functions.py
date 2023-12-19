@@ -207,8 +207,9 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
             return None
         else:
             return matching_row.iloc[0, index-1]
-    
+
     value = get_series_from_primitive_or_series(lookup_value, where.index)
+
     value.name = 'lookup_value'
     indices_to_return_from_range = get_series_from_primitive_or_series(index, value.index)
 
@@ -238,6 +239,10 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
     # Then merge on the column we're looking up from, and the df we're looking up in.
     merged = pd.merge(value, where_deduplicated, left_on='lookup_value', right_on=where_first_column, how='left')
 
+    # Change the indexes back to the indexes of the lookup value so the results 
+    # can be added back to the calling dataframe.
+    merged.index = value.index
+    
     def get_value_at_index_in_row(row):
         try:
             return row.iloc[indices_to_return_from_range[row.name]]

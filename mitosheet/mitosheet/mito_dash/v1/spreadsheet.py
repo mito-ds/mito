@@ -301,7 +301,7 @@ try:
         
         def get_result(self):
             return SpreadsheetResult(
-                dfs=self.mito_backend.steps_manager.dfs,
+                dfs=[df.copy() for df in self.mito_backend.steps_manager.dfs],
                 code=self.mito_backend.steps_manager.code(),
                 index_and_selections=self.index_and_selections,
                 fully_parameterized_function=self.mito_backend.fully_parameterized_function,

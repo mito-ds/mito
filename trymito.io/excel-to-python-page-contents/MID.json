@@ -1,0 +1,154 @@
+{
+    "slug": ["functions", "text", "MID"],
+    "functionNameShort": "MID",
+    "functionNameLong": "Extract substring from middle",
+    "relatedFunctions": ["LEFT", "RIGHT", "LEN"],
+    "purpose": "Extract a number of characters from the middle of a string",
+    "titleCardParagraphs": [
+        "Excel's MID function allows you to extract a substring from a given string based on the start position and the number of characters. This can be incredibly handy for parsing structured text data.",
+        "This page shows you how to replicate the functionality of Excel's MID function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The MID function in Excel extracts a substring from the middle of a string .",
+            "=MID(text, start_num, num_chars)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The original string.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "start_num",
+                "description": "The starting position of the extraction.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "num_chars",
+                "description": "Number of characters to extract.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=MID(\"Hello, World!\", 8, 5)",
+                "description": "Extract 5 characters starting from the 8th character.",
+                "result": "World"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic Excel's MID function in Python using pandas, we utilize string slicing. The key is understanding the difference in indexing between Excel and Python. Whereas Excel is 1-indexed, Python is 0-indexed. This means that in Python, the first character in a string is at index 0, the second character is at index 1, and so on."
+        ],
+        "codeSections": [
+            {
+                "title": "Extracting Substrings from the Middle of Strings",
+                "shortTitle": "Middle Substrings",
+                "paragraphs": [
+                    "In Excel, you'd use =MID(A1, 5, 3) to extract three characters starting from the fifth character.",
+                    "In pandas, you can achieve this by combining the `.str` accessor with slicing. Remember, Python is 0-indexed:"
+                ],
+                "codeLines": [
+                    "# Extract 3 characters starting from the 5th character",
+                    "df['extracted'] = df['column'].str[4:7]"
+                ]
+            },
+            {
+                "title": "Extracting Prefixes",
+                "shortTitle": "Extracting Prefixes",
+                "paragraphs": [
+                    "In Excel, you can use =MID(A1, 1, 3) to extract the first three characters.",
+                    "In pandas, you can achieve this by omitting the start index in the slice:"
+                ],
+                "codeLines": [
+                    "# Extract the first three characters",
+                    "df['extracted'] = df['column'].str[:3]"
+                ]
+            },
+            {
+                "title": "Extracting Suffixes",
+                "shortTitle": "Extracting Suffixes",
+                "paragraphs": [
+                    "In Excel, you can use =MID(A1, 5, LEN(A1)) to extract all characters starting from the fifth character.",
+                    "In pandas, you can achieve this by omitting the end index in the slice:"
+                ],
+                "codeLines": [
+                    "# Extract all characters starting from the 5th character",
+                    "df['extracted'] = df['column'].str[4:]"
+                ]
+            },
+            {
+                "title": "Extracting Variable Length Substrings",
+                "shortTitle": "Variable Length Substrings",
+                "paragraphs": [
+                    "Let's say you have string in the format of 'FirstName LastName' and you want to extract the first name. In Excel, you can use a combination of the MID function and the FIND function to extract the first name. The formula would look like =MID(A1, 1, FIND(\" \", A1)-1). This formula finds the position of the space character, subtracts 1, and uses that as the length argument for the MID function.",
+                    "In pandas, you can achieve this by using the `.str.split()` method to split the string on the space character. The `split` function returns a list of string elements. In this case, the list will have two elements: the first name and the last name. Then, you can then use the `.str[]` accessor to extract the first element of the resulting list:"
+                ],
+                "codeLines": [
+                    "# Extract the first name",
+                    "df['A'].str.split(' ').str[0]"
+                ]
+            },
+            {
+                "title": "Extracting Area Codes from Phone Numbers",
+                "shortTitle": "Area Codes",
+                "paragraphs": [
+                    "Assuming phone numbers are stored in the format (123) 456-7890, in Excel, you might use =MID(A1, 2, 3) to extract the area code.",
+                    "To extract the area code in pandas, use string slicing in conjunction with the `.str` accessor:"
+                ],
+                "codeLines": [
+                    "df['area_code'] = df['phone_number'].str[1:4]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While the process to replicate the MID function in pandas is straightforward using string slicing, there are some potential pitfalls to be aware of. Here are some common mistakes:"
+        ],
+        "codeSections": [
+            {
+                "title": "Using 1-Indexing",
+                "shortTitle": "1-Indexing",
+                "paragraphs": [
+                    "Excel is 1-indexed, meaning the first character in a string is at index 1. Python is 0-indexed, meaning the first character in a string is at index 0. This means that if you want to extract the first three characters of a string, you'd use =MID(A1, 1, 3) in Excel and df['column'].str[0:3] (or df['column'].str[:3]) in pandas."
+                ],
+                "codeLines": [
+                    "# Extract the first three characters",
+                    "df['extracted'] = df['column'].str[0:3]"
+                ]
+            },
+            {
+                "title": "Non-String Data Types",
+                "shortTitle": "Data Type Issues",
+                "paragraphs": [
+                    "Attempting to use the MID functionality on non-string columns will lead to TypeErrors. Always ensure your column is of the string data type before attempting extraction."
+                ],
+                "codeLines": [
+                    "# Convert the column to string type",
+                    "df['column'] = df['column'].astype(str)",
+                    "",
+                    "Extract characters",
+                    "df['extracted'] = df['column'].str[start:start+length]"
+                ]
+            },
+            {
+                "title": "Not Handling NaN Values",
+                "shortTitle": "NaN Handling",
+                "paragraphs": [
+                    "By default, pandas will return NaN values if you attempt to apply string slicing to a NaN or None value. This is slightly different from Excel, which will return a blank cell, not #N/A if you attempt to apply the MID function to a blank cell.", 
+                    "To mimic Excel's behavior, you can use the `fillna()` method to replace NaN values with empty strings. "
+                ],
+                "codeLines": [
+                    "# Convert NaN values to empty strings",
+                    "df['column'].fillna('', inplace=True)",
+                    "",
+                    "Extract characters",
+                    "df['extracted'] = df['column'].str[start:start+length]"
+                ]
+            }
+        ]
+    }
+}

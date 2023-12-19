@@ -21,6 +21,7 @@ export const FormulaTabContents = (
         editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData;
+        mitoContainerRef: React.RefObject<HTMLDivElement>;
     }): JSX.Element => {
 
     /**
@@ -48,6 +49,7 @@ export const FormulaTabContents = (
             return (
                 <DropdownItem
                     title={functionObject.function}
+                    tooltip={functionObject.description}
                     key={functionObject.function}
                     supressFocusSettingOnClose
                     onClick={(e) => {
@@ -59,6 +61,7 @@ export const FormulaTabContents = (
                                 ...props.editorState,
                                 formula: `=${functionObject.function}(${currentFormula.startsWith('=') ? currentFormula.substring(1) : currentFormula}`,
                             })
+                            void (props.mitoContainerRef.current?.querySelector('#cell-editor-input') as HTMLElement).focus();
                         } else {
                             const rowIndex = props.gridState.selections[0].startingRowIndex;
                             const columnIndex = props.gridState.selections[0].startingColumnIndex;
@@ -86,16 +89,16 @@ export const FormulaTabContents = (
         return (
             <ToolbarButton action={props.actions.buildTimeActions[action]}> 
                 <Dropdown
-                    display={props.uiState.toolbarDropdown === toolbarDropdown}
+                    display={props.uiState.currOpenDropdown === toolbarDropdown}
                     closeDropdown={() => 
                         props.setUIState(prevUIState => {
-                            if (prevUIState.toolbarDropdown !== toolbarDropdown) {
+                            if (prevUIState.currOpenDropdown !== toolbarDropdown) {
                                 return prevUIState;
                             }
 
                             return {
                                 ...prevUIState,
-                                toolbarDropdown: undefined
+                                currOpenDropdown: undefined
                             }
                         })
                     }

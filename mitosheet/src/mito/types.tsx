@@ -721,7 +721,8 @@ export type UserDefinedFunctionParamNameToType = Record<UserDefinedFunctionParam
 export type UserDefinedFunction = {
     name: string,
     docstring: string,
-    parameters: UserDefinedFunctionParamNameToType
+    parameters: UserDefinedFunctionParamNameToType,
+    domain?: string
 }
 
 
@@ -794,6 +795,42 @@ export interface MitoConfig {
     [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
 }
 
+
+export interface KeyBinding {
+    keys: string[];
+    ctrlKey?: boolean;
+    altKey?: boolean;
+    shiftKey?: boolean;
+    metaKey?: boolean;
+}
+
+export interface KeyboardShortcut {
+    macKeyCombo: KeyBinding
+    winKeyCombo: KeyBinding
+    action: ActionEnum
+	
+    // Include this string so that you can automatically override some of the JL
+    // keybindings. For example, 'mitosheet:mito-undo' will add a keybinding for
+    // the command registered to that ID in plugin.tsx.
+    jupyterLabCommand?: string
+
+    /**
+     * Some keyboard shortcuts should only be triggered if the user is not in a text input. 
+     * For example. cmd+a should select the text in the input field, not select all the cells.
+     */
+    skipIfInTextInput?: boolean
+
+    /**
+     * Some keyboard shortcuts should only be triggered if the user does not have text selected.
+     * For example, cmd+c should copy the text in the input field, not copy the cells.
+     */
+    skipIfTextSelected?: boolean
+
+    // For some keybindings (ex: cmd + y), we'd want to stop propagation
+    // so that they don't open something in your browser
+    preventDefaultAndStopPropagation?: boolean
+}
+
 /**
  * An object represending this user
  * 
@@ -843,7 +880,22 @@ export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' }
 export interface CSVExportState extends ExportState { exportType: 'csv' }
 export interface ExcelExportState extends ExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type ToolbarDropdowns = 'Edit' | 'Dataframes' | 'Columns' | 'Rows' | 'Graphs' | 'Format' | 'Code' | 'View' | 'Custom Edits' | 'Help';
+
+export interface ContextMenu {
+    type: 'context-menu';
+    rowIndex: number;
+    columnIndex: number;
+}
+export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
+
+export interface DataTabImportDomainDropdown {
+    type: 'import-domain-dropdown';
+    domain: string;
+}
+
+
+export type OpenDropdownType = ToolbarDropdown | ContextMenu | DataTabImportDomainDropdown;
+
 
 export enum PopupType {
     EphemeralMessage = 'ephemeral_message',
@@ -873,10 +925,9 @@ export interface UIState {
     selectedSheetIndex: number;
     selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
-    currOpenToolbarDropdown: undefined | ToolbarDropdowns;
+    currOpenDropdown: undefined | OpenDropdownType;
     currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
-    toolbarDropdown: 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
@@ -890,6 +941,8 @@ export interface UIState {
 
 export interface SearchInfo {
     isOpen: boolean;
+    // Optionally specify whether the search bar should be expanded or not
+    isExpanded?: boolean;
     searchValue?: string;
     matches: {rowIndex: number; colIndex: number}[];
     currentMatchIndex: number;
@@ -924,6 +977,8 @@ export enum ActionEnum {
     Copy = 'copy',
     CopyCode = 'copy code',
     Delete = 'delete',
+    Delete_Row = 'delete row',
+    Delete_Col = 'delete column',
     Delete_Dataframe = 'delete dataframe',
     Delete_Graph = 'delete graph',
     Drop_Duplicates = 'drop duplicates',
@@ -934,6 +989,7 @@ export enum ActionEnum {
     Export_Dropdown = 'export dropdown',
     Fill_Na = 'fill na',
     Filter = 'filter',
+    FilterToCellValue = 'filter to cell value',
     Format_Number_Columns = 'format number columns',
     Fullscreen = 'fullscreen',
     Graph = 'graph',
@@ -954,12 +1010,17 @@ export enum ActionEnum {
     Formulas_Dropdown_Reference = 'reference formulas dropdown',
     Formulas_Dropdown_Custom = 'custom formulas dropdown',
     Formulas_Dropdown_More = 'more formulas dropdown',
-    OpenSearch = 'open search',
+    OpenFind = 'open search',
+    OpenFindAndReplace = 'open search and replace',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',
-    Currency_Format = 'set format to currency',
-    Percent_Format = 'set format to percent',
+    Set_Format_Currency = 'set format to currency',
+    Set_Format_Percent = 'set format to percent',
+    Set_Format_Default = 'set format to default',
+    Set_DateTime_Dtype = 'set datetime type',
+    Set_Format_Scientific = 'set format to scientific notation',
+    Set_Format_Number = 'set format to number (two decimal places)',
     Promote_Row_To_Header = 'promote row to header',
     Redo = 'redo',
     Rename_Column = 'rename column',
@@ -967,7 +1028,9 @@ export enum ActionEnum {
     Rename_Graph = 'rename graph',
     See_All_Functionality = 'see all functionality',
     Schedule_Github = 'schedule github',
-    //Search = 'search',
+    Select_Columns = 'select columns',
+    Select_Rows = 'select rows',
+    Select_All = 'select all',
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
@@ -981,6 +1044,8 @@ export enum ActionEnum {
     Transpose = 'transpose',
     Melt = 'melt',
     One_Hot_Encoding = 'one_hot_encoding',
+    Open_Next_Sheet = 'open next sheet',
+    Open_Previous_Sheet = 'open previous sheet',
     Set_Dataframe_Format = 'set_dataframe_format',
     Conditional_Formatting = 'ConditionalFormatting',
     Dataframe_Import = 'Dataframe_Import',
@@ -1004,13 +1069,17 @@ export interface BaseAction<Type, StaticType> {
     staticType: StaticType;
     // The short title for the action. Should be title case, as you want to display it.
     // If undefined, the toolbar will not display a title in the toolbar. 
-    toolbarTitle?: string
+    titleToolbar?: string
 
     // The optional long title for the action.
-    longTitle: string
+    longTitle: string;
+
+    titleContextMenu?: string;
 
     // The optional icon to display for the action
-    icon?: React.FC<any>;
+    iconToolbar?: React.FC<any>;
+
+    iconContextMenu?: React.FC<any>;
 
     /* 
         The function to call if the action is taken by the user. This should
@@ -1041,15 +1110,13 @@ export interface BaseAction<Type, StaticType> {
     // The tooltip to display in the toolbar or search bar when this is hovered over
     tooltip: string
 
-
-    // If this action has a keyboard shortcut, then you can display this by setting these values
-    displayKeyboardShortcuts?: {
-        mac: string,
-        windows: string
-    }
-
     // If this action is only available for pro users
     requiredPlan?: 'pro' | 'enterprise'
+
+    // If this action is in the context of a specific domain, then you can set this
+    // This is useful for user defined functions, importers, or editors, which 
+    // can be then grouped by domain in the UI
+    domain?: string
 }
 export type BuildTimeAction = BaseAction<'build-time', ActionEnum>
 export type RunTimeAction = BaseAction<'run-time', string>

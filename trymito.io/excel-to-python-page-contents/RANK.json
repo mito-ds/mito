@@ -1,0 +1,130 @@
+{
+    "slug": ["functions", "misc", "RANK"],
+    "functionNameShort": "RANK",
+    "functionNameLong": "Ranking",
+    "relatedFunctions": ["COUNT", "SUM"],
+    "purpose": "Returns the rank of a number in a list of numbers.",
+    "titleCardParagraphs": [
+        "Excel's RANK function assigns a rank to a number from a list. The rank can be either in ascending or descending order and can handle ties and missing values.",
+        "This page demonstrates how to replicate the RANK function from Excel in Python using pandas"
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The RANK function in Excel provides the rank of a number within a list of numbers.",
+            "By default, Excel's RANK formula: ranks numbers so that smallest number has the largest rank, gives ties the same ranking, let's the presence of ties affect subsequent rankings, and ignores blank cells",
+            "=RANK(number, ref, [order])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number",
+                "description": "The number whose rank you want to find.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "ref",
+                "description": "An array or range of numbers to find the rank within.",
+                "dataType": "range"
+            },
+            {
+                "parameter": "order",
+                "description": "(Optional) Specify how to rank the number. Use 0 for descending and anything else for ascending.",
+                "dataType": "number"
+            }
+        ], 
+        "examplesTable": [
+            {
+                "formula": "=RANK(3, A1:A10})",
+                "description": "Returns the rank of 3 in the range A1: A10.",
+                "result": "number between 1 and 10"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, the `rank()` method offers similar functionality to Excel's RANK function. Below are some common implementations and how they correspond to Excel's operations."
+        ],
+        "codeSections": [
+            {
+                "title": "Exactly like Excel's RANK",
+                "shortTitle": "Excel's RANK",
+                "paragraphs": [
+                    "Excel's RANK formula: ranks numbers in ascending order by default, gives ties the same ranking, let's the presence of ties affect subsequent rankings, and ignores blank cells",
+                    "To implement this logic in Pandas, use the `rank()` function."
+                ],
+                "codeLines": [
+                    "df['Rank'] = df['Column1'].rank(ascending=False)"
+                ]
+            },
+            {
+                "title": "Ranking in Ascending Order with Ties",
+                "shortTitle": "Descending with Ties",
+                "paragraphs": [
+                    "To flip the order of the ranking, set the `ascending` parameter to True, or omit it."
+                ],
+                "codeLines": [
+                    "df['Rank'] = df['Column1'].rank()"
+                ]
+            },
+            {
+                "title": "Rank with NaN Values",
+                "shortTitle": "Rank with NaN",
+                "paragraphs": [
+                    "By default, NaN values are assigned a rank of NaN in pandas, similar to how Excel's RANK treats blank cells.",
+                    "However, if you wanted to include the NaN values in the ranking so that they count as the minimum value in the data, you can set the na_option parameter to 'bottom'. Or, if you wanted to if you wanted the NaN values to count as the maximum in the data, you can set the na_option parameter to 'top'."
+                ],
+                "codeLines": [
+                    "df['Rank'] = df['Column1'].rank(ascending=False, na_option='bottom')"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While ranking data in pandas can be intuitive, there are pitfalls that users may encounter. Here are some common mistakes and their solutions."
+        ],
+        "codeSections": [
+            {
+                "title": "Not Setting Ascending Parameter",
+                "shortTitle": "Ascending Parameter",
+                "paragraphs": [
+                    "By default, pandas ranks in ascending order. If you want to rank in descending order, you must explicitly set the `ascending` parameter.",
+                    "In Excel, the default if you dont' set the order parameter is `descending`. It is reverse in Pandas, so you must set the `ascending` parameter to False to get the same behavior.",
+                    "Ensure you set the `ascending` parameter appropriately in pandas."
+                ],
+                "codeLines": [
+                    "df['Rank_Desc'] = df['Column1'].rank(ascending=False)"
+                ]
+            },
+            {
+                "title": "Not Handling Ties Properly",
+                "shortTitle": "Handling Ties",
+                "paragraphs": [
+                    "Pandas offers different methods to handle ties. Not specifying the method can lead to unexpected ranking behavior.",
+                    "In Excel, ties are ranked by giving the same rank to duplicate values and adjusting subsequent ranks.",
+                    "Ensure you set the `method` parameter in pandas to handle ties as desired."
+                ],
+                "codeLines": [
+                    "df['Rank_Ties'] = df['Column1'].rank(method='min')"
+                ]
+            },
+            {
+                "title": "Expecting Rank to Start from Zero",
+                "shortTitle": "Starting from Zero",
+                "paragraphs": [
+                    "In pandas, ranks start from 1, similar to Excel. If you're expecting 0-based indexing, this can cause confusion."
+                ],
+                "codeLines": [
+                    "df['Rank'] = df['Column1'].rank()"
+                ]
+            },
+            {
+                "title": "Misinterpreting NaN Ranks",
+                "shortTitle": "NaN Ranks",
+                "paragraphs": [
+                    "In pandas, NaN values in the data result in NaN ranks. This is similar in Excel to how blank cells or #N/A values are given #N/A ranks."
+                ],
+                "codeLines": []
+            }
+        ]
+    }
+}

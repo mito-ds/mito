@@ -1,0 +1,207 @@
+.main {
+    align-items: flex-start !important; 
+    position: relative;
+}
+
+.content_and_table_of_contents_container {
+    width: 100%;
+}
+
+.title_card {
+    padding-top: 4rem;
+}
+
+.title_card > *:not(:last-child) {
+    margin-bottom: 2rem;
+}
+
+.section {
+    align-items: flex-start !important;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.section + .section {
+    margin-top: 4rem;
+}
+
+.related_functions_card {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
+
+.related_functions_card * {
+    margin-right: 10px;
+}
+
+.section_h3_tag {
+    font-family: Graphik;
+    font-style: normal;
+    font-weight: 400;
+    margin-top: 2rem;
+    font-size: 2rem;
+}
+
+.excel_to_python_table {
+    border-collapse: collapse;
+    color: white;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden; 
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    font-size: 1.5rem;
+}
+
+.excel_to_python_table th,
+.excel_to_python_table td {
+  padding: 20px;
+  text-align: left;
+  border: none; 
+  border-bottom: 1.5px solid black; 
+}
+
+.excel_to_python_table thead {
+    background-color: black;
+    border-radius: 1rem;
+}
+
+.link {
+    position: relative;
+    padding-right: 3rem; /* Leave room for the copy # to appear without overwriting the text */
+    display: flex;
+    align-items: flex-start
+}
+
+.section_copy {
+    display: none;
+    margin-left: 1rem;
+    color: var(--color-purple);
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+.cta_card {
+    margin-top: 4rem;
+}
+
+.excel_to_python_glossary_content {
+    width: 100%;
+}
+
+/* 
+    Don't dispaly the table of contents on mobile because there
+    is not enough space
+*/
+.table_of_contents_container {
+    display: none;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.glossary_page_card_container {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    background-color: var(--color-light-background);
+    border-radius: 5px;
+    padding: 2rem;
+    width: 100%;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+.glossary_page_card_container:hover {
+    background-color: var(--color-light-background-accent);
+}
+
+
+.glossary_page_card_function_name {
+    color: var(--color-purple);
+    font-size: 2.5rem;
+    margin-top: 0rem;
+}
+
+.glossary_page_card_container p {
+    margin-top: 0;
+}
+
+.glossary_function_category_header {
+    width: 100%;
+    margin-left: 5px;
+}
+
+
+
+@media only screen and (min-width: 50em) {
+
+    .content_and_table_of_contents_container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .table_of_contents_container {
+        display: block;
+        position: sticky;
+        top: 200px;
+        right: 0px;
+        width: 20%;
+        padding: 2rem 1rem;
+        height: fit-content;
+    }
+
+    .excel_to_python_glossary_content {
+        padding: 0 1rem;
+        width: 75%;
+    }
+    
+    .excel_to_python_table {
+        width: 80%;
+        font-size: 1rem;
+    }
+
+    h2 .section_copy {
+        font-size: 2rem;
+    }
+
+    h3 .section_copy {
+        font-size: 1.5rem;
+    }
+
+    h2:hover .section_copy,
+    h3:hover .section_copy {
+        display: inline; 
+    }
+
+    .cta_functionality_card {
+        flex-direction: row;
+        justify-content: space-evenly;
+        max-width: 80rem;
+    }
+
+    .section_h3_tag {
+        font-size: 1.25rem;
+    }
+
+    .glossary_page_card_container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .glossary_page_card_function_name {
+        font-size: 1.5rem;
+        margin-right: 10px;
+    }
+
+    .cta_card_title_text {
+        font-size: 2rem;
+    }
+
+}
+
+

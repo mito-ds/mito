@@ -15,8 +15,6 @@ declare global {
   interface Window { Prism: any; }
 }
 
-
-
 // PostPage page component
 const PostPage = (props: {post: PostOrPage}) => {
   // Render post title and content in the page from props
@@ -32,11 +30,14 @@ const PostPage = (props: {post: PostOrPage}) => {
   const authorName = props.post.primary_author?.name;
   const pulishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
 
-
   return (
     <>
       <Head>
           <title>{props.post.title} | Mito </title>
+          <meta
+            name="description"
+            content={props.post.meta_description || props.post.excerpt?.slice(0, 99)}
+          />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
         

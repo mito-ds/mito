@@ -75,6 +75,19 @@
   flex-direction: row;
   overflow-x: scroll;
   min-height: 60px;
+
+  
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.mito-toolbar-bottom::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.mito-toolbar-bottom {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 .mito-toolbar-bottom-left-half {
@@ -157,6 +170,7 @@
 .mito-toolbar-tabbar-tabname span {
   font-size: 14px;
   user-select: none;
+  white-space: nowrap;
 }
 
 .mito-toolbar-tabbar-tabname:hover span {
@@ -195,9 +209,18 @@
 
 .mito-toolbar-button-label {
   font-size: 11px;
-  height: 13px;
+  
   text-align: center !important;
   min-width: 35px;
+  width: min-content;
+  
+  /* In notebook, the line height is set higher, so we need to set it back to normal */
+  line-height: normal;
+
+  /* Make sure the text doesn't go more than two lines */
+  overflow: hidden;
+  height: auto;
+  max-height: 27px;
 }
 
 .toolbar-vertical-line {
@@ -229,9 +252,9 @@
   height: 18px;
 }
 
-.mito-toolbar-button-label {
-  width: min-content;
-  height: auto;
+/* This removes the underline that's automatically added to links */
+.mito-container a.mito-plan-button {
+  text-decoration: none;
 }
 
 .mito-toolbar-button span {
@@ -349,9 +372,4 @@
 .mito-toolbar-save-indicator path {
   stroke: var(--mito-text-medium)!important;
   stroke-width: 0.75px;
-}
-
-#mito-editor-tab .mito-toolbar-button-label {
-  overflow: hidden;
-  max-height: 27px;
 }

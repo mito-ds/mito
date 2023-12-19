@@ -16,8 +16,6 @@ export const CodeTabContents = (
     const [clickedCopy, setClickedCopy] = React.useState(false);
 
     return (<div className='mito-toolbar-bottom'>
-        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.CODEOPTIONS]}/>
-        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}/>
         <ToolbarButton
             onClick={() => {
                 setClickedCopy(true);
@@ -26,6 +24,8 @@ export const CodeTabContents = (
             iconOverride={<CopyCodeIcon success={clickedCopy}/>}
             action={props.actions.buildTimeActions[ActionEnum.CopyCode]}
         />
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.CODEOPTIONS]}/>
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}/>
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Schedule_Github]}/>
     </div>);
 }

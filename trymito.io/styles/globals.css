@@ -71,10 +71,20 @@ body {
   font-size: 8px;
 
   /* 
-    We ensure that there is no horizontal scrolling, 
-    especially useful for the tweets section!
-  */
+    Overflow-x: hidden was important for the Tweets section to work properly. It cut the tweets off at the border of the page
+    instead of expanding the page, eww!
+
+    However, in order to make the Excel to Python table of contents work properly, using position: sticky, we had to remove overflow:hidden. 
+    The position: sticky was not working properly because: 
+
+    1. position: sticky; is not functioning because it's within a container that has a parent (body in this case) with overflow: hidden;. 
+    The overflow: hidden; style on the body creates a new block formatting context that prevents position: sticky; from working as it's supposed to.
+
+    2. The overflow: visible; on the immediate parent of the sticky element doesn't negate the overflow: hidden; on the body. 
+    It's the overflow: hidden; on the body that's causing the issue.
+    
   overflow-x: hidden;
+  */
   width: 100vw;
 
   /* 

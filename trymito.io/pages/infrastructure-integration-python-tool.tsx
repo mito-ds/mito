@@ -39,7 +39,7 @@ const InfrastructureIntegrationPythonTool: NextPage = () => {
                 </p>
                     
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' align='center' displayProCTA={false}/>
+                    <CTAButtons variant='contact' align='center' displaySecondaryCTA={false}/>
                 </div>
                     
                 <div id='video'>

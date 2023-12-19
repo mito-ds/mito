@@ -1,0 +1,4 @@
+.item:hover {
+    color: var(--color-purple);
+    cursor: pointer;
+}

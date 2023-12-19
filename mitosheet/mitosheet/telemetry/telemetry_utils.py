@@ -74,7 +74,6 @@ def telemetry_turned_on() -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
-
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
         return False
@@ -359,7 +358,6 @@ def identify() -> None:
         UJ_FEEDBACKS: feedbacks,
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
-
 
     if not is_running_test():
 

@@ -131,6 +131,15 @@
     box-sizing: border-box;
 }
 
+.tab-content p {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari, Chrome, Opera, Samsung */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Edge, IE */
+    user-select: none; /* Modern browsers */
+}
+
 .tab-content > * + * {
     /* Evenly space all of the tab-contents children */
     margin-left: 5px;

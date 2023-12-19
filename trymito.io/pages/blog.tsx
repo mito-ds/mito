@@ -83,6 +83,7 @@ export default function Page(props: {posts: PostsOrPages}) {
       <Head>
         <title>Blog, FAQs and Resources | Mito </title>
         <meta name="description" content="The Mito blog provides resources for training spreadsheet users on Python, helping Excel users learn Python, and helps your team automate repetative spreadsheet processes. | Mito" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
       <Header/>

@@ -47,6 +47,13 @@ jobs:
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
         npm run test:jupyterlab
+    - name: Upload test-results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: jupyterlab-playwright-report
+        path: tests/playwright-report/
+        retention-days: 14
 
   test-mitosheet-frontend-streamlit:
     runs-on: ubuntu-20.04
@@ -54,6 +61,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10']
+        run_count: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     steps:
     - name: Cancel Previous Runs
@@ -87,6 +95,13 @@ jobs:
         source venv/bin/activate
         streamlit run streamlit-test.py --server.port 8555 &
         npm run test:streamlit
+    - name: Upload test-results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: streamlit-playwright-report
+        path: tests/playwright-report/
+        retention-days: 14
 
   test-mitosheet-frontend-dash:
     runs-on: ubuntu-20.04

@@ -74,7 +74,7 @@ export const Toolbar = (
                 return <ToolbarButton
                     action={action}
                     key={action.staticType}
-                    iconOverride={action.icon === undefined ? <EditIcon/> : undefined}
+                    iconOverride={action.iconToolbar === undefined ? <EditIcon/> : undefined}
                 />
             })}
         </div>
@@ -113,7 +113,7 @@ export const Toolbar = (
                     }
                     <ToolbarButton
                         id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
-                        action={props.actions.buildTimeActions[ActionEnum.OpenSearch]}
+                        action={props.actions.buildTimeActions[ActionEnum.OpenFind]}
                     />
                     <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Steps]} />
                     <ToolbarButton

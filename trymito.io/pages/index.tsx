@@ -3,7 +3,6 @@ import Image from 'next/image'
 import Head from 'next/head'
 import Footer from '../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
-import Tweets from '../components/Tweets/Tweets';
 import homeStyles from '../styles/Home.module.css'
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
@@ -120,7 +119,7 @@ const Home: NextPage = () => {
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
               <div className={textImageSplitStyles.functionality_text}>
                 <h2>
-                  All in <span className='text-color-jupyter-orange'>Jupyter</span> and <span className='text-color-streamlit-red'>Streamlit</span>
+                  All in <span className='text-color-jupyter-orange'>Jupyter</span>, <span className='text-color-streamlit-red'>Streamlit</span>, and <span className='text-highlight'>Dash</span>
                 </h2>
                 <p className='display-mobile-only'> 
                   Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
@@ -157,7 +156,7 @@ const Home: NextPage = () => {
                   Turn one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
                 </p>
                 <p className={pageStyles.link}>
-                  <Link href="/data-apps" >
+                  <Link href="/data-app" >
                     Learn more about Mito in Streamlit →
                   </Link>
                 </p>
@@ -208,21 +207,6 @@ const Home: NextPage = () => {
             <div className={homeStyles.case_study_headshot}>
               <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
             </div>
-          </section>
-
-          <section className={homeStyles.tweet_section}>
-            <div className={homeStyles.tweet_section_header + ' center'}>
-              <h2>
-                Mito is the go-to Python tool at the largest banks in the world
-              </h2>
-              <h3 className={titleStyles.description + ' display-desktop-only-inline-block'}>
-                See why Mito is ranked as one of the top Python libraries of 2023
-              </h3>
-              <p>
-                 <Link href='/customers'><a className={pageStyles.link}>Read how analysts at the largest financial institutions use Mito to save hours per week →</a></Link>
-              </p>
-            </div>
-            <Tweets />
           </section>
 
           <section className={homeStyles.open_source_section}>

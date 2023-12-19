@@ -2,9 +2,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-right: 5px;
+    padding: 10px;
     box-sizing: border-box;
     overflow: hidden;
     color: var(--mito-text);
@@ -30,7 +28,23 @@
     width: 100%;
     display: flex;
     flex-direction: row;
-    padding-right: 10px;
+}
+
+.mito-dropdown-item-icon-and-title-container .mito-dropdown-item-icon-container {
+    padding-right: 7px;
+}
+
+.mito-dropdown-item-icon-and-title-container .mito-dropdown-item-title-and-shortcut-container {
+    display: flex;
+    flex-direction: row;
+    place-content: center space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.mito-dropdown-item-icon-container path {
+    width: 13px;
+    stroke-width: 1;
 }
 
 .mito-dropdown-item-icon-container {
@@ -41,15 +55,13 @@
 
     /* Must be the same width as the .mito-dropdown-item-subtext-container */
     width: 18px;
+    height: 15px;
     flex-shrink: 0;
 }
 
 .mito-dropdown-item-subtext-container {
     margin-top: 4px;
 
-    /* Must be the same width as the .mito-dropdown-item-icon-container */
-    margin-left: 18px; 
-    
     cursor: default;
 }
 
