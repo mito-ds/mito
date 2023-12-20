@@ -13,8 +13,8 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
     Displays a set of actions one can perform on a graph sheet tab, including
     deleting, duplicating, or renaming.
 */
-export default function GraphSheetTabActions(props: {
-    setDisplayActions: React.Dispatch<React.SetStateAction<boolean>>,
+export default function GraphSheetTabContextMenu(props: {
+    setDisplayActions: (display: boolean) => void,
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
