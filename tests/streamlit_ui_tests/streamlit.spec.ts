@@ -464,18 +464,21 @@ test.describe('Context Menus', () => {
     await expect(mito.locator('.mito-dropdown')).not.toBeVisible();
     await mito.getByTitle('Column1').click({ button: 'right' });
     await expect(mito.locator('.mito-dropdown')).toBeVisible();
+    await expect(mito.locator('.mito-dropdown')).toHaveText(/Sort A to Z/);
   })
 
   test('Index Header', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await mito.locator('.endo-index-headers-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
     await expect(mito.locator('.mito-dropdown')).toBeVisible();
+    await expect(mito.locator('.mito-dropdown')).toHaveText(/Reset Index/);
   })
 
   test('Cell', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await mito.locator('.endo-renderer-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
     await expect(mito.locator('.mito-dropdown')).toBeVisible();
+    await expect(mito.locator('.mito-dropdown')).toHaveText(/Copy/);
   });
 
   test('Cell (with multiple cells)', async ({ page }) => {
@@ -483,14 +486,19 @@ test.describe('Context Menus', () => {
     await mito.locator('.endo-renderer-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
     await mito.locator('.endo-renderer-container').first().getByTitle('2', { exact: true }).click({ button: 'right' });
     await expect(mito.locator('.mito-dropdown')).toBeVisible();
+    await expect(mito.locator('.mito-dropdown')).toHaveText(/Copy/);
   });
 
   test('Open cell context menu then open column header context menu', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await mito.locator('.endo-renderer-container').first().getByTitle('1', { exact: true }).click({ button: 'right' });
     await expect(mito.locator('.mito-dropdown')).toBeVisible();
+    await expect(mito.locator('.mito-dropdown')).toHaveText(/Copy/);
+
+    // Open the column header context menu and check for the contents
     await mito.getByTitle('Column1').click({ button: 'right' });
     await expect(mito.locator('.mito-dropdown')).toHaveCount(1);
+    await expect(mito.locator('.mito-dropdown')).toHaveText(/Sort A to ZSort Z to A/);
   });
 
 
@@ -498,10 +506,11 @@ test.describe('Context Menus', () => {
     const mito = await getMitoFrameWithTestCSV(page);
     await mito.getByText('test').click({ button: 'right' });
     await expect(mito.locator('.mito-dropdown')).toBeVisible();
+    await expect(mito.locator('.mito-dropdown')).toHaveText(/Create graph/);
 
     await mito.getByText('Default').click();
     await expect(mito.getByText('Currency')).toBeVisible();
-    await expect(mito.locator('.mito-dropdown')).toHaveCount(1)
+    await expect(mito.locator('.mito-dropdown')).toHaveCount(1);
   });
 
 });
