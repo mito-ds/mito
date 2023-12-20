@@ -32,7 +32,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
     const nonExistentColumnIDs = props.selectedColumnIDs.filter((columnID) => {
         return columnIDsMap[columnID] === undefined;
     });
-    const onlyOneMissingColumn = nonExistentColumnIDs.length > 0;
+    const onlyOneMissingColumn = nonExistentColumnIDs.length === 1;
 
     return (
         <div onMouseDown={() => {

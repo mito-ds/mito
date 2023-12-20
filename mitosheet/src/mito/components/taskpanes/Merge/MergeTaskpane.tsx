@@ -205,7 +205,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                 {params.how !== MergeType.UNIQUE_IN_RIGHT &&
                     <MultiToggleColumns
                         sheetData={sheetDataOne}
-                        selectedColumnIDs={params.selected_column_ids_one.concat(mergeKeyColumnIDsOne)}
+                        selectedColumnIDs={params.selected_column_ids_one}
                         disabledColumnIDs={mergeKeyColumnIDsOne}
                         onChange={(newSelectedColumnIDs: ColumnID[]) => {
                             setParams(oldDropDuplicateParams => {
@@ -230,7 +230,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     {params.how !== MergeType.UNIQUE_IN_LEFT && 
                         <MultiToggleColumns
                             sheetData={sheetDataTwo}
-                            selectedColumnIDs={params.selected_column_ids_two.concat(mergeKeyColumnIDsTwo)}
+                            selectedColumnIDs={params.selected_column_ids_two}
                             disabledColumnIDs={mergeKeyColumnIDsTwo}
                             onChange={(newSelectedColumnIDs: ColumnID[]) => {
                                 setParams(oldDropDuplicateParams => {
