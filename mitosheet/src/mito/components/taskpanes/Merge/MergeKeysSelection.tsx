@@ -33,8 +33,6 @@ const MergeKeysSelectionSection = (props: {
         .map((mergeKeys) => mergeKeys[1])
         .filter((mergeKeyColumnID) => sheetDataTwo.columnIDsMap[mergeKeyColumnID] === undefined);
     
-    const nonExistentMergeKeys = [...nonExistentMergeKeysOne, ...nonExistentMergeKeysTwo]
-    
     return (
         <div className="expandable-content-card">
             <Row suppressTopBottomMargin>
@@ -125,9 +123,15 @@ const MergeKeysSelectionSection = (props: {
                 </p>    
             }
             {
-                nonExistentMergeKeys.length > 0 &&
+                nonExistentMergeKeysOne.length > 0 &&
                 <p className='text-color-error'>
-                    {`The column ${nonExistentMergeKeys.join(', ')} does not exist in this sheet anymore. Delete it to make this merge valid. `}
+                    {`The column ${nonExistentMergeKeysOne.join(', ')} does not exist in ${sheetDataOne.dfName} anymore. Delete it to make this merge valid. `}
+                </p>
+            }
+            {
+                nonExistentMergeKeysTwo.length > 0 &&
+                <p className='text-color-error'>
+                    {`The column ${nonExistentMergeKeysTwo.join(', ')} does not exist in ${sheetDataTwo.dfName} anymore. Delete it to make this merge valid. `}
                 </p>
             }
             <Spacer px={15}/>
