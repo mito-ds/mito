@@ -46,7 +46,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
             }
         }}>
             {(nonExistentColumnIDs.length > 0 && !hasClicked) &&
-                <div className='caution-text-wrapper'>
+                <div className='caution-text-container'>
                     <CautionIcon color='var(--mito-status-warning-dark)'/>
                     <p className='caution-text'>The column{(onlyOneMissingColumn ? ' ' : 's ') + `${nonExistentColumnIDs.join(', ')}` + (onlyOneMissingColumn ? ' was' : ' were')} included in this merge but {onlyOneMissingColumn ? 'is' : 'are'} no longer available. Please review selections.</p>
                 </div> 

@@ -18,7 +18,7 @@
     background-color: var(--mito-background-off);
 }
 
-.caution-text-wrapper {
+.caution-text-container {
     background-color: var(--mito-status-warning);
     border: 1px solid var(--mito-status-warning-dark);
     display: flex;
@@ -27,7 +27,7 @@
     margin: 5px 0;
 }
 
-.caution-text-wrapper svg {
+.caution-text-container svg {
     height: 50px;
     width: 50px;
     height: 30px;
