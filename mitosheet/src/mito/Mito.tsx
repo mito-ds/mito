@@ -657,7 +657,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     analysisData={analysisData}
-                    destinationSheetIndex={uiState.currOpenTaskpane.destinationSheetIndex}
                     defaultMergeType={uiState.currOpenTaskpane.defaultMergeType}
                 />
             )

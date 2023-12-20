@@ -45,7 +45,6 @@ export type MergeTaskpaneProps = {
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
     existingParams?: MergeParams,
-    destinationSheetIndex?: number,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     analysisData: AnalysisData;
@@ -111,7 +110,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         {
             // If we have a destination sheet index, we make sure to not overwrite the pivot
             // that is there by default
-            doNotSendDefaultParams: props.destinationSheetIndex !== undefined,
+            doNotSendDefaultParams: props.existingParams?.destination_sheet_index !== undefined,
         }
     )
 
