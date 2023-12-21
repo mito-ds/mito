@@ -20,10 +20,8 @@ const ExpandableWarning = (props: {warnings: string[]}): JSX.Element => {
     } else if (props.warnings.length === 1) {
         return (
             <div className='caution-text-container'>
-                <div>
-                    <CautionIcon width={'50px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
-                    <p className='caution-text'>{props.warnings[0]}</p>
-                </div>
+                <CautionIcon width={'50px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
+                <p className='caution-text'>{props.warnings[0]}</p>
             </div> 
         )
     } else {
