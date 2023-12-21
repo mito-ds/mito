@@ -165,12 +165,12 @@ const getEditMergeWarnings = (params: MergeParams, sheetDataOne: SheetData, shee
     }
 
     const invalidSelectedColumnsOne = selected_column_ids_one.filter((columnID) => {
-        return sheetDataOne.columnIDsMap[columnID] !== undefined
+        return sheetDataOne.columnIDsMap[columnID] === undefined
     });
     const selectedColumnsOneWarning = getSelectedColumnWarningString(invalidSelectedColumnsOne, sheetDataOne);
 
     const invalidSelectedColumnsTwo = selected_column_ids_two.filter((columnID) => {
-        return sheetDataTwo.columnIDsMap[columnID] !== undefined
+        return sheetDataTwo.columnIDsMap[columnID] === undefined
     });
     const selectedColumnsTwoWarning = getSelectedColumnWarningString(invalidSelectedColumnsTwo, sheetDataTwo);
 

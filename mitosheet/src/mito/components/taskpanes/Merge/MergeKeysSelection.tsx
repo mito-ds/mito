@@ -34,13 +34,13 @@ const ExpandableWarning = (props: {warnings: string[]}): JSX.Element => {
                     background: 'var(--mito-status-warning)',
                     border: '1px solid var(--mito-status-warning-dark)'
                 }}
+                onClick={(e) => {
+                    setIsExpanded(!isExpanded);
+                    e.stopPropagation();
+                }}
             >
                 <div
                     style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}
-                    onClick={(e) => {
-                        setIsExpanded(!isExpanded);
-                        e.stopPropagation();
-                    }}
                 >
                     <CautionIcon width={'50px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
                     <p className='caution-text'>{`${props.warnings.length} merge key pairings were removed because at least one of the merge keys was missing from the source tabs.`}</p>
