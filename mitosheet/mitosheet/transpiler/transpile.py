@@ -72,19 +72,20 @@ def transpile(
     for code_chunk in all_code_chunks:
         comment = '# ' + code_chunk.get_description_comment().strip().replace('\n', '\n# ')
         (gotten_code, code_chunk_imports) = code_chunk.get_code()
-        optional_code_lines = code_chunk.get_optional_code_that_successfully_executed()
+        (optional_code, optional_code_imports) = code_chunk.get_optional_code_that_successfully_executed()
 
         # Make sure to not generate comments or code for steps with no code 
         if len(gotten_code) > 0:
             if add_comments:
                 gotten_code.insert(0, comment)
             code.extend(gotten_code)
-            code.extend(optional_code_lines)
+            code.extend(optional_code)
 
             # Then add a line of whitespace
             code.append('')
 
         imports_code.extend(code_chunk_imports)
+        imports_code.extend(optional_code_imports)
 
     # If we have a historical step checked out, then we add a comment letting
     # the user know this is the case

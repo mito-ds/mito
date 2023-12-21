@@ -31,7 +31,7 @@ class CodeChunk:
     ):
         self.prev_state = prev_state
 
-        self.optional_code_that_successfully_executed: List[str] = []
+        self.optional_code_that_successfully_executed: Tuple[List[str], List[str]] = ([], [])
 
     def __repr__(self) -> str:
         return self.__class__.__name__
@@ -52,7 +52,7 @@ class CodeChunk:
         """
         raise NotImplementedError('Implement in subclass')
     
-    def get_optional_code_that_successfully_executed(self) -> List[str]:
+    def get_optional_code_that_successfully_executed(self) -> Tuple[List[str], List[str]]:
         """
         Consider a code chunk like PivotCodeChunk. The main work it does is creating a new
         dataframe that has a pivot table inside of it. 

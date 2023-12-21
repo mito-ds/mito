@@ -94,10 +94,10 @@ def execute_step_list_from_index(
         new_step = Step(step.step_type, step.step_id, step.params)
 
         # Set the previous state of the new step, and then update
-        # what the last valid step is. Note that new_step_list is 
-        # the previous steps to the new_step -- so this parameter
-        # is correctly passed 
-        new_step.set_prev_state_and_execute(last_valid_step.final_defined_state, new_step_list)
+        # what the last valid step is. Note that we find the actually
+        # executed steps before passing them
+        non_skipped_steps = [step for index, step in enumerate(new_step_list) if index not in step_indexes_to_skip]
+        new_step.set_prev_state_and_execute(last_valid_step.final_defined_state, non_skipped_steps)
         last_valid_step = new_step
 
         new_step_list.append(new_step)
@@ -245,8 +245,6 @@ class StepsManager:
         self.user_defined_importers = user_defined_importers
         if not is_running_test() and not is_enterprise() and self.user_defined_importers is not None and len(self.user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
-        
-
         
         self.user_defined_editors = validate_user_defined_editors(user_defined_editors)
         if not is_running_test() and not is_enterprise() and self.user_defined_editors is not None and len(self.user_defined_editors) > 0:

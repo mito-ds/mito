@@ -105,7 +105,7 @@ class PivotCodeChunk(CodeChunk):
         flatten_column_headers: Optional[bool],
         public_interface_version: int,
         new_df_name: str,
-        optional_code_that_successfully_executed: Optional[List[str]] = None
+        optional_code_that_successfully_executed: Optional[Tuple[List[str], List[str]]] = None
     ):
         super().__init__(prev_state)
         self.sheet_index = sheet_index

@@ -90,9 +90,11 @@ class PivotStepPerformer(StepPerformer):
                     new_aggregation_function_names.append(i)
             params['values_column_ids_map'][column_id] = new_aggregation_function_names
 
-        # Add in any optional code that we want to try and execute, because 
-        # it'
+        # Add in any optional code that we want to try and execute
+        # which in this case are the edits we replay on top of the 
+        # pivot table
         optional_code = get_optional_code_to_replay_on_pivot(previous_steps, params)
+        print("SATURATING", previous_steps, optional_code)
         params['optional_code'] = optional_code
 
         return params
@@ -122,7 +124,10 @@ class PivotStepPerformer(StepPerformer):
                 new_dataframe_params={
                     'df_source': DATAFRAME_SOURCE_PIVOTED,
                     'new_df_names': [new_df_name],
-                    'sheet_index_to_overwrite': destination_sheet_index
+                    'overwrite': {
+                        'sheet_index_to_overwrite': destination_sheet_index,
+                        'attempt_to_save_filter_metadata': True
+                    } if destination_sheet_index is not None else destination_sheet_index
                 },
                 optional_code=params.get('optional_code'),
                 use_deprecated_id_algorithm=get_param(params, 'use_deprecated_id_algorithm')
@@ -178,7 +183,7 @@ def get_new_pivot_df_name(prev_state: State, sheet_index: int) -> str:
     return curr_df_name
 
 
-def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params: Dict[str, Any]) -> List[str]:
+def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params: Dict[str, Any]) -> Tuple[List[str], List[str]]:
     """
     This function is a utility used to replay edits on top of pivot tables - specifically, 
     it finds the code to try and execute on top of the a pivot table that is being edited.    
@@ -186,11 +191,11 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
     # If this is a pivot step, that has a destination sheet index, then we're going to 
     # go look for the original step that created this pivot
     if params.get('destination_sheet_index') is None:
-        return []
+        return [], []
 
     destination_sheet_index = params['destination_sheet_index']
 
-    extra_code: List[str] = []
+    optional_code: Tuple[List[str], List[str]] = ([], [])
 
     # First, find the index of the step we have to start looking from
     # for steps that edit the pivot table
@@ -199,7 +204,7 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
         # Case 1: we find the last step that edited this pivot, and get it's extra code 
         # that successfully executed, as we want to start by replaying this
         if step.step_type == 'pivot' and 'destination_sheet_index' in step.params and step.params['destination_sheet_index'] == destination_sheet_index:
-            extra_code = step.execution_data.get('optional_code_that_successfully_executed', [])
+            optional_code = step.execution_data.get('optional_code_that_successfully_executed', ([], []))
             starting_index = len(previous_steps) - index - 1
             break
 
@@ -217,14 +222,18 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
         for step in previous_steps:
             code_chunks += step.step_performer.transpile(step.initial_defined_state, step.params, step.execution_data)
         
-        all_code = []
+        all_import_code = []
+        all_other_code = []
         for code_chunk in code_chunks:
             comment = '# ' + code_chunk.get_description_comment().strip().replace('\n', '\n# ')
-            import_lines, code_lines = code_chunk.get_code()
-            all_code += ['', comment]
-            all_code += import_lines
-            all_code += code_lines
+            code_lines, import_lines = code_chunk.get_code()
+            all_import_code += import_lines
+            all_other_code += ['', comment]
+            all_other_code += code_lines
 
-        extra_code += all_code
+        optional_code = (
+            optional_code[0] + all_other_code,
+            optional_code[1] + all_import_code,
+        )
 
-    return extra_code
+    return optional_code

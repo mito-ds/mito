@@ -105,7 +105,7 @@ class StepPerformer(ABC, object):
         execution_data: Optional[Dict[str, Any]]=None,
         new_dataframe_params: Optional[ExecuteThroughTranspileNewDataframeParams]=None,
         column_headers_to_column_ids: Optional[Dict[ColumnHeader, ColumnID]]=None,
-        optional_code: Optional[List[str]]=None,
+        optional_code: Optional[Tuple[List[str], List[str]]]=None,
         use_deprecated_id_algorithm: bool=False
     ) -> Tuple[State, Dict[str, Any]]:
         """
@@ -155,27 +155,43 @@ class StepPerformer(ABC, object):
         pandas_start_time = perf_counter()
         exec(final_code, exec_globals, exec_locals)
 
-        # Go through the optional code lines, and take special care to not 
-        # add the comments for the code unless the code itself executes successfully
-        optional_code_that_successfully_executed = []
-        non_code_lines_before_optional_line = []
-        for optional_code_line in optional_code or []:
+        # Go through the optional code lines
+        optional_code_that_successfully_executed: Tuple[List[str], List[str]] = ([], [])
+        if optional_code is not None:
+            for optional_import in optional_code[1]:
+                try:
+                    exec(optional_import, exec_globals, exec_locals)
+                    optional_code_that_successfully_executed = (
+                        optional_code_that_successfully_executed[0],
+                        optional_code_that_successfully_executed[1] + [optional_import],
+                    )
+                except:
+                    break
+            
+            # Take special care to not add the comments for the code unless 
+            # the code itself executes successfully
 
-            # We don't need to exec spaces
-            if optional_code_line == '' or optional_code_line.strip().startswith('#'):
-                non_code_lines_before_optional_line.append(optional_code_line)
-                continue
+            non_code_lines_before_optional_line = []
+            for optional_code_line in optional_code[0]:
 
-            # TODO: we should make it so it rolls back the state if this fails
-            # but it's fine for now -- since partial updates don't seem to 
-            # manifest in practice
-            try:
-                exec(optional_code_line, exec_globals, exec_locals)
-                optional_code_that_successfully_executed.extend(non_code_lines_before_optional_line)
-                optional_code_that_successfully_executed.append(optional_code_line)
-                non_code_lines_before_optional_line = []
-            except Exception as e:
-                break
+                # We don't need to exec spaces
+                if optional_code_line == '' or optional_code_line.strip().startswith('#'):
+                    non_code_lines_before_optional_line.append(optional_code_line)
+                    continue
+
+                # TODO: we should make it so it rolls back the state if this fails
+                # but it's fine for now -- since partial updates don't seem to 
+                # manifest in practice
+                try:
+                    exec(optional_code_line, exec_globals, exec_locals)
+                    optional_code_that_successfully_executed = (
+                        optional_code_that_successfully_executed[0] + non_code_lines_before_optional_line + [optional_code_line],
+                        optional_code_that_successfully_executed[1],
+                    )
+                    non_code_lines_before_optional_line = []
+                except:
+                    break
+
 
         pandas_processing_time = perf_counter() - pandas_start_time
 
@@ -191,13 +207,17 @@ class StepPerformer(ABC, object):
             )
 
         if new_dataframe_params:
-            sheet_index_to_overwrite = new_dataframe_params['sheet_index_to_overwrite'] 
-
             for new_df_name in new_dataframe_params['new_df_names']:
                 df_source = new_dataframe_params['df_source']
 
                 new_df = exec_locals[new_df_name] 
-                post_state.add_df_to_state(new_df, df_name=new_df_name, df_source=df_source, sheet_index=sheet_index_to_overwrite, use_deprecated_id_algorithm=use_deprecated_id_algorithm)
+                post_state.add_df_to_state(
+                    new_df, 
+                    df_name=new_df_name, 
+                    df_source=df_source, 
+                    overwrite=new_dataframe_params['overwrite'], 
+                    use_deprecated_id_algorithm=use_deprecated_id_algorithm
+                )
 
         return post_state, {
             'pandas_processing_time': pandas_processing_time,
