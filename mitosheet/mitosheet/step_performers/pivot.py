@@ -94,7 +94,6 @@ class PivotStepPerformer(StepPerformer):
         # which in this case are the edits we replay on top of the 
         # pivot table
         optional_code = get_optional_code_to_replay_on_pivot(previous_steps, params)
-        print("SATURATING", previous_steps, optional_code)
         params['optional_code'] = optional_code
 
         return params
