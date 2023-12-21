@@ -10,31 +10,76 @@ import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
 import { MergeParams } from "../../../types";
 import { getFirstSuggestedMergeKeys } from "./mergeUtils";
+import CautionIcon from "../../icons/CautionIcon";
+import TriangleExpandCollapseIcon from "../../icons/TriangleExpandCollapseIcon";
 
+const ExpandableWarning = (props: {warnings: string[]}): JSX.Element => {
+    const [isExpanded, setIsExpanded] = React.useState(false);
+    if (props.warnings.length === 0) {
+        return <></>;
+    } else if (props.warnings.length === 1) {
+        return (
+            <div className='caution-text-container'>
+                <div>
+                    <CautionIcon width={'50px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
+                    <p className='caution-text'>{props.warnings[0]}</p>
+                </div>
+            </div> 
+        )
+    } else {
+        return (
+            <div
+                className="caution-text-container expandable-caution-text-container"
+                style={{
+                    background: 'var(--mito-status-warning)',
+                    border: '1px solid var(--mito-status-warning-dark)'
+                }}
+            >
+                <div
+                    style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}
+                    onClick={(e) => {
+                        setIsExpanded(!isExpanded);
+                        e.stopPropagation();
+                    }}
+                >
+                    <CautionIcon width={'50px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
+                    <p className='caution-text'>{`${props.warnings.length} merge key pairings were removed because at least one of the merge keys was missing from the source tabs.`}</p>
+                    <TriangleExpandCollapseIcon
+                        action={isExpanded ? 'collapse' : 'expand'}
+                    />
+                </div>
+                {
+                    isExpanded &&
+                    (<ul style={{margin: '4px 0'}}>
+                        {props.warnings.map((warning, index) => {
+                            return (
+                                <li className='caution-text' key={index}>
+                                    {warning}
+                                </li>
+                            )
+                        })}
+                    </ul>)
+                }
+            </div>
+        )
+    }
+}
 
 const MergeKeysSelectionSection = (props: {
     params: MergeParams,
     setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
     sheetDataArray: SheetData[],
     error: string | undefined;
+    warnings: string[] | undefined;
 }): JSX.Element => {
 
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
     const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
+    const [hasClicked, setHasClicked] = React.useState(false);
 
-    /*
-        If the merge key column IDs don't exist in the sheet, then we can't merge.
-    */
-    const nonExistentMergeKeysOne = props.params.merge_key_column_ids
-        .map((mergeKeys) => mergeKeys[0])
-        .filter((mergeKeyColumnID) => sheetDataOne.columnIDsMap[mergeKeyColumnID] === undefined);
-    const nonExistentMergeKeysTwo = props.params.merge_key_column_ids
-        .map((mergeKeys) => mergeKeys[1])
-        .filter((mergeKeyColumnID) => sheetDataTwo.columnIDsMap[mergeKeyColumnID] === undefined);
-    
     return (
-        <div className="expandable-content-card">
+        <div onClick={() => setHasClicked(true)} className="expandable-content-card">
             <Row suppressTopBottomMargin>
                 <Col>
                     <p className="text-header-3">
@@ -123,16 +168,7 @@ const MergeKeysSelectionSection = (props: {
                 </p>    
             }
             {
-                nonExistentMergeKeysOne.length > 0 &&
-                <p className='text-color-error'>
-                    {`The column ${nonExistentMergeKeysOne.join(', ')} does not exist in ${sheetDataOne.dfName} anymore. Delete it to make this merge valid. `}
-                </p>
-            }
-            {
-                nonExistentMergeKeysTwo.length > 0 &&
-                <p className='text-color-error'>
-                    {`The column ${nonExistentMergeKeysTwo.join(', ')} does not exist in ${sheetDataTwo.dfName} anymore. Delete it to make this merge valid. `}
-                </p>
+                (props.warnings !== undefined && !hasClicked) && <ExpandableWarning warnings={props.warnings}/>
             }
             <Spacer px={15}/>
             <TextButton 

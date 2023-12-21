@@ -17,6 +17,7 @@ interface MultiToggleColumnsProps {
     disabledColumnIDs?: ColumnID[],
     getIsDisabledColumnID?: (columnID: ColumnID, columnHeader: ColumnHeader, columnDtype: string) => boolean;
     getDisplayColumnHeaderOverride?: (columnID: ColumnID, columnHeader: ColumnHeader) => string;
+    warning?: string;
 }
 
 /**
@@ -29,10 +30,6 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
     const [hasClicked, setHasClicked] = React.useState(false);
     const columnIDsAndDtype: [ColumnID, string][] = Object.entries(props.sheetData?.columnDtypeMap || {});
     const columnIDs: ColumnID[] = columnIDsAndDtype.map(([cid, ]) => {return cid});
-    const nonExistentColumnIDs = props.selectedColumnIDs.filter((columnID) => {
-        return columnIDsMap[columnID] === undefined;
-    });
-    const onlyOneMissingColumn = nonExistentColumnIDs.length === 1;
 
     return (
         <div onMouseDown={() => {
@@ -45,10 +42,10 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
                 }))
             }
         }}>
-            {(nonExistentColumnIDs.length > 0 && !hasClicked) &&
+            {(props.warning !== undefined && !hasClicked) &&
                 <div className='caution-text-container'>
-                    <CautionIcon color='var(--mito-status-warning-dark)'/>
-                    <p className='caution-text'>The column{(onlyOneMissingColumn ? ' ' : 's ') + `${nonExistentColumnIDs.join(', ')}` + (onlyOneMissingColumn ? ' was' : ' were')} included in this merge but {onlyOneMissingColumn ? 'is' : 'are'} no longer available. Please review selections.</p>
+                    <CautionIcon width={'25px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
+                    <p className='caution-text'>{props.warning}</p>
                 </div> 
             }
             <MultiToggleBox
