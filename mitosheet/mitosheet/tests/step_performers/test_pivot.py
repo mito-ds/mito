@@ -1066,6 +1066,13 @@ def test_replay_edits_preserves_filter_metadata_where_possible():
     assert len(final_step.column_filters[1]['date']['filters']) > 0
     assert len(final_step.column_filters[1]['value max']['filters']) == 0
 
+    assert mito.dfs[1].equals(
+        pd.DataFrame({
+            'date': ['1-1-2000'],
+            'value max': [1]
+        })
+    )
+
 
 def test_replay_edits_allows_filter_editing():
     df = pd.DataFrame(data={'date': ['1-1-2000', '1-2-2000', '1-3-2000'], 'value': [1, 2, 2]})
