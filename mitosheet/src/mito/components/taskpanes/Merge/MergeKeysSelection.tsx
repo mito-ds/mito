@@ -170,7 +170,7 @@ const MergeKeysSelectionSection = (props: {
             }
             <Spacer px={15}/>
             <TextButton 
-                width="medium"
+                width="hug-contents"
                 variant="dark"
                 onClick={() => {
                     props.setParams(prevParams => {
