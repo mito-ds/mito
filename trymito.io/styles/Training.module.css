@@ -1,0 +1,9 @@
+
+
+
+
+@media only screen and (min-width: 50em) {
+    .three_quarter_width_header {
+        max-width: 75%;
+    }
+}
