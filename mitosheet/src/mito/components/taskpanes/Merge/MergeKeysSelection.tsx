@@ -13,15 +13,23 @@ import { getFirstSuggestedMergeKeys } from "./mergeUtils";
 import CautionIcon from "../../icons/CautionIcon";
 import TriangleExpandCollapseIcon from "../../icons/TriangleExpandCollapseIcon";
 
-const ExpandableWarning = (props: {warnings: string[]}): JSX.Element => {
+const ExpandableWarning = (props: {warnings?: string[]}): JSX.Element => {
     const [isExpanded, setIsExpanded] = React.useState(false);
-    if (props.warnings.length === 0) {
+    const [dismissed, setDismissed] = React.useState(false);
+    if (props.warnings === undefined || props.warnings.length === 0 || dismissed) {
         return <></>;
     } else if (props.warnings.length === 1) {
         return (
             <div className='caution-text-container'>
-                <CautionIcon width={'50px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
+                <CautionIcon width={'25px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
                 <p className='caution-text'>{props.warnings[0]}</p>
+                <XIcon
+                    onClick={() => setDismissed(true)}
+                    strokeColor="var(--mito-status-warning-dark)"
+                    rounded
+                    width="12px"
+                    style={{ cursor: 'pointer' }}
+                />
             </div> 
         )
     } else {
@@ -40,11 +48,20 @@ const ExpandableWarning = (props: {warnings: string[]}): JSX.Element => {
                 <div
                     style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}
                 >
-                    <CautionIcon width={'50px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
-                    <p className='caution-text'>{`${props.warnings.length} merge key pairings were removed because at least one of the merge keys was missing from the source tabs.`}</p>
-                    <TriangleExpandCollapseIcon
-                        action={isExpanded ? 'collapse' : 'expand'}
-                    />
+                    <CautionIcon width={'54px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
+                    <p className='caution-text'>
+                        <TriangleExpandCollapseIcon
+                            action={isExpanded ? 'collapse' : 'expand'}
+                        />
+                        {`${props.warnings.length} merge key pairings were removed because at least one of the merge keys was missing from the source tabs.`}
+                    </p>
+                    <XIcon
+                        onClick={() => setDismissed(true)}
+                        strokeColor="var(--mito-status-warning-dark)"
+                        rounded
+                        width="23px"
+                        style={{ cursor: 'pointer' }}
+                        />
                 </div>
                 {
                     isExpanded &&
@@ -74,10 +91,9 @@ const MergeKeysSelectionSection = (props: {
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
     const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
-    const [hasClicked, setHasClicked] = React.useState(false);
 
     return (
-        <div onClick={() => setHasClicked(true)} className="expandable-content-card">
+        <div className="expandable-content-card">
             <Row suppressTopBottomMargin>
                 <Col>
                     <p className="text-header-3">
@@ -166,7 +182,9 @@ const MergeKeysSelectionSection = (props: {
                 </p>    
             }
             {
-                (props.warnings !== undefined && !hasClicked) && <ExpandableWarning warnings={props.warnings}/>
+                <ExpandableWarning
+                    warnings={props.warnings}
+                />
             }
             <Spacer px={15}/>
             <TextButton 

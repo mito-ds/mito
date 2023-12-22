@@ -35,9 +35,14 @@
     padding: 0 5px 0 0;
 }
 
+.caution-text-container svg:hover line {
+    stroke-width: 3px;
+}
+
 .caution-text {
     color: var(--mito-status-warning-dark);
     font-size: 11px;
+    padding-right: 4px;
 }
 
 .multi-toggle-box-row {

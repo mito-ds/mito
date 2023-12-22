@@ -8,6 +8,7 @@ import MultiToggleBox from './MultiToggleBox';
 import MultiToggleItem from './MultiToggleItem';
 import { Height } from './sizes.d';
 import CautionIcon from '../icons/CautionIcon';
+import XIcon from '../icons/XIcon';
 
 interface MultiToggleColumnsProps {
     sheetData: SheetData | undefined;
@@ -27,25 +28,23 @@ interface MultiToggleColumnsProps {
 const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
 
     const columnIDsMap = props.sheetData?.columnIDsMap || {};
-    const [hasClicked, setHasClicked] = React.useState(false);
+    const [dismissedWarning, setDismissedWarning] = React.useState(false);
     const columnIDsAndDtype: [ColumnID, string][] = Object.entries(props.sheetData?.columnDtypeMap || {});
     const columnIDs: ColumnID[] = columnIDsAndDtype.map(([cid, ]) => {return cid});
 
     return (
-        <div onMouseDown={() => {
-            // If there is a warning displayed about missing columns
-            // we want to hide it after the user clicks (assuming they are addressing the warning)
-            if (!hasClicked) {
-                setHasClicked(true);
-                props.onChange(props.selectedColumnIDs.filter((columnID) => {
-                    return columnIDsMap[columnID] !== undefined;
-                }))
-            }
-        }}>
-            {(props.warning !== undefined && !hasClicked) &&
+        <div>
+            {(props.warning !== undefined && !dismissedWarning) &&
                 <div className='caution-text-container'>
                     <CautionIcon width={'25px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
                     <p className='caution-text'>{props.warning}</p>
+                    <XIcon
+                        onClick={() => setDismissedWarning(true)}
+                        strokeColor="var(--mito-status-warning-dark)"
+                        rounded
+                        width='12px'
+                        style={{ cursor: 'pointer' }}
+                    />
                 </div> 
             }
             <MultiToggleBox

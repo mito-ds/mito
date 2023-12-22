@@ -148,9 +148,9 @@ const getEditMergeWarnings = (params: MergeParams, sheetDataOne: SheetData, shee
         if (sheetOneColumnHeader === undefined && sheetTwoColumnHeader === undefined) {
             return `The merge keys ${mergeKeyColumnIDOne} and “${mergeKeyColumnIDTwo}” were removed because they no longer exist in “${sheetDataOne.dfName}” and “${sheetDataTwo.dfName}”.`
         } else if (sheetOneColumnHeader === undefined) {
-            return `The merge key pairing “${mergeKeyColumnIDOne}” and “${mergeKeyColumnIDTwo}” was removed because “${mergeKeyColumnIDOne}” no longer exists in “${sheetDataOne.dfName}”.`
+            return `The merge key pairing (${mergeKeyColumnIDOne}, ${mergeKeyColumnIDTwo}) was removed because “${mergeKeyColumnIDOne}” no longer exists in “${sheetDataOne.dfName}”.`
         } else {
-            return `The merge key pairing “${mergeKeyColumnIDOne}” and “${mergeKeyColumnIDTwo}” was removed because “${mergeKeyColumnIDTwo}” no longer exists in “${sheetDataTwo.dfName}”.`
+            return `The merge key pairing (${mergeKeyColumnIDOne}, ${mergeKeyColumnIDTwo}) was removed because “${mergeKeyColumnIDTwo}” no longer exists in “${sheetDataTwo.dfName}”.`
         }
     });
 
