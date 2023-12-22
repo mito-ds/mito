@@ -43,6 +43,7 @@
     color: var(--mito-status-warning-dark);
     font-size: 11px;
     padding-right: 4px;
+    word-break: break-all;
 }
 
 .multi-toggle-box-row {
