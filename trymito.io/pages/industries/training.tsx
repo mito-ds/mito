@@ -76,13 +76,13 @@ const LifeSciences: NextPage = () => {
                         Improve the Effectiveness of your Corporate Python Training 
                     </h1>
                     <p className={classNames(titleStyles.subtitle)}>
-                        Mito let’s your business analysts use their Excel skills to build Python automations.
+                        Leverage Excel skills to build Python automations.
                     </p>
                     <CTAButtons variant={'contact'} align='left' displaySecondaryCTA={false}/>
                     </div>
                     <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
                     <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                        <source src="/hospital_patient_pivot.mp4" />
+                        <source src="/training/vlookup.mp4"/>
                     </video>
                     </div>
                 </section>
