@@ -193,7 +193,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         {
             // If we have a destination sheet index, we make sure to not overwrite the pivot
             // that is there by default
-            doNotSendDefaultParams: props.existingParams?.destination_sheet_index !== undefined,
+            doNotSendDefaultParams: props.existingParams !== undefined,
         }
     )
 
