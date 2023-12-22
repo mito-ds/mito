@@ -299,7 +299,7 @@ const LifeSciences: NextPage = () => {
                             </p>
                         </div>
                         <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                            <Image src={'/computational-biotech.png'} alt='Mito for Computational Biotech' width={707} height={370} layout='responsive'/>
+                            <Image src={'/training/pivot.png'} alt='Creating a Mito Pivot Table' width={628} height={316} layout='responsive'/>
                         </div>
                     </div>
                 </section>
