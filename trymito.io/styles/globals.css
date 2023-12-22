@@ -236,6 +236,15 @@ a {
     margin-top: 2rem;
   }
 
+  code {
+    font-family: monospace;
+    background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(177, 120, 252, 0.39));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: linear-gradient(0deg, #FFFFFF, #000000);
+  }
+
   section + section {
     margin-top: 10rem;
   }
