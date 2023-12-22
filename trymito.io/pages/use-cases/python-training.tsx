@@ -90,7 +90,7 @@ const PythonTraining: NextPage = () => {
                 <section>
                     <div className={classNames(pageStyles.subsection, pageStyles.left_aligned_section)}>
                         <h2 className={classNames('margin-top-4rem', 'margin-bottom-2rem', pythonTrainingStyles.three_quarter_width_header)}>
-                            Increase Python Training retention by embracing your business analyst&apos;s Excel mastery.
+                            Increase your Python training retention by embracing your business analyst&apos;s Excel mastery.
                         </h2>
                     </div>
                     <div className={pageStyles.subsection}>
@@ -102,13 +102,10 @@ const PythonTraining: NextPage = () => {
                                 Write Python code 4x faster
                             </h3>
                             <p>
-                                Mito generates the equivalent Python code for every edit the user makes. Our research shows that business analysts write Python code 400% faster using Mito compared to writing code by hand. 
+                                Mito generates the equivalent Python code for every edit the user makes. Business analysts <a className={pageStyles.link} href='https://www.trymito.io/blog/quantifying-mitos-impact-on-analyst-python-productivity' target="_blank" rel="noreferrer">write Python code 400% faster using Mito</a> compared to writing code by hand. 
                             </p>
                             <p>
-                                The biggest blocker for analysts building their own automation after a training is not having enough time to do so. 
-                            </p>
-                            <p>
-                                Write <code>=VLOOKUP</code> in Mito instead of struggling through <a className={pageStyles.link} href='https://www.trymito.io/excel-to-python/functions/lookup/VLOOKUP#Implementing%20VLOOKUP%20in%20Pandas' target="_blank" rel="noreferrer">5 lines</a> of complex pandas code. 
+                                The biggest blocker for analysts building their own automation after a training is not having enough time to do so. Mito solves that problem. Empower your analysts to write <code>=VLOOKUP</code> in Mito instead of struggling through <a className={pageStyles.link} href='https://www.trymito.io/excel-to-python/functions/lookup/VLOOKUP#Implementing%20VLOOKUP%20in%20Pandas' target="_blank" rel="noreferrer">5 lines</a> of complex pandas code. 
                             </p>
                         </div>
                         <div className={classNames(securityStyles.security_bullet_container, pageStyles.subsection_second_element_mobile_spacing)}>
@@ -122,9 +119,11 @@ const PythonTraining: NextPage = () => {
                                 The best way to convince business analysts to commit to Python training is to start saving them time as fast as possible. 
                             </p>
                             <p>
-                                If after 3 days of Python training each business analyst hasn&apos;t built a useful Python automation, their main takeaway will be: “I don&apos;t have enough time to learn Python.”
+                                If your analysts leave your training without having built a useful Python automation, you're teaching them that they don&apos;t have enough time to learn Python.
                             </p>
-                            <p>Mito let&apos;s them start building useful automation in the first 10 minutes.</p>
+                            <p>
+                                Mito let&apos;s your analysts start building useful automations in the first 10 minutes.
+                            </p>
                         </div>
                     </div>
                     <div className={pageStyles.subsection}>
@@ -163,13 +162,13 @@ const PythonTraining: NextPage = () => {
                                 <Image  src={dataIconPurple} alt='icon'></Image>
                             </div>
                             <h3>
-                                Data Discoverability
+                                Improve Data Discoverability
                             </h3>
                             <p>
-                                Figuring out which database holds the monthly report&apos;s data is often a multi-week scavenger hunt. Then getting permission to query that database can take another several weeks.
+                                Figuring out which database holds the monthly report&apos;s data is often a multi-week scavenger hunt. Then getting permission to query that database might be another few weeks of waiting.
                             </p>
                             <p>
-                                Mito makes it easy for your team to pre-load common SQL queries so your business analysts don&apos;t spend weeks hunting down their data sources.
+                               Pre-load common SQL queries into Mito so your business analysts can start working with their data immediately.
                             </p>
                             <p>
                                 To get the most out of your large data, the subject matter expert needs to be the one analyzing it. 
@@ -181,13 +180,13 @@ const PythonTraining: NextPage = () => {
                                 <Image className={securityStyles.icon} src={infoIcon} alt='icon'></Image>
                             </div>
                             <h3>
-                                Skip the syntax 
+                                Skip pandas syntax 
                             </h3>
                             <p>
-                                Since Mito generates the equivalent Python code for every edit, you don&apos;t need to teach confusing pandas syntax. It&apos;s confusing to engineers, let alone analysts seeing it for the first time. 
+                                Since Mito generates the equivalent Python code for every edit, you don&apos;t need to teach confusing pandas syntax.
                             </p>
                             <p>
-                                Don&apos;t believe us? Which of these is correct?
+                                Test yourself. Which of these is correct?
                             </p>
                             <ol style={{'listStylePosition': 'inside', 'paddingLeft': '0'}}>
                                 <li>
@@ -229,7 +228,7 @@ const PythonTraining: NextPage = () => {
                                 Mito has built in logging infrastructure that lets you track metrics like: how many analysts are writing and re-running Python code, which database integrations are most popular, and which automations are shared across the firm. 
                             </p>
                             <p>
-                                Just point Mito to your enterprise logging infrastructure and we&apos;ll take care of the rest. 
+                                Just point Mito to your enterprise logging infrastructure and we&apos;ll take care of the rest. No data will ever leave your computers, of course.
                             </p>
                         </div>
                         <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
@@ -240,20 +239,24 @@ const PythonTraining: NextPage = () => {
                     <div className={classNames(pageStyles.subsection)}>
                         <div className={textImageSplitStyles.functionality_text}>
                             <h2>
-                                Improve your existing Python Training 
+                                Improve your existing Python training 
                             </h2>
                             <p>
                                 Mito is the easiest way to improve the effectiveness of your existing Python training programs. Give your users a spreadsheet interface to generate Python code, and use our documentation, training guides, and best practices to plug and play Mito into your training.                            
                             </p>
+                            <CTAButtons variant={'contact'} align='left' ctaText="Improve your trainings" displaySecondaryCTA={false}/>
                         </div>
                         <div className={textImageSplitStyles.functionality_text}>
                             <h2>
-                                Or setup a new Python Training Program
+                                Or setup a new Python training program
                             </h2>
                             <p>
-                                We&apos;re experts at setting up new Python training programs. We&apos;ll guide you through the process of setting up, evaluating, and expanding a new Python training program.
+                                We&apos;re experts at setting up new Python training programs.
                             </p>
-                            <CTAButtons variant={'contact'} align='left' ctaText="Learn about Mito Training" displaySecondaryCTA={false}/>
+                            <p>
+                                We can help you build a curriculum, train you trainers, evaluate the effectiveness of your training, and expand your program to new teams.
+                            </p>
+                            <CTAButtons variant={'contact'} align='left' ctaText="Setup Python training" displaySecondaryCTA={false}/>
                         </div>
                     </div>
 
