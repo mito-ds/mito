@@ -8,8 +8,26 @@
     cursor: pointer;
 }
 
+.training_quote_text {
+    color: var(--color-text-primary)
+}
+
+.display_rotating_heading {
+    display: block !important
+}
+
+.rotating_heading {
+    display: none;
+}
+
+
+
 @media only screen and (min-width: 50em) {
     .three_quarter_width_header {
+        max-width: 75%;
+    }
+
+    .training_quote_container {
         max-width: 75%;
     }
 }

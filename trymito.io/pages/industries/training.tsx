@@ -1,12 +1,10 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import Link from 'next/link';
 import Footer from '../../components/Footer/Footer';
 import Header from '../../components/Header/Header';
 import pageStyles from '../../styles/Page.module.css';
 import securityStyles from '../../styles/Security.module.css';
-import trifoldStyles from '../../styles/Trifold.module.css'
 import titleStyles from '../../styles/Title.module.css';
 import trainingStyles from '../../styles/Training.module.css';
 import spreadsheetAutomationStyles from '../../styles/SpreadsheetAutomation.module.css';
@@ -15,8 +13,7 @@ import textImageSplitStyles from '../../styles/TextImageSplit.module.css';
 // Import Icons & Background Grid
 import { classNames } from '../../utils/classNames';
 import CTAButtons from '../../components/CTAButtons/CTAButtons';
-import FAQCard from '../../components/FAQCard/FAQCard';
-import SunkenText from '../../components/SunkenText/SunkenText';
+import customerCardStyles from '../../components/CustomerCard/CustomerCard.module.css';
 import ContactCTACard from '../../components/CTACards/ContactCTACard';
 
 import automationIcon from '../../public/training/automation.svg';
@@ -26,7 +23,6 @@ import fastClockIcon from '../../public/training/fast_clock.svg';
 import infoIcon from '../../public/training/info.svg';
 import React, { useEffect, useState } from 'react';
 
-
 const LifeSciences: NextPage = () => {
 
     const [showQuizAnswer, setShowQuizAnswer] = useState(false);
@@ -35,8 +31,33 @@ const LifeSciences: NextPage = () => {
             setTimeout(() => {setShowQuizAnswer(false)}, 3000)
         }
     }, [showQuizAnswer])
-
     const quizAnswerClass = showQuizAnswer ? trainingStyles.display_answerquiz_answer : undefined
+
+
+    /* Rotate the final h2 heading to display all of the people that use Mito Python Training */
+    const [currentHeading, setCurrentHeading] = useState(1);
+    const headingIntervalTime = 3000;
+    const headingCount = 10;
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // Save the current heading so we know which one to display next
+            const nextHeadingToDisplay = currentHeading + 1 <= headingCount ? currentHeading + 1 : 1;
+            setCurrentHeading(nextHeadingToDisplay)
+            
+            // Add the display class to the correct heading by id
+            const headingElements = document.getElementsByClassName(trainingStyles.rotating_heading);
+            console.log(headingElements)
+            for (let i = 0; i < headingElements.length; i++) {
+                const element = headingElements[i];
+                if (element.id === `rotating_header_${currentHeading}`) {
+                    element.classList.add(trainingStyles.display_rotating_heading);
+                } else {
+                    element.classList.remove(trainingStyles.display_rotating_heading);
+                }
+            }
+        }, headingIntervalTime);
+        return () => clearInterval(interval);
+    }, [currentHeading])
 
     return (
         <>
@@ -186,130 +207,105 @@ const LifeSciences: NextPage = () => {
                     </div>
                 </section>
 
-                <section>
-                    <div className={classNames(pageStyles.subsection, trifoldStyles.container)}>
-                    <div className={classNames(pageStyles.subsection_column)}>
-                        <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                        <Image src={'/bugs.png'} alt='Bugs' width={1000} height={500}/>
-                        </div>
-                        <h3>
-                        Excel is slow, repetitive, and error prone
-                        </h3>
+                <section className='center'>
+                    <div className={trainingStyles.training_quote_container}>
+                        <p className='quote'><span className={classNames(customerCardStyles.quote_symbol, trainingStyles.training_quote_text)}>❝We&apos;ve trained thousands of analysts to build Python automations with Mito. Every time we make Mito a bigger part of our training, our end user reviews go up. Now Mito is the first thing we teach in our Python trainings. </span></p>
                         <p>
-                        Excel wasn&apos;t designed for scientific analyses. 
-                        It&apos;s nearly impossible to verify Excel models don&apos;t contain manual mistakes like typos and accidental data manipulation.
-                        </p> 
-                        <p>
-                        According to an <a href="https://www.nature.com/articles/d41586-021-02211-4" target="_blank" rel="noreferrer" className={pageStyles.link}>article</a> published by Nature, “Despite geneticists being warned about spreadsheet problems, 30% of published papers contain mangled gene names in supplementary data.”
-                        </p>    
-                    </div>
-                    <div className={classNames(pageStyles.subsection_column)}>
-                        <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                        <Image src={'/bio-python-code.png'} alt='Bio Python Code' width={1000} height={500}/>
-                        </div>
-                        <h3>
-                        Python, Pandas, and SQL are the modern scientist&apos;s stack
-                        </h3>
-                        <p>
-                        Using Python lets you take advantage of powerful libraries designed specifically for life science research. 
-                        Learn cutting-edge machine learning, bioinformatics, and data science techniques to accelerate your research and advance your career.
+                            Chief Data Architect @ Bulge Bracket Bank
                         </p>
-                        <p>
-                        Writing code for your analyis means you can verify its accuracy once and be confident in all of your future results. 
-                        </p>
-                    </div>
-                    <div className={classNames(pageStyles.subsection_column)}>
-                        <div className={classNames(trifoldStyles.image_container, 'margin-top-8rem-mobile-only')}>
-                        <Image src={'/mito-in-streamlit-pharma.png'} alt='Pharma Dashboard' width={1000} height={500}/>
-                        </div>
-                        <h3>
-                        Create self-serve dashboards for your lab
-                        </h3>
-                        <p>
-                        Your entire lab doesn&apos;t need to adopt Python for it to transform the way you work. 
-                        </p>
-                        <p>
-                        Become the Python early adopter on your team, and use Mito to create self-serve dashboards for common analyses that everyone in your lab can utilize. 
-                        The rest of your team won&apos;t need to learn Python to benefit from its power.
-                        </p>
-                        <p className={pageStyles.link}>
-                        <Link href="/data-app" >
-                            Learn more about Mito in Streamlit →
-                        </Link>
-                        </p>
-                    </div>
                     </div>
                 </section>
 
                 <section>
-                    <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center', titleStyles.title)}>
-                    <h2>
-                        Mito simplifies Python for Life Sciences
-                    </h2>
-                    </div>
                     <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-                    <div className={textImageSplitStyles.functionality_text}>
-                        <h2>
-                        Bioinformatics
-                        </h2>
-                        <p> 
-                        Use Python libraries specifically designed for bioinformatics research, like <a href="https://biopython.org" target="_blank" rel="noreferrer" className={pageStyles.link}>BioPython</a>, to parse bioinformatics files, perform k Nearest Neighbors classifications, and common operations like translation and transcription. 
-                        </p>
-                        <p>
-                        Use Mito to visualize and clean your data without bouncing back and forth between Excel and Python.
-                        And add functions from BioPython and other libraries directly into Mito.
-                        </p>
-                        <p className={pageStyles.link}>
-                        <Link href='/infrastructure-integration-python-tool' >
-                            Learn more about adding functionality to Mito
-                        </Link>
-                        </p>
-                    </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                        <Image src={'/bioinformatics.png'} alt='Mito + BioPython' width={712} height={457} layout='responsive'/>
-                    </div>
+                        <div className={textImageSplitStyles.functionality_text}>
+                            <h2>
+                                Track Python Adoption. Open the Black Box.
+                            </h2>
+                            <p> 
+                                Mito lets you track your organization's Python adoption so you can easily evaluate the success of your trainings and communicate it's value with your organization&apos;s leadership.
+                            </p>
+                            <p>
+                                Mito has built in logging infrastructure that lets you track metrics like: how many analysts are writing and re-running Python code, which database integrations are most popular, and which automations are shared across the firm. 
+                            </p>
+                            <p>
+                                Just point Mito to your enterprise logging infrastructure and we&apos;ll take care of the rest. 
+                            </p>
+                        </div>
+                        <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                            <Image src={'/training/black-metrics-box.png'} alt='Mito Python Adoption Logging' width={457} height={457} layout='responsive'/>
+                        </div>
                     </div>
                 
-                    <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
-                        <Image src={'/healthcare.png'} alt='Mito for Healthcare' width={627} height={337} layout='responsive'/>
-                    </div>
+                    <div className={classNames(pageStyles.subsection)}>
                         <div className={textImageSplitStyles.functionality_text}>
-                        <h2>
-                        Healthcare and Pharmaceuticals
-                        </h2>
-                        <p>
-                        Easily build scripts to split datasets by patient or hospital visits, convert dates to the correct format, and filter through complex data.
-                        </p>
-                        <p>
-                        Build scripts once and reuse them countless times, saving yourself hours per week of data wrangling and error checking. 
-                        </p>
-                    </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
-                        <Image src={'/healthcare.png'} alt='Mito for Healthcare' width={627} height={337} layout='responsive'/>
-                    </div>
+                            <h2>
+                                Improve your existing Python Training 
+                            </h2>
+                            <p>
+                                Mito is the easiest way to improve the effectiveness of your existing Python training programs. Give your users a spreadsheet interface to generate Python code, and use our documentation, training guides, and best practices to plug and play Mito into your training.                            
+                            </p>
+                        </div>
+                        <div className={textImageSplitStyles.functionality_text}>
+                            <h2>
+                                Or setup a new Python Training Program
+                            </h2>
+                            <p>
+                                We&apos;re experts at setting up new Python training programs. We&apos;ll guide you through the process of setting up, evaluating, and expanding a new Python training program.
+                            </p>
+                            <CTAButtons variant={'contact'} align='left' ctaText="Learn about Mito Training" displaySecondaryCTA={false}/>
+                        </div>
                     </div>
 
                     <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-                    <div className={textImageSplitStyles.functionality_text}>
-                        <h2>
-                        Computational Biotech
-                        </h2>
-                        <p> 
-                        Some things are always easier to do in spreadsheet. Create pivot tables and graphs in Mito&apos;s point and click UI to verify that your code is correct.
-                        </p>
-                        <p>
-                        Use summary statistics to build intuition about your datasets and figure out the next steps in your analysis.
-                        </p>
-                    </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                        <Image src={'/computational-biotech.png'} alt='Mito for Computational Biotech' width={707} height={370} layout='responsive'/>
-                    </div>
+                        <div className={textImageSplitStyles.functionality_text}>
+                            {/* 
+                                In order to only display one header at a time, we dynamically move the display_rotating_heading 
+                                class from one header to the next. If you want to add more header, make sure to update the headingCount
+                                variable at the top of this component.
+                            */}
+                            <h2 className={classNames(trainingStyles.rotating_heading, trainingStyles.display_rotating_heading)} id='rotating_header_1'>
+                                Python Trainings for Wealth Management 
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_2'>
+                                Python Trainings for Finance
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_3'>
+                                Python Trainings for Insurance
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_4'>
+                                Python Trainings for Banking
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_5'>
+                                Python Trainings for FP&A
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_6'>
+                                Python Training for Business Analysts
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_7'>
+                                Python Training for Excel users
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_8'>
+                                Python Training for IB
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_9'>
+                                Python Training for Risk Management
+                            </h2>
+                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_10'>
+                                Python Training for Actuarial Scienctists
+                            </h2>
+                            <p> 
+                                Mito is the foundation of Python training programs at some of the world&apos;s largest companies. From bulge bracket banks to e-commerce giants, from New York to Singapore, Mito has helped thousands of analysts automate their spreadsheets with Python.
+                            </p>
+                        </div>
+                        <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
+                            <Image src={'/computational-biotech.png'} alt='Mito for Computational Biotech' width={707} height={370} layout='responsive'/>
+                        </div>
                     </div>
                 </section>
 
                 <section className={pageStyles.background_card}>
-                    <ContactCTACard />
+                    <ContactCTACard contactCardTitle='Learn more about running effective Python Trainings'/>
                 </section>
                 </main>
                 <Footer />

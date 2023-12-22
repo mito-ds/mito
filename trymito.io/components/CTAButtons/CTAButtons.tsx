@@ -10,7 +10,8 @@ const CTAButtons = (props: {
     variant: 'download' | 'contact' | 'try jupyterlite',
     align: 'left' | 'center',
     displaySecondaryCTA?: boolean
-    secondaryCTA?: 'pro' | 'learn more'
+    secondaryCTA?: 'pro' | 'learn more',
+    ctaText?: string,
 }): JSX.Element => {
 
     const displaySecondaryCTA = props.displaySecondaryCTA ?? true; 
@@ -22,19 +23,19 @@ const CTAButtons = (props: {
         )}> 
             {props.variant === 'download' && 
                 <TextButton 
-                    text='Install Mito'
+                    text={props.ctaText || 'Install Mito'}
                     href={MITO_INSTALLATION_DOCS_LINK}
                 />
             }
             {props.variant === 'try jupyterlite' && 
                 <TextButton 
-                    text='Try Mito'
+                    text={props.ctaText || 'Try Mito'}
                     href={JUPYTERLITE_MITO_LINK}
                 />
             }
             {props.variant === 'contact' && 
                 <TextButton 
-                    text='Contact the Mito Team'
+                    text={props.ctaText || 'Contact the Mito Team'}
                     href="mailto:founders@sagacollab.com"
                 />
             }
