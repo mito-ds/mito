@@ -6,7 +6,7 @@ import Header from '../../components/Header/Header';
 import pageStyles from '../../styles/Page.module.css';
 import securityStyles from '../../styles/Security.module.css';
 import titleStyles from '../../styles/Title.module.css';
-import trainingStyles from '../../styles/Training.module.css';
+import pythonTrainingStyles from '../../styles/PythonTraining.module.css';
 import spreadsheetAutomationStyles from '../../styles/SpreadsheetAutomation.module.css';
 import textImageSplitStyles from '../../styles/TextImageSplit.module.css';
 
@@ -16,14 +16,14 @@ import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import customerCardStyles from '../../components/CustomerCard/CustomerCard.module.css';
 import ContactCTACard from '../../components/CTACards/ContactCTACard';
 
-import automationIcon from '../../public/training/automation.svg';
-import bugIconPurple from '../../public/training/bug_purple.svg';
-import dataIconPurple from '../../public/training/data_purple.svg';
-import fastClockIcon from '../../public/training/fast_clock.svg';
-import infoIcon from '../../public/training/info.svg';
+import automationIcon from '../../public/python-training/automation.svg';
+import bugIconPurple from '../../public/python-training/bug_purple.svg';
+import dataIconPurple from '../../public/python-training/data_purple.svg';
+import fastClockIcon from '../../public/python-training/fast_clock.svg';
+import infoIcon from '../../public/python-training/info.svg';
 import React, { useEffect, useState } from 'react';
 
-const LifeSciences: NextPage = () => {
+const PythonTraining: NextPage = () => {
 
     const [showQuizAnswer, setShowQuizAnswer] = useState(false);
     useEffect(() => {
@@ -31,7 +31,7 @@ const LifeSciences: NextPage = () => {
             setTimeout(() => {setShowQuizAnswer(false)}, 3000)
         }
     }, [showQuizAnswer])
-    const quizAnswerClass = showQuizAnswer ? trainingStyles.display_answerquiz_answer : undefined
+    const quizAnswerClass = showQuizAnswer ? pythonTrainingStyles.display_answerquiz_answer : undefined
 
 
     /* Rotate the final h2 heading to display all of the people that use Mito Python Training */
@@ -45,14 +45,14 @@ const LifeSciences: NextPage = () => {
             setCurrentHeading(nextHeadingToDisplay)
             
             // Add the display class to the correct heading by id
-            const headingElements = document.getElementsByClassName(trainingStyles.rotating_heading);
+            const headingElements = document.getElementsByClassName(pythonTrainingStyles.rotating_heading);
             console.log(headingElements)
             for (let i = 0; i < headingElements.length; i++) {
                 const element = headingElements[i];
                 if (element.id === `rotating_header_${currentHeading}`) {
-                    element.classList.add(trainingStyles.display_rotating_heading);
+                    element.classList.add(pythonTrainingStyles.display_rotating_heading);
                 } else {
-                    element.classList.remove(trainingStyles.display_rotating_heading);
+                    element.classList.remove(pythonTrainingStyles.display_rotating_heading);
                 }
             }
         }, headingIntervalTime);
@@ -82,14 +82,14 @@ const LifeSciences: NextPage = () => {
                     </div>
                     <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
                     <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                        <source src="/training/vlookup.mp4"/>
+                        <source src="/python-training/vlookup.mp4"/>
                     </video>
                     </div>
                 </section>
 
                 <section>
                     <div className={classNames(pageStyles.subsection, pageStyles.left_aligned_section)}>
-                        <h2 className={classNames('margin-top-4rem', 'margin-bottom-2rem', trainingStyles.three_quarter_width_header)}>
+                        <h2 className={classNames('margin-top-4rem', 'margin-bottom-2rem', pythonTrainingStyles.three_quarter_width_header)}>
                             Increase Python Training retention by embracing your business analyst&apos;s Excel mastery.
                         </h2>
                     </div>
@@ -200,16 +200,16 @@ const LifeSciences: NextPage = () => {
                                     df['Age'] = df['Age'].as_type(int)
                                 </li>
                             </ol>
-                            <p className={trainingStyles.quiz_answer_button} onClick={() => setShowQuizAnswer(true)}>
-                                Click to see the right answer
+                            <p className={pythonTrainingStyles.quiz_answer_button} onClick={() => setShowQuizAnswer(true)}>
+                                Reveal the right answer
                             </p>
                         </div>
                     </div>
                 </section>
 
                 <section className='center'>
-                    <div className={trainingStyles.training_quote_container}>
-                        <p className='quote'><span className={classNames(customerCardStyles.quote_symbol, trainingStyles.training_quote_text)}>❝We&apos;ve trained thousands of analysts to build Python automations with Mito. Every time we make Mito a bigger part of our training, our end user reviews go up. Now Mito is the first thing we teach in our Python trainings. </span></p>
+                    <div className={pythonTrainingStyles.training_quote_container}>
+                        <p className='quote'><span className={classNames(customerCardStyles.quote_symbol, pythonTrainingStyles.training_quote_text)}>❝We&apos;ve trained thousands of analysts to build Python automations with Mito. Every time we make Mito a bigger part of our training, our end user reviews go up. Now Mito is the first thing we teach in our Python trainings. </span></p>
                         <p>
                             Chief Data Architect @ Bulge Bracket Bank
                         </p>
@@ -233,7 +233,7 @@ const LifeSciences: NextPage = () => {
                             </p>
                         </div>
                         <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                            <Image src={'/training/black-metrics-box.png'} alt='Mito Python Adoption Logging' width={457} height={457} layout='responsive'/>
+                            <Image src={'/python-training/black-metrics-box.png'} alt='Mito Python Adoption Logging' width={457} height={457} layout='responsive'/>
                         </div>
                     </div>
                 
@@ -264,34 +264,34 @@ const LifeSciences: NextPage = () => {
                                 class from one header to the next. If you want to add more header, make sure to update the headingCount
                                 variable at the top of this component.
                             */}
-                            <h2 className={classNames(trainingStyles.rotating_heading, trainingStyles.display_rotating_heading)} id='rotating_header_1'>
+                            <h2 className={classNames(pythonTrainingStyles.rotating_heading, pythonTrainingStyles.display_rotating_heading)} id='rotating_header_1'>
                                 Python Trainings for Wealth Management 
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_2'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_2'>
                                 Python Trainings for Finance
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_3'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_3'>
                                 Python Trainings for Insurance
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_4'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_4'>
                                 Python Trainings for Banking
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_5'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_5'>
                                 Python Trainings for FP&A
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_6'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_6'>
                                 Python Training for Business Analysts
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_7'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_7'>
                                 Python Training for Excel users
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_8'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_8'>
                                 Python Training for IB
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_9'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_9'>
                                 Python Training for Risk Management
                             </h2>
-                            <h2 className={trainingStyles.rotating_heading} id='rotating_header_10'>
+                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_10'>
                                 Python Training for Actuarial Scienctists
                             </h2>
                             <p> 
@@ -299,7 +299,7 @@ const LifeSciences: NextPage = () => {
                             </p>
                         </div>
                         <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                            <Image src={'/training/pivot.png'} alt='Creating a Mito Pivot Table' width={628} height={316} layout='responsive'/>
+                            <Image src={'/python-training/pivot.png'} alt='Creating a Mito Pivot Table' width={628} height={316} layout='responsive'/>
                         </div>
                     </div>
                 </section>
@@ -314,4 +314,4 @@ const LifeSciences: NextPage = () => {
     )
 }
 
-export default LifeSciences
+export default PythonTraining
