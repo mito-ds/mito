@@ -1003,12 +1003,35 @@ export const Mito = (props: MitoProps): JSX.Element => {
         'mito-taskpane-container-narrow': narrowTaskpaneOpen,
     })
 
+    const [resizingTaskpane, setResizingTaskpane] = useState(false);
+
     return (
         <div 
             className="mito-container" 
             data-jp-suppress-context-menu 
             ref={mitoContainerRef} 
             tabIndex={0}
+            onMouseMove={(event) => {
+                if (resizingTaskpane) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const { clientX } = event;
+                    const rawPanelWidth = document.body.clientWidth - clientX;
+                    const panelWidth = Math.max(
+                        Math.min(document.body.clientWidth - 200, rawPanelWidth),
+                        200
+                    );
+                    setUIState({
+                        ...uiState,
+                        taskpaneWidth: panelWidth
+                    })
+                }
+            }}
+            onMouseUp={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setResizingTaskpane(false);
+            }}
             onKeyDown={(e) => {
                 // If the user presses escape anywhere in the mitosheet, we close the editor
                 if (e.key === 'Escape') {
@@ -1097,6 +1120,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             actions={actions}
                         />
                     </div>
+                    <div
+                        className='taskpane-resizer'
+                        style={{
+                            width: '5px',
+                            cursor: 'col-resize',
+                        }}
+                        onMouseDown={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            setResizingTaskpane(true);
+                        }}
+                    />
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
                         <div 
                             className={taskpaneClassNames}
