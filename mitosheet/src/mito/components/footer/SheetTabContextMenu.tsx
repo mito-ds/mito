@@ -165,7 +165,6 @@ export default function SheetTabContextMenu(props: {
                             currOpenTaskpane: {
                                 type: TaskpaneType.MERGE,
                                 existingParams: existingMergeParams,
-                                destinationSheetIndex: props.sheetIndex
                             }
                         }
                     })

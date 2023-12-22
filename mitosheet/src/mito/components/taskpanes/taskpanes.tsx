@@ -73,7 +73,7 @@ export type TaskpaneInfo =
         graphSidebarTab?: GraphSidebarTab
     }    
     | {type: TaskpaneType.IMPORT_FILES}
-    | {type: TaskpaneType.MERGE, defaultMergeType?: MergeType, existingParams?: MergeParams, destinationSheetIndex?: number}
+    | {type: TaskpaneType.MERGE, defaultMergeType?: MergeType, existingParams?: MergeParams}
     | {type: TaskpaneType.CONCAT}
     | {type: TaskpaneType.NONE}
     | {
