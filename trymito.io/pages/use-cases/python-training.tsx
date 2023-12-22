@@ -119,7 +119,7 @@ const PythonTraining: NextPage = () => {
                                 The best way to convince business analysts to commit to Python training is to start saving them time as fast as possible. 
                             </p>
                             <p>
-                                If your analysts leave your training without having built a useful Python automation, you're teaching them that they don&apos;t have enough time to learn Python.
+                                If your analysts leave your training without having built a useful Python automation, you&apos;re teaching them that they don&apos;t have enough time to learn Python.
                             </p>
                             <p>
                                 Mito let&apos;s your analysts start building useful automations in the first 10 minutes.
@@ -190,13 +190,13 @@ const PythonTraining: NextPage = () => {
                             </p>
                             <ol style={{'listStylePosition': 'inside', 'paddingLeft': '0'}}>
                                 <li>
-                                    df['Age'] = pd.tonumeric(df['Age'])
+                                    df[&apos;Age&apos;] = pd.tonumeric(df[&apos;Age&apos;])
                                 </li>
                                 <li style={{marginTop: '.5rem'}} className={quizAnswerClass}>
-                                    df['Age'] = df['Age'].astype(int)
+                                    df[&apos;Age&apos;] = df[&apos;Age&apos;].astype(int)
                                 </li>
                                 <li style={{marginTop: '.5rem'}}>
-                                    df['Age'] = df['Age'].as_type(int)
+                                    df[&apos;Age&apos;] = df[&apos;Age&apos;].as_type(int)
                                 </li>
                             </ol>
                             <p className={pythonTrainingStyles.quiz_answer_button} onClick={() => setShowQuizAnswer(true)}>
@@ -222,7 +222,7 @@ const PythonTraining: NextPage = () => {
                                 Track Python Adoption. Open the Black Box.
                             </h2>
                             <p> 
-                                Mito lets you track your organization's Python adoption so you can easily evaluate the success of your trainings and communicate it's value with your organization&apos;s leadership.
+                                Mito lets you track your organization&apos;s Python adoption so you can easily evaluate the success of your trainings and communicate it&apos;s value with your organization&apos;s leadership.
                             </p>
                             <p>
                                 Mito has built in logging infrastructure that lets you track metrics like: how many analysts are writing and re-running Python code, which database integrations are most popular, and which automations are shared across the firm. 
