@@ -78,6 +78,67 @@ If I were to take another shot, I would want to try:
 
     I think this would work. The hard part is doing the AST walk in the correct order, ya -- like
     you actually need to think about each node.
+
+
+# The Main Struggle: The Type of Operations
+
+The main question to answer is what should the type of the operations be. At first, I though let's
+just make them a linear list of operations. So something like
+
+```
+a = 1
+a = a + 10
+b = a
+```
+
+Would become:
+```
+Create a 1
+Set a  (a + 10)
+Create b a
+```
+
+Or perhaps more semantically (kinda the whole point of this)
+```
+Create a 1
+Increment a 10
+Create b a
+```
+
+Ok, but then let's consider the following:
+```
+a = 1
+b = 2
+c = (a + 2) + math.pow(b, 2)
+```
+
+What should this convert to? 
+
+I think the answer is that it should convert to whatever we _need_ to be able to update the
+state metadata -- and nothing more? So it seems that we would need the following operations:
+
+```
+df_names => a rename operation. So we detect if there is a Assign that just has two names
+            on either side
+df_sources => if a new DF is created, do we still ask 
+column_ids => if we rename columns (we already do this)
+column_formulas => if we set a column (we need to manually save this)
+column_filters => if we filter a column (we can use the AST to rebuild the filter... this seems silly)
+```
+
+# Reflections
+
+I think this is a good dream, but I don't think it actually helps us much. There's very little state
+we actually need to keep track of now that we have the execute_through_transpile. In other words, the 
+ROI of this is not here IMO. 
+
+I am, however, glad I explored this - because it's been ratting around in my head for a while. 
+
+Here are some future things I'd like to explore:
+1.  Per-line execution in the recon function (e.g. for AI) -- this could improve our results? 
+2.  Changing CodeChunks to a more AST structure. On the other hand, I'm not sure this 
+    makes any sense. 
+
 """
 
 
@@ -118,12 +179,6 @@ by a static understanding of the line of code.
 This is... weird? It's like a really interesting middle-ground between static and
 dynamic analysis, that is kinda like semantic code reasoning. Idk what it really
 is, but I think it's kinda the best of all worlds.
-
-# Transformation to a Stack Language
-
-```
-a = (a + 10) + 10
-```
 
 An expression should convert to a list of 
 """
