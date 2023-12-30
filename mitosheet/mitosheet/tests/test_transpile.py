@@ -21,7 +21,7 @@ def test_transpile_single_column():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        "df1.insert(1, 'B', df1[\'A\'])", 
+        "df1['B'] = df1[\'A\']", 
         ''
     ]
 
@@ -34,9 +34,9 @@ def test_transpile_multiple_columns_no_relationship():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        'df1.insert(1, \'B\', 0)', 
+        'df1[\'B\'] = 0', 
         '',
-        'df1.insert(2, \'C\', 0)', 
+        'df1[\'C\'] = 0', 
         ''
     ]
 
@@ -48,9 +48,9 @@ def test_transpile_columns_in_each_sheet():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        'df1.insert(1, \'B\', 0)',
+        'df1[\'B\'] = 0',
         '',
-        'df2.insert(1, \'B\', 0)',
+        'df2[\'B\'] = 0',
         ''
     ]
 
@@ -62,9 +62,9 @@ def test_transpile_multiple_columns_linear():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        'df1.insert(1, \'B\', df1[\'A\'])',
+        'df1[\'B\'] = df1[\'A\']',
         '',
-        'df1.insert(2, \'C\', df1[\'B\'])',
+        'df1[\'C\'] = df1[\'B\']',
         '',
     ]
 
@@ -87,7 +87,7 @@ def test_transpile_column_headers_non_alphabet(column_header):
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
+        f'df1[\'{column_header}\'] = df1[\'A\']', 
         '',
     ]
 
@@ -112,9 +112,9 @@ def test_transpile_column_headers_non_alphabet_multi_sheet(column_header):
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        f'df1.insert(1, \'{column_header}\', df1[\'A\'])', 
+        f'df1[\'{column_header}\'] = df1[\'A\']', 
         '',
-        f'df2.insert(1, \'{column_header}\', df2[\'A\'])', 
+        f'df2[\'{column_header}\'] = df2[\'A\']', 
         '',
     ]
 
@@ -127,9 +127,9 @@ def test_preserves_order_columns():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        'df1.insert(1, \'B\', 0)',
+        'df1[\'B\'] = 0',
         '',
-        'df1.insert(2, \'C\', 0)',
+        'df1[\'C\'] = 0',
         '',
     ]
 
@@ -163,9 +163,9 @@ def test_removes_unedited_formulas_for_unedited_sheets():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        "df1.insert(3, 'D', df1[\'C\'])", 
+        "df1['D'] = df1[\'C\']", 
         '',
-        "df2.insert(3, 'D', df2[\'C\'])", 
+        "df2['D'] = df2[\'C\']", 
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df_merge = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
@@ -211,7 +211,7 @@ def test_optimization_with_other_edits():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        "df1.insert(3, 'D', df1[\'A\'])", 
+        "df1['D'] = df1[\'A\']", 
         '',
         'temp_df = df2.drop_duplicates(subset=[\'A\']) # Remove duplicates so lookup merge only returns first match', 
         'df_merge = df1.merge(temp_df, left_on=[\'A\'], right_on=[\'A\'], how=\'left\', suffixes=[\'_df1\', \'_df2\'])',
@@ -359,7 +359,7 @@ def test_transpile_as_function_df_params():
         'from mitosheet.public.v3 import *',
         '',
         'def function(df1):',
-        f"{TAB}df1.insert(1, 'B', 0)",
+        f"{TAB}df1['B'] = 0",
         f'{TAB}',
         f"{TAB}return df1",
         "",
@@ -758,7 +758,7 @@ def test_fully_parameterized_function_custom_imports():
 
 df0 = custom_import()
 
-df0.insert(1, 'B', ADDONE(df0['A']))
+df0['B'] = ADDONE(df0['A'])
 """
 
     assert mito.mito_backend.fully_parameterized_function == """from mitosheet.public.v3 import *
@@ -767,7 +767,7 @@ from mitosheet.tests.test_transpile import custom_import, ADDONE
 def function():
     df0 = custom_import()
     
-    df0.insert(1, 'B', ADDONE(df0['A']))
+    df0['B'] = ADDONE(df0['A'])
     
     return df0
 """
@@ -845,9 +845,9 @@ def test_transpile_with_function_params_over_mitosheet():
         'from mitosheet.public.v3 import *',
         "",
         "def function(param, df_copy):",
-        f"{TAB}param.insert(2, 'C', 0)",
+        f"{TAB}param['C'] = 0",
         f"{TAB}",
-        f"{TAB}df_copy.insert(2, 'C', 0)",
+        f"{TAB}df_copy['C'] = 0",
         f"{TAB}",
         f"{TAB}return param, df_copy",
         "",
@@ -1092,7 +1092,7 @@ from mitosheet.tests.test_transpile import custom_import, ADDONE, custom_edit
 def function():
     df0 = custom_import()
     
-    df0.insert(1, 'B', ADDONE(df0['A']))
+    df0['B'] = ADDONE(df0['A'])
     
     df0 = custom_edit(df=df0)
     
@@ -1207,9 +1207,9 @@ def test_can_optimize_imports_together_if_just_edits(tmp_path):
         f"test = pd.read_csv(r'{path}')", 
         f"test_1 = pd.read_csv(r'{path}')", 
         '', 
-        "test.insert(3, 'D', 0)", 
+        "test['D'] = 0", 
         '', 
-        "test.insert(4, 'E', 0)", 
+        "test['E'] = 0", 
         ''
     ]
 
@@ -1237,6 +1237,6 @@ def test_edit_dataframe_after_full_clear_does_not_reorder_strangely(tmp_path):
         '', 
         f"test = pd.read_csv(r'{path}')", 
         '', 
-        "test.insert(3, 'D', 0)", 
+        "test['D'] = 0", 
         ''
     ]

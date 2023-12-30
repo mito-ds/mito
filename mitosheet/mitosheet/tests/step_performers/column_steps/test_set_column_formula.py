@@ -140,11 +140,11 @@ def test_only_writes_single_code():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', df1['A'])", 
+        "df1['B'] = df1['A']", 
         '',
-        "df1.insert(2, 'C', df1['B'])",
+        "df1['C'] = df1['B']",
         '', 
-        "df1.insert(3, 'D', df1['A'])", 
+        "df1['D'] = df1['A']", 
         '',
         "df1['B'] = 100", 
         '',
@@ -207,7 +207,7 @@ def test_set_formula_then_rename_no_optimize_yet():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')", 
         '',
@@ -228,7 +228,7 @@ def test_set_formula_then_delete_optimize():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
         '',
@@ -250,7 +250,7 @@ def test_set_formula_then_delete_optimizes_multiple():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
         '',
@@ -273,9 +273,9 @@ def test_set_multiple_formula_then_delete_optimizes_multiple():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
-        "df1.insert(2, 'C', 0)", 
+        "df1['C'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
         '',
@@ -294,7 +294,7 @@ def test_set_column_formula_in_duplicate_does_not_overoptmize():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1_copy = df1.copy(deep=True)",
         '',
