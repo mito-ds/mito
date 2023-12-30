@@ -190,6 +190,9 @@ class ExcelRangeImportCodeChunk(CodeChunk):
     def get_created_sheet_indexes(self) -> Optional[List[int]]:
         return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.new_df_names))]
 
+    def get_source_sheet_indexes(self) -> List[int]:
+        return []
+
     def _combine_right_with_excel_range_import_code_chunk(self, excel_range_import_code_chunk: "ExcelRangeImportCodeChunk") -> Optional[CodeChunk]:
         if excel_range_import_code_chunk.file_path == self.file_path and excel_range_import_code_chunk.sheet == self.sheet:
             new_range_imports = copy(self.range_imports)

@@ -109,6 +109,9 @@ class SimpleImportCodeChunk(CodeChunk):
     def get_created_sheet_indexes(self) -> List[int]:
         return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.new_df_names))]
 
+    def get_source_sheet_indexes(self) -> List[int]:
+        return []
+
     def _combine_right_simple_import(self, other_code_chunk: "SimpleImportCodeChunk") -> Optional["CodeChunk"]:
         # We can easily combine simple imports, so we do so
         file_names = self.file_names + other_code_chunk.file_names

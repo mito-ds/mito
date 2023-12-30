@@ -98,12 +98,18 @@ def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) 
     final_code_chunks = [all_code_chunks[0], all_code_chunks[1]]
     for code_chunk in all_code_chunks[2:]:
 
+        print("CHECKING", code_chunk)
+
+        added = False
+
         for i in range(1, len(final_code_chunks)):
+            print("NOW ON", i)
             one_back_code_chunk = final_code_chunks[-1 * i]
             two_back_code_chunk = final_code_chunks[-1 * i - 1]
 
             if not one_back_code_chunk.can_be_reordered_with(code_chunk) or not code_chunk.can_be_reordered_with(one_back_code_chunk):
                 final_code_chunks.append(code_chunk)
+                added = True
                 break
             
             else:
@@ -115,14 +121,17 @@ def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) 
                 optimized_left = code_chunk.combine_right(two_back_code_chunk) is not None
 
                 if optimized_right or optimized_left:
-                    final_code_chunks.append(one_back_code_chunk)
-                    final_code_chunks[-2] = (code_chunk)
+                    final_code_chunks.insert(-1 * i, code_chunk)
                     reordered = True
+                    added = True
                     break
+        
+        if not added:
+            final_code_chunks.append(code_chunk)
 
-                else:
-                    final_code_chunks.append(code_chunk)
-                    break
+    print("REORDERED", reordered)
+    print(all_code_chunks)
+    print(final_code_chunks)
 
     return reordered, final_code_chunks
 

@@ -38,3 +38,6 @@ class ConcatCodeChunk(CodeChunk):
 
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.prev_state.dfs)]
+    
+    def get_source_sheet_indexes(self) -> List[int]:
+        return [sheet_index for sheet_index in self.sheet_indexes]

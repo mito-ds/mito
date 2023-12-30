@@ -187,6 +187,9 @@ class MergeCodeChunk(CodeChunk):
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.prev_state.dfs)]
     
+    def get_source_sheet_indexes(self) -> List[int]:
+        return [self.sheet_index_one, self.sheet_index_two]
+    
     def can_be_reordered_with(self, code_chunk: CodeChunk) -> bool:
         """
         A merge either creates or edits a sheet. In either case, we don't

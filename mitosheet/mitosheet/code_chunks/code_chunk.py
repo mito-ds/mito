@@ -32,7 +32,10 @@ class CodeChunk:
         self.prev_state = prev_state
 
     def __repr__(self) -> str:
-        members = [(attr, getattr(self, attr)) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")]
+        members = [
+            (attr, getattr(self, attr)) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")
+            and ('sheet_index' in attr or 'file_name' in attr)
+        ]
         return f"{self.__class__.__name__}({members})"
 
     def get_display_name(self) -> str:
@@ -95,6 +98,16 @@ class CodeChunk:
         """
         return None
     
+    def get_source_sheet_indexes(self) -> Optional[List[int]]:
+        """
+        If you return some created sheet indexes, then you can also return 
+        the source sheet indexes that you created this new sheet from. If 
+        you return None from this function, it means that you did not have 
+        any source dataframes.
+        """
+        return None
+
+    
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         """
         Given a list of CodeChunks [A, B], combine right called on A with
@@ -138,17 +151,19 @@ class CodeChunk:
         Returns true if the passed code chunk can be moved from
         before to after (or after to before) with this code chunk. 
         """
-        # If it has created sheets, don't reorder around it
-        created_sheet_indexes = self.get_created_sheet_indexes()
-        if created_sheet_indexes is not None and len(created_sheet_indexes) > 0:
-            print("CUZ CREATED", created_sheet_indexes)
-            return False
-        
-        # Then, we don't reorder if they touch the same sheet
+
         edited_sheet_indexes = self.get_edited_sheet_indexes()
+        source_sheet_indexes = self.get_source_sheet_indexes()
         other_edited_indexes = code_chunk.get_edited_sheet_indexes()
-        if edited_sheet_indexes is None or other_edited_indexes is None or set(edited_sheet_indexes) == set(other_edited_indexes):
-            print("EDITED OVERLAP")
+
+        # First, don't reorder if they touch the same sheet
+        if edited_sheet_indexes is not None and other_edited_indexes is not None and set(edited_sheet_indexes) == set(other_edited_indexes):
+            print("NO< EDITED", edited_sheet_indexes, other_edited_indexes)
             return False
         
+        # Second, don't reorder if the other code chunk edits where this code chunk pulls from
+        if source_sheet_indexes is not None and other_edited_indexes is not None and any(index in source_sheet_indexes for index in other_edited_indexes):
+            print("NO< SOURCE OVERLAP")
+            return False
+
         return True
