@@ -1,5 +1,5 @@
 import ast
-from copy import deepcopy
+from copy import copy
 from typing import Any, Dict, List, Literal, Tuple, TypedDict, Union
 
 """
@@ -40,12 +40,26 @@ is, but I think it's kinda the best of all worlds.
 
 
 string = """
+import math
+from typing import Any
 
 def add_one(x):
     return x + 1
 
 def add_two(x):
-    return x + 2
+    return add_one(x) + 1
+
+class TestClass():
+
+    def __init__(self):
+        self.internal = 0
+
+    def increment(self, inc):
+        self.internal += inc
+        return self.internal
+
+    def add_one(self, value):
+        return add_one(value)
 
 a = 1
 b = 2
@@ -54,21 +68,33 @@ c = 3
 a + b
 b + c
 
+x = \
+    10 \
+    + 10
+
 a = a + 1
 b = a + 2
 c += 10
 a -= 3
 
 a = add_one(a)
+
+for i in range(10):
+    a += i
+
+test_obj = TestClass()
+test_obj.increment(10)
+d = test_obj.increment(2)
+
+a += test_obj.add_one(a)
 """
 VariableName = str
-Expression = str
 VariableValue = int
 VariableChange = int
-CreateOperation = Tuple[Literal["Create"], VariableName, Expression, VariableValue]
-IncrementOperation = Tuple[Literal["Increment"], VariableName, Expression, VariableChange]
-DecrementOperation = Tuple[Literal["Decrement"], VariableName, Expression, VariableChange]
-NoOpOperation = Tuple[Literal["NoOp"], VariableName, Expression]
+CreateOperation = Tuple[Literal["Create"], VariableName, VariableValue]
+IncrementOperation = Tuple[Literal["Increment"], VariableName, VariableChange]
+DecrementOperation = Tuple[Literal["Decrement"], VariableName, VariableChange]
+NoOpOperation = Tuple[Literal["NoOp"], VariableName]
 Operations = Union[CreateOperation, IncrementOperation, DecrementOperation, NoOpOperation]
 
 CoreMemory = Dict[VariableName, int]
@@ -79,159 +105,145 @@ CoreMemory = Dict[VariableName, int]
 ExtraMemory = Dict[VariableName, Any]
 
 class ReconType(TypedDict):
+    type: Literal['recon']
     core_memory: CoreMemory
     extra_memory: ExtraMemory
     operations: List[Operations]
 
-def exec_and_get_new_memories(memory: CoreMemory, extra_memory: ExtraMemory, source: str) -> Tuple[CoreMemory, ExtraMemory]:
+class ErrorType(TypedDict):
+    type: Literal['error']
+    error: Any
+    line: str
+    previous_recon: ReconType
+
+ReconOrError = Union[ReconType, ErrorType]
+
+def exec_and_get_new_recon(recon: ReconType, source: str) -> ReconType:
+
+    memory = recon['core_memory']
+    extra_memory = recon['extra_memory']
+    operations = recon['operations']
+
     temp_new_memory = {
         **memory,
         **extra_memory
     }
-    exec(source, {}, temp_new_memory)
+    exec(source, {**extra_memory}, temp_new_memory)
     
     new_memory = {k: v for k, v in temp_new_memory.items() if isinstance(v, int)}
     new_extra_memory = {k: v for k, v in temp_new_memory.items() if k not in new_memory}
 
-    return new_memory, new_extra_memory
-
-def __assign_helper(recon: ReconType, source: str, assign_node: ast.AST, target_node: ast.Name, value_node: ast.AST) -> ReconType:
-    relevant_source = ast.get_source_segment(source, assign_node)
-    variable_name = target_node.id
-    expression = ast.get_source_segment(source, value_node)
-
-    if relevant_source is None or expression is None:
-        return recon
-    
-    memory = recon['core_memory']
-    extra_memory = recon['extra_memory']
-    operations = recon['operations']
-    
-    new_memory, new_extra_memory = exec_and_get_new_memories(
-        deepcopy(memory),
-        deepcopy(extra_memory),
-        relevant_source
-    )
 
     new_operations = operations.copy()
-    if variable_name in memory:
-        
-        if memory[variable_name] > new_memory[variable_name]:
-            new_operations.append(('Decrement', variable_name, expression, memory[variable_name] - new_memory[variable_name]))
-        elif memory[variable_name] < new_memory[variable_name]:
-            new_operations.append(('Increment', variable_name, expression, new_memory[variable_name] - memory[variable_name]))
-        else:
-            new_operations.append(('NoOp', variable_name, expression))
+    for variable_name in new_memory:
+        if variable_name in memory:
+            if memory[variable_name] > new_memory[variable_name]:
+                new_operations.append(('Decrement', variable_name, memory[variable_name] - new_memory[variable_name]))
+            elif memory[variable_name] < new_memory[variable_name]:
+                new_operations.append(('Increment', variable_name, new_memory[variable_name] - memory[variable_name]))
 
-    else:
-        new_operations.append(('Create', variable_name, expression, new_memory[variable_name]))
+        else:
+            new_operations.append(('Create', variable_name, new_memory[variable_name]))
 
     return {
+        'type': 'recon',
         'core_memory': new_memory,
         'extra_memory': new_extra_memory,
         'operations': new_operations
     }
-    
 
-def _handle_assign(recon: ReconType, source: str, ast_node: ast.Assign) -> ReconType:
-    assign_source = ast.get_source_segment(source, ast_node)
-    
-    targets = ast_node.targets
-    value_node = ast_node.value
-
-    assert len(targets) == 1
-
-    for target_node in targets:
-        if isinstance(target_node, ast.Name):
-            return __assign_helper(recon, source, ast_node, target_node, value_node)
-        
-    raise Exception("Not able to handle this one")
-
-def _handle_expr(recon: ReconType, source: str, ast_node: ast.Expr) -> ReconType:
-    relevant_source = ast.get_source_segment(source, ast_node)
-    
-    # Because integers cannot be modified without an assign, we don't worry about 
-    # the expr case here
-
-    return recon
-
-def _handle_augassign(recon: ReconType, source: str, ast_node: ast.AugAssign) -> ReconType:
-    relevant_source = ast.get_source_segment(source, ast_node)
-
-    target = ast_node.target
-    value = ast_node.value
-
-    if not isinstance(target, ast.Name):
-        return recon
-    
-    return __assign_helper(recon, source, ast_node, target, value)
-
-def _handle_functiondef(recon: ReconType, source: str, ast_node: ast.FunctionDef) -> ReconType:
+def _handle_default_ast_node(recon: ReconType, source: str, ast_node: ast.AST) -> ReconType:
     relevant_source = ast.get_source_segment(source, ast_node)
 
     if relevant_source is None:
         return recon
 
-    core_memory, extra_memory =  exec_and_get_new_memories(
-        deepcopy(recon['core_memory']),
-        deepcopy(recon['extra_memory']),
-        relevant_source
+    return exec_and_get_new_recon(
+        recon, relevant_source
     )
 
-    return {
-        'core_memory': core_memory,
-        'extra_memory': extra_memory,
-        'operations': recon['operations']
-    }
+DEFAULT_AST_NODE = [
+    ast.Assign,
+    ast.Expr,
+    ast.AugAssign,
+    ast.FunctionDef,
+    ast.Import,
+    ast.ImportFrom,
+    ast.For,
+    ast.ClassDef
+]
 
-
-def get_recon(source: str) -> ReconType:     
+def get_recon(source: str) -> ReconOrError:     
 
     parsed = ast.parse(source)
     recon: ReconType = {
+        'type': 'recon',
         'core_memory': {},
         'extra_memory': {},
         'operations': []
     }
 
     for node in parsed.body:
-        if isinstance(node, ast.Assign):
-            recon = _handle_assign(recon, source, node)
-        elif isinstance(node, ast.Expr):
-            recon = _handle_expr(recon, source, node)
-        elif isinstance(node, ast.AugAssign):
-            recon = _handle_augassign(recon, source, node)
-        elif isinstance(node, ast.FunctionDef):
-            recon = _handle_functiondef(recon, source, node)
-            # Function definitions do not modify any variables, so we 
-            # can just ignore them. 
-            # TODO: bug if the function name is the variable name already defined
-            # but ... don't do that
+        found = False
+        for type in DEFAULT_AST_NODE:
+            if isinstance(node, type):
+                try:
+                    recon = _handle_default_ast_node(recon, source, node)
+                except Exception as e:
+                    line = ast.get_source_segment(source, node)
+                    error: ErrorType = {
+                        'type': 'error',
+                        'error': e,
+                        'line': line or '',
+                        'previous_recon': recon
+                    }
+                    return error
 
-            # TODO: we need to handle cleaning up local variables who have a scope inside
-            # of a function. Perhaps we can have an "Enter Function" and "Leave Function"
-            # operation?
-            pass
-        else:
+
+                found = True
+                break
+
+        if not found:
             raise ValueError(node)
 
     return recon
 
-    
 
+recon_or_error = get_recon(string)
+if recon_or_error['type'] == 'error':
+    error = recon_or_error
+    try:
+        exec(string)
+        
+    except Exception as e:
+        assert e == error['error']
+        exit(0)
 
-recon = get_recon(string)
-print(recon)
+    assert False, "Should have failed above in the exec"
 
-# Make sure it execed properly
-locals = {}
-exec(string, {}, locals)
-
-core_locals = {k: v for k, v in locals.items() if isinstance(v, int)}
-
-
-if core_locals != recon['core_memory']:
-    print("Extra data in core memory", {k: v for k, v in recon['core_memory'].items() if k not in core_locals})
-    print("Extra data in locals", {k: v for k, v in core_locals.items() if k not in recon['core_memory']})
 else:
-    print("Execed correctly")
+    recon = recon_or_error
+    for operation in recon['operations']:
+        print(operation)
+
+    # Make sure it execed properly, by execing the whole string
+    locals = {}
+    # We need to have locals in both places, for some reason?
+    exec(string, locals, locals)
+    core_locals = {k: v for k, v in locals.items() if isinstance(v, int)}
+    if core_locals != recon['core_memory']:
+        print("Extra data in core memory", {k: v for k, v in recon['core_memory'].items() if k not in core_locals})
+        print("Extra data in locals", {k: v for k, v in core_locals.items() if k not in recon['core_memory']})
+    else:
+        print("Execed correctly")
+
+
+"""
+Things that need to be fixed:
+
+# For Loops
+
+The loop variable, if it's the type of the core variables, ends up 
+getting saved. While this is _true_ of Python scope, it's not really
+what we want -- since those shouldn't become sheets
+"""
