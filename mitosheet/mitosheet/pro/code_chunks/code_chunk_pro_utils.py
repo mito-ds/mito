@@ -1,6 +1,6 @@
 
 from copy import copy
-from typing import List, Tuple
+from typing import List, Dict, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 
 
@@ -77,6 +77,50 @@ def optimize_code_chunks_combine_left(code_chunks_to_optimize: List[CodeChunk]) 
     return optimized, code_chunks_list
 
 
+def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) -> Tuple[bool, List[CodeChunk]]:
+    """
+    Sometimes a user will perform actions in an order that is not super
+    advantageous to code optimization. As such, we do our best to reorder
+    code chunks in a way that:
+    1. Absolutely is safe -- there should be no changes in behavior
+    2. Results in a better code optimization
+
+    For now, we do not reorder around dataframe creation operations, as 
+    this requires reasoning about some casual graph that we don't 
+    currently have access to. As such, we only reorder operations that 
+    edit specific dataframes - and we namely, try and group these operations
+    together.
+    """
+    if len(all_code_chunks) < 3:
+        return False, all_code_chunks
+    
+    reordered = False
+    final_code_chunks = [all_code_chunks[0], all_code_chunks[1]]
+    for code_chunk in all_code_chunks[2:]:
+        one_back_code_chunk = final_code_chunks[-1]
+        two_back_code_chunk = final_code_chunks[-2]
+
+        if not one_back_code_chunk.can_be_reordered_with(code_chunk) or not code_chunk.can_be_reordered_with(one_back_code_chunk):
+            final_code_chunks.append(code_chunk)
+        
+        else:
+            # Because this function is called after left and right optimization, we 
+            # know that the one_back_code_chunk will not optimize with this one. So 
+            # we check if this code chunk will be reoredered with the two_back_code_chunk
+            # and move it there if so. 
+            optimized_right = two_back_code_chunk.combine_right(code_chunk) is not None
+            optimized_left = code_chunk.combine_right(two_back_code_chunk) is not None
+
+            if optimized_right or optimized_left:
+                final_code_chunks.append(one_back_code_chunk)
+                final_code_chunks[-2] = (code_chunk)
+                reordered = True
+
+            else:
+                final_code_chunks.append(code_chunk)
+
+    return reordered, final_code_chunks
+
 def optimize_code_chunks(all_code_chunks: List[CodeChunk]) -> List[CodeChunk]:
     """
     Given a list of code chunks, will recursively attempt to optimize them 
@@ -87,13 +131,16 @@ def optimize_code_chunks(all_code_chunks: List[CodeChunk]) -> List[CodeChunk]:
     where A and B can be combined to a No-op. Thus, after one call, we end with 
     [A, B], and we need to recurse to finish the optimization.
     """
+    # First, try and remove code chunks we know we can remove
+    optimized_right, all_code_chunks = optimize_code_chunks_combine_right(all_code_chunks)
+    optimized_left, all_code_chunks = optimize_code_chunks_combine_left(all_code_chunks)
 
-    optimized_right, code_chunks_list = optimize_code_chunks_combine_right(all_code_chunks)
-    optimized_left, code_chunks_list = optimize_code_chunks_combine_left(code_chunks_list)
-    
+    # Then, reorder the code chunks to be more optimal
+    reordered, all_code_chunks = reorder_code_chunks_for_more_optimization(all_code_chunks)
+
     # As long as we optimized in this iteration, recurse as we might
     # need to optimize again
-    if optimized_right or optimized_left:
-        return optimize_code_chunks(code_chunks_list)
+    if optimized_right or optimized_left or reordered:
+        return optimize_code_chunks(all_code_chunks)
 
-    return code_chunks_list
+    return all_code_chunks

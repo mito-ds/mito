@@ -283,6 +283,13 @@ class PivotCodeChunk(CodeChunk):
         if self.destination_sheet_index is not None:
             return [self.destination_sheet_index]
         return []
+    
+    def can_be_reordered_with(self, code_chunk: CodeChunk) -> bool:
+        """
+        A pivot either creates or edits a sheet. In either case, we don't
+        want to reorder around it as this may cause bugs -- so we don't. 
+        """
+        return False
 
 
 def get_code_for_transform_columns(df_name: str, column_headers_with_transforms: List[ColumnHeaderWithPivotTransform]) -> List[str]:

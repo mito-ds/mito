@@ -1113,3 +1113,24 @@ def test_transpile_handles_new_line_character():
 # B
 df1 = df1[df1['A\\nB'] > 1]
 """
+
+
+def test_transpile_optimizes_renames_out_of_order():
+    df = pd.DataFrame({'A': [1], 'B': [2]})
+    mito = create_mito_wrapper(df, df)
+
+    mito.rename_column(0, 'A', 'AA')
+    mito.rename_column(1, 'A', 'AA')
+    mito.rename_column(0, 'B', 'BB')
+
+    assert mito.dfs[0].equals(pd.DataFrame({'AA': [1], 'BB': [2]}))
+    assert mito.dfs[1].equals(pd.DataFrame({'AA': [1], 'B': [2]}))
+
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        '', 
+        "df1.rename(columns={'A': 'AA', 'B': 'BB'}, inplace=True)", 
+        '', 
+        "df2.rename(columns={'A': 'AA'}, inplace=True)", 
+        '',
+    ]

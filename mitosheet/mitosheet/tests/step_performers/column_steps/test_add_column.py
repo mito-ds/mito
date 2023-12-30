@@ -221,7 +221,7 @@ def test_add_then_set_formula_then_rename_then_delete_optimizes():
     ]
 
     
-def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimize():
+def test_add_then_set_formula_then_rename_then_delete_diff_sheet_optimizes_by_reorder():
     mito = create_mito_wrapper_with_data([1])
     mito.duplicate_dataframe(0)
     mito.add_column(1, 'B')
@@ -238,11 +238,9 @@ def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimi
         '',
         "df1_copy = df1.copy(deep=True)",
         '',
-        "df1_copy.insert(1, 'C', 0)",
+        "df1_copy.drop(['A'], axis=1, inplace=True)",
         '',
         "df1.insert(1, 'C', 10)",
-        '',
-        "df1_copy.drop(['A', 'C'], axis=1, inplace=True)",
         '',
     ]
 

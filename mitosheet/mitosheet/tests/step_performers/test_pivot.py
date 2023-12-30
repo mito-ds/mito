@@ -397,7 +397,7 @@ def test_pivot_with_filter_no_effect_on_source_data():
     assert mito.dfs[1].equals(pd.DataFrame({'Name': ['Nate'], 'Height sum': [5]}))
 
 
-def test_pivot_with_filter_reaplies ():
+def test_pivot_with_filter_reapplies():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate', 'Jake'], 'Height': [4, 5, 6]})
     mito = create_mito_wrapper(df1)
 

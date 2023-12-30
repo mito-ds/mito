@@ -32,7 +32,8 @@ class CodeChunk:
         self.prev_state = prev_state
 
     def __repr__(self) -> str:
-        return self.__class__.__name__
+        members = [(attr, getattr(self, attr)) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")]
+        return f"{self.__class__.__name__}({members})"
 
     def get_display_name(self) -> str:
         """Returns a short name to display for this CodeChunk"""
@@ -132,4 +133,22 @@ class CodeChunk:
         """
         return []
     
-
+    def can_be_reordered_with(self, code_chunk: "CodeChunk") -> bool:
+        """
+        Returns true if the passed code chunk can be moved from
+        before to after (or after to before) with this code chunk. 
+        """
+        # If it has created sheets, don't reorder around it
+        created_sheet_indexes = self.get_created_sheet_indexes()
+        if created_sheet_indexes is not None and len(created_sheet_indexes) > 0:
+            print("CUZ CREATED", created_sheet_indexes)
+            return False
+        
+        # Then, we don't reorder if they touch the same sheet
+        edited_sheet_indexes = self.get_edited_sheet_indexes()
+        other_edited_indexes = code_chunk.get_edited_sheet_indexes()
+        if edited_sheet_indexes is None or other_edited_indexes is None or set(edited_sheet_indexes) == set(other_edited_indexes):
+            print("EDITED OVERLAP")
+            return False
+        
+        return True
