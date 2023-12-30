@@ -82,7 +82,6 @@ If I were to take another shot, I would want to try:
 
 
 import ast
-from copy import copy
 from typing import Any, Dict, List, Literal, Tuple, TypedDict, Union
 
 """
@@ -118,7 +117,15 @@ by a static understanding of the line of code.
 
 This is... weird? It's like a really interesting middle-ground between static and
 dynamic analysis, that is kinda like semantic code reasoning. Idk what it really
-is, but I think it's kinda the best of all worlds. 
+is, but I think it's kinda the best of all worlds.
+
+# Transformation to a Stack Language
+
+```
+a = (a + 10) + 10
+```
+
+An expression should convert to a list of 
 """
 
 
@@ -157,28 +164,16 @@ x = \
 
 a = a + 1
 b = a + 2
-c += 10
-a -= 3
+sa = add_one(a)
 
-a = add_one(a)
-
-for i in range(10):
-    a += i
+a = math.pow(a, 2)
 
 test_obj = TestClass()
 test_obj.increment(10)
 d = test_obj.increment(2)
 
-a += test_obj.add_one(a)
-
 with open('file.txt', 'w+') as f:
     f.write("test")
-
-if True:
-    a = a + 100
-    
-while a > 10:
-    a -= 10
 
 new = 10
 new = new * 10
@@ -215,18 +210,6 @@ class ErrorType(TypedDict):
 
 ReconOrError = Union[ReconType, ErrorType]
 
-def get_operations_from_expression(recon: ReconType, expr: ast.Expr) -> Operations:
-    # Does not actually exec. Just statically (?) determines what operations are
-    # represented here...
-
-    # If there is a field with nodes, it is executed in order? 
-    # Otherwise, how do we know what is executed? Ok, let's make the call to NOT
-    # support IF, WHILE, or FOR loops. So we literally just accept simple expressions
-    # and not even the conditional ones for now. So just integers and boolean arthmetic
-
-
-    pass
-
 def exec_and_get_new_recon(recon: ReconType, source: str) -> ReconType:
 
     memory = recon['core_memory']
@@ -260,8 +243,18 @@ def exec_and_get_new_recon(recon: ReconType, source: str) -> ReconType:
         'operations': operations + new_operations
     }
 
-def _handle_default_ast_node(recon: ReconType, source: str, ast_node: ast.AST) -> ReconType:
-    relevant_source = ast.get_source_segment(source, ast_node)
+
+DEFAULT_AST_NODES = [
+    ast.Import,
+    ast.ImportFrom,
+    ast.FunctionDef,
+    ast.ClassDef,
+    ast.Expr,
+    ast.With,
+]
+
+def _handle_default_ast_node(source: str, node: ast.AST, recon: ReconType) -> ReconType:
+    relevant_source = ast.get_source_segment(source, node)
     
     if relevant_source is None:
         return recon
@@ -270,50 +263,117 @@ def _handle_default_ast_node(recon: ReconType, source: str, ast_node: ast.AST) -
         recon, relevant_source
     )
 
-DEFAULT_AST_NODES = [
-    ast.Assign,
-    ast.Expr,
-    ast.AugAssign,
-    ast.Import,
-    ast.ImportFrom,
-    ast.With,
-    ast.FunctionDef,
-    ast.ClassDef,
-    ast.For,
-    ast.If,
-    ast.While
-]
 
-def get_recon_for_ast_node_with_body(source: str, ast_node: ast.AST, recon: ReconType) -> ReconOrError:
+def _get_operations_from_expression_helper(source: str, node: ast.expr, recon: ReconType) -> List[Operations]:
+    """
+    NOTE: we assume that these expressions _do not_ modify anything in place, and as such
+    are save to execute as many times as we want in isolated enviornments.
+    """
 
+    memory = recon['core_memory']
+    extra_memory = recon['extra_memory']
+
+    temp_new_memory = {
+        **memory,
+        **extra_memory
+    }
+
+    relevant_source = ast.get_source_segment(source, node)
+    if relevant_source is None:
+        return []
+
+    exec(relevant_source, {**extra_memory}, temp_new_memory)
+
+    print(relevant_source, node)
+
+    return []
+
+def _get_operations_from_expression(source: str, node: ast.expr, recon: ReconType) -> List[Operations]:
+    """
+    NOTE: we assume that these expressions _do not_ modify anything in place, and as such
+    are save to execute as many times as we want in isolated enviornments.
+    """
+
+    if isinstance(node, ast.Constant):
+        return []
     
-    for node in ast_node.body: # type: ignore
-        is_default_node_type = any(isinstance(node, type) for type in DEFAULT_AST_NODES)
-        found = is_default_node_type
+    if 
+    
+    elif isinstance(node, ast.BinOp):
+        left_operations = _get_operations_from_expression_helper(node.left)
+        right_operations = _get_operations_from_expression_helper(node.right)
+        pass
 
-        try:
-            if is_default_node_type:
-                recon = _handle_default_ast_node(recon, source, node)
-            else:
-                print("HERE123")
-                print("Unspported Node Type", type(node))
-                exit(1)
+    elif isinstance(node, ast.Call):
+        pass
 
 
-        except Exception as e:
-            print("HIT ERROR")
-            line = ast.get_source_segment(source, node)
-            error: ErrorType = {
-                'type': 'error',
-                'error': e,
-                'line': line or '',
-                'previous_recon': recon
-            }
-            return error
-        
-        if not found:
-            raise ValueError(node)
-        
+
+
+
+
+    # If there is a field with nodes, it is executed in order? 
+    # Otherwise, how do we know what is executed? Ok, let's make the call to NOT
+    # support IF, WHILE, or FOR loops. So we literally just accept simple expressions
+    # and not even the conditional ones for now. So just integers and boolean arthmetic
+
+    pass
+
+
+def _handle_assign(source: str, node: ast.Assign, recon: ReconType) -> ReconType:
+    targets = node.targets
+    assert len(targets) == 1 # For now, we throw errors with anything unexpected
+
+    target = targets[0]
+    value = node.value
+    if isinstance(target, ast.Name):
+        variable_name = target.id
+
+        memory = recon['core_memory']
+        if variable_name in memory:
+            print("Modified", variable_name)
+        else:
+            print("Created", variable_name)
+
+        operations = _get_operations_from_expression(source, value, recon)
+
+
+        return _handle_default_ast_node(source, node, recon)
+
+
+
+    else:
+        raise ValueError('Target is not a name', node)
+
+
+def get_recon_helper(source: str, node: ast.AST, recon: ReconType) -> ReconType:
+    """
+    Limitaitons:
+    1.  No conditionals
+    2.  No loops
+    3.  Expressions do not modify anything. We only modify
+        with assignment, which gives us the ability to execute
+        any expression (and it's subexpressions) as many times
+        as we want
+    4.  Do not support AugAssign
+    5.  Variables cannot be modified within a With (which otherwise are supported)
+    6.  Expressions that are modifying a core variable will only reference that core
+        variable (NOT TRUE IN MITO - E.G. VLOOKUP)
+    7.  Expressions that are creating a new core variable can reference multiple 
+        variables
+    """
+
+    if isinstance(node, ast.Module):
+        # If it's a module, we just execute it's body in order
+        for child in node.body:
+            recon = get_recon_helper(source, child, recon)
+
+    elif any(isinstance(node, type) for type in DEFAULT_AST_NODES):
+        recon = _handle_default_ast_node(source, node, recon)
+    
+    elif isinstance(node, ast.Assign):
+        recon = _handle_assign(source, node, recon)
+
     return recon
 
 def get_recon(source: str) -> ReconOrError:     
@@ -325,8 +385,7 @@ def get_recon(source: str) -> ReconOrError:
         'extra_memory': {},
         'operations': []
     }
-
-    return get_recon_for_ast_node_with_body(source, parsed, recon)
+    return get_recon_helper(source, parsed, recon)
 
 recon_or_error = get_recon(string)
 if recon_or_error['type'] == 'error':
