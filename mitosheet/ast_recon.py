@@ -1,3 +1,86 @@
+"""
+# Motivation
+In this experiment, I was trying to figure out the Python AST to perform a better 
+automate recon. The dream would be we could pass _any_ code a function that takes
+1. The state of the dataframes in Mito
+2. The metadata we're tracking about these dataframes
+3. Some code to execute against these dataframes
+
+And we'd get back the new dataframes, as well as the new metadata about these 
+dataframes. 
+
+Notably, we have to manually update this (e.g. for filtering dataframes) -- and
+that is kinda annoying. 
+
+Also, if we had this, it would open up more interesting code optimization 
+opportunities. Once you have a map from code line => operations it performs
+on both metadata and dataframes, you can start opimizing over the _lines_ of
+the code (based on their operations) rather than on code chunks themselves.
+
+I think this... would be better? It would bring our optimization down to a line
+level, while also make our algorithm reason about smaller, more specific 
+operations. I think this would be good...
+
+On the other hand, this could be a massive rabbit hole, and I could just be
+getting nerd-snipped. Not really sure yet, so glad I did this experiment.
+
+# What happened here
+
+Pretty much, I accidently just implemented per-line execution, with no reasoning
+using the AST. I initially started with a funciton per AST node, but didn't know 
+how to recurse effectively -- so I then just did per line execution without realizing
+I was not doing the right thing. 
+
+If I were to take another shot, I would want to try:
+1.  Getting the AST nodes in _execution_ order, and seeing if we can just build a semantic
+    understanding without needing to actually execute those nodes. This would, of course, 
+    fail because like if statements -- you need to be dynamically executing to know the values
+    of variables to figure out what changes have been made!
+2.  Do some tree walk. If I get to a conditional anywhere, then somehow execute _until here_ 
+    (potentially transforming the code with temp variables) until we figure out if it is
+    gonna execute.  
+
+    Pretty much, if you imagine an AST, it looks somethibng like this:
+
+                      Module
+                  /           \
+              Assign            If
+            /   \              /   \
+        Name    AddOp     Cond     Body
+                / \
+               Val Val
+
+    We can _statically_ build an understanding of Assign. We probably want to do something like
+    executing every assign by itself, and then having a tool for function for reasoning about
+    expressions like AddOpp part of the tree. This is easy (?) to do statically.
+
+    The If statement needs to know the results of the previous assign, and then we can see if it 
+    runs. If it does, we recurse into the body, and run this algoritm again. 
+
+    For For loops -- things get even more challenging, since how do you know when it stops executing?
+    I think we need to figure out a way to exec every _loop defintion_ and every _loop iteration_ 
+    seperately, which is the challening part. Exec can't be left with a hanging loop (e.g. it is 
+    not valid to do `exec('for i in range(10):')` -- it will error). And so instead we'd have to 
+    do something insane like change the code to:
+    ```
+    for {var} in {range}:
+        {cond}(var)
+    ```
+    Into some sort of code that does:
+    ```
+    tmp_range = {range}
+    ```
+    First, and then does
+    ```
+    {var} = next(tmp_range)
+    {cond}(var)
+    ```
+
+    I think this would work. The hard part is doing the AST walk in the correct order, ya -- like
+    you actually need to think about each node.
+"""
+
+
 import ast
 from copy import copy
 from typing import Any, Dict, List, Literal, Tuple, TypedDict, Union
@@ -87,10 +170,24 @@ test_obj.increment(10)
 d = test_obj.increment(2)
 
 a += test_obj.add_one(a)
+
+with open('file.txt', 'w+') as f:
+    f.write("test")
+
+if True:
+    a = a + 100
+    
+while a > 10:
+    a -= 10
+
+new = 10
+new = new * 10
 """
+
+
 VariableName = str
-VariableValue = int
-VariableChange = int
+VariableValue = Union[int, float]
+VariableChange = Union[int, float]
 CreateOperation = Tuple[Literal["Create"], VariableName, VariableValue]
 IncrementOperation = Tuple[Literal["Increment"], VariableName, VariableChange]
 DecrementOperation = Tuple[Literal["Decrement"], VariableName, VariableChange]
@@ -118,6 +215,18 @@ class ErrorType(TypedDict):
 
 ReconOrError = Union[ReconType, ErrorType]
 
+def get_operations_from_expression(recon: ReconType, expr: ast.Expr) -> Operations:
+    # Does not actually exec. Just statically (?) determines what operations are
+    # represented here...
+
+    # If there is a field with nodes, it is executed in order? 
+    # Otherwise, how do we know what is executed? Ok, let's make the call to NOT
+    # support IF, WHILE, or FOR loops. So we literally just accept simple expressions
+    # and not even the conditional ones for now. So just integers and boolean arthmetic
+
+
+    pass
+
 def exec_and_get_new_recon(recon: ReconType, source: str) -> ReconType:
 
     memory = recon['core_memory']
@@ -133,8 +242,7 @@ def exec_and_get_new_recon(recon: ReconType, source: str) -> ReconType:
     new_memory = {k: v for k, v in temp_new_memory.items() if isinstance(v, int)}
     new_extra_memory = {k: v for k, v in temp_new_memory.items() if k not in new_memory}
 
-
-    new_operations = operations.copy()
+    new_operations = []
     for variable_name in new_memory:
         if variable_name in memory:
             if memory[variable_name] > new_memory[variable_name]:
@@ -149,29 +257,64 @@ def exec_and_get_new_recon(recon: ReconType, source: str) -> ReconType:
         'type': 'recon',
         'core_memory': new_memory,
         'extra_memory': new_extra_memory,
-        'operations': new_operations
+        'operations': operations + new_operations
     }
 
 def _handle_default_ast_node(recon: ReconType, source: str, ast_node: ast.AST) -> ReconType:
     relevant_source = ast.get_source_segment(source, ast_node)
-
+    
     if relevant_source is None:
         return recon
-
+    
     return exec_and_get_new_recon(
         recon, relevant_source
     )
 
-DEFAULT_AST_NODE = [
+DEFAULT_AST_NODES = [
     ast.Assign,
     ast.Expr,
     ast.AugAssign,
-    ast.FunctionDef,
     ast.Import,
     ast.ImportFrom,
+    ast.With,
+    ast.FunctionDef,
+    ast.ClassDef,
     ast.For,
-    ast.ClassDef
+    ast.If,
+    ast.While
 ]
+
+def get_recon_for_ast_node_with_body(source: str, ast_node: ast.AST, recon: ReconType) -> ReconOrError:
+
+    
+    for node in ast_node.body: # type: ignore
+        is_default_node_type = any(isinstance(node, type) for type in DEFAULT_AST_NODES)
+        found = is_default_node_type
+
+        try:
+            if is_default_node_type:
+                recon = _handle_default_ast_node(recon, source, node)
+            else:
+                print("HERE123")
+                print("Unspported Node Type", type(node))
+                exit(1)
+
+
+        except Exception as e:
+            print("HIT ERROR")
+            line = ast.get_source_segment(source, node)
+            error: ErrorType = {
+                'type': 'error',
+                'error': e,
+                'line': line or '',
+                'previous_recon': recon
+            }
+            return error
+        
+        if not found:
+            raise ValueError(node)
+        
+    return recon
 
 def get_recon(source: str) -> ReconOrError:     
 
@@ -183,31 +326,7 @@ def get_recon(source: str) -> ReconOrError:
         'operations': []
     }
 
-    for node in parsed.body:
-        found = False
-        for type in DEFAULT_AST_NODE:
-            if isinstance(node, type):
-                try:
-                    recon = _handle_default_ast_node(recon, source, node)
-                except Exception as e:
-                    line = ast.get_source_segment(source, node)
-                    error: ErrorType = {
-                        'type': 'error',
-                        'error': e,
-                        'line': line or '',
-                        'previous_recon': recon
-                    }
-                    return error
-
-
-                found = True
-                break
-
-        if not found:
-            raise ValueError(node)
-
-    return recon
-
+    return get_recon_for_ast_node_with_body(source, parsed, recon)
 
 recon_or_error = get_recon(string)
 if recon_or_error['type'] == 'error':
@@ -239,11 +358,22 @@ else:
 
 
 """
-Things that need to be fixed:
+Some other notes
 
-# For Loops
+# For Loops, If Statements, While statements
 
-The loop variable, if it's the type of the core variables, ends up 
-getting saved. While this is _true_ of Python scope, it's not really
-what we want -- since those shouldn't become sheets
+Notably, we do not "look inside" these currently. I made this call because we don't generate
+any of these in our generated code.
+
+This means that if you have some code like:
+```
+a = 1
+
+for i in range(3):
+    a += i
+```
+
+This will only register as two operations: 
+- Create `a` with value `1`
+- Increment `a` by `6`
 """
