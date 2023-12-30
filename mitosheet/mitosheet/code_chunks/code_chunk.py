@@ -152,18 +152,21 @@ class CodeChunk:
         before to after (or after to before) with this code chunk. 
         """
 
+        created_sheet_indexes = self.get_created_sheet_indexes()
         edited_sheet_indexes = self.get_edited_sheet_indexes()
         source_sheet_indexes = self.get_source_sheet_indexes()
         other_edited_indexes = code_chunk.get_edited_sheet_indexes()
 
-        # First, don't reorder if they touch the same sheet
+        # Don't reorder if the code chunk is editing what this code chunk created
+        if created_sheet_indexes is not None and other_edited_indexes is not None and any(index in created_sheet_indexes for index in other_edited_indexes):
+            return False
+
+        # Don't reorder if the code chunks are editing the same sheet
         if edited_sheet_indexes is not None and other_edited_indexes is not None and set(edited_sheet_indexes) == set(other_edited_indexes):
-            print("NO< EDITED", edited_sheet_indexes, other_edited_indexes)
             return False
         
-        # Second, don't reorder if the other code chunk edits where this code chunk pulls from
+        # Don't reorder if the other code chunk edits where this code chunk pulls from
         if source_sheet_indexes is not None and other_edited_indexes is not None and any(index in source_sheet_indexes for index in other_edited_indexes):
-            print("NO< SOURCE OVERLAP")
             return False
 
         return True

@@ -1214,3 +1214,29 @@ def test_can_optimize_imports_together_if_just_edits(tmp_path):
     ]
 
 
+def test_edit_dataframe_after_full_clear_does_not_reorder_strangely(tmp_path):
+    df = pd.DataFrame({'A': [1], 'B': [2], 'C': [3]})
+    new_df = pd.DataFrame({'A': [1], 'B': [2], 'C': [3], 'D': [0]})
+
+    path = str(tmp_path / 'test.csv')
+    df.to_csv(path, index=False)
+
+    mito = create_mito_wrapper()
+    mito.simple_import([path])
+    mito.delete_dataframe(0)
+    mito.simple_import([path])
+    mito.add_column(0, 'D')
+
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(new_df)
+
+    print(mito.transpiled_code)
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        'import pandas as pd', 
+        '', 
+        f"test = pd.read_csv(r'{path}')", 
+        '', 
+        "test.insert(3, 'D', 0)", 
+        ''
+    ]
