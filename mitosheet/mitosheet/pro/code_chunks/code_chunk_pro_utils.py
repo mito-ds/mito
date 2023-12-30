@@ -97,27 +97,32 @@ def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) 
     reordered = False
     final_code_chunks = [all_code_chunks[0], all_code_chunks[1]]
     for code_chunk in all_code_chunks[2:]:
-        one_back_code_chunk = final_code_chunks[-1]
-        two_back_code_chunk = final_code_chunks[-2]
 
-        if not one_back_code_chunk.can_be_reordered_with(code_chunk) or not code_chunk.can_be_reordered_with(one_back_code_chunk):
-            final_code_chunks.append(code_chunk)
-        
-        else:
-            # Because this function is called after left and right optimization, we 
-            # know that the one_back_code_chunk will not optimize with this one. So 
-            # we check if this code chunk will be reoredered with the two_back_code_chunk
-            # and move it there if so. 
-            optimized_right = two_back_code_chunk.combine_right(code_chunk) is not None
-            optimized_left = code_chunk.combine_right(two_back_code_chunk) is not None
+        for i in range(1, len(final_code_chunks)):
+            one_back_code_chunk = final_code_chunks[-1 * i]
+            two_back_code_chunk = final_code_chunks[-1 * i - 1]
 
-            if optimized_right or optimized_left:
-                final_code_chunks.append(one_back_code_chunk)
-                final_code_chunks[-2] = (code_chunk)
-                reordered = True
-
-            else:
+            if not one_back_code_chunk.can_be_reordered_with(code_chunk) or not code_chunk.can_be_reordered_with(one_back_code_chunk):
                 final_code_chunks.append(code_chunk)
+                break
+            
+            else:
+                # Because this function is called after left and right optimization, we 
+                # know that the one_back_code_chunk will not optimize with this one. So 
+                # we check if this code chunk will be reoredered with the two_back_code_chunk
+                # and move it there if so. 
+                optimized_right = two_back_code_chunk.combine_right(code_chunk) is not None
+                optimized_left = code_chunk.combine_right(two_back_code_chunk) is not None
+
+                if optimized_right or optimized_left:
+                    final_code_chunks.append(one_back_code_chunk)
+                    final_code_chunks[-2] = (code_chunk)
+                    reordered = True
+                    break
+
+                else:
+                    final_code_chunks.append(code_chunk)
+                    break
 
     return reordered, final_code_chunks
 
