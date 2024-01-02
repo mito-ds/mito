@@ -84,7 +84,7 @@ function GraphExportTab(
                         const downloadLink: HTMLLinkElement | undefined | null = props.mitoContainerRef.current?.querySelector<HTMLLinkElement>('[data-title="Download plot as a png"]')
                         downloadLink?.click()
 
-                        // Log that the user copied the graph code
+                        // Log that the user exported the graph as a png
                         void props.mitoAPI.log('export_graph_as_png', {
                             'graph_type': props.graphParams.graphCreation.graph_type
                         });
