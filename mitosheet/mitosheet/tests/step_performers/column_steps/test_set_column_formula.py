@@ -13,6 +13,7 @@ from mitosheet.column_headers import get_column_header_id
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
                                         create_mito_wrapper)
+from mitosheet.tests.decorators import pandas_post_1_only
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 from mitosheet.utils import get_new_id
 
@@ -159,6 +160,7 @@ def test_can_set_formula_referencing_datetime():
         pd.DataFrame(data={pd.to_datetime('12-22-1997'): [1], 'B': [1]})
     )
 
+@pandas_post_1_only
 def test_can_set_formula_referencing_timedelta():
     df = pd.DataFrame(data={pd.to_timedelta('2 days 00:00:00'): [1]})
     mito = create_mito_wrapper(df)
