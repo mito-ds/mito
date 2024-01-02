@@ -83,6 +83,11 @@ function GraphExportTab(
                         // Find the Plotly Download plot as png button, and then click it. 
                         const downloadLink: HTMLLinkElement | undefined | null = props.mitoContainerRef.current?.querySelector<HTMLLinkElement>('[data-title="Download plot as a png"]')
                         downloadLink?.click()
+
+                        // Log that the user copied the graph code
+                        void props.mitoAPI.log('export_graph_as_png', {
+                            'graph_type': props.graphParams.graphCreation.graph_type
+                        });
                     }}
                     disabled={props.loading || props.graphOutput === undefined}
                     tooltip={'Click to download graph as png'}
