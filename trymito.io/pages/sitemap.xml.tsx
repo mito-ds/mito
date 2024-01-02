@@ -6,7 +6,7 @@ import { getGlossaryPageInfo, getPageContentJsonArray } from '../utils/excel-to-
 import { getPosts } from '../utils/posts';
 import { SLUG_REDIRECTS } from './blog';
 
-const WEBSITE_HOST_URL = 'https://trymito.io';
+const WEBSITE_HOST_URL = 'https://www.trymito.io';
 
 function generateSiteMap(glossarySlugs: string[], blogPostSlugs: string[]) {
     return `<?xml version="1.0" encoding="UTF-8"?>
