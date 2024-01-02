@@ -85,11 +85,8 @@ def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) 
     1. Absolutely is safe -- there should be no changes in behavior
     2. Results in a better code optimization
 
-    For now, we do not reorder around dataframe creation operations, as 
-    this requires reasoning about some casual graph that we don't 
-    currently have access to. As such, we only reorder operations that 
-    edit specific dataframes - and we namely, try and group these operations
-    together.
+    The logic for when code chunks can be reordered can be found in 
+    the can_be_reordered_with function defined on code chunks. 
     """
     if len(all_code_chunks) < 3:
         return False, all_code_chunks

@@ -100,12 +100,15 @@ class CodeChunk:
     
     def get_source_sheet_indexes(self) -> Optional[List[int]]:
         """
-        If you return some created sheet indexes, then you can also return 
-        the source sheet indexes that you created this new sheet from. If 
-        you return None from this function, it means that you did not have 
-        any source dataframes.
+        This funciton returns a list of sheet indexes that go into
+        creating any created_sheet_indexes. 
+
+        If there are no created_sheet_indexes, than this function can
+        be ignored. If there are created_sheet_indexes, than an empty
+        list means there were no source dataframes -- e.g. from a CSV 
+        import from a file.
         """
-        return None
+        return []
 
     
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
@@ -150,6 +153,12 @@ class CodeChunk:
         """
         Returns true if the passed code chunk can be moved from
         before to after (or after to before) with this code chunk. 
+
+        Note that this function is meant to be conservative. It should
+        only return True if the reordering of the code chunks _positively_
+        does not break generated code. 
+
+
         """
 
         created_sheet_indexes = self.get_created_sheet_indexes()

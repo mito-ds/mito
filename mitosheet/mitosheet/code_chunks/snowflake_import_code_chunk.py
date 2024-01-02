@@ -83,9 +83,6 @@ class SnowflakeImportCodeChunk(CodeChunk):
     def get_created_sheet_indexes(self) -> List[int]:
         return [i for i in range(len(self.prev_state.dfs), len(self.prev_state.dfs) + len(self.new_df_names))]
 
-    def get_source_sheet_indexes(self) -> List[int]:
-        return []
-
     def _combine_right_with_snowflake_import_code_chunk(self, other_code_chunk: "SnowflakeImportCodeChunk") -> Optional["SnowflakeImportCodeChunk"]:
         if not self.params_match(other_code_chunk, ['connection_params_dict']):
             return None
