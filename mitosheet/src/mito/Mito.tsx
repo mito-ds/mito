@@ -1123,8 +1123,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     <div
                         className='taskpane-resizer'
                         style={{
-                            width: '5px',
+                            width: '2px',
                             cursor: 'col-resize',
+                            backgroundColor: 'var(--mito-text-light)',
+                            margin: '2px 0'
                         }}
                         onMouseDown={(event) => {
                             event.preventDefault();
