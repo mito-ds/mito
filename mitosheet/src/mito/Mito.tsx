@@ -1016,14 +1016,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     event.preventDefault();
                     event.stopPropagation();
                     const { clientX } = event;
-                    const rawPanelWidth = document.body.clientWidth - clientX;
-                    const panelWidth = Math.max(
-                        Math.min(document.body.clientWidth - TASKPANE_WIDTH_MAX, rawPanelWidth),
+                    const rawTaskpaneWidth = document.body.clientWidth - clientX;
+                    const taskpaneWidth = Math.max(
+                        Math.min(document.body.clientWidth - TASKPANE_WIDTH_MAX, rawTaskpaneWidth),
                         TASKPANE_WIDTH_MIN
                     );
                     setUIState({
                         ...uiState,
-                        taskpaneWidth: panelWidth
+                        taskpaneWidth: taskpaneWidth
                     })
                 }
             }}
