@@ -3,7 +3,7 @@
 import React from 'react';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
 import { MitoAPI } from '../../../api/api';
-import { AnalysisData, ColumnID, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, MergeParams, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import MultiToggleColumns from '../../elements/MultiToggleColumns';
 import Select from '../../elements/Select';
@@ -40,19 +40,11 @@ export enum MergeType {
     UNIQUE_IN_RIGHT = 'unique in right'
 }
 
-export interface MergeParams {
-    how: string,
-    sheet_index_one: number,
-    sheet_index_two: number,
-    merge_key_column_ids: [ColumnID, ColumnID][],
-    selected_column_ids_one: ColumnID[],
-    selected_column_ids_two: ColumnID[],
-}
-
 
 export type MergeTaskpaneProps = {
     selectedSheetIndex: number,
     sheetDataArray: SheetData[],
+    existingParams?: MergeParams,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI,
     analysisData: AnalysisData;
@@ -106,15 +98,103 @@ export const getDefaultMergeParams = (sheetDataArray: SheetData[], _sheetIndexOn
     }
 }
 
+const getValidMergeParams = (params: MergeParams, sheetDataArray: SheetData[]): MergeParams => {
+    const {
+        merge_key_column_ids,
+        selected_column_ids_one,
+        selected_column_ids_two 
+    } = params;
+
+    const sheetDataOne = sheetDataArray[params.sheet_index_one];
+    const sheetDataTwo = sheetDataArray[params.sheet_index_two];
+
+    const validMergeKeyColumnIDs = merge_key_column_ids.filter(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo]) => {
+        return sheetDataOne.columnIDsMap[mergeKeyColumnIDOne] !== undefined && sheetDataTwo.columnIDsMap[mergeKeyColumnIDTwo] !== undefined
+    });
+
+    const validSelectedColumnIDsOne = selected_column_ids_one.filter((columnID) => {
+        return sheetDataOne.columnIDsMap[columnID] !== undefined
+    });
+
+    const validSelectedColumnIDsTwo = selected_column_ids_two.filter((columnID) => {
+        return sheetDataTwo.columnIDsMap[columnID] !== undefined
+    });
+
+    return {
+        ...params,
+        merge_key_column_ids: validMergeKeyColumnIDs,
+        selected_column_ids_one: validSelectedColumnIDsOne,
+        selected_column_ids_two: validSelectedColumnIDsTwo
+    }
+}
+
+const getEditMergeWarnings = (params: MergeParams, sheetDataOne: SheetData, sheetDataTwo: SheetData): {
+    mergeKeyWarnings?: string[],
+    selectedColumnsOneWarnings?: string,
+    selectedColumnsTwoWarnings?: string,
+} => {
+    const {
+        merge_key_column_ids,
+        selected_column_ids_one,
+        selected_column_ids_two 
+    } = params;
+
+    const invalidMergeKeys = merge_key_column_ids.filter(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo]) => {
+        return sheetDataOne.columnIDsMap[mergeKeyColumnIDOne] === undefined || sheetDataTwo.columnIDsMap[mergeKeyColumnIDTwo] === undefined
+    });
+    const mergeKeyWarnings = invalidMergeKeys.map(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo]) => {
+        const sheetOneColumnHeader = sheetDataOne.columnIDsMap[mergeKeyColumnIDOne];
+        const sheetTwoColumnHeader = sheetDataTwo.columnIDsMap[mergeKeyColumnIDTwo];
+        if (sheetOneColumnHeader === undefined && sheetTwoColumnHeader === undefined) {
+            return `The merge keys ${mergeKeyColumnIDOne} and “${mergeKeyColumnIDTwo}” were removed because they no longer exist in “${sheetDataOne.dfName}” and “${sheetDataTwo.dfName}”.`
+        } else if (sheetOneColumnHeader === undefined) {
+            return `The merge key pairing (${mergeKeyColumnIDOne}, ${mergeKeyColumnIDTwo}) was removed because “${mergeKeyColumnIDOne}” no longer exists in “${sheetDataOne.dfName}”.`
+        } else {
+            return `The merge key pairing (${mergeKeyColumnIDOne}, ${mergeKeyColumnIDTwo}) was removed because “${mergeKeyColumnIDTwo}” no longer exists in “${sheetDataTwo.dfName}”.`
+        }
+    });
+
+    const getSelectedColumnWarningString = (invalidSelectedColumns: ColumnID[], sheetData: SheetData): string | undefined => {
+        if (invalidSelectedColumns.length === 1) {
+            return `The column “${invalidSelectedColumns[0]}” was removed because it no longer exists in “${sheetData.dfName}”.`
+        } else if (invalidSelectedColumns.length > 1) {
+            return `The columns “${invalidSelectedColumns.join(', ')}” were removed because they no longer exist in “${sheetData.dfName}”.`
+        } else {
+            return undefined;
+        }
+    }
+
+    const invalidSelectedColumnsOne = selected_column_ids_one.filter((columnID) => {
+        return sheetDataOne.columnIDsMap[columnID] === undefined
+    });
+    const selectedColumnsOneWarning = getSelectedColumnWarningString(invalidSelectedColumnsOne, sheetDataOne);
+
+    const invalidSelectedColumnsTwo = selected_column_ids_two.filter((columnID) => {
+        return sheetDataTwo.columnIDsMap[columnID] === undefined
+    });
+    const selectedColumnsTwoWarning = getSelectedColumnWarningString(invalidSelectedColumnsTwo, sheetDataTwo);
+
+    return {
+        mergeKeyWarnings: mergeKeyWarnings,
+        selectedColumnsOneWarnings: selectedColumnsOneWarning,
+        selectedColumnsTwoWarnings: selectedColumnsTwoWarning
+    }
+}
+
 
 const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
-
     const {params, setParams, error} = useLiveUpdatingParams<MergeParams, MergeParams>(
-        () => getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.defaultMergeType),
+        () => props.existingParams ? getValidMergeParams(props.existingParams, props.sheetDataArray) : getDefaultMergeParams(props.sheetDataArray, props.selectedSheetIndex, undefined, undefined, props.defaultMergeType),
         StepType.Merge,
         props.mitoAPI,
         props.analysisData,
-        50 // 50 ms debounce delay
+        50, // 50 ms debounce delay
+        undefined,
+        {
+            // If we have a destination sheet index, we make sure to not overwrite the pivot
+            // that is there by default
+            doNotSendDefaultParams: props.existingParams !== undefined,
+        }
     )
 
     /*
@@ -126,6 +206,8 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
 
     const sheetDataOne: SheetData = props.sheetDataArray[params.sheet_index_one];
     const sheetDataTwo: SheetData = props.sheetDataArray[params.sheet_index_two];
+
+    const editMergeWarnings = props.existingParams !== undefined ? getEditMergeWarnings(props.existingParams, sheetDataOne, sheetDataTwo) : undefined;
 
     const mergeKeyColumnIDsOne = params.merge_key_column_ids.map(([one, ]) => {return one});
     const mergeKeyColumnIDsTwo = params.merge_key_column_ids.map(([, two]) => {return two});
@@ -200,6 +282,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
                     error={error}
+                    warnings={editMergeWarnings?.mergeKeyWarnings}
                 />
                 <Spacer px={20}/>
                 <p className='text-header-3'>
@@ -208,7 +291,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                 {params.how !== MergeType.UNIQUE_IN_RIGHT &&
                     <MultiToggleColumns
                         sheetData={sheetDataOne}
-                        selectedColumnIDs={params.selected_column_ids_one.concat(mergeKeyColumnIDsOne)}
+                        selectedColumnIDs={params.selected_column_ids_one}
                         disabledColumnIDs={mergeKeyColumnIDsOne}
                         onChange={(newSelectedColumnIDs: ColumnID[]) => {
                             setParams(oldDropDuplicateParams => {
@@ -218,6 +301,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                                 }
                             })
                         }}
+                        warning={editMergeWarnings?.selectedColumnsOneWarnings}
                     />
                 }
                 {params.how === MergeType.UNIQUE_IN_RIGHT &&
@@ -233,7 +317,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     {params.how !== MergeType.UNIQUE_IN_LEFT && 
                         <MultiToggleColumns
                             sheetData={sheetDataTwo}
-                            selectedColumnIDs={params.selected_column_ids_two.concat(mergeKeyColumnIDsTwo)}
+                            selectedColumnIDs={params.selected_column_ids_two}
                             disabledColumnIDs={mergeKeyColumnIDsTwo}
                             onChange={(newSelectedColumnIDs: ColumnID[]) => {
                                 setParams(oldDropDuplicateParams => {
@@ -243,6 +327,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                                     }
                                 })
                             }}
+                            warning={editMergeWarnings?.selectedColumnsTwoWarnings}
                         />
                     }
                     {params.how === MergeType.UNIQUE_IN_LEFT &&
