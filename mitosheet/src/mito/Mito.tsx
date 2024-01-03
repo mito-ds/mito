@@ -653,6 +653,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <MergeTaskpane
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     sheetDataArray={sheetDataArray}
+                    existingParams={uiState.currOpenTaskpane.existingParams}
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     analysisData={analysisData}

@@ -33,6 +33,18 @@ function Footer(props: FooterProps): JSX.Element {
     const selectedSheetIndex = props.uiState.selectedSheetIndex
     const selectedGraphID = props.uiState.selectedGraphID
     const selectedTabType = props.uiState.selectedTabType
+    const displayContextMenuForIndex = (typeof props.uiState.currOpenDropdown === 'object' && props.uiState.currOpenDropdown.type === 'footer-context-menu') ? props.uiState.currOpenDropdown.sheetIndex : null;
+    const setDisplayContextMenuForIndex = (index: number | null) => {
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenDropdown: index === null ? undefined : {
+                    type: 'footer-context-menu',
+                    sheetIndex: index
+                }
+            }
+        })
+    }
 
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
@@ -77,10 +89,18 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
+                            display={displayContextMenuForIndex === idx}
+                            setDisplayContextMenu={(display: boolean) => {
+                                if (display) {
+                                    setDisplayContextMenuForIndex(idx);
+                                } else {
+                                    setDisplayContextMenuForIndex(null);
+                                }
+                            }}
                         />
                     )
                 })}
-                {Object.entries(props.graphDataDict || {}).map(([graphID, graphData]) => {
+                {Object.entries(props.graphDataDict || {}).map(([graphID, graphData], index) => {
                     return (
                         <SheetTab
                             key={graphID}
@@ -95,6 +115,14 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataDict={props.graphDataDict}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
+                            display={displayContextMenuForIndex === (props.sheetDataArray.length + index)}
+                            setDisplayContextMenu={(display: boolean) => {
+                                if (display) {
+                                    setDisplayContextMenuForIndex(props.sheetDataArray.length + index);
+                                } else {
+                                    setDisplayContextMenuForIndex(null);
+                                }
+                            }}
                         />
                     )
                 })}

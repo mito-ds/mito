@@ -18,6 +18,34 @@
     background-color: var(--mito-background-off);
 }
 
+.caution-text-container {
+    background-color: var(--mito-status-warning);
+    border: 1px solid var(--mito-status-warning-dark);
+    display: flex;
+    padding: 5px;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.expandable-caution-text-container {
+    flex-direction: column;
+}
+
+.caution-text-container svg {
+    padding: 0 5px 0 0;
+}
+
+.caution-text-container svg:hover line {
+    stroke-width: 3px;
+}
+
+.caution-text {
+    color: var(--mito-status-warning-dark);
+    font-size: 11px;
+    padding-right: 4px;
+    word-break: break-word;
+}
+
 .multi-toggle-box-row {
     display: flex;
     flex-direction: row;
