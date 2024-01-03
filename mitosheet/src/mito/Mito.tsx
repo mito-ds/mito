@@ -74,7 +74,7 @@ import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import UserDefinedEditTaskpane from './components/taskpanes/UserDefinedEdit/UserDefinedEditTaskpane';
-import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
+import { EDITING_TASKPANES, TASKPANE_WIDTH_MAX, TASKPANE_WIDTH_MIN, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
 import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
@@ -1018,8 +1018,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     const { clientX } = event;
                     const rawPanelWidth = document.body.clientWidth - clientX;
                     const panelWidth = Math.max(
-                        Math.min(document.body.clientWidth - 200, rawPanelWidth),
-                        200
+                        Math.min(document.body.clientWidth - TASKPANE_WIDTH_MAX, rawPanelWidth),
+                        TASKPANE_WIDTH_MIN
                     );
                     setUIState({
                         ...uiState,
@@ -1120,31 +1120,29 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             actions={actions}
                         />
                     </div>
-                    <div
-                        className='taskpane-resizer'
-                        style={{
-                            width: '2px',
-                            cursor: 'col-resize',
-                            backgroundColor: 'var(--mito-text-light)',
-                            margin: '2px 0'
-                        }}
-                        onMouseDown={(event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            setResizingTaskpane(true);
-                        }}
-                    />
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
-                        <div 
-                            className={taskpaneClassNames}
-                            style={
-                                narrowTaskpaneOpen 
-                                    ? {width: `${uiState.taskpaneWidth}px`}
-                                    : undefined
-                            }
-                        >
-                            {getCurrOpenTaskpane()}
-                        </div>
+                        <>
+                            <div
+                                className='taskpane-resizer-container'
+                                onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    setResizingTaskpane(true);
+                                }}
+                                >
+                                <div className='taskpane-resizer'/>
+                            </div>
+                            <div 
+                                className={taskpaneClassNames}
+                                style={
+                                    narrowTaskpaneOpen 
+                                        ? {width: `${uiState.taskpaneWidth}px`}
+                                        : undefined
+                                }
+                            >
+                                {getCurrOpenTaskpane()}
+                            </div>
+                        </>
                     }
                 </div>
                 {/* Display the tour if there is one */}

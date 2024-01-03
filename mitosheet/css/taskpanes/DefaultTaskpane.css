@@ -37,6 +37,18 @@
     justify-items: center;
 }
 
+.taskpane-resizer-container {
+    width: 5px;
+    cursor: col-resize;
+    border-top: 1px solid var(--mito-text-light);
+    display: flex;
+}
+.taskpane-resizer {
+    width: 1px;
+    cursor: col-resize;
+    background-color: var(--mito-text-light);
+}
+
 .default-taskpane-body-div {
     display: flex;
     flex-direction: column;
