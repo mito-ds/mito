@@ -174,6 +174,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
             }} 
             onDoubleClick={() => {setIsRename(true)}} 
             onContextMenu={(e) => {
+                if (e.shiftKey) {
+                    return;
+                }
+
                 // If the user right clicks, show the dropdown for the sheet tabs
                 e.preventDefault();
                 props.setDisplayContextMenu(true);
