@@ -8,7 +8,7 @@ This folder contains a variety of packages and utilities for the `mitosheet` Pyt
 
 ## The `mitosheet` Package
 
-The mitosheet package currently only works for JupyterLab 3.0.
+The mitosheet package currently works for JupyterLab 3.0, Streamlit, and Dash. 
 
 ### For Mac
 
@@ -17,13 +17,22 @@ We have a setup script for Mac. Just run
 bash dev/macsetup.sh
 ```
 
-Then, in a seperate terminal, run
+#### Open JupyterLab
+
+In a seperate terminal, run
 ```
 source venv/bin/activate
 jupyter lab
 ```
-(note that the second command can be `jupyter notebook` if you want to develop here).
+(note that the second command can be `jupyter notebook` if you want to develop in notebook).
 
+#### Open Streamlit
+
+In a seperate terminal, run
+```
+source venv/bin/activate
+streamlit run /path/to/app.py
+```
 
 ### For Windows
 
