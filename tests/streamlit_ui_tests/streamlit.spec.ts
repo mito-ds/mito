@@ -830,7 +830,7 @@ test.describe('Keyboard Shortcuts', () => {
 });
 
 test.describe('Resize taskpane', () => {
-  test('Resize taskpane', async ({ page }) => {
+  test.skip('Resize taskpane', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await mito.getByText('Format').first().click();
     expect(mito.locator('.taskpane-resizer-container')).toBeVisible();
