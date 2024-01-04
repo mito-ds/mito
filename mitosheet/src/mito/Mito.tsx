@@ -1124,16 +1124,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
                         <>
-                            <div
-                                className='taskpane-resizer-container'
-                                onMouseDown={(event) => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    setResizingTaskpane(true);
-                                }}
-                            >
-                                <div className='taskpane-resizer'/>
-                            </div>
+                            {uiState.currOpenTaskpane.type !== TaskpaneType.GRAPH &&
+                                <div
+                                    className='taskpane-resizer-container'
+                                    onMouseDown={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        setResizingTaskpane(true);
+                                    }}
+                                >
+                                    <div className='taskpane-resizer'/>
+                                </div>
+                            }
                             <div 
                                 className={taskpaneClassNames}
                                 style={
