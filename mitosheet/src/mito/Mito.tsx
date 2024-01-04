@@ -1015,16 +1015,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 if (resizingTaskpane) {
                     event.preventDefault();
                     event.stopPropagation();
-                    const { clientX } = event;
-                    const rawTaskpaneWidth = document.body.clientWidth - clientX;
-                    const taskpaneWidth = Math.max(
-                        Math.min(document.body.clientWidth - TASKPANE_WIDTH_MAX, rawTaskpaneWidth),
-                        TASKPANE_WIDTH_MIN
-                    );
-                    setUIState({
-                        ...uiState,
-                        taskpaneWidth: taskpaneWidth
-                    })
+                    if (mitoContainerRef.current !== null) {
+                        const { clientX } = event;
+                        const rawTaskpaneWidth = mitoContainerRef.current.getBoundingClientRect().right - clientX;
+                        const taskpaneWidth = Math.max(
+                            Math.min(TASKPANE_WIDTH_MAX, rawTaskpaneWidth),
+                            TASKPANE_WIDTH_MIN
+                        );
+                        setUIState({
+                            ...uiState,
+                            taskpaneWidth: taskpaneWidth
+                        })
+                    }
                 }
             }}
             onMouseUp={(event) => {
@@ -1129,7 +1131,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                     event.stopPropagation();
                                     setResizingTaskpane(true);
                                 }}
-                                >
+                            >
                                 <div className='taskpane-resizer'/>
                             </div>
                             <div 
