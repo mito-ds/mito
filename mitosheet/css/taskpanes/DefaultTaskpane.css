@@ -42,6 +42,7 @@
     cursor: col-resize;
     border-top: 1px solid var(--mito-text-light);
     display: flex;
+    background-color: var(--mito-background);
 }
 .taskpane-resizer {
     width: 1px;
