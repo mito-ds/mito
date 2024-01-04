@@ -828,3 +828,14 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(1);
   });
 });
+
+test.describe('Resize taskpane', () => {
+  test('Resize taskpane', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await mito.getByText('Format').first().click();
+    expect(mito.locator('.taskpane-resizer-container')).toBeVisible();
+    expect(mito.locator('.default-taskpane-div')).toHaveCSS('width', '300px' );
+    await mito.locator('.taskpane-resizer-container').dragTo(mito.getByText('Column2').first());
+    expect(mito.locator('.default-taskpane-div')).toHaveCSS('width', '497.117px' );
+  });
+})
