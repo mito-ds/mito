@@ -18,7 +18,6 @@
         The border around the entire Mito container and the footer 
         create the right and bottom borders of the taskpane.
     */ 
-    border-left: 1px solid var(--mito-text-light);
     border-top: 1px solid var(--mito-text-light);
 
     box-sizing: border-box;
@@ -36,6 +35,19 @@
     display: flex;
     flex-direction: row;
     justify-items: center;
+}
+
+.taskpane-resizer-container {
+    width: 5px;
+    cursor: col-resize;
+    border-top: 1px solid var(--mito-text-light);
+    display: flex;
+    background-color: var(--mito-background);
+}
+.taskpane-resizer {
+    width: 1px;
+    cursor: col-resize;
+    background-color: var(--mito-text-light);
 }
 
 .default-taskpane-body-div {
