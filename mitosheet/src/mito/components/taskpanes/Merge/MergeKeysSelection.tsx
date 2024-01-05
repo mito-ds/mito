@@ -10,82 +10,15 @@ import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
 import { MergeParams } from "../../../types";
 import { getFirstSuggestedMergeKeys } from "./mergeUtils";
-import CautionIcon from "../../icons/CautionIcon";
-import TriangleExpandCollapseIcon from "../../icons/TriangleExpandCollapseIcon";
+import ExpandableWarning, { WarningState } from "../../elements/ExpandableWarning";
 
-const ExpandableWarning = (props: {warnings?: string[]}): JSX.Element => {
-    const [isExpanded, setIsExpanded] = React.useState(false);
-    const [dismissed, setDismissed] = React.useState(false);
-    if (props.warnings === undefined || props.warnings.length === 0 || dismissed) {
-        return <></>;
-    } else if (props.warnings.length === 1) {
-        return (
-            <div className='caution-text-container'>
-                <CautionIcon width={'25px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
-                <p className='caution-text'>{props.warnings[0]}</p>
-                <XIcon
-                    onClick={() => setDismissed(true)}
-                    strokeColor="var(--mito-status-warning-dark)"
-                    rounded
-                    width="12px"
-                    style={{ cursor: 'pointer' }}
-                />
-            </div> 
-        )
-    } else {
-        return (
-            <div
-                className="caution-text-container expandable-caution-text-container"
-                style={{
-                    background: 'var(--mito-status-warning)',
-                    border: '1px solid var(--mito-status-warning-dark)'
-                }}
-                onClick={(e) => {
-                    setIsExpanded(!isExpanded);
-                    e.stopPropagation();
-                }}
-            >
-                <div
-                    style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}
-                >
-                    <CautionIcon width={'54px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
-                    <p className='caution-text'>
-                        <TriangleExpandCollapseIcon
-                            action={isExpanded ? 'collapse' : 'expand'}
-                        />
-                        {`${props.warnings.length} merge key pairings were removed because at least one of the merge keys was missing from the source tabs.`}
-                    </p>
-                    <XIcon
-                        onClick={() => setDismissed(true)}
-                        strokeColor="var(--mito-status-warning-dark)"
-                        rounded
-                        width="23px"
-                        style={{ cursor: 'pointer' }}
-                        />
-                </div>
-                {
-                    isExpanded &&
-                    (<ul style={{margin: '4px 0'}}>
-                        {props.warnings.map((warning, index) => {
-                            return (
-                                <li className='caution-text' key={index}>
-                                    {warning}
-                                </li>
-                            )
-                        })}
-                    </ul>)
-                }
-            </div>
-        )
-    }
-}
 
 const MergeKeysSelectionSection = (props: {
     params: MergeParams,
     setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
     sheetDataArray: SheetData[],
     error: string | undefined;
-    warnings: string[] | undefined;
+    warningState: WarningState | undefined;
 }): JSX.Element => {
 
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
@@ -183,7 +116,7 @@ const MergeKeysSelectionSection = (props: {
             }
             {
                 <ExpandableWarning
-                    warnings={props.warnings}
+                    warningState={props.warningState}
                 />
             }
             <Spacer px={15}/>
