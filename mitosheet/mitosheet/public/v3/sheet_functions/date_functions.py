@@ -457,7 +457,22 @@ def STRIPTIMETOMONTHS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionRetur
     
     return arg.dt.floor('D') - pd.tseries.offsets.MonthBegin()
 
-
+@handle_sheet_function_errors
+def TODAY() -> DatetimeFunctionReturnType:
+    """
+    {
+        "function": "TODAY",
+        "description": "Returns the datetime value for the current date.",
+        "search_terms": ["today"],
+        "category": "DATE",
+        "examples": [
+            "TODAY()"
+        ],
+        "syntax": "TODAY()",
+        "syntax_elements": []
+    }
+    """
+    return pd.to_datetime('today').normalize()
 
 @cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
@@ -626,6 +641,7 @@ DATE_FUNCTIONS = {
     'STRIPTIMETODAYS': STRIPTIMETODAYS,
     'STRIPTIMETOMONTHS': STRIPTIMETOMONTHS,
     'STRIPTIMETOYEARS': STRIPTIMETOYEARS,
+    'TODAY': TODAY,
     'WEEK': WEEK,
     'WEEKDAY': WEEKDAY,
     'YEAR': YEAR,
