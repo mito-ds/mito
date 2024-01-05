@@ -64,7 +64,7 @@ const PythonTraining: NextPage = () => {
                 <section>
                     <div className={classNames(pageStyles.subsection, pageStyles.left_aligned_section)}>
                         <h2 className={classNames('margin-top-4rem', 'margin-bottom-2rem', pythonTrainingStyles.three_quarter_width_header)}>
-                            Increase Python retention by embracing your business analysts&apos; Excel mastery.
+                            Increase Python retention by embracing your business analysts&apos; Excel mastery in your trainings.
                         </h2>
                     </div>
                     <div className={pageStyles.subsection}>
@@ -196,13 +196,13 @@ const PythonTraining: NextPage = () => {
                                 Just point Mito to your enterprise logging infrastructure and we&apos;ll take care of the rest. No data will ever leave your computers, of course.
                             </p>
                         </div>
-                        <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                            <Image src={'/python-training/metrics-icon.png'} alt='Mito Python Adoption Logging' width={217} height={216} layout='responsive'/>
+                        <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'center')}>
+                            <Image src={'/python-training/metrics-icon.png'} alt='Mito Python Adoption Logging' width={434} height={432}/>
                         </div>
                     </div>
                 
                     <div className={classNames(pageStyles.subsection)}>
-                        <div className={textImageSplitStyles.functionality_text}>
+                        <div className={classNames(textImageSplitStyles.functionality_text, pythonTrainingStyles.mobile_bottom_margin)}>
                             <h2>
                                 Improve your existing Python training 
                             </h2>

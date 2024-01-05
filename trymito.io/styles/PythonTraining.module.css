@@ -11,6 +11,10 @@
     color: var(--color-purple) !important;
 }
 
+.mobile_bottom_margin {
+    margin-bottom: 8rem;
+}
+
 
 @media only screen and (min-width: 50em) {
     .three_quarter_width_header {
@@ -19,5 +23,9 @@
 
     .training_quote_container {
         max-width: 75%;
+    }
+
+    .mobile_bottom_margin {
+        margin-bottom: 0px;
     }
 }
