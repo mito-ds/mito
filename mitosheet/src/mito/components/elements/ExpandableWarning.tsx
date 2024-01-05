@@ -7,7 +7,7 @@ export interface WarningState {
     warningStrings: string[],
     dismissed: boolean,
     dismiss: () => void
-};
+}
 
 const ExpandableWarning = (props: {warningState?: WarningState}): JSX.Element => {
     const [isExpanded, setIsExpanded] = React.useState(false);
@@ -59,7 +59,7 @@ const ExpandableWarning = (props: {warningState?: WarningState}): JSX.Element =>
                         rounded
                         width="23px"
                         style={{ cursor: 'pointer' }}
-                        />
+                    />
                 </div>
                 {
                     isExpanded &&

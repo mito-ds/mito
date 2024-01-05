@@ -72,7 +72,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
                         />
                     ) 
                 })
-            ]}
+                ]}
             </MultiToggleBox>
         </div>
     )
