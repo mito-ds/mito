@@ -4,11 +4,10 @@ import { ColumnHeader, ColumnID, SheetData } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import { getDtypeValue } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
+import ExpandableWarning, { WarningState } from './ExpandableWarning';
 import MultiToggleBox from './MultiToggleBox';
 import MultiToggleItem from './MultiToggleItem';
 import { Height } from './sizes.d';
-import CautionIcon from '../icons/CautionIcon';
-import XIcon from '../icons/XIcon';
 
 interface MultiToggleColumnsProps {
     sheetData: SheetData | undefined;
@@ -18,7 +17,7 @@ interface MultiToggleColumnsProps {
     disabledColumnIDs?: ColumnID[],
     getIsDisabledColumnID?: (columnID: ColumnID, columnHeader: ColumnHeader, columnDtype: string) => boolean;
     getDisplayColumnHeaderOverride?: (columnID: ColumnID, columnHeader: ColumnHeader) => string;
-    warning?: string;
+    warningState?: WarningState;
 }
 
 /**
@@ -28,24 +27,15 @@ interface MultiToggleColumnsProps {
 const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
 
     const columnIDsMap = props.sheetData?.columnIDsMap || {};
-    const [dismissedWarning, setDismissedWarning] = React.useState(false);
     const columnIDsAndDtype: [ColumnID, string][] = Object.entries(props.sheetData?.columnDtypeMap || {});
     const columnIDs: ColumnID[] = columnIDsAndDtype.map(([cid, ]) => {return cid});
 
     return (
         <div>
-            {(props.warning !== undefined && !dismissedWarning) &&
-                <div className='caution-text-container'>
-                    <CautionIcon width={'25px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
-                    <p className='caution-text'>{props.warning}</p>
-                    <XIcon
-                        onClick={() => setDismissedWarning(true)}
-                        strokeColor="var(--mito-status-warning-dark)"
-                        rounded
-                        width='12px'
-                        style={{ cursor: 'pointer' }}
-                    />
-                </div> 
+            {
+                <ExpandableWarning
+                    warningState={props.warningState}
+                />
             }
             <MultiToggleBox
                 searchable

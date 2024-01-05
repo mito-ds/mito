@@ -197,6 +197,13 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         }
     )
 
+    // We use this to track whether the user has dismissed the warnings
+    // And we track it here, as opposed to in the child components, because
+    // there are some strange re-rendering issues that happen when we try to
+    // track it in the child components. We just need the whole merge taskpane
+    // to re-render when the user dismisses the warnings, so we track it here.
+    const [dismissedWarnings, setDismissedWarnings] = React.useState<[boolean, boolean, boolean]>([false, false, false]);
+
     /*
         If the merge params are undefined, then display this error message.
     */
@@ -282,7 +289,15 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                     setParams={setParams}
                     sheetDataArray={props.sheetDataArray}
                     error={error}
-                    warnings={editMergeWarnings?.mergeKeyWarnings}
+                    warningState={editMergeWarnings?.mergeKeyWarnings !== undefined ? {
+                        warningStrings: editMergeWarnings?.mergeKeyWarnings,
+                        dismissed: dismissedWarnings[0],
+                        dismiss: () => {
+                            setDismissedWarnings(oldDismissedWarnings => {
+                                return [true, oldDismissedWarnings[1], oldDismissedWarnings[2]]
+                            })
+                        }
+                    }: undefined}
                 />
                 <Spacer px={20}/>
                 <p className='text-header-3'>
@@ -301,7 +316,15 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                                 }
                             })
                         }}
-                        warning={editMergeWarnings?.selectedColumnsOneWarnings}
+                        warningState={{
+                            warningStrings: editMergeWarnings?.selectedColumnsOneWarnings !== undefined ? [editMergeWarnings?.selectedColumnsOneWarnings] : [],
+                            dismissed: dismissedWarnings[1],
+                            dismiss: () => {
+                                setDismissedWarnings(oldDismissedWarnings => {
+                                    return [oldDismissedWarnings[0], true, oldDismissedWarnings[2]]
+                                })
+                            }
+                        }}
                     />
                 }
                 {params.how === MergeType.UNIQUE_IN_RIGHT &&
@@ -327,7 +350,16 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
                                     }
                                 })
                             }}
-                            warning={editMergeWarnings?.selectedColumnsTwoWarnings}
+                            warningState={{
+                                warningStrings: editMergeWarnings?.selectedColumnsTwoWarnings !== undefined ? [editMergeWarnings?.selectedColumnsTwoWarnings] : [],
+                                dismissed: dismissedWarnings[2],
+                                dismiss: () => {
+                                    setDismissedWarnings(oldDismissedWarnings => {
+                                        return [oldDismissedWarnings[0], oldDismissedWarnings[1], true]
+                                    })
+                                }
+                            
+                            }}
                         />
                     }
                     {params.how === MergeType.UNIQUE_IN_LEFT &&
