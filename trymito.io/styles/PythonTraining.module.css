@@ -2,14 +2,6 @@
     color: var(--color-text-primary)
 }
 
-.display_rotating_heading {
-    display: block !important
-}
-
-.rotating_heading {
-    display: none;
-}
-
 .quiz_answers > *:hover {
     cursor: pointer;
     color: var(--color-text-primary);
