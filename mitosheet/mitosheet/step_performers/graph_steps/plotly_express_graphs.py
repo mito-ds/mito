@@ -19,18 +19,6 @@ from mitosheet.step_performers.graph_steps.graph_utils import (BAR, BOX,
                                                                get_graph_title)
 from mitosheet.transpiler.transpile_utils import get_param_dict_as_code
 from mitosheet.types import ColumnHeader
-from mitosheet.user.location import is_streamlit
-
-# If Streamlit is installed, then we need to reset the default plotly theme.
-# Streamlit does some manipulation of the default plotly theme (https://github.com/streamlit/streamlit/blob/3d5dd61aef2bf649c5bfe42aad53cf1426beb094/lib/streamlit/elements/lib/streamlit_plotly_theme.py#L27)
-# which allows them to generate graphs that look like the rest of the app and have
-# the proper theme.
-# It turns out, this manipulation is not just when running inside Streamlit, but also
-# when importing Streamlit. So, we need to reset the default plotly theme to not display
-# graphs that are just black
-import plotly.io as pio
-if pio.templates.default == 'streamlit':
-    pio.templates.default = 'plotly'
 
 DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
 DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
@@ -203,8 +191,18 @@ def graph_creation(
         histnorm,
         histfunc,
         nbins,
-
     )
+
+    # If Streamlit is installed, then we need to reset the default plotly theme.
+    # Streamlit does some manipulation of the default plotly theme (https://github.com/streamlit/streamlit/blob/3d5dd61aef2bf649c5bfe42aad53cf1426beb094/lib/streamlit/elements/lib/streamlit_plotly_theme.py#L27)
+    # which allows them to generate graphs that look like the rest of the app and have
+    # the proper theme.
+    # It turns out, this manipulation is not just when running inside Streamlit, but also
+    # when importing Streamlit. So, we need to reset the default plotly theme to not display
+    # graphs that are just black
+    import plotly.io as pio
+    if pio.templates.default == 'streamlit':
+        pio.templates.default = 'plotly'
 
     if graph_type == BAR:
         return px.bar(df, **param_dict)
