@@ -62,7 +62,10 @@ const ToolbarButton = (
     const hasDropdown = props.children !== undefined;
     const orientation = props.orientation ?? 'vertical';
     let tooltip = disabledTooltip ?? props.action.tooltip ?? props.action.titleToolbar;
-    tooltip += ` (${getKeyboardShortcutString(props.action.staticType as ActionEnum)})` ?? '';
+    const keyboardShortcut = getKeyboardShortcutString(props.action.staticType as ActionEnum);
+    if (keyboardShortcut !== undefined) {
+        tooltip += ` (${keyboardShortcut})`;
+    }
     
     return (
         <div 
