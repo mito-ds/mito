@@ -94,7 +94,7 @@ export interface FunctionDocumentationObject {
     function: string;
     description: string;
     search_terms: string[];
-    category?: 'MATH' | 'LOGIC' | 'FINANCE' | 'DATE' | 'TEXT' | 'REFERENCE';
+    category?: FunctionCategory;
     examples?: (string)[] | null;
     syntax: string;
     syntax_elements?: (SyntaxElementsEntity)[] | null;
