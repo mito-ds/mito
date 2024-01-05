@@ -90,7 +90,7 @@ const PythonTraining: NextPage = () => {
                 <section>
                     <div className={classNames(pageStyles.subsection, pageStyles.left_aligned_section)}>
                         <h2 className={classNames('margin-top-4rem', 'margin-bottom-2rem', pythonTrainingStyles.three_quarter_width_header)}>
-                            Increase your Python training retention by embracing your business analyst&apos;s Excel mastery.
+                            Increase Python retention by embracing your business analysts&apos; Excel mastery.
                         </h2>
                     </div>
                     <div className={pageStyles.subsection}>
@@ -99,7 +99,7 @@ const PythonTraining: NextPage = () => {
                                 <Image className={securityStyles.icon} src={fastClockIcon} alt='icon'></Image>
                             </div>
                             <h3>
-                                Write Python code 4x faster
+                                Python beginners code 4x faster with Mito
                             </h3>
                             <p>
                                 Mito generates the equivalent Python code for every edit the user makes. Business analysts <a className={pageStyles.link} href='https://www.trymito.io/blog/quantifying-mitos-impact-on-analyst-python-productivity' target="_blank" rel="noreferrer">write Python code 400% faster using Mito</a> compared to writing code by hand. 
@@ -116,7 +116,7 @@ const PythonTraining: NextPage = () => {
                                 Reduce time to useful automation
                             </h3>
                             <p>
-                                The best way to convince business analysts to commit to Python training is to start saving them time as fast as possible. 
+                                Mito allows analysts to automate their real workflows from day one. This is the fastest way to demonstrate Python's value
                             </p>
                             <p>
                                 If your analysts leave your training without having built a useful Python automation, you&apos;re teaching them that they don&apos;t have enough time to learn Python.
@@ -132,7 +132,7 @@ const PythonTraining: NextPage = () => {
                                 <Image  src={dataIconPurple} alt='icon'></Image>
                             </div>
                             <h3>
-                                Train in the context of your data
+                                Train with your own data
                             </h3>
                             <p>
                                 Training is most engaging when you&apos;re practicing on real business data. Because Mito hides the complexity of learning Python syntax, you don&apos;t have to oversimplify your data. 
@@ -152,7 +152,7 @@ const PythonTraining: NextPage = () => {
                                 No more syntax errors or forgetting a colon. Mito generates code for you, so your analysts can focus on the business logic. 
                             </p>
                             <p>
-                                Help your analysts leapfrog the <a className={pageStyles.link} href='https://www.trymito.io/blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python' target="_blank" rel="noreferrer">“Oh my god. Why is this not working? UGGHHH!!!”</a> phase. 
+                                Help your analysts leapfrog the <a className={pageStyles.link} href='https://www.trymito.io/blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python' target="_blank" rel="noreferrer">“Why is this not working? UGGHHH!!!”</a> phase. 
                             </p>
                         </div>
                     </div>
@@ -162,7 +162,7 @@ const PythonTraining: NextPage = () => {
                                 <Image  src={dataIconPurple} alt='icon'></Image>
                             </div>
                             <h3>
-                                Improve Data Discoverability
+                                Improve data discoverability
                             </h3>
                             <p>
                                 Figuring out which database holds the monthly report&apos;s data is often a multi-week scavenger hunt. Then getting permission to query that database might be another few weeks of waiting.
@@ -222,17 +222,14 @@ const PythonTraining: NextPage = () => {
                                 Track Python Adoption. Open the Black Box.
                             </h2>
                             <p> 
-                                Mito lets you track your organization&apos;s Python adoption so you can easily evaluate the success of your trainings and communicate it&apos;s value with your organization&apos;s leadership.
-                            </p>
-                            <p>
-                                Mito has built in logging infrastructure that lets you track metrics like: how many analysts are writing and re-running Python code, which database integrations are most popular, and which automations are shared across the firm. 
+                                Mito lets you track your organization&apos;s Python adoption so you can easily evaluate and communicate the success of your trainings.
                             </p>
                             <p>
                                 Just point Mito to your enterprise logging infrastructure and we&apos;ll take care of the rest. No data will ever leave your computers, of course.
                             </p>
                         </div>
                         <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                            <Image src={'/python-training/black-metrics-box.png'} alt='Mito Python Adoption Logging' width={457} height={457} layout='responsive'/>
+                            <Image src={'/python-training/metrics-icon.png'} alt='Mito Python Adoption Logging' width={217} height={216} layout='responsive'/>
                         </div>
                     </div>
                 
