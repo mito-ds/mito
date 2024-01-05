@@ -12,8 +12,6 @@ export interface WarningState {
 const ExpandableWarning = (props: {warningState?: WarningState}): JSX.Element => {
     const [isExpanded, setIsExpanded] = React.useState(false);
 
-    console.log(props.warningState);
-    
     if (props.warningState === undefined || props.warningState.warningStrings.length === 0 || props.warningState.dismissed) {
         return <></>;
     } else if (props.warningState.warningStrings.length === 1) {

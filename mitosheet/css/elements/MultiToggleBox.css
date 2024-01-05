@@ -25,6 +25,7 @@
     padding: 5px;
     align-items: center;
     margin: 5px 0;
+    width: fit-content;
 }
 
 .expandable-caution-text-container {
