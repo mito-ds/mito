@@ -163,7 +163,9 @@ const Input = (props: InputProps): JSX.Element => {
                 value={props.value}
                 placeholder={props.placeholder}
                 onKeyDown={(e) => {
-                    e.stopPropagation();
+                    if (e.key !== 'Escape') {
+                        e.stopPropagation();
+                    }
                     if (props.onKeyDown) {
                         props.onKeyDown(e)
                     }
