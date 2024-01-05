@@ -31,33 +31,7 @@ const PythonTraining: NextPage = () => {
             setTimeout(() => {setShowQuizAnswer(false)}, 3000)
         }
     }, [showQuizAnswer])
-    const quizAnswerClass = showQuizAnswer ? pythonTrainingStyles.display_answerquiz_answer : undefined
-
-
-    /* Rotate the final h2 heading to display all of the people that use Mito Python Training */
-    const [currentHeading, setCurrentHeading] = useState(1);
-    const headingIntervalTime = 3000;
-    const headingCount = 10;
-    useEffect(() => {
-        const interval = setInterval(() => {
-            // Save the current heading so we know which one to display next
-            const nextHeadingToDisplay = currentHeading + 1 <= headingCount ? currentHeading + 1 : 1;
-            setCurrentHeading(nextHeadingToDisplay)
-            
-            // Add the display class to the correct heading by id
-            const headingElements = document.getElementsByClassName(pythonTrainingStyles.rotating_heading);
-            console.log(headingElements)
-            for (let i = 0; i < headingElements.length; i++) {
-                const element = headingElements[i];
-                if (element.id === `rotating_header_${currentHeading}`) {
-                    element.classList.add(pythonTrainingStyles.display_rotating_heading);
-                } else {
-                    element.classList.remove(pythonTrainingStyles.display_rotating_heading);
-                }
-            }
-        }, headingIntervalTime);
-        return () => clearInterval(interval);
-    }, [currentHeading])
+    const quizAnswerClass = showQuizAnswer ? pythonTrainingStyles.display_quiz_answer : undefined
 
     return (
         <>
@@ -188,7 +162,7 @@ const PythonTraining: NextPage = () => {
                             <p>
                                 Test yourself. Which of these is correct?
                             </p>
-                            <ol style={{'listStylePosition': 'inside', 'paddingLeft': '0'}}>
+                            <ol style={{'listStylePosition': 'inside', 'paddingLeft': '0'}} className={pythonTrainingStyles.quiz_answers} onClick={() => setShowQuizAnswer(true)}>
                                 <li>
                                     df[&apos;Age&apos;] = pd.tonumeric(df[&apos;Age&apos;])
                                 </li>
@@ -199,9 +173,6 @@ const PythonTraining: NextPage = () => {
                                     df[&apos;Age&apos;] = df[&apos;Age&apos;].as_type(int)
                                 </li>
                             </ol>
-                            <p className={pythonTrainingStyles.quiz_answer_button} onClick={() => setShowQuizAnswer(true)}>
-                                Reveal the right answer
-                            </p>
                         </div>
                     </div>
                 </section>
@@ -259,39 +230,34 @@ const PythonTraining: NextPage = () => {
 
                     <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
                         <div className={textImageSplitStyles.functionality_text}>
-                            {/* 
-                                In order to only display one header at a time, we dynamically move the display_rotating_heading 
-                                class from one header to the next. If you want to add more header, make sure to update the headingCount
-                                variable at the top of this component.
-                            */}
-                            <h2 className={classNames(pythonTrainingStyles.rotating_heading, pythonTrainingStyles.display_rotating_heading)} id='rotating_header_1'>
-                                Python Trainings for Wealth Management 
-                            </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_2'>
+                            <h2>
                                 Python Trainings for Finance
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_3'>
+                            <h2 style={{'display': 'none'}}>
+                                Python Trainings for Wealth Management 
+                            </h2>
+                            <h2 style={{'display': 'none'}}>
                                 Python Trainings for Insurance
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_4'>
+                            <h2 style={{'display': 'none'}}>
                                 Python Trainings for Banking
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_5'>
+                            <h2 style={{'display': 'none'}}>
                                 Python Trainings for FP&A
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_6'>
+                            <h2 style={{'display': 'none'}}>
                                 Python Training for Business Analysts
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_7'>
+                            <h2 style={{'display': 'none'}}>
                                 Python Training for Excel users
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_8'>
+                            <h2 style={{'display': 'none'}}>
                                 Python Training for IB
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_9'>
+                            <h2 style={{'display': 'none'}}>
                                 Python Training for Risk Management
                             </h2>
-                            <h2 className={pythonTrainingStyles.rotating_heading} id='rotating_header_10'>
+                            <h2 style={{'display': 'none'}}>
                                 Python Training for Actuarial Scienctists
                             </h2>
                             <p> 

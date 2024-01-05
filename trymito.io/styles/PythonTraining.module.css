@@ -1,13 +1,3 @@
-
-.display_answerquiz_answer {
-    color: var(--color-purple)
-}
-
-.quiz_answer_button {
-    text-decoration: underline;
-    cursor: pointer;
-}
-
 .training_quote_text {
     color: var(--color-text-primary)
 }
@@ -20,6 +10,14 @@
     display: none;
 }
 
+.quiz_answers > *:hover {
+    cursor: pointer;
+    color: var(--color-text-primary);
+}
+
+.display_quiz_answer {
+    color: var(--color-purple)
+}
 
 
 @media only screen and (min-width: 50em) {

@@ -10,7 +10,7 @@ const CodeBlock = (props:{code: string}) => {
   const [copied, setCopied] = useState(false);
   useEffect(() => {
     if (copied) {
-      setTimeout(() => {setCopied(false)}, 3000)
+      setTimeout(() => {setCopied(false)}, 8000)
     }
   }, [copied])
 

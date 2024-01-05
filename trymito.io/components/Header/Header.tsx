@@ -115,7 +115,7 @@ const Header = (): JSX.Element => {
                 <HeaderDropdownItem
                     title='Python Training'
                     href='/use-cases/python-training'
-                    iconSrc='/python-training.svg'
+                    iconSrc='/education.svg'
                     altText="Financial Services"
                   />
                   <HeaderDropdownItem
