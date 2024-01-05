@@ -20,5 +20,4 @@ def test_today_valid():
 def test_today_in_sheet():
     mito = create_mito_wrapper_with_data(['2000-09-02 12:45:23', '2000-09-02 12:45:23'])
     mito.set_formula('=TODAY()', 0, 'B', add_column=True)
-    print(mito.dfs[0]['B'])
     assert mito.get_value(0, 'B', 1) == pd.to_datetime(date.today())
