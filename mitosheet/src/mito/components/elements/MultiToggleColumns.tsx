@@ -4,7 +4,7 @@ import { ColumnHeader, ColumnID, SheetData } from '../../types';
 import { toggleInArray } from '../../utils/arrays';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import { getDtypeValue } from '../taskpanes/ControlPanel/FilterAndSortTab/DtypeCard';
-import ExpandableWarning, { WarningState } from './ExpandableWarning';
+import ExpandableWarning from './ExpandableWarning';
 import MultiToggleBox from './MultiToggleBox';
 import MultiToggleItem from './MultiToggleItem';
 import { Height } from './sizes.d';
@@ -17,7 +17,7 @@ interface MultiToggleColumnsProps {
     disabledColumnIDs?: ColumnID[],
     getIsDisabledColumnID?: (columnID: ColumnID, columnHeader: ColumnHeader, columnDtype: string) => boolean;
     getDisplayColumnHeaderOverride?: (columnID: ColumnID, columnHeader: ColumnHeader) => string;
-    warningState?: WarningState;
+    warnings?: string[];
 }
 
 /**
@@ -32,11 +32,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
 
     return (
         <div>
-            {
-                <ExpandableWarning
-                    warningState={props.warningState}
-                />
-            }
+            <ExpandableWarning warnings={props.warnings} />
             <MultiToggleBox
                 searchable
                 onToggleAll={(newSelectedIndexes) => {
