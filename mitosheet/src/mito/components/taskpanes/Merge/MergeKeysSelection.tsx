@@ -10,7 +10,7 @@ import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
 import { MergeParams } from "../../../types";
 import { getFirstSuggestedMergeKeys } from "./mergeUtils";
-import ExpandableWarning from "../../elements/ExpandableWarning";
+import ExpandableWarning, { WarningState } from "../../elements/ExpandableWarning";
 
 
 const MergeKeysSelectionSection = (props: {
@@ -18,7 +18,7 @@ const MergeKeysSelectionSection = (props: {
     setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
     sheetDataArray: SheetData[],
     error: string | undefined;
-    warnings?: string[];
+    warningState: WarningState | undefined;
 }): JSX.Element => {
 
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
@@ -115,7 +115,9 @@ const MergeKeysSelectionSection = (props: {
                 </p>    
             }
             {
-                <ExpandableWarning warnings={props.warnings} />
+                <ExpandableWarning
+                    warningState={props.warningState}
+                />
             }
             <Spacer px={15}/>
             <TextButton 

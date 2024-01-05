@@ -3,19 +3,24 @@ import CautionIcon from "../icons/CautionIcon";
 import XIcon from "../icons/XIcon";
 import TriangleExpandCollapseIcon from "../icons/TriangleExpandCollapseIcon";
 
-const ExpandableWarning = (props: {warnings?: string[]}): JSX.Element => {
-    const [isExpanded, setIsExpanded] = React.useState(false);
-    const [dismissed, setDismissed] = React.useState(false);
+export interface WarningState {
+    warningStrings: string[],
+    dismissed: boolean,
+    dismiss: () => void
+}
 
-    if (props.warnings === undefined || props.warnings.length === 0 || dismissed) {
+const ExpandableWarning = (props: {warningState?: WarningState}): JSX.Element => {
+    const [isExpanded, setIsExpanded] = React.useState(false);
+
+    if (props.warningState === undefined || props.warningState.warningStrings.length === 0 || props.warningState.dismissed) {
         return <></>;
-    } else if (props.warnings.length === 1) {
+    } else if (props.warningState.warningStrings.length === 1) {
         return (
             <div className='caution-text-container'>
                 <CautionIcon width={'25px'} height={'30px'} color='var(--mito-status-warning-dark)'/>
-                <p className='caution-text'>{props.warnings[0]}</p>
+                <p className='caution-text'>{props.warningState.warningStrings[0]}</p>
                 <XIcon
-                    onClick={() => setDismissed(true)}
+                    onClick={props.warningState.dismiss}
                     strokeColor="var(--mito-status-warning-dark)"
                     rounded
                     width="12px"
@@ -44,10 +49,10 @@ const ExpandableWarning = (props: {warnings?: string[]}): JSX.Element => {
                         <TriangleExpandCollapseIcon
                             action={isExpanded ? 'collapse' : 'expand'}
                         />
-                        {`${props.warnings.length} merge key pairings were removed because at least one of the merge keys was missing from the source tabs.`}
+                        {`${props.warningState.warningStrings.length} merge key pairings were removed because at least one of the merge keys was missing from the source tabs.`}
                     </p>
                     <XIcon
-                        onClick={() => setDismissed(true)}
+                        onClick={props.warningState.dismiss}
                         strokeColor="var(--mito-status-warning-dark)"
                         rounded
                         width="23px"
@@ -57,7 +62,7 @@ const ExpandableWarning = (props: {warnings?: string[]}): JSX.Element => {
                 {
                     isExpanded &&
                     (<ul style={{margin: '4px 0'}}>
-                        {props.warnings.map((warning, index) => {
+                        {props.warningState.warningStrings.map((warning, index) => {
                             return (
                                 <li className='caution-text' key={index}>
                                     {warning}
