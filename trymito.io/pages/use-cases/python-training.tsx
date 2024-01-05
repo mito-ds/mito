@@ -73,10 +73,10 @@ const PythonTraining: NextPage = () => {
                                 <Image className={securityStyles.icon} src={fastClockIcon} alt='icon'></Image>
                             </div>
                             <h3>
-                                Python beginners code 4x faster with Mito
+                                Write code 4x faster with Mito
                             </h3>
                             <p>
-                                Mito generates the equivalent Python code for every edit the user makes. Business analysts <a className={pageStyles.link} href='https://www.trymito.io/blog/quantifying-mitos-impact-on-analyst-python-productivity' target="_blank" rel="noreferrer">write Python code 400% faster using Mito</a> compared to writing code by hand. 
+                                Mito generates the equivalent Python code for every edit the user makes. Business analysts <a className={pageStyles.link} href='https://www.trymito.io/blog/quantifying-mitos-impact-on-analyst-python-productivity' target="_blank" rel="noreferrer">code 400% faster using Mito</a> compared to writing Python code by hand. 
                             </p>
                             <p>
                                 The biggest blocker for analysts building their own automation after a training is not having enough time to do so. Mito solves that problem. Empower your analysts to write <code>=VLOOKUP</code> in Mito instead of struggling through <a className={pageStyles.link} href='https://www.trymito.io/excel-to-python/functions/lookup/VLOOKUP#Implementing%20VLOOKUP%20in%20Pandas' target="_blank" rel="noreferrer">5 lines</a> of complex pandas code. 
@@ -90,13 +90,10 @@ const PythonTraining: NextPage = () => {
                                 Reduce time to useful automation
                             </h3>
                             <p>
-                                Mito allows analysts to automate their real workflows from day one. This is the fastest way to demonstrate Python's value
+                                Mito let&apos;s your analysts start building useful automations in the first 10 minutes. It&apos;s the fastest way to demonstrate Python&apos;s value.
                             </p>
                             <p>
-                                If your analysts leave your training without having built a useful Python automation, you&apos;re teaching them that they don&apos;t have enough time to learn Python.
-                            </p>
-                            <p>
-                                Mito let&apos;s your analysts start building useful automations in the first 10 minutes.
+                                If analysts leave your training without having built a useful Python automation, you&apos;re teaching them that they don&apos;t have enough time to learn Python.
                             </p>
                         </div>
                     </div>
@@ -126,7 +123,7 @@ const PythonTraining: NextPage = () => {
                                 No more syntax errors or forgetting a colon. Mito generates code for you, so your analysts can focus on the business logic. 
                             </p>
                             <p>
-                                Help your analysts leapfrog the <a className={pageStyles.link} href='https://www.trymito.io/blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python' target="_blank" rel="noreferrer">“Why is this not working? UGGHHH!!!”</a> phase. 
+                                Help your analysts leapfrog the <a className={pageStyles.link} href='https://www.trymito.io/blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python' target="_blank" rel="noreferrer">“Why is this not working? Ugh!!”</a> phase. 
                             </p>
                         </div>
                     </div>
@@ -142,7 +139,7 @@ const PythonTraining: NextPage = () => {
                                 Figuring out which database holds the monthly report&apos;s data is often a multi-week scavenger hunt. Then getting permission to query that database might be another few weeks of waiting.
                             </p>
                             <p>
-                               Pre-load common SQL queries into Mito so your business analysts can start working with their data immediately.
+                                Pre-load common SQL queries into Mito so your business analysts can start working with their data immediately.
                             </p>
                             <p>
                                 To get the most out of your large data, the subject matter expert needs to be the one analyzing it. 
