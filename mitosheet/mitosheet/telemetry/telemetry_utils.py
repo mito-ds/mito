@@ -121,13 +121,11 @@ def _get_execution_data_log_params(steps_manager: Optional[StepsManagerType]=Non
     if steps_manager and steps_manager.curr_step.execution_data:
         for key, value in steps_manager.curr_step.execution_data.items():
             # Only take those items that are marked as public
-            print("HERE", key)
             if key in LOG_EXECUTION_DATA_PUBLIC:
                 execution_data_params['execution_data_' + key] = value
             elif key in LOG_EXECUTION_DATA_LENGTH:
-                print("HERE1", key)
                 # Calculate the length, if we're asked to
-                execution_data_params['execution_data_' + key + '_length'] = len(value)
+                execution_data_params['execution_data_' + key] = len(value)
             # And make the rest private
             else:
                 execution_data_params['execution_data_' + key] = anonymize_object(value)
