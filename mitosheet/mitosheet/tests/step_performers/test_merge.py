@@ -9,6 +9,7 @@ Contains tests for merging events.
 from cmath import exp
 from mitosheet.state import NUMBER_FORMAT_CURRENCY, NUMBER_FORMAT_PLAIN_TEXT
 from mitosheet.tests.step_performers.test_set_dataframe_format import SET_DATAFRAME_FORMAT_TESTS, get_dataframe_format
+from mitosheet.types import FC_NUMBER_EXACTLY, FC_STRING_CONTAINS
 import numpy as np
 import pytest
 import pandas as pd
@@ -793,3 +794,15 @@ def test_edit_merge_replays_edits_after_multiple_edits():
     mito.merge_sheets('outer', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
 
     assert mito.dfs[2].equals(pd.DataFrame({'A': [2, 1], 'B_df1': [2.0, None], 'Test': [2, 1], 'B_df2': [2, 1]}))
+
+
+def test_edit_merge_works_with_filters():
+    df1 = pd.DataFrame({'A': [2, 3], 'B': [2, 3]})
+    df2 = pd.DataFrame({'A': [2, 3], 'B': [2, 3]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'])
+    mito.filter(2, 'A', 'And', FC_NUMBER_EXACTLY, 2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.filter(2, 'A', 'And', FC_NUMBER_EXACTLY, 3)
+
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [3], 'B_df1': [3], 'B_df2': [3]}, index=[1]))
