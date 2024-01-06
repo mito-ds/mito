@@ -29,6 +29,8 @@ LOG_PARAMS_MAP_KEYS_TO_MAKE_PRIVATE = {'values_column_ids_map'}
 # We do sanity checks to make sure that there is no overlap between these sets
 assert len(LOG_PARAMS_PUBLIC.intersection(LOG_PARAMS_FORMULAS)) == 0
 
-
 # Keys from execution data that do not need to be anonyimized
 LOG_EXECUTION_DATA_PUBLIC = {'was_series', 'num_cols_deleted', 'column_header_index', 'pandas_processing_time', 'file_delimeters', 'destination_sheet_index', 'file_encodings', 'num_cols_formatted', 'result'}
+
+# Keys from execution data that are lists, and we just want to know the length of
+LOG_EXECUTION_DATA_LENGTH = {'optional_code_that_successfully_executed'}
