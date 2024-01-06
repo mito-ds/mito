@@ -749,3 +749,47 @@ def test_delete_source_of_merged_sheet_no_optimizes():
     mito.delete_dataframe(1)
 
     assert len(mito.transpiled_code) > 0
+
+def test_edit_merge_replays_edit_after():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'])
+    mito.add_column(2, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'Test': [0], 'B_df2': [2]}))
+
+def test_edit_merge_replays_multiple_edits():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'])
+    mito.add_column(2, 'Test')
+    mito.set_formula('=A', 2, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'Test': [2], 'B_df2': [2]}))
+
+def test_edit_merge_replays_multiple_edits_stops_on_error():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'])
+    mito.add_column(2, 'Test')
+    mito.set_formula('=B', 2, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'Test': [0], 'B_df2': [2]}))
+
+def test_edit_merge_replays_edits_after_multiple_edits():
+    df1 = pd.DataFrame({'A': [2], 'B': [2]})
+    df2 = pd.DataFrame({'A': [1, 2], 'B': [1, 2]})
+    mito = create_mito_wrapper(df1, df2)
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'])
+    mito.add_column(2, 'Test')
+    mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+    mito.set_formula('=A', 2, 'Test')
+    mito.merge_sheets('outer', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2, 1], 'B_df1': [2.0, None], 'Test': [2, 1], 'B_df2': [2, 1]}))

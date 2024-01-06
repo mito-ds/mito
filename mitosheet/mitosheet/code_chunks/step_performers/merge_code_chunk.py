@@ -32,7 +32,8 @@ class MergeCodeChunk(CodeChunk):
         merge_key_column_ids: List[List[ColumnID]], 
         selected_column_ids_one: List[ColumnID], 
         selected_column_ids_two: List[ColumnID], 
-        new_df_name: str
+        new_df_name: str,
+        optional_code_that_successfully_executed: Optional[Tuple[List[str], List[str]]] = None
     ):
         super().__init__(prev_state)
         self.how: str = how 
@@ -42,6 +43,9 @@ class MergeCodeChunk(CodeChunk):
         self.merge_key_column_ids: List[List[ColumnID]] = merge_key_column_ids 
         self.selected_column_ids_one: List[ColumnID] = selected_column_ids_one 
         self.selected_column_ids_two: List[ColumnID] = selected_column_ids_two
+
+        if optional_code_that_successfully_executed is not None:
+            self.optional_code_that_successfully_executed = optional_code_that_successfully_executed
 
         self.df_one_name = self.prev_state.df_names[self.sheet_index_one]
         self.df_two_name = self.prev_state.df_names[self.sheet_index_two]
@@ -72,7 +76,8 @@ class MergeCodeChunk(CodeChunk):
                 merge_code_chunk.merge_key_column_ids, 
                 merge_code_chunk.selected_column_ids_one, 
                 merge_code_chunk.selected_column_ids_two, 
-                merge_code_chunk.new_df_name
+                merge_code_chunk.new_df_name,
+                merge_code_chunk.optional_code_that_successfully_executed
             )
 
         # If one of the merges if creating the code chunk that the new one is overwriting, then we can optimize
@@ -88,7 +93,8 @@ class MergeCodeChunk(CodeChunk):
                 merge_code_chunk.merge_key_column_ids, 
                 merge_code_chunk.selected_column_ids_one, 
                 merge_code_chunk.selected_column_ids_two, 
-                merge_code_chunk.new_df_name
+                merge_code_chunk.new_df_name,
+                merge_code_chunk.optional_code_that_successfully_executed
             )
 
         return None
@@ -117,7 +123,8 @@ class MergeCodeChunk(CodeChunk):
                 self.merge_key_column_ids, 
                 self.selected_column_ids_one, 
                 self.selected_column_ids_two, 
-                self.new_df_name
+                self.new_df_name,
+                self.optional_code_that_successfully_executed
             )
 
         return None
