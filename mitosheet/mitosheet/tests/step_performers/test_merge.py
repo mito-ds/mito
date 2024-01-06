@@ -803,6 +803,14 @@ def test_edit_merge_works_with_filters():
     mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'])
     mito.filter(2, 'A', 'And', FC_NUMBER_EXACTLY, 2)
     mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
+
+    steps_manager = mito.mito_backend.steps_manager
+    final_step = steps_manager.steps_including_skipped[steps_manager.curr_step_idx]
+
+    assert len(final_step.column_filters[2]['A']['filters']) > 0
+    assert len(final_step.column_filters[2]['B_df1']['filters']) == 0
+    assert len(final_step.column_filters[2]['B_df2']['filters']) == 0
+
     mito.filter(2, 'A', 'And', FC_NUMBER_EXACTLY, 3)
 
     assert mito.dfs[2].equals(pd.DataFrame({'A': [3], 'B_df1': [3], 'B_df2': [3]}, index=[1]))
