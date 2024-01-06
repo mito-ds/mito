@@ -82,8 +82,9 @@ class PivotStepPerformer(StepPerformer):
         # Add in any optional code that we want to try and execute
         # which in this case are the edits we replay on top of the 
         # pivot table
-        optional_code = get_optional_code_to_replay_on_pivot(previous_steps, params)
+        optional_code, optional_code_chunk_names = get_optional_code_to_replay_on_pivot(previous_steps, params)
         params['optional_code'] = optional_code
+        params['optional_code_chunk_names'] = optional_code_chunk_names
 
         return params
     
@@ -171,7 +172,7 @@ def get_new_pivot_df_name(prev_state: State, sheet_index: int) -> str:
     return curr_df_name
 
 
-def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params: Dict[str, Any]) -> Tuple[List[str], List[str]]:
+def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params: Dict[str, Any]) -> Tuple[Tuple[List[str], List[str]], List[str]]:
     """
     This function is a utility used to replay edits on top of pivot tables - specifically, 
     it finds the code to try and execute on top of the a pivot table that is being edited.    
@@ -179,7 +180,7 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
     # If this is a pivot step, that has a destination sheet index, then we're going to 
     # go look for the original step that created this pivot
     if params.get('destination_sheet_index') is None:
-        return [], []
+        return ([], []), []
 
     destination_sheet_index = params['destination_sheet_index']
 
@@ -203,6 +204,7 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
     
     # Then, go through and find all of the steps after this creating step that 
     # modify the pivot table only -- and we get the code for all of them
+    code_chunk_names = []
     if starting_index is not None:
         previous_steps = previous_steps[starting_index + 1:]
         previous_steps = [step for step in previous_steps if step.step_performer.get_modified_dataframe_indexes(step.params) == {destination_sheet_index}]
@@ -218,10 +220,11 @@ def get_optional_code_to_replay_on_pivot(previous_steps: List[StepType], params:
             all_import_code += import_lines
             all_other_code += ['', comment]
             all_other_code += code_lines
+            code_chunk_names.append(type(code_chunk).__name__)
 
         optional_code = (
             optional_code[0] + all_other_code,
             optional_code[1] + all_import_code,
         )
 
-    return optional_code
+    return optional_code, code_chunk_names
