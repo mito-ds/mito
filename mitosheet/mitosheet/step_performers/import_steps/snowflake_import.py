@@ -5,7 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from time import perf_counter
+import os
 from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.snowflake_import_code_chunk import SnowflakeImportCodeChunk
@@ -64,8 +64,11 @@ class SnowflakeImportStepPerformer(StepPerformer):
         sql_query = create_query(table_or_view, query_params)
         new_df_name = get_valid_dataframe_name(prev_state.df_names, table_or_view.lower())
 
+        credentials_are_in_env = 'SNOWFLAKE_USERNAME' in os.environ and 'SNOWFLAKE_PASSWORD' in os.environ and 'SNOWFLAKE_ACCOUNT' in os.environ
+
         execution_data = {
             'connection_params_dict': connection_params_dict,
+            'credentials_are_in_env': credentials_are_in_env,
             'sql_query': sql_query,
             'new_df_name': new_df_name
         }
@@ -95,6 +98,7 @@ class SnowflakeImportStepPerformer(StepPerformer):
             SnowflakeImportCodeChunk(
                 prev_state, 
                 get_param(execution_data if execution_data is not None else {}, 'connection_params_dict'),
+                get_param(execution_data if execution_data is not None else {}, 'credentials_are_in_env'),
                 [get_param(execution_data if execution_data is not None else {}, 'sql_query')],
                 [get_param(execution_data if execution_data is not None else {}, 'new_df_name')],
             )

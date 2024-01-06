@@ -254,7 +254,8 @@ class MitoWidgetTestWrapper:
             sheet_index_two: int, 
             merge_key_columns: List[Tuple[ColumnHeader, ColumnHeader]], 
             selected_columns_one: List[ColumnHeader],
-            selected_columns_two: List[ColumnHeader]
+            selected_columns_two: List[ColumnHeader],
+            destination_sheet_index: Optional[int]=None,
         ) -> bool:
 
         merge_key_column_ids = list(map(lambda x: [
@@ -283,7 +284,8 @@ class MitoWidgetTestWrapper:
                     'sheet_index_two': sheet_index_two,
                     'merge_key_column_ids': merge_key_column_ids,
                     'selected_column_ids_one': selected_column_ids_one,
-                    'selected_column_ids_two': selected_column_ids_two
+                    'selected_column_ids_two': selected_column_ids_two,
+                    'destination_sheet_index': destination_sheet_index
                 }
             }
         )

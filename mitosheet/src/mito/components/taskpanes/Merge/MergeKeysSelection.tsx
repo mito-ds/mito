@@ -8,9 +8,9 @@ import XIcon from "../../icons/XIcon";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
 import Spacer from "../../layout/Spacer";
-import { MergeParams } from "./MergeTaskpane";
+import { MergeParams } from "../../../types";
 import { getFirstSuggestedMergeKeys } from "./mergeUtils";
-
+import ExpandableWarning, { WarningState } from "../../elements/ExpandableWarning";
 
 
 const MergeKeysSelectionSection = (props: {
@@ -18,11 +18,11 @@ const MergeKeysSelectionSection = (props: {
     setParams: React.Dispatch<React.SetStateAction<MergeParams>>,
     sheetDataArray: SheetData[],
     error: string | undefined;
+    warningState: WarningState | undefined;
 }): JSX.Element => {
 
     const sheetDataOne = props.sheetDataArray[props.params.sheet_index_one];
     const sheetDataTwo = props.sheetDataArray[props.params.sheet_index_two];
-
     const noPossibleMergeKeys = Object.keys(sheetDataOne?.columnDtypeMap || {}).length === 0 || Object.keys(sheetDataTwo?.columnDtypeMap || {}).length === 0;
 
     return (
@@ -114,9 +114,14 @@ const MergeKeysSelectionSection = (props: {
                     {props.error}
                 </p>    
             }
+            {
+                <ExpandableWarning
+                    warningState={props.warningState}
+                />
+            }
             <Spacer px={15}/>
             <TextButton 
-                width="medium"
+                width="hug-contents"
                 variant="dark"
                 onClick={() => {
                     props.setParams(prevParams => {

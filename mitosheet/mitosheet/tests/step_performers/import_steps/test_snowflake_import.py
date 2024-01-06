@@ -19,15 +19,15 @@ from mitosheet.errors import MitoError
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials, pandas_post_1_5_only
 from mitosheet.tests.test_utils import create_mito_wrapper
 
-PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
-PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
-PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
+SNOWFLAKE_USERNAME = os.getenv('SNOWFLAKE_USERNAME')
+SNOWFLAKE_PASSWORD = os.getenv('SNOWFLAKE_PASSWORD')
+SNOWFLAKE_ACCOUNT = os.getenv('SNOWFLAKE_ACCOUNT')
 
 TEST_SNOWFLAKE_CREDENTIALS: SnowflakeCredentials = {
     'type': 'username/password', 
-    'username': PYTEST_SNOWFLAKE_USERNAME or '', 
-    'password': PYTEST_SNOWFLAKE_PASSWORD or '', 
-    'account': PYTEST_SNOWFLAKE_ACCOUNT or ''
+    'username': SNOWFLAKE_USERNAME or '', 
+    'password': SNOWFLAKE_PASSWORD or '', 
+    'account': SNOWFLAKE_ACCOUNT or ''
 }
 
 TEST_SNOWFLAKE_TABLE_LOC_AND_WAREHOUSE = {
@@ -375,8 +375,7 @@ def test_optimized_snowflake_imports():
     assert mito.dfs[0].equals(expected_df)
     assert len(mito.dfs) == 2
 
-    assert len(mito.transpiled_code) == 15
-
+    assert len(mito.optimized_code_chunks) == 1
 
 @requires_snowflake_dependencies_and_credentials
 @python_post_3_6_only

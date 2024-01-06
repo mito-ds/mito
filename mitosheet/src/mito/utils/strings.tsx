@@ -55,3 +55,7 @@ export const convertToStringOrUndefined = (possibleString: string | number | boo
 export function capitalizeFirstLetter(s: string): string {
     return s.charAt(0).toUpperCase() + s.slice(1);
 }
+
+export function toTitleCase(s: string): string {
+    return s.split(' ').map(capitalizeFirstLetter).join(' ');
+}

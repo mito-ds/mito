@@ -74,9 +74,6 @@ def telemetry_turned_on() -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
-    # Logging is off entirely, for all people
-    return False
-
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
         return False
@@ -145,7 +142,6 @@ def _get_wsc_log_params(steps_manager: Optional[StepsManagerType]=None) -> Dict[
         return {
             'wsc_analysis_name': steps_manager.analysis_name,
             # NOTE: Change this when code fixing this logic is merged in
-            'wsc_data_type_in_mito': str(steps_manager.data_type_in_mito),
             'wsc_local': is_local_deployment(),
             'wsc_curr_step_idx': steps_manager.curr_step_idx,
             'wsc_curr_step_type': steps_manager.curr_step.step_type,

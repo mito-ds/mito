@@ -10,22 +10,27 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.errors import raise_error_if_column_ids_do_not_exist
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID, Filter, FilterGroup, OperatorType
-from mitosheet.types import (
-    FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
-    FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
-    FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
-    FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY, FC_NUMBER_EXACTLY,
-    FC_NUMBER_GREATER, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST,
-    FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
-    FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
-    FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
-    FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE)
+from mitosheet.types import (FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE,
+                             FC_DATETIME_EXACTLY, FC_DATETIME_GREATER,
+                             FC_DATETIME_GREATER_THAN_OR_EQUAL,
+                             FC_DATETIME_LESS, FC_DATETIME_LESS_THAN_OR_EQUAL,
+                             FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+                             FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY,
+                             FC_NUMBER_EXACTLY, FC_NUMBER_GREATER,
+                             FC_NUMBER_GREATER_THAN_OR_EQUAL,
+                             FC_NUMBER_HIGHEST, FC_NUMBER_LESS,
+                             FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
+                             FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS,
+                             FC_STRING_CONTAINS_CASE_INSENSITIVE,
+                             FC_STRING_DOES_NOT_CONTAIN, FC_STRING_ENDS_WITH,
+                             FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
+                             FC_STRING_STARTS_WITH, ColumnHeader, ColumnID,
+                             Filter, FilterGroup, OperatorType)
 
 # If there are multiple conditions, we combine them together, with the
 # given operator in the middle

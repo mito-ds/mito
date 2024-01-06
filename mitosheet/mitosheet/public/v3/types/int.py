@@ -2,8 +2,6 @@
 from datetime import datetime, timedelta
 from typing import Optional, Union
 
-import numpy as np
-
 from mitosheet.public.v3.errors import make_invalid_param_type_conversion_error
 from mitosheet.public.v3.types.float import cast_string_to_float
 

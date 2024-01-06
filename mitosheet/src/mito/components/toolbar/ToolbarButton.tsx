@@ -1,9 +1,10 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { BuildTimeAction, RunTimeAction } from '../../types';
+import { ActionEnum, BuildTimeAction, RunTimeAction } from '../../types';
 import { classNames } from '../../utils/classNames';
 import StepsIcon from '../icons/StepsIcon';
+import { getKeyboardShortcutString } from '../../utils/keyboardShortcuts';
 
 /**
  * The ToolbarButton component is used to create each
@@ -29,7 +30,7 @@ const ToolbarButton = (
         /**
          * Optional override of the action's title. 
          */
-        toolbarTitle?: string;
+        titleToolbar?: string;
 
         /**
         * @param [highlightToolbarButton] - Used to draw attention to the toolbar item. Defaults to False. 
@@ -60,6 +61,11 @@ const ToolbarButton = (
     const highlightToobarItemClass = props.highlightToolbarButton === true ? 'mito-toolbar-button-draw-attention' : ''
     const hasDropdown = props.children !== undefined;
     const orientation = props.orientation ?? 'vertical';
+    let tooltip = disabledTooltip ?? props.action.tooltip ?? props.action.titleToolbar;
+    const keyboardShortcut = getKeyboardShortcutString(props.action.staticType as ActionEnum);
+    if (keyboardShortcut !== undefined) {
+        tooltip += ` (${keyboardShortcut})`;
+    }
     
     return (
         <div 
@@ -88,14 +94,14 @@ const ToolbarButton = (
                     
                     If the icons have different heights, the text won't line up. 
                 */}
-                <span title={disabledTooltip ?? props.action.tooltip ?? props.action.titleToolbar}>
+                <span title={tooltip}>
                     <div className='mito-toolbar-button-icon-container'>
                         {props.iconOverride ?? (props.action.iconToolbar !== undefined ? <props.action.iconToolbar /> : <StepsIcon />)}
                         {hasDropdown && <div className='mito-toolbar-button-dropdown-icon'>▾</div>}
                         {props.children !== undefined && props.children}
                     </div>
-                    {(props.toolbarTitle ?? props.action.titleToolbar) && <p className='mito-toolbar-button-label'> 
-                        {props.toolbarTitle ?? props.action.titleToolbar}
+                    {(props.titleToolbar ?? props.action.titleToolbar) && <p className='mito-toolbar-button-label'> 
+                        {props.titleToolbar ?? props.action.titleToolbar}
                     </p>}
                 </span>
             </button>

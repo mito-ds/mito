@@ -10,13 +10,14 @@ NOTE: This file is alphabetical order!
 """
 from datetime import datetime
 from distutils.version import LooseVersion
-from typing import Optional
 
 import pandas as pd
 
 from mitosheet.public.v3.errors import handle_sheet_function_errors
 from mitosheet.public.v3.types.decorators import cast_values_in_arg_to_type
-from mitosheet.public.v3.types.sheet_function_types import IntFunctionReturnType, DatetimeRestrictedInputType, DatetimeFunctionReturnType, StringFunctionReturnType
+from mitosheet.public.v3.types.sheet_function_types import (
+    DatetimeFunctionReturnType, DatetimeRestrictedInputType,
+    IntFunctionReturnType, StringFunctionReturnType)
 
 
 # Inspired by: https://stackoverflow.com/questions/69345845/why-does-dateoffset-rollback-not-work-the-way-i-expect-it-to-with-days-hours
@@ -456,7 +457,22 @@ def STRIPTIMETOMONTHS(arg: DatetimeRestrictedInputType) -> DatetimeFunctionRetur
     
     return arg.dt.floor('D') - pd.tseries.offsets.MonthBegin()
 
-
+@handle_sheet_function_errors
+def TODAY() -> DatetimeFunctionReturnType:
+    """
+    {
+        "function": "TODAY",
+        "description": "Returns the datetime value for the current date.",
+        "search_terms": ["today"],
+        "category": "DATE",
+        "examples": [
+            "TODAY()"
+        ],
+        "syntax": "TODAY()",
+        "syntax_elements": []
+    }
+    """
+    return pd.to_datetime('today').normalize()
 
 @cast_values_in_arg_to_type('arg', 'datetime')
 @handle_sheet_function_errors
@@ -625,6 +641,7 @@ DATE_FUNCTIONS = {
     'STRIPTIMETODAYS': STRIPTIMETODAYS,
     'STRIPTIMETOMONTHS': STRIPTIMETOMONTHS,
     'STRIPTIMETOYEARS': STRIPTIMETOYEARS,
+    'TODAY': TODAY,
     'WEEK': WEEK,
     'WEEKDAY': WEEKDAY,
     'YEAR': YEAR,

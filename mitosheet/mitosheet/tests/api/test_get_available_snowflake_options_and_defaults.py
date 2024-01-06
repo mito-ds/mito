@@ -5,15 +5,15 @@ from mitosheet.api.get_validate_snowflake_credentials import get_validate_snowfl
 from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.tests.decorators import python_post_3_6_only, requires_snowflake_dependencies_and_credentials
 
-PYTEST_SNOWFLAKE_USERNAME = os.getenv('PYTEST_SNOWFLAKE_USERNAME')
-PYTEST_SNOWFLAKE_PASSWORD = os.getenv('PYTEST_SNOWFLAKE_PASSWORD')
-PYTEST_SNOWFLAKE_ACCOUNT = os.getenv('PYTEST_SNOWFLAKE_ACCOUNT')
+SNOWFLAKE_USERNAME = os.getenv('SNOWFLAKE_USERNAME')
+SNOWFLAKE_PASSWORD = os.getenv('SNOWFLAKE_PASSWORD')
+SNOWFLAKE_ACCOUNT = os.getenv('SNOWFLAKE_ACCOUNT')
 
 TEST_SNOWFLAKE_CREDENTIALS = {
     'type': 'username/password', 
-    'username': PYTEST_SNOWFLAKE_USERNAME, 
-    'password': PYTEST_SNOWFLAKE_PASSWORD, 
-    'account': PYTEST_SNOWFLAKE_ACCOUNT
+    'username': SNOWFLAKE_USERNAME, 
+    'password': SNOWFLAKE_PASSWORD, 
+    'account': SNOWFLAKE_ACCOUNT
 }
 
 TEST_DEFAULT_SNOWFLAKE_CONNECTION = {

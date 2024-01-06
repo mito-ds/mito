@@ -17,46 +17,54 @@ from copy import copy
 from typing import Any, Callable, Dict, List, Optional
 
 from mitosheet._version import __version__, package_name
-from mitosheet.saved_analyses.schema_utils import (upgrade_saved_analysis_format_to_steps_data)
+from mitosheet.saved_analyses.schema_utils import \
+    upgrade_saved_analysis_format_to_steps_data
 from mitosheet.saved_analyses.step_upgraders.add_column import \
     upgrade_add_column_1_to_add_column_2
 from mitosheet.saved_analyses.step_upgraders.change_column_dtype import (
-    upgrade_change_column_dtype_1_to_2, upgrade_change_column_dtype_2_to_3, upgrade_change_column_dtype_3_to_4)
+    upgrade_change_column_dtype_1_to_2, upgrade_change_column_dtype_2_to_3,
+    upgrade_change_column_dtype_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.change_column_format import \
     upgrade_change_column_format_1_to_remove
 from mitosheet.saved_analyses.step_upgraders.delete_column import (
     upgrade_delete_column_1_to_2, upgrade_delete_column_2_to_3)
+from mitosheet.saved_analyses.step_upgraders.excel_range_import import (
+    upgrade_excel_range_import_1_to_2, upgrade_excel_range_import_2_to_3,
+    upgrade_excel_range_import_3_to_4, upgrade_excel_range_import_4_to_5,
+    upgrade_excel_range_import_5_to_6)
 from mitosheet.saved_analyses.step_upgraders.filter import (
     update_filter_column_1_to_filter_column_2, upgrade_filter_column_2_to_3,
     upgrade_filter_column_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.graph import (
     upgrade_graph_1_to_2, upgrade_graph_2_to_3, upgrade_graph_3_to_4)
 from mitosheet.saved_analyses.step_upgraders.merge import (
-    upgrade_merge_1_to_merge_2, upgrade_merge_2_to_3, upgrade_merge_3_to_4)
+    upgrade_merge_1_to_merge_2, upgrade_merge_2_to_3, upgrade_merge_3_to_4, upgrade_merge_4_to_5)
 from mitosheet.saved_analyses.step_upgraders.pivot import (
     upgrade_group_1_to_pivot_2, upgrade_pivot_2_to_pivot_3,
     upgrade_pivot_3_to_4, upgrade_pivot_4_to_5_and_rename,
-    upgrade_pivot_5_to_6, upgrade_pivot_6_to_7, upgrade_pivot_7_to_8, upgrade_pivot_8_to_9)
+    upgrade_pivot_5_to_6, upgrade_pivot_6_to_7, upgrade_pivot_7_to_8,
+    upgrade_pivot_8_to_9)
 from mitosheet.saved_analyses.step_upgraders.rename_column import \
     upgrade_rename_column_1_to_2
 from mitosheet.saved_analyses.step_upgraders.reorder_column import \
     upgrade_reorder_column_1_to_2
-from mitosheet.saved_analyses.step_upgraders.set_column_formula import \
-    upgrade_set_column_formula_1_to_2, upgrade_set_column_formula_2_to_3, upgrade_set_column_formula_3_to_4, upgrade_set_column_formula_4_to_5
+from mitosheet.saved_analyses.step_upgraders.set_column_formula import (
+    upgrade_set_column_formula_1_to_2, upgrade_set_column_formula_2_to_3,
+    upgrade_set_column_formula_3_to_4, upgrade_set_column_formula_4_to_5)
 from mitosheet.saved_analyses.step_upgraders.set_dataframe_format import \
     upgrade_set_dataframe_format_1_to_2
 from mitosheet.saved_analyses.step_upgraders.simple_import import \
     upgrade_simple_import_1_to_2_and_rename
-from mitosheet.saved_analyses.step_upgraders.snowflake_import import upgrade_snowflake_import_1_to_2, upgrade_snowflake_import_2_to_3
+from mitosheet.saved_analyses.step_upgraders.snowflake_import import (
+    upgrade_snowflake_import_1_to_2, upgrade_snowflake_import_2_to_3)
 from mitosheet.saved_analyses.step_upgraders.sort import upgrade_sort_1_to_2
 from mitosheet.saved_analyses.step_upgraders.utils_rename_column_headers import \
     INITIAL_BULK_OLD_RENAME_STEP
-from mitosheet.saved_analyses.step_upgraders.excel_range_import import upgrade_excel_range_import_1_to_2, upgrade_excel_range_import_2_to_3, upgrade_excel_range_import_3_to_4, upgrade_excel_range_import_4_to_5, upgrade_excel_range_import_5_to_6
+from mitosheet.step_performers.export_to_file import \
+    upgrade_export_to_file_1_to_2
 from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions
 from mitosheet.utils import is_prev_version
-
-from mitosheet.step_performers.export_to_file import upgrade_export_to_file_1_to_2
 
 """
 STEP_UPGRADES_FUNCTION_MAPPING mapping contains a mapping of all steps that need to be upgraded. A step
@@ -96,6 +104,7 @@ STEP_UPGRADES_FUNCTION_MAPPING_NEW_FORMAT = {
         1: upgrade_merge_1_to_merge_2,
         2: upgrade_merge_2_to_3,
         3: upgrade_merge_3_to_4,
+        4: upgrade_merge_4_to_5
     },
     'change_column_dtype': {
         1: upgrade_change_column_dtype_1_to_2,

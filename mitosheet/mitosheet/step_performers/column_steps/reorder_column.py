@@ -3,17 +3,16 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import deepcopy
-from time import perf_counter
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 import pandas as pd
+
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import ReorderColumnCodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.reorder_column_code_chunk import \
+    ReorderColumnCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnHeader, ColumnID
 
 
 def get_valid_index(dfs: List[pd.DataFrame], sheet_index: int, new_column_index: int) -> int:

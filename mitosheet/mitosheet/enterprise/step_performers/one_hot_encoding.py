@@ -5,15 +5,15 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of The Mito Enterprise license.
 
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.one_hot_encoding_code_chunk import OneHotEncodingCodeChunk
-
+from mitosheet.code_chunks.one_hot_encoding_code_chunk import \
+    OneHotEncodingCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnID
+
 
 class OneHotEncodingStepPerformer(StepPerformer):
     """

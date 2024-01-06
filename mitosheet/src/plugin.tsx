@@ -16,6 +16,7 @@ import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
 import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
+import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -311,20 +312,23 @@ function activateMitosheetExtension(
      * Thus, for now, we split up our keyboard shortcut handling across multiple places.
      * We will address this in the future, when we can figure out why it is occuring!
      */
+    for (const shortcut of keyboardShortcuts) {
+        // Only add the keyboard shortcut if it has a jupyterLabAction defined. 
+        if (shortcut.jupyterLabCommand !== undefined) {
+            const operatingSystem = getOperatingSystem();
+            const keyCombo = operatingSystem === 'mac' ? shortcut.macKeyCombo : shortcut.winKeyCombo
 
-    /* 
-        To make Command + F focus on search, we add these commands as a key-binding
-        that specifically is captured inside the mito-container.
-
-        If Command + F is pressed in this context, we go and get the search input, and
-        focus on it, so the user can just starting typing in it!
-    */
-    app.commands.addKeyBinding({
-        command: 'mitosheet:open-search',
-        args: {},
-        keys: ['Accel F'],
-        selector: '.mito-container'
-    });
+            app.commands.addKeyBinding({
+                // Note: This action should be added as a command as well.
+                // See app.commands.addCommand('mitosheet:open-search', ...) 
+                command: shortcut.jupyterLabCommand,
+                args: {},
+                selector: '.mito-container',
+                // TODO: if there are multiple keys or the shortcut doesn't use the "accel" key, this won't work.
+                keys: ['Accel '+keyCombo.keys[0].toUpperCase()]
+            });
+        }
+    }
     app.commands.addCommand('mitosheet:open-search', {
         label: 'Focuses on search of the currently selected mito notebook',
         execute: async (): Promise<void> => {
@@ -339,12 +343,6 @@ function activateMitosheetExtension(
         }
     });
 
-    app.commands.addKeyBinding({
-        command: 'mitosheet:mito-undo',
-        args: {},
-        keys: ['Accel Z'],
-        selector: '.mito-container'
-    });
     app.commands.addCommand('mitosheet:mito-undo', {
         label: 'Clicks the undo button once',
         execute: async (): Promise<void> => {
@@ -362,12 +360,6 @@ function activateMitosheetExtension(
         }
     });
 
-    app.commands.addKeyBinding({
-        command: 'mitosheet:mito-redo',
-        args: {},
-        keys: ['Accel Y'],
-        selector: '.mito-container'
-    });
     app.commands.addCommand('mitosheet:mito-redo', {
         label: 'Clicks the redo button once',
         execute: async (): Promise<void> => {

@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 from mitosheet.types import ParamSubtype, ParamType, ParamValue
 

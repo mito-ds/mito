@@ -2,13 +2,13 @@
 
 import csv
 import os
-from typing import Dict, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
-from openpyxl import load_workbook
 import openpyxl
-import pandas as pd
+from openpyxl import load_workbook
 
-from mitosheet.excel_utils import get_col_and_row_indexes_from_range, get_column_from_column_index
+from mitosheet.excel_utils import (get_col_and_row_indexes_from_range,
+                                   get_column_from_column_index)
 
 
 def get_table_range(

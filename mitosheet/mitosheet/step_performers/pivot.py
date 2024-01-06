@@ -1,32 +1,16 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-from distutils.version import LooseVersion
-import warnings
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from time import perf_counter
-from typing import Any, Callable, Collection, Dict, List, Optional, Set, Tuple
-
-import pandas as pd
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.pivot_code_chunk import (
-    USE_INPLACE_PIVOT, PivotCodeChunk)
-from mitosheet.errors import make_invalid_pivot_error, make_invalid_pivot_filter_error, make_no_column_error
+from mitosheet.code_chunks.step_performers.pivot_code_chunk import \
+    PivotCodeChunk
+from mitosheet.errors import make_no_column_error
 from mitosheet.state import DATAFRAME_SOURCE_PIVOTED, State
-from mitosheet.step_performers.filter import (combine_filters,
-                                              get_applied_filter)
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.types import (ColumnHeader, ColumnHeaderWithFilter,
-                             ColumnHeaderWithPivotTransform, ColumnID,
-                             ColumnIDWithFilter, ColumnIDWithPivotTransform)
-from mitosheet.array_utils import deduplicate_array
-from mitosheet.utils import is_prev_version
-
-
 
 # Aggregation types pivot supports
 PA_COUNT_UNIQUE = 'count unique'
@@ -154,7 +138,7 @@ class PivotStepPerformer(StepPerformer):
     @classmethod
     def get_modified_dataframe_indexes(cls, params: Dict[str, Any]) -> Set[int]:
         destination_sheet_index = get_param(params, 'destination_sheet_index')
-        if destination_sheet_index: # If editing an existing sheet, that is what is changed
+        if destination_sheet_index is not None: # If editing an existing sheet, that is what is changed
             return {destination_sheet_index}
         return {-1}
     

@@ -492,6 +492,16 @@ export interface BackendPivotParams {
     destination_sheet_index?: number;
 }
 
+export interface MergeParams {
+    how: string;
+    destination_sheet_index?: number;
+    sheet_index_one: number;
+    sheet_index_two: number;
+    merge_key_column_ids: [ColumnID, ColumnID][];
+    selected_column_ids_one: ColumnID[];
+    selected_column_ids_two: ColumnID[];
+}
+
 // The parameters used by the frontend. The type of the params is different between the 
 // backend and the frontend, due to it being easier to manipulate as an array on the 
 // frontend while keeping the ordering for values
@@ -684,18 +694,6 @@ export interface GridState {
     widthDataArray: WidthData[];
 }
 
-/**
- * The type of data that is in this current Mito analysis.
- * 
- * @remark this should be the same as the file in the Python code
- * which is in data_in_mito.py
- */
-export enum DataTypeInMito {
-    NONE = 'none',
-    PROVIDED = 'provided',
-    TUTORIAL = 'tutorial',
-    PERSONAL = 'personal',
-}
 
 export type ExperimentID = 
     | 'title_name';
@@ -733,7 +731,8 @@ export type UserDefinedFunctionParamNameToType = Record<UserDefinedFunctionParam
 export type UserDefinedFunction = {
     name: string,
     docstring: string,
-    parameters: UserDefinedFunctionParamNameToType
+    parameters: UserDefinedFunctionParamNameToType,
+    domain?: string
 }
 
 
@@ -746,7 +745,6 @@ export type UserDefinedFunction = {
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
- * @param dataTypeInTool - the type of data in the tool in this analysis
  * @param graphDataDict - a mapping from graphID to all of the relevant graph information
  * @param updateEventCount - the number of update events that have been successfully processed by the frontend
  * @param undoCount - the number of undos
@@ -773,7 +771,6 @@ export interface AnalysisData {
     code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,
-    dataTypeInTool: DataTypeInMito;
     graphDataDict: GraphDataDict;
     updateEventCount: number;
     undoCount: number,
@@ -808,6 +805,42 @@ export interface MitoConfig {
     [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
 }
 
+
+export interface KeyBinding {
+    keys: string[];
+    ctrlKey?: boolean;
+    altKey?: boolean;
+    shiftKey?: boolean;
+    metaKey?: boolean;
+}
+
+export interface KeyboardShortcut {
+    macKeyCombo: KeyBinding
+    winKeyCombo: KeyBinding
+    action: ActionEnum
+	
+    // Include this string so that you can automatically override some of the JL
+    // keybindings. For example, 'mitosheet:mito-undo' will add a keybinding for
+    // the command registered to that ID in plugin.tsx.
+    jupyterLabCommand?: string
+
+    /**
+     * Some keyboard shortcuts should only be triggered if the user is not in a text input. 
+     * For example. cmd+a should select the text in the input field, not select all the cells.
+     */
+    skipIfInTextInput?: boolean
+
+    /**
+     * Some keyboard shortcuts should only be triggered if the user does not have text selected.
+     * For example, cmd+c should copy the text in the input field, not copy the cells.
+     */
+    skipIfTextSelected?: boolean
+
+    // For some keybindings (ex: cmd + y), we'd want to stop propagation
+    // so that they don't open something in your browser
+    preventDefaultAndStopPropagation?: boolean
+}
+
 /**
  * An object represending this user
  * 
@@ -818,7 +851,6 @@ export interface MitoConfig {
  * @param pythonVersion - the version of the user's python installation
  * @param pandasVersion - ther version of th user's pandas isntallation
  * @param telemetryEnabled - if the user has telemetry enabled
- * @param isLocalDeployment - if the user is deployed locally or not
  * @param shouldUpgradeMitosheet - if the user should upgrade their mitosheet
  * @param numUsages - the number of times the user has used the tool (maxes out at 50 currently)
  * @param usageTriggeredFeedbackID - the id of the usage triggered feedback id to display to the user
@@ -834,7 +866,6 @@ export interface UserProfile {
     pythonVersion: string;
 
     telemetryEnabled: boolean;
-    isLocalDeployment: boolean;
     shouldUpgradeMitosheet: boolean;
     numUsages: number;
     snowflakeCredentials: SnowflakeCredentials | null;
@@ -859,13 +890,26 @@ export interface ExportState { fileName?: string, exportType: 'csv' | 'excel' }
 export interface CSVExportState extends ExportState { exportType: 'csv' }
 export interface ExcelExportState extends ExportState { exportType: 'excel', sheetIndexes: number[] }
 
-export type OpenDropdownType = ToolbarDropdown | ContextMenu;
 
 export interface ContextMenu {
+    type: 'context-menu';
     rowIndex: number;
     columnIndex: number;
 }
+export interface FooterContextMenu {
+    sheetIndex: number;
+    type: 'footer-context-menu';
+}
 export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
+
+export interface DataTabImportDomainDropdown {
+    type: 'import-domain-dropdown';
+    domain: string;
+}
+
+
+export type OpenDropdownType = ToolbarDropdown | ContextMenu | FooterContextMenu | DataTabImportDomainDropdown;
+
 
 export enum PopupType {
     EphemeralMessage = 'ephemeral_message',
@@ -911,6 +955,8 @@ export interface UIState {
 
 export interface SearchInfo {
     isOpen: boolean;
+    // Optionally specify whether the search bar should be expanded or not
+    isExpanded?: boolean;
     searchValue?: string;
     matches: {rowIndex: number; colIndex: number}[];
     currentMatchIndex: number;
@@ -978,12 +1024,17 @@ export enum ActionEnum {
     Formulas_Dropdown_Reference = 'reference formulas dropdown',
     Formulas_Dropdown_Custom = 'custom formulas dropdown',
     Formulas_Dropdown_More = 'more formulas dropdown',
-    OpenSearch = 'open search',
+    OpenFind = 'open search',
+    OpenFindAndReplace = 'open search and replace',
     Pivot = 'pivot',
     Precision_Increase = 'precision increase',
     Precision_Decrease = 'precision decrease',
-    Currency_Format = 'set format to currency',
-    Percent_Format = 'set format to percent',
+    Set_Format_Currency = 'set format to currency',
+    Set_Format_Percent = 'set format to percent',
+    Set_Format_Default = 'set format to default',
+    Set_DateTime_Dtype = 'set datetime type',
+    Set_Format_Scientific = 'set format to scientific notation',
+    Set_Format_Number = 'set format to number (two decimal places)',
     Promote_Row_To_Header = 'promote row to header',
     Redo = 'redo',
     Rename_Column = 'rename column',
@@ -991,7 +1042,9 @@ export enum ActionEnum {
     Rename_Graph = 'rename graph',
     See_All_Functionality = 'see all functionality',
     Schedule_Github = 'schedule github',
-    //Search = 'search',
+    Select_Columns = 'select columns',
+    Select_Rows = 'select rows',
+    Select_All = 'select all',
     Set_Cell_Value = 'set cell value',
     Set_Column_Formula = 'set column formula',
     Sort = 'sort',
@@ -1005,6 +1058,8 @@ export enum ActionEnum {
     Transpose = 'transpose',
     Melt = 'melt',
     One_Hot_Encoding = 'one_hot_encoding',
+    Open_Next_Sheet = 'open next sheet',
+    Open_Previous_Sheet = 'open previous sheet',
     Set_Dataframe_Format = 'set_dataframe_format',
     Conditional_Formatting = 'ConditionalFormatting',
     Dataframe_Import = 'Dataframe_Import',
@@ -1069,15 +1124,13 @@ export interface BaseAction<Type, StaticType> {
     // The tooltip to display in the toolbar or search bar when this is hovered over
     tooltip: string
 
-
-    // If this action has a keyboard shortcut, then you can display this by setting these values
-    displayKeyboardShortcuts?: {
-        mac: string,
-        windows: string
-    }
-
     // If this action is only available for pro users
     requiredPlan?: 'pro' | 'enterprise'
+
+    // If this action is in the context of a specific domain, then you can set this
+    // This is useful for user defined functions, importers, or editors, which 
+    // can be then grouped by domain in the UI
+    domain?: string
 }
 export type BuildTimeAction = BaseAction<'build-time', ActionEnum>
 export type RunTimeAction = BaseAction<'run-time', string>

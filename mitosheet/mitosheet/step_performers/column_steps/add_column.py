@@ -3,17 +3,15 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import deepcopy
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk import AddColumnCodeChunk
 
-from mitosheet.errors import make_column_exists_error, make_no_sheet_error
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.step_performers.column_steps.add_column_code_chunk import \
+    AddColumnCodeChunk
+from mitosheet.column_headers import get_column_header_id
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.column_headers import get_column_header_id
 
 
 class AddColumnStepPerformer(StepPerformer):

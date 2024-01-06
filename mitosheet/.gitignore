@@ -43,3 +43,7 @@ mitosheet/streamlit/v1/mitoBuild/*.css
 mitosheet/streamlit/v1/messagingBuild/*.js
 mitosheet/mito_dash/v1/mitoBuild/*.js
 mitosheet/mito_dash/v1/mitoBuild/*.css
+
+
+.streamlit/
+.mypy_cache/

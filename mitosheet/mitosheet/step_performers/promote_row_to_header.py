@@ -5,21 +5,20 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
-from mitosheet.code_chunks.code_chunk import CodeChunk
-from mitosheet.code_chunks.promote_row_to_header_code_chunk import PromoteRowToHeaderCodeChunk
-from mitosheet.errors import make_invalid_promote_row_to_header
 
+from mitosheet.code_chunks.code_chunk import CodeChunk
+from mitosheet.code_chunks.promote_row_to_header_code_chunk import \
+    PromoteRowToHeaderCodeChunk
+from mitosheet.errors import make_invalid_promote_row_to_header
 from mitosheet.state import State
-from mitosheet.step_performers.column_steps.rename_column import rename_column_headers_in_state
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import ColumnHeader
-from mitosheet.utils import MAX_ROWS, convert_df_to_parsed_json
-from mitosheet.public.v3 import deduplicate_column_headers
+from mitosheet.utils import convert_df_to_parsed_json
+
 
 def get_should_deduplicate_column_headers(column_headers: List[ColumnHeader]) -> bool:
     """

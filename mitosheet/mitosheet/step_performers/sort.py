@@ -4,13 +4,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from time import perf_counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.sort_code_chunk import SortCodeChunk
-from mitosheet.errors import (make_invalid_sort_error,
-                              raise_error_if_column_ids_do_not_exist)
+from mitosheet.errors import make_invalid_sort_error
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param

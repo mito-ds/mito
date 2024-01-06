@@ -80,6 +80,7 @@ class DataframeRenameCodeChunk(CodeChunk):
         return MergeCodeChunk(
             merge_code_chunk.prev_state,
             merge_code_chunk.how,
+            merge_code_chunk.destination_sheet_index,
             merge_code_chunk.sheet_index_one,
             merge_code_chunk.sheet_index_two,
             merge_code_chunk.merge_key_column_ids,

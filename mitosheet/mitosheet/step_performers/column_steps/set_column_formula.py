@@ -3,26 +3,24 @@
 
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
-from copy import deepcopy
 import inspect
 import json
-from time import perf_counter
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.column_steps.set_column_formula_code_chunk import \
     SetColumnFormulaCodeChunk
-from mitosheet.errors import (MitoError, get_recent_traceback, make_execution_error,
+from mitosheet.errors import (MitoError, make_execution_error,
                               make_operator_type_error,
-                              make_unsupported_function_error,
-                              raise_error_if_column_ids_do_not_exist)
+                              make_unsupported_function_error)
 from mitosheet.parser import get_frontend_formula, parse_formula
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader, ColumnID, FormulaAppliedToType
+from mitosheet.types import (FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader,
+                             ColumnID, FormulaAppliedToType)
 
 
 class SetColumnFormulaStepPerformer(StepPerformer):
@@ -91,7 +89,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         elif public_interface_version == 2:
             from mitosheet.public.v2 import FUNCTIONS
         elif public_interface_version == 3:
-            from mitosheet.public.v3 import FUNCTIONS # type: ignore
+            from mitosheet.public.v3 import FUNCTIONS  # type: ignore
         else:
             raise Exception(f'Please add support for public_interface_version={public_interface_version}')
         

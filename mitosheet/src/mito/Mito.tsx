@@ -35,7 +35,6 @@ import DeleteGraphsModal from './components/modals/DeleteGraphsModal';
 import ErrorModal from './components/modals/ErrorModal';
 import ErrorReplayedAnalysisModal from './components/modals/ReplayAnalysisModals';
 import SignUpModal from './components/modals/SignupModal';
-import UpgradeModal from './components/modals/UpgradeModal';
 import { ModalEnum } from './components/modals/modals';
 import AITransformationTaskpane, { AITransformationParams } from './components/taskpanes/AITransformation/AITransformationTaskpane';
 import CannotCreateCommTaskpane from './components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane';
@@ -60,10 +59,9 @@ import SnowflakeImportTaskpane from './components/taskpanes/SnowflakeImport/Snow
 import SplitTextToColumnsTaskpane from './components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane';
 import UpdateImportsTaskpane from './components/taskpanes/UpdateImports/UpdateImportsTaskpane';
 import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/UserDefinedImportTaskpane';
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
-import { AnalysisData, DFSource, DataTypeInMito, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
+import { AnalysisData, DFSource, EditorState, GridState, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { getActions } from './utils/actions';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
@@ -76,7 +74,7 @@ import EphemeralMessage from './components/popups/EphemeralMessage';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import UserDefinedEditTaskpane from './components/taskpanes/UserDefinedEdit/UserDefinedEditTaskpane';
-import { EDITING_TASKPANES, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
+import { EDITING_TASKPANES, TASKPANE_WIDTH_MAX, TASKPANE_WIDTH_MIN, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
 import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
@@ -85,6 +83,7 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
 import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
+import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -545,12 +544,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                 />
             )
-            case ModalEnum.Upgrade: return (
-                <UpgradeModal
-                    setUIState={setUIState}
-                    mitoAPI={mitoAPI}
-                />
-            )
             case ModalEnum.ErrorReplayedAnalysis: return (
                 <ErrorReplayedAnalysisModal
                     setUIState={setUIState}
@@ -660,6 +653,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <MergeTaskpane
                     selectedSheetIndex={uiState.selectedSheetIndex}
                     sheetDataArray={sheetDataArray}
+                    existingParams={uiState.currOpenTaskpane.existingParams}
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     analysisData={analysisData}
@@ -938,10 +932,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     )
 
 
-    // Hook for using keyboard shortcuts. NOTE: do not return before this hook, it will cause
-    // issues.
-    useKeyboardShortcuts(mitoContainerRef, actions, setGridState);
-
     /* 
         Send all users through the intro tour unless:
         1. They disabled tours
@@ -953,7 +943,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const getCurrTour = (): JSX.Element => {
 
         // If the user has either no or tutorial data in the tool, don't display the tour
-        if (analysisData.dataTypeInTool === DataTypeInMito.NONE || analysisData.dataTypeInTool === DataTypeInMito.TUTORIAL) {
+        if (sheetDataArray.length == 0) {
             return <></>;
         }
 
@@ -1014,17 +1004,51 @@ export const Mito = (props: MitoProps): JSX.Element => {
         'mito-taskpane-container-narrow': narrowTaskpaneOpen,
     })
 
+    const [resizingTaskpane, setResizingTaskpane] = useState(false);
+
     return (
         <div 
             className="mito-container" 
             data-jp-suppress-context-menu 
             ref={mitoContainerRef} 
             tabIndex={0}
+            onMouseMove={(event) => {
+                if (resizingTaskpane) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (mitoContainerRef.current !== null) {
+                        const { clientX } = event;
+                        const rawTaskpaneWidth = mitoContainerRef.current.getBoundingClientRect().right - clientX;
+                        const taskpaneWidth = Math.max(
+                            Math.min(TASKPANE_WIDTH_MAX, rawTaskpaneWidth),
+                            TASKPANE_WIDTH_MIN
+                        );
+                        setUIState({
+                            ...uiState,
+                            taskpaneWidth: taskpaneWidth
+                        })
+                    }
+                }
+            }}
+            onMouseUp={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setResizingTaskpane(false);
+            }}
             onKeyDown={(e) => {
                 // If the user presses escape anywhere in the mitosheet, we close the editor
                 if (e.key === 'Escape') {
                     if (editorState !== undefined) {
                         setEditorState(undefined)
+                    } else if (uiState.currOpenTaskpane.type !== TaskpaneType.NONE) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {
+                                    type: TaskpaneType.NONE
+                                },
+                            }
+                        });
                     } else if (uiState.currOpenSearch.isOpen) {
                         setUIState(prevUIState => {
                             return {
@@ -1049,6 +1073,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         focusGrid(endoGridContainer);
                     }
                 }
+                handleKeyboardShortcuts(e, actions);
             }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
@@ -1099,16 +1124,30 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
-                        <div 
-                            className={taskpaneClassNames}
-                            style={
-                                narrowTaskpaneOpen 
-                                    ? {width: `${uiState.taskpaneWidth}px`}
-                                    : undefined
+                        <>
+                            {uiState.currOpenTaskpane.type !== TaskpaneType.GRAPH &&
+                                <div
+                                    className='taskpane-resizer-container'
+                                    onMouseDown={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        setResizingTaskpane(true);
+                                    }}
+                                >
+                                    <div className='taskpane-resizer'/>
+                                </div>
                             }
-                        >
-                            {getCurrOpenTaskpane()}
-                        </div>
+                            <div 
+                                className={taskpaneClassNames}
+                                style={
+                                    narrowTaskpaneOpen 
+                                        ? {width: `${uiState.taskpaneWidth}px`}
+                                        : undefined
+                                }
+                            >
+                                {getCurrOpenTaskpane()}
+                            </div>
+                        </>
                     }
                 </div>
                 {/* Display the tour if there is one */}
