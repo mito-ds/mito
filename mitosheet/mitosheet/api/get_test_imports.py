@@ -43,7 +43,9 @@ def get_test_imports(params: Dict[str, Any], steps_manager: StepsManagerType) ->
     for index, _import in enumerate(all_imports):
         try:
             step = Step(_import['step_type'], 'fake_id', _import["params"])
-            executed = step.set_prev_state_and_execute(steps_manager.steps_including_skipped[0].final_defined_state)
+            # We don't need the previous steps for this, so we just pass an empty list
+            # to this parameter. We only need this parameter for pivot tables
+            executed = step.set_prev_state_and_execute(steps_manager.steps_including_skipped[0].final_defined_state, [])
             if not executed:
                 invalid_import_indexes[index] = get_import_error_for_step_type(_import['step_type'])
         except MitoError as e:

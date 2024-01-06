@@ -58,7 +58,7 @@ class MeltStepPerformer(StepPerformer):
             {
                 'df_source': DATAFRAME_SOURCE_MELTED,
                 'new_df_names': [new_df_name],
-                'sheet_index_to_overwrite': None
+                'overwrite': None
             }
         )
 

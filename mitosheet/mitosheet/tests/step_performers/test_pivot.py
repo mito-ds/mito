@@ -933,3 +933,158 @@ def test_pivot_with_rename_works_then_edit_optimized_properly():
     mito.rename_dataframe(1, 'NEW')
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
+
+
+def test_pivot_then_add_column_reapplies():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A')
+    mito.set_formula('=10', 1, 'A', add_column=False)
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    print(mito.dfs[1])
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value sum': [6], 'A': [10]}))
+
+def test_pivot_then_add_column_reapplies_multiple_edits():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.pivot_sheet(0, ['date'], [], {'value': ['min']}, destination_sheet_index=1)
+    mito.add_column(1, 'A')
+    mito.set_formula('=10', 1, 'A', add_column=False)
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10]}))
+
+def test_pivot_then_add_column_reapplies_after_multiple_edits():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A')
+    mito.set_formula('=10', 1, 'A', add_column=False)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['min']}, destination_sheet_index=1)
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10]}))
+
+def test_pivot_then_add_column_reapplies_after_multiple_edits_with_additional_edits():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A')
+    mito.set_formula('=10', 1, 'A', add_column=False)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['min']}, destination_sheet_index=1)
+    mito.add_column(1, 'B')
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [10], 'B': [0]}))
+
+def test_pivot_then_rename_then_edit_replays():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A')
+    mito.set_formula('=10', 1, 'A', add_column=False)
+    mito.rename_column(1, 'A', 'B')
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value sum': [6], 'B': [10]}))
+
+def test_pivot_then_edit_that_invalidates_steps_still_applies():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-1-2000', '1-1-2000'], 'value': [2, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A')
+    mito.add_column(1, 'B')
+    mito.set_formula('=value sum + 10', 1, 'B', add_column=False)
+    mito.rename_column(1, 'B', 'C')
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    assert mito.dfs[1].equals(pd.DataFrame({'date': ['1-1-2000'], 'value max': [2], 'A': [0], 'B': [0]}))
+
+
+def test_pivot_then_all_edits_to_sheet():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-2-2000', '1-3-2000'], 'value': [1, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.add_column(1, 'A')
+    mito.set_formula('=value sum + 10', 1, 'A', add_column=False)
+    mito.sort(1, 'A', 'ascending')
+    mito.rename_column(1, 'A', 'B')
+    mito.filter(1, 'value sum', 'And', FC_NUMBER_EXACTLY, 2)
+    mito.change_column_dtype(1, ['B'], 'string')
+    mito.delete_row(1, [2])
+
+    assert mito.dfs[1].equals(
+        pd.DataFrame({
+            'date': ['1-2-2000'],
+            'value sum': [2],
+            'B': ['12']
+        }, index=[1])
+    )
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum', 'max']}, destination_sheet_index=1)
+    assert len(mito.optimized_code_chunks) == 1
+    assert mito.dfs[1].equals(
+        pd.DataFrame({
+            'date': ['1-2-2000'],
+            'value max': [2],
+            'B': ['12'],
+            'value sum': [2],
+        }, index=[1])
+    )
+
+def test_replay_edits_import_pandas_code_not_duplicated():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-2-2000', '1-3-2000'], 'value': [1, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.change_column_dtype(0, ['date'], 'datetime')
+    mito.change_column_dtype(1, ['date'], 'datetime')
+
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum', 'max']}, destination_sheet_index=1)
+    assert len([l for l in mito.transpiled_code if 'import pandas as pd' in l]) == 1
+
+
+def test_replay_edits_preserves_filter_metadata_where_possible():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-2-2000', '1-3-2000'], 'value': [1, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.filter(1, 'date', 'And', FC_STRING_CONTAINS, '1-1')
+    mito.filter(1, 'value sum', 'And', FC_NUMBER_GREATER, 2)    
+    mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
+
+    steps_manager = mito.mito_backend.steps_manager
+    final_step = steps_manager.steps_including_skipped[steps_manager.curr_step_idx]
+
+    assert len(final_step.column_filters[1]['date']['filters']) > 0
+    assert len(final_step.column_filters[1]['value max']['filters']) == 0
+
+    assert mito.dfs[1].equals(
+        pd.DataFrame({
+            'date': ['1-1-2000'],
+            'value max': [1]
+        })
+    )
+
+
+def test_replay_edits_allows_filter_editing():
+    df = pd.DataFrame(data={'date': ['1-1-2000', '1-2-2000', '1-3-2000'], 'value': [1, 2, 2]})
+    mito = create_mito_wrapper(df)
+    mito.pivot_sheet(0, ['date'], [], {'value': ['sum']})
+    mito.filter(1, 'date', 'And', FC_STRING_CONTAINS, '1-1')
+    mito.pivot_sheet(0, ['date'], [], {'value': ['max']}, destination_sheet_index=1)
+    mito.filter(1, 'date', 'And', FC_STRING_CONTAINS, '1-2-2000')
+
+    assert mito.dfs[1].equals(
+        pd.DataFrame({
+            'date': ['1-2-2000'],
+            'value max': [2]
+        }, index=[1])
+    )

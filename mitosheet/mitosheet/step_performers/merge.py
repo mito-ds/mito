@@ -56,7 +56,10 @@ class MergeStepPerformer(StepPerformer):
                 new_dataframe_params={
                     'df_source': DATAFRAME_SOURCE_MERGED,
                     'new_df_names': [new_df_name],
-                    'sheet_index_to_overwrite': destination_sheet_index
+                    'overwrite': {
+                        'sheet_index_to_overwrite': destination_sheet_index,
+                        'attempt_to_save_filter_metadata': False
+                    } if destination_sheet_index is not None else destination_sheet_index
                 }
             )
 
