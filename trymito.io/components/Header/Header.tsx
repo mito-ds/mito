@@ -110,8 +110,14 @@ const Header = (): JSX.Element => {
                 </HeaderDropdown>
 
 
-                {/* Industries Dropdown */}
-                <HeaderDropdown dropdownButtonTitle="Industries">
+                {/* Use Cases Dropdown */}
+                <HeaderDropdown dropdownButtonTitle="Use Cases">
+                <HeaderDropdownItem
+                    title='Python Training'
+                    href='/use-cases/python-training'
+                    iconSrc='/education.svg'
+                    altText="Financial Services"
+                  />
                   <HeaderDropdownItem
                     title='Financial Services'
                     href='/industries/financial-services'
@@ -212,6 +218,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/use-cases/python-training'>Python Training</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/industries/financial-services'>Financial Services</Link>

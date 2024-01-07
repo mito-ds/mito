@@ -34,6 +34,9 @@ function generateSiteMap(glossarySlugs: string[], blogPostSlugs: string[]) {
                 <loc>https://www.trymito.io/infrastructure-integration-python-tool</loc>
             </url>
             <url>
+                <loc>https://www.trymito.io/use-cases/python-training</loc>
+            </url>
+            <url>
                 <loc>https://www.trymito.io/industries/financial-services</loc>
             </url>
             <url>
