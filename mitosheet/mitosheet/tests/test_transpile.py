@@ -1229,8 +1229,6 @@ def test_edit_dataframe_after_full_clear_does_not_reorder_strangely(tmp_path):
 
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(new_df)
-
-    print(mito.transpiled_code)
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         'import pandas as pd', 
@@ -1240,3 +1238,75 @@ def test_edit_dataframe_after_full_clear_does_not_reorder_strangely(tmp_path):
         "test['D'] = 0", 
         ''
     ]
+
+
+def test_all_edits_optimized_after_simple_imports(tmp_path):
+    df = pd.DataFrame({'A': [1], 'B': [2], 'C': [3], 'D': [0], 'E': [0]})
+    path = str(tmp_path / 'test.csv')
+    df.to_csv(path, index=False)
+    
+    mito = create_mito_wrapper()
+    mito.simple_import([path])
+    mito.simple_import([path])
+
+    mito.add_column(0, 'F')
+    mito.add_column(1, 'F')
+
+    mito.set_formula('=A + 1', 0, 'F')
+    mito.set_formula('=B + 1', 1, 'F')
+
+    assert len(mito.dfs) == 2
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        'import pandas as pd', 
+        '', 
+        f"test = pd.read_csv(r'{path}')",
+        f"test_1 = pd.read_csv(r'{path}')", 
+        '', 
+        "test['F'] = test['A'] + 1",
+        '',
+        "test_1['F'] = test_1['B'] + 1",
+        ''
+    ]
+
+def test_all_edits_optimized_after_import_pivot(tmp_path):
+    df = pd.DataFrame({'A': [1], 'B': [2], 'C': [3], 'D': [0], 'E': [0]})
+    path = str(tmp_path / 'test.csv')
+    df.to_csv(path, index=False)
+    
+    mito = create_mito_wrapper()
+    mito.simple_import([path])
+
+    mito.pivot_sheet(
+        0, 
+        ['A'],
+        [],
+        {'B': ['sum']}
+    )
+
+    mito.delete_columns(0, ['A'])
+    mito.add_column(1, 'NEW')
+    mito.delete_columns(0, ['B'])
+    mito.set_formula('=A + 1', 1, 'NEW')
+    mito.delete_columns(0, ['C'])
+
+    print(mito.transpiled_code)
+
+    assert len(mito.dfs) == 2
+    assert mito.transpiled_code == [
+        'from mitosheet.public.v3 import *', 
+        'import pandas as pd', 
+        '', 
+        f"test = pd.read_csv(r'{path}')",
+        '', 
+        'tmp_df = test[[\'B\', \'A\']].copy()',
+        'pivot_table = tmp_df.pivot_table(\n    index=[\'A\'],\n    values=[\'B\'],\n    aggfunc={\'B\': [\'sum\']}\n)',
+        'pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)',
+        'test_pivot = pivot_table.reset_index()',
+        '',
+        'test.drop([\'A\', \'B\', \'C\'], axis=1, inplace=True)',
+        '',
+        "test_pivot['NEW'] = test_pivot['A'] + 1",
+        '',
+    ]
+
