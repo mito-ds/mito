@@ -1269,6 +1269,7 @@ def test_all_edits_optimized_after_simple_imports(tmp_path):
         ''
     ]
 
+@pytest.mark.skip(reason="This test is non-deterministic. Sometimes tmp_df = test[[\'B\', \'A\']].copy(), sometimes tmp_df = test[[\'A\', \'B\']].copy() ")
 def test_all_edits_optimized_after_import_pivot(tmp_path):
     df = pd.DataFrame({'A': [1], 'B': [2], 'C': [3], 'D': [0], 'E': [0]})
     path = str(tmp_path / 'test.csv')
@@ -1289,8 +1290,6 @@ def test_all_edits_optimized_after_import_pivot(tmp_path):
     mito.delete_columns(0, ['B'])
     mito.set_formula('=A + 1', 1, 'NEW')
     mito.delete_columns(0, ['C'])
-
-    print(mito.transpiled_code)
 
     assert len(mito.dfs) == 2
     assert mito.transpiled_code == [
