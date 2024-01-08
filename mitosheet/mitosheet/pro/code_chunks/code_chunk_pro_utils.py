@@ -100,12 +100,7 @@ def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) 
             one_back_code_chunk = final_code_chunks[-1 * i]
             two_back_code_chunk = final_code_chunks[-1 * i - 1]
 
-            if not one_back_code_chunk.can_be_reordered_with(code_chunk) or not code_chunk.can_be_reordered_with(one_back_code_chunk):
-                final_code_chunks.append(code_chunk)
-                added = True
-                break
-            
-            else:
+            if one_back_code_chunk.can_be_reordered_with(code_chunk) and code_chunk.can_be_reordered_with(one_back_code_chunk):
                 # Because this function is called after left and right optimization, we 
                 # know that the one_back_code_chunk will not optimize with this one. So 
                 # we check if this code chunk could be optimized with the two_back_code_chunk
@@ -118,6 +113,12 @@ def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) 
                     reordered = True
                     added = True
                     break
+            
+            else:
+
+                final_code_chunks.append(code_chunk)
+                added = True
+                break
         
         if not added:
             final_code_chunks.append(code_chunk)
