@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MitoAPI,  getRandomId } from '../../../api/api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
-import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState, UserProfile } from '../../../types';
+import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState } from '../../../types';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSidebarTabs from './GraphSidebarTabs';
@@ -40,7 +40,6 @@ const GraphSidebar = (props: {
     graphDataDict: GraphDataDict
     analysisData: AnalysisData
     mitoContainerRef: React.RefObject<HTMLDivElement>,
-    userProfile: UserProfile
     graphSidebarTab?: GraphSidebarTab
 }): JSX.Element => {
 
@@ -253,7 +252,6 @@ const GraphSidebar = (props: {
                                 graphParams={graphParams}
                                 setGraphParams={setGraphParams}
                                 setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                userProfile={props.userProfile}
                             />
                         }
                         {selectedGraphSidebarTab === GraphSidebarTab.Export && 

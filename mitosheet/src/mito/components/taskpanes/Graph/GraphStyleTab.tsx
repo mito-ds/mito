@@ -2,7 +2,7 @@
 
 import React from 'react';
 import LabelAndColor from '../../../pro/graph/LabelAndColor';
-import { GraphParamsFrontend, RecursivePartial, UserProfile } from '../../../types';
+import { GraphParamsFrontend, RecursivePartial } from '../../../types';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DropdownItem from '../../elements/DropdownItem';
 import Input from '../../elements/Input';
@@ -28,7 +28,6 @@ function GraphStyleTab(props: {
     graphParams: GraphParamsFrontend
     setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
     setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
-    userProfile: UserProfile
 }): JSX.Element {
 
     const graphCreationParams = props.graphParams.graphCreation;
@@ -203,291 +202,247 @@ function GraphStyleTab(props: {
                     </Select>
                 </Row>
             </CollapsibleSection>
-            <CollapsibleSection title="Legend" proSection={true} isPro={props.userProfile.isPro}>
-                {!props.userProfile.isPro &&
-                    <Row justify='space-between' align='center'>
-                        <p className='text-body-1'>
-                            Want to customize the legend? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
-                        </p>  
-                    </Row>
-                }
-                {props.userProfile.isPro &&
-                    <>
-                        <Row justify='space-between' align='center' title='Title of legend'>
-                            <Col>
-                                <p>
-                                    Display Legend
-                                </p>
-                            </Col>
-                            <Toggle 
-                                value={graphStylingParams.showlegend} 
-                                onChange={() => {
-                                    return updateGraphParam({graphStyling: {showlegend: !graphStylingParams.showlegend}});
+            <CollapsibleSection title="Legend">
+                <Row justify='space-between' align='center' title='Title of legend'>
+                    <Col>
+                        <p>
+                            Display Legend
+                        </p>
+                    </Col>
+                    <Toggle 
+                        value={graphStylingParams.showlegend} 
+                        onChange={() => {
+                            return updateGraphParam({graphStyling: {showlegend: !graphStylingParams.showlegend}});
 
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='Display the legend vertically or horizontally'>
-                            <Col>
-                                <p>
-                                    Orientation
-                                </p>
-                            </Col>
-                            <Select 
-                                value={graphStylingParams.legend.orientation === 'v' ? 'vertical' : 'horiztonal'} 
-                                width='medium'
-                                onChange={(newOrientation: string) => {
-                                    return updateGraphParam({graphStyling: {legend: {orientation: newOrientation as 'v' | 'h'}}});
-                                }}     
-                            >   
-                                <DropdownItem title='vertical' id='v' />
-                                <DropdownItem title='horizontal' id='h' />
-                            </Select>
-                        </Row>
-                        <Row justify='space-between' align='center' title='Title of legend'>
-                            <Col>
-                                <p>
-                                    Legend title
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphStylingParams.legend.title?.text ? graphStylingParams.legend.title.text : ''} 
-                                width='medium'
-                                placeholder='Legend title'
-                                onChange={(e) => {
-                                    const newLegendTitle = e.target.value
-                                    return updateGraphParam({graphStyling: {legend: {title: {text: newLegendTitle}}}});
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='Display the legend vertically or horizontally'>
+                    <Col>
+                        <p>
+                            Orientation
+                        </p>
+                    </Col>
+                    <Select 
+                        value={graphStylingParams.legend.orientation === 'v' ? 'vertical' : 'horiztonal'} 
+                        width='medium'
+                        onChange={(newOrientation: string) => {
+                            return updateGraphParam({graphStyling: {legend: {orientation: newOrientation as 'v' | 'h'}}});
+                        }}     
+                    >   
+                        <DropdownItem title='vertical' id='v' />
+                        <DropdownItem title='horizontal' id='h' />
+                    </Select>
+                </Row>
+                <Row justify='space-between' align='center' title='Title of legend'>
+                    <Col>
+                        <p>
+                            Legend title
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphStylingParams.legend.title?.text ? graphStylingParams.legend.title.text : ''} 
+                        width='medium'
+                        placeholder='Legend title'
+                        onChange={(e) => {
+                            const newLegendTitle = e.target.value
+                            return updateGraphParam({graphStyling: {legend: {title: {text: newLegendTitle}}}});
 
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='The x position of the legend'>
-                            <Col>
-                                <p>
-                                    X position (-2 to 3)
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphStylingParams.legend.x ? graphStylingParams.legend.x.toString() : ''} 
-                                type='number'
-                                width='small'
-                                // Set default according the https://plotly.com/python/reference/layout/#layout-legend-x
-                                placeholder={graphStylingParams.legend.orientation === 'v' ? '1.02' : '0.00'}
-                                onChange={(e) => {
-                                    const newX = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam({graphStyling: {legend: {x: newX}}});
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='The x position of the legend'>
+                    <Col>
+                        <p>
+                            X position (-2 to 3)
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphStylingParams.legend.x ? graphStylingParams.legend.x.toString() : ''} 
+                        type='number'
+                        width='small'
+                        // Set default according the https://plotly.com/python/reference/layout/#layout-legend-x
+                        placeholder={graphStylingParams.legend.orientation === 'v' ? '1.02' : '0.00'}
+                        onChange={(e) => {
+                            const newX = e.target.value === '' ? undefined : e.target.value
+                            return updateGraphParam({graphStyling: {legend: {x: newX}}});
 
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='The y position of the legend'>
-                            <Col>
-                                <p>
-                                    Y position (-2 to 3)
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphStylingParams.legend.y ? graphStylingParams.legend.y.toString() : ''} 
-                                type='number'
-                                width='small'
-                                // Set default according the https://plotly.com/python/reference/layout/#layout-legend-y
-                                placeholder={graphStylingParams.legend.orientation === 'v' ? '1.00' : graphStylingParams.xaxis.rangeslider.visible ? '1.10' : "-0.10"}
-                                onChange={(e) => {
-                                    const newY = e.target.value === '' ? undefined : e.target.value;
-                                    return updateGraphParam({graphStyling: {legend: {y: newY}}});
-                                }}     
-                            />
-                        </Row>
-                    </>
-                }
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='The y position of the legend'>
+                    <Col>
+                        <p>
+                            Y position (-2 to 3)
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphStylingParams.legend.y ? graphStylingParams.legend.y.toString() : ''} 
+                        type='number'
+                        width='small'
+                        // Set default according the https://plotly.com/python/reference/layout/#layout-legend-y
+                        placeholder={graphStylingParams.legend.orientation === 'v' ? '1.00' : graphStylingParams.xaxis.rangeslider.visible ? '1.10' : "-0.10"}
+                        onChange={(e) => {
+                            const newY = e.target.value === '' ? undefined : e.target.value;
+                            return updateGraphParam({graphStyling: {legend: {y: newY}}});
+                        }}     
+                    />
+                </Row>
             </CollapsibleSection>
-            <CollapsibleSection title="Grid Lines" proSection={true} isPro={props.userProfile.isPro}>
-                {!props.userProfile.isPro &&
-                    <Row justify='space-between' align='center'>
-                        <p className='text-body-1'>
-                            Want to customize the grid lines? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
-                        </p>  
-                    </Row>
-                }
-                {props.userProfile.isPro &&
-                    <>
-                        <Row justify='space-between' align='center' title='Turn on/off vertical grid lines'>
-                            <Col>
-                                <p>
-                                    Show vertical grid
-                                </p>
-                            </Col>
-                            <Toggle 
-                                value={graphStylingParams.xaxis.showgrid} 
-                                onChange={() => {
-                                    return updateGraphParam({graphStyling: {xaxis: {showgrid: !graphStylingParams.xaxis.showgrid}}});
+            <CollapsibleSection title="Grid Lines">
+                <Row justify='space-between' align='center' title='Turn on/off vertical grid lines'>
+                    <Col>
+                        <p>
+                            Show vertical grid
+                        </p>
+                    </Col>
+                    <Toggle 
+                        value={graphStylingParams.xaxis.showgrid} 
+                        onChange={() => {
+                            return updateGraphParam({graphStyling: {xaxis: {showgrid: !graphStylingParams.xaxis.showgrid}}});
 
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='Turn on/off horiztonal grid lines'>
-                            <Col>
-                                <p>
-                                    Show horizontal grid
-                                </p>
-                            </Col>
-                            <Toggle 
-                                value={graphStylingParams.yaxis.showgrid} 
-                                onChange={() => {
-                                    return updateGraphParam({graphStyling: {yaxis: {showgrid: !graphStylingParams.yaxis.showgrid}}});
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='Turn on/off horiztonal grid lines'>
+                    <Col>
+                        <p>
+                            Show horizontal grid
+                        </p>
+                    </Col>
+                    <Toggle 
+                        value={graphStylingParams.yaxis.showgrid} 
+                        onChange={() => {
+                            return updateGraphParam({graphStyling: {yaxis: {showgrid: !graphStylingParams.yaxis.showgrid}}});
 
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='The width of the vertical grid lines'>
-                            <Col>
-                                <p>
-                                    Vertical grid width
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphStylingParams.xaxis.gridwidth ? graphStylingParams.xaxis.gridwidth.toString() : ''} 
-                                type='number'
-                                width='small'
-                                placeholder='1'
-                                onChange={(e) => {
-                                    const newVerticalGridWidth = e.target.value === '' ? undefined : e.target.value;
-                                    return updateGraphParam({graphStyling: {xaxis: {gridwidth: newVerticalGridWidth}}});
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='The width of the horizontal grid lines'>
-                            <Col>
-                                <p>
-                                    Horizontal grid width
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphStylingParams.yaxis.gridwidth ? graphStylingParams.yaxis.gridwidth.toString() : ''} 
-                                type='number'
-                                width='small'
-                                placeholder='1'
-                                onChange={(e) => {
-                                    const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value;
-                                    return updateGraphParam({graphStyling: {yaxis: {gridwidth: newHoriztonalGridWidth}}});
-                                }}     
-                            />
-                        </Row>
-                    </>
-                }
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='The width of the vertical grid lines'>
+                    <Col>
+                        <p>
+                            Vertical grid width
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphStylingParams.xaxis.gridwidth ? graphStylingParams.xaxis.gridwidth.toString() : ''} 
+                        type='number'
+                        width='small'
+                        placeholder='1'
+                        onChange={(e) => {
+                            const newVerticalGridWidth = e.target.value === '' ? undefined : e.target.value;
+                            return updateGraphParam({graphStyling: {xaxis: {gridwidth: newVerticalGridWidth}}});
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='The width of the horizontal grid lines'>
+                    <Col>
+                        <p>
+                            Horizontal grid width
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphStylingParams.yaxis.gridwidth ? graphStylingParams.yaxis.gridwidth.toString() : ''} 
+                        type='number'
+                        width='small'
+                        placeholder='1'
+                        onChange={(e) => {
+                            const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value;
+                            return updateGraphParam({graphStyling: {yaxis: {gridwidth: newHoriztonalGridWidth}}});
+                        }}     
+                    />
+                </Row>
             </CollapsibleSection>
             
-            <CollapsibleSection title="Colors" proSection={true} isPro={props.userProfile.isPro}>
-                {!props.userProfile.isPro &&
-                    <Row justify='space-between' align='center'>
-                        <p className='text-body-1'>
-                            Want to set the colors of your graph? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
-                        </p>  
-                    </Row>
-                }
-                {props.userProfile.isPro && 
-                    <>
-                        <LabelAndColor
-                            label='Plot Background Color'
-                            color={graphStylingParams.plot_bgcolor}
-                            onChange={(newColor) => {
-                                return updateGraphParam({graphStyling: {plot_bgcolor: newColor}});
-                            }}
-                        />
-                        <LabelAndColor
-                            label='Paper Background Color'
-                            color={graphStylingParams.paper_bgcolor}
-                            onChange={(newColor) => {
-                                return updateGraphParam({graphStyling: {paper_bgcolor: newColor}});
-                            }}
-                        />
-                        <LabelAndColor
-                            label='Title color'
-                            color={graphStylingParams.title.title_font_color}
-                            onChange={(newColor) => {
-                                return updateGraphParam({graphStyling: {title: {title_font_color: newColor}}});
-                            }}
-                        />
-                        <LabelAndColor
-                            label='X axis title color'
-                            color={graphStylingParams.xaxis.title_font_color}
-                            onChange={(newColor) => {
-                                return updateGraphParam({graphStyling: {xaxis: {title_font_color: newColor}}});
-                            }}
-                        />
-                        <LabelAndColor
-                            label='Y axis title color'
-                            color={graphStylingParams.yaxis.title_font_color}
-                            onChange={(newColor) => {
-                                return updateGraphParam({graphStyling: {yaxis: {title_font_color: newColor}}});
-                            }}
-                        />
-                    </>
-                }
+            <CollapsibleSection title="Colors">
+                <LabelAndColor
+                    label='Plot Background Color'
+                    color={graphStylingParams.plot_bgcolor}
+                    onChange={(newColor) => {
+                        return updateGraphParam({graphStyling: {plot_bgcolor: newColor}});
+                    }}
+                />
+                <LabelAndColor
+                    label='Paper Background Color'
+                    color={graphStylingParams.paper_bgcolor}
+                    onChange={(newColor) => {
+                        return updateGraphParam({graphStyling: {paper_bgcolor: newColor}});
+                    }}
+                />
+                <LabelAndColor
+                    label='Title color'
+                    color={graphStylingParams.title.title_font_color}
+                    onChange={(newColor) => {
+                        return updateGraphParam({graphStyling: {title: {title_font_color: newColor}}});
+                    }}
+                />
+                <LabelAndColor
+                    label='X axis title color'
+                    color={graphStylingParams.xaxis.title_font_color}
+                    onChange={(newColor) => {
+                        return updateGraphParam({graphStyling: {xaxis: {title_font_color: newColor}}});
+                    }}
+                />
+                <LabelAndColor
+                    label='Y axis title color'
+                    color={graphStylingParams.yaxis.title_font_color}
+                    onChange={(newColor) => {
+                        return updateGraphParam({graphStyling: {yaxis: {title_font_color: newColor}}});
+                    }}
+                />
             </CollapsibleSection>
-            <CollapsibleSection title="Facet Styling" proSection={true} isPro={props.userProfile.isPro}>
-                {!props.userProfile.isPro &&
-                    <Row justify='space-between' align='center'>
-                        <p className='text-body-1'>
-                            Want to style facet plots? <a href='https://trymito.io/plans' target='_blank' rel="noreferrer"><span className='text-body-1-link'>Upgrade to Mito Pro.</span></a>
-                        </p>  
-                    </Row>
-                }
-                {props.userProfile.isPro &&
-                    <>
-                        <Row justify='space-between' align='center' title='The number of plots to display per row. Has no effect when facet row is used.'>
-                            <Col>
-                                <p>
-                                    Number of cols (int)
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : ''} 
-                                type='number'
-                                width='small'
-                                placeholder='num cols'
-                                onChange={(e) => {
-                                    const newNumCols = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam({graphCreation: {facet_col_wrap: newNumCols}});
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='The spacing between columns of facet plots. Set as a fraction of plotting area.'>
-                            <Col>
-                                <p>
-                                    Column spacing (0 to 1)
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphCreationParams.facet_col_spacing ? graphCreationParams.facet_col_spacing.toString() : ''} 
-                                type='number'
-                                width='small'
-                                placeholder='.03'
-                                onChange={(e) => {
-                                    const newColSpacing = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam({graphCreation: {facet_col_spacing: newColSpacing}});
-                                }}     
-                            />
-                        </Row>
-                        <Row justify='space-between' align='center' title='The spacing between rows of facet plots. Set as a fraction of plotting area.'>
-                            <Col>
-                                <p>
-                                    Row spacing (0 to 1)
-                                </p>
-                            </Col>
-                            <Input 
-                                value={graphCreationParams.facet_row_spacing ? graphCreationParams.facet_row_spacing.toString() : ''} 
-                                type='number'
-                                width='small'
-                                placeholder='.07'
-                                onChange={(e) => {
-                                    const newRowSpacing = e.target.value === '' ? undefined : e.target.value
-                                    return updateGraphParam({graphCreation: {facet_row_spacing: newRowSpacing}});
-                                }}     
-                            />
-                        </Row>
-                    </>
-                }
+            <CollapsibleSection title="Facet Styling">
+                <Row justify='space-between' align='center' title='The number of plots to display per row. Has no effect when facet row is used.'>
+                    <Col>
+                        <p>
+                            Number of cols (int)
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphCreationParams.facet_col_wrap ? graphCreationParams.facet_col_wrap.toString() : ''} 
+                        type='number'
+                        width='small'
+                        placeholder='num cols'
+                        onChange={(e) => {
+                            const newNumCols = e.target.value === '' ? undefined : e.target.value
+                            return updateGraphParam({graphCreation: {facet_col_wrap: newNumCols}});
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='The spacing between columns of facet plots. Set as a fraction of plotting area.'>
+                    <Col>
+                        <p>
+                            Column spacing (0 to 1)
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphCreationParams.facet_col_spacing ? graphCreationParams.facet_col_spacing.toString() : ''} 
+                        type='number'
+                        width='small'
+                        placeholder='.03'
+                        onChange={(e) => {
+                            const newColSpacing = e.target.value === '' ? undefined : e.target.value
+                            return updateGraphParam({graphCreation: {facet_col_spacing: newColSpacing}});
+                        }}     
+                    />
+                </Row>
+                <Row justify='space-between' align='center' title='The spacing between rows of facet plots. Set as a fraction of plotting area.'>
+                    <Col>
+                        <p>
+                            Row spacing (0 to 1)
+                        </p>
+                    </Col>
+                    <Input 
+                        value={graphCreationParams.facet_row_spacing ? graphCreationParams.facet_row_spacing.toString() : ''} 
+                        type='number'
+                        width='small'
+                        placeholder='.07'
+                        onChange={(e) => {
+                            const newRowSpacing = e.target.value === '' ? undefined : e.target.value
+                            return updateGraphParam({graphCreation: {facet_row_spacing: newRowSpacing}});
+                        }}     
+                    />
+                </Row>
             </CollapsibleSection>
             <CollapsibleSection title="Range slider">
                 <Row justify='space-between' align='center'>
