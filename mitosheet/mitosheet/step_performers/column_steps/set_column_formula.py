@@ -19,8 +19,8 @@ from mitosheet.parser import get_frontend_formula, parse_formula
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import (FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader,
-                             ColumnID, FormulaAppliedToType)
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, ColumnHeader, ColumnID, FormulaAppliedToType, StepType
+
 
 
 class SetColumnFormulaStepPerformer(StepPerformer):
@@ -39,7 +39,7 @@ class SetColumnFormulaStepPerformer(StepPerformer):
         return 'set_column_formula'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
         formula_label: Union[str, bool, int, float] = get_param(params, 'formula_label')

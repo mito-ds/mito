@@ -6,6 +6,7 @@
 
 from typing import Any, Dict, List, Optional, Set, Type
 import json
+from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.column_steps.set_column_formula import SetColumnFormulaStepPerformer
 from mitosheet.step_performers.filter import FilterStepPerformer
@@ -130,7 +131,7 @@ class Step:
         return self.post_state if self.post_state is not None else \
             (self.prev_state if self.prev_state is not None else State([], 1))
 
-    def set_prev_state_and_execute(self, new_prev_state: State) -> bool:
+    def set_prev_state_and_execute(self, new_prev_state: State, previous_steps: List["Step"]) -> bool:
         """
         Changes the prev_state of this step, which in turns triggers
         a reexecution with the same parameters. 
@@ -147,7 +148,7 @@ class Step:
         # Saturate the event to get up to date parameters
         # TODO: this should fill in the execution data - hopefully
         # we can get all of it without executing. I think we probably can
-        params = self.step_performer.saturate(new_prev_state, self.params)
+        params = self.step_performer.saturate(new_prev_state, self.params, previous_steps)
 
         # Actually execute the data transformation
         post_state_and_execution_data = self.step_performer.execute(new_prev_state, params)
@@ -156,6 +157,7 @@ class Step:
             # If we don't get anything new back, then we just make this
             # step a no-op, and don't do anything
             (new_post_state, execution_data) = post_state_and_execution_data
+
         else:
             # Sometimes step execution returns None, which functionally means that 
             # nothing changed in the step (but we need not error). In this case, we

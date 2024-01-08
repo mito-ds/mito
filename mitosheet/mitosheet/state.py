@@ -9,7 +9,7 @@ from typing import Any, Callable, Collection, List, Dict, Optional, Set, Union
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap
-from mitosheet.types import FrontendFormulaAndLocation
+from mitosheet.types import FrontendFormulaAndLocation, OverwriteSheetIndexParams
 from mitosheet.types import ColumnHeader, ColumnID, DataframeFormat
 from mitosheet.utils import  get_first_unused_dataframe_name
 
@@ -172,10 +172,10 @@ class State:
         self,
         new_df: pd.DataFrame,
         df_source: str,
-        sheet_index: Optional[int]=None,
         df_name: Optional[str]=None,
         df_format: Optional[DataframeFormat]=None,
         use_deprecated_id_algorithm: bool=False, 
+        overwrite: Optional[OverwriteSheetIndexParams]=None,
     ) -> int:
         """
         Helper function for adding a new dataframe to this state,
@@ -185,7 +185,7 @@ class State:
         that is currently at the index. Otherwise, if sheet_index is
         not defined, then will append the df to the end of the state
         """
-        if sheet_index is None:
+        if overwrite is None:
             # Update dfs by appending new df
             self.dfs.append(new_df)
             # Also update the dataframe name
@@ -224,6 +224,9 @@ class State:
             # Return the index of this sheet
             return len(self.dfs) - 1
         else:
+            sheet_index = overwrite['sheet_index_to_overwrite']
+            attempt_to_save_filter_metadata = overwrite['attempt_to_save_filter_metadata']
+
             # Update dfs by switching which df is at this index specifically
             self.dfs[sheet_index] = new_df
             # Also update the dataframe name, if it is passed. Otherwise, we don't change it
@@ -245,10 +248,23 @@ class State:
             self.column_formulas[sheet_index] = {
                 column_id: [] for column_id in column_ids
             }
-            self.column_filters[sheet_index] = {
-                column_id: {"operator": "And", "filters": []}
-                for column_id in column_ids
-            }
+
+            if not attempt_to_save_filter_metadata:
+                self.column_filters[sheet_index] = {
+                    column_id: {"operator": "And", "filters": []}
+                    for column_id in column_ids
+                }
+            else:
+                # Save the filter metadata for any column id that still exists
+                old_column_filters = self.column_filters[sheet_index]
+                self.column_filters[sheet_index] = {
+                    column_id: (
+                        {"operator": "And", "filters": []} if column_id not in old_column_filters else
+                        old_column_filters[column_id])
+                    for column_id in column_ids
+                    
+                }
+
             self.df_formats[sheet_index] = (
                 get_default_dataframe_format()
                 if df_format is None

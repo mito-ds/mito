@@ -29,8 +29,8 @@ export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDa
     Displays a set of actions one can perform on a data sheet tab, including
     deleting, duplicating, or renaming, and creating a sheet.
 */
-export default function SheetTabActions(props: {
-    setDisplayActions: React.Dispatch<React.SetStateAction<boolean>>,
+export default function SheetTabContextMenu(props: {
+    setDisplayContextMenu: (display: boolean) => void;
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
@@ -42,6 +42,7 @@ export default function SheetTabActions(props: {
 }): JSX.Element {
 
     const imported = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Imported;
+    const pivoted = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Pivoted;
 
     // Log opening the data sheet tab actions
     useEffect(() => {
@@ -120,6 +121,8 @@ export default function SheetTabActions(props: {
         })
     }
 
+    const dfSource = props.sheetDataArray[props.sheetIndex].dfSource;
+
     const dropdownItems: JSX.Element[] = [
         <DropdownItem
             key='Create graph'
@@ -137,6 +140,26 @@ export default function SheetTabActions(props: {
             title='Export'
             onClick={openDownloadTaskpane}
         />,
+        pivoted ? <DropdownItem key='Edit Pivot' title='Edit Pivot' onClick={async () => {
+            const response = await props.mitoAPI.getPivotParams(props.sheetIndex);
+            const existingPivotParams = 'error' in response ? undefined : response.result;
+
+            if (existingPivotParams !== undefined) {
+                props.setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {
+                            type: TaskpaneType.PIVOT,
+                            sourceSheetIndex: existingPivotParams.sheet_index,
+                            destinationSheetIndex: prevUIState.selectedSheetIndex,
+                            existingPivotParams: existingPivotParams
+                        },
+                        selectedTabType: 'data'
+                    }
+                })
+            }
+        }}/> : undefined,
         // if this dataframe is imported, then allow the user to change the import
         imported ? <DropdownItem key='Change Import' title='Change Import' onClick={() => {
             props.closeOpenEditingPopups();
@@ -149,6 +172,26 @@ export default function SheetTabActions(props: {
                 }
             })
         }}/> : undefined,
+        dfSource === DFSource.Merged ? 
+            (<DropdownItem
+                key={'Edit Merge'}
+                title={'Edit Merge'}
+                onClick={async () => {
+                    props.closeOpenEditingPopups();
+                    const response = await props.mitoAPI.getMergeParams(props.sheetIndex);
+                    const existingMergeParams = 'error' in response ? undefined : response.result;
+                    props.setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                type: TaskpaneType.MERGE,
+                                existingParams: existingMergeParams,
+                            }
+                        }
+                    })
+                }}
+            />)
+            : undefined,
         <DropdownSectionSeperator key='sep' isDropdownSectionSeperator={true} />,
         <DropdownItem 
             key='Duplicate'
@@ -176,7 +219,16 @@ export default function SheetTabActions(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setDisplayActions(false)}
+            closeDropdown={() => {
+                props.setUIState((prevUIState) => {
+                    // If the dropdown is open, then close it. Otherwise, don't change the state. 
+                    const display = typeof prevUIState.currOpenDropdown === 'object' && prevUIState.currOpenDropdown.type === 'footer-context-menu' && prevUIState.currOpenDropdown.sheetIndex === props.sheetIndex;
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown
+                    }
+                });
+            }}
             width='medium'
         >
             {dropdownItems}

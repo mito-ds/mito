@@ -31,6 +31,8 @@ class CodeChunk:
     ):
         self.prev_state = prev_state
 
+        self.optional_code_that_successfully_executed: Tuple[List[str], List[str]] = ([], [])
+
     def __repr__(self) -> str:
         members = [
             (attr, getattr(self, attr)) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")
@@ -53,7 +55,41 @@ class CodeChunk:
         is the imports required for the code. ie: import pandas as pd
         """
         raise NotImplementedError('Implement in subclass')
+    
+    def get_optional_code_that_successfully_executed(self) -> Tuple[List[str], List[str]]:
+        """
+        Consider a code chunk like PivotCodeChunk. The main work it does is creating a new
+        dataframe that has a pivot table inside of it. 
 
+        However, if the user is editing a pivot table, we may want to replay some edits on
+        top of it. Our strategy for this is to go and find all of the code chunks that edit
+        the OG pivot table, and then to try to execute the code from each of these code 
+        chunks on top of the new edited pivot table. 
+
+        For example if you:
+        1. Make a pivot
+        2. Add a column to the pivot
+        3. Rename a column in the pivot
+        4. Filter the renamed column
+        5. Edit the pivot
+
+        Then the new column, rename, and filter will be replayed on top of the edited pivot. 
+        However, if a code chunk fails (e.g. the rename fails), then we don't execute later 
+        code lines, as to avoid getting the pivot into a super strange state. 
+
+        Thus, we have a new type of code for the code chunk. The `get_code` results _must_
+        all execute correctly, for the step to terminate correctly. If any of the lines of
+        code from get_code fail, then the entire step is rolled back and not created. 
+
+        However, optional code lines can fail and the step still be correctly executed. Thus, 
+        we have to have a notion of a) optional code lines, and b) the code chunk needs to know
+        which of these optional lines was executed correctly. 
+
+        In the above example, if the rename step failed, then this function would return the 
+        code to add a column to the pivot table, and not the code to rename or filter.
+        """
+        return self.optional_code_that_successfully_executed
+        
     # TODO: we could add a function that returns a list of params and execution
     # data that you're allowed to reference, and then check this when you create
     # the step, for strong typing!

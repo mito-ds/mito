@@ -51,7 +51,7 @@ class ExcelImportStepPerformer(StepPerformer):
             new_dataframe_params={
                 'df_source': DATAFRAME_SOURCE_IMPORTED,
                 'new_df_names': new_df_names,
-                'sheet_index_to_overwrite': None
+                'overwrite': None
             }
         )
 

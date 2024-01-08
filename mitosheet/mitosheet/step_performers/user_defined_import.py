@@ -55,7 +55,7 @@ class UserDefinedImportStepPerformer(StepPerformer):
                 {
                     'df_source': DATAFRAME_SOURCE_IMPORTED,
                     'new_df_names': [new_df_name],
-                    'sheet_index_to_overwrite': None
+                    'overwrite': None
                 }
             )
         except:

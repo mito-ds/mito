@@ -492,6 +492,16 @@ export interface BackendPivotParams {
     destination_sheet_index?: number;
 }
 
+export interface MergeParams {
+    how: string;
+    destination_sheet_index?: number;
+    sheet_index_one: number;
+    sheet_index_two: number;
+    merge_key_column_ids: [ColumnID, ColumnID][];
+    selected_column_ids_one: ColumnID[];
+    selected_column_ids_two: ColumnID[];
+}
+
 // The parameters used by the frontend. The type of the params is different between the 
 // backend and the frontend, due to it being easier to manipulate as an array on the 
 // frontend while keeping the ordering for values
@@ -886,6 +896,10 @@ export interface ContextMenu {
     rowIndex: number;
     columnIndex: number;
 }
+export interface FooterContextMenu {
+    sheetIndex: number;
+    type: 'footer-context-menu';
+}
 export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
 
 export interface DataTabImportDomainDropdown {
@@ -894,7 +908,7 @@ export interface DataTabImportDomainDropdown {
 }
 
 
-export type OpenDropdownType = ToolbarDropdown | ContextMenu | DataTabImportDomainDropdown;
+export type OpenDropdownType = ToolbarDropdown | ContextMenu | FooterContextMenu | DataTabImportDomainDropdown;
 
 
 export enum PopupType {

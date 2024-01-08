@@ -35,10 +35,13 @@ if TYPE_CHECKING:
     MitoWidgetType = MitoBackend
     from mitosheet.state import State
     StateType = State
+    from mitosheet.step import Step
+    StepType = Step
 else:
     StepsManagerType = Any
     MitoWidgetType = Any
     StateType = Any
+    StepType = Any
 
 IndexType = Union[str, int, bool, float]
 
@@ -388,10 +391,14 @@ if sys.version_info[:3] > (3, 8, 0):
         selectedDataframeIndex: int
         selections: List[MitoFrontendSelection]
 
+    class OverwriteSheetIndexParams(TypedDict):
+        sheet_index_to_overwrite: int
+        attempt_to_save_filter_metadata: bool
+
     class ExecuteThroughTranspileNewDataframeParams(TypedDict):
         new_df_names: List[str]
         df_source: str
-        sheet_index_to_overwrite: Optional[int]
+        overwrite: Optional[OverwriteSheetIndexParams]
 
 else:
     Filter = Any #type: ignore
@@ -426,6 +433,7 @@ else:
     AITransformFrontendResult = Any # type: ignore
     CodeOptions = Any # type: ignore
     UserDefinedImporterParamType = Any # type: ignore
+    OverwriteSheetIndexParams = Any # type: ignore
     ExecuteThroughTranspileNewDataframeParams = Any # type: ignore
     UserDefinedFunctionParamType = Any # type: ignore
     MitoTheme = Any # type: ignore

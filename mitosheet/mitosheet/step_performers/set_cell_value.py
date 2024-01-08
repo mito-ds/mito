@@ -18,7 +18,7 @@ from mitosheet.public.v1.sheet_functions.types import \
 from mitosheet.state import State
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnID, StepType
 
 
 class SetCellValueStepPerformer(StepPerformer):
@@ -39,7 +39,7 @@ class SetCellValueStepPerformer(StepPerformer):
         return 'set_cell_value'
 
     @classmethod
-    def saturate(cls, prev_state: State, params: Dict[str, Any]) -> Dict[str, Any]:
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
         # Mito doesn't allow empty cells, so if the new value is empty, change it to None.
         if params['new_value'] == '':
             params['new_value'] = None
