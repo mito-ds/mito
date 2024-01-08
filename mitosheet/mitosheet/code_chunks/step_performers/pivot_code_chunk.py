@@ -284,11 +284,21 @@ class PivotCodeChunk(CodeChunk):
             # Note: editing a dataframe does not create a sheet index, it 
             # overwrites it instead. See get_edited_sheet_indexes below
             return None
+        
+    def get_source_sheet_indexes(self) -> List[int]:
+        return [self.sheet_index]
 
     def get_edited_sheet_indexes(self) -> List[int]:
         if self.destination_sheet_index is not None:
             return [self.destination_sheet_index]
         return []
+    
+    def can_be_reordered_with(self, code_chunk: CodeChunk) -> bool:
+        """
+        A pivot either creates or edits a sheet. In either case, we don't
+        want to reorder around it as this may cause bugs -- so we don't. 
+        """
+        return False
 
 
 def get_code_for_transform_columns(df_name: str, column_headers_with_transforms: List[ColumnHeaderWithPivotTransform]) -> List[str]:

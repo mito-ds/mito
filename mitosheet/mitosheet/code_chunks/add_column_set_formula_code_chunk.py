@@ -53,6 +53,12 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
 
         transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)
         column_header_index = self.column_header_index
+
+        if self.column_header_index == -1:
+            return [
+                f'{self.df_name}[{transpiled_column_header}] = {python_code}'
+            ], []
+
         return [
             f'{self.df_name}.insert({column_header_index}, {transpiled_column_header}, {python_code})'
         ], []
@@ -101,7 +107,7 @@ class AddColumnSetFormulaCodeChunk(CodeChunk):
                 column_ids_to_new_column_headers[added_column_id],
                 self.column_header_index,
                 self.new_formula,
-                self.public_interface_version
+                self.public_interface_version,
             )
 
         return None

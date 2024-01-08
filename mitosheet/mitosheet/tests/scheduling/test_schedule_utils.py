@@ -43,7 +43,7 @@ def test_get_automation_code_with_custom_function_params():
 from mitosheet.tests.scheduling.test_schedule_utils import ADDONE
 
 def automation_name(import_dataframe_0):
-    import_dataframe_0.insert(1, 'B', ADDONE(import_dataframe_0['A'].shift(-1, fill_value=0)))
+    import_dataframe_0['B'] = ADDONE(import_dataframe_0['A'].shift(-1, fill_value=0))
     
     return import_dataframe_0
 
@@ -81,7 +81,7 @@ import pandas as pd
 def automation_name(file_name_import_csv_0, file_name_export_csv_0, file_name_export_excel_0):
     input = pd.read_csv(file_name_import_csv_0, sep='A')
     
-    input.insert(2, 'B', 0)
+    input['B'] = 0
     
     input.to_csv(file_name_export_csv_0, index=False)
     

@@ -397,7 +397,7 @@ def test_pivot_with_filter_no_effect_on_source_data():
     assert mito.dfs[1].equals(pd.DataFrame({'Name': ['Nate'], 'Height sum': [5]}))
 
 
-def test_pivot_with_filter_reaplies ():
+def test_pivot_with_filter_reapplies():
     df1 = pd.DataFrame(data={'Name': ['ADR', 'Nate', 'Jake'], 'Height': [4, 5, 6]})
     mito = create_mito_wrapper(df1)
 
@@ -1032,12 +1032,13 @@ def test_pivot_then_all_edits_to_sheet():
 
     mito.pivot_sheet(0, ['date'], [], {'value': ['sum', 'max']}, destination_sheet_index=1)
     assert len(mito.optimized_code_chunks) == 1
+    print(mito.dfs[1])
     assert mito.dfs[1].equals(
         pd.DataFrame({
             'date': ['1-2-2000'],
             'value max': [2],
-            'B': ['12'],
             'value sum': [2],
+            'B': ['12'],
         }, index=[1])
     )
 

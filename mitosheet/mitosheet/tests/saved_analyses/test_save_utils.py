@@ -150,7 +150,7 @@ def test_failed_replay_does_not_add_steps():
     mito.save_analysis(random_name)
 
     # Try and rerun it on a dataframe it cannot be rerun on
-    df = pd.DataFrame(data={'A': [1], 'B': [3]})
+    df = pd.DataFrame(data={'C': [1], 'B': [3]})
     new_mito = create_mito_wrapper(df)
 
     new_mito.replay_analysis(random_name)
