@@ -108,7 +108,7 @@ def reorder_code_chunks_for_more_optimization(all_code_chunks: List[CodeChunk]) 
             else:
                 # Because this function is called after left and right optimization, we 
                 # know that the one_back_code_chunk will not optimize with this one. So 
-                # we check if this code chunk will be reoredered with the two_back_code_chunk
+                # we check if this code chunk could be optimized with the two_back_code_chunk
                 # and move it there if so. 
                 optimized_right = two_back_code_chunk.combine_right(code_chunk) is not None
                 optimized_left = code_chunk.combine_right(two_back_code_chunk) is not None
