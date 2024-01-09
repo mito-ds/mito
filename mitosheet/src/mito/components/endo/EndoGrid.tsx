@@ -2,25 +2,25 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import '../../../../css/endo/EndoGrid.css';
 import '../../../../css/sitewide/colors.css';
 import { MitoAPI } from "../../api/api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData } from "../../types";
-import FormulaBar from "./FormulaBar";
+import { SendFunctionStatus } from "../../api/send";
+import { AnalysisData, Dimension, EditorState, GraphDataFrontend, GridState, MitoSelection, RendererTranslate, SheetData, SheetView, UIState } from "../../types";
+import { Actions } from "../../utils/actions";
+import { getOperatingSystem } from "../../utils/keyboardShortcuts";
+import { SearchBar } from "../SearchBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
-import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
 import ColumnHeaders from "./ColumnHeaders";
 import EmptyGridMessages from "./EmptyGridMessages";
-import { focusGrid } from "./focusUtils";
+import FormulaBar from "./FormulaBar";
 import GridData from "./GridData";
 import IndexHeaders from "./IndexHeaders";
+import FloatingCellEditor from "./celleditor/FloatingCellEditor";
+import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
+import { focusGrid } from "./focusUtils";
 import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedRowLabelsWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
-import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
+import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate } from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
-import FloatingCellEditor from "./celleditor/FloatingCellEditor";
-import { SendFunctionStatus } from "../../api/send";
-import { SearchBar } from "../SearchBar";
-import { Actions } from "../../utils/actions";
-import { getOperatingSystem } from "../../utils/keyboardShortcuts";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -674,7 +674,8 @@ function EndoGrid(props: {
         return () => containerDiv?.removeEventListener('keydown', onKeyDown)
     }, [editorState, setEditorState, sheetData, currentSheetView, mitoAPI, gridState.selections, sheetIndex, setGridState])
 
-
+    const graphData: GraphDataFrontend | undefined = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.analysisData.graphDataDict[props.uiState.currOpenTaskpane.graphID] : undefined;
+    console.log(graphData)
     return (
         <>
             <FormulaBar
@@ -779,6 +780,21 @@ function EndoGrid(props: {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                         />
                     </div>
+                    {props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && graphData !== undefined &&
+                    <div 
+                        style={{
+                            'position': 'absolute',
+                            'top': graphData.graphLocation.y,
+                            'right': graphData.graphLocation.x,
+                            'zIndex': 100,
+                        }}
+                        id='graph-div'
+                    >
+                        {graphData.graphOutput?.graphHTML !== undefined &&
+                            <div dangerouslySetInnerHTML={{ __html: graphData.graphOutput?.graphHTML as string }} />
+                        }
+                    </div>
+                }
                 </div>
                 {sheetData !== undefined && editorState !== undefined && editorState.editorLocation === 'cell' && editorState.rowIndex > -1 &&
                     <FloatingCellEditor

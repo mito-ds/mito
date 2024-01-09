@@ -593,6 +593,10 @@ export class MitoAPI {
     ): Promise<MitoAPIResult<never>> {
         const graphParamsBackend = convertFrontendtoBackendGraphParams(graphParams)
 
+        console.log("SENDING EDIT GRAPH")
+        console.log(graphParamsBackend)
+        console.log(graphParamsBackend.graphLocation)
+
         return await this.send({
             'event': 'edit_event',
             'type': 'graph_edit',
@@ -606,6 +610,7 @@ export class MitoAPI {
                     'height': height, 
                     'width': width
                 },
+                'graph_location': graphParamsBackend.graphLocation,
                 'include_plotlyjs': (window as any).Plotly === undefined
             }
         })

@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { MitoAPI,  getRandomId } from '../../../api/api';
+import { MitoAPI, getRandomId } from '../../../api/api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState, UserProfile } from '../../../types';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSidebarTabs from './GraphSidebarTabs';
-import LoadingSpinner from './LoadingSpinner';
 import { getGraphParams } from './graphUtils';
 
 // import css
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import XIcon from '../../icons/XIcon';
-import GraphStyleTab from './GraphStyleTab';
-import GraphSetupTab from './GraphSetupTab';
-import GraphExportTab from './GraphExportTab';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import GraphExportTab from './GraphExportTab';
+import GraphSetupTab from './GraphSetupTab';
+import GraphStyleTab from './GraphStyleTab';
 
 
 // Millisecond delay between loading graphs, so that
@@ -149,22 +149,14 @@ const GraphSidebar = (props: {
         size.
     */
     const getGraphAsync = async () => {
-        // The reason that we use the mito-center-content-container instead of the graph-div is because the size of the graph div
-        // changes depending on the size of the graph. Specifically, when exiting fullscreen mode, the graph-div is wider
-        // than we actually have space for. 
-        const boundingRect: DOMRect | undefined = props.mitoContainerRef.current
-            ?.querySelector('#graph-div')
-            ?.getBoundingClientRect();
-
-        if (boundingRect !== undefined) {
-            await props.mitoAPI.editGraph(
-                graphID,
-                graphParams,
-                `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
-                `${boundingRect?.width - 20}px`,
-                stepID
-            );
-        }
+        
+        await props.mitoAPI.editGraph(
+            graphID,
+            graphParams,
+            `300px`,
+            `300px`,
+            stepID
+        );
 
         // Turn off the loading icon once the user get their graph back
         setLoading(false);
@@ -190,100 +182,53 @@ const GraphSidebar = (props: {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} />
     } else {
         return (
-            <div className='graph-sidebar-div'>
-                <div 
-                    className='graph-sidebar-graph-div' 
-                    id='graph-div'
-                    // Because we have padding on this div, but we want the graph to appear
-                    // to take up the whole screen, we also style it with the background color
-                    // NOTE: there's a minor visual bug where this updates quicker than the graph
-                    // but we choose to view it as a nice preview rather than something to fix :-)
-                    style={{
-                        backgroundColor: graphParams.graphStyling.paper_bgcolor,
-                        color: graphParams.graphStyling.title.title_font_color,
-                    }}
-                >
-                    {graphOutput === undefined &&
-                        <p className='graph-sidebar-welcome-text text-align-center-important' >To generate a graph, select an axis.</p>
+            <DefaultTaskpane>
+                <DefaultTaskpaneHeader
+                    header='Graph' // TODO: change this to the tab name
+                    setUIState={props.setUIState}
+                />
+                <DefaultTaskpaneBody>
+                    {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
+                        <GraphSetupTab 
+                            graphParams={graphParams}
+                            setGraphParams={setGraphParams}
+                            setGraphUpdatedNumber={setGraphUpdatedNumber}
+                            uiState={props.uiState}
+                            mitoAPI={props.mitoAPI}
+                            sheetDataArray={props.sheetDataArray}
+                            dfNames={props.dfNames}
+                            columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
+                            columnIDsMapArray={props.columnIDsMapArray}
+                            setUIState={props.setUIState}
+                        />
                     }
-                    {graphOutput !== undefined &&
-                        <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
+                    {selectedGraphSidebarTab === GraphSidebarTab.Style &&
+                        <GraphStyleTab 
+                            graphParams={graphParams}
+                            setGraphParams={setGraphParams}
+                            setGraphUpdatedNumber={setGraphUpdatedNumber}
+                            userProfile={props.userProfile}
+                        />
                     }
-                </div>
-                <div className='graph-sidebar-toolbar-container'>
-                    <div className='graph-sidebar-toolbar-content-container'>
-                        <Row justify='space-between' align='center'>
-                            <Col>
-                                <p className='text-header-2'>
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
-                                </p>
-                            </Col>
-                            <Col>
-                                <XIcon
-                                    onClick={() => {
-                                        props.setUIState((prevUIState) => {
-                                            return {
-                                                ...prevUIState,
-                                                selectedTabType: 'data',
-                                                currOpenTaskpane: { type: TaskpaneType.NONE }
-                                            }
-                                        })
-                                    }}
-                                />
-                            </Col>
-                        </Row>
-                        {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
-                            <GraphSetupTab 
-                                graphParams={graphParams}
-                                setGraphParams={setGraphParams}
-                                setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                uiState={props.uiState}
-                                mitoAPI={props.mitoAPI}
-                                sheetDataArray={props.sheetDataArray}
-                                dfNames={props.dfNames}
-                                columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
-                                columnIDsMapArray={props.columnIDsMapArray}
-                                setUIState={props.setUIState}
-                            />
-                        }
-                        {selectedGraphSidebarTab === GraphSidebarTab.Style &&
-                            <GraphStyleTab 
-                                graphParams={graphParams}
-                                setGraphParams={setGraphParams}
-                                setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                userProfile={props.userProfile}
-                            />
-                        }
-                        {selectedGraphSidebarTab === GraphSidebarTab.Export && 
-                            <GraphExportTab 
-                                graphTabName={graphTabName}
-                                graphParams={graphParams}
-                                mitoAPI={props.mitoAPI}
-                                loading={loading}
-                                graphOutput={graphOutput}
-                                mitoContainerRef={props.mitoContainerRef}
-                            />
-                        }
-                    </div>
+                    {selectedGraphSidebarTab === GraphSidebarTab.Export && 
+                        <GraphExportTab 
+                            graphTabName={graphTabName}
+                            graphParams={graphParams}
+                            mitoAPI={props.mitoAPI}
+                            loading={loading}
+                            graphOutput={graphOutput}
+                            mitoContainerRef={props.mitoContainerRef}
+                        />
+                    }
+                </DefaultTaskpaneBody>
+                <DefaultTaskpaneFooter>
                     <GraphSidebarTabs
                         selectedTab={selectedGraphSidebarTab}
                         setSelectedGraphSidebarTab={setSelectedGraphSidebarTab}
                         mitoAPI={props.mitoAPI}
                     />
-                </div>
-                
-                {loading &&
-                    <div className='popup-div'>
-                        <LoadingSpinner />
-                        <p className='popup-text-div'>
-                            loading
-                        </p>
-                    </div>
-                }
-            </div>
-            
+                </DefaultTaskpaneFooter>
+            </DefaultTaskpane>
         )
     }
 };

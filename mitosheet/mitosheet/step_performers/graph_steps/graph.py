@@ -86,6 +86,8 @@ class GraphStepPerformer(StepPerformer):
         graph_creation: Dict[str, Any] = get_param(params, 'graph_creation')
         graph_styling: Dict[str, Any] = get_param(params, 'graph_styling')
         graph_rendering: Dict[str, Any] = get_param(params, 'graph_rendering')
+        graph_location: Dict[str, int] = get_param(params, 'graph_location')
+        print(graph_location)
 
         include_plotlyjs: bool = get_param(params, 'include_plotlyjs')
         
@@ -141,8 +143,10 @@ class GraphStepPerformer(StepPerformer):
                     "graphCreation": graph_creation,
                     "graphStyling": graph_styling,
                     "graphRendering": graph_rendering,
+                    "graphLocation": graph_location
                 },
-                "graphTabName": graph_tab_name
+                "graphTabName": graph_tab_name,
+                "graphLocation": graph_location
             }
             pandas_processing_time = 0.0 # no processing time
         else: 
@@ -213,7 +217,8 @@ class GraphStepPerformer(StepPerformer):
                     "graphHTML": html_and_script["html"],
                     "graphScript": html_and_script["script"],
                 },
-                "graphTabName": graph_tab_name
+                "graphTabName": graph_tab_name,
+                "graphLocation": graph_location
             }
 
         return post_state, {

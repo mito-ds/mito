@@ -82,6 +82,10 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             // Params that are only available to some graph types
             barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
             barnorm: undefined,
+        },
+        graphLocation: {
+            x: 100,
+            y: 100
         }
     }
 }
@@ -273,30 +277,30 @@ export const openGraphEditor =
         graphType?: GraphType
     ) => {
     // We turn off editing mode, if it is on
-        setEditorState(undefined);
+    setEditorState(undefined);
 
-        // If there is no data, prompt the user to import and nothing else
-        if (sheetDataArray.length === 0) {
-            setUIState((prevUIState) => {
-                return {
-                    ...prevUIState,
-                    currOpenTaskpane: {
-                        type: TaskpaneType.IMPORT_FIRST,
-                        message: 'Before graphing data, you need to import some!'
-                    }
+    // If there is no data, prompt the user to import and nothing else
+    if (sheetDataArray.length === 0) {
+        setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {
+                    type: TaskpaneType.IMPORT_FIRST,
+                    message: 'Before graphing data, you need to import some!'
                 }
-            })
-            return;
-        }
+            }
+        })
+        return;
+    }
 
-        const newGraphID = getRandomId() // Create a new GraphID
-        const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, graphType)
+    const newGraphID = getRandomId() // Create a new GraphID
+    const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, graphType)
 
-        await mitoAPI.editGraph(
-            newGraphID,
-            graphParams,
-            '100%',
-            '100%',
-            getRandomId(), 
-        );
+    await mitoAPI.editGraph(
+        newGraphID,
+        graphParams,
+        '100%',
+        '100%',
+        getRandomId(), 
+    );
     }

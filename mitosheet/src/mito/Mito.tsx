@@ -986,22 +986,12 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     // Check which taskpanes are open
     const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
-    const wideTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
-    const narrowTaskpaneOpen = taskpaneOpen && !wideTaskpaneOpen;
 
-    /* 
-        We detect whether the taskpane is open in wide mode, narrow mode, or not open at all. We then
-        set the class of the div containing the Mitosheet and Formula bar, as well as the taskpane div accordingly.
-        The class sets the width of the sheet. 
-    */
-    const formulaBarAndSheetClassNames = classNames('mito-sheet-and-formula-bar-container', {
-        'mito-sheet-and-formula-bar-container-wide-taskpane-open': wideTaskpaneOpen,
-    })
+    const formulaBarAndSheetClassNames = classNames('mito-sheet-and-formula-bar-container')
 
     const taskpaneClassNames = classNames({
         'mito-taskpane-container': !taskpaneOpen,
-        'mito-taskpane-container-wide': wideTaskpaneOpen,
-        'mito-taskpane-container-narrow': narrowTaskpaneOpen,
+        'mito-taskpane-container-narrow': taskpaneOpen,
     })
 
     const [resizingTaskpane, setResizingTaskpane] = useState(false);
@@ -1101,7 +1091,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     <div 
                         className={formulaBarAndSheetClassNames}
                         style={
-                            narrowTaskpaneOpen 
+                            taskpaneOpen 
                                 ? {width: `calc(100% - ${uiState.taskpaneWidth}px)`}
                                 : undefined
                         }
@@ -1140,7 +1130,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             <div 
                                 className={taskpaneClassNames}
                                 style={
-                                    narrowTaskpaneOpen 
+                                    taskpaneOpen 
                                         ? {width: `${uiState.taskpaneWidth}px`}
                                         : undefined
                                 }

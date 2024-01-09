@@ -401,6 +401,10 @@ type GraphParamsGeneric<T> = {
     graphPreprocessing: GraphPreprocessingParams,
     graphCreation: GraphCreationParams<T>,
     graphStyling: GraphStylingParams<T>,
+    graphLocation: {
+        x: number,
+        y: number
+    }
 };
 
 /**
@@ -413,7 +417,11 @@ type GraphParamsGeneric<T> = {
 type GraphDataGeneric<T> = {
     graphParams: GraphParamsGeneric<T>,
     graphOutput: GraphOutput, 
-    graphTabName: string
+    graphTabName: string,
+    graphLocation: {
+        x: number,
+        y: number
+    }
 };
 
 // We have separate frontend and backend params so that we can 
