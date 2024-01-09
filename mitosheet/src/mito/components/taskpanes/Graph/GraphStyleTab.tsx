@@ -224,7 +224,7 @@ function GraphStyleTab(props: {
                         </p>
                     </Col>
                     <Select 
-                        value={graphStylingParams.legend.orientation === 'v' ? 'vertical' : 'horiztonal'} 
+                        value={graphStylingParams.legend.orientation === 'v' ? 'vertical' : 'horizontal'} 
                         width='medium'
                         onChange={(newOrientation: string) => {
                             return updateGraphParam({graphStyling: {legend: {orientation: newOrientation as 'v' | 'h'}}});
@@ -304,7 +304,7 @@ function GraphStyleTab(props: {
                         }}     
                     />
                 </Row>
-                <Row justify='space-between' align='center' title='Turn on/off horiztonal grid lines'>
+                <Row justify='space-between' align='center' title='Turn on/off horizontal grid lines'>
                     <Col>
                         <p>
                             Show horizontal grid
@@ -347,8 +347,8 @@ function GraphStyleTab(props: {
                         width='small'
                         placeholder='1'
                         onChange={(e) => {
-                            const newHoriztonalGridWidth = e.target.value === '' ? undefined : e.target.value;
-                            return updateGraphParam({graphStyling: {yaxis: {gridwidth: newHoriztonalGridWidth}}});
+                            const newHorizontalGridWidth = e.target.value === '' ? undefined : e.target.value;
+                            return updateGraphParam({graphStyling: {yaxis: {gridwidth: newHorizontalGridWidth}}});
                         }}     
                     />
                 </Row>
