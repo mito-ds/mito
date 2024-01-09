@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 test.describe('Merge', () => {
