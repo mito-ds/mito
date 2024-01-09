@@ -45,6 +45,7 @@ jobs:
       run: |
         cd tests
         source venv/bin/activate
+        cd ../mitosheet
         jupyter labextension develop . --overwrite
     - name: Start a server and run tests
       run: |
