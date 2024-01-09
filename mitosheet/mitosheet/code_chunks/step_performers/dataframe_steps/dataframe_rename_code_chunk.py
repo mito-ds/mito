@@ -86,7 +86,8 @@ class DataframeRenameCodeChunk(CodeChunk):
             merge_code_chunk.merge_key_column_ids,
             merge_code_chunk.selected_column_ids_one,
             merge_code_chunk.selected_column_ids_two,
-            self.new_dataframe_name
+            self.new_dataframe_name,
+            merge_code_chunk.optional_code_that_successfully_executed
         )
 
     def _combine_left_with_import_code_chunk(
