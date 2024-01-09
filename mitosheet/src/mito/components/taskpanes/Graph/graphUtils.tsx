@@ -16,6 +16,10 @@ const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
 const DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
 const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
 
+/**
+ * Returns the default axis column ids for a given graph type and selected column ids.
+ * Used to set the default axis column ids based on the current selection when creating a new graph.
+ */
 const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedColumnIds?: ColumnID[]): {
     x_axis_column_ids: ColumnID[],
     y_axis_column_ids: ColumnID[]
@@ -26,25 +30,19 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
             y_axis_column_ids: []
         }
     }
+    if (selectedColumnIds.length === 1) {
+        return {
+            x_axis_column_ids: [],
+            y_axis_column_ids: selectedColumnIds
+        }
+    }
     if (graphType === GraphType.SCATTER) {
-        if (selectedColumnIds.length === 1) {
-            return {
-                x_axis_column_ids: [],
-                y_axis_column_ids: selectedColumnIds
-            }
-        } else {
-            return {
-                x_axis_column_ids: [selectedColumnIds[0]],
-                y_axis_column_ids: selectedColumnIds.slice(1)
-            }
+        return {
+            x_axis_column_ids: [selectedColumnIds[0]],
+            y_axis_column_ids: selectedColumnIds.slice(1)
         }
     } else {
-        if (selectedColumnIds.length === 1) {
-            return {
-                x_axis_column_ids: [],
-                y_axis_column_ids: selectedColumnIds
-            }
-        } else if (!isNumberDtype(sheetData.columnDtypeMap[selectedColumnIds[0]])) {
+        if (!isNumberDtype(sheetData.columnDtypeMap[selectedColumnIds[0]])) {
             return {
                 x_axis_column_ids: [selectedColumnIds[0]],
                 y_axis_column_ids: selectedColumnIds.slice(1)
