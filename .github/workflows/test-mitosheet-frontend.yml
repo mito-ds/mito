@@ -56,12 +56,13 @@ jobs:
         retention-days: 14
 
   test-mitosheet-frontend-streamlit:
-    runs-on: ubuntu-20.04
     timeout-minutes: 60
     strategy:
       matrix:
         python-version: ['3.10']
         project: ['chromium', 'firefox', 'webkit', 'Google Chrome', 'Microsoft Edge']
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Cancel Previous Runs
