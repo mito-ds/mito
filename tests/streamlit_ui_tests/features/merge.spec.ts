@@ -4,7 +4,7 @@ import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTas
 
 test.describe('Merge', () => {
 
-    test('Allows Editing', async ({ page }) => {
+    test.only('Allows Editing', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
         await importCSV(page, mito, 'test.csv');
         
