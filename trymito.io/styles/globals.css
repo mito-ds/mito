@@ -235,7 +235,7 @@ a {
     margin-top: 2rem;
   }
 
-  code {
+  .code-highlight {
     font-family: monospace;
     background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(177, 120, 252, 0.39));
     background-clip: text;
