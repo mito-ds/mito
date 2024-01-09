@@ -414,9 +414,15 @@ def test_merge_edit_optimizes_with_edit_to_merge():
     mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A'], destination_sheet_index=2)
 
     assert mito.transpiled_code == [
-        'from mitosheet.public.v3 import *', '', 
+        'from mitosheet.public.v3 import *', 
+        '', 
         "df2_tmp = df2.drop(['B'], axis=1)", 
-        "df_merge = df1.merge(df2_tmp, left_on=['A'], right_on=['A'], how='inner', suffixes=['_df1', '_df2'])", ''
+        "df_merge = df1.merge(df2_tmp, left_on=['A'], right_on=['A'], how='inner', suffixes=['_df1', '_df2'])", 
+        '',
+        '# Added column Test',
+        "df_merge['Test'] = 0",
+        ''
+
     ]
 
 def test_merge_edit_optimizes_after_delete_with_edit_to_merge():
@@ -759,7 +765,7 @@ def test_edit_merge_replays_edit_after():
     mito.add_column(2, 'Test')
     mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
 
-    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'Test': [0], 'B_df2': [2]}))
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'B_df2': [2], 'Test': [0]}))
 
 def test_edit_merge_replays_multiple_edits():
     df1 = pd.DataFrame({'A': [2], 'B': [2]})
@@ -770,7 +776,7 @@ def test_edit_merge_replays_multiple_edits():
     mito.set_formula('=A', 2, 'Test')
     mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
 
-    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'Test': [2], 'B_df2': [2]}))
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'B_df2': [2], 'Test': [2]}))
 
 def test_edit_merge_replays_multiple_edits_stops_on_error():
     df1 = pd.DataFrame({'A': [2], 'B': [2]})
@@ -781,7 +787,7 @@ def test_edit_merge_replays_multiple_edits_stops_on_error():
     mito.set_formula('=B', 2, 'Test')
     mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
 
-    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'Test': [0], 'B_df2': [2]}))
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2], 'B_df1': [2], 'B_df2': [2], 'Test': [0]}))
 
 def test_edit_merge_replays_edits_after_multiple_edits():
     df1 = pd.DataFrame({'A': [2], 'B': [2]})
@@ -793,7 +799,7 @@ def test_edit_merge_replays_edits_after_multiple_edits():
     mito.set_formula('=A', 2, 'Test')
     mito.merge_sheets('outer', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
 
-    assert mito.dfs[2].equals(pd.DataFrame({'A': [2, 1], 'B_df1': [2.0, None], 'Test': [2, 1], 'B_df2': [2, 1]}))
+    assert mito.dfs[2].equals(pd.DataFrame({'A': [2, 1], 'B_df1': [2.0, None], 'B_df2': [2, 1], 'Test': [2, 1]}))
 
 
 def test_edit_merge_works_with_filters():
