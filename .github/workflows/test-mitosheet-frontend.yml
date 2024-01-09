@@ -112,7 +112,7 @@ jobs:
       run: |
         cd tests
         source venv/bin/activate
-        streamlit run streamlit-test.py --server.port 8555 &
+        streamlit run streamlit-test.py --server.port 8555 > dev/null &
         npm run test:streamlit -- --project="${{ matrix.project }}"
     - name: Start a server and run tests (windows)
       if: matrix.os == 'windows-latest'
