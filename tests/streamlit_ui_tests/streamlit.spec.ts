@@ -258,6 +258,31 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.plotly-graph-div').first()).toBeVisible();
   });
 
+  test('Graph from selection', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await mito.getByTitle('Column1').click();
+    await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
+    await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();
+  })
+
+  test('Scatter plot from selection', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await mito.getByTitle('Column1').click();
+    await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
+    
+    await clickTab(page, mito, 'Insert');
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' })
+
+    await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
+    await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();
+  })
+
   test('AI Not Exist on Enterprise', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
