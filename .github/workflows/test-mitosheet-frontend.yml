@@ -40,7 +40,12 @@ jobs:
     - name: Install dependencies
       run: |
         cd tests
-        bash dev-setup.sh
+        bash mac-setup.sh
+    - name: Setup JupyterLab
+      run: |
+        cd tests
+        source venv/bin/activate
+        jupyter labextension develop . --overwrite
     - name: Start a server and run tests
       run: |
         cd tests
@@ -65,10 +70,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action@0.7.0
-      with:
-        access_token: ${{ github.token }}
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -84,10 +85,18 @@ jobs:
         node-version: 16
         cache: 'npm'
         cache-dependency-path: mitosheet/package-lock.json
-    - name: Install dependencies
+    - name: Install dependencies (ubuntu, macos)
+      if: matrix.os != 'windows-latest'
       run: |
         cd tests
-        bash dev-setup.sh
+        bash mac-setup.sh
+        source venv/bin/activate
+        pip install -r extra-requirements.txt
+    - name: Install dependencies (windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd tests
+        bash windows-setup.sh
         source venv/bin/activate
         pip install -r extra-requirements.txt
     - name: Start a server and run tests
@@ -134,7 +143,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd tests
-        bash dev-setup.sh
+        bash mac-setup.sh
         source venv/bin/activate
         pip install -r extra-requirements.txt
     - name: Start a server and run tests
