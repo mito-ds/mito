@@ -20,7 +20,7 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
     x_axis_column_ids: ColumnID[],
     y_axis_column_ids: ColumnID[]
 } => {
-    if (selectedColumnIds === undefined) {
+    if (selectedColumnIds === undefined || selectedColumnIds.length === 0) {
         return {
             x_axis_column_ids: [],
             y_axis_column_ids: []
