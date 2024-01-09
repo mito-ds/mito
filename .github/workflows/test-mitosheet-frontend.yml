@@ -97,7 +97,7 @@ jobs:
       run: |
         cd tests
         cmd /c windows-setup.bat
-        source venv/bin/activate
+        cmd /c venv\Scripts/activate.bat
         pip install -r extra-requirements.txt
     - name: Start a server and run tests
       run: |
