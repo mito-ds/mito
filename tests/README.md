@@ -1,13 +1,15 @@
 # Frontend Tests
 
-To setup, run
+To setup on Mac or Linux:
 ```
-bash dev-setup.sh
+bash mac-setup.sh
+source venv/bin/activate
 ```
 
-Then start the virtual enviornment by running:
+To setup on Windows:
 ```
-source venv/bin/activate
+windows-setup.bat
+venv\Scripts\activate.bat
 ```
 ## Running tests
 
@@ -38,6 +40,11 @@ npm run test:dash
 ```
 
 ### Jupyter Specific Tests
+
+First, you need to run:
+```
+jupyter labextension develop . --overwrite
+```
 
 Run 
 ```
