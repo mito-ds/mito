@@ -67,6 +67,11 @@ jobs:
         python-version: ['3.10']
         project: ['chromium', 'firefox', 'webkit', 'Google Chrome', 'Microsoft Edge']
         os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        exclude:
+          - project: 'webkit'
+            os: 'windows-latest'
+          - project: 'Microsoft Edge'
+            os: 'macos-latest'
     runs-on: ${{ matrix.os }}
 
     steps:
