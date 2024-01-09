@@ -72,6 +72,8 @@ jobs:
             os: 'windows-latest'
           - project: 'Microsoft Edge'
             os: 'macos-latest'
+          - project: 'chromium'
+            os: 'windows-latest'
     runs-on: ${{ matrix.os }}
 
     steps:
