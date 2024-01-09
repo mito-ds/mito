@@ -79,7 +79,7 @@ const PythonTraining: NextPage = () => {
                                 Mito generates the equivalent Python code for every edit the user makes. Business analysts <a className={pageStyles.link} href='https://www.trymito.io/blog/quantifying-mitos-impact-on-analyst-python-productivity' target="_blank" rel="noreferrer">code 400% faster using Mito</a> compared to writing Python code by hand. 
                             </p>
                             <p>
-                                The biggest blocker for analysts building their own automation after a training is not having enough time to do so. Mito solves that problem. Empower your analysts to write <code>=VLOOKUP</code> in Mito instead of struggling through <a className={pageStyles.link} href='https://www.trymito.io/excel-to-python/functions/lookup/VLOOKUP#Implementing%20VLOOKUP%20in%20Pandas' target="_blank" rel="noreferrer">5 lines</a> of complex pandas code. 
+                                The biggest blocker for analysts building their own automation after a training is not having enough time to do so. Mito solves that problem. Empower your analysts to write <code className='code-highlight'>=VLOOKUP</code> in Mito instead of struggling through <a className={pageStyles.link} href='https://www.trymito.io/excel-to-python/functions/lookup/VLOOKUP#Implementing%20VLOOKUP%20in%20Pandas' target="_blank" rel="noreferrer">5 lines</a> of complex pandas code. 
                             </p>
                         </div>
                         <div className={classNames(securityStyles.security_bullet_container, pageStyles.subsection_second_element_mobile_spacing)}>
@@ -109,7 +109,7 @@ const PythonTraining: NextPage = () => {
                                 Training is most engaging when you&apos;re practicing on real business data. Because Mito hides the complexity of learning Python syntax, you don&apos;t have to oversimplify your data. 
                             </p>
                             <p>
-                                Instead of learning <code>total = x + y</code> skip straight to building pivot tables on your monthly returns data.
+                                Instead of learning <code className='code-highlight'>total = x + y</code> skip straight to building pivot tables on your monthly returns data.
                             </p>
                         </div>
                         <div className={pageStyles.subsection_second_element_mobile_spacing}>
