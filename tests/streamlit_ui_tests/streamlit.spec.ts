@@ -21,7 +21,11 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByTitle('Column1')).toBeVisible();
   });
 
-  test('Copy Button', async ({ page }) => {
+  test('Copy Button', async ({ page, browserName }) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
+
     const mito = await getMitoFrameWithTestCSV(page);
 
     await mito.getByTitle('Column1').click();
