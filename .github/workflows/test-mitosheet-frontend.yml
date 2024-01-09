@@ -96,7 +96,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cd tests
-        windows-setup.bat
+        cmd /c windows-setup.bat
         source venv/bin/activate
         pip install -r extra-requirements.txt
     - name: Start a server and run tests
