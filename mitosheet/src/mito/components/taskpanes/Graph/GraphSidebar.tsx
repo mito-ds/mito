@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MitoAPI,  getRandomId } from '../../../api/api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
-import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState } from '../../../types';
+import { AnalysisData, ColumnID, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState } from '../../../types';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSidebarTabs from './GraphSidebarTabs';
@@ -40,7 +40,8 @@ const GraphSidebar = (props: {
     graphDataDict: GraphDataDict
     analysisData: AnalysisData
     mitoContainerRef: React.RefObject<HTMLDivElement>,
-    graphSidebarTab?: GraphSidebarTab
+    graphSidebarTab?: GraphSidebarTab,
+    selectedColumnsIds?: ColumnID[]
 }): JSX.Element => {
 
     /*
@@ -62,7 +63,7 @@ const GraphSidebar = (props: {
 
     // We keep track of the graph data separately from the backend state so that 
     // the UI updates immediately, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
+    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray, props.selectedColumnsIds))
 
     const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
     const graphOutput = props.graphDataDict[graphID]?.graphOutput
