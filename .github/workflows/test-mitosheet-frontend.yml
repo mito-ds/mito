@@ -101,6 +101,12 @@ jobs:
         bash mac-setup.sh
         source venv/bin/activate
         pip install -r extra-requirements.txt
+    - name: Setup streamlit
+      if: matrix.os != 'windows-latest'
+      run: |
+        mkdir -p ~/.streamlit/
+        echo "[general]"  > ~/.streamlit/credentials.toml
+        echo "email = \"\""  >> ~/.streamlit/credentials.toml
     - name: Install dependencies (windows)
       if: matrix.os == 'windows-latest'
       run: |
@@ -113,7 +119,7 @@ jobs:
       run: |
         cd tests
         source venv/bin/activate
-        streamlit run streamlit-test.py --server.port 8555 > dev/null &
+        streamlit run streamlit-test.py --server.port 8555 &
         npm run test:streamlit -- --project="${{ matrix.project }}"
     - name: Start a server and run tests (windows)
       if: matrix.os == 'windows-latest'
