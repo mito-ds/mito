@@ -99,10 +99,18 @@ jobs:
         cmd /c windows-setup.bat
         cmd /c venv\Scripts/activate.bat
         pip install -r extra-requirements.txt
-    - name: Start a server and run tests
+    - name: Start a server and run tests (ubuntu, macos)
+      if: matrix.os != 'windows-latest'
       run: |
         cd tests
         source venv/bin/activate
+        streamlit run streamlit-test.py --server.port 8555 &
+        npm run test:streamlit -- --project="${{ matrix.project }}"
+    - name: Start a server and run tests (windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd tests
+        cmd /c venv\Scripts\activate.bat
         streamlit run streamlit-test.py --server.port 8555 &
         npm run test:streamlit -- --project="${{ matrix.project }}"
     - name: Upload test-results
