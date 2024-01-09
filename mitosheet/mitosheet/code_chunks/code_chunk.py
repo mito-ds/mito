@@ -34,7 +34,11 @@ class CodeChunk:
         self.optional_code_that_successfully_executed: Tuple[List[str], List[str]] = ([], [])
 
     def __repr__(self) -> str:
-        return self.__class__.__name__
+        members = [
+            (attr, getattr(self, attr)) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")
+            and ('sheet_index' in attr or 'file_name' in attr)
+        ]
+        return f"{self.__class__.__name__}({members})"
 
     def get_display_name(self) -> str:
         """Returns a short name to display for this CodeChunk"""
@@ -130,6 +134,19 @@ class CodeChunk:
         """
         return None
     
+    def get_source_sheet_indexes(self) -> Optional[List[int]]:
+        """
+        This funciton returns a list of sheet indexes that go into
+        creating any created_sheet_indexes. 
+
+        If there are no created_sheet_indexes, than this function can
+        be ignored. If there are created_sheet_indexes, than an empty
+        list means there were no source dataframes -- e.g. from a CSV 
+        import from a file.
+        """
+        return []
+
+    
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         """
         Given a list of CodeChunks [A, B], combine right called on A with
@@ -168,4 +185,33 @@ class CodeChunk:
         """
         return []
     
+    def can_be_reordered_with(self, code_chunk: "CodeChunk") -> bool:
+        """
+        Returns true if the passed code chunk can be moved from
+        before to after (or after to before) with this code chunk. 
 
+        Note that this function is meant to be conservative. It should
+        only return True if the reordering of the code chunks _positively_
+        does not break generated code. 
+
+
+        """
+
+        created_sheet_indexes = self.get_created_sheet_indexes()
+        edited_sheet_indexes = self.get_edited_sheet_indexes()
+        source_sheet_indexes = self.get_source_sheet_indexes()
+        other_edited_indexes = code_chunk.get_edited_sheet_indexes()
+
+        # Don't reorder if the code chunk is editing what this code chunk created
+        if created_sheet_indexes is not None and other_edited_indexes is not None and any(index in created_sheet_indexes for index in other_edited_indexes):
+            return False
+
+        # Don't reorder if the code chunks are editing the same sheet
+        if edited_sheet_indexes is not None and other_edited_indexes is not None and set(edited_sheet_indexes) == set(other_edited_indexes):
+            return False
+        
+        # Don't reorder if the other code chunk edits where this code chunk pulls from
+        if source_sheet_indexes is not None and other_edited_indexes is not None and any(index in source_sheet_indexes for index in other_edited_indexes):
+            return False
+
+        return True

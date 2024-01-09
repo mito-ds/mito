@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 import json
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
@@ -40,3 +40,11 @@ class BulkOldRenameCodeChunk(CodeChunk):
             code.insert(0, '# Rename headers to make them work with Mito')
 
         return code, []
+    
+    def can_be_reordered_with(self, code_chunk: CodeChunk) -> bool:
+        """
+        The bulk old rename cannot be reordered, ever, under any 
+        circumstances. It changes a bunch of column headers, and so 
+        is just scary to reorder around.
+        """
+        return False

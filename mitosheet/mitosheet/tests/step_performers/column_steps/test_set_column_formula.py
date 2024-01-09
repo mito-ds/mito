@@ -13,6 +13,7 @@ from mitosheet.column_headers import get_column_header_id
 from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
                                         create_mito_wrapper)
+from mitosheet.tests.decorators import pandas_post_1_only
 from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
 from mitosheet.utils import get_new_id
 
@@ -140,11 +141,11 @@ def test_only_writes_single_code():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', df1['A'])", 
+        "df1['B'] = df1['A']", 
         '',
-        "df1.insert(2, 'C', df1['B'])",
+        "df1['C'] = df1['B']",
         '', 
-        "df1.insert(3, 'D', df1['A'])", 
+        "df1['D'] = df1['A']", 
         '',
         "df1['B'] = 100", 
         '',
@@ -159,6 +160,7 @@ def test_can_set_formula_referencing_datetime():
         pd.DataFrame(data={pd.to_datetime('12-22-1997'): [1], 'B': [1]})
     )
 
+@pandas_post_1_only
 def test_can_set_formula_referencing_timedelta():
     df = pd.DataFrame(data={pd.to_timedelta('2 days 00:00:00'): [1]})
     mito = create_mito_wrapper(df)
@@ -207,7 +209,7 @@ def test_set_formula_then_rename_no_optimize_yet():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')", 
         '',
@@ -228,7 +230,7 @@ def test_set_formula_then_delete_optimize():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
         '',
@@ -250,7 +252,7 @@ def test_set_formula_then_delete_optimizes_multiple():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
         '',
@@ -273,9 +275,9 @@ def test_set_multiple_formula_then_delete_optimizes_multiple():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
-        "df1.insert(2, 'C', 0)", 
+        "df1['C'] = 0", 
         '',
         "df1 = df1.sort_values(by='B', ascending=True, na_position='first')",
         '',
@@ -294,7 +296,7 @@ def test_set_column_formula_in_duplicate_does_not_overoptmize():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'B', 0)", 
+        "df1['B'] = 0", 
         '',
         "df1_copy = df1.copy(deep=True)",
         '',

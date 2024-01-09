@@ -81,7 +81,6 @@ def get_right_combine_with_column_delete_code_chunk(
         if isinstance(code_chunk, invalid_code_chunk_type):
             raise Exception("Code chunk of this type is not valid for right combine with delete", CANNOT_RIGHT_COMBINE_WITH_DELETE_COLUMNS)
 
-
     # If the sheet indexes don't match, bail
     if code_chunk.__dict__[sheet_index_key] != delete_columns_code_chunk.sheet_index:
         return None

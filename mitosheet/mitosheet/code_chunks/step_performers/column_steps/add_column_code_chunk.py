@@ -41,6 +41,12 @@ class AddColumnCodeChunk(CodeChunk):
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)
+
+        if self.column_header_index == -1:
+            return [
+                f'{self.df_name}[{transpiled_column_header}] = 0'
+            ], []
+
         return [
             f'{self.df_name}.insert({self.column_header_index}, {transpiled_column_header}, 0)'
         ], []
@@ -92,7 +98,7 @@ class AddColumnCodeChunk(CodeChunk):
                 self.sheet_index,
                 new_column_header,
                 self.column_header_index,
-                self.new_column_id
+                self.new_column_id,
             )
         else:
             # We'd prefer to keep all the renames together in this case, although
@@ -107,8 +113,6 @@ class AddColumnCodeChunk(CodeChunk):
         if other_code_chunk.index_labels_formula_is_applied_to['type'] != FORMULA_ENTIRE_COLUMN_TYPE:
             return None
 
-        sheet_index = self.sheet_index
-        added_column_header = self.column_header
         added_column_id = self.new_column_id
         
         if added_column_id != other_code_chunk.column_id:
@@ -123,7 +127,7 @@ class AddColumnCodeChunk(CodeChunk):
             self.column_header,
             self.column_header_index,
             other_code_chunk.new_formula,
-            other_code_chunk.public_interface_version
+            other_code_chunk.public_interface_version,
         )
 
     def combine_right(self, other_code_chunk: CodeChunk) -> Optional[CodeChunk]:
