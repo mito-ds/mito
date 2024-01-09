@@ -401,7 +401,7 @@ test.describe('Insert Tab Buttons', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' });
 
     await expect(mito.getByText('Setup Graph')).toBeVisible();
-    await expect(mito.getByText('Scatter', { exact: true })).toBeVisible();
+    await expect(mito.getByText('scatter', { exact: true })).toBeVisible();
   });
 
   test('Test Graph (line)', async ({ page }) => {
