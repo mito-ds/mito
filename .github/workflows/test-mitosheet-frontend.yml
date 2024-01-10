@@ -129,19 +129,12 @@ jobs:
         npm run build
 
     - name: Start a server and run tests (ubuntu, macos)
-      if: matrix.os != 'windows-latest'
+      shell: bash
       run: |
         cd tests
         source venv/bin/activate
-        streamlit run streamlit-test.py --server.port 8555 &
+        streamlit run streamlit_test.py --server.port 8555 &
         bash check_server.sh
-        npm run test:streamlit -- --project="${{ matrix.project }}"
-    - name: Start a server and run tests (windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        cd tests
-        .\venv\Scripts\Activate.ps1
-        Start-Process -NoNewWindow -FilePath "python" -ArgumentList "streamlit run streamlit-test.py --server.port 8555"
         npm run test:streamlit -- --project="${{ matrix.project }}"
     - name: Upload test-results
       uses: actions/upload-artifact@v3

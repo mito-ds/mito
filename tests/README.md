@@ -19,7 +19,7 @@ The Streamlit tests contain most tests of basic functionality.
 
 Run
 ```
-streamlit run streamlit-test.py --server.port 8555
+streamlit run streamlit_test.py --server.port 8555
 ```
 
 And then run
