@@ -24,7 +24,7 @@ streamlit run streamlit-test.py --server.port 8555
 
 And then run
 ```
-npm run test:streamlit
+npm run test:streamlit -- --project=chromium
 ```
 
 ### Dash Specific Tests
@@ -36,7 +36,7 @@ python dash-test.py
 
 Then, run the tests with
 ```
-npm run test:dash
+npm run test:dash -- --project=chromium
 ```
 
 ### Jupyter Specific Tests
@@ -53,7 +53,7 @@ jupyter lab --config jupyter_server_test_config.py
 
 And then in a separate terminal run 
 ```
-npm run test:jupyterlab
+npm run test:jupyterlab -- --project=chromium
 ```
 
 Add a `--headed` flag to see the test run.
