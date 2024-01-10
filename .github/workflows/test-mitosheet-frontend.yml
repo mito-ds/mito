@@ -114,7 +114,7 @@ jobs:
         cd tests
 
         python3 -m venv venv
-        cmd /c venv\Scripts\activate.bat
+        .\venv\Scripts\Activate.ps1
 
         pip install -r requirements.txt
         pip install -r extra-requirements.txt
@@ -140,7 +140,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cd tests
-        cmd /c venv\Scripts\activate.bat
+        .\venv\Scripts\Activate.ps1
         streamlit run streamlit-test.py --server.port 8555 &
         npm run test:streamlit -- --project="${{ matrix.project }}"
     - name: Upload test-results
