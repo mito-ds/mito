@@ -407,6 +407,15 @@ type GraphParamsGeneric<T> = {
  * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
  * the actual graph html & javascript, and the generated code.
  * 
+ * Note that the graph data contains the graph params because:
+ * 1.  We need to be able to open the UI to include the graph params
+ * 2.  When we wrote this code, we didn't have a notion of "looking up"
+ *     params based on a graph ID. 
+ * 
+ *     With Pivot, we have a notion of "looking up" params based on a
+ *     sheet index -- and this is what we should move to for graphs 
+ *     as well, with some point. 
+ * 
  * @param graphParams - all of the parameters used to construct the graph
  * @param [graphOutput] - the python code, the graph html, and the graph script 
  */
