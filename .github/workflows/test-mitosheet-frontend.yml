@@ -141,7 +141,7 @@ jobs:
       run: |
         cd tests
         .\venv\Scripts\Activate.ps1
-        streamlit run streamlit-test.py --server.port 8555 &
+        Start-Process -NoNewWindow -FilePath "python" -ArgumentList "streamlit run streamlit-test.py --server.port 8555"
         npm run test:streamlit -- --project="${{ matrix.project }}"
     - name: Upload test-results
       uses: actions/upload-artifact@v3
