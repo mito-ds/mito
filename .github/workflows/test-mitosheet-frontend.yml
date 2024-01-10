@@ -112,9 +112,22 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cd tests
-        cmd /c windows-setup.bat
-        cmd /c venv\Scripts/activate.bat
+
+        python3 -m venv venv
+        cmd /c venv\Scripts\activate.bat
+
+        pip install -r requirements.txt
         pip install -r extra-requirements.txt
+
+        npm install
+        npx playwright install chromium firefox chrome msedge
+
+        cd ../mitosheet
+        pip install -e ".[test]"
+
+        npm install
+        npm run build
+
     - name: Start a server and run tests (ubuntu, macos)
       if: matrix.os != 'windows-latest'
       run: |
