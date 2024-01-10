@@ -84,6 +84,7 @@ import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
 import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
+import { getSelectedColumnIDsWithEntireSelectedColumn } from './components/endo/selectionUtils';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -635,6 +636,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     graphDataDict={analysisData.graphDataDict}
                     analysisData={analysisData}
                     mitoContainerRef={mitoContainerRef}
+                    selectedColumnsIds={getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetDataArray[uiState.selectedSheetIndex])}
                 />
             )
             case TaskpaneType.IMPORT_FILES: return (

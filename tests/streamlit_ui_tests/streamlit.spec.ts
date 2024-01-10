@@ -258,6 +258,43 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.plotly-graph-div').first()).toBeVisible();
   });
 
+  test('Graph from selection', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await mito.getByTitle('Column1').click();
+    await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
+    await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();
+  })
+
+  test('Graph from selection with columns selected in reverse order', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await mito.getByTitle('Column2').click();
+    await mito.getByTitle('Column1').click({ modifiers: ['Shift']});
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('p.select-text').nth(3)).toHaveText('Column1');
+    await expect(mito.locator('p.select-text').nth(4)).toHaveText('Column2');
+  })
+
+  test('Scatter plot from selection', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await mito.getByTitle('Column1').click();
+    await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
+    
+    await clickTab(page, mito, 'Insert');
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' })
+
+    await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
+    await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();
+  })
+
   test('AI Not Exist on Enterprise', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
@@ -364,7 +401,7 @@ test.describe('Insert Tab Buttons', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' });
 
     await expect(mito.getByText('Setup Graph')).toBeVisible();
-    await expect(mito.getByText('Scatter')).toBeVisible();
+    await expect(mito.getByText('scatter', { exact: true })).toBeVisible();
   });
 
   test('Test Graph (line)', async ({ page }) => {
