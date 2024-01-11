@@ -122,7 +122,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDashboard() // no signup if no logs, or if on dash
             ? {type: ModalEnum.SignUp}   
             : {type: ModalEnum.None},
-        currOpenTaskpane: {type: TaskpaneType.DEV_TASKAPNE}, 
+        currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(analysisData.graphDataDict)[0],
