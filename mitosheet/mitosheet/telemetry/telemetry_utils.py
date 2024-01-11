@@ -23,7 +23,7 @@ import requests
 from unittest.mock import patch
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
-from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_LENGTH, LOG_EXECUTION_DATA_PUBLIC
+from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_LENGTH_FIRST_ELEMENT, LOG_EXECUTION_DATA_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import get_location, is_docker, is_jupyterlite
 from mitosheet.user.schemas import UJ_FEEDBACKS, UJ_FEEDBACKS_V2, UJ_INTENDED_BEHAVIOR, UJ_MITOSHEET_TELEMETRY, UJ_USER_EMAIL
@@ -123,9 +123,9 @@ def _get_execution_data_log_params(steps_manager: Optional[StepsManagerType]=Non
             # Only take those items that are marked as public
             if key in LOG_EXECUTION_DATA_PUBLIC:
                 execution_data_params['execution_data_' + key] = value
-            elif key in LOG_EXECUTION_DATA_LENGTH:
+            elif key in LOG_EXECUTION_DATA_LENGTH_FIRST_ELEMENT:
                 # Calculate the length, if we're asked to
-                execution_data_params['execution_data_' + key] = len(value)
+                execution_data_params['execution_data_' + key] = len(value[0]) if value else 0
             # And make the rest private
             else:
                 execution_data_params['execution_data_' + key] = anonymize_object(value)

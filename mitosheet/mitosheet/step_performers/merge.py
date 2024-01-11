@@ -11,9 +11,10 @@ from mitosheet.code_chunks.step_performers.merge_code_chunk import \
     MergeCodeChunk
 from mitosheet.errors import make_incompatible_merge_key_error
 from mitosheet.state import DATAFRAME_SOURCE_MERGED, State
+from mitosheet.step_performers.pivot import get_optional_code_to_replay_on_dataframe_creation
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
-from mitosheet.types import ColumnID
+from mitosheet.types import ColumnID, StepType
 from mitosheet.utils import get_first_unused_dataframe_name
 
 LOOKUP = 'lookup'
@@ -32,6 +33,16 @@ class MergeStepPerformer(StepPerformer):
     @classmethod
     def step_type(cls) -> str:
         return 'merge'
+    
+    @classmethod
+    def saturate(cls, prev_state: State, params: Dict[str, Any], previous_steps: List[StepType]) -> Dict[str, Any]:
+
+        # Replay the edits on top of the merged dataframe
+        optional_code, optional_code_chunk_names = get_optional_code_to_replay_on_dataframe_creation(previous_steps, params)
+        params['optional_code'] = optional_code
+        params['optional_code_chunk_names'] = optional_code_chunk_names
+
+        return params
 
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
@@ -58,9 +69,10 @@ class MergeStepPerformer(StepPerformer):
                     'new_df_names': [new_df_name],
                     'overwrite': {
                         'sheet_index_to_overwrite': destination_sheet_index,
-                        'attempt_to_save_filter_metadata': False
+                        'attempt_to_save_filter_metadata': True
                     } if destination_sheet_index is not None else destination_sheet_index
-                }
+                },
+                optional_code=params.get('optional_code')
             )
 
         except ValueError:
@@ -106,7 +118,8 @@ class MergeStepPerformer(StepPerformer):
                 get_param(params, 'merge_key_column_ids'),
                 get_param(params, 'selected_column_ids_one'),
                 get_param(params, 'selected_column_ids_two'),
-                get_param(execution_data if execution_data is not None else {}, 'new_df_name') 
+                get_param(execution_data if execution_data is not None else {}, 'new_df_name'),
+                get_param(execution_data if execution_data is not None else {}, 'optional_code_that_successfully_executed')
             )
         ]
     
