@@ -84,6 +84,7 @@ import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
 import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
+import DevTaskpane from './components/taskpanes/Dev/DevTaskpane';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -121,7 +122,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDashboard() // no signup if no logs, or if on dash
             ? {type: ModalEnum.SignUp}   
             : {type: ModalEnum.None},
-        currOpenTaskpane: {type: TaskpaneType.NONE}, 
+        currOpenTaskpane: {type: TaskpaneType.DEV_TASKAPNE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(analysisData.graphDataDict)[0],
@@ -885,6 +886,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <GithubScheduleTaskpane
                     userProfile={userProfile}
                     analysisData={analysisData}
+                    setUIState={setUIState}
+                    mitoAPI={mitoAPI}
+                />
+            )
+            case TaskpaneType.DEV_TASKAPNE: return (
+                <DevTaskpane
+                    userProfile={userProfile}
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                 />
