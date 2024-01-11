@@ -115,8 +115,6 @@ def get_html_and_script_from_figure(
 
     original_html = buffer.getvalue()
 
-    print(original_html)
-
     # Everything in a script tag we want to treat as one big script
 
     # The get the graph div, which looks like: <div id="9c21d143-3fcd-4958-9295-ac7ada668186" class="plotly-graph-div" style="height:425px; width:970px;"></div>
