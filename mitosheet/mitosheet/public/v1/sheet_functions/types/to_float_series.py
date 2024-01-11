@@ -32,6 +32,7 @@ def convert_string_to_float(
         123,123 are 123123 and 123.123 in America and Europe respectively. We treat this as American for 
         now. 
     5. Million or Billion identifier in the string
+    6. Percentage signs
     As these are all heuristics, we do our best. We also try to perform this conversion
     optimistically, as to run as quickly as possible.
     """
@@ -82,6 +83,11 @@ def convert_string_to_float(
         if billion_identifier != None:
             multiplier = 1000000000
             s = s.replace(billion_identifier, '') # type: ignore
+
+        # Handle case 6, if there is a percentage sign in the number
+        if s.endswith('%'):
+            s = s[:-1]
+            multiplier = multiplier / 100
 
         try:
             return float(s) * (-1 if is_negative else 1) * multiplier

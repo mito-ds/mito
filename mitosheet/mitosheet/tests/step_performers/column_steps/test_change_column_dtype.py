@@ -23,7 +23,7 @@ from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
 BOOL_ARRAY = [True, False, True]
 INT_ARRAY = [1, 2, 3]
 FLOAT_ARRAY = [4.0, 5.1, 6.2]
-STRING_ARRAY = ["$1", "2.1", "(3.2)"]
+STRING_ARRAY = ["$1", "2.1", "(3.2)", '82%', '-8.2%']
 DATETIME_ARRAY = [pd.to_datetime(x, unit='s') for x in [100, 200, 300]]
 TIMEDELTA_ARRAY = [pd.to_timedelta(x, unit='s') for x in [100, 200, 300]]
 
@@ -105,17 +105,17 @@ def test_float_to_other_types(new_dtype, result, code):
 
 
 STRING_TESTS = [
-    ('bool', [False, False, False], 'df1[\'A\'] = to_boolean_series(df1[\'A\'])'), 
-    ('int', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
-    ('int64', [1, 2, -3], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
-    ('float', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'), 
-    ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'),  
-    ('str', ["$1", "2.1", "(3.2)"], None), 
-    ('object', ["$1", "2.1", "(3.2)"], None), 
-    ('string', ["$1", "2.1", "(3.2)"], None),
-    ('datetime', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
-    ('datetime64[ns]', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
-    ('timedelta', [pd.to_timedelta('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_timedelta(df1[\'A\'], errors=\'coerce\')'), 
+    ('bool', [False, False, False, False, False], 'df1[\'A\'] = to_boolean_series(df1[\'A\'])'), 
+    ('int', [1, 2, -3, 0, 0], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
+    ('int64', [1, 2, -3, 0, 0], 'df1[\'A\'] = to_int_series(df1[\'A\'])'), 
+    ('float', [1.0, 2.1, -3.2, .82, -.082], 'df1[\'A\'] = to_float_series(df1[\'A\'])'), 
+    ('float64', [1.0, 2.1, -3.2, .82, -.082], 'df1[\'A\'] = to_float_series(df1[\'A\'])'),  
+    ('str', ["$1", "2.1", "(3.2)", "82%", "-8.2%"], None), 
+    ('object', ["$1", "2.1", "(3.2)", "82%", "-8.2%"], None), 
+    ('string', ["$1", "2.1", "(3.2)", "82%", "-8.2%"], None),
+    ('datetime', [pd.to_datetime('A', errors='coerce') for x in [None, None, None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
+    ('datetime64[ns]', [pd.to_datetime('A', errors='coerce') for x in [None, None, None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
+    ('timedelta', [pd.to_timedelta('A', errors='coerce') for x in [None, None, None, None, None]], 'df1[\'A\'] = pd.to_timedelta(df1[\'A\'], errors=\'coerce\')'), 
 ]
 @pytest.mark.parametrize("new_dtype, result, code", STRING_TESTS)
 def test_string_to_other_types(new_dtype, result, code):
