@@ -34,7 +34,7 @@ interface SelectProps {
     /** 
         * @param [dropdownWidth] - The width of the dropdown. Defaults to 'large'
     */
-    dropdownWidth?: 'small' | 'medium' | 'large';
+    dropdownWidth?: Width;
     /**
         * @param [searchable] - When True, a search input field is displayed. Defaults to False
     */

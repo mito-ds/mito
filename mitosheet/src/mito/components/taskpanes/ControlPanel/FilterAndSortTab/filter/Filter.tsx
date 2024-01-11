@@ -70,7 +70,9 @@ export function Filter(
                         })
                     }}
                     width='block'
-                    dropdownWidth='medium'
+                    dropdownWidth={
+                        props.nameLength == 'long_name' ? 'medium-large' : 'medium'
+                    }
                 >
                     {filterConditionOptions}
                 </Select>
