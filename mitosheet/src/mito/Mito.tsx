@@ -122,7 +122,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDashboard() // no signup if no logs, or if on dash
             ? {type: ModalEnum.SignUp}   
             : {type: ModalEnum.None},
-        currOpenTaskpane: {type: TaskpaneType.NONE}, 
+        currOpenTaskpane: {type: TaskpaneType.DEV_TASKPANE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
         selectedGraphID: Object.keys(analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(analysisData.graphDataDict)[0],
@@ -890,7 +890,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={mitoAPI}
                 />
             )
-            case TaskpaneType.DEV_TASKAPNE: return (
+            case TaskpaneType.DEV_TASKPANE: return (
                 <DevTaskpane
                     userProfile={userProfile}
                     setUIState={setUIState}
