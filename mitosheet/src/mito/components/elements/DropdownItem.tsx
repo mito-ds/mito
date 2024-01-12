@@ -82,14 +82,10 @@ interface DropdownItemProps {
     subMenu?: JSX.Element;
 
     /**
-     * Optional function to call when the mouse enters the DropdownItem
+     * Optional function to call when the mouse enters the DropdownItem.
+     * Used for displaying submenus
      */
     onMouseEnter?: (e: React.MouseEvent) => void;
-
-    /**
-     * Optional function to call when the mouse leaves the DropdownItem
-     */
-    onMouseLeave?: (e: React.MouseEvent) => void;
 }
 
 /**
@@ -107,7 +103,6 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
             onClick={!disabled ? props.onClick : undefined} 
             title={props.tooltip}
             onMouseEnter={props.onMouseEnter}
-            onMouseLeave={props.onMouseLeave}
         > 
             <div className={classNames('mito-dropdown-item-icon-and-title-container')}>
                 { props.icon !== undefined &&
