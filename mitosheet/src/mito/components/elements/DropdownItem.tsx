@@ -5,6 +5,7 @@ import '../../../../css/elements/DropdownItem.css'
 import { classNames } from '../../utils/classNames';
 import { DROPDOWN_IGNORE_CLICK_CLASS, DROPDOWN_SUPRESS_FOCUS_ON_CLOSE } from './Dropdown';
 import RightArrowIcon from '../icons/RightArrowIcon';
+import CheckmarkIcon from '../icons/CheckmarkIcon';
 
 interface DropdownItemProps {
     /** 
@@ -86,6 +87,18 @@ interface DropdownItemProps {
      * Used for displaying submenus
      */
     onMouseEnter?: (e: React.MouseEvent) => void;
+
+    /**
+     * Optional boolean to display a checkmark next to the DropdownItem
+     */
+    hasCheckMark?: boolean;
+
+    /**
+     * Optional boolean to indicate if there can be a checkmark next to the DropdownItem.
+     * This is used to set the margin of the DropdownItem to align with the other DropdownItems
+     * that have checkmarks. 
+     */
+    canHaveCheckMark?: boolean;
 }
 
 /**
@@ -100,11 +113,13 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
     return (
         <div 
             className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
+            style={(props.canHaveCheckMark && !props.hasCheckMark) ? { paddingLeft: '32px' } : undefined}
             onClick={!disabled ? props.onClick : undefined} 
             title={props.tooltip}
             onMouseEnter={props.onMouseEnter}
         > 
             <div className={classNames('mito-dropdown-item-icon-and-title-container')}>
+                { props.hasCheckMark && <CheckmarkIcon color='var(--mito-text-medium)' width='26' height='13'/> }
                 { props.icon !== undefined &&
                 <div className={classNames('mito-dropdown-item-icon-container')}>
                     {props.icon}

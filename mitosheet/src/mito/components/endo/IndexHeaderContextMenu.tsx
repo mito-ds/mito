@@ -73,8 +73,8 @@ export default function IndexHeaderContextMenu(props: {
                         currOpenDropdown: isCurrOpenDropdown ? undefined : prevUIState.currOpenDropdown
                     }
                 })}>
-                    <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
-                    <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
+                    <DropdownItem hasCheckMark canHaveCheckMark {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
+                    <DropdownItem canHaveCheckMark {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
                 </Dropdown>}
                 {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_DROP_INDEX], props.closeOpenEditingPopups)}/>
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_KEEP_INDEX], props.closeOpenEditingPopups)}/>
