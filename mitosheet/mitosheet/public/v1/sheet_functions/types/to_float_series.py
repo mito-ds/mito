@@ -32,7 +32,7 @@ def convert_string_to_float(
         123,123 are 123123 and 123.123 in America and Europe respectively. We treat this as American for 
         now. 
     5. Million or Billion identifier in the string
-    6. Percentage signs
+    6. Percentage sign in the string
     As these are all heuristics, we do our best. We also try to perform this conversion
     optimistically, as to run as quickly as possible.
     """
