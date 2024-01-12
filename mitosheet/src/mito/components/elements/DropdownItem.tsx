@@ -114,7 +114,12 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
         <div 
             className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
             style={(props.canHaveCheckMark && !props.hasCheckMark) ? { paddingLeft: '32px' } : undefined}
-            onClick={!disabled ? props.onClick : undefined} 
+            onClick={(e) => {
+                e.stopPropagation();
+                if (!disabled) {
+                    props.onClick?.()
+                }
+            }} 
             title={props.tooltip}
             onMouseEnter={props.onMouseEnter}
         > 
