@@ -20,14 +20,11 @@ export default function IndexHeaderContextMenu(props: {
     actions: Actions;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
 }): JSX.Element {
-    const [ currentSubmenu, setCurrentSubmenu ] = React.useState<string | undefined>(undefined);
-
     return (
         <Dropdown
             display={props.display}
             closeDropdown={() => props.setUIState((prevUIState) => {
                 const isCurrOpenDropdown = isCurrOpenDropdownForCell(prevUIState, props.rowIndex, -1);
-                setCurrentSubmenu(undefined);
                 return {
                     ...prevUIState,
                     currOpenDropdown: isCurrOpenDropdown ? undefined : prevUIState.currOpenDropdown
@@ -45,17 +42,6 @@ export default function IndexHeaderContextMenu(props: {
             <DropdownItem
                 {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Delete], props.closeOpenEditingPopups)}
                 title='Delete Row'
-                onMouseEnter={() => setCurrentSubmenu('Delete Row')}
-                subMenu={<Dropdown display={currentSubmenu === 'Delete Row'} position='horizontal' closeDropdown={() => props.setUIState((prevUIState) => {
-                    const isCurrOpenDropdown = isCurrOpenDropdownForCell(prevUIState, props.rowIndex, -1);
-                    return {
-                        ...prevUIState,
-                        currOpenDropdown: isCurrOpenDropdown ? undefined : prevUIState.currOpenDropdown
-                    }
-                })}>
-                    <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
-                    <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
-                </Dropdown>}
             />
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
@@ -64,19 +50,7 @@ export default function IndexHeaderContextMenu(props: {
 
             <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
 
-            <DropdownItem
-                onMouseEnter={() => setCurrentSubmenu('Copy Row')}
-                subMenu={<Dropdown display={currentSubmenu === 'Copy Row'} position='horizontal' closeDropdown={() => props.setUIState((prevUIState) => {
-                    const isCurrOpenDropdown = isCurrOpenDropdownForCell(prevUIState, props.rowIndex, -1);
-                    return {
-                        ...prevUIState,
-                        currOpenDropdown: isCurrOpenDropdown ? undefined : prevUIState.currOpenDropdown
-                    }
-                })}>
-                    <DropdownItem hasCheckMark canHaveCheckMark {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
-                    <DropdownItem canHaveCheckMark {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Copy], props.closeOpenEditingPopups)}/>
-                </Dropdown>}
-                {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_DROP_INDEX], props.closeOpenEditingPopups)}/>
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_DROP_INDEX], props.closeOpenEditingPopups)}/>
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.RESET_AND_KEEP_INDEX], props.closeOpenEditingPopups)}/>
         </Dropdown>
     )
