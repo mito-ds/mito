@@ -4,6 +4,7 @@ import React from 'react';
 import '../../../../css/elements/DropdownItem.css'
 import { classNames } from '../../utils/classNames';
 import { DROPDOWN_IGNORE_CLICK_CLASS, DROPDOWN_SUPRESS_FOCUS_ON_CLOSE } from './Dropdown';
+import RightArrowIcon from '../icons/RightArrowIcon';
 
 interface DropdownItemProps {
     /** 
@@ -73,7 +74,22 @@ interface DropdownItemProps {
         * @param [supressFocusSettingOnClose] - When True, the dropdown does not set the focus on the parent div
         * when this is clicked on. Helpful for items that open inputs
     */
-    supressFocusSettingOnClose?: boolean
+    supressFocusSettingOnClose?: boolean;
+
+    /**
+     * Optional submenu to display when the DropdownItem is hovered over
+     */
+    subMenu?: JSX.Element;
+
+    /**
+     * Optional function to call when the mouse enters the DropdownItem
+     */
+    onMouseEnter?: (e: React.MouseEvent) => void;
+
+    /**
+     * Optional function to call when the mouse leaves the DropdownItem
+     */
+    onMouseLeave?: (e: React.MouseEvent) => void;
 }
 
 /**
@@ -83,13 +99,15 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
 
     const disabled = props.disabled === true  
     const hideSubtext = props.hideSubtext === true
-    const displaySubtextOnHover = props.displaySubtextOnHover === true
+    const displaySubtextOnHover = props.displaySubtextOnHover === true;
     
     return (
         <div 
             className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
             onClick={!disabled ? props.onClick : undefined} 
             title={props.tooltip}
+            onMouseEnter={props.onMouseEnter}
+            onMouseLeave={props.onMouseLeave}
         > 
             <div className={classNames('mito-dropdown-item-icon-and-title-container')}>
                 { props.icon !== undefined &&
@@ -106,6 +124,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                             {props.title}
                         </p>
                     </span>
+                    {props.subMenu && <RightArrowIcon/>}
                     {props.rightText &&
                         <span className={classNames('mito-dropdown-item-right-text', 'text-body-2')}>
                             {props.rightText}
@@ -127,6 +146,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                     {props.subtext}
                 </div>
             }
+            {props.subMenu}
         </div>
     )
 } 
