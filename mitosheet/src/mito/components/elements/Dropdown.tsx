@@ -74,7 +74,9 @@ interface DropdownProps {
      */
     width?: Width;
 
-    theme?: MitoTheme
+    theme?: MitoTheme;
+
+    position?: 'horizontal' | 'vertical';
 }
 
 // Where to place the dropdown
@@ -374,33 +376,42 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             right: undefined,
             left: undefined 
         };
-        if (topInBounds(parentBottom) && leftInBounds(parentLeft, widthPixels)) {
+        if (props.position === 'vertical' || props.position === undefined) {
+            if (topInBounds(parentBottom) && leftInBounds(parentLeft, widthPixels)) {
+                newBoundingRect = {
+                    top: parentBottom,
+                    bottom: undefined,
+                    right: undefined,
+                    left: parentLeft
+                }
+            } else if (topInBounds(parentBottom) && rightInBounds(parentRight, widthPixels)) {
+                newBoundingRect = {
+                    top: parentBottom,
+                    bottom: undefined,
+                    right: window.innerWidth - parentRight,
+                    left:  undefined
+                }
+            } else if (bottomInBounds(parentTop) && leftInBounds(parentLeft, widthPixels)) {
+                newBoundingRect = {
+                    top: undefined,
+                    bottom: window.innerHeight - parentTop,
+                    right: undefined,
+                    left: parentLeft
+                }
+            } else {
+                newBoundingRect = {
+                    top: undefined,
+                    bottom: window.innerHeight - parentTop,
+                    right: window.innerWidth - parentRight,
+                    left:  undefined
+                }
+            }
+        } else { // This is the horizontal case
             newBoundingRect = {
-                top: parentBottom,
+                top: parentTop,
                 bottom: undefined,
                 right: undefined,
-                left: parentLeft
-            }
-        } else if (topInBounds(parentBottom) && rightInBounds(parentRight, widthPixels)) {
-            newBoundingRect = {
-                top: parentBottom,
-                bottom: undefined,
-                right: window.innerWidth - parentRight,
-                left:  undefined
-            }
-        } else if (bottomInBounds(parentTop) && leftInBounds(parentLeft, widthPixels)) {
-            newBoundingRect = {
-                top: undefined,
-                bottom: window.innerHeight - parentTop,
-                right: undefined,
-                left: parentLeft
-            }
-        } else {
-            newBoundingRect = {
-                top: undefined,
-                bottom: window.innerHeight - parentTop,
-                right: window.innerWidth - parentRight,
-                left:  undefined
+                left: parentRight
             }
         }
 
