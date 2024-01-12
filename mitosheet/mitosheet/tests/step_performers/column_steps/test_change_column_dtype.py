@@ -112,6 +112,7 @@ STRING_TESTS = [
     ('float64', [1.0, 2.1, -3.2], 'df1[\'A\'] = to_float_series(df1[\'A\'])'),  
     ('str', ["$1", "2.1", "(3.2)"], None), 
     ('object', ["$1", "2.1", "(3.2)"], None), 
+    ('string', ["$1", "2.1", "(3.2)"], None),
     ('datetime', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
     ('datetime64[ns]', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
     ('timedelta', [pd.to_timedelta('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_timedelta(df1[\'A\'], errors=\'coerce\')'), 
