@@ -5,5 +5,5 @@
   Note: Each of them __must__ start with `plausible-event-name=`
 */
 
-export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER = 'plausible-event-name=install_docs_cta_pressed_location=header'
-export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY = 'plausible-event-name=install_docs_cta_pressed_location=excel_to_python_glossary'
+export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER = 'plausible-event-name=install_docs_cta_pressed+location_header'
+export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY = 'plausible-event-name=install_docs_cta_pressed+location_excel_to_python_glossary'
