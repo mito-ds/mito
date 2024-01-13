@@ -138,7 +138,6 @@ jobs:
 
         npm install
         npm run build
-
     - name: Start a server and run tests (ubuntu, macos)
       if: matrix.os != 'windows-latest'
       run: |
