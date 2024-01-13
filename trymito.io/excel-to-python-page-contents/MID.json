@@ -44,7 +44,7 @@
         ],
         "codeSections": [
             {
-                "title": "Extracting Substrings from the Middle of Strings",
+                "title": "Parsing characters from the middle of strings",
                 "shortTitle": "Middle Substrings",
                 "paragraphs": [
                     "In Excel, you'd use =MID(A1, 5, 3) to extract three characters starting from the fifth character.",
@@ -56,7 +56,7 @@
                 ]
             },
             {
-                "title": "Extracting Prefixes",
+                "title": "Extracting characters from the start of a string (prefixes)",
                 "shortTitle": "Extracting Prefixes",
                 "paragraphs": [
                     "In Excel, you can use =MID(A1, 1, 3) to extract the first three characters.",
@@ -68,7 +68,7 @@
                 ]
             },
             {
-                "title": "Extracting Suffixes",
+                "title": "Extracting characters from the end of a string (suffixes)",
                 "shortTitle": "Extracting Suffixes",
                 "paragraphs": [
                     "In Excel, you can use =MID(A1, 5, LEN(A1)) to extract all characters starting from the fifth character.",

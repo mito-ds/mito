@@ -49,7 +49,18 @@
         ],
         "codeSections": [
             {
-                "title": "Basic Rounding",
+                "title": "Round to nearest whole number",
+                "shortTitle": "Nearest int",
+                "paragraphs": [
+                    "To round to the nearest whole number, you can use the the build in `round` function in Python."
+                ],
+                "codeLines": [
+                    "# Round number to nearest whole number",
+                    "round(2.5)"
+                ]
+            },
+            {
+                "title": "Round to 2 decimal places",
                 "shortTitle": "Basic Rounding",
                 "paragraphs": [
                     "Similar to how =ROUND(A1, 2) rounds the value in cell A1 to 2 decimal places in Excel, in pandas, you use the `round` function.",
@@ -91,8 +102,8 @@
                 ]
             },
             {
-                "title": "Rounding Up",
-                "shortTitle": "Rounding Up",
+                "title": "Round up to next integer",
+                "shortTitle": "Round Up",
                 "paragraphs": [
                     "In Excel, you might use the =ROUNDUP(A1, 0) to round a value up. In pandas, for rounding up, you can use the `numpy.ceil` function."
                 ],
@@ -102,8 +113,8 @@
                 ]
             },
             {
-                "title": "Rounding Down",
-                "shortTitle": "Rounding Down",
+                "title": "Rounding down to previous integer",
+                "shortTitle": "Round Down",
                 "paragraphs": [
                     "To round values down in Excel, you might use =ROUNDDOWN(A1, 0). In pandas, you can achieve rounding down with the `numpy.floor` function."
                 ],

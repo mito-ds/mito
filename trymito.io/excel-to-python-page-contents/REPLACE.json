@@ -1,13 +1,13 @@
 {
     "slug": ["functions", "text", "REPLACE"],
-    "functionNameShort": "REPLACE",
+    "functionNameShort": "REPLACE, SUBSITUTE",
     "functionNameLong": "replace",
-    "relatedFunctions": ["SUBSTITUTE", "FILLNA", "FIND"],
+    "relatedFunctions": ["FILLNA", "FIND", "IF"],
     "purpose": "Replaces characters in a string by location.",
     "titleCardParagraphs": [
         "There are several formulas in Excel designed to help you replace characters in a string.", 
         "The REPLACE function in Excel replaces characters in a string by location.",
-        "The SUBSTITUTE function in Excel replaces chracters in strring by finding matching substrings."
+        "The SUBSTITUTE function in Excel replaces chracters in string by finding matching substrings."
     ],
     "excelExplanation": {
         "paragraphs": [
@@ -98,13 +98,31 @@
                 ]
             },
             {
-                "title": "Replacing specific values in a column",
-                "shortTitle": "Specific values",
+                "title": "Substituting specific values in a column",
+                "shortTitle": "Substitute values",
                 "paragraphs": [
                     "To replace specific values in a column in Excel, you'd use the 'Find & Replace' feature or the SUBSTITUTE formula instead of the REPLACE functionality.",
-                    "For more extensive documentation on the SUBSTITUTE formula, refer to the SUBSTITUTE page."
+                    "Instead of replacing characters by location, the SUBSTITUTE formula replaces characters by finding matching substrings. To do the same in Pandas, you can use the replace method."
                 ],
-                "codeLines": []
+                "codeLines": [
+                    "# Replace old_text with new_text",
+                    "df['column_name'] = df['column_name'].replace(old_text, new_text)"
+                ]
+            },
+            {
+                "title": "Substitute multiple values in a column using a mapping",
+                "shortTitle": "Substitute multiple values",
+                "paragraphs": [
+                    "To replace multiple values, you can pass a dictionary to the replace method. The keys of the dictionary will be replaced by the corresponding values.",
+                    "For example, to replace 'NYC' with 'New York City' and 'LA' with 'Los Angeles', you could use the following code:"
+                ],
+                "codeLines": [
+                    "# Replace multiple values using a dictionary",
+                    "df['column_name'] = df['column_name'].replace({",
+                    "    'NYC': 'New York City',",
+                    "    'LA': 'Los Angeles'",
+                    "})"
+                ]
             }
         ]
     },

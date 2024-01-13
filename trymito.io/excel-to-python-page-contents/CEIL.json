@@ -1,0 +1,126 @@
+{
+    "slug": ["functions", "math", "CEIL"],
+    "functionNameShort": "CEIL",
+    "functionNameLong": "Ceiling Function",
+    "relatedFunctions": ["FLOOR", "ROUND"],
+    "purpose": "Round a number up to the nearest integer",
+    "titleCardParagraphs": [
+        "The CEIL function in Excel rounds a number up to the nearest integer. This function is crucial in scenarios where precision to the nearest whole number is required, like in inventory management or budget planning.",
+        "This page explains how to use Excel's CEIL function in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The CEIL function in Excel takes a number and rounds it *up* to the nearest integer.",
+            "=CEILING.MATH(number)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number",
+                "description": "The number you want to round up.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=CEIL(2.3)",
+                "description": "Rounds 2.3 up to the nearest integer.",
+                "result": "3"
+            },
+            {
+                "formula": "=CEIL(-2.3)",
+                "description": "Rounds -2.3 up to the nearest integer.",
+                "result": "-2"
+            },
+            {
+                "formula": "=CEIL(2)",
+                "description": "Rounds 2 up to the nearest integer.",
+                "result": "2"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate the CEIL function in Excel using Python and pandas, we can use various techniques depending on the data structure and requirement. Here are some common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Round a single value to the next integer",
+                "shortTitle": "Single value",
+                "paragraphs": [
+                    "For a single value, use numpy's ceil function to round it up to the nearest integer.",
+                    "The following code demonstrates how to round a single value:"
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "",
+                    "number = 2.3",
+                    "ceil_value = np.ceil(number)"
+                ]
+            },
+            {
+                "title": "Round every value in a pandas DataFrame to the next highest value",
+                "shortTitle": "Column values",
+                "paragraphs": [
+                    "If instead, you want to apply CEIL to an entire column of data, you can use the same approach as above, but on the column instead of a single value."
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "",
+                    "df = pd.DataFrame({'Values': [2.3, 3.6, 4.1, 5.9]})",
+                    "df['Ceil_Values'] = np.ceil(df['Values'])"
+                ]
+            },
+            {
+                "title": "Ceiling of Aggregated Values",
+                "shortTitle": "Aggregated values",
+                "paragraphs": [
+                    "In some cases, you may want to aggregate data and then apply the CEIL function. This might be relevant in scenarios like summing up sales figures before rounding.",
+                    "The example below shows how to apply CEIL to the sum of a column:"
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "",
+                    "df = pd.DataFrame({'Sales': [200.5, 399.3, 150.2, 499.9]})",
+                    "total_sales = np.ceil(df['Sales'].sum())"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Implementing the CEIL function in pandas can lead to common pitfalls if not handled correctly. Here are some of the frequent mistakes and how to avoid them."
+        ],
+        "codeSections": [
+            {
+                "title": "Confusing CEIL and ROUND",
+                "shortTitle": "CEIL vs ROUND",
+                "paragraphs": [
+                    "A common mistake is confusing the CEIL function with the ROUND function. CEIL always rounds up, while ROUND rounds to the nearest integer. It's important to choose the correct function based on your rounding requirements."
+                ],
+                "codeLines": [
+                    "# Correct use of CEIL",
+                    "np.ceil(2.3) # Returns 3",
+                    "",
+                    "# Incorrect use (if CEIL is intended)",
+                    "np.round(2.3) # Returns 2"
+                ]
+            },
+            {
+                "title": "Applying CEIL Without Vectorization",
+                "shortTitle": "Non-vectorized CEIL",
+                "paragraphs": [
+                    "Applying CEIL in a non-vectorized way (e.g., using loops) can lead to inefficient code. Pandas and NumPy are designed for vectorized operations, which are much faster and more efficient.",
+                    "Here's how to properly vectorize the CEIL function:"
+                ],
+                "codeLines": [
+                    "# Using for loops (inefficient)",
+                    "for index, row in df.iterrows():",
+                    "   df.loc[index, 'Ceil_Values'] = np.ceil(row['Values'])",
+                    "",
+                    "# Vectorized approach (efficient)",
+                    "df['Ceil_Values'] = np.ceil(df['Values'])"
+                ]
+            }
+        ]
+    }
+}

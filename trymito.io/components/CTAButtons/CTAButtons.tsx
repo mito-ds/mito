@@ -12,6 +12,7 @@ const CTAButtons = (props: {
     displaySecondaryCTA?: boolean
     secondaryCTA?: 'pro' | 'learn more',
     ctaText?: string,
+    textButtonClassName?: string
 }): JSX.Element => {
 
     const displaySecondaryCTA = props.displaySecondaryCTA ?? true; 
@@ -25,18 +26,21 @@ const CTAButtons = (props: {
                 <TextButton 
                     text={props.ctaText || 'Install Mito'}
                     href={MITO_INSTALLATION_DOCS_LINK}
+                    className={props.textButtonClassName}
                 />
             }
             {props.variant === 'try jupyterlite' && 
                 <TextButton 
                     text={props.ctaText || 'Try Mito'}
                     href={JUPYTERLITE_MITO_LINK}
+                    className={props.textButtonClassName}
                 />
             }
             {props.variant === 'contact' && 
                 <TextButton 
                     text={props.ctaText || 'Contact the Mito Team'}
                     href="mailto:founders@sagacollab.com"
+                    className={props.textButtonClassName}
                 />
             }
             

@@ -230,33 +230,6 @@ const PythonTraining: NextPage = () => {
                             <h2>
                                 Python Trainings for Finance
                             </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Trainings for Wealth Management 
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Trainings for Insurance
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Trainings for Banking
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Trainings for FP&A
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Training for Business Analysts
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Training for Excel users
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Training for IB
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Training for Risk Management
-                            </h2>
-                            <h2 style={{'display': 'none'}}>
-                                Python Training for Actuarial Scienctists
-                            </h2>
                             <p> 
                                 Mito is the foundation of Python training programs at some of the world&apos;s largest companies. From bulge bracket banks to e-commerce giants, from New York to Singapore, Mito has helped thousands of analysts automate their spreadsheets with Python.
                             </p>
