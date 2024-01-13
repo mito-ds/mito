@@ -92,7 +92,7 @@ def cast_string_to_float(
         # Handle case 5, if there is a million or billion identifier in the number
         million_identifer = get_million_identifier_in_string(s)
         billion_identifier = get_billion_identifier_in_string(s)
-        multiplier = 1
+        multiplier = 1.0
 
         if million_identifer != None:
             multiplier = 1000000
