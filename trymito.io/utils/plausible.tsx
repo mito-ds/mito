@@ -6,4 +6,4 @@
 */
 
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER = 'plausible-event-name=install_docs_cta_pressed_location=header'
-export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY = 'plausible-event-name=isntall_docs_cta_pressed_location=excel-to-python-glossary'
+export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY = 'plausible-event-name=install_docs_cta_pressed_location=excel_to_python_glossary'
