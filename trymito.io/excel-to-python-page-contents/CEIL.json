@@ -44,7 +44,7 @@
         ],
         "codeSections": [
             {
-                "title": "Ceiling of a Single Value",
+                "title": "Round a single value to the next integer",
                 "shortTitle": "Single value",
                 "paragraphs": [
                     "For a single value, use numpy's ceil function to round it up to the nearest integer.",
@@ -58,7 +58,7 @@
                 ]
             },
             {
-                "title": "Ceiling of DataFrame Column Values",
+                "title": "Round every value in a pandas DataFrame to the next highest value",
                 "shortTitle": "Column values",
                 "paragraphs": [
                     "If instead, you want to apply CEIL to an entire column of data, you can use the same approach as above, but on the column instead of a single value."
