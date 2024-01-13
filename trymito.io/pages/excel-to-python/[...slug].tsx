@@ -28,6 +28,7 @@ import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY } from '../../utils/plausible';
 require('prismjs/components/prism-python');
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
@@ -311,7 +312,12 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
               <p className={classNames('text-primary', 'margin-bottom-1')}>
                 <b>Don&apos;t re-invent the wheel. Use Excel formulas in Python.</b> 
               </p>
-              <TextButton text={'Install Mito'} href={MITO_INSTALLATION_DOCS_LINK} buttonSize='small'/>
+              <TextButton 
+                text={'Install Mito'} 
+                href={MITO_INSTALLATION_DOCS_LINK} 
+                className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY}
+                buttonSize='small'
+              />
             </div>
           </div>
           
@@ -321,7 +327,12 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                 Don&apos;t want to re-implement Excel&apos;s functionality in Python?
               </h2>
               <div className='center'>
-                <CTAButtons variant='download' align='center' secondaryCTA='learn more'/>
+                <CTAButtons 
+                  variant='download' 
+                  align='center' 
+                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY} 
+                  secondaryCTA='learn more'
+                />
               </div> 
             </div>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline, excelToPythonStyles.cta_functionality_card, 'display-desktop-only-flex')}>

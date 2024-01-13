@@ -7,15 +7,11 @@ import CloseButton from '../../public/CloseButton.png'
 import TranslucentButton from "../TranslucentButton/TranslucentButton"
 import GithubButton, { MITO_GITHUB_LINK } from "../GithubButton/GithubButton"
 import { classNames } from "../../utils/classNames"
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER } from "../../utils/plausible"
 
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'
 
-/* 
-  In order to measure the effectiveness of the docs CTA, we add a custom css tag to all docs cta buttons 
-  which plausible will track as a custom event. See here for more info: https://plausible.io/docs/custom-event-goals
-*/
-export const PLAUSIBLE_INSTALLATION_DOCS_LINK_CLASS_IDENTIFIER = 'plausible-event-name=docs_cta_pressed'
 
 const HeaderDropdownItem = (props: {
   title: string,
@@ -177,7 +173,7 @@ const Header = (): JSX.Element => {
               />              
               <TranslucentButton
                 href={MITO_INSTALLATION_DOCS_LINK}
-                className={PLAUSIBLE_INSTALLATION_DOCS_LINK_CLASS_IDENTIFIER}
+                className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER}
               >
                 <>
                   Install

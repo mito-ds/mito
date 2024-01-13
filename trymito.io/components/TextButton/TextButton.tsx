@@ -10,6 +10,7 @@ const TextButton = (props : {
     fontSize?: 'small'
     buttonSize?: 'small' 
     openInNewTab?: boolean
+    className?: string
 }): JSX.Element => {
 
     const colorStyle = props.variant === 'primary' ? textButtonStyles.primary : textButtonStyles.highlight;
@@ -20,7 +21,7 @@ const TextButton = (props : {
     if (props.action === undefined) {
         return (
             <a 
-                className={classNames(textButtonStyles.text_button, colorStyle, fontStyle, widthStyle)} 
+                className={classNames(textButtonStyles.text_button, colorStyle, fontStyle, widthStyle, props.className)} 
                 href={props.href}
                 target={openInNewTab ? "_blank": undefined}
                 rel="noreferrer"
@@ -32,7 +33,7 @@ const TextButton = (props : {
     } else {
         return (
             <form action={props.action} method="POST" target={openInNewTab ? "_blank": undefined}>
-                <button className={classNames(textButtonStyles.text_button, colorStyle, fontStyle, widthStyle)} type="submit">
+                <button className={classNames(textButtonStyles.text_button, colorStyle, fontStyle, widthStyle, props.className)} type="submit">
                     {props.text}
                 </button>
             </form>
