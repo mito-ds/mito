@@ -70,6 +70,7 @@ jobs:
         project: ['chromium', 'firefox', 'webkit', 'Google Chrome', 'Microsoft Edge']
         exclude:
           - os: 'windows-latest'
+            project: webkit
           - os: 'macos-latest'
             project: 'Microsoft Edge'
           - os: 'ubuntu-latest'
