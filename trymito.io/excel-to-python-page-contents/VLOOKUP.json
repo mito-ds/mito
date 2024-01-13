@@ -54,7 +54,7 @@
         ],
         "codeSections": [
             {
-                "title": "Single condition merge",
+                "title": "Join dataframes together using a single condition",
                 "shortTitle": "Basic Lookup",
                 "paragraphs": [
                     "In Excel, you would use the VLOOKUP function to add data from one table into another, based on a matching value.",
@@ -94,7 +94,7 @@
                 ]
             },
             {
-                "title": "Multiple conditions",
+                "title": "Merge dataframes using mulitple conditions (merge keys)",
                 "shortTitle": "Multiple condition lookup",
                 "paragraphs": [
                     "Sometimes it's not enough to match based on a single column. For example, in the previous example if instead of having a Name column, you had a First Name and Last Name column, you'd want to use both columns to match the data.",
@@ -142,7 +142,7 @@
                 ]
             },
             {
-                "title": "Fuzzy Match Vlookup",
+                "title": "Fuzzy Match Vlookup to combine dataframes using approximate matches",
                 "shortTitle": "Fuzzy VLOOKUP",
                 "paragraphs": [
                     "In some cases, you may not have an exact match for your VLOOKUP key. In this case, fuzzy matching can be useful. Fuzzy matching is a technique that finds approximate matches for records. For example, if the names in our grades table contained nicknames or misspellings, we could use fuzzy matching to match A-A-Ron to Aaron.",
