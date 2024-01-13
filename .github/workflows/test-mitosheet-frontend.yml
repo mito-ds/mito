@@ -113,7 +113,7 @@ jobs:
       run: |
         $streamlitDir = "$HOME\.streamlit"
         if (-not (Test-Path -Path $streamlitDir)) {
-          NewItem -ItemType Directory -Path $streamlitDir
+          New-Item -ItemType Directory -Path $streamlitDir
         }
         Set-Content -Path "$streamlitDir\credentials.toml" -Value @"
         [general]
