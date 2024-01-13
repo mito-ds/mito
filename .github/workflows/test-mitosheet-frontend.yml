@@ -101,12 +101,23 @@ jobs:
         bash mac-setup.sh
         source venv/bin/activate
         pip install -r extra-requirements.txt
-    - name: Setup streamlit
+    - name: Setup streamlit (ubuntu, macos)
       if: matrix.os != 'windows-latest'
       run: |
         mkdir -p ~/.streamlit/
         echo "[general]"  > ~/.streamlit/credentials.toml
         echo "email = \"\""  >> ~/.streamlit/credentials.toml
+    - name: Setup streamlit (windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        $streamlitDir = "$HOME\.streamlit"
+        if (-not (Test-Path -Path $streamlitDir)) {
+          NewItem -ItemType Directory -Path $streamlitDir
+        }
+        Set-Content -Path "$streamlitDir\credentials.toml" -Value @"
+        [general]
+        email = ""
+        "@
     - name: Install dependencies (windows)
       if: matrix.os == 'windows-latest'
       run: |
@@ -128,12 +139,19 @@ jobs:
         npm run build
 
     - name: Start a server and run tests (ubuntu, macos)
-      shell: bash
+      if: matrix.os != 'windows-latest'
       run: |
         cd tests
         source venv/bin/activate
         streamlit run streamlit_test.py --server.port 8555 &
         bash check_server.sh
+        npm run test:streamlit -- --project="${{ matrix.project }}"
+    - name: Start a server and run tests (windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd tests
+        .\venv\Scripts\Activate.ps1
+        Start-Job { streamlit run streamlit_test.py --server.port 8555 } -WorkingDirectory (Get-Location)
         npm run test:streamlit -- --project="${{ matrix.project }}"
     - name: Upload test-results
       uses: actions/upload-artifact@v3
