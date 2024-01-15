@@ -19,6 +19,7 @@ import DocsIcon from '../public/icon-squares/DocsIcon.svg'
 import PrivateIcon from '../public/icon-squares/PrivateIcon.svg'
 import Link from 'next/link';
 import CalendarDay from '../components/CalendarDay/CalendarDay';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 
 
 const Teams: NextPage = () => {
@@ -45,7 +46,7 @@ const Teams: NextPage = () => {
                     Onboard in minutes, save your team days per month
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' align='center'/>
+                    <CTAButtons variant='contact' align='center' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
                 </div>
             </section>
             <section style={{marginTop: '4rem'}}>

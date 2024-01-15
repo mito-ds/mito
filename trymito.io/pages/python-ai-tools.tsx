@@ -11,10 +11,10 @@ import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 
 // Import Icons & Background Grid
-import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import FAQCard from '../components/FAQCard/FAQCard';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 
 const PythonAITools: NextPage = () => {
 
@@ -38,7 +38,7 @@ const PythonAITools: NextPage = () => {
               <p className={classNames(titleStyles.subtitle)}>
                 Analyze your data with the confidence of a Python expert by your side
               </p>
-              <CTAButtons variant={'download'} align='left'/>
+              <CTAButtons variant={'download'} align='left' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
             </div>
             <div className={classNames(spreadsheetAutomationStyles.video_wrapper, 'margin-top-8rem-mobile-only', 'margin-left-8rem-desktop-only')}>
                 <div className={spreadsheetAutomationStyles.video_container}>

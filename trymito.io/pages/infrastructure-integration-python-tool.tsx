@@ -13,6 +13,7 @@ import { classNames } from '../utils/classNames';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Link from 'next/link';
 import ContactCTACard from '../components/CTACards/ContactCTACard';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 
 const InfrastructureIntegrationPythonTool: NextPage = () => {
 
@@ -39,7 +40,7 @@ const InfrastructureIntegrationPythonTool: NextPage = () => {
                 </p>
                     
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' align='center' displaySecondaryCTA={false}/>
+                    <CTAButtons variant='contact' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
                 </div>
                     
                 <div id='video'>

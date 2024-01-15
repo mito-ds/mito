@@ -17,6 +17,7 @@ import { classNames } from '../utils/classNames';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Link from 'next/link';
 import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 
 const Home: NextPage = () => {
 
@@ -50,7 +51,7 @@ const Home: NextPage = () => {
               </h2>
               
               <div className={homeStyles.cta_button_and_video_spacer}>
-                <CTAButtons variant='download' align='center'/>
+                <CTAButtons variant='download' align='center' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
               </div>
               
               <iframe

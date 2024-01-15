@@ -22,6 +22,7 @@ import dataIconPurple from '../../public/python-training/data_purple.svg';
 import fastClockIcon from '../../public/python-training/fast_clock.svg';
 import infoIcon from '../../public/python-training/info.svg';
 import React, { useEffect, useState } from 'react';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../../utils/plausible';
 
 const PythonTraining: NextPage = () => {
 
@@ -52,7 +53,7 @@ const PythonTraining: NextPage = () => {
                     <p className={classNames(titleStyles.subtitle)}>
                         Leverage Excel skills to build Python automations.
                     </p>
-                    <CTAButtons variant={'contact'} align='left' displaySecondaryCTA={false}/>
+                    <CTAButtons variant={'contact'} align='left' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
                     </div>
                     <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
                     <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>

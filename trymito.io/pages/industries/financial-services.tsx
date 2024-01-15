@@ -18,6 +18,7 @@ import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../../components/CTACards/DownloadCTACard';
 import Footer from '../../components/Footer/Footer';
 import Link from 'next/link';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../../utils/plausible';
 
 const Security: NextPage = () => {
 
@@ -41,7 +42,7 @@ const Security: NextPage = () => {
                         <p className={titleStyles.description}>
                             The world&apos;s largest financial institutions are already using Mito to automate their spreadsheets.
                         </p>
-                        <CTAButtons variant={'download'} align='center'/>
+                        <CTAButtons variant={'download'} align='center' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
                     </section>
 
                     <section>
