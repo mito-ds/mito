@@ -28,6 +28,7 @@ from mitosheet.enterprise.mito_config import (
     MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
     MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
     MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
+    MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
     MITO_CONFIG_FEATURE_TELEMETRY,
     MITO_CONFIG_PRO,
     MitoConfig
@@ -73,6 +74,7 @@ def test_none_works():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True,
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
@@ -112,6 +114,7 @@ def test_version_2_works():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True, 
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
@@ -138,6 +141,7 @@ def test_mito_config_update_version_1_to_2():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True, 
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
@@ -164,6 +168,7 @@ def test_mito_config_enable_snowflake_import():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True, 
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
@@ -190,6 +195,7 @@ def test_mito_config_dont_display_snowflake_import():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True, 
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
@@ -200,10 +206,12 @@ def test_mito_config_dont_display_snowflake_import():
 
     delete_all_mito_config_environment_variables()
 
-def test_mito_config_dont_display_ai_transform():
+def test_mito_config_dont_display_ai_transform_and_scheduling():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION] = "False"
+    os.environ[MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING] = "False"
+
     
     mito_config = MitoConfig()
     assert mito_config.get_mito_config() == {
@@ -214,6 +222,7 @@ def test_mito_config_dont_display_ai_transform():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: False,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: False,
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_FEATURE_TELEMETRY: True,
