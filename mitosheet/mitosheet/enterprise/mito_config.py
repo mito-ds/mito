@@ -265,8 +265,8 @@ class MitoConfig:
         
         if self.mec is not None:
             raw_display_scheduling = self.mec[MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING]
-            display_snowflake_import = is_env_variable_set_to_true(raw_display_scheduling)
-            return display_snowflake_import if raw_display_scheduling is not None else True # default to True
+            display_scheduling = is_env_variable_set_to_true(raw_display_scheduling)
+            return display_scheduling if raw_display_scheduling is not None else True # default to True
         
         return True
 
