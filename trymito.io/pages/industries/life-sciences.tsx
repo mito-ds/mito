@@ -16,6 +16,7 @@ import { classNames } from '../../utils/classNames';
 import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import FAQCard from '../../components/FAQCard/FAQCard';
 import ContactCTACard from '../../components/CTACards/ContactCTACard';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../../utils/plausible';
 
 const LifeSciences: NextPage = () => {
 
@@ -39,7 +40,7 @@ const LifeSciences: NextPage = () => {
               <p className={classNames(titleStyles.subtitle)}>
                 Intuitive Python automation tools that let you focus on the science.
               </p>
-              <CTAButtons variant={'download'} align='left'/>
+              <CTAButtons variant={'download'} align='left' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
             </div>
             <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
               <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>

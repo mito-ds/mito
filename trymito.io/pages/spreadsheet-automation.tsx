@@ -22,6 +22,7 @@ import FilterIcon from '../public/step-icons/FilterIcon.svg';
 import Link from 'next/link';
 import { useState } from 'react';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 
 
 
@@ -49,7 +50,7 @@ const SpreadsheetAutomation: NextPage = () => {
               <p className={titleStyles.subtitle}>
                 Automate your spreadsheets in hours, not months.
               </p>
-              <CTAButtons variant={'download'} align='left'/>
+              <CTAButtons variant={'download'} align='left' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
             </div>
             <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
               <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
