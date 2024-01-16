@@ -134,69 +134,6 @@ export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: 
     return sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
 }
 
-/*
-    A helper function for getting the params for the graph for this sheet when
-    opening the graphing taskpane, or when switching to a sheet.
-
-    Notably, will filter oout any columns that are no longer in the dataset, 
-    which stops the user from having invalid columns selected in their graph
-    params.
-*/
-// export const getGraphParams = (   
-//     graphDataArray: graphDataArray,
-//     graphID: GraphID,
-//     selectedSheetIndex: number,
-//     sheetDataArray: SheetData[],
-//     selectedColumnIds?: ColumnID[]
-// ): GraphParamsFrontend => {
-
-//     const graphParamsCopy: GraphParamsFrontend = { 
-//         graphCreation: {
-//             graph_type: GraphType.BAR,
-//             sheet_index: 0,
-//             x_axis_column_ids: [],
-//             y_axis_column_ids: [],
-//         },
-//         graphStyling: {
-//         },
-//         graphPreprocessing: {}
-//     }; 
-
-//     // If the graph already exists, get the data source sheet index from the graph params.
-//     // Otherwise create a new graph of the selectedSheetIndex
-//     const graphDataSourceSheetIndex = graphParamsCopy !== undefined ? graphParamsCopy.graphCreation.sheet_index : selectedSheetIndex
-
-//     // If the graph already exists, retrieve the graph params that still make sense. In other words, 
-//     // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
-//     if (graphParamsCopy !== undefined) {
-//         // Filter out column headers that no longer exist
-//         const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
-//         const xAxisColumnIDs = intersection(
-//             validColumnIDs,
-//             graphParamsCopy.graphCreation.x_axis_column_ids
-//         )
-//         const yAxisColumnIDs = intersection(
-//             validColumnIDs,
-//             graphParamsCopy.graphCreation.y_axis_column_ids
-//         )
-//         const color = graphParamsCopy.graphCreation.color !== undefined && validColumnIDs.includes(graphParamsCopy.graphCreation.color) ? graphParamsCopy.graphCreation.color : undefined
-
-        
-//         return {
-//             ...graphParamsCopy,
-//             graphCreation: {
-//                 ...graphParamsCopy.graphCreation,
-//                 x_axis_column_ids: xAxisColumnIDs,
-//                 y_axis_column_ids: yAxisColumnIDs,
-//                 color: color
-//             }
-//         }
-//     }
-
-//     // If the graph does not already exist, create a default graph.
-//     return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex, undefined, selectedColumnIds);
-// }
-
 // Returns a list of dropdown items. Selecting them sets the color attribute of the graph.
 // Option 'None' always comes first.
 export const getColorDropdownItems = (

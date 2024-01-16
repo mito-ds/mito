@@ -198,6 +198,7 @@ const GraphSidebar = (props: {
                                 setGraphParams={setGraphParams}
                                 uiState={props.uiState}
                                 mitoAPI={props.mitoAPI}
+                                graphID={props.graphID}
                                 sheetDataArray={props.sheetDataArray}
                                 dfNames={props.dfNames}
                                 columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}

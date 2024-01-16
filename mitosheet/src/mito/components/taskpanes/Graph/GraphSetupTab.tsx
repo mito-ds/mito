@@ -2,7 +2,7 @@
 
 import React, { Fragment } from 'react';
 import { MitoAPI } from '../../../api/api';
-import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphID, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DataframeSelect from '../../elements/DataframeSelect';
@@ -77,6 +77,7 @@ function GraphSetupTab(
         columnDtypesMap: Record<string, string>;
         columnIDsMapArray: ColumnIDsMap[],
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+        graphID: GraphID;
         setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
     }): JSX.Element {
 
@@ -198,7 +199,7 @@ function GraphSetupTab(
                     sheetIndex={graphSheetIndex}
                     onChange={(newSheetIndex) => {
                         // Reset the graph params for the new sheet, but keep the graph type!
-                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newSheetIndex, props.graphParams.graphCreation.graph_type)
+                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newSheetIndex, props.graphID, props.graphParams.graphCreation.graph_type)
 
                         props.setGraphParams(newSheetGraphParams)
                     }}
