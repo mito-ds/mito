@@ -37,7 +37,8 @@ const GraphSidebar = (props: {
     graphSidebarTab?: GraphSidebarTab,
     selectedColumnsIds?: ColumnID[]
 }): JSX.Element => {
-    const {params: graphParams, setParams: setGraphParams } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
+
+    const {params: graphParams, setParams: setGraphParams, startNewStep } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
         () => props.existingParams ?? getDefaultGraphParams(props.sheetDataArray, props.uiState.selectedSheetIndex, props.graphID, props.graphType, props.selectedColumnsIds),
         StepType.Graph,
         props.mitoAPI,
@@ -53,6 +54,36 @@ const GraphSidebar = (props: {
             doNotSendDefaultParams: props.existingParams !== undefined,
         }
     )
+
+    /*
+         If the props.graphID changes, which happens when opening a graph:
+         1. reset the stepID so we don't overwrite the previous edits.
+         2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
+         3. update the graphUpdateNumber so the graph refreshes
+     */
+    useEffect(() => {
+        const refreshParams = async () => {
+            const response = await props.mitoAPI.getGraphParams(props.graphID);
+            const existingParamsBackend = 'error' in response ? undefined : response.result;
+            if (existingParamsBackend !== undefined) {
+                const newParams = convertBackendtoFrontendGraphParams(existingParamsBackend);
+                setGraphParams(newParams);
+            } else {
+                setGraphParams(
+                    getDefaultGraphParams(
+                        props.sheetDataArray, 
+                        props.uiState.selectedSheetIndex, 
+                        props.graphID, 
+                        props.graphType, 
+                        props.selectedColumnsIds
+                    )
+                );
+            }
+            startNewStep()
+        }
+
+        refreshParams()
+    }, [props.graphID])
 
     /*
         The graphID is the keystone of the graphSidebar. Each graph tab has one graphID that does not switch even if the user changes source data sheets. 
