@@ -16,8 +16,8 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> Optio
     """
     step_type = params['step_type']
     step_id_to_match = params['step_id_to_match']
-    execution_data_to_match = dict(params['execution_data_to_match'])
-    params_to_match = dict(params['params_to_match'])
+    execution_data_to_match = params['execution_data_to_match']
+    params_to_match = params['params_to_match'] if 'params_to_match' in params else None
 
     # Loop over the steps backwards, so that we get the most recent one
     found_params: Optional[Dict[str, Any]] = None
