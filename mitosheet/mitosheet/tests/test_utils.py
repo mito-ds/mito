@@ -1567,7 +1567,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["graph_type"]
+            return graph_params["graph_creation"]["graph_type"]
         return ''
 
     def get_graph_sheet_index(self, graph_id: str) -> int:
@@ -1576,7 +1576,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["sheet_index"]
+            return graph_params["graph_creation"]["sheet_index"]
         return -1
 
     def get_graph_axis_column_ids(self, graph_id: str, axis: str) -> List[str]:
@@ -1586,9 +1586,9 @@ class MitoWidgetTestWrapper:
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
             if axis == 'x':
-                return graph_params["graphCreation"]["x_axis_column_ids"]
+                return graph_params["graph_creation"]["x_axis_column_ids"]
             if axis == 'y':
-                return graph_params["graphCreation"]["y_axis_column_ids"]
+                return graph_params["graph_creation"]["y_axis_column_ids"]
         return []
 
     def get_graph_color(self, graph_id: str) -> ColumnID:
@@ -1597,7 +1597,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["color"]
+            return graph_params["graph_creation"]["color"]
         return ''
 
     def get_graph_facet_col_column_id(self, graph_id: str) -> ColumnID:
@@ -1606,7 +1606,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["facet_col_column_id"]
+            return graph_params["graph_creation"]["facet_col_column_id"]
         return ''
 
     def get_graph_facet_row_column_id(self, graph_id: str) -> ColumnID:
@@ -1615,7 +1615,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["facet_row_column_id"]
+            return graph_params["graph_creation"]["facet_row_column_id"]
         return ''
 
     def get_graph_facet_col_wrap(self, graph_id: str) -> int:
@@ -1624,7 +1624,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["facet_col_wrap"]
+            return graph_params["graph_creation"]["facet_col_wrap"]
         return -1
 
     def get_graph_facet_col_spacing(self, graph_id: str) -> float:
@@ -1633,7 +1633,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["facet_col_spacing"]
+            return graph_params["graph_creation"]["facet_col_spacing"]
         return -1.0
 
     def get_graph_facet_row_spacing(self, graph_id: str) -> float:
@@ -1642,14 +1642,14 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphCreation"]["facet_row_spacing"]
+            return graph_params["graph_creation"]["facet_row_spacing"]
         return -1.0
     
     def get_is_graph_output_none(self, graph_id: str) -> bool:
         """
         Returns true if all of the graphOuput is does not exist.
         """
-        return "graphOutput" not in self.get_graph_data(graph_id)
+        return "graph_output" not in self.get_graph_data(graph_id)
 
     def get_graph_styling_params(self, graph_id: str) -> Dict[str, Optional[Union[str, bool]]]:
         """
@@ -1658,7 +1658,7 @@ class MitoWidgetTestWrapper:
         """
         graph_params = self.get_graph_params(graph_id)
         if graph_params is not None:
-            return graph_params["graphStyling"]
+            return graph_params["graph_styling"]
         return {}
     
     def get_dataframe_format(self, sheet_index: int) -> DataframeFormat: 
