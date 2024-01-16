@@ -630,22 +630,6 @@ export class MitoAPI {
         })
     }
 
-    async editGraphDuplicate(
-        oldGraphID: GraphID,
-        newGraphID: GraphID
-    ): Promise<void> {
-        
-        await this.send<string>({
-            'event': 'edit_event',
-            'type': 'graph_duplicate_edit',
-            'step_id': getRandomId(),
-            'params': {
-                'old_graph_id': oldGraphID,
-                'new_graph_id': newGraphID
-            }
-        })
-    }
-
     async editGraphRename(
         graphID: GraphID,
         newGraphTabName: string

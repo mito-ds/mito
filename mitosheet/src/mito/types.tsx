@@ -1000,7 +1000,6 @@ export enum ActionEnum {
     Delete_Graph = 'delete graph',
     Drop_Duplicates = 'drop duplicates',
     Duplicate_Dataframe = 'duplicate dataframe',
-    Duplicate_Graph = 'duplicate graph',
     Docs = 'docs',
     Export = 'export',
     Export_Dropdown = 'export dropdown',

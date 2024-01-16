@@ -35,9 +35,8 @@ const GraphSidebar = (props: {
     analysisData: AnalysisData
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     graphSidebarTab?: GraphSidebarTab,
-    selectedColumnsIds?: ColumnID[]
+    selectedColumnsIds?: ColumnID[],
 }): JSX.Element => {
-
     const {params: graphParams, setParams: setGraphParams, startNewStep } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
         () => props.existingParams ?? getDefaultGraphParams(props.sheetDataArray, props.uiState.selectedSheetIndex, props.graphID, props.graphType, props.selectedColumnsIds),
         StepType.Graph,
@@ -59,10 +58,14 @@ const GraphSidebar = (props: {
          If the props.graphID changes, which happens when opening a graph:
          1. reset the stepID so we don't overwrite the previous edits.
          2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
-         3. update the graphUpdateNumber so the graph refreshes
      */
     useEffect(() => {
         const refreshParams = async () => {
+            if (props.existingParams !== undefined) {
+                setGraphParams(props.existingParams)
+                startNewStep()
+                return;
+            }
             const response = await props.mitoAPI.getGraphParams(props.graphID);
             const existingParamsBackend = 'error' in response ? undefined : response.result;
             if (existingParamsBackend !== undefined) {
@@ -82,8 +85,8 @@ const GraphSidebar = (props: {
             startNewStep()
         }
 
-        refreshParams()
-    }, [props.graphID])
+        void refreshParams()
+    }, [props.graphID, props.existingParams])
 
     /*
         The graphID is the keystone of the graphSidebar. Each graph tab has one graphID that does not switch even if the user changes source data sheets. 

@@ -18,6 +18,11 @@ from mitosheet.types import GraphID
 class GraphDuplicateStepPerformer(StepPerformer):
     """
     This steps duplicates a graph of a given graphID. 
+    NOTE: WE ARE NOT USING THIS STEP IN THE CURRENT VERSION OF MITOSHEET. 
+    The reason is that we separated the graph params and the graph data, 
+    which caused graph duplication to not make sense as its own step. 
+    Now, on the frontend we just get the graph params and send them to the backend
+    as a new graph. We're keeping this around so that it doesn't break any analyses. 
     """
 
     @classmethod

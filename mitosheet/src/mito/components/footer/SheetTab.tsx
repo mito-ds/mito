@@ -92,7 +92,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     // If opening a graph tab, close the cell editor 
                     props.setEditorState(undefined);
                     const graphID = props.tabIDObj.graphID;
-                    void openGraphEditor(props.setEditorState, props.sheetDataArray, props.uiState, props.setUIState, props.mitoAPI, graphID, undefined);
+                    void openGraphEditor(props.setEditorState, props.sheetDataArray, props.uiState, props.setUIState, props.mitoAPI, props.graphDataArray, graphID, undefined);
                 }
                 
                 if (props.tabIDObj.tabType === 'data') {
@@ -174,6 +174,9 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 <GraphSheetTabContextMenu 
                     setDisplayActions={props.setDisplayContextMenu}
                     setUIState={props.setUIState}
+                    uiState={props.uiState}
+                    sheetDataArray={props.sheetDataArray}
+                    setEditorState={props.setEditorState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
                     setIsRename={setIsRename}
                     graphID={props.tabIDObj.graphID}

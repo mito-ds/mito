@@ -139,10 +139,12 @@ class GraphStepPerformer(StepPerformer):
                 "graph_id": graph_id,
                 "graph_tab_name": graph_tab_name
             })
+            graph_index = len(post_state.graph_data_array) - 1
 
         if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
             # If no data is passed to the graph, then we don't create a graph and omit the graphOutput
             post_state.graph_data_array[graph_index] = {
+                "graph_id": graph_id,
                 "graph_tab_name": graph_tab_name
             }
             pandas_processing_time = 0.0 # no processing time

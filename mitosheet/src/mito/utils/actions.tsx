@@ -154,7 +154,7 @@ export const getActions = (
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    
+    const graphDataArray = analysisData.graphDataArray;
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
@@ -676,26 +676,6 @@ export const getActions = (
             },
             searchTerms: ['duplicate', 'copy'],
             tooltip: "Make a copy of the selected sheet."
-        },
-        [ActionEnum.Duplicate_Graph]: {
-            type: 'build-time',
-            staticType: ActionEnum.Duplicate_Graph,
-            titleToolbar: 'Duplicate Graph',
-            longTitle: 'Duplicate selected graph',
-            actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-                
-                if (uiState.selectedGraphID) {
-                    const newGraphID = getRandomId()
-                    await mitoAPI.editGraphDuplicate(uiState.selectedGraphID, newGraphID)
-                }
-            },
-            isDisabled: () => {
-                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is no selected graph to duplicate.'
-            },
-            searchTerms: ['duplicate', 'copy', 'graph'],
-            tooltip: "Make a copy of the selected graph."
         },
         [ActionEnum.Export]: {
             type: 'build-time',
@@ -1229,7 +1209,7 @@ export const getActions = (
             titleToolbar: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, undefined);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, graphDataArray, undefined, undefined);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1241,7 +1221,7 @@ export const getActions = (
             iconToolbar: GraphIcon,
             longTitle: 'Create new bar chart',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, GraphType.BAR);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, graphDataArray, undefined, GraphType.BAR);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1253,7 +1233,7 @@ export const getActions = (
             iconToolbar: LineChartIcon,
             longTitle: 'Create new line graph',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, GraphType.LINE);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, graphDataArray, undefined, GraphType.LINE);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1265,7 +1245,7 @@ export const getActions = (
             iconToolbar: ScatterPlotIcon,
             longTitle: 'Create new scatter plot',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, GraphType.SCATTER);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, graphDataArray, undefined, GraphType.SCATTER);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],

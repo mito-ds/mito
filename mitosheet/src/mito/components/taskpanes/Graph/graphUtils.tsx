@@ -1,6 +1,6 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, EditorState, GraphDataBackend, GraphDataFrontend, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData, UIState } from "../../../types"
+import { ColumnID, ColumnIDsMap, EditorState, GraphDataArray, GraphDataBackend, GraphDataFrontend, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData, UIState } from "../../../types"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
 import { convertStringToFloatOrUndefined } from "../../../utils/numbers"
@@ -338,8 +338,10 @@ export const openGraphEditor =
         uiState: UIState,
         setUIState: React.Dispatch<React.SetStateAction<UIState>>,
         mitoAPI: MitoAPI,
+        graphDataArray: GraphDataArray,
         graphID?: GraphID,
         graphType?: GraphType,
+        duplicateGraph?: boolean
     ) => {
     // We turn off editing mode, if it is on
         setEditorState(undefined);
@@ -365,6 +367,13 @@ export const openGraphEditor =
             const existingParamsBackend = 'error' in response ? undefined : response.result;
             if (existingParamsBackend !== undefined) {
                 existingParams = convertBackendtoFrontendGraphParams(existingParamsBackend);
+                if (duplicateGraph) {
+                    graphID = getRandomId();
+                    existingParams = {
+                        ...existingParams,
+                        graphID: graphID,
+                    }
+                }
             }
         } else {
             graphID = getRandomId();

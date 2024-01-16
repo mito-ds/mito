@@ -92,7 +92,7 @@ def get_graph_index_by_graph_id(graph_data_array: List[Dict[str, Any]], graph_id
     Given a graph_id, returns the index of the graph_data_array that has that graph_id
     """
     for index, graph_data in enumerate(graph_data_array):
-        if graph_data["graph_id"] == graph_id:
+        if "graph_id" in graph_data and graph_data["graph_id"] == graph_id:
             return index
 
     return -1

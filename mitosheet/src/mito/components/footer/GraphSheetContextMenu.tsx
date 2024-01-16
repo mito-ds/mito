@@ -1,12 +1,13 @@
 // Copyright (c) Mito
 
 import React, { useEffect } from 'react';
-import { MitoAPI,  getRandomId } from '../../api/api';
-import { GraphDataArray, GraphID, GraphSidebarTab, UIState } from '../../types';
+import { MitoAPI } from '../../api/api';
+import { EditorState, GraphDataArray, GraphID, GraphSidebarTab, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { openGraphEditor } from '../taskpanes/Graph/graphUtils';
 
 
 /*
@@ -16,12 +17,15 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 export default function GraphSheetTabContextMenu(props: {
     setDisplayActions: (display: boolean) => void,
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI,
     graphID: GraphID,
     graphDataArray: GraphDataArray;
     display: boolean;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    sheetDataArray: SheetData[];
 }): JSX.Element {
 
     // Log opening the graph sheet tab actions
@@ -48,8 +52,17 @@ export default function GraphSheetTabContextMenu(props: {
         props.closeOpenEditingPopups();
         
         // Duplicate the graph
-        const newGraphID = getRandomId()
-        await props.mitoAPI.editGraphDuplicate(props.graphID, newGraphID)
+        await openGraphEditor(
+            props.setEditorState,
+            props.sheetDataArray, 
+            props.uiState, 
+            props.setUIState,
+            props.mitoAPI,
+            props.graphDataArray,
+            props.graphID,
+            undefined,
+            true
+        )
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */
