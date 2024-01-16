@@ -14,9 +14,11 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 from numpy import number
+from mitosheet.api.get_params import get_params
 
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.mito_backend import MitoBackend, get_mito_backend
+from mitosheet.step_performers.graph_steps.graph_utils import get_graph_index_by_graph_id
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
     DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT)
@@ -1537,98 +1539,110 @@ class MitoWidgetTestWrapper:
             return self.mito_backend.steps_manager.dfs[sheet_index][column_header].tolist()
         return self.mito_backend.steps_manager.dfs[sheet_index][column_header]
 
-    def get_graph_data(self, graph_id: str) -> List[Dict[str, Any]]: 
+    def get_graph_data(self, graph_id: str) -> Dict[str, Any]: 
         """
         Returns the graph_data object 
         """
-        graph_index = next(index for index, graph in enumerate(self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_array) if graph["graph_id"] == graph_id)
+        graph_data_array = self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_array
+        graph_index = get_graph_index_by_graph_id(graph_data_array, graph_id)
         if graph_index != -1:
-            return self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_array[graph_index]
+            return graph_data_array[graph_index]
         else:
             return {}
+        
+    def get_graph_params(self, graph_id: str) -> Dict[str, Any] | None:
+        """
+        Returns the graph params 
+        """
+        return get_params({
+            'step_type': 'graph',
+            'step_id_to_match': '',
+            'execution_data_to_match': {},
+            'params_to_match': { 'graph_id': graph_id }
+        }, self.mito_backend.steps_manager)
 
     def get_graph_type(self, graph_id: str) -> str:
         """
         Returns the graph type 
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["graph_type"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["graph_type"]
         return ''
 
     def get_graph_sheet_index(self, graph_id: str) -> int:
         """
         Returns the graph sheet index 
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["sheet_index"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["sheet_index"]
         return -1
 
     def get_graph_axis_column_ids(self, graph_id: str, axis: str) -> List[str]:
         """
         Returns the graph axis column ids for either the x or y axis
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
             if axis == 'x':
-                return graph_data["graphParams"]["graphCreation"]["x_axis_column_ids"]
+                return graph_params["graphCreation"]["x_axis_column_ids"]
             if axis == 'y':
-                return graph_data["graphParams"]["graphCreation"]["y_axis_column_ids"]
+                return graph_params["graphCreation"]["y_axis_column_ids"]
         return []
 
     def get_graph_color(self, graph_id: str) -> ColumnID:
         """
         Returns the graph color column id
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["color"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["color"]
         return ''
 
     def get_graph_facet_col_column_id(self, graph_id: str) -> ColumnID:
         """
         Returns the graph facet col column id
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["facet_col_column_id"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["facet_col_column_id"]
         return ''
 
     def get_graph_facet_row_column_id(self, graph_id: str) -> ColumnID:
         """
         Returns the graph facet row column id
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["facet_row_column_id"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["facet_row_column_id"]
         return ''
 
     def get_graph_facet_col_wrap(self, graph_id: str) -> int:
         """
         Returns the graph facet row column id
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["facet_col_wrap"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["facet_col_wrap"]
         return -1
 
     def get_graph_facet_col_spacing(self, graph_id: str) -> float:
         """
         Returns the graph facet row column id
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["facet_col_spacing"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["facet_col_spacing"]
         return -1.0
 
     def get_graph_facet_row_spacing(self, graph_id: str) -> float:
         """
         Returns the graph facet row column id
         """
-        graph_data = self.get_graph_data(graph_id)
-        if bool(graph_data):
-            return graph_data["graphParams"]["graphCreation"]["facet_row_spacing"]
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphCreation"]["facet_row_spacing"]
         return -1.0
     
     def get_is_graph_output_none(self, graph_id: str) -> bool:
@@ -1642,9 +1656,11 @@ class MitoWidgetTestWrapper:
         Returns the object that stores all the graph styling params, so that 
         we can easily make sure the structure is correct
         """
-        graph_data = self.get_graph_data(graph_id)
-        return graph_data["graphParams"]["graphStyling"]
-
+        graph_params = self.get_graph_params(graph_id)
+        if graph_params is not None:
+            return graph_params["graphStyling"]
+        return {}
+    
     def get_dataframe_format(self, sheet_index: int) -> DataframeFormat: 
         """
         Returns the DataframeFormat object for a specific sheet

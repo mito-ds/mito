@@ -16,7 +16,8 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> Optio
     """
     step_type = params['step_type']
     step_id_to_match = params['step_id_to_match']
-    execution_data_to_match = params['execution_data_to_match']
+    execution_data_to_match = dict(params['execution_data_to_match'])
+    params_to_match = dict(params['params_to_match'])
 
     # Loop over the steps backwards, so that we get the most recent one
     found_params: Optional[Dict[str, Any]] = None
@@ -27,6 +28,14 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> Optio
         if step.step_id == step_id_to_match:
             found_params = step.params
         
+        if step.params is not None and params_to_match is not None and len(params_to_match) > 0:
+            all_matched = True
+            for key, value in params_to_match.items():
+                if step.params[key] != value:
+                    all_matched = False
+            if all_matched:
+                found_params = dict(**step.params)
+
         if step.execution_data is not None and len(execution_data_to_match) > 0:
             all_matched = True
             for key, value in execution_data_to_match.items():
@@ -42,5 +51,5 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> Optio
         if found_params is not None:
             return found_params
     
-    # Return nothing, if there is no pivot that meets this criteria
+    # Return nothing, if there is no step that meets this criteria
     return None

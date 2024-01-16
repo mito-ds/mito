@@ -334,14 +334,15 @@ export class MitoAPI {
      * A very useful general utility for getting the params
      * of a step with a step id or with specific execution data
      */
-    async getParams<ParamType>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>): Promise<MitoAPIResult<ParamType | undefined>> {
+    async getParams<ParamType>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>, paramsToMatch?: Record<string, string | number>): Promise<MitoAPIResult<ParamType | undefined>> {
         const response = await this.send<ParamType | undefined | null>({
             'event': 'api_call',
             'type': 'get_params',
             'params': {
                 'step_type': stepType,
                 'step_id_to_match': stepID || '',
-                'execution_data_to_match': executionDataToMatch
+                'execution_data_to_match': executionDataToMatch,
+                'params_to_match': paramsToMatch
             },
         })
 
@@ -380,7 +381,7 @@ export class MitoAPI {
     }
 
     async getGraphParams(graphID: GraphID): Promise<MitoAPIResult<GraphParamsBackend | undefined>> {
-        return await this.getParams<GraphParamsBackend>('graph', undefined, {
+        return await this.getParams<GraphParamsBackend>('graph', undefined, {}, {
             'graph_id': graphID
         })
     }
