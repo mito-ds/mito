@@ -1537,12 +1537,13 @@ class MitoWidgetTestWrapper:
             return self.mito_backend.steps_manager.dfs[sheet_index][column_header].tolist()
         return self.mito_backend.steps_manager.dfs[sheet_index][column_header]
 
-    def get_graph_data(self, graph_id: str) -> Dict[str, Dict[str, Any]]: 
+    def get_graph_data(self, graph_id: str) -> List[Dict[str, Any]]: 
         """
         Returns the graph_data object 
         """
-        if graph_id in self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_dict.keys():
-            return self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_dict[graph_id]
+        graph_index = next(index for index, graph in enumerate(self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_array) if graph["graph_id"] == graph_id)
+        if graph_index != -1:
+            return self.mito_backend.steps_manager.curr_step.final_defined_state.graph_data_array[graph_index]
         else:
             return {}
 

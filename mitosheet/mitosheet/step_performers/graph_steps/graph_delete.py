@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.state import State
+from mitosheet.step_performers.graph_steps.graph_utils import get_graph_index_by_graph_id
 from mitosheet.step_performers.step_performer import StepPerformer
 from mitosheet.step_performers.utils.utils import get_param
 from mitosheet.types import GraphID
@@ -32,7 +33,8 @@ class GraphDeleteStepPerformer(StepPerformer):
 
         post_state = prev_state.copy()
 
-        del post_state.graph_data_dict[graph_id]
+        graph_index = get_graph_index_by_graph_id(post_state.graph_data_array, graph_id)
+        del post_state.graph_data_array[graph_index]
 
         return post_state, {
             'pandas_processing_time': 0 # No time spent on pandas, only metadata changes

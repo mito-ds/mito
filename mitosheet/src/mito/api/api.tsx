@@ -16,10 +16,8 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, ParameterizableParams, SheetData, UIState, UserProfile, GraphParamsBackend, GraphParamsFrontend } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
-
-
 
 export type MitoAPIResult<ResultType> = {result: ResultType} | SendFunctionErrorReturnType 
 
@@ -381,6 +379,13 @@ export class MitoAPI {
         })
     }
 
+    async getGraphParams(graphID: GraphID): Promise<MitoAPIResult<GraphParamsBackend | undefined>> {
+        return await this.getParams<GraphParamsBackend>('graph', undefined, {
+            'graph_id': graphID
+        })
+    }
+
+
     /*
         Gets metadata about an Excel file
     */
@@ -592,16 +597,15 @@ export class MitoAPI {
         stepID: string,
     ): Promise<MitoAPIResult<never>> {
         const graphParamsBackend = convertFrontendtoBackendGraphParams(graphParams)
-
         return await this.send({
             'event': 'edit_event',
             'type': 'graph_edit',
             'step_id': stepID,
             'params': {
                 'graph_id': graphID,
-                'graph_preprocessing': graphParamsBackend.graphPreprocessing,
-                'graph_creation': graphParamsBackend.graphCreation,
-                'graph_styling': graphParamsBackend.graphStyling,
+                'graph_preprocessing': graphParamsBackend.graph_preprocessing,
+                'graph_creation': graphParamsBackend.graph_creation,
+                'graph_styling': graphParamsBackend.graph_styling,
                 'graph_rendering': {
                     'height': height, 
                     'width': width

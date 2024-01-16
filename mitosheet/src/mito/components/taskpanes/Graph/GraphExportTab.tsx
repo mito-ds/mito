@@ -15,7 +15,6 @@ function GraphExportTab(
     props: {
         mitoAPI: MitoAPI;
         graphParams: GraphParamsFrontend
-        loading: boolean
         graphOutput: GraphOutput,
         graphTabName: string,
         mitoContainerRef: React.RefObject<HTMLDivElement>
@@ -52,7 +51,7 @@ function GraphExportTab(
                 <TextButton
                     variant='dark'
                     onClick={copyShowGraphCode}
-                    disabled={props.loading || props.graphOutput === undefined}
+                    disabled={props.graphOutput === undefined}
                     tooltip={'Click to copy code that creates graph and displays it in the notebook'}
                 >
                     {!showGraphCodeCopied
@@ -66,7 +65,7 @@ function GraphExportTab(
                 <TextButton
                     variant='dark'
                     onClick={copyExportHTMLGraphCode}
-                    disabled={props.loading || props.graphOutput === undefined}
+                    disabled={props.graphOutput === undefined}
                     tooltip={'Click to copy code that creates graph and exports it as an html file'}
                 >
                     {!exportHTMLGraphCodeCopied
@@ -89,7 +88,7 @@ function GraphExportTab(
                             'graph_type': props.graphParams.graphCreation.graph_type
                         });
                     }}
-                    disabled={props.loading || props.graphOutput === undefined}
+                    disabled={props.graphOutput === undefined}
                     tooltip={'Click to download graph as png'}
                 >
                     Download as PNG

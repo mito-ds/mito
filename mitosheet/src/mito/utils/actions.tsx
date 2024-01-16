@@ -1229,8 +1229,7 @@ export const getActions = (
             titleToolbar: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetDataArray[uiState.selectedSheetIndex], true)
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, undefined, selectedColumnIds);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, undefined);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1242,8 +1241,7 @@ export const getActions = (
             iconToolbar: GraphIcon,
             longTitle: 'Create new bar chart',
             actionFunction: async () => {
-                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetDataArray[uiState.selectedSheetIndex], true)
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR, selectedColumnIds);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, GraphType.BAR);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1255,8 +1253,7 @@ export const getActions = (
             iconToolbar: LineChartIcon,
             longTitle: 'Create new line graph',
             actionFunction: async () => {
-                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetDataArray[uiState.selectedSheetIndex], true)
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE, selectedColumnIds);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, GraphType.LINE);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1268,8 +1265,7 @@ export const getActions = (
             iconToolbar: ScatterPlotIcon,
             longTitle: 'Create new scatter plot',
             actionFunction: async () => {
-                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetDataArray[uiState.selectedSheetIndex], true)
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER, selectedColumnIds);
+                await openGraphEditor(setEditorState, sheetDataArray, uiState, setUIState, mitoAPI, undefined, GraphType.SCATTER);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],

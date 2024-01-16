@@ -397,42 +397,36 @@ export type GraphStylingParams<T> = {
     barnorm: string | undefined
 }
 
-type GraphParamsGeneric<T> = {
-    graphPreprocessing: GraphPreprocessingParams,
-    graphCreation: GraphCreationParams<T>,
-    graphStyling: GraphStylingParams<T>,
-};
-
 /**
  * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
  * the actual graph html & javascript, and the generated code.
- * 
- * Note that the graph data contains the graph params because:
- * 1.  We need to be able to open the UI to include the graph params
- * 2.  When we wrote this code, we didn't have a notion of "looking up"
- *     params based on a graph ID. 
- * 
- *     With Pivot, we have a notion of "looking up" params based on a
- *     sheet index -- and this is what we should move to for graphs 
- *     as well, with some point. 
- * 
- * @param graphParams - all of the parameters used to construct the graph
- * @param [graphOutput] - the python code, the graph html, and the graph script 
+ * We have separate frontend and backend params so that we can 
+ * handle input fields which must be strings on the frontend to handle 
+ * decimal places and negative signs, while also allowing us to send 
+ * correctly types params to the backend.
  */
-type GraphDataGeneric<T> = {
-    graphParams: GraphParamsGeneric<T>,
+export type GraphDataFrontend = {
+    graphID: GraphID,
     graphOutput: GraphOutput, 
     graphTabName: string
 };
-
-// We have separate frontend and backend params so that we can 
-// handle input fields which must be strings on the frontend to handle 
-// decimal places and negative signs, while also allowing us to send 
-// correctly types params to the backend.
-export type GraphDataFrontend = GraphDataGeneric<string>
-export type GraphDataBackend = GraphDataGeneric<number>
-export type GraphParamsFrontend = GraphParamsGeneric<string>
-export type GraphParamsBackend = GraphParamsGeneric<number>
+export type GraphDataBackend = {
+    graph_id: GraphID,
+    graph_output: GraphOutput, 
+    graph_tab_name: string
+}
+export type GraphParamsFrontend = {
+    graphID: string,
+    graphPreprocessing: GraphPreprocessingParams,
+    graphCreation: GraphCreationParams<string>,
+    graphStyling: GraphStylingParams<string>
+};
+export type GraphParamsBackend = {
+    graph_id: string,
+    graph_preprocessing: GraphPreprocessingParams,
+    graph_creation: GraphCreationParams<number>,
+    graph_styling: GraphStylingParams<number>
+};
 
 export type GraphOutput = {
     graphGeneratedCode: string,
@@ -442,7 +436,7 @@ export type GraphOutput = {
 
 export type GraphID = string;
 
-export type GraphDataDict = Record<GraphID, GraphDataFrontend>
+export type GraphDataArray = GraphDataFrontend[];
 
 
 export interface ConcatParams {
@@ -754,7 +748,7 @@ export type UserDefinedFunction = {
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
- * @param graphDataDict - a mapping from graphID to all of the relevant graph information
+ * @param graphDataArray - a mapping from graphID to all of the relevant graph information
  * @param updateEventCount - the number of update events that have been successfully processed by the frontend
  * @param undoCount - the number of undos
  * @param redoCount - the number of redos
@@ -780,7 +774,7 @@ export interface AnalysisData {
     code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     updateEventCount: number;
     undoCount: number,
     redoCount: number,

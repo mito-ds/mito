@@ -78,7 +78,6 @@ function GraphSetupTab(
         columnIDsMapArray: ColumnIDsMap[],
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
-        setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
     }): JSX.Element {
 
     const graphSheetIndex = props.graphParams.graphCreation.sheet_index;
@@ -133,9 +132,6 @@ function GraphSetupTab(
                 }
             })
         }
-
-        // Then set increment graphUpdateNumber so we send the graph message
-        props.setGraphUpdatedNumber((old) => old + 1);
     }
 
     const setGraphType = (graphType: GraphType) => {
@@ -166,7 +162,6 @@ function GraphSetupTab(
                 }
             }
         })
-        props.setGraphUpdatedNumber((old) => old + 1);
     }
 
     const setColor = (newColorColumnID: ColumnID | undefined) => {
@@ -180,14 +175,12 @@ function GraphSetupTab(
                 }
             }
         })
-        props.setGraphUpdatedNumber((old) => old + 1);
     }
 
     function updateGraphParam(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
             return updateObjectWithPartialObject(prevGraphParams, update);
         })
-        props.setGraphUpdatedNumber(old => old + 1)
     }
 
     const colorByColumnTooltip = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
@@ -208,7 +201,6 @@ function GraphSetupTab(
                         const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newSheetIndex, props.graphParams.graphCreation.graph_type)
 
                         props.setGraphParams(newSheetGraphParams)
-                        props.setGraphUpdatedNumber((old) => old + 1);
                     }}
                 />
                 <Row 

@@ -1,26 +1,20 @@
 // Copyright (c) Saga Inc.
 
 import React, { useEffect } from 'react';
-import { MitoAPI,  getRandomId } from '../../api/api';
-import { DFSource, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { MitoAPI } from '../../api/api';
+import { DFSource, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { ModalEnum } from '../modals/modals';
-import { getDefaultGraphParams } from '../taskpanes/Graph/graphUtils';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 /*
     Helper function for finding all of the graph tab names
     that are created from a given sheet index
 */
-export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataDict: GraphDataDict): ({graphTabName: string, graphID: GraphID})[] => {
-    // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
-    const filteredGraphDataJSON: GraphDataDict = Object.fromEntries(Object.entries(graphDataDict || {}).filter(([, graphData]) => {
-        return graphData.graphParams.graphCreation.sheet_index === sheetIndex
-    }))
-
-    return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
+export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataArray: GraphDataArray): ({graphTabName: string, graphID: GraphID})[] => {
+    return Object.entries(graphDataArray).map(([graphID, graphData]) => {
         return {graphTabName: graphData.graphTabName, graphID: graphID}
     })
 } 
@@ -36,7 +30,7 @@ export default function SheetTabContextMenu(props: {
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI
     sheetIndex: number
-    graphDataDict: GraphDataDict
+    graphDataArray: GraphDataArray
     sheetDataArray: SheetData[]
     display: boolean
 }): JSX.Element {
@@ -57,7 +51,7 @@ export default function SheetTabContextMenu(props: {
     }, [props.display])
 
     const onDelete = async (): Promise<void> => {
-        const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataDict)
+        const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataArray)
         
         if (dependantGraphTabNamesAndIDs.length > 0) {
             props.setUIState(prevUIState => {
@@ -97,20 +91,6 @@ export default function SheetTabContextMenu(props: {
         props.setIsRename(true);
     }
     
-    const graphData = async (): Promise<void> => {
-
-        const newGraphID = getRandomId() // Create a new graph
-        const graphParams = getDefaultGraphParams(props.sheetDataArray, props.sheetIndex)
-
-        await props.mitoAPI.editGraph(
-            newGraphID,
-            graphParams,
-            '100%',
-            '100%',
-            getRandomId(), 
-        );
-    }
-
     const openDownloadTaskpane = async (): Promise<void> => {
         props.setUIState(prevUIState => {
             return {
@@ -132,7 +112,6 @@ export default function SheetTabContextMenu(props: {
                 // doesn't compete updating the uiState to this sheet instead of
                 // the new graphID that we're creating
                 e?.stopPropagation()
-                void graphData()
             }}
         />,
         <DropdownItem 

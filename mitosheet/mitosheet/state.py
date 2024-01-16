@@ -66,7 +66,7 @@ class State:
         column_formulas: Optional[List[Dict[ColumnID, List[FrontendFormulaAndLocation]]]]=None,
         column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
         df_formats: Optional[List[DataframeFormat]]=None,
-        graph_data_dict: "Optional[OrderedDict[str, Dict[str, Any]]]"=None,
+        graph_data_array: Optional[List[Dict[str, Any]]]=None,
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
         user_defined_editors: Optional[List[Callable]]=None,
@@ -138,7 +138,7 @@ class State:
 
         # We put this in an ordered dict so we can easily figure out the last graph that was edited at each step. 
         # This is helpful for undoing, for example. 
-        self.graph_data_dict: OrderedDict[str, Dict[str, Any]] = graph_data_dict if graph_data_dict is not None else OrderedDict()
+        self.graph_data_array: List[Dict[str, Any]] = graph_data_array if graph_data_array is not None else []
 
         self.user_defined_functions = user_defined_functions if user_defined_functions is not None else []
         self.user_defined_importers = user_defined_importers if user_defined_importers is not None else []
@@ -162,7 +162,7 @@ class State:
             column_formulas=deepcopy(self.column_formulas),
             column_filters=deepcopy(self.column_filters),
             df_formats=deepcopy(self.df_formats),
-            graph_data_dict=deepcopy(self.graph_data_dict),
+            graph_data_array=deepcopy(self.graph_data_array),
             user_defined_functions=deepcopy(self.user_defined_functions),
             user_defined_importers=deepcopy(self.user_defined_importers),
             user_defined_editors=deepcopy(self.user_defined_editors),

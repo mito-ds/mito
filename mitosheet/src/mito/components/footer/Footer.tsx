@@ -8,12 +8,12 @@ import "../../../../css/footer.css"
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
-import { EditorState, GraphDataDict, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GraphDataArray, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 
 type FooterProps = {
     sheetDataArray: SheetData[];
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     gridState: GridState;
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
     mitoAPI: MitoAPI;
@@ -48,8 +48,7 @@ function Footer(props: FooterProps): JSX.Element {
 
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
-    const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataDict[selectedGraphID] !== undefined ? 
-        props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
+    const sheetIndex = selectedSheetIndex
     const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex]
 
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;
@@ -86,7 +85,7 @@ function Footer(props: FooterProps): JSX.Element {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
-                            graphDataDict={props.graphDataDict}
+                            graphDataArray={props.graphDataArray}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
                             display={displayContextMenuForIndex === idx}
@@ -100,19 +99,19 @@ function Footer(props: FooterProps): JSX.Element {
                         />
                     )
                 })}
-                {Object.entries(props.graphDataDict || {}).map(([graphID, graphData], index) => {
+                {props.graphDataArray.map((graphData, index) => {
                     return (
                         <SheetTab
-                            key={graphID}
+                            key={graphData.graphID}
                             tabName={graphData.graphTabName}
-                            tabIDObj={{tabType: 'graph', graphID: graphID}}
-                            isSelectedTab={selectedTabType === 'graph' && graphID === selectedGraphID}
+                            tabIDObj={{tabType: 'graph', graphID: graphData.graphID}}
+                            isSelectedTab={selectedTabType === 'graph' && graphData.graphID === selectedGraphID}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
-                            graphDataDict={props.graphDataDict}
+                            graphDataArray={props.graphDataArray}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
                             display={displayContextMenuForIndex === (props.sheetDataArray.length + index)}

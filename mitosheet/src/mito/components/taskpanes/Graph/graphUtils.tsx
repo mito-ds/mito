@@ -1,7 +1,6 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, EditorState, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData, UIState } from "../../../types"
-import { intersection } from "../../../utils/arrays"
+import { ColumnID, ColumnIDsMap, EditorState, GraphDataBackend, GraphDataFrontend, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData, UIState } from "../../../types"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
 import { convertStringToFloatOrUndefined } from "../../../utils/numbers"
@@ -10,6 +9,7 @@ import DropdownItem from "../../elements/DropdownItem"
 import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
 import { MitoAPI, getRandomId } from "../../../api/api"
 import { TaskpaneType } from "../taskpanes"
+import { ModalEnum } from "../../modals/modals"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
@@ -58,10 +58,11 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
 
 
 // unless a graph type is provided
-export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType, selectedColumnIds?: ColumnID[]): GraphParamsFrontend => {
+export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphID: GraphID, graphType?: GraphType, selectedColumnIds?: ColumnID[]): GraphParamsFrontend => {
     graphType = graphType || GraphType.BAR
     const axis_column_ids = getAxisColumnIDs(sheetDataArray[sheetIndex], graphType, selectedColumnIds)
     return {
+        graphID: graphID ?? getRandomId(),
         graphPreprocessing: {
             safety_filter_turned_on_by_user: true
         },
@@ -141,50 +142,60 @@ export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: 
     which stops the user from having invalid columns selected in their graph
     params.
 */
-export const getGraphParams = (   
-    graphDataDict: GraphDataDict,
-    graphID: GraphID,
-    selectedSheetIndex: number,
-    sheetDataArray: SheetData[],
-    selectedColumnIds?: ColumnID[]
-): GraphParamsFrontend => {
+// export const getGraphParams = (   
+//     graphDataArray: graphDataArray,
+//     graphID: GraphID,
+//     selectedSheetIndex: number,
+//     sheetDataArray: SheetData[],
+//     selectedColumnIds?: ColumnID[]
+// ): GraphParamsFrontend => {
 
-    const graphParamsCopy: GraphParamsFrontend = window.structuredClone(graphDataDict[graphID]?.graphParams); 
+//     const graphParamsCopy: GraphParamsFrontend = { 
+//         graphCreation: {
+//             graph_type: GraphType.BAR,
+//             sheet_index: 0,
+//             x_axis_column_ids: [],
+//             y_axis_column_ids: [],
+//         },
+//         graphStyling: {
+//         },
+//         graphPreprocessing: {}
+//     }; 
 
-    // If the graph already exists, get the data source sheet index from the graph params.
-    // Otherwise create a new graph of the selectedSheetIndex
-    const graphDataSourceSheetIndex = graphParamsCopy !== undefined ? graphParamsCopy.graphCreation.sheet_index : selectedSheetIndex
+//     // If the graph already exists, get the data source sheet index from the graph params.
+//     // Otherwise create a new graph of the selectedSheetIndex
+//     const graphDataSourceSheetIndex = graphParamsCopy !== undefined ? graphParamsCopy.graphCreation.sheet_index : selectedSheetIndex
 
-    // If the graph already exists, retrieve the graph params that still make sense. In other words, 
-    // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
-    if (graphParamsCopy !== undefined) {
-        // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
-        const xAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParamsCopy.graphCreation.x_axis_column_ids
-        )
-        const yAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParamsCopy.graphCreation.y_axis_column_ids
-        )
-        const color = graphParamsCopy.graphCreation.color !== undefined && validColumnIDs.includes(graphParamsCopy.graphCreation.color) ? graphParamsCopy.graphCreation.color : undefined
+//     // If the graph already exists, retrieve the graph params that still make sense. In other words, 
+//     // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
+//     if (graphParamsCopy !== undefined) {
+//         // Filter out column headers that no longer exist
+//         const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
+//         const xAxisColumnIDs = intersection(
+//             validColumnIDs,
+//             graphParamsCopy.graphCreation.x_axis_column_ids
+//         )
+//         const yAxisColumnIDs = intersection(
+//             validColumnIDs,
+//             graphParamsCopy.graphCreation.y_axis_column_ids
+//         )
+//         const color = graphParamsCopy.graphCreation.color !== undefined && validColumnIDs.includes(graphParamsCopy.graphCreation.color) ? graphParamsCopy.graphCreation.color : undefined
 
         
-        return {
-            ...graphParamsCopy,
-            graphCreation: {
-                ...graphParamsCopy.graphCreation,
-                x_axis_column_ids: xAxisColumnIDs,
-                y_axis_column_ids: yAxisColumnIDs,
-                color: color
-            }
-        }
-    }
+//         return {
+//             ...graphParamsCopy,
+//             graphCreation: {
+//                 ...graphParamsCopy.graphCreation,
+//                 x_axis_column_ids: xAxisColumnIDs,
+//                 y_axis_column_ids: yAxisColumnIDs,
+//                 color: color
+//             }
+//         }
+//     }
 
-    // If the graph does not already exist, create a default graph.
-    return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex, undefined, selectedColumnIds);
-}
+//     // If the graph does not already exist, create a default graph.
+//     return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex, undefined, selectedColumnIds);
+// }
 
 // Returns a list of dropdown items. Selecting them sets the color attribute of the graph.
 // Option 'None' always comes first.
@@ -238,20 +249,36 @@ export const getGraphTypeFullName = (graphType: GraphType): string => {
     }
 }
 
+export const convertBackendtoFrontendGraphData = (graphDataBackend: GraphDataBackend): GraphDataFrontend => {
+    return {
+        graphID: graphDataBackend.graph_id,
+        graphOutput: graphDataBackend.graph_output,
+        graphTabName: graphDataBackend.graph_tab_name,
+    }
+}
+
+export const convertFrontendtoBackendGraphData = (graphDataFrontend: GraphDataFrontend): GraphDataBackend => {
+    return {
+        graph_id: graphDataFrontend.graphID,
+        graph_output: graphDataFrontend.graphOutput,
+        graph_tab_name: graphDataFrontend.graphTabName,
+    }
+}
+
 export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphParamsFrontend): GraphParamsBackend => {
     const graphCreationParams = graphParamsFrontend.graphCreation
     const graphStylingParams = graphParamsFrontend.graphStyling
 
-    const x =  {
-        ...graphParamsFrontend,
-        graphCreation: {
+    return {
+        graph_id: graphParamsFrontend.graphID,
+        graph_creation: {
             ...graphParamsFrontend.graphCreation,
             facet_col_wrap: convertStringToFloatOrUndefined(graphCreationParams.facet_col_wrap),
             facet_col_spacing: convertStringToFloatOrUndefined(graphCreationParams.facet_col_spacing),
             facet_row_spacing: convertStringToFloatOrUndefined(graphCreationParams.facet_row_spacing),
             nbins: convertStringToFloatOrUndefined(graphCreationParams.nbins),
         },
-        graphStyling: {
+        graph_styling: {
             ...graphParamsFrontend.graphStyling,
             xaxis: {
                 ...graphParamsFrontend.graphStyling.xaxis,
@@ -266,41 +293,41 @@ export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphPa
                 x: convertStringToFloatOrUndefined(graphStylingParams.legend.x),
                 y: convertStringToFloatOrUndefined(graphStylingParams.legend.y)
             }
-        }
+        },
+        graph_preprocessing: graphParamsFrontend.graphPreprocessing
     }
-
-    return x
 }
 
-export const convertBackendtoFrontendGraphParams = (graphParamsFrontend: GraphParamsBackend): GraphParamsFrontend => {
-    const graphCreationParams = graphParamsFrontend.graphCreation
-    const graphStylingParams = graphParamsFrontend.graphStyling
+export const convertBackendtoFrontendGraphParams = (graphParamsBackend: GraphParamsBackend): GraphParamsFrontend => {
+    const graphCreationParams = graphParamsBackend.graph_creation
+    const graphStylingParams = graphParamsBackend.graph_styling
 
     return {
-        ...graphParamsFrontend,
+        graphID: graphParamsBackend.graph_id,
         graphCreation: {
-            ...graphParamsFrontend.graphCreation,
+            ...graphCreationParams,
             facet_col_wrap: convertToStringOrUndefined(graphCreationParams.facet_col_wrap),
             facet_col_spacing: convertToStringOrUndefined(graphCreationParams.facet_col_spacing),
             facet_row_spacing: convertToStringOrUndefined(graphCreationParams.facet_row_spacing),
             nbins: convertToStringOrUndefined(graphCreationParams.nbins)
         },
         graphStyling: {
-            ...graphParamsFrontend.graphStyling,
+            ...graphStylingParams,
             xaxis: {
-                ...graphParamsFrontend.graphStyling.xaxis,
+                ...graphStylingParams.xaxis,
                 gridwidth: convertToStringOrUndefined(graphStylingParams.xaxis.gridwidth)
             },
             yaxis: {
-                ...graphParamsFrontend.graphStyling.yaxis,
+                ...graphStylingParams.yaxis,
                 gridwidth: convertToStringOrUndefined(graphStylingParams.yaxis.gridwidth)
             },
             legend: {
-                ...graphParamsFrontend.graphStyling.legend,
+                ...graphStylingParams.legend,
                 x: convertToStringOrUndefined(graphStylingParams.legend.x),
                 y: convertToStringOrUndefined(graphStylingParams.legend.y)
             }
-        }
+        },
+        graphPreprocessing: graphParamsBackend.graph_preprocessing
     }
 }
 
@@ -308,11 +335,11 @@ export const openGraphEditor =
     async (
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
         sheetDataArray: SheetData[],
+        uiState: UIState,
         setUIState: React.Dispatch<React.SetStateAction<UIState>>,
-        sheetIndex: number,
         mitoAPI: MitoAPI,
+        graphID?: GraphID,
         graphType?: GraphType,
-        selectedColumnIds?: ColumnID[]
     ) => {
     // We turn off editing mode, if it is on
         setEditorState(undefined);
@@ -331,14 +358,27 @@ export const openGraphEditor =
             return;
         }
 
-        const newGraphID = getRandomId() // Create a new GraphID
-        const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, graphType, selectedColumnIds)
-
-        await mitoAPI.editGraph(
-            newGraphID,
-            graphParams,
-            '100%',
-            '100%',
-            getRandomId(), 
-        );
+        // If there is a graphID, we are editing an existing graph.
+        let existingParams = undefined;
+        if (graphID !== undefined) {
+            const response = await mitoAPI.getGraphParams(graphID);
+            const existingParamsBackend = 'error' in response ? undefined : response.result;
+            if (existingParamsBackend !== undefined) {
+                existingParams = convertBackendtoFrontendGraphParams(existingParamsBackend);
+            }
+        } else {
+            graphID = getRandomId();
+        }
+        setUIState({
+            ...uiState,
+            selectedTabType: 'graph',
+            selectedGraphID: graphID,
+            currOpenModal: {type: ModalEnum.None},
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphType: graphType,
+                existingParams: existingParams,
+                graphID: graphID,
+            }
+        })
     }

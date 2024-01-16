@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI,  getRandomId } from '../../api/api';
-import { GraphDataDict, GraphID, GraphSidebarTab, UIState } from '../../types';
+import { GraphDataArray, GraphID, GraphSidebarTab, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
@@ -20,7 +20,7 @@ export default function GraphSheetTabContextMenu(props: {
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI,
     graphID: GraphID,
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     display: boolean;
 }): JSX.Element {
 
