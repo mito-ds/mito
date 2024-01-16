@@ -1550,7 +1550,7 @@ class MitoWidgetTestWrapper:
         else:
             return {}
         
-    def get_graph_params(self, graph_id: str) -> Optional(Dict[str, Any]):
+    def get_graph_params(self, graph_id: str) -> Optional[Dict[str, Any]]:
         """
         Returns the graph params 
         """
