@@ -993,7 +993,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 if (e.key === 'Escape') {
                     if (editorState !== undefined) {
                         setEditorState(undefined)
-                    } else if (uiState.currOpenTaskpane.type !== TaskpaneType.NONE) {
+                    } else if (uiState.currOpenTaskpane.type !== TaskpaneType.NONE && uiState.currOpenTaskpane.type !== TaskpaneType.GRAPH) {
                         setUIState(prevUIState => {
                             return {
                                 ...prevUIState,
