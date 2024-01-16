@@ -184,12 +184,19 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                                     if (newExportType === 'csv') {
                                         return {
                                             ...prevUIState,
-                                            exportConfiguration: {exportType: 'csv'}
+                                            exportConfiguration: {
+                                                exportType: 'csv',
+                                                fileName: prevUIState.exportConfiguration.fileName,
+                                            }
                                         }
                                     } else {
                                         return {
                                             ...prevUIState,
-                                            exportConfiguration: {exportType: 'excel', sheetIndexes: [props.selectedSheetIndex]}
+                                            exportConfiguration: {
+                                                exportType: 'excel', 
+                                                fileName: prevUIState.exportConfiguration.fileName,
+                                                sheetIndexes: [props.selectedSheetIndex]
+                                            }
                                         }
                                     }
                                 })
@@ -197,7 +204,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                         >
                             <DropdownItem 
                                 title='csv'
-                                // subtext={"Exporting as a csv will not preserve any formatting."} Add this back when we let users export with formatting
+                                subtext={"Exporting as a csv will not preserve any formatting."}
                             />
                             <DropdownItem 
                                 title='excel'
@@ -209,7 +216,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             />
                         </Select>
                     </Row>
-                    { props.uiState.exportConfiguration.exportType === 'excel' && 
+                    {props.uiState.exportConfiguration.exportType === 'excel' && 
                         <div>
                             <Row justify='space-between' align='center'>
                                 <Col>
