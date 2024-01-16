@@ -31,7 +31,7 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> Optio
         if step.params is not None and params_to_match is not None and len(params_to_match) > 0:
             all_matched = True
             for key, value in params_to_match.items():
-                if step.params[key] != value:
+                if step.params.get(key) != value:
                     all_matched = False
             if all_matched:
                 found_params = dict(**step.params)
@@ -39,7 +39,7 @@ def get_params(params: Dict[str, Any], steps_manager: StepsManagerType) -> Optio
         if step.execution_data is not None and len(execution_data_to_match) > 0:
             all_matched = True
             for key, value in execution_data_to_match.items():
-                if step.execution_data[key] != value:
+                if step.execution_data.get(key) != value:
                     all_matched = False
                 
             if all_matched:
