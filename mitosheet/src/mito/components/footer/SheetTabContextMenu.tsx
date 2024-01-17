@@ -22,8 +22,13 @@ export const getGraphTabNamesAndIDsFromSheetIndex = async (sheetIndex: number, g
     if (allGraphParams === undefined) {
         return []
     }
-    const filteredGraphDataJSON: GraphDataArray = graphDataArray.filter((graphData: GraphData, index: number) => {
-        return allGraphParams[index].graph_creation.sheet_index === sheetIndex
+
+    const filteredGraphDataJSON: GraphDataArray = graphDataArray.filter((graphData: GraphData) => {
+        const graphParams = allGraphParams.find(graphParam => graphParam.graph_id === graphData.graph_id);
+        if (!graphParams) {
+            return false
+        }
+        return graphParams.graph_creation.sheet_index === sheetIndex
     })
     
     return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
