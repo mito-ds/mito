@@ -2094,14 +2094,27 @@ export const getActions = (
             staticType: ActionEnum.Undo,
             iconToolbar: UndoIcon,
             longTitle: 'Undo',
-            actionFunction: () => {
+            actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
         
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
         
-                void mitoAPI.updateUndo();
+                await mitoAPI.updateUndo();
+                
+                const currOpenTaskpane = uiState.currOpenTaskpane;
+                if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
+                    if (!analysisData.graphDataArray.find(graphData => graphData.graph_id === currOpenTaskpane.openGraph.graphID)) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {type: TaskpaneType.NONE},
+                                selectedTabType: 'data'
+                            }
+                        })
+                    }
+                }
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['undo', 'go back', 'redo'],
