@@ -79,6 +79,7 @@ function GraphSetupTab(
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         graphID: GraphID;
         setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
+        mitoContainerRef: React.RefObject<HTMLDivElement>;
     }): JSX.Element {
 
     const graphSheetIndex = props.graphParams.graphCreation.sheet_index;
@@ -199,7 +200,7 @@ function GraphSetupTab(
                     sheetIndex={graphSheetIndex}
                     onChange={(newSheetIndex) => {
                         // Reset the graph params for the new sheet, but keep the graph type!
-                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newSheetIndex, props.graphID, props.graphParams.graphCreation.graph_type)
+                        const newSheetGraphParams = getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, newSheetIndex, props.graphID, props.graphParams.graphCreation.graph_type)
 
                         props.setGraphParams(newSheetGraphParams)
                     }}

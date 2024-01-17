@@ -102,10 +102,10 @@ function Footer(props: FooterProps): JSX.Element {
                 {props.graphDataArray.map((graphData, index) => {
                     return (
                         <SheetTab
-                            key={graphData.graphID}
-                            tabName={graphData.graphTabName}
-                            tabIDObj={{tabType: 'graph', graphID: graphData.graphID}}
-                            isSelectedTab={selectedTabType === 'graph' && graphData.graphID === selectedGraphID}
+                            key={graphData.graph_id}
+                            tabName={graphData.graph_tab_name}
+                            tabIDObj={{tabType: 'graph', graphID: graphData.graph_id}}
+                            isSelectedTab={selectedTabType === 'graph' && graphData.graph_id === selectedGraphID}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}

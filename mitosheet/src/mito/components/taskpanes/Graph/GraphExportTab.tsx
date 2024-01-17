@@ -17,7 +17,8 @@ function GraphExportTab(
         graphParams: GraphParamsFrontend
         graphOutput: GraphOutput,
         graphTabName: string,
-        mitoContainerRef: React.RefObject<HTMLDivElement>
+        mitoContainerRef: React.RefObject<HTMLDivElement>,
+        loading: boolean
     }): JSX.Element {
 
     // We append the correct export code for showing and for exporting to html
@@ -51,7 +52,7 @@ function GraphExportTab(
                 <TextButton
                     variant='dark'
                     onClick={copyShowGraphCode}
-                    disabled={props.graphOutput === undefined}
+                    disabled={props.loading || props.graphOutput === undefined}
                     tooltip={'Click to copy code that creates graph and displays it in the notebook'}
                 >
                     {!showGraphCodeCopied
@@ -65,7 +66,7 @@ function GraphExportTab(
                 <TextButton
                     variant='dark'
                     onClick={copyExportHTMLGraphCode}
-                    disabled={props.graphOutput === undefined}
+                    disabled={props.loading || props.graphOutput === undefined}
                     tooltip={'Click to copy code that creates graph and exports it as an html file'}
                 >
                     {!exportHTMLGraphCodeCopied
@@ -88,7 +89,7 @@ function GraphExportTab(
                             'graph_type': props.graphParams.graphCreation.graph_type
                         });
                     }}
-                    disabled={props.graphOutput === undefined}
+                    disabled={props.loading || props.graphOutput === undefined}
                     tooltip={'Click to download graph as png'}
                 >
                     Download as PNG

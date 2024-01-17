@@ -15,7 +15,7 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 */
 export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataArray: GraphDataArray): ({graphTabName: string, graphID: GraphID})[] => {
     return Object.entries(graphDataArray).map(([graphID, graphData]) => {
-        return {graphTabName: graphData.graphTabName, graphID: graphID}
+        return {graphTabName: graphData.graph_tab_name, graphID: graphID}
     })
 } 
 

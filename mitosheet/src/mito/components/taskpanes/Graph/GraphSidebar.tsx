@@ -4,7 +4,7 @@ import { AnalysisData, ColumnID, ColumnIDsMap, GraphDataArray, GraphID, GraphPar
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSidebarTabs from './GraphSidebarTabs';
-import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams } from './graphUtils';
+import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams, getValidParamsFromExistingParams } from './graphUtils';
 
 // import css
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';
@@ -16,6 +16,11 @@ import GraphStyleTab from './GraphStyleTab';
 import GraphSetupTab, { GraphType } from './GraphSetupTab';
 import GraphExportTab from './GraphExportTab';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import LoadingSpinner from './LoadingSpinner';
+import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
+
+
+
 
 /*
     This is the main component that displays all graphing
@@ -37,56 +42,17 @@ const GraphSidebar = (props: {
     graphSidebarTab?: GraphSidebarTab,
     selectedColumnsIds?: ColumnID[],
 }): JSX.Element => {
-    const {params: graphParams, setParams: setGraphParams, startNewStep } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
-        () => props.existingParams ?? getDefaultGraphParams(props.sheetDataArray, props.uiState.selectedSheetIndex, props.graphID, props.graphType, props.selectedColumnsIds),
+    const {params: graphParams, setParams: setGraphParams, startNewStep, loading } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
+        () => getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.graphID, props.graphType, props.selectedColumnsIds, props.existingParams),
         StepType.Graph,
         props.mitoAPI,
         props.analysisData,
-        50, // 50 ms debounce delay
+        1000, // Relatively long debounce delay, so we don't send too many graphing messages
         {
             getBackendFromFrontend: convertFrontendtoBackendGraphParams,
             getFrontendFromBackend: convertBackendtoFrontendGraphParams,
         },
-        {
-            // If we have a destination sheet index, we make sure to not overwrite the pivot
-            // that is there by default
-            doNotSendDefaultParams: props.existingParams !== undefined,
-        }
     )
-
-    /*
-         If the props.graphID changes, which happens when opening a graph:
-         1. reset the stepID so we don't overwrite the previous edits.
-         2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
-     */
-    useEffect(() => {
-        const refreshParams = async () => {
-            if (props.existingParams !== undefined) {
-                setGraphParams(props.existingParams)
-                startNewStep()
-                return;
-            }
-            const response = await props.mitoAPI.getGraphParams(props.graphID);
-            const existingParamsBackend = 'error' in response ? undefined : response.result;
-            if (existingParamsBackend !== undefined) {
-                const newParams = convertBackendtoFrontendGraphParams(existingParamsBackend);
-                setGraphParams(newParams);
-            } else {
-                setGraphParams(
-                    getDefaultGraphParams(
-                        props.sheetDataArray, 
-                        props.uiState.selectedSheetIndex, 
-                        props.graphID, 
-                        props.graphType, 
-                        props.selectedColumnsIds
-                    )
-                );
-            }
-            startNewStep()
-        }
-
-        void refreshParams()
-    }, [props.graphID, props.existingParams])
 
     /*
         The graphID is the keystone of the graphSidebar. Each graph tab has one graphID that does not switch even if the user changes source data sheets. 
@@ -101,10 +67,54 @@ const GraphSidebar = (props: {
         to create a new graphID. 
     */
     const dataSourceSheetIndex = graphParams?.graphCreation.sheet_index
-    const graphData = props.graphDataArray.find(graphData => graphData.graphID === props.graphID)
-    const graphOutput = graphData?.graphOutput;
-    const graphTabName = graphData?.graphTabName;
+    const graphData = props.graphDataArray.find(graphData => graphData.graph_id === props.graphID)
+    const graphOutput = graphData?.graph_output;
+    const graphTabName = graphData?.graph_tab_name;
     const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
+
+    const switchToNewGraphID = async (newGraphID: GraphID) => {
+
+        // TODO: explain this case
+        if (props.existingParams !== undefined) {
+            setGraphParams(getValidParamsFromExistingParams(props.existingParams, props.sheetDataArray))
+            startNewStep()
+            return;
+        }
+
+        const response = await props.mitoAPI.getGraphParams(newGraphID);
+        const existingParamsBackend = 'error' in response ? undefined : response.result;
+        if (existingParamsBackend !== undefined) {
+            const newParams = convertBackendtoFrontendGraphParams(existingParamsBackend);
+            setGraphParams(newParams);
+        } else {
+            setGraphParams(
+                getDefaultGraphParams(
+                    props.mitoContainerRef, 
+                    props.sheetDataArray, 
+                    props.uiState.selectedSheetIndex, 
+                    props.graphID, 
+                    props.graphType, 
+                    props.selectedColumnsIds
+                )
+            );
+        }
+        startNewStep()
+    }
+
+    /*
+         If the props.graphID changes, which happens when opening a graph:
+         1. reset the stepID so we don't overwrite the previous edits.
+         2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
+     */
+    useEffect(() => {
+        // If the graphID is the same as the graphID in the params, then we don't need to refresh the params
+        if (graphParams?.graphID === props.graphID) {
+            return;
+        }
+
+        void switchToNewGraphID(props.graphID);
+
+    }, [props.graphID, props.existingParams])
 
     // If the graphSidebarTab changes to Export then update it. 
     // This occurs if the graph tab action is used.
@@ -120,6 +130,16 @@ const GraphSidebar = (props: {
             void props.mitoAPI.log('plotly_define_failed');
         }
     }, [])
+
+    // Handle graph resizing
+    useEffectOnResizeElement(() => {
+        setGraphParams(prevGraphParams => {
+            return {
+                ...prevGraphParams,
+                graphRendering: getGraphRenderingParams(props.mitoContainerRef)
+            }
+        })
+    }, [], props.mitoContainerRef, '#mito-center-content-container')
 
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
@@ -137,6 +157,7 @@ const GraphSidebar = (props: {
         }
 
     }, [graphOutput])
+
     if (props.sheetDataArray.length === 0 || graphParams === undefined || dataSourceSheetIndex === undefined) {
         // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
         props.setUIState(prevUIState => {
@@ -204,6 +225,7 @@ const GraphSidebar = (props: {
                                 columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
                                 columnIDsMapArray={props.columnIDsMapArray}
                                 setUIState={props.setUIState}
+                                mitoContainerRef={props.mitoContainerRef}
                             />
                         }
                         {selectedGraphSidebarTab === GraphSidebarTab.Style &&
@@ -219,6 +241,7 @@ const GraphSidebar = (props: {
                                 mitoAPI={props.mitoAPI}
                                 graphOutput={graphOutput}
                                 mitoContainerRef={props.mitoContainerRef}
+                                loading={loading}
                             />
                         }
                     </div>
@@ -228,6 +251,14 @@ const GraphSidebar = (props: {
                         mitoAPI={props.mitoAPI}
                     />
                 </div>
+                {loading &&
+                     <div className='popup-div'>
+                         <LoadingSpinner />
+                         <p className='popup-text-div'>
+                             loading
+                         </p>
+                     </div>
+                 }
             </div>
             
         )

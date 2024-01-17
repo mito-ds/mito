@@ -1,6 +1,6 @@
 export { Mito } from './Mito';
 export { 
-    AnalysisData, GraphDataBackend, GraphDataArray as graphDataArray, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile,
+    AnalysisData, GraphData, GraphDataArray as graphDataArray, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile,
     MitoTheme
 } from "./types"
 

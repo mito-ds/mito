@@ -1,15 +1,16 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, EditorState, GraphDataArray, GraphDataBackend, GraphDataFrontend, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData, UIState } from "../../../types"
+import { MitoAPI, getRandomId } from "../../../api/api"
+import { ColumnID, ColumnIDsMap, EditorState, GraphDataArray, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, SheetData, UIState } from "../../../types"
+import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
 import { convertStringToFloatOrUndefined } from "../../../utils/numbers"
 import { convertToStringOrUndefined } from "../../../utils/strings"
 import DropdownItem from "../../elements/DropdownItem"
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
-import { MitoAPI, getRandomId } from "../../../api/api"
-import { TaskpaneType } from "../taskpanes"
 import { ModalEnum } from "../../modals/modals"
+import { TaskpaneType } from "../taskpanes"
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GRAPH_SAFETY_FILTER_CUTOFF, GraphType } from "./GraphSetupTab"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
@@ -56,11 +57,50 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
     }
 }
 
+export const getValidParamsFromExistingParams = (existingParams: GraphParamsFrontend, sheetDataArray: SheetData[]): GraphParamsFrontend => {
+    const graphDataSourceSheetIndex = existingParams.graphCreation.sheet_index;
+    const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
 
-// unless a graph type is provided
-export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphID: GraphID, graphType?: GraphType, selectedColumnIds?: ColumnID[]): GraphParamsFrontend => {
+    const xAxisColumnIDs = intersection(
+        validColumnIDs,
+        existingParams.graphCreation.x_axis_column_ids
+    )
+    const yAxisColumnIDs = intersection(
+        validColumnIDs,
+        existingParams.graphCreation.y_axis_column_ids
+    )
+
+    const color = existingParams.graphCreation.color !== undefined && validColumnIDs.includes(existingParams.graphCreation.color) ? existingParams.graphCreation.color : undefined
+
+    return {
+        ...existingParams,
+        graphCreation: {
+            ...existingParams.graphCreation,
+            x_axis_column_ids: xAxisColumnIDs,
+            y_axis_column_ids: yAxisColumnIDs,
+            color: color
+        }
+    }
+}
+
+
+export const getDefaultGraphParams = (
+        mitoContainerRef: React.RefObject<HTMLDivElement>,
+        sheetDataArray: SheetData[], 
+        sheetIndex: number, 
+        graphID: GraphID, 
+        graphType?: GraphType, 
+        selectedColumnIds?: ColumnID[], 
+        existingParams?: GraphParamsFrontend
+    ): GraphParamsFrontend => {
+    
+    if (existingParams !== undefined) {
+        return getValidParamsFromExistingParams(existingParams, sheetDataArray)
+    }
+    
     graphType = graphType || GraphType.BAR
-    const axis_column_ids = getAxisColumnIDs(sheetDataArray[sheetIndex], graphType, selectedColumnIds)
+    const axis_column_ids = getAxisColumnIDs(sheetDataArray[sheetIndex], graphType, selectedColumnIds);
+    
     return {
         graphID: graphID ?? getRandomId(),
         graphPreprocessing: {
@@ -123,7 +163,8 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             // Params that are only available to some graph types
             barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
             barnorm: undefined,
-        }
+        },
+        graphRendering: getGraphRenderingParams(mitoContainerRef)
     }
 }
 
@@ -186,20 +227,29 @@ export const getGraphTypeFullName = (graphType: GraphType): string => {
     }
 }
 
-export const convertBackendtoFrontendGraphData = (graphDataBackend: GraphDataBackend): GraphDataFrontend => {
-    return {
-        graphID: graphDataBackend.graph_id,
-        graphOutput: graphDataBackend.graph_output,
-        graphTabName: graphDataBackend.graph_tab_name,
-    }
-}
+export const getGraphRenderingParams = (mitoContainerRef: React.RefObject<HTMLDivElement>): GraphRenderingParams => {
+    const centerContentContainerBoundingRect: DOMRect | undefined = mitoContainerRef.current
+             ?.querySelector('#mito-center-content-container')
+             ?.getBoundingClientRect();
 
-export const convertFrontendtoBackendGraphData = (graphDataFrontend: GraphDataFrontend): GraphDataBackend => {
-    return {
-        graph_id: graphDataFrontend.graphID,
-        graph_output: graphDataFrontend.graphOutput,
-        graph_tab_name: graphDataFrontend.graphTabName,
-    }
+        const graphSidebarToolbarContainerBoundingRect: DOMRect | undefined = mitoContainerRef.current
+            ?.querySelector('.graph-sidebar-toolbar-container')
+            ?.getBoundingClientRect();
+
+        if (centerContentContainerBoundingRect === undefined || graphSidebarToolbarContainerBoundingRect === undefined) {
+            return {
+                height: undefined,
+                width: undefined
+            };
+        }
+
+        const newHeight = `${centerContentContainerBoundingRect?.height - 10}px`; // Subtract pixels from the height & width to account for padding
+        const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerBoundingRect.width}px`;
+
+        return {
+            height: newHeight,
+            width: newWidth,
+        }
 }
 
 export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphParamsFrontend): GraphParamsBackend => {
@@ -231,7 +281,8 @@ export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphPa
                 y: convertStringToFloatOrUndefined(graphStylingParams.legend.y)
             }
         },
-        graph_preprocessing: graphParamsFrontend.graphPreprocessing
+        graph_preprocessing: graphParamsFrontend.graphPreprocessing,
+        graph_rendering: graphParamsFrontend.graphRendering
     }
 }
 
@@ -264,7 +315,8 @@ export const convertBackendtoFrontendGraphParams = (graphParamsBackend: GraphPar
                 y: convertToStringOrUndefined(graphStylingParams.legend.y)
             }
         },
-        graphPreprocessing: graphParamsBackend.graph_preprocessing
+        graphPreprocessing: graphParamsBackend.graph_preprocessing,
+        graphRendering: graphParamsBackend.graph_rendering
     }
 }
 

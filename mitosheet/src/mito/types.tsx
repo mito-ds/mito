@@ -397,35 +397,40 @@ export type GraphStylingParams<T> = {
     barnorm: string | undefined
 }
 
+export type GraphRenderingParams = {
+    height: string | undefined,
+    width: string | undefined
+}
+
 /**
- * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
+ * Data about all of the graphs. For each graph, it contains 
  * the actual graph html & javascript, and the generated code.
+ */
+export type GraphData = {
+    graph_id: GraphID,
+    graph_output: GraphOutput, 
+    graph_tab_name: string
+};
+/**
+ * 
  * We have separate frontend and backend params so that we can 
  * handle input fields which must be strings on the frontend to handle 
  * decimal places and negative signs, while also allowing us to send 
  * correctly types params to the backend.
  */
-export type GraphDataFrontend = {
-    graphID: GraphID,
-    graphOutput: GraphOutput, 
-    graphTabName: string
-};
-export type GraphDataBackend = {
-    graph_id: GraphID,
-    graph_output: GraphOutput, 
-    graph_tab_name: string
-}
 export type GraphParamsFrontend = {
     graphID: string,
     graphPreprocessing: GraphPreprocessingParams,
     graphCreation: GraphCreationParams<string>,
-    graphStyling: GraphStylingParams<string>
+    graphStyling: GraphStylingParams<string>,
+    graphRendering: GraphRenderingParams
 };
 export type GraphParamsBackend = {
     graph_id: string,
     graph_preprocessing: GraphPreprocessingParams,
     graph_creation: GraphCreationParams<number>,
-    graph_styling: GraphStylingParams<number>
+    graph_styling: GraphStylingParams<number>,
+    graph_rendering: GraphRenderingParams
 };
 
 export type GraphOutput = {
@@ -436,7 +441,7 @@ export type GraphOutput = {
 
 export type GraphID = string;
 
-export type GraphDataArray = GraphDataFrontend[];
+export type GraphDataArray = GraphData[];
 
 
 export interface ConcatParams {

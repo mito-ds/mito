@@ -22,7 +22,6 @@ import {
     PublicInterfaceVersion, SheetData, UserProfile,
     isInJupyterLab, isInJupyterNotebook
 } from "../mito";
-import { convertBackendtoFrontendGraphData } from "../mito/components/taskpanes/Graph/graphUtils";
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils";
 
 
@@ -117,8 +116,5 @@ export const getUserProfileFromString = (user_profile_json: string): UserProfile
     return userProfile;
 }
 export const getAnalysisDataFromString = (analysis_data_json: string): AnalysisData =>  {
-    const parsed = JSON.parse(analysis_data_json)
-    // Convert the graphData from backend to frontend form.
-    parsed['graphDataArray'] = parsed['graphDataArray'].map(convertBackendtoFrontendGraphData);
-    return parsed;
+    return JSON.parse(analysis_data_json)
 }
