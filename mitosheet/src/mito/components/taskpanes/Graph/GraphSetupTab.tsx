@@ -16,6 +16,7 @@ import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter, getGraphTypeFullName } from './graphUtils';
+import { OpenGraphType } from './GraphSidebar';
 
 export enum GraphType {
     BAR = 'bar',
@@ -78,6 +79,7 @@ function GraphSetupTab(
         graphID: GraphID;
         setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
         mitoContainerRef: React.RefObject<HTMLDivElement>;
+        openGraph: OpenGraphType,
     }): JSX.Element {
 
     const graphSheetIndex = props.graphParams.graphCreation.sheet_index;
@@ -198,7 +200,7 @@ function GraphSetupTab(
                     sheetIndex={graphSheetIndex}
                     onChange={(newSheetIndex) => {
                         // Reset the graph params for the new sheet, but keep the graph type!
-                        const newSheetGraphParams = getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, newSheetIndex, props.graphID, props.graphParams.graphCreation.graph_type)
+                        const newSheetGraphParams = getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, newSheetIndex, props.openGraph)
 
                         props.setGraphParams(newSheetGraphParams)
                     }}

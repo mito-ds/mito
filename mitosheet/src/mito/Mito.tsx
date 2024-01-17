@@ -68,7 +68,6 @@ import loadPlotly from './utils/plotly';
 import { MitoAPI, PublicInterfaceVersion, isInJupyterLab, isInJupyterNotebook } from '.';
 import { SendFunction, SendFunctionError } from './api/send';
 import BottomLeftPopup from './components/elements/BottomLeftPopup';
-import { getSelectedColumnIDsWithEntireSelectedColumn } from './components/endo/selectionUtils';
 import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 import EphemeralMessage from './components/popups/EphemeralMessage';
 import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
@@ -580,12 +579,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     graphDataArray={analysisData.graphDataArray}
                     analysisData={analysisData}
                     mitoContainerRef={mitoContainerRef}
-
-                    graphID={uiState.currOpenTaskpane.openGraphID}
-                    
-                    defaultParams={uiState.currOpenTaskpane.defaultParams}
-                    graphTypeForNewGraph={uiState.currOpenTaskpane.graphTypeForNewGraph}
-                    selectedColumnsIds={getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetDataArray[uiState.selectedSheetIndex])}
+                    openGraph={uiState.currOpenTaskpane.openGraph}
                 />
             )
             case TaskpaneType.IMPORT_FILES: return (

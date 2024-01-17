@@ -7,7 +7,7 @@ import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { getParamsForExistingGraph, openGraphSidebar } from '../taskpanes/Graph/graphUtils';
 
 
 /*
@@ -71,13 +71,22 @@ export default function GraphTabContextMenu(props: {
     }
 
     const openExportGraphTaskpaneTab = async (): Promise<void> => {
+        const existingParams = await getParamsForExistingGraph(props.mitoAPI, props.graphID);
+
+        if (existingParams === undefined) {
+            return;
+        }
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
                 currOpenTaskpane: {
                     type: TaskpaneType.GRAPH, 
-                    openGraphID: props.graphID, 
-                    graphSidebarTab: GraphSidebarTab.Export
+                    graphSidebarTab: GraphSidebarTab.Export,
+                    openGraph: {
+                        type: 'existing_graph',
+                        graphID: props.graphID,
+                        existingParams: existingParams
+                    }
                 },
             }
         })

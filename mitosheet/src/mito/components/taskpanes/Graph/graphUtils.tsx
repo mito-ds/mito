@@ -11,6 +11,7 @@ import DropdownItem from "../../elements/DropdownItem"
 import { ModalEnum } from "../../modals/modals"
 import { TaskpaneType } from "../taskpanes"
 import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GRAPH_SAFETY_FILTER_CUTOFF, GraphType } from "./GraphSetupTab"
+import { OpenGraphType } from "./GraphSidebar"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
@@ -86,29 +87,44 @@ export const getValidParamsFromExistingParams = (existingParams: GraphParamsFron
 
 export const getDefaultGraphParams = (
         mitoContainerRef: React.RefObject<HTMLDivElement>,
-        sheetDataArray: SheetData[], 
-        sheetIndex: number, 
-        graphID: GraphID, 
-        graphType?: GraphType, 
-        selectedColumnIds?: ColumnID[], 
-        existingDefaultParams?: GraphParamsFrontend
+        sheetDataArray: SheetData[],
+        selectedSheetIndex: number,
+        openGraph: OpenGraphType
     ): GraphParamsFrontend => {
-    
-    if (existingDefaultParams !== undefined) {
-        return getValidParamsFromExistingParams(existingDefaultParams, sheetDataArray)
+
+    const graphRenderingParams = getGraphRenderingParams(mitoContainerRef)
+
+    if (openGraph.type === 'existing_graph') {
+        const newValidParams = getValidParamsFromExistingParams(openGraph.existingParams, sheetDataArray);
+        return {
+            ...newValidParams,
+            graphRendering: graphRenderingParams
+        }
     }
+
+
+    if (openGraph.type === 'new_graph_duplicated_from_existing') {
+        const newValidParams = getValidParamsFromExistingParams(openGraph.existingParamsOfDuplicated, sheetDataArray);
+        return {
+            ...newValidParams,
+            graphID: openGraph.graphID,
+            graphRendering: graphRenderingParams
+        }
+    }
+
+    const newGraphType = openGraph.graphType;
+    const selectedColumnIDs = openGraph.selectedColumnIds;
     
-    graphType = graphType || GraphType.BAR
-    const axis_column_ids = getAxisColumnIDs(sheetDataArray[sheetIndex], graphType, selectedColumnIds);
+    const axis_column_ids = getAxisColumnIDs(sheetDataArray[selectedSheetIndex], newGraphType, selectedColumnIDs);
     
     return {
-        graphID: graphID,
+        graphID: openGraph.graphID,
         graphPreprocessing: {
             safety_filter_turned_on_by_user: true
         },
         graphCreation: {
-            graph_type: graphType,
-            sheet_index: sheetIndex,
+            graph_type: newGraphType,
+            sheet_index: selectedSheetIndex,
             color: undefined,
             facet_col_column_id: undefined,
             facet_row_column_id: undefined,
@@ -117,11 +133,11 @@ export const getDefaultGraphParams = (
             facet_row_spacing: undefined,
             ...axis_column_ids,
             // Params that are only available to some graph types
-            points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
-            line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined,
+            points: GRAPHS_THAT_HAVE_POINTS.includes(newGraphType) ? 'outliers' : undefined,
+            line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(newGraphType) ? 'linear' : undefined,
             nbins: undefined,
             histnorm: undefined,
-            histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(graphType) ? 'count' : undefined
+            histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(newGraphType) ? 'count' : undefined
         },
         graphStyling: {
             title: {
@@ -161,10 +177,10 @@ export const getDefaultGraphParams = (
             plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
 
             // Params that are only available to some graph types
-            barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
+            barmode: GRAPHS_THAT_HAVE_BARMODE.includes(newGraphType) ? 'group' : undefined,
             barnorm: undefined,
         },
-        graphRendering: getGraphRenderingParams(mitoContainerRef)
+        graphRendering: graphRenderingParams
     }
 }
 
@@ -330,11 +346,7 @@ export const getParamsForExistingGraph = async (
     }
 }
 
-/**
- * A utility for opening the graph sidebar. 
- * 
- * 
- */
+
 export const openGraphSidebar = async (
     setUIState: React.Dispatch<React.SetStateAction<UIState>>,
     uiState: UIState,
@@ -375,15 +387,21 @@ export const openGraphSidebar = async (
 
     if (newOpenGraph.type === 'existing_graph') {
         const existingParams = await getParamsForExistingGraph(mitoAPI, newOpenGraph.graphID);
+        if (existingParams === undefined) {
+            return;
+        }
         setUIState({
             ...uiState,
             selectedTabType: 'graph',
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                defaultParams: existingParams,
-                openGraphID: newOpenGraph.graphID,
-                graphSidebarTab: GraphSidebarTab.Setup
+                graphSidebarTab: GraphSidebarTab.Setup,
+                openGraph: {
+                    type: 'existing_graph',
+                    graphID: newOpenGraph.graphID,
+                    existingParams: existingParams
+                }
             }
         })
     } else if (newOpenGraph.type === 'new_graph') {
@@ -394,14 +412,23 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                openGraphID: newGraphID,
-                graphSidebarTab: GraphSidebarTab.Setup
+                graphSidebarTab: GraphSidebarTab.Setup,
+                openGraph: {
+                    type: 'new_graph',
+                    graphID: newGraphID,
+                    graphType: newOpenGraph.graphType,
+                    selectedColumnIds: newOpenGraph.selectedColumnIds
+                }
             }
         })
     } else {
         // If we're duplicating a graph, we get its params, but also get a new graph ID
         // with these params
         const existingParams = await getParamsForExistingGraph(mitoAPI, newOpenGraph.graphIDToDuplicate);
+        if (existingParams === undefined) {
+            return;
+        }
+        
         const newGraphID = getRandomId();
         setUIState({
             ...uiState,
@@ -409,9 +436,13 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                openGraphID: newGraphID,
-                defaultParams: existingParams,
-                graphSidebarTab: GraphSidebarTab.Setup
+                graphSidebarTab: GraphSidebarTab.Setup,
+                openGraph: {
+                    type: 'new_graph_duplicated_from_existing',
+                    graphID: newGraphID,
+                    graphIDOfDuplicated: newOpenGraph.graphIDToDuplicate,
+                    existingParamsOfDuplicated: existingParams
+                }
             }
         })
     }
