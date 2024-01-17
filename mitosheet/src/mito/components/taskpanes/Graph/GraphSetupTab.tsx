@@ -189,7 +189,7 @@ function GraphSetupTab(
         ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
         : 'Use an additional column to further breakdown the data by color.';
 
-    const columnIDsMap = props.sheetDataArray[graphSheetIndex].columnIDsMap || {};
+    const columnIDsMap = props.sheetDataArray[graphSheetIndex]?.columnIDsMap || {};
 
     return (  
         <Fragment>
