@@ -1,8 +1,7 @@
 // Copyright (c) Mito
 
 import { SendFunctionError } from "../../api/send";
-import { BackendPivotParams, ColumnID, GraphSidebarTab, MergeParams } from "../../types";
-import { OpenGraphType } from "./Graph/GraphSidebar";
+import { BackendPivotParams, ColumnID, GraphSidebarTab, MergeParams, OpenGraphType } from "../../types";
 import { MergeType } from "./Merge/MergeTaskpane";
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
 

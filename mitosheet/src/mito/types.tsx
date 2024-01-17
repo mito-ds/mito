@@ -1149,6 +1149,21 @@ export enum GraphSidebarTab {
     Export = 'export'
 }
 
+export type OpenGraphType = {
+    type: 'existing_graph'
+    graphID: GraphID,
+    existingParams: GraphParamsFrontend
+} | {
+    type: 'new_graph'
+    graphID: GraphID,
+    graphType: GraphType
+    selectedColumnIds?: ColumnID[]
+} | {
+    type: 'new_duplicate_graph',
+    graphID: GraphID,
+    graphIDOfDuplicated: GraphID,
+    existingParamsOfDuplicated: GraphParamsFrontend
+}
 
 // A fancy type taken from here: https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript
 export type RecursivePartial<T> = {

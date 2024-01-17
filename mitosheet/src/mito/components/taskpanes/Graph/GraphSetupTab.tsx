@@ -16,7 +16,7 @@ import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter, getGraphTypeFullName } from './graphUtils';
-import { OpenGraphType } from './GraphSidebar';
+import { OpenGraphType } from '../../../types';
 
 export enum GraphType {
     BAR = 'bar',

@@ -11,7 +11,7 @@ import DropdownItem from "../../elements/DropdownItem"
 import { ModalEnum } from "../../modals/modals"
 import { TaskpaneType } from "../taskpanes"
 import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GRAPH_SAFETY_FILTER_CUTOFF, GraphType } from "./GraphSetupTab"
-import { OpenGraphType } from "./GraphSidebar"
+import { OpenGraphType } from "../../../types"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
@@ -60,7 +60,9 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
 
 export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIState: React.Dispatch<React.SetStateAction<UIState>>, graphDataArray: GraphData[]) => {
     const remainingGraphIDs = graphDataArray.filter(graphData => !graphIDs.includes(graphData.graph_id)).map(graphData => graphData.graph_id);
-    await graphIDs.forEach(async graphID => await mitoAPI.editGraphDelete(graphID));
+    for (const graphID of graphIDs) {
+        await mitoAPI.editGraphDelete(graphID)
+    };
     if (remainingGraphIDs.length === 0) {
         return setUIState(prevUIState => {
             return {
@@ -138,7 +140,7 @@ export const getDefaultGraphParams = (
     }
 
 
-    if (openGraph.type === 'new_graph_duplicated_from_existing') {
+    if (openGraph.type === 'new_duplicate_graph') {
         const newValidParams = getValidParamsFromExistingParams(openGraph.existingParamsOfDuplicated, sheetDataArray);
         return {
             ...newValidParams,
@@ -147,6 +149,7 @@ export const getDefaultGraphParams = (
         }
     }
 
+    // This is the case where we are creating a new graph
     const newGraphType = openGraph.graphType;
     const selectedColumnIDs = openGraph.selectedColumnIds;
     
@@ -396,7 +399,7 @@ export const openGraphSidebar = async (
         graphType: GraphType
         selectedColumnIds?: ColumnID[]
     } | {
-        type: 'new_graph_duplicated_from_existing',
+        type: 'new_duplicate_graph',
         graphIDToDuplicate: GraphID
     }
 ) => {
@@ -473,7 +476,7 @@ export const openGraphSidebar = async (
                 type: TaskpaneType.GRAPH,
                 graphSidebarTab: GraphSidebarTab.Setup,
                 openGraph: {
-                    type: 'new_graph_duplicated_from_existing',
+                    type: 'new_duplicate_graph',
                     graphID: newGraphID,
                     graphIDOfDuplicated: newOpenGraph.graphIDToDuplicate,
                     existingParamsOfDuplicated: existingParams

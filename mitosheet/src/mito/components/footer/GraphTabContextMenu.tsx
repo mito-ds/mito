@@ -59,7 +59,7 @@ export default function GraphTabContextMenu(props: {
             props.sheetDataArray, 
             props.mitoAPI,
             {
-                type: 'new_graph_duplicated_from_existing',
+                type: 'new_duplicate_graph',
                 graphIDToDuplicate: props.graphID,
             }
         )

@@ -4,35 +4,18 @@ import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import { AnalysisData, ColumnID, GraphDataArray, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, GraphDataArray, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, OpenGraphType, SheetData, StepType, UIState } from '../../../types';
 import XIcon from '../../icons/XIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphExportTab from './GraphExportTab';
-import GraphSetupTab, { GraphType } from './GraphSetupTab';
+import GraphSetupTab from './GraphSetupTab';
 import GraphSidebarTabs from './GraphSidebarTabs';
 import GraphStyleTab from './GraphStyleTab';
 import LoadingSpinner from './LoadingSpinner';
 import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams } from './graphUtils';
-
-export type OpenGraphType = {
-    type: 'existing_graph'
-    graphID: GraphID,
-    existingParams: GraphParamsFrontend
-} | {
-    type: 'new_graph'
-    graphID: GraphID,
-    graphType: GraphType
-    selectedColumnIds?: ColumnID[]
-} | {
-    type: 'new_graph_duplicated_from_existing',
-    graphID: GraphID,
-    graphIDOfDuplicated: GraphID,
-    existingParamsOfDuplicated: GraphParamsFrontend
-}
-
 
 /*
     This is the main component that displays all graphing
