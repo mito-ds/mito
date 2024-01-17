@@ -16,7 +16,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, ParameterizableParams, SheetData, UIState, UserProfile, GraphParamsBackend, GraphParamsFrontend } from "../types";
+import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, ParameterizableParams, SheetData, UIState, UserProfile, GraphParamsBackend, GraphParamsFrontend, StepType } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
 export type MitoAPIResult<ResultType> = {result: ResultType} | SendFunctionErrorReturnType 
@@ -362,10 +362,10 @@ export class MitoAPI {
     /*
         Gets an array of all params matching a step type.
     */
-    async getAllParamsForType<ParamType>(stepType: string): Promise<MitoAPIResult<ParamType[]>> {
+    async getAllParamsForStepType<ParamType>(stepType: StepType): Promise<MitoAPIResult<ParamType[]>> {
         return await this.send<ParamType[]>({
             'event': 'api_call',
-            'type': 'get_all_params_for_type',
+            'type': 'get_all_params_for_step_type',
             'params': {
                 'step_type': stepType,
             },

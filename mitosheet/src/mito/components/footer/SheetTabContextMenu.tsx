@@ -17,7 +17,7 @@ import { GraphType } from '../taskpanes/Graph/GraphSetupTab';
 */
 export const getGraphTabNamesAndIDsFromSheetIndex = async (sheetIndex: number, graphDataArray: GraphDataArray, mitoAPI: MitoAPI): Promise<({graphTabName: string, graphID: GraphID})[]> => {
     // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
-    const response = await mitoAPI.getAllParamsForType<GraphParamsBackend>('graph')
+    const response = await mitoAPI.getAllParamsForStepType<GraphParamsBackend>('graph')
     const allGraphParams: GraphParamsBackend[] | undefined = 'error' in response ? undefined : response.result;
     if (allGraphParams === undefined) {
         return []
