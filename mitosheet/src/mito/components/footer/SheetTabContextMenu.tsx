@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { DFSource, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
+import { DFSource, GraphData, GraphDataArray, GraphID, GraphParamsBackend, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
@@ -13,9 +13,19 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
     Helper function for finding all of the graph tab names
     that are created from a given sheet index
 */
-export const getGraphTabNamesAndIDsFromSheetIndex = (sheetIndex: number, graphDataArray: GraphDataArray): ({graphTabName: string, graphID: GraphID})[] => {
-    return Object.entries(graphDataArray).map(([graphID, graphData]) => {
-        return {graphTabName: graphData.graph_tab_name, graphID: graphID}
+export const getGraphTabNamesAndIDsFromSheetIndex = async (sheetIndex: number, graphDataArray: GraphDataArray, mitoAPI: MitoAPI): Promise<({graphTabName: string, graphID: GraphID})[]> => {
+        // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
+        const response = await mitoAPI.getAllParamsForType<GraphParamsBackend>('graph')
+        const allGraphParams: GraphParamsBackend[] | undefined = 'error' in response ? undefined : response.result;
+        if (allGraphParams === undefined) {
+            return []
+        }
+        const filteredGraphDataJSON: GraphDataArray = graphDataArray.filter((graphData: GraphData, index: number) => {
+            return allGraphParams[index].graph_creation.sheet_index === sheetIndex
+        })
+    
+        return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
+            return {graphTabName: graphData.graph_tab_name, graphID: graphID}
     })
 } 
 
@@ -51,7 +61,7 @@ export default function SheetTabContextMenu(props: {
     }, [props.display])
 
     const onDelete = async (): Promise<void> => {
-        const dependantGraphTabNamesAndIDs = getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataArray)
+        const dependantGraphTabNamesAndIDs = await getGraphTabNamesAndIDsFromSheetIndex(props.sheetIndex, props.graphDataArray, props.mitoAPI)
         
         if (dependantGraphTabNamesAndIDs.length > 0) {
             props.setUIState(prevUIState => {

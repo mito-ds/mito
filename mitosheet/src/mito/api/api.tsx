@@ -357,7 +357,19 @@ export class MitoAPI {
                 return {result: result};
             }
         }
+    }
 
+    /*
+        Gets an array of all params matching a step type.
+    */
+    async getAllParamsForType<ParamType>(stepType: string): Promise<MitoAPIResult<ParamType[]>> {
+        return await this.send<ParamType[]>({
+            'event': 'api_call',
+            'type': 'get_all_params_for_type',
+            'params': {
+                'step_type': stepType,
+            },
+        })
     }
 
     /*

@@ -7,7 +7,7 @@ import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { getParamsForExistingGraph, openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { deleteGraph, getParamsForExistingGraph, openGraphSidebar } from '../taskpanes/Graph/graphUtils';
 
 
 /*
@@ -44,7 +44,7 @@ export default function GraphTabContextMenu(props: {
         // Close 
         props.closeOpenEditingPopups();
 
-        await props.mitoAPI.editGraphDelete(props.graphID)
+        await deleteGraph(props.graphID, props.mitoAPI, props.setUIState, props.graphDataArray)
     }
 
     const onDuplicate = async (): Promise<void> => {

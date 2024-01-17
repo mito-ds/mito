@@ -185,7 +185,7 @@ export const doesSheetContainData = (sheetIndex: number, sheetDataArray: SheetDa
 /* 
     Determines if a graphing tab is selected in the sheet
 */
-export const getGraphIsSelected = (uiState: UIState): boolean => {
+export const getAnyGraphIsSelected = (uiState: UIState): boolean => {
     return uiState.selectedTabType === 'graph' && uiState.currOpenTaskpane.type === TaskpaneType.GRAPH;
 }
 

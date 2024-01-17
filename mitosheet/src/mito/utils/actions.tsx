@@ -5,7 +5,7 @@ import { SendFunctionStatus } from "../api/send";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
-import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
+import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getAnyGraphIsSelected } from "../components/endo/utils";
 import AIIcon from "../components/icons/AIIcon";
 import AddColumnIcon from "../components/icons/AddColumnIcon";
 import AntiMergeIcon from "../components/icons/AntiMergeIcon";
@@ -74,7 +74,7 @@ import { ColumnDtypes } from "../components/taskpanes/ControlPanel/FilterAndSort
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
-import { openGraphSidebar } from "../components/taskpanes/Graph/graphUtils";
+import { deleteGraph, openGraphSidebar } from "../components/taskpanes/Graph/graphUtils";
 import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
@@ -605,11 +605,11 @@ export const getActions = (
             actionFunction: async () => {
                 const selectedGraphID = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? uiState.currOpenTaskpane.openGraph.graphID : undefined;
                 if (selectedGraphID) {
-                    await mitoAPI.editGraphDelete(selectedGraphID);
+                    await deleteGraph(selectedGraphID, mitoAPI, setUIState, analysisData.graphDataArray);
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : "There is no selected graph to delete."
+                return getAnyGraphIsSelected(uiState) ? defaultActionDisabledMessage : "There is no selected graph to delete."
             },
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
@@ -1662,7 +1662,7 @@ export const getActions = (
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is not selected graph to rename.'
+                return getAnyGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is not selected graph to rename.'
             },
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."

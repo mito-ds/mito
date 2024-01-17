@@ -1,7 +1,7 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
 import { MitoAPI, getRandomId } from "../../../api/api"
-import { ColumnID, ColumnIDsMap, EditorState, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, GraphSidebarTab, SheetData, UIState } from "../../../types"
+import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, GraphSidebarTab, SheetData, UIState } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
@@ -56,6 +56,44 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
             }
         }
     }
+}
+
+export const deleteGraph = async (graphID: GraphID, mitoAPI: MitoAPI, setUIState: React.Dispatch<React.SetStateAction<UIState>>, graphDataArray: GraphData[]) => {
+    const deletedGraphIndex = graphDataArray.findIndex(graphData => graphData.graph_id === graphID);
+    await mitoAPI.editGraphDelete(graphID);
+    const newGraphDataLength = graphDataArray.length - 1;
+    if (newGraphDataLength === 0) {
+        return setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                selectedTabType: 'data',
+                selectedSheetIndex: 0,
+                currOpenTaskpane: { type: TaskpaneType.NONE }
+            }
+        })
+    }
+
+    const newGraphIndex = deletedGraphIndex === 0 ? 1 : deletedGraphIndex - 1;
+    const newGraphID = graphDataArray[newGraphIndex].graph_id;
+    const existingParams = await getParamsForExistingGraph(mitoAPI, newGraphID);
+    if (existingParams === undefined) {
+        return;
+    }
+    return setUIState(prevUIState => {
+        return {
+            ...prevUIState,
+            selectedTabType: 'graph',
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphSidebarTab: GraphSidebarTab.Setup,
+                openGraph: {
+                    type: 'existing_graph',
+                    graphID: newGraphID,
+                    existingParams: existingParams
+                }
+            }
+        }
+    })
 }
 
 export const getValidParamsFromExistingParams = (existingParams: GraphParamsFrontend, sheetDataArray: SheetData[]): GraphParamsFrontend => {

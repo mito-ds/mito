@@ -15,7 +15,7 @@ import GraphSetupTab, { GraphType } from './GraphSetupTab';
 import GraphSidebarTabs from './GraphSidebarTabs';
 import GraphStyleTab from './GraphStyleTab';
 import LoadingSpinner from './LoadingSpinner';
-import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams, getParamsForExistingGraph } from './graphUtils';
+import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams } from './graphUtils';
 
 export type OpenGraphType = {
     type: 'existing_graph'
@@ -85,7 +85,6 @@ const GraphSidebar = (props: {
          2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
      */
     useEffect(() => {
-        console.log("STARTING NEW STEP", props.openGraph);
         startNewStep();
         const newParams = getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.openGraph);
         setGraphParams(newParams);
@@ -124,64 +123,6 @@ const GraphSidebar = (props: {
         }
 
     }, [graphOutput])
-
-    console.log("NEW SELECTED GRAPH", props.openGraph.graphID)
-
-    // If the number of graphs decreases, we make sure we're still on a graph that exists
-    // By switching either:
-    // 1. to a data sheet, if there are no graphs left
-    // 2. to the next graph, if we were on a graph that was deleted
-    // 3. to the last graph
-
-    const previousNumberOfGraphsRef = React.useRef<number>(props.graphDataArray.length);
-    const previouslySelectedGraphIndexRef = React.useRef<number>(props.graphDataArray.findIndex(graphData => graphData.graph_id === props.openGraph.graphID));
-    useEffect(() => {
-        const handleDeletedGraphs = async () => {
-            console.log("HANDLING", props.graphDataArray.length, previousNumberOfGraphsRef)
-            if (props.graphDataArray.length < previousNumberOfGraphsRef.current) {
-                if (props.graphDataArray.length === 0) {
-                    console.log("SWITCHING TO DATA")
-                    return props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            selectedTabType: 'data',
-                            selectedSheetIndex: 0,
-                            currOpenTaskpane: { type: TaskpaneType.NONE }
-                        }
-                    })
-                }
-
-                const newGraphIndex = Math.min(previouslySelectedGraphIndexRef.current, props.graphDataArray.length - 1);
-                const newGraphID = props.graphDataArray[newGraphIndex].graph_id;
-                const existingParams = await getParamsForExistingGraph(props.mitoAPI, newGraphID);
-                console.log("FOUND EXISING PARAMS", existingParams)
-                if (existingParams === undefined) {
-                    return;
-                }
-                return props.setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        selectedTabType: 'graph',
-                        currOpenTaskpane: {
-                            type: TaskpaneType.GRAPH,
-                            graphSidebarTab: props.graphSidebarTab,
-                            openGraph: {
-                                type: 'existing_graph',
-                                graphID: newGraphID,
-                                existingParams: existingParams
-                            }
-                        }
-                    }
-                })
-            }
-            
-            previousNumberOfGraphsRef.current = props.graphDataArray.length;
-            previouslySelectedGraphIndexRef.current = props.graphDataArray.findIndex(graphData => graphData.graph_id === props.openGraph.graphID);
-        }
-
-        void handleDeletedGraphs()
-    }, [props.graphDataArray.length])
-
 
     // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
     // If there is no data to graph

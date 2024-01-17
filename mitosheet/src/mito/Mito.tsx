@@ -509,6 +509,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <DeleteGraphsModal
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
+                    graphDataArray={analysisData.graphDataArray}
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
                     dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}

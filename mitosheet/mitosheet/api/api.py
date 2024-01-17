@@ -11,6 +11,7 @@ from threading import Thread
 from time import perf_counter
 from typing import Any, Callable, Dict, NoReturn, Optional
 
+from mitosheet.api.get_all_params_for_type import get_all_params_for_type
 from mitosheet.api.get_ai_completion import get_ai_completion
 from mitosheet.api.get_available_snowflake_options_and_defaults import \
     get_available_snowflake_options_and_defaults
@@ -198,6 +199,8 @@ def handle_api_event(
             result = get_column_describe(params, steps_manager)
         elif event["type"] == "get_params":
             result = get_params(params, steps_manager)
+        elif event["type"] == "get_all_params_for_type":
+            result = get_all_params_for_type(params, steps_manager)
         elif event["type"] == "get_excel_file_metadata":
             result = get_excel_file_metadata(params, steps_manager)
         elif event["type"] == "get_csv_files_metadata":
