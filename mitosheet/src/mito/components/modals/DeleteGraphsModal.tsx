@@ -7,7 +7,7 @@ import { MitoAPI } from '../../api/api';
 import TextButton from '../elements/TextButton';
 import { GraphData, GraphID, UIState } from '../../types';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { deleteGraph } from '../taskpanes/Graph/graphUtils';
+import { deleteGraphs } from '../taskpanes/Graph/graphUtils';
 
 
 type DeleteGraphsModalProps = {
@@ -33,9 +33,7 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
     const clickDelete = async () => {
 
         // Delete the graphs 
-        graphIDs.forEach(graphID => {
-            void deleteGraph(graphID, props.mitoAPI, props.setUIState, props.graphDataArray)
-        })
+        await deleteGraphs(graphIDs, props.mitoAPI, props.setUIState, props.graphDataArray)
         
         // Then delete the dataframe
         await props.mitoAPI.editDataframeDelete(props.sheetIndex)

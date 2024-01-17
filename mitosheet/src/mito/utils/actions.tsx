@@ -74,7 +74,7 @@ import { ColumnDtypes } from "../components/taskpanes/ControlPanel/FilterAndSort
 import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
 import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
-import { deleteGraph, openGraphSidebar } from "../components/taskpanes/Graph/graphUtils";
+import { deleteGraphs, openGraphSidebar } from "../components/taskpanes/Graph/graphUtils";
 import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
@@ -605,7 +605,7 @@ export const getActions = (
             actionFunction: async () => {
                 const selectedGraphID = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? uiState.currOpenTaskpane.openGraph.graphID : undefined;
                 if (selectedGraphID) {
-                    await deleteGraph(selectedGraphID, mitoAPI, setUIState, analysisData.graphDataArray);
+                    await deleteGraphs([selectedGraphID], mitoAPI, setUIState, analysisData.graphDataArray);
                 }
             },
             isDisabled: () => {

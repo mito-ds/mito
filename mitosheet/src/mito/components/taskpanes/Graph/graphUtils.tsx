@@ -58,11 +58,10 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
     }
 }
 
-export const deleteGraph = async (graphID: GraphID, mitoAPI: MitoAPI, setUIState: React.Dispatch<React.SetStateAction<UIState>>, graphDataArray: GraphData[]) => {
-    const deletedGraphIndex = graphDataArray.findIndex(graphData => graphData.graph_id === graphID);
-    await mitoAPI.editGraphDelete(graphID);
-    const newGraphDataLength = graphDataArray.length - 1;
-    if (newGraphDataLength === 0) {
+export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIState: React.Dispatch<React.SetStateAction<UIState>>, graphDataArray: GraphData[]) => {
+    const remainingGraphIDs = graphDataArray.filter(graphData => !graphIDs.includes(graphData.graph_id)).map(graphData => graphData.graph_id);
+    await graphIDs.forEach(async graphID => await mitoAPI.editGraphDelete(graphID));
+    if (remainingGraphIDs.length === 0) {
         return setUIState(prevUIState => {
             return {
                 ...prevUIState,
@@ -73,9 +72,7 @@ export const deleteGraph = async (graphID: GraphID, mitoAPI: MitoAPI, setUIState
         })
     }
 
-    const newGraphIndex = deletedGraphIndex === 0 ? 1 : deletedGraphIndex - 1;
-    const newGraphID = graphDataArray[newGraphIndex].graph_id;
-    const existingParams = await getParamsForExistingGraph(mitoAPI, newGraphID);
+    const existingParams = await getParamsForExistingGraph(mitoAPI, remainingGraphIDs[0]);
     if (existingParams === undefined) {
         return;
     }
@@ -88,7 +85,7 @@ export const deleteGraph = async (graphID: GraphID, mitoAPI: MitoAPI, setUIState
                 graphSidebarTab: GraphSidebarTab.Setup,
                 openGraph: {
                     type: 'existing_graph',
-                    graphID: newGraphID,
+                    graphID: remainingGraphIDs[0],
                     existingParams: existingParams
                 }
             }
