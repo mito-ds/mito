@@ -161,6 +161,8 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 <SheetTabContextMenu 
                     setDisplayContextMenu={props.setDisplayContextMenu}
                     setUIState={props.setUIState}
+                    uiState={props.uiState}
+                    setEditorState={props.setEditorState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
                     setIsRename={setIsRename}
                     sheetIndex={props.tabIDObj.sheetIndex}

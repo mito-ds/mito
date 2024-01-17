@@ -2,12 +2,14 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { DFSource, GraphData, GraphDataArray, GraphID, GraphParamsBackend, SheetData, UIState } from '../../types';
+import { DFSource, EditorState, GraphData, GraphDataArray, GraphID, GraphParamsBackend, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { ModalEnum } from '../modals/modals';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { GraphType } from '../taskpanes/Graph/GraphSetupTab';
 
 /*
     Helper function for finding all of the graph tab names
@@ -36,6 +38,8 @@ export const getGraphTabNamesAndIDsFromSheetIndex = async (sheetIndex: number, g
 export default function SheetTabContextMenu(props: {
     setDisplayContextMenu: (display: boolean) => void;
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
+    uiState: UIState;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI
@@ -122,6 +126,17 @@ export default function SheetTabContextMenu(props: {
                 // doesn't compete updating the uiState to this sheet instead of
                 // the new graphID that we're creating
                 e?.stopPropagation()
+                openGraphSidebar(
+                    props.setUIState, 
+                    props.uiState,
+                    props.setEditorState, 
+                    props.sheetDataArray, 
+                    props.mitoAPI, 
+                    {
+                        type: 'new_graph',
+                        graphType: GraphType.BAR,
+                    }
+                )
             }}
         />,
         <DropdownItem 
