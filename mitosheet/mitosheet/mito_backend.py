@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 from IPython import get_ipython
 from IPython.display import HTML, display
+from mitosheet.enterprise.mito_log_uploader import MitoLogUploader
 
 from mitosheet.kernel_utils import get_current_kernel_id, Comm
 from mitosheet.api import API
@@ -68,6 +69,9 @@ class MitoBackend():
         # Setup the MitoConfig class
         self.mito_config = MitoConfig() # type: ignore
 
+        # Set up the Mito Logger class
+        self.mito_log_uploader = MitoLogUploader('test_url', 20)
+
         custom_sheet_functions_path = self.mito_config.get_mito_config()[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH]
         all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []
         if custom_sheet_functions_path is not None:
@@ -91,6 +95,7 @@ class MitoBackend():
         self.steps_manager = StepsManager(
             args, 
             mito_config=self.mito_config, 
+            mito_log_uploader=self.mito_log_uploader,
             analysis_to_replay=analysis_to_replay, 
             import_folder=import_folder,
             user_defined_functions=all_user_defined_functions,

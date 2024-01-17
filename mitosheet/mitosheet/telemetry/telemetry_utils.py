@@ -21,6 +21,7 @@ from typing import Any, Dict, Optional
 import requests
 
 from unittest.mock import patch
+from mitosheet.enterprise.mito_log_uploader import MitoLogUploader
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_LENGTH_FIRST_ELEMENT, LOG_EXECUTION_DATA_PUBLIC
@@ -177,7 +178,7 @@ def _get_processing_time_log_params(steps_manager: Optional[StepsManagerType]=No
     """
 
     processing_time_params = {}
-     # We also log some timing information - which we round to a single decimal place just
+    # We also log some timing information - which we round to a single decimal place just
     # so that we can bucket these items easily. Note we include a variety of roundings of 
     # the time, so that we can make sure to aggregate in Mixpanel well (which will die if 
     # it is given to many values).
@@ -374,7 +375,14 @@ def identify() -> None:
             analytics.identify(static_user_id, params)
 
 
-def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Optional[StepsManagerType]=None, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
+def log(
+        log_event: str, 
+        params: Optional[Dict[str, Any]]=None, 
+        steps_manager: Optional[StepsManagerType]=None, 
+        failed: bool=False, 
+        mito_error: Optional[MitoError]=None, 
+        start_time: Optional[float]=None,
+    ) -> None:
     """
     This function is the entry point for all logging. It collects
     all relevant parameters, exeuction data, and more info while
@@ -450,3 +458,7 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
                 'log_event': log_event
             }
         )
+
+    mito_log_uploader = steps_manager.mito_log_uploader if steps_manager is not None else None
+    if mito_log_uploader is not None:
+        mito_log_uploader.log(log_event, final_params)
