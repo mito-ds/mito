@@ -257,7 +257,7 @@ def test_mito_enterprise_keys_match():
     # Since the MitoConfig is not set, we'll get none of the nested keys in the 
     # CodeSnippets object, so we use the MitoConfig and the MEC_VERSION_KEYS to 
     # get everything we need to test! 
-    mito_config = MitoConfig().get_mito_config()
+    mito_config = MitoConfig().mito_config_dict
     keys = get_keys_recursive(mito_config, [])
     assert set(without_code_snippets.values()) == set(keys)
 

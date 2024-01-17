@@ -454,7 +454,7 @@ def log(
             final_params
         )
 
-    analytics_url = steps_manager.mito_config.get_analytics_url() if steps_manager is not None else None
+    analytics_url = steps_manager.mito_config.analytics_url if steps_manager is not None else None
     if analytics_url is not None:
         requests.post(
             analytics_url,

@@ -22,7 +22,7 @@ from mitosheet.enterprise.mito_log_uploader import MitoLogUploader
 
 from mitosheet.kernel_utils import get_current_kernel_id, Comm
 from mitosheet.api import API
-from mitosheet.enterprise.mito_config import MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH, MITO_CONFIG_CUSTOM_IMPORTERS_PATH, MitoConfig
+from mitosheet.enterprise.mito_config import MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH, MITO_CONFIG_CUSTOM_IMPORTERS_PATH, MITO_CONFIG_JUPYTER_LOG_SERVER_URL, MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
 from mitosheet.saved_analyses import write_analysis
@@ -70,14 +70,16 @@ class MitoBackend():
         self.mito_config = MitoConfig() # type: ignore
 
         # Set up the Mito Logger class
-        self.mito_log_uploader = MitoLogUploader('test_url', 20)
+        jupyter_log_server_url = self.mito_config.jupyter_log_server_url
+        if jupyter_log_server_url:
+            self.mito_log_uploader = MitoLogUploader(jupyter_log_server_url, 20)
 
-        custom_sheet_functions_path = self.mito_config.get_mito_config()[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH]
+        custom_sheet_functions_path = self.mito_config.custom_sheet_functions_path
         all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []
         if custom_sheet_functions_path is not None:
             all_user_defined_functions.extend(get_non_validated_custom_sheet_functions(custom_sheet_functions_path))
 
-        custom_importers_path = self.mito_config.get_mito_config()[MITO_CONFIG_CUSTOM_IMPORTERS_PATH]
+        custom_importers_path = self.mito_config.custom_importers_path
         all_custom_importers = user_defined_importers if user_defined_importers is not None else []
         if custom_importers_path is not None:
             all_custom_importers.extend(get_functions_from_path(custom_importers_path))
@@ -95,7 +97,7 @@ class MitoBackend():
         self.steps_manager = StepsManager(
             args, 
             mito_config=self.mito_config, 
-            mito_log_uploader=self.mito_log_uploader,
+            mito_log_uploader=self.mito_log_uploader if hasattr(self, 'mito_log_uploader') else None,
             analysis_to_replay=analysis_to_replay, 
             import_folder=import_folder,
             user_defined_functions=all_user_defined_functions,
@@ -154,7 +156,7 @@ class MitoBackend():
             'pythonVersion': get_python_version(),
             'pandasVersion': get_pandas_version(),
             'numUsages': self.num_usages,
-            'mitoConfig': self.steps_manager.mito_config.get_mito_config(),
+            'mitoConfig': self.steps_manager.mito_config.mito_config_dict,
             'snowflakeCredentials': get_cached_snowflake_credentials(),
             'openAIAPIKey': os.environ.get('OPENAI_API_KEY', None),
             'aiPrivacyPolicy': get_user_field(UJ_AI_PRIVACY_POLICY),

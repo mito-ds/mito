@@ -27,7 +27,7 @@ def test_create_steps_manager():
     assert steps_manager.curr_step.column_formulas == [{'A': []}, {'A': []}]
     assert steps_manager.curr_step.dfs[0].equals(df1)
     assert steps_manager.curr_step.dfs[1].equals(df2)
-    assert steps_manager.mito_config.get_mito_config() == mito_config.get_mito_config()
+    assert steps_manager.mito_config.mito_config_dict == mito_config.mito_config_dict
 
 # We assume only column A exists
 CELL_EDIT_ERRORS = [

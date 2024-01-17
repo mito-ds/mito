@@ -68,7 +68,7 @@ DEFAULT_CODE_SNIPPETS: List[CodeSnippet] = [
 ]
 
 def get_code_snippets(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
-        code_snippets_envs = steps_manager.mito_config.get_code_snippets()
+        code_snippets_envs = steps_manager.mito_config.code_snippets
 
         if code_snippets_envs is None: 
                 return create_success_return_obj(DEFAULT_CODE_SNIPPETS)

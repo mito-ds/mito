@@ -180,7 +180,7 @@ class StepsManager:
             self, 
             args: Collection[Union[pd.DataFrame, str, None]], 
             mito_config: MitoConfig, 
-            mito_log_uploader: MitoLogUploader,
+            mito_log_uploader: Optional[MitoLogUploader]=None,
             analysis_to_replay: Optional[str]=None,
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
