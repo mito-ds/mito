@@ -218,7 +218,7 @@ const GraphSidebar = (props: {
                             loading
                         </p>
                     </div>
-                }
+            }
         </div>
         
     )

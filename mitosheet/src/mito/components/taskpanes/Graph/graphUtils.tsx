@@ -62,7 +62,7 @@ export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIS
     const remainingGraphIDs = graphDataArray.filter(graphData => !graphIDs.includes(graphData.graph_id)).map(graphData => graphData.graph_id);
     for (const graphID of graphIDs) {
         await mitoAPI.editGraphDelete(graphID)
-    };
+    }
     if (remainingGraphIDs.length === 0) {
         return setUIState(prevUIState => {
             return {
@@ -123,11 +123,11 @@ export const getValidParamsFromExistingParams = (existingParams: GraphParamsFron
 
 
 export const getDefaultGraphParams = (
-        mitoContainerRef: React.RefObject<HTMLDivElement>,
-        sheetDataArray: SheetData[],
-        selectedSheetIndex: number,
-        openGraph: OpenGraphType
-    ): GraphParamsFrontend => {
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
+    sheetDataArray: SheetData[],
+    selectedSheetIndex: number,
+    openGraph: OpenGraphType
+): GraphParamsFrontend => {
 
     const graphRenderingParams = getGraphRenderingParams(mitoContainerRef)
 
@@ -282,27 +282,27 @@ export const getGraphTypeFullName = (graphType: GraphType): string => {
 
 export const getGraphRenderingParams = (mitoContainerRef: React.RefObject<HTMLDivElement>): GraphRenderingParams => {
     const centerContentContainerBoundingRect: DOMRect | undefined = mitoContainerRef.current
-             ?.querySelector('#mito-center-content-container')
-             ?.getBoundingClientRect();
+        ?.querySelector('#mito-center-content-container')
+        ?.getBoundingClientRect();
 
-        const graphSidebarToolbarContainerBoundingRect: DOMRect | undefined = mitoContainerRef.current
-            ?.querySelector('.graph-sidebar-toolbar-container')
-            ?.getBoundingClientRect();
+    const graphSidebarToolbarContainerBoundingRect: DOMRect | undefined = mitoContainerRef.current
+        ?.querySelector('.graph-sidebar-toolbar-container')
+        ?.getBoundingClientRect();
 
-        if (centerContentContainerBoundingRect === undefined || graphSidebarToolbarContainerBoundingRect === undefined) {
-            return {
-                height: undefined,
-                width: undefined
-            };
-        }
-
-        const newHeight = `${centerContentContainerBoundingRect?.height - 10}px`; // Subtract pixels from the height & width to account for padding
-        const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerBoundingRect.width}px`;
-
+    if (centerContentContainerBoundingRect === undefined || graphSidebarToolbarContainerBoundingRect === undefined) {
         return {
-            height: newHeight,
-            width: newWidth,
-        }
+            height: undefined,
+            width: undefined
+        };
+    }
+
+    const newHeight = `${centerContentContainerBoundingRect?.height - 10}px`; // Subtract pixels from the height & width to account for padding
+    const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerBoundingRect.width}px`;
+
+    return {
+        height: newHeight,
+        width: newWidth,
+    }
 }
 
 export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphParamsFrontend): GraphParamsBackend => {

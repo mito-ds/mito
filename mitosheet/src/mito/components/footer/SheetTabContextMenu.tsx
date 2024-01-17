@@ -16,18 +16,18 @@ import { GraphType } from '../taskpanes/Graph/GraphSetupTab';
     that are created from a given sheet index
 */
 export const getGraphTabNamesAndIDsFromSheetIndex = async (sheetIndex: number, graphDataArray: GraphDataArray, mitoAPI: MitoAPI): Promise<({graphTabName: string, graphID: GraphID})[]> => {
-        // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
-        const response = await mitoAPI.getAllParamsForType<GraphParamsBackend>('graph')
-        const allGraphParams: GraphParamsBackend[] | undefined = 'error' in response ? undefined : response.result;
-        if (allGraphParams === undefined) {
-            return []
-        }
-        const filteredGraphDataJSON: GraphDataArray = graphDataArray.filter((graphData: GraphData, index: number) => {
-            return allGraphParams[index].graph_creation.sheet_index === sheetIndex
-        })
+    // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
+    const response = await mitoAPI.getAllParamsForType<GraphParamsBackend>('graph')
+    const allGraphParams: GraphParamsBackend[] | undefined = 'error' in response ? undefined : response.result;
+    if (allGraphParams === undefined) {
+        return []
+    }
+    const filteredGraphDataJSON: GraphDataArray = graphDataArray.filter((graphData: GraphData, index: number) => {
+        return allGraphParams[index].graph_creation.sheet_index === sheetIndex
+    })
     
-        return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
-            return {graphTabName: graphData.graph_tab_name, graphID: graphID}
+    return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
+        return {graphTabName: graphData.graph_tab_name, graphID: graphID}
     })
 } 
 
@@ -126,7 +126,7 @@ export default function SheetTabContextMenu(props: {
                 // doesn't compete updating the uiState to this sheet instead of
                 // the new graphID that we're creating
                 e?.stopPropagation()
-                openGraphSidebar(
+                void openGraphSidebar(
                     props.setUIState, 
                     props.uiState,
                     props.setEditorState, 

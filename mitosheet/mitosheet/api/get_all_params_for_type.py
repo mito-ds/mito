@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 from mitosheet.types import StepsManagerType
 
 
-def get_all_params_for_type(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[any]:
+def get_all_params_for_type(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[Any]:
     """
     Loops back over the steps, looking for a matching step. Specifically, it tries
     to find the most recent step with the given params passed.
