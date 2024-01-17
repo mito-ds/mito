@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { DFSource, EditorState, GraphData, GraphDataArray, GraphID, GraphParamsBackend, SheetData, UIState } from '../../types';
+import { DFSource, EditorState, GraphData, GraphDataArray, GraphID, GraphParamsBackend, SheetData, StepType, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
@@ -17,7 +17,7 @@ import { GraphType } from '../taskpanes/Graph/GraphSetupTab';
 */
 export const getGraphTabNamesAndIDsFromSheetIndex = async (sheetIndex: number, graphDataArray: GraphDataArray, mitoAPI: MitoAPI): Promise<({graphTabName: string, graphID: GraphID})[]> => {
     // Filter to only grapsh with the sheetIndex, and then get a list of the graph tab names
-    const response = await mitoAPI.getAllParamsForStepType<GraphParamsBackend>('graph')
+    const response = await mitoAPI.getAllParamsForStepType<GraphParamsBackend>(StepType.Graph)
     const allGraphParams: GraphParamsBackend[] | undefined = 'error' in response ? undefined : response.result;
     if (allGraphParams === undefined) {
         return []
