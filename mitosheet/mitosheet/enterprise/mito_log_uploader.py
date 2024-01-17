@@ -12,23 +12,29 @@ from mitosheet.user.schemas import UJ_STATIC_USER_ID
 
 def preprocess_log_for_upload(log_event: str, log_params: dict[str, Any]) -> Optional[dict[str, Any]] :
     """
-    Remove any log params that are not part of whitelisted log params for upload.
+    Convert logs into the correct format and remove any log events that are not part of the whitelisted schema.
 
-    timestampt
-    event
-    params
-    version_python
-    version_pandas
-    version_mitosheet
+	{
+	    'timestamp': '2023-10-25T15:30:00Z',
+	    'event': 'set_column_formula',
+	    'params': {
+		'sheet_index': 1,
+		'column_id': 'column id',
+		'new_formula': '=10 + 11'
+	     },
+	     'version_python': '3.9',
+	     'version_pandas': '2.0',
+	     'version_mitosheet': '0.1.522',
+	}
     """
     
-    whitelisted_events = [
+    whitelisted_log_events = [
         'edit_event',
         'error', 
         'mitosheet_rendered'
     ]
 
-    whitelisted_params = [
+    whitelisted_log_params = [
         'version_python',
         'version_pandas',
         'version_mito',
@@ -37,18 +43,17 @@ def preprocess_log_for_upload(log_event: str, log_params: dict[str, Any]) -> Opt
     ]
 
     # Remove non-whitelisted events
-    if log_event not in whitelisted_events:
+    if log_event not in whitelisted_log_events:
         return None
 
     # Remove any log params that are not part of whitelisted params or start with "params", ie: params_sheet_index
-    filtered_log_params = {k: v for k, v in log_params.items() if k in whitelisted_params or k.startswith('params_')}
+    filtered_log_params = {k: v for k, v in log_params.items() if k in whitelisted_log_params or k.startswith('params_')}
 
-    # Add the timestamp formatted as 2023-10-25T15:30:00Z
+    # Add the gmt timestamp formatted as 2023-10-25T15:30:00Z
     filtered_log_params['timestamp_gmt'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
 
-    # Create a useful top-level event field. 
-    # If there is a params_log_event (which is defined for edit_events), use that. 
-    # Otherwise, use the log_event
+    # Create a useful top-level event field. Use the params_log_event if it exists (edit_events)
+    # Otherwise, use the log_event.
     if 'params_log_event' in filtered_log_params:
         filtered_log_params['event'] = filtered_log_params['params_log_event']
         del filtered_log_params['params_log_event']
@@ -60,9 +65,16 @@ def preprocess_log_for_upload(log_event: str, log_params: dict[str, Any]) -> Opt
 
 class MitoLogUploader:
     """
- 
-    """
+    The MitoLogUploader is responsible for uploading logs to a 
+    custom analytics url set in the mito_config.json file.
 
+    It only uploads the most useful logs and log params in order 
+    to make the logs maximally useful and minimally confusing. 
+     
+    It also uploads logs in batches every log_interval seconds so that 
+    enterprises collecting logs from thousands of users do not 
+    break their logging server. 
+    """
     def __init__(
         self, 
         log_url: str,
@@ -74,6 +86,10 @@ class MitoLogUploader:
         self.unprocessed_logs = []
 
     def log(self, log_event: str, log_params: dict[str, Any]):
+        """
+        Converts log into the correct format, adds it to the queue of logs to be uploaded,
+        and checks if it is time to upload the logs.
+        """
         filtered_log_params = preprocess_log_for_upload(log_event, log_params)
 
         if filtered_log_params is not None:
@@ -84,7 +100,9 @@ class MitoLogUploader:
             self.upload_log(current_time)
 
     def upload_log(self, last_processes_log_time: float):
-
+        """
+        Uploads the unprocessed logs to the log_url and clears the unprocessed logs.
+        """
         log_payload = json.dumps(self.unprocessed_logs)
         pprint.pprint(log_payload)
         self.unprocessed_logs = []
