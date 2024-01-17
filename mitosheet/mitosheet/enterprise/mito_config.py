@@ -6,6 +6,7 @@
 
 from ast import List
 import datetime
+import pprint
 from typing import Any, Callable, Dict, Optional, Union
 import os
 from mitosheet.enterprise.license_key import decode_license_to_date
@@ -34,6 +35,7 @@ MITO_CONFIG_ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL'
 MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH = 'MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH'
 MITO_CONFIG_CUSTOM_IMPORTERS_PATH = 'MITO_CONFIG_CUSTOM_IMPORTERS_PATH'
 MITO_CONFIG_JUPYTER_LOG_SERVER_URL = 'MITO_CONFIG_JUPYTER_LOG_SERVER_URL'
+MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL = 'MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -41,6 +43,35 @@ MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
 # The default values to use if the mec does not define them
 DEFAULT_MITO_CONFIG_SUPPORT_EMAIL = 'founders@sagacollab.com'
 DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'founders@sagacollab.com'
+
+# Since Mito needs to look up individual environment variables, we need to 
+# know the names of the variables associated with each mito config version. 
+# To do so we store them as a list here. 
+MEC_VERSION_KEYS = {
+    '1': [MITO_CONFIG_VERSION, MITO_CONFIG_SUPPORT_EMAIL],
+    '2': [
+        MITO_CONFIG_VERSION, 
+        MITO_CONFIG_SUPPORT_EMAIL, 
+        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
+        MITO_CONFIG_CODE_SNIPPETS_VERSION,
+        MITO_CONFIG_CODE_SNIPPETS_URL, 
+        MITO_CONFIG_DISABLE_TOURS,
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
+        MITO_CONFIG_LLM_URL,
+        MITO_CONFIG_ANALYTICS_URL,
+        MITO_CONFIG_JUPYTER_LOG_SERVER_URL,
+        MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL,
+        MITO_CONFIG_FEATURE_TELEMETRY,
+        MITO_CONFIG_PRO,
+        MITO_CONFIG_ENTERPRISE,
+        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH,
+        MITO_CONFIG_CUSTOM_IMPORTERS_PATH,
+    ]
+}
 
 def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -63,27 +94,14 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         
     }
     """
-    return {
-        MITO_CONFIG_VERSION: '2',
-        MITO_CONFIG_SUPPORT_EMAIL: mec[MITO_CONFIG_SUPPORT_EMAIL],
-        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: None,
-        MITO_CONFIG_CODE_SNIPPETS_VERSION: None,
-        MITO_CONFIG_CODE_SNIPPETS_URL: None,
-        MITO_CONFIG_DISABLE_TOURS: None,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: None,
-        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: None,
-        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: None,
-        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: None,
-        MITO_CONFIG_LLM_URL: None,
-        MITO_CONFIG_ANALYTICS_URL: None,
-        MITO_CONFIG_JUPYTER_LOG_SERVER_URL: None,
-        MITO_CONFIG_FEATURE_TELEMETRY: None,
-        MITO_CONFIG_PRO: None,
-        MITO_CONFIG_ENTERPRISE: None,
-        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE: None,
-        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
-        MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
-    }
+
+    # Find the new keys in version 2 that are not in version 1
+    new_keys = set(MEC_VERSION_KEYS['2']) - set(mec.keys())
+    for key in new_keys:
+        mec[key] = None
+
+    mec[MITO_CONFIG_VERSION] = '2'
+    return mec
 
 """
 When updating the MEC_VERSION, add a function here to update the previous mec to the new version. For example, 
@@ -114,34 +132,6 @@ def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Opti
 def is_env_variable_set_to_true(env_variable: Union[str, int, bool]) -> bool: 
     truth_values = ['True', 'true', True, 1, '1', 't', 'T']
     return env_variable in truth_values
-
-# Since Mito needs to look up individual environment variables, we need to 
-# know the names of the variables associated with each mito config version. 
-# To do so we store them as a list here. 
-MEC_VERSION_KEYS = {
-    '1': [MITO_CONFIG_VERSION, MITO_CONFIG_SUPPORT_EMAIL],
-    '2': [
-        MITO_CONFIG_VERSION, 
-        MITO_CONFIG_SUPPORT_EMAIL, 
-        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
-        MITO_CONFIG_CODE_SNIPPETS_VERSION,
-        MITO_CONFIG_CODE_SNIPPETS_URL, 
-        MITO_CONFIG_DISABLE_TOURS,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
-        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
-        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
-        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
-        MITO_CONFIG_LLM_URL,
-        MITO_CONFIG_ANALYTICS_URL,
-        MITO_CONFIG_JUPYTER_LOG_SERVER_URL,
-        MITO_CONFIG_FEATURE_TELEMETRY,
-        MITO_CONFIG_PRO,
-        MITO_CONFIG_ENTERPRISE,
-        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE,
-        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH,
-        MITO_CONFIG_CUSTOM_IMPORTERS_PATH,
-    ]
-}
 
 def create_mec_from_environment_variables() -> Optional[Dict[str, Any]]:
     """
@@ -339,6 +329,12 @@ class MitoConfig:
         if self.mec is None or self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_URL] is None:
             return None
         return self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_URL]
+    
+    @property
+    def jupyter_log_server_batch_interval(self) -> Optional[int]:
+        if self.mec is None or self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] is None:
+            return None
+        return int(self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL])
 
     @property
     def custom_sheet_functions_path(self) -> Optional[str]:
@@ -399,6 +395,7 @@ class MitoConfig:
             MITO_CONFIG_LLM_URL: self.llm_url,
             MITO_CONFIG_ANALYTICS_URL: self.analytics_url,
             MITO_CONFIG_JUPYTER_LOG_SERVER_URL: self.jupyter_log_server_url,
+            MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL: self.jupyter_log_server_batch_interval,
             MITO_CONFIG_FEATURE_TELEMETRY: self.feature_telemetry,
             MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: self.custom_sheet_functions_path,
             MITO_CONFIG_CUSTOM_IMPORTERS_PATH: self.custom_importers_path,

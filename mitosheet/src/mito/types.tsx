@@ -718,6 +718,7 @@ export enum MitoEnterpriseConfigKey {
     LLM_URL = 'MITO_CONFIG_LLM_URL',
     ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL',
     JUPYTER_LOG_SERVER_URL = 'MITO_CONFIG_JUPYTER_LOG_SERVER_URL',
+    JUPYTER_LOG_SERVER_BATCH_INTERVAL = 'MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL',
     TELEMETRY = 'MITO_CONFIG_FEATURE_TELEMETRY',
     PRO = 'MITO_CONFIG_PRO',
     ENTERPRISE = 'MITO_CONFIG_ENTERPRISE',
@@ -808,6 +809,7 @@ export interface MitoConfig {
     [MitoEnterpriseConfigKey.CUSTOM_SHEET_FUNCTIONS_PATH]: string,
     [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
     [MitoEnterpriseConfigKey.JUPYTER_LOG_SERVER_URL]: string,
+    [MitoEnterpriseConfigKey.JUPYTER_LOG_SERVER_BATCH_INTERVAL]: string,
     [MitoEnterpriseConfigKey.ANALYTICS_URL]: string
 }
 

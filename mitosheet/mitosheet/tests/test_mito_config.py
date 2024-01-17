@@ -9,7 +9,8 @@ from mitosheet.enterprise.license_key import encode_date_to_license
 from mitosheet.enterprise.mito_config import (
     DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, 
     MEC_VERSION_KEYS,
-    MITO_CONFIG_ANALYTICS_URL, 
+    MITO_CONFIG_ANALYTICS_URL,
+    MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL, 
     MITO_CONFIG_JUPYTER_LOG_SERVER_URL,
     MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
     MITO_CONFIG_CODE_SNIPPETS, 
@@ -79,6 +80,7 @@ def test_none_works():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_JUPYTER_LOG_SERVER_URL: None,
+        MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
         MITO_CONFIG_ENTERPRISE: False,
@@ -121,6 +123,7 @@ def test_version_2_works():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_JUPYTER_LOG_SERVER_URL: None,
+        MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
         MITO_CONFIG_ENTERPRISE: False,
@@ -150,6 +153,7 @@ def test_mito_config_update_version_1_to_2():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_JUPYTER_LOG_SERVER_URL: None,
+        MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
         MITO_CONFIG_ENTERPRISE: False,
@@ -179,6 +183,7 @@ def test_mito_config_enable_snowflake_import():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_JUPYTER_LOG_SERVER_URL: None,
+        MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
         MITO_CONFIG_ENTERPRISE: False,
@@ -209,6 +214,7 @@ def test_mito_config_dont_display_features():
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
         MITO_CONFIG_JUPYTER_LOG_SERVER_URL: None,
+        MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
         MITO_CONFIG_ENTERPRISE: False,
@@ -306,10 +312,12 @@ def test_mito_config_jupyter_log_server_url():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_URL] =  "url"
+    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] = "15"
 
     mito_config = MitoConfig()
     mito_config = mito_config.mito_config_dict
     mito_config[MITO_CONFIG_VERSION] == '2'
     mito_config[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] == "url"
+    mito_config[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] == 15
 
     delete_all_mito_config_environment_variables()

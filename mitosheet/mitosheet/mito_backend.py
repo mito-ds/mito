@@ -72,7 +72,8 @@ class MitoBackend():
         # Set up the Mito Logger class
         jupyter_log_server_url = self.mito_config.jupyter_log_server_url
         if jupyter_log_server_url:
-            self.mito_log_uploader = MitoLogUploader(jupyter_log_server_url, 20)
+            jupyter_log_server_batch_interval = self.mito_config.jupyter_log_server_batch_interval
+            self.mito_log_uploader = MitoLogUploader(jupyter_log_server_url, jupyter_log_server_batch_interval)
 
         custom_sheet_functions_path = self.mito_config.custom_sheet_functions_path
         all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []
