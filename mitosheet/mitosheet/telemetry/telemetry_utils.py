@@ -224,6 +224,11 @@ try:
     from ipywidgets import __version__ as ipywidgets_version
 except:
     ipywidgets_version = 'no pandas'
+try:
+    # Format version_python as "3.8.5"
+    version_python = '.'.join([str(x) for x in sys.version_info[:3]])
+except:
+    version_python = 'no python'
 
 
 __location = None
@@ -239,7 +244,7 @@ def _get_environment_params() -> Dict[str, Any]:
     
     # Add the python properties to every log event we can
     environment_params = {
-        'version_python': sys.version_info,
+        'version_python': version_python,
         'version_pandas': pandas_version,
         'version_ipywidgets': ipywidgets_version,
         'version_jupyterlab': jupyterlab_version,
@@ -346,7 +351,7 @@ def identify() -> None:
     operating_system = platform.system()
 
     params = {
-        'version_python': sys.version_info,
+        'version_python': version_python,
         'version_pandas': pandas_version,
         'version_ipywidgets': ipywidgets_version,
         'version_sys': sys.version,
