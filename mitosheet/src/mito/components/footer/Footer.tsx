@@ -31,7 +31,7 @@ type FooterProps = {
 function Footer(props: FooterProps): JSX.Element {
 
     const selectedSheetIndex = props.uiState.selectedSheetIndex
-    const selectedGraphID = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.graphID : undefined;
+    const selectedGraphID = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.openGraphID : undefined;
     const selectedTabType = props.uiState.selectedTabType
     const displayContextMenuForIndex = (typeof props.uiState.currOpenDropdown === 'object' && props.uiState.currOpenDropdown.type === 'footer-context-menu') ? props.uiState.currOpenDropdown.sheetIndex : null;
     const setDisplayContextMenuForIndex = (index: number | null) => {

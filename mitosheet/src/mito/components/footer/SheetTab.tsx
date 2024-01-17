@@ -13,7 +13,7 @@ import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownI
 import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
 import GraphIcon from '../icons/GraphIcon';
 import SheetTabContextMenu from './SheetTabContextMenu';
-import GraphSheetTabContextMenu from './GraphSheetContextMenu';
+import GraphTabContextMenu from './GraphTabContextMenu';
 import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
 
 type SheetTabProps = {
@@ -92,7 +92,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     // If opening a graph tab, close the cell editor 
                     props.setEditorState(undefined);
                     const graphID = props.tabIDObj.graphID;
-                    void openGraphSidebar(props.setUIState, props.uiState, props.setEditorState, props.sheetDataArray, props.mitoAPI, {type: 'open_existing_graph', 'graphID': graphID});
+                    void openGraphSidebar(props.setUIState, props.uiState, props.setEditorState, props.sheetDataArray, props.mitoAPI, {type: 'existing_graph', 'graphID': graphID});
                 }
                 
                 if (props.tabIDObj.tabType === 'data') {
@@ -171,7 +171,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 />
             }
             {props.tabIDObj.tabType === 'graph' &&
-                <GraphSheetTabContextMenu 
+                <GraphTabContextMenu 
                     setDisplayActions={props.setDisplayContextMenu}
                     setUIState={props.setUIState}
                     uiState={props.uiState}

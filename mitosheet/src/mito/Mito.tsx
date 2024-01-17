@@ -414,7 +414,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
-    const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -529,7 +528,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         key={'' + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab} 
                         selectedSheetIndex={uiState.selectedSheetIndex}
                         sheetData={sheetDataArray[uiState.selectedSheetIndex]}
-                        columnIDsMapArray={columnIDsMapArray}
                         selection={gridState.selections[gridState.selections.length - 1]} 
                         gridState={gridState}
                         mitoContainerRef={mitoContainerRef}
@@ -574,19 +572,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.GRAPH: return (
                 <GraphSidebar 
-                    graphID={uiState.currOpenTaskpane.graphID}
-                    graphSidebarTab={uiState.currOpenTaskpane.graphSidebarTab}
-                    dfNames={dfNames}
-                    columnIDsMapArray={columnIDsMapArray}
-                    sheetDataArray={sheetDataArray}
-                    mitoAPI={mitoAPI}
                     setUIState={setUIState} 
                     uiState={uiState}
+                    graphSidebarTab={uiState.currOpenTaskpane.graphSidebarTab}
+                    sheetDataArray={sheetDataArray}
+                    mitoAPI={mitoAPI}
                     graphDataArray={analysisData.graphDataArray}
-                    existingParams={uiState.currOpenTaskpane.existingParams}
-                    graphType={uiState.currOpenTaskpane.graphType}
                     analysisData={analysisData}
                     mitoContainerRef={mitoContainerRef}
+
+                    graphID={uiState.currOpenTaskpane.openGraphID}
+                    
+                    defaultParams={uiState.currOpenTaskpane.defaultParams}
+                    graphTypeForNewGraph={uiState.currOpenTaskpane.graphTypeForNewGraph}
                     selectedColumnsIds={getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetDataArray[uiState.selectedSheetIndex])}
                 />
             )
@@ -627,7 +625,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <PivotTaskpane
                     dfNames={dfNames}
                     sheetDataArray={sheetDataArray}
-                    columnIDsMapArray={columnIDsMapArray}
                     mitoAPI={mitoAPI}
                     sourceSheetIndex={uiState.currOpenTaskpane.sourceSheetIndex}
                     analysisData={analysisData}

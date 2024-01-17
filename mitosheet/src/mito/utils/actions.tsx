@@ -603,7 +603,7 @@ export const getActions = (
             titleToolbar: 'Delete Graph',
             longTitle: 'Delete graph',
             actionFunction: async () => {
-                const selectedGraphID = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? uiState.currOpenTaskpane.graphID : undefined;
+                const selectedGraphID = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? uiState.currOpenTaskpane.openGraphID : undefined;
                 if (selectedGraphID) {
                     await mitoAPI.editGraphDelete(selectedGraphID);
                 }
@@ -1209,7 +1209,7 @@ export const getActions = (
             titleToolbar: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'open_new_graph', graphType: GraphType.LINE});
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.LINE});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1221,7 +1221,7 @@ export const getActions = (
             iconToolbar: GraphIcon,
             longTitle: 'Create new bar chart',
             actionFunction: async () => {
-                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'open_new_graph', graphType: GraphType.BAR});
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.BAR});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1233,7 +1233,7 @@ export const getActions = (
             iconToolbar: LineChartIcon,
             longTitle: 'Create new line graph',
             actionFunction: async () => {
-                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'open_new_graph', graphType: GraphType.LINE});
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.LINE});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1245,7 +1245,7 @@ export const getActions = (
             iconToolbar: ScatterPlotIcon,
             longTitle: 'Create new scatter plot',
             actionFunction: async () => {
-                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'open_new_graph', graphType: GraphType.SCATTER});
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.SCATTER});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],

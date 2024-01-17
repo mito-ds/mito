@@ -4,7 +4,7 @@ import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import { AnalysisData, ColumnID, ColumnIDsMap, GraphDataArray, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, ColumnID, GraphDataArray, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, SheetData, StepType, UIState } from '../../../types';
 import XIcon from '../../icons/XIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
@@ -23,24 +23,24 @@ import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParam
     functionality, allowing the user to build and view graphs.
 */
 const GraphSidebar = (props: {
-    sheetDataArray: SheetData[];
-    columnIDsMapArray: ColumnIDsMap[],
-    dfNames: string[];
-    graphID: GraphID;
-    graphType?: GraphType;
-    mitoAPI: MitoAPI;
-    existingParams?: GraphParamsFrontend;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
+    sheetDataArray: SheetData[];
+    mitoAPI: MitoAPI;
     graphDataArray: GraphDataArray
-    analysisData: AnalysisData
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     graphSidebarTab: GraphSidebarTab,
+
+    graphID: GraphID;
+
+    graphTypeForNewGraph?: GraphType;
+    defaultParams?: GraphParamsFrontend;
+    analysisData: AnalysisData
     selectedColumnsIds?: ColumnID[],
 }): JSX.Element => {
     
     const {params: graphParams, setParams: setGraphParams, startNewStep, loading } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
-        () => getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.graphID, props.graphType, props.selectedColumnsIds, props.existingParams),
+        () => getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.graphID, props.graphTypeForNewGraph, props.selectedColumnsIds, props.defaultParams),
         StepType.Graph,
         props.mitoAPI,
         props.analysisData,
@@ -69,10 +69,11 @@ const GraphSidebar = (props: {
     const graphTabName = graphData?.graph_tab_name;
 
     const switchToNewGraphID = async (newGraphID: GraphID) => {
+        console.log("SWITCHING TO", newGraphID)
 
         // TODO: explain this case
-        if (props.existingParams !== undefined) {
-            setGraphParams(getValidParamsFromExistingParams(props.existingParams, props.sheetDataArray))
+        if (props.defaultParams !== undefined) {
+            setGraphParams(getValidParamsFromExistingParams(props.defaultParams, props.sheetDataArray))
             startNewStep()
             return;
         }
@@ -89,7 +90,7 @@ const GraphSidebar = (props: {
                     props.sheetDataArray, 
                     props.uiState.selectedSheetIndex, 
                     props.graphID, 
-                    props.graphType, 
+                    props.graphTypeForNewGraph, 
                     props.selectedColumnsIds
                 )
             );
@@ -110,7 +111,7 @@ const GraphSidebar = (props: {
 
         void switchToNewGraphID(props.graphID);
 
-    }, [props.graphID, props.existingParams])
+    }, [props.graphID, props.defaultParams])
 
     // We log if plotly is not defined
     useEffect(() => {
@@ -209,9 +210,7 @@ const GraphSidebar = (props: {
                                 mitoAPI={props.mitoAPI}
                                 graphID={props.graphID}
                                 sheetDataArray={props.sheetDataArray}
-                                dfNames={props.dfNames}
                                 columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
-                                columnIDsMapArray={props.columnIDsMapArray}
                                 setUIState={props.setUIState}
                                 mitoContainerRef={props.mitoContainerRef}
                             />

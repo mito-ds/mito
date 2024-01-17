@@ -91,18 +91,18 @@ export const getDefaultGraphParams = (
         graphID: GraphID, 
         graphType?: GraphType, 
         selectedColumnIds?: ColumnID[], 
-        existingParams?: GraphParamsFrontend
+        existingDefaultParams?: GraphParamsFrontend
     ): GraphParamsFrontend => {
     
-    if (existingParams !== undefined) {
-        return getValidParamsFromExistingParams(existingParams, sheetDataArray)
+    if (existingDefaultParams !== undefined) {
+        return getValidParamsFromExistingParams(existingDefaultParams, sheetDataArray)
     }
     
     graphType = graphType || GraphType.BAR
     const axis_column_ids = getAxisColumnIDs(sheetDataArray[sheetIndex], graphType, selectedColumnIds);
     
     return {
-        graphID: graphID ?? getRandomId(),
+        graphID: graphID,
         graphPreprocessing: {
             safety_filter_turned_on_by_user: true
         },
@@ -178,8 +178,7 @@ export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: 
 // Returns a list of dropdown items. Selecting them sets the color attribute of the graph.
 // Option 'None' always comes first.
 export const getColorDropdownItems = (
-    graphSheetIndex: number,
-    columnIDsMapArray: ColumnIDsMap[],
+    columnIDsMap: ColumnIDsMap,
     columnDtypesMap: Record<string, string>,
     setColor: (columnID: ColumnID | undefined) => void,
 ): JSX.Element[] => {
@@ -191,8 +190,8 @@ export const getColorDropdownItems = (
         />
     )]
     
-    const columnDropdownItems = Object.keys(columnIDsMapArray[graphSheetIndex] || {}).map(columnID => {
-        const columnHeader = columnIDsMapArray[graphSheetIndex][columnID];
+    const columnDropdownItems = Object.keys(columnIDsMap || {}).map(columnID => {
+        const columnHeader = columnIDsMap[columnID];
 
         // Plotly doesn't support setting the color as a date series, so we disable date series dropdown items
         const disabled = isDatetimeDtype(columnDtypesMap[columnID])
@@ -342,15 +341,15 @@ export const openGraphSidebar = async (
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
     sheetDataArray: SheetData[],
     mitoAPI: MitoAPI,
-    graphToOpen: {
-        type: 'open_existing_graph'
+    newOpenGraph: {
+        type: 'existing_graph'
         graphID: GraphID
     } | {
-        type: 'open_new_graph'
+        type: 'new_graph'
         graphType: GraphType
         selectedColumnIds?: ColumnID[]
     } | {
-        type: 'duplicate_graph_from_existing',
+        type: 'new_graph_duplicated_from_existing',
         graphIDToDuplicate: GraphID
     }
 ) => {
@@ -374,20 +373,20 @@ export const openGraphSidebar = async (
         return;
     }
 
-    if (graphToOpen.type === 'open_existing_graph') {
-        const existingParams = await getParamsForExistingGraph(mitoAPI, graphToOpen.graphID);
+    if (newOpenGraph.type === 'existing_graph') {
+        const existingParams = await getParamsForExistingGraph(mitoAPI, newOpenGraph.graphID);
         setUIState({
             ...uiState,
             selectedTabType: 'graph',
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                existingParams: existingParams,
-                graphID: graphToOpen.graphID,
+                defaultParams: existingParams,
+                openGraphID: newOpenGraph.graphID,
                 graphSidebarTab: GraphSidebarTab.Setup
             }
         })
-    } else if (graphToOpen.type === 'open_new_graph') {
+    } else if (newOpenGraph.type === 'new_graph') {
         const newGraphID = getRandomId();
         setUIState({
             ...uiState,
@@ -395,14 +394,14 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphID: newGraphID,
+                openGraphID: newGraphID,
                 graphSidebarTab: GraphSidebarTab.Setup
             }
         })
     } else {
         // If we're duplicating a graph, we get its params, but also get a new graph ID
         // with these params
-        const existingParams = await getParamsForExistingGraph(mitoAPI, graphToOpen.graphIDToDuplicate);
+        const existingParams = await getParamsForExistingGraph(mitoAPI, newOpenGraph.graphIDToDuplicate);
         const newGraphID = getRandomId();
         setUIState({
             ...uiState,
@@ -410,8 +409,8 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphID: newGraphID,
-                existingParams: existingParams,
+                openGraphID: newGraphID,
+                defaultParams: existingParams,
                 graphSidebarTab: GraphSidebarTab.Setup
             }
         })

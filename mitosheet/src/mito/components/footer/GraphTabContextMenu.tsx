@@ -14,7 +14,7 @@ import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
     Displays a set of actions one can perform on a graph sheet tab, including
     deleting, duplicating, or renaming.
 */
-export default function GraphSheetTabContextMenu(props: {
+export default function GraphTabContextMenu(props: {
     setDisplayActions: (display: boolean) => void,
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
     uiState: UIState;
@@ -59,7 +59,7 @@ export default function GraphSheetTabContextMenu(props: {
             props.sheetDataArray, 
             props.mitoAPI,
             {
-                type: 'duplicate_graph_from_existing',
+                type: 'new_graph_duplicated_from_existing',
                 graphIDToDuplicate: props.graphID,
             }
         )
@@ -76,7 +76,7 @@ export default function GraphSheetTabContextMenu(props: {
                 ...prevUIState,
                 currOpenTaskpane: {
                     type: TaskpaneType.GRAPH, 
-                    graphID: props.graphID, 
+                    openGraphID: props.graphID, 
                     graphSidebarTab: GraphSidebarTab.Export
                 },
             }

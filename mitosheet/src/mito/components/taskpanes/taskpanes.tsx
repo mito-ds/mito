@@ -70,10 +70,11 @@ export type TaskpaneInfo =
     | {type: TaskpaneType.DROP_DUPLICATES}
     | {
         type: TaskpaneType.GRAPH,
-        graphID: GraphID,
-        graphType?: GraphType,
+        openGraphID: GraphID,
         graphSidebarTab: GraphSidebarTab,
-        existingParams?: GraphParamsFrontend,
+
+        defaultParams?: GraphParamsFrontend,
+        graphTypeForNewGraph?: GraphType,
     }    
     | {type: TaskpaneType.IMPORT_FILES}
     | {type: TaskpaneType.MERGE, defaultMergeType?: MergeType, existingParams?: MergeParams}
