@@ -246,6 +246,7 @@ const GraphSidebar = (props: {
                                 columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
                                 columnIDsMapArray={props.columnIDsMapArray}
                                 setUIState={props.setUIState}
+                                userProfile={props.userProfile}
                             />
                         }
                         {selectedGraphSidebarTab === GraphSidebarTab.Style &&

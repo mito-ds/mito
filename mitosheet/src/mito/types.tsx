@@ -721,6 +721,7 @@ export enum MitoEnterpriseConfigKey {
     PRO = 'MITO_CONFIG_PRO',
     CUSTOM_SHEET_FUNCTIONS_PATH = 'MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH',
     CUSTOM_IMPORTERS_PATH = 'MITO_CONFIG_CUSTOM_IMPORTERS_PATH',
+    GRAPH_DISABLE_SERIES_LIMITS = 'MITO_CONFIG_GRAPH_DISABLE_SERIES_LIMITS'
 }
 
 export type PublicInterfaceVersion = 1 | 2 | 3;
@@ -805,6 +806,8 @@ export interface MitoConfig {
     [MitoEnterpriseConfigKey.DISPLAY_SCHEDULING]: boolean,
     [MitoEnterpriseConfigKey.CUSTOM_SHEET_FUNCTIONS_PATH]: string,
     [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
+    [MitoEnterpriseConfigKey.CUSTOM_IMPORTERS_PATH]: string,
+    [MitoEnterpriseConfigKey.GRAPH_DISABLE_SERIES_LIMITS]: boolean,
 }
 
 

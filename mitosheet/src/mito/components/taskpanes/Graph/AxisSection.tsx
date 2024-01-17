@@ -7,7 +7,7 @@ import Row from '../../layout/Row';
 import Col from '../../layout/Col';
 
 import '../../../../../css/taskpanes/Graph/AxisSection.css'
-import { ColumnID, ColumnIDsMap } from '../../../types';
+import { ColumnID, ColumnIDsMap, MitoEnterpriseConfigKey, UserProfile } from '../../../types';
 import DropdownItem from '../../elements/DropdownItem';
 import { columnIDMapToDisplayHeadersMap, getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import SelectAndXIconCard from '../../elements/SelectAndXIconCard';
@@ -31,6 +31,7 @@ const AxisSection = (props: {
     otherAxisSelectedColumnIDs: ColumnID[];
     updateAxisData: (graphAxis: GraphAxisType, index: number, columnID?: ColumnID) => void;
     mitoAPI: MitoAPI;
+    userProfile: UserProfile
 }): JSX.Element => {
 
     // Filter the column headers that the user can select to only the columns that are the correct type for the graph
@@ -61,7 +62,10 @@ const AxisSection = (props: {
     const numOtherAxisSelectedColumns = props.otherAxisSelectedColumnIDs.length
 
     /* 3. If there are already four series being graphed, then don't let the user add another series */
-    const disabledDueToMaxSeriesReachedBool = numSelectedColumns + numOtherAxisSelectedColumns >= 10
+    let disabledDueToMaxSeriesReachedBool = numSelectedColumns + numOtherAxisSelectedColumns >= 10
+    if (props.userProfile.mitoConfig[MitoEnterpriseConfigKey.GRAPH_DISABLE_SERIES_LIMITS]) {
+        disabledDueToMaxSeriesReachedBool = false;
+    }
 
     return (
         <div>

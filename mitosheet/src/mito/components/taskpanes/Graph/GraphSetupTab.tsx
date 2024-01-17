@@ -2,7 +2,7 @@
 
 import React, { Fragment } from 'react';
 import { MitoAPI } from '../../../api/api';
-import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
+import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState, UserProfile } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DataframeSelect from '../../elements/DataframeSelect';
@@ -79,6 +79,7 @@ function GraphSetupTab(
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
         setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
+        userProfile: UserProfile
     }): JSX.Element {
 
     const graphSheetIndex = props.graphParams.graphCreation.sheet_index;
@@ -272,6 +273,7 @@ function GraphSetupTab(
                     otherAxisSelectedColumnIDs={props.graphParams.graphCreation.y_axis_column_ids}
                     updateAxisData={updateAxisData}
                     mitoAPI={props.mitoAPI}
+                    userProfile={props.userProfile}
                 />
                 <AxisSection
                     columnIDsMap={columnIDsMap}
@@ -281,6 +283,7 @@ function GraphSetupTab(
                     otherAxisSelectedColumnIDs={props.graphParams.graphCreation.x_axis_column_ids}
                     updateAxisData={updateAxisData}
                     mitoAPI={props.mitoAPI}
+                    userProfile={props.userProfile}
                 />
                 <div>
                     <Row 
