@@ -1,25 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { MitoAPI } from '../../../api/api';
-import { AnalysisData, ColumnID, ColumnIDsMap, GraphDataArray, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, SheetData, StepType, UIState } from '../../../types';
-import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import { TaskpaneType } from '../taskpanes';
-import GraphSidebarTabs from './GraphSidebarTabs';
-import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams, getValidParamsFromExistingParams } from './graphUtils';
-
-// import css
+import React, { useEffect } from 'react';
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import XIcon from '../../icons/XIcon';
-import GraphStyleTab from './GraphStyleTab';
-import GraphSetupTab, { GraphType } from './GraphSetupTab';
-import GraphExportTab from './GraphExportTab';
-import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import LoadingSpinner from './LoadingSpinner';
+import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
-
-
+import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import { AnalysisData, ColumnID, ColumnIDsMap, GraphDataArray, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, SheetData, StepType, UIState } from '../../../types';
+import XIcon from '../../icons/XIcon';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import { TaskpaneType } from '../taskpanes';
+import GraphExportTab from './GraphExportTab';
+import GraphSetupTab, { GraphType } from './GraphSetupTab';
+import GraphSidebarTabs from './GraphSidebarTabs';
+import GraphStyleTab from './GraphStyleTab';
+import LoadingSpinner from './LoadingSpinner';
+import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams, getValidParamsFromExistingParams } from './graphUtils';
 
 
 /*
@@ -39,9 +35,10 @@ const GraphSidebar = (props: {
     graphDataArray: GraphDataArray
     analysisData: AnalysisData
     mitoContainerRef: React.RefObject<HTMLDivElement>,
-    graphSidebarTab?: GraphSidebarTab,
+    graphSidebarTab: GraphSidebarTab,
     selectedColumnsIds?: ColumnID[],
 }): JSX.Element => {
+    
     const {params: graphParams, setParams: setGraphParams, startNewStep, loading } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
         () => getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.graphID, props.graphType, props.selectedColumnsIds, props.existingParams),
         StepType.Graph,
@@ -70,7 +67,6 @@ const GraphSidebar = (props: {
     const graphData = props.graphDataArray.find(graphData => graphData.graph_id === props.graphID)
     const graphOutput = graphData?.graph_output;
     const graphTabName = graphData?.graph_tab_name;
-    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
 
     const switchToNewGraphID = async (newGraphID: GraphID) => {
 
@@ -115,14 +111,6 @@ const GraphSidebar = (props: {
         void switchToNewGraphID(props.graphID);
 
     }, [props.graphID, props.existingParams])
-
-    // If the graphSidebarTab changes to Export then update it. 
-    // This occurs if the graph tab action is used.
-    useEffect(() => {
-        if (props.graphSidebarTab === GraphSidebarTab.Export) {
-            setSelectedGraphSidebarTab(props.graphSidebarTab)
-        }
-    }, [props.graphSidebarTab])
 
     // We log if plotly is not defined
     useEffect(() => {
@@ -194,9 +182,9 @@ const GraphSidebar = (props: {
                         <Row justify='space-between' align='center'>
                             <Col>
                                 <p className='text-header-2'>
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
+                                    {props.graphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
+                                    {props.graphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
+                                    {props.graphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
                                 </p>
                             </Col>
                             <Col>
@@ -213,7 +201,7 @@ const GraphSidebar = (props: {
                                 />
                             </Col>
                         </Row>
-                        {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
+                        {props.graphSidebarTab === GraphSidebarTab.Setup && 
                             <GraphSetupTab 
                                 graphParams={graphParams}
                                 setGraphParams={setGraphParams}
@@ -228,13 +216,13 @@ const GraphSidebar = (props: {
                                 mitoContainerRef={props.mitoContainerRef}
                             />
                         }
-                        {selectedGraphSidebarTab === GraphSidebarTab.Style &&
+                        {props.graphSidebarTab === GraphSidebarTab.Style &&
                             <GraphStyleTab 
                                 graphParams={graphParams}
                                 setGraphParams={setGraphParams}
                             />
                         }
-                        {selectedGraphSidebarTab === GraphSidebarTab.Export && 
+                        {props.graphSidebarTab === GraphSidebarTab.Export && 
                             <GraphExportTab 
                                 graphTabName={graphTabName ?? 'Graph'}
                                 graphParams={graphParams}
@@ -246,8 +234,18 @@ const GraphSidebar = (props: {
                         }
                     </div>
                     <GraphSidebarTabs
-                        selectedTab={selectedGraphSidebarTab}
-                        setSelectedGraphSidebarTab={setSelectedGraphSidebarTab}
+                        selectedTab={props.graphSidebarTab}
+                        setSelectedGraphSidebarTab={(tab: GraphSidebarTab) => {
+                            props.setUIState(prevUIState => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenTaskpane: {
+                                        ...prevUIState.currOpenTaskpane,
+                                        graphSidebarTab: tab
+                                    }
+                                }
+                            })
+                        }}
                         mitoAPI={props.mitoAPI}
                     />
                 </div>

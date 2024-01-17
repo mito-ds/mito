@@ -1,7 +1,7 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
 import { MitoAPI, getRandomId } from "../../../api/api"
-import { ColumnID, ColumnIDsMap, EditorState, GraphDataArray, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, SheetData, UIState } from "../../../types"
+import { ColumnID, ColumnIDsMap, EditorState, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, GraphSidebarTab, SheetData, UIState } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
@@ -320,63 +320,100 @@ export const convertBackendtoFrontendGraphParams = (graphParamsBackend: GraphPar
     }
 }
 
-export const openGraphEditor = 
-    async (
-        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
-        sheetDataArray: SheetData[],
-        uiState: UIState,
-        setUIState: React.Dispatch<React.SetStateAction<UIState>>,
-        mitoAPI: MitoAPI,
-        graphDataArray: GraphDataArray,
-        graphID?: GraphID,
-        graphType?: GraphType,
-        duplicateGraph?: boolean
-    ) => {
+export const getParamsForExistingGraph = async (
+    mitoAPI: MitoAPI,
+    graphID: GraphID,
+): Promise<GraphParamsFrontend | undefined> => {
+    const response = await mitoAPI.getGraphParams(graphID);
+    const existingParamsBackend = 'error' in response ? undefined : response.result;
+    if (existingParamsBackend !== undefined) {
+        return convertBackendtoFrontendGraphParams(existingParamsBackend);
+    }
+}
+
+/**
+ * A utility for opening the graph sidebar. 
+ * 
+ * 
+ */
+export const openGraphSidebar = async (
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
+    uiState: UIState,
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+    sheetDataArray: SheetData[],
+    mitoAPI: MitoAPI,
+    graphToOpen: {
+        type: 'open_existing_graph'
+        graphID: GraphID
+    } | {
+        type: 'open_new_graph'
+        graphType: GraphType
+        selectedColumnIds?: ColumnID[]
+    } | {
+        type: 'duplicate_graph_from_existing',
+        graphIDToDuplicate: GraphID
+    }
+) => {
+
+
+
     // We turn off editing mode, if it is on
-        setEditorState(undefined);
+    setEditorState(undefined);
 
-        // If there is no data, prompt the user to import and nothing else
-        if (sheetDataArray.length === 0) {
-            setUIState((prevUIState) => {
-                return {
-                    ...prevUIState,
-                    currOpenTaskpane: {
-                        type: TaskpaneType.IMPORT_FIRST,
-                        message: 'Before graphing data, you need to import some!'
-                    }
-                }
-            })
-            return;
-        }
-
-        // If there is a graphID, we are editing an existing graph.
-        let existingParams = undefined;
-        if (graphID !== undefined) {
-            const response = await mitoAPI.getGraphParams(graphID);
-            const existingParamsBackend = 'error' in response ? undefined : response.result;
-            if (existingParamsBackend !== undefined) {
-                existingParams = convertBackendtoFrontendGraphParams(existingParamsBackend);
-                if (duplicateGraph) {
-                    graphID = getRandomId();
-                    existingParams = {
-                        ...existingParams,
-                        graphID: graphID,
-                    }
+    // If there is no data, prompt the user to import and nothing else
+    if (sheetDataArray.length === 0) {
+        setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {
+                    type: TaskpaneType.IMPORT_FIRST,
+                    message: 'Before graphing data, you need to import some!'
                 }
             }
-        } else {
-            graphID = getRandomId();
-        }
+        })
+        return;
+    }
+
+    if (graphToOpen.type === 'open_existing_graph') {
+        const existingParams = await getParamsForExistingGraph(mitoAPI, graphToOpen.graphID);
         setUIState({
             ...uiState,
             selectedTabType: 'graph',
-            selectedGraphID: graphID,
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphType: graphType,
                 existingParams: existingParams,
-                graphID: graphID,
+                graphID: graphToOpen.graphID,
+                graphSidebarTab: GraphSidebarTab.Setup
+            }
+        })
+    } else if (graphToOpen.type === 'open_new_graph') {
+        const newGraphID = getRandomId();
+        setUIState({
+            ...uiState,
+            selectedTabType: 'graph',
+            currOpenModal: {type: ModalEnum.None},
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphID: newGraphID,
+                graphSidebarTab: GraphSidebarTab.Setup
+            }
+        })
+    } else {
+        // If we're duplicating a graph, we get its params, but also get a new graph ID
+        // with these params
+        const existingParams = await getParamsForExistingGraph(mitoAPI, graphToOpen.graphIDToDuplicate);
+        const newGraphID = getRandomId();
+        setUIState({
+            ...uiState,
+            selectedTabType: 'graph',
+            currOpenModal: {type: ModalEnum.None},
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphID: newGraphID,
+                existingParams: existingParams,
+                graphSidebarTab: GraphSidebarTab.Setup
             }
         })
     }
+}

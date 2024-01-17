@@ -945,7 +945,6 @@ export interface UIState {
     selectedColumnControlPanelTab: ControlPanelTab;
     exportConfiguration: ExportState;
     selectedSheetIndex: number;
-    selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenDropdown: undefined | OpenDropdownType;
     currentToolbarTab?: TabName;

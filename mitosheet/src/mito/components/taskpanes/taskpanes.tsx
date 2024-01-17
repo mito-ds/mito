@@ -72,7 +72,7 @@ export type TaskpaneInfo =
         type: TaskpaneType.GRAPH,
         graphID: GraphID,
         graphType?: GraphType,
-        graphSidebarTab?: GraphSidebarTab,
+        graphSidebarTab: GraphSidebarTab,
         existingParams?: GraphParamsFrontend,
     }    
     | {type: TaskpaneType.IMPORT_FILES}

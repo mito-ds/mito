@@ -14,7 +14,7 @@ import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
 import GraphIcon from '../icons/GraphIcon';
 import SheetTabContextMenu from './SheetTabContextMenu';
 import GraphSheetTabContextMenu from './GraphSheetContextMenu';
-import { openGraphEditor } from '../taskpanes/Graph/graphUtils';
+import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
 
 type SheetTabProps = {
     tabName: string;
@@ -92,7 +92,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     // If opening a graph tab, close the cell editor 
                     props.setEditorState(undefined);
                     const graphID = props.tabIDObj.graphID;
-                    void openGraphEditor(props.setEditorState, props.sheetDataArray, props.uiState, props.setUIState, props.mitoAPI, props.graphDataArray, graphID, undefined);
+                    void openGraphSidebar(props.setUIState, props.uiState, props.setEditorState, props.sheetDataArray, props.mitoAPI, {type: 'open_existing_graph', 'graphID': graphID});
                 }
                 
                 if (props.tabIDObj.tabType === 'data') {

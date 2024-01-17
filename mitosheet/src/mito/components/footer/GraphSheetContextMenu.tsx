@@ -7,7 +7,7 @@ import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { openGraphEditor } from '../taskpanes/Graph/graphUtils';
+import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
 
 
 /*
@@ -52,16 +52,16 @@ export default function GraphSheetTabContextMenu(props: {
         props.closeOpenEditingPopups();
         
         // Duplicate the graph
-        await openGraphEditor(
+        await openGraphSidebar(
+            props.setUIState,
+            props.uiState, 
             props.setEditorState,
             props.sheetDataArray, 
-            props.uiState, 
-            props.setUIState,
             props.mitoAPI,
-            props.graphDataArray,
-            props.graphID,
-            undefined,
-            true
+            {
+                type: 'duplicate_graph_from_existing',
+                graphIDToDuplicate: props.graphID,
+            }
         )
     }
 
