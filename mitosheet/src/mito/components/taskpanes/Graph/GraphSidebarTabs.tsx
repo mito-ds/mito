@@ -12,7 +12,7 @@ import { MitoAPI } from '../../../api/api';
 function GraphSidebarTabs(
     props: {
         selectedTab: GraphSidebarTab, 
-        setSelectedGraphSidebarTab: React.Dispatch<React.SetStateAction<GraphSidebarTab>>
+        setSelectedGraphSidebarTab: (tab: GraphSidebarTab) => void,
         mitoAPI: MitoAPI;
     }): JSX.Element {
 

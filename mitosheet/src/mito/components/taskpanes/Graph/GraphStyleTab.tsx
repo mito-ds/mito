@@ -27,7 +27,6 @@ export enum AxisType {
 function GraphStyleTab(props: {
     graphParams: GraphParamsFrontend
     setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
-    setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
 }): JSX.Element {
 
     const graphCreationParams = props.graphParams.graphCreation;
@@ -37,7 +36,6 @@ function GraphStyleTab(props: {
         props.setGraphParams(prevGraphParams => {
             return updateObjectWithPartialObject(prevGraphParams, update);
         })
-        props.setGraphUpdatedNumber(old => old + 1)
     }
 
     return ( 

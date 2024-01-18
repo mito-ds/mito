@@ -16,10 +16,8 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, GraphParamsFrontend, ParameterizableParams, SheetData, UIState, UserProfile } from "../types";
+import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, ParameterizableParams, SheetData, UIState, UserProfile, GraphParamsBackend, GraphParamsFrontend, StepType } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
-
-
 
 export type MitoAPIResult<ResultType> = {result: ResultType} | SendFunctionErrorReturnType 
 
@@ -336,14 +334,15 @@ export class MitoAPI {
      * A very useful general utility for getting the params
      * of a step with a step id or with specific execution data
      */
-    async getParams<ParamType>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>): Promise<MitoAPIResult<ParamType | undefined>> {
+    async getParams<ParamType>(stepType: string, stepID: string | undefined, executionDataToMatch: Record<string, string | number>, paramsToMatch?: Record<string, string | number>): Promise<MitoAPIResult<ParamType | undefined>> {
         const response = await this.send<ParamType | undefined | null>({
             'event': 'api_call',
             'type': 'get_params',
             'params': {
                 'step_type': stepType,
                 'step_id_to_match': stepID || '',
-                'execution_data_to_match': executionDataToMatch
+                'execution_data_to_match': executionDataToMatch,
+                'params_to_match': paramsToMatch
             },
         })
 
@@ -358,7 +357,19 @@ export class MitoAPI {
                 return {result: result};
             }
         }
+    }
 
+    /*
+        Gets an array of all params matching a step type.
+    */
+    async getAllParamsForStepType<ParamType>(stepType: StepType): Promise<MitoAPIResult<ParamType[]>> {
+        return await this.send<ParamType[]>({
+            'event': 'api_call',
+            'type': 'get_all_params_for_step_type',
+            'params': {
+                'step_type': stepType,
+            },
+        })
     }
 
     /*
@@ -380,6 +391,13 @@ export class MitoAPI {
             'destination_sheet_index': destinationSheetIndex
         })
     }
+
+    async getGraphParams(graphID: GraphID): Promise<MitoAPIResult<GraphParamsBackend | undefined>> {
+        return await this.getParams<GraphParamsBackend>('graph', undefined, {}, {
+            'graph_id': graphID
+        })
+    }
+
 
     /*
         Gets metadata about an Excel file
@@ -592,16 +610,15 @@ export class MitoAPI {
         stepID: string,
     ): Promise<MitoAPIResult<never>> {
         const graphParamsBackend = convertFrontendtoBackendGraphParams(graphParams)
-
         return await this.send({
             'event': 'edit_event',
             'type': 'graph_edit',
             'step_id': stepID,
             'params': {
                 'graph_id': graphID,
-                'graph_preprocessing': graphParamsBackend.graphPreprocessing,
-                'graph_creation': graphParamsBackend.graphCreation,
-                'graph_styling': graphParamsBackend.graphStyling,
+                'graph_preprocessing': graphParamsBackend.graph_preprocessing,
+                'graph_creation': graphParamsBackend.graph_creation,
+                'graph_styling': graphParamsBackend.graph_styling,
                 'graph_rendering': {
                     'height': height, 
                     'width': width
@@ -621,22 +638,6 @@ export class MitoAPI {
             'step_id': getRandomId(),
             'params': {
                 'graph_id': graphID
-            }
-        })
-    }
-
-    async editGraphDuplicate(
-        oldGraphID: GraphID,
-        newGraphID: GraphID
-    ): Promise<void> {
-        
-        await this.send<string>({
-            'event': 'edit_event',
-            'type': 'graph_duplicate_edit',
-            'step_id': getRandomId(),
-            'params': {
-                'old_graph_id': oldGraphID,
-                'new_graph_id': newGraphID
             }
         })
     }

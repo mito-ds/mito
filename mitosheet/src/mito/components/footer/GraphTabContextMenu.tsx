@@ -1,27 +1,31 @@
 // Copyright (c) Mito
 
 import React, { useEffect } from 'react';
-import { MitoAPI,  getRandomId } from '../../api/api';
-import { GraphDataDict, GraphID, GraphSidebarTab, UIState } from '../../types';
+import { MitoAPI } from '../../api/api';
+import { EditorState, GraphDataArray, GraphID, GraphSidebarTab, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { deleteGraphs, getParamsForExistingGraph, openGraphSidebar } from '../taskpanes/Graph/graphUtils';
 
 
 /*
     Displays a set of actions one can perform on a graph sheet tab, including
     deleting, duplicating, or renaming.
 */
-export default function GraphSheetTabContextMenu(props: {
+export default function GraphTabContextMenu(props: {
     setDisplayActions: (display: boolean) => void,
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI,
     graphID: GraphID,
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     display: boolean;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    sheetDataArray: SheetData[];
 }): JSX.Element {
 
     // Log opening the graph sheet tab actions
@@ -40,7 +44,7 @@ export default function GraphSheetTabContextMenu(props: {
         // Close 
         props.closeOpenEditingPopups();
 
-        await props.mitoAPI.editGraphDelete(props.graphID)
+        await deleteGraphs([props.graphID], props.mitoAPI, props.setUIState, props.graphDataArray)
     }
 
     const onDuplicate = async (): Promise<void> => {
@@ -48,8 +52,17 @@ export default function GraphSheetTabContextMenu(props: {
         props.closeOpenEditingPopups();
         
         // Duplicate the graph
-        const newGraphID = getRandomId()
-        await props.mitoAPI.editGraphDuplicate(props.graphID, newGraphID)
+        await openGraphSidebar(
+            props.setUIState,
+            props.uiState, 
+            props.setEditorState,
+            props.sheetDataArray, 
+            props.mitoAPI,
+            {
+                type: 'new_duplicate_graph',
+                graphIDToDuplicate: props.graphID,
+            }
+        )
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */
@@ -58,13 +71,22 @@ export default function GraphSheetTabContextMenu(props: {
     }
 
     const openExportGraphTaskpaneTab = async (): Promise<void> => {
+        const existingParams = await getParamsForExistingGraph(props.mitoAPI, props.graphID);
+
+        if (existingParams === undefined) {
+            return;
+        }
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
                 currOpenTaskpane: {
                     type: TaskpaneType.GRAPH, 
-                    graphID: props.graphID, 
-                    graphSidebarTab: GraphSidebarTab.Export
+                    graphSidebarTab: GraphSidebarTab.Export,
+                    openGraph: {
+                        type: 'existing_graph',
+                        graphID: props.graphID,
+                        existingParams: existingParams
+                    }
                 },
             }
         })

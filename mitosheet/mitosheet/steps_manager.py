@@ -394,7 +394,7 @@ class StepsManager:
                 "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
-                "graphDataDict": self.curr_step.graph_data_dict,
+                "graphDataArray": self.curr_step.graph_data_array,
                 'updateEventCount': self.update_event_count,
                 'undoCount': self.undo_count,
                 'redoCount': self.redo_count,

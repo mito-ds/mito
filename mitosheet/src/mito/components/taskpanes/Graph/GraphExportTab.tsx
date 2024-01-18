@@ -15,10 +15,10 @@ function GraphExportTab(
     props: {
         mitoAPI: MitoAPI;
         graphParams: GraphParamsFrontend
-        loading: boolean
         graphOutput: GraphOutput,
         graphTabName: string,
-        mitoContainerRef: React.RefObject<HTMLDivElement>
+        mitoContainerRef: React.RefObject<HTMLDivElement>,
+        loading: boolean
     }): JSX.Element {
 
     // We append the correct export code for showing and for exporting to html

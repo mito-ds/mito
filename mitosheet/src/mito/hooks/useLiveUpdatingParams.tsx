@@ -118,7 +118,7 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
     const refreshParams = async (): Promise<void> => {
 
         // Get the steps with this step ID
-        const steps = analysisData.stepSummaryList.filter(step => step.step_type === stepType);
+        const steps = analysisData.stepSummaryList.filter(step => step.step_id === stepID);
 
         // If there are no steps with this ID, then set the default IDs        
         if (steps.length === 0) {

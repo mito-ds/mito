@@ -21,4 +21,4 @@ def test_delete_graph():
     assert mito.curr_step.step_type == 'graph_rename'
 
     graph_data = mito.get_graph_data(graph_id)
-    assert graph_data["graphTabName"] == 'aaron graph'
+    assert graph_data["graph_tab_name"] == 'aaron graph'

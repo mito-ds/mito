@@ -14,6 +14,7 @@ from mitosheet.code_chunks.empty_code_chunk import EmptyCodeChunk
 from mitosheet.state import State
 from mitosheet.step_performers.graph_steps.graph_utils import (
     get_column_header_from_optional_column_id_graph_param,
+    get_graph_index_by_graph_id,
     get_html_and_script_from_figure, get_new_graph_tab_name)
 from mitosheet.step_performers.graph_steps.plotly_express_graphs import (
     get_plotly_express_graph, get_plotly_express_graph_code)
@@ -24,7 +25,7 @@ from mitosheet.types import GraphID
 
 class GraphStepPerformer(StepPerformer):
     """
-    Creates a graph of the passed parameters and update the graph_data_dict
+    Creates a graph of the passed parameters and update the graph_data_array
 
     {
         graph_id: GraphID
@@ -78,7 +79,7 @@ class GraphStepPerformer(StepPerformer):
     @classmethod
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         """
-        Returns the new post state with the updated graph_data_dict
+        Returns the new post state with the updated graph_data_array
         """
 
         graph_id: GraphID = get_param(params, 'graph_id')
@@ -96,8 +97,8 @@ class GraphStepPerformer(StepPerformer):
         graph_type = graph_creation["graph_type"]
         sheet_index = graph_creation["sheet_index"]
         safety_filter_turned_on_by_user = graph_preprocessing["safety_filter_turned_on_by_user"]
-        height = graph_rendering["height"] 
-        width = graph_rendering["width"]
+        height = graph_rendering["height"] if graph_rendering is not None else "100%"
+        width = graph_rendering["width"] if graph_rendering is not None else "100%"
 
         # Get the x axis params, if they were provided
         x_axis_column_ids = graph_creation["x_axis_column_ids"] if graph_creation["x_axis_column_ids"] is not None else []
@@ -129,20 +130,22 @@ class GraphStepPerformer(StepPerformer):
         df_name: str = prev_state.df_names[sheet_index]
 
         # If the graph tab already exists, use its name. Otherwise, create a new graph tab name.
-        graph_tab_name: str = post_state.graph_data_dict[graph_id]["graphTabName"] \
-            if graph_id in post_state.graph_data_dict.keys() \
-            else get_new_graph_tab_name(post_state.graph_data_dict)
+        graph_index = get_graph_index_by_graph_id(post_state.graph_data_array, graph_id)
+        graph_tab_name: str = post_state.graph_data_array[graph_index]["graph_tab_name"] \
+            if graph_index != -1 \
+            else get_new_graph_tab_name(post_state.graph_data_array)
+        if graph_index == -1:
+            post_state.graph_data_array.append({
+                "graph_id": graph_id,
+                "graph_tab_name": graph_tab_name
+            })
+            graph_index = len(post_state.graph_data_array) - 1
 
         if len(x_axis_column_ids) == 0 and len(y_axis_column_ids) == 0:
             # If no data is passed to the graph, then we don't create a graph and omit the graphOutput
-            post_state.graph_data_dict[graph_id] = {
-                "graphParams": {
-                    "graphPreprocessing": graph_preprocessing,
-                    "graphCreation": graph_creation,
-                    "graphStyling": graph_styling,
-                    "graphRendering": graph_rendering,
-                },
-                "graphTabName": graph_tab_name
+            post_state.graph_data_array[graph_index] = {
+                "graph_id": graph_id,
+                "graph_tab_name": graph_tab_name
             }
             pandas_processing_time = 0.0 # no processing time
         else: 
@@ -201,19 +204,14 @@ class GraphStepPerformer(StepPerformer):
                 df_name,
             )
 
-            post_state.graph_data_dict[graph_id] = {
-                "graphParams": {
-                    "graphPreprocessing": graph_preprocessing,
-                    "graphCreation": graph_creation,
-                    "graphStyling": graph_styling,
-                    "graphRendering": graph_rendering,
-                },
-                "graphOutput": {
+            post_state.graph_data_array[graph_index] = {
+                "graph_id": graph_id,
+                "graph_output": {
                     "graphGeneratedCode": graph_generation_code,
                     "graphHTML": html_and_script["html"],
                     "graphScript": html_and_script["script"],
                 },
-                "graphTabName": graph_tab_name
+                "graph_tab_name": graph_tab_name
             }
 
         return post_state, {

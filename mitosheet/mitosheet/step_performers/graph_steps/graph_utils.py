@@ -69,14 +69,14 @@ def get_graph_title(
     return " ".join(graph_title_components)
 
 
-def get_new_graph_tab_name(graph_data_dict: Dict[str, Dict[str, Any]]) -> str:
+def get_new_graph_tab_name(graph_data_array: List[Dict[str, Any]]) -> str:
     """
     Creates the name for the new graph tab sheet using the format
     graph0, graph1, etc.
     """
     all_graph_names = []
-    for graph_data in graph_data_dict.values():
-        all_graph_names.append(graph_data["graphTabName"])
+    for graph_data in graph_data_array:
+        all_graph_names.append(graph_data["graph_tab_name"])
     
     graph_number_indicator = 0
     new_graph_name = f'graph{graph_number_indicator}'
@@ -87,6 +87,15 @@ def get_new_graph_tab_name(graph_data_dict: Dict[str, Dict[str, Any]]) -> str:
         
     return new_graph_name
 
+def get_graph_index_by_graph_id(graph_data_array: List[Dict[str, Any]], graph_id: str) -> int:
+    """
+    Given a graph_id, returns the index of the graph_data_array that has that graph_id
+    """
+    for index, graph_data in enumerate(graph_data_array):
+        if "graph_id" in graph_data and graph_data["graph_id"] == graph_id:
+            return index
+
+    return -1
 
 def get_html_and_script_from_figure(
     fig: go.Figure, height: int, width: int,

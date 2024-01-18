@@ -2,26 +2,26 @@
 
 import React, { useCallback, useState } from 'react';
 import "../../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
-import { MitoAPI,  getRandomId } from '../../../api/api';
-import { ColumnIDsMap, FilterGroupType, FilterType, MitoSelection, SheetData, StepType, UIState, EditorState, GridState, AnalysisData, Operator } from '../../../types';
+import { MitoAPI, getRandomId } from '../../../api/api';
 import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
+import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
+import { AnalysisData, EditorState, FilterGroupType, FilterType, GridState, MitoSelection, Operator, SheetData, StepType, UIState } from '../../../types';
+import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
+import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
 import { TaskpaneType } from '../taskpanes';
 import ControlPanelTaskpaneTabs from './ControlPanelTaskpaneTabs';
 import DtypeCard from './FilterAndSortTab/DtypeCard';
+import FormatCard from './FilterAndSortTab/FormatCard';
+import SortCard from './FilterAndSortTab/SortCard';
 import FilterCard from './FilterAndSortTab/filter/FilterCard';
 import { getFiltersToApply } from './FilterAndSortTab/filter/filterUtils';
-import SortCard from './FilterAndSortTab/SortCard';
 import ColumnSummaryGraph from './SummaryStatsTab/ColumnSummaryGraph';
 import ColumnSummaryStatistics from './SummaryStatsTab/ColumnSummaryStatistics';
 import { ValuesTab } from './ValuesTab/ValuesTab';
-import FormatCard from './FilterAndSortTab/FormatCard';
-import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
-import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
-import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import DefaultTaskpaneFooter from '../DefaultTaskpane/DefaultTaskpaneFooter';
 
 /* 
     We wait 500ms before sending a filter message to make sure
@@ -41,7 +41,6 @@ type ControlPanelTaskpaneProps = {
     selectedSheetIndex: number,
     selection: MitoSelection,
     sheetData: SheetData | undefined,
-    columnIDsMapArray: ColumnIDsMap[],
     mitoContainerRef: React.RefObject<HTMLDivElement>,
     gridState: GridState,
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;

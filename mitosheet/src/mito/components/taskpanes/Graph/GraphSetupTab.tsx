@@ -2,7 +2,7 @@
 
 import React, { Fragment } from 'react';
 import { MitoAPI } from '../../../api/api';
-import { ColumnID, ColumnIDsMap, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
+import { ColumnID, GraphID, GraphParamsFrontend, RecursivePartial, SheetData, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DataframeSelect from '../../elements/DataframeSelect';
@@ -16,6 +16,7 @@ import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
 import AxisSection, { GraphAxisType } from './AxisSection';
 import { getColorDropdownItems, getDefaultGraphParams, getDefaultSafetyFilter, getGraphTypeFullName } from './graphUtils';
+import { OpenGraphType } from '../../../types';
 
 export enum GraphType {
     BAR = 'bar',
@@ -73,12 +74,12 @@ function GraphSetupTab(
         mitoAPI: MitoAPI;
         sheetDataArray: SheetData[];
         graphParams: GraphParamsFrontend
-        dfNames: string[];
         columnDtypesMap: Record<string, string>;
-        columnIDsMapArray: ColumnIDsMap[],
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+        graphID: GraphID;
         setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
-        setGraphUpdatedNumber: React.Dispatch<React.SetStateAction<number>>;
+        mitoContainerRef: React.RefObject<HTMLDivElement>;
+        openGraph: OpenGraphType,
     }): JSX.Element {
 
     const graphSheetIndex = props.graphParams.graphCreation.sheet_index;
@@ -133,9 +134,6 @@ function GraphSetupTab(
                 }
             })
         }
-
-        // Then set increment graphUpdateNumber so we send the graph message
-        props.setGraphUpdatedNumber((old) => old + 1);
     }
 
     const setGraphType = (graphType: GraphType) => {
@@ -166,7 +164,6 @@ function GraphSetupTab(
                 }
             }
         })
-        props.setGraphUpdatedNumber((old) => old + 1);
     }
 
     const setColor = (newColorColumnID: ColumnID | undefined) => {
@@ -180,21 +177,19 @@ function GraphSetupTab(
                 }
             }
         })
-        props.setGraphUpdatedNumber((old) => old + 1);
     }
 
     function updateGraphParam(update: RecursivePartial<GraphParamsFrontend>): void {
         props.setGraphParams(prevGraphParams => {
             return updateObjectWithPartialObject(prevGraphParams, update);
         })
-        props.setGraphUpdatedNumber(old => old + 1)
     }
 
     const colorByColumnTooltip = GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)
         ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
         : 'Use an additional column to further breakdown the data by color.';
 
-    const columnIDsMap = props.columnIDsMapArray[graphSheetIndex] || {};
+    const columnIDsMap = props.sheetDataArray[graphSheetIndex]?.columnIDsMap || {};
 
     return (  
         <Fragment>
@@ -205,10 +200,9 @@ function GraphSetupTab(
                     sheetIndex={graphSheetIndex}
                     onChange={(newSheetIndex) => {
                         // Reset the graph params for the new sheet, but keep the graph type!
-                        const newSheetGraphParams = getDefaultGraphParams(props.sheetDataArray, newSheetIndex, props.graphParams.graphCreation.graph_type)
+                        const newSheetGraphParams = getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, newSheetIndex, props.openGraph)
 
                         props.setGraphParams(newSheetGraphParams)
-                        props.setGraphUpdatedNumber((old) => old + 1);
                     }}
                 />
                 <Row 
@@ -301,7 +295,7 @@ function GraphSetupTab(
                                 width='small'
                                 searchable
                             >
-                                {getColorDropdownItems(graphSheetIndex, props.columnIDsMapArray, props.columnDtypesMap, setColor)}
+                                {getColorDropdownItems(columnIDsMap, props.columnDtypesMap, setColor)}
                             </Select>
                         </Col>
                     </Row>
