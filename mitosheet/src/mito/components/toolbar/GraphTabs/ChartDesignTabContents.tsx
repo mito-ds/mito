@@ -44,7 +44,7 @@ export const ChartDesignTabContents = (
         if (params === undefined) {
             return;
         }
-        props.mitoAPI.editGraph(
+        void props.mitoAPI.editGraph(
             openGraph.graphID,
             convertBackendtoFrontendGraphParams(updateObjectWithPartialObject(params, update)),
             params.graph_rendering.height ?? '100%',

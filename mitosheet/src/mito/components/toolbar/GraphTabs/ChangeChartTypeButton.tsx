@@ -140,6 +140,7 @@ export const ChangeChartTypeButton = (
         >
             {graphTypeOptions.map((option) => {
                 return <DropdownItem
+                    key={option.value}
                     title={option.label}
                     icon={<option.icon />}
                     canHaveCheckMark

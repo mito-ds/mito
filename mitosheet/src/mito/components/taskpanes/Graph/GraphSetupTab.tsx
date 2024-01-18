@@ -211,88 +211,88 @@ function GraphSetupTab(
                         />
                     </Col>
                 </Row>
-                    <div>
-                        <Row 
-                            justify='space-between' 
-                            align='center' 
-                            title={"Create subplots based on this attribute"}
-                        >
-                            <Col>
-                                <LabelAndTooltip tooltip="Create subplots based on this attribute" textBody>
+                <div>
+                    <Row 
+                        justify='space-between' 
+                        align='center' 
+                        title={"Create subplots based on this attribute"}
+                    >
+                        <Col>
+                            <LabelAndTooltip tooltip="Create subplots based on this attribute" textBody>
                                     Facet Column
-                                </LabelAndTooltip>
-                            </Col>
-                            <Col>
-                                <Select 
-                                    value={props.graphParams.graphCreation.facet_col_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_col_column_id]) : 'None'}
-                                    width='small'
-                                    searchable
-                                >
-                                    {[<DropdownItem
-                                        key='None'
-                                        title='None'
-                                        onClick={() => {
-                                            updateGraphParam({graphCreation: {facet_col_column_id: undefined}})
-                                        }}
-                                    />].concat(
-                                        (Object.keys(columnIDsMap) || []).map(columnID => {
-                                            const columnHeader = columnIDsMap[columnID];
-                                            return (
-                                                <DropdownItem
-                                                    key={columnID}
-                                                    title={getDisplayColumnHeader(columnHeader)}
-                                                    onClick={() => {
-                                                        updateGraphParam({graphCreation: {facet_col_column_id: columnID}})
-                                                    }}
-                                                />
-                                            )
-                                        })
-                                    )}
-                                </Select>
-                            </Col>
-                        </Row>
-                    </div>
-                    <div>
-                        <Row 
-                            justify='space-between' 
-                            align='center' 
-                            title={"Create subplots based on this attribute"}
-                        >
-                            <Col>
-                                <LabelAndTooltip tooltip="Create subplots based on this attribute" textBody>
+                            </LabelAndTooltip>
+                        </Col>
+                        <Col>
+                            <Select 
+                                value={props.graphParams.graphCreation.facet_col_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_col_column_id]) : 'None'}
+                                width='small'
+                                searchable
+                            >
+                                {[<DropdownItem
+                                    key='None'
+                                    title='None'
+                                    onClick={() => {
+                                        updateGraphParam({graphCreation: {facet_col_column_id: undefined}})
+                                    }}
+                                />].concat(
+                                    (Object.keys(columnIDsMap) || []).map(columnID => {
+                                        const columnHeader = columnIDsMap[columnID];
+                                        return (
+                                            <DropdownItem
+                                                key={columnID}
+                                                title={getDisplayColumnHeader(columnHeader)}
+                                                onClick={() => {
+                                                    updateGraphParam({graphCreation: {facet_col_column_id: columnID}})
+                                                }}
+                                            />
+                                        )
+                                    })
+                                )}
+                            </Select>
+                        </Col>
+                    </Row>
+                </div>
+                <div>
+                    <Row 
+                        justify='space-between' 
+                        align='center' 
+                        title={"Create subplots based on this attribute"}
+                    >
+                        <Col>
+                            <LabelAndTooltip tooltip="Create subplots based on this attribute" textBody>
                                     Facet row
-                                </LabelAndTooltip>
-                            </Col>
-                            <Col>
-                                <Select 
-                                    value={props.graphParams.graphCreation.facet_row_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_row_column_id]) : 'None'}
-                                    width='small'
-                                    searchable
-                                >
-                                    {[<DropdownItem
-                                        key='None'
-                                        title='None'
-                                        onClick={() => {
-                                            updateGraphParam({graphCreation: {facet_row_column_id: undefined}})
-                                        }}
-                                    />].concat(
-                                        (Object.keys(columnIDsMap) || []).map(columnID => {
-                                            const columnHeader = columnIDsMap[columnID];
-                                            return (
-                                                <DropdownItem
-                                                    key={columnID}
-                                                    title={getDisplayColumnHeader(columnHeader)}
-                                                    onClick={() => {
-                                                        updateGraphParam({graphCreation: {facet_row_column_id: columnID}})
-                                                    }}
-                                                />
-                                            )
-                                        })
-                                    )}
-                                </Select>
-                            </Col>
-                        </Row>
-                    </div>
+                            </LabelAndTooltip>
+                        </Col>
+                        <Col>
+                            <Select 
+                                value={props.graphParams.graphCreation.facet_row_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_row_column_id]) : 'None'}
+                                width='small'
+                                searchable
+                            >
+                                {[<DropdownItem
+                                    key='None'
+                                    title='None'
+                                    onClick={() => {
+                                        updateGraphParam({graphCreation: {facet_row_column_id: undefined}})
+                                    }}
+                                />].concat(
+                                    (Object.keys(columnIDsMap) || []).map(columnID => {
+                                        const columnHeader = columnIDsMap[columnID];
+                                        return (
+                                            <DropdownItem
+                                                key={columnID}
+                                                title={getDisplayColumnHeader(columnHeader)}
+                                                onClick={() => {
+                                                    updateGraphParam({graphCreation: {facet_row_column_id: columnID}})
+                                                }}
+                                            />
+                                        )
+                                    })
+                                )}
+                            </Select>
+                        </Col>
+                    </Row>
+                </div>
             </div>
         </Fragment>
     )

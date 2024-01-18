@@ -24,7 +24,7 @@ const LegendIcon = (props: { orientation?: 'horizontal' | 'vertical' | 'none' })
                     <path d="M1.5 1.5H3.5V3.5H1.5V1.5Z" fill="#9D6CFF"/>
                     <path d="M4 2.5H5.5V3.5H4V2.5Z" fill="#9D6CFF"/>
                 </>}
-            {(props.orientation === 'none') && <path d="M11 5L15 9.5M11 9.5L15 5" stroke="#CF0000" stroke-linecap="round"/>}
+            {(props.orientation === 'none') && <path d="M11 5L15 9.5M11 9.5L15 5" stroke="#CF0000" strokeLinecap="round"/>}
         </svg>
     )
 }
