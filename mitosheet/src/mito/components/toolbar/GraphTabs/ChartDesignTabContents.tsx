@@ -104,7 +104,11 @@ export const ChartDesignTabContents = (
 
         <div className='toolbar-vertical-line' />
 
-        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Graph_SelectData]}/>
+        {/* Note: commenting this out because it will be more useful when the graph editor is
+         * moved into the EndoGrid. It currently messes with the state of the graph editor, so
+         * it'll need a bit of work to get it to work properly.
+         */}
+        {/* <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Graph_SelectData]}/> */}
 
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.ExportGraphDropdown]}>
             <Dropdown
