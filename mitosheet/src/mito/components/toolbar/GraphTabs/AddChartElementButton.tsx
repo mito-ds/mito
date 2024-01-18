@@ -179,18 +179,18 @@ export const AddChartElementButton = (
                             title='Vertical'
                             icon={<GridlinesIcon orientation="vertical"/>}
                             canHaveCheckMark
-                            hasCheckMark={graphStylingParams?.yaxis.showgrid}
+                            hasCheckMark={graphStylingParams?.xaxis.showgrid}
                             onClick={() => {
-                                return props.updateGraphParam({graph_styling: { yaxis: { showgrid: !graphStylingParams?.yaxis.showgrid }}});
+                                return props.updateGraphParam({graph_styling: { xaxis: { showgrid: !graphStylingParams?.xaxis.showgrid }}});
                             }}
                         />
                         <DropdownItem
                             title='Horizontal'
                             icon={<GridlinesIcon orientation="horizontal"/>}
                             canHaveCheckMark
-                            hasCheckMark={graphStylingParams?.xaxis.showgrid}
+                            hasCheckMark={graphStylingParams?.yaxis.showgrid}
                             onClick={() => {
-                                return props.updateGraphParam({graph_styling: { xaxis: { showgrid: !graphStylingParams?.xaxis.showgrid }}});
+                                return props.updateGraphParam({graph_styling: { yaxis: { showgrid: !graphStylingParams?.yaxis.showgrid }}});
                             }}
                         />
                     </Dropdown>
