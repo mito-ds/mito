@@ -252,13 +252,19 @@ export const GraphTypeConfigurations = (
     }
 
     return (
-        <div
-            className='mito-graph-configuration-container'
-        >
-            {configurationInputsWithSeparators.length === 0 ? 
-                <p> Loading configuration options for this graph type... </p> :
-                configurationInputsWithSeparators
-            }
-        </div>
+        configurationInputsWithSeparators.length === 0 ? 
+            <></> :
+            <div
+                className='mito-graph-configuration-container'
+                style={{
+                    // NOTE: this is a hacky way to make the container the right width. Safari had issues with
+                    // flexbox and wrapping, so this is a workaround.
+                    width: `${(configurationInputsWithSeparators.length === 0 ? 1 : Math.ceil(configurationInputs.length / 2)) * 210}px`
+                }}
+            >
+                <div className="toolbar-vertical-line" />
+                    {configurationInputsWithSeparators}
+                <div className="toolbar-vertical-line" />
+            </div>
     );
 }

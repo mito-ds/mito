@@ -37,7 +37,7 @@ export const ChartDesignTabContents = (
     // Get the step params and the step id of the currently open graph by getting the most recent step from this array
     // This is used in conjunction with useLiveUpdatingParams in the GraphSidebar with a special flag to add these edits
     // into the same step as useLiveUpdatingParams is using. This assumes that there is already a step in the stepSummaryList
-    // for this graph. 
+    // for this graph.
     const stepSummaryList = props.analysisData.stepSummaryList;
     const currGraphStep = stepSummaryList[stepSummaryList.length - 1];
     const params = currGraphStep.params as GraphParamsBackend | undefined;
@@ -97,15 +97,11 @@ export const ChartDesignTabContents = (
             updateGraphParam={updateGraphParam}
         />
         
-        <div className='toolbar-vertical-line' />
-
         {params === undefined ? <p> Loading... </p> : <GraphTypeConfigurations
             {...props}
             graphParams={params}
             updateGraphParam={updateGraphParam}
         />}
-
-        <div className='toolbar-vertical-line' />
 
         {/* Note: commenting this out because it will be more useful when the graph editor is
          * moved into the EndoGrid. It currently messes with the state of the graph editor, so
