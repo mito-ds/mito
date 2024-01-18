@@ -50,21 +50,9 @@
   cursor: pointer;
 }
 
-.mito-toolbar-bottom .select-container,
-.mito-toolbar-bottom .mito-input {
-  height: 22px;
-  font-size: 11px;
-  width: -webkit-fill-available;
-  margin-left: 4px;
-}
-
 .mito-toolbar-bottom .mito-graph-configuration-container p {
   text-wrap: nowrap;
   padding-right: 4px;
-}
-
-.mito-toolbar-bottom .mito-graph-configuration-container .mito-input {
-  width: 50px;
 }
 
 .mito-graph-configuration-container .spacing-row {
@@ -383,10 +371,6 @@
 
 .mito-toolbar-number-precision {
   display: flex;
-}
-
-.mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
-  background-color: var(--mito-text-light)!important;
 }
 
 .mito-toolbar-tabbar-right .mito-toolbar-button-container {
