@@ -1,14 +1,8 @@
 import json
 import pprint
-from queue import Queue
 import time
 from typing import Any, Optional
-
 import requests
-
-from mitosheet.user.db import get_user_field
-from mitosheet.user.schemas import UJ_STATIC_USER_ID
-
 
 def preprocess_log_for_upload(log_event: str, log_params: dict[str, Any]) -> Optional[dict[str, Any]] :
     """
@@ -66,7 +60,7 @@ def preprocess_log_for_upload(log_event: str, log_params: dict[str, Any]) -> Opt
 class MitoLogUploader:
     """
     The MitoLogUploader is responsible for uploading logs to a 
-    custom analytics url set in the mito_config.json file.
+    custom analytics url set in the MITO_CONFIG.
 
     It only uploads the most useful logs and log params in order 
     to make the logs maximally useful and minimally confusing. 
@@ -78,10 +72,10 @@ class MitoLogUploader:
     def __init__(
         self, 
         log_url: str,
-        log_interval: int,
+        log_interval: Optional[None]
     ):
         self.log_url = log_url
-        self.log_interval = log_interval
+        self.log_interval = log_interval if log_interval is not None else 0
         self.last_upload_time = time.time()
         self.unprocessed_logs = []
 
@@ -96,15 +90,15 @@ class MitoLogUploader:
             self.unprocessed_logs.append(filtered_log_params)
 
         current_time = time.time()
-        if self.last_upload_time + self.log_interval < current_time:
+        if self.last_upload_time + self.log_interval < current_time and len(self.unprocessed_logs) > 0:
             self.upload_log(current_time)
 
-    def upload_log(self, last_processes_log_time: float):
+    def upload_log(self, last_processed_log_time: float):
         """
         Uploads the unprocessed logs to the log_url and clears the unprocessed logs.
         """
         log_payload = json.dumps(self.unprocessed_logs)
-        self.last_upload_time = last_processes_log_time
+        self.last_upload_time = last_processed_log_time
 
         try:
             requests.post(

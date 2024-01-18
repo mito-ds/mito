@@ -8,9 +8,7 @@ Contains tests to make sure that the mito analytics test is
 performing correctly
 """
 
-import pprint
 import sys
-from sysconfig import get_python_version
 from mitosheet.enterprise.mito_config import MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL, MITO_CONFIG_JUPYTER_LOG_SERVER_URL, MITO_CONFIG_VERSION
 from mitosheet.telemetry.telemetry_utils import PRINT_LOGS
 import pytest
