@@ -79,12 +79,13 @@ import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GraphSidebarTab, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
 import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
+import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -772,6 +773,38 @@ export const getActions = (
             },
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Export dataframes as a .csv or .xlsx file. Choose whether or not to include export in the code."
+        },
+        [ActionEnum.Graph_SelectData]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_SelectData,
+            iconToolbar: SelectDataIcon,
+            titleToolbar: 'Select Data',
+            longTitle: 'Select Data',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                const currOpenTaskpane = uiState.currOpenTaskpane;
+                if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
+                    const openGraph = currOpenTaskpane.openGraph;
+                    // We open the graph taskpane
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                ...currOpenTaskpane,
+                                openGraph: {
+                                    ...openGraph,
+                                    selectedTab: GraphSidebarTab.Setup
+                                }
+                            }
+                        }
+                    });
+                }
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['select data', 'select'],
+            tooltip: "Select the data to be used in the graph."
         },
         [ActionEnum.ExportGraphDropdown]: {
             type: 'build-time',

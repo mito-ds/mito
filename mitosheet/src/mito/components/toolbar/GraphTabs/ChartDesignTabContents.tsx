@@ -4,19 +4,18 @@
 import React from 'react';
 
 import { GraphParamsBackend, MitoAPI } from '../../..';
+import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { ActionEnum, AnalysisData, ColumnID, RecursivePartial, SheetData, UIState } from '../../../types';
 import { Actions } from '../../../utils/actions';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
+import Dropdown from '../../elements/Dropdown';
+import DropdownItem from '../../elements/DropdownItem';
 import { convertBackendtoFrontendGraphParams } from '../../taskpanes/Graph/graphUtils';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
+import ToolbarButton from '../ToolbarButton';
 import { AddChartElementButton } from './AddChartElementButton';
 import { ChangeChartTypeButton } from './ChangeChartTypeButton';
 import { GraphTypeConfigurations } from './GraphTypeConfigurations';
-import ToolbarButton from '../ToolbarButton';
-import Dropdown from '../../elements/Dropdown';
-import DropdownItem from '../../elements/DropdownItem';
-import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
-import SelectDataIcon from '../../icons/GraphToolbar/SelectDataIcon';
 
 export const ChartDesignTabContents = (
     props: {
@@ -95,20 +94,17 @@ export const ChartDesignTabContents = (
             updateGraphParam={updateGraphParam}
         />
         
-        {params !== undefined && <GraphTypeConfigurations
+        <div className='toolbar-vertical-line' />
+
+        {params === undefined ? <p> Loading... </p> : <GraphTypeConfigurations
             {...props}
             graphParams={params}
             updateGraphParam={updateGraphParam}
         />}
 
-        <div className='mito-toolbar-button-container-enabled vertical-align-content'>
-            <button className='mito-toolbar-button'>
-                <div className='mito-toolbar-button-icon-container'>
-                    <SelectDataIcon />
-                </div>
-                <p className='mito-toolbar-button-label'> Select Data </p>
-            </button>
-        </div>
+        <div className='toolbar-vertical-line' />
+
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Graph_SelectData]}/>
 
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.ExportGraphDropdown]}>
             <Dropdown

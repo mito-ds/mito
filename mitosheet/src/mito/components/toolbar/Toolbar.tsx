@@ -174,7 +174,7 @@ export const Toolbar = (
                     />
                 </div>
             </div>
-            {currentTab !== undefined ? tabs[currentTab] ?? <div> No tab found </div> : undefined}
+            {currentTab !== undefined ? tabs[currentTab] ?? tabs['Home'] : undefined}
         </div>
     );
 };

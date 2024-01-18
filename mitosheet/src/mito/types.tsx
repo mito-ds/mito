@@ -1019,6 +1019,7 @@ export enum ActionEnum {
     Graph_Bar = 'bar chart',
     Graph_Line = 'line graph',
     Graph_Scatter = 'scatter plot',
+    Graph_SelectData = 'graph select data',
     Help = 'help',
     Import_Dropdown = 'import dropdown',
     Import_Files = 'import files',
