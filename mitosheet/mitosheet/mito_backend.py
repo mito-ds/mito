@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 from IPython import get_ipython
 from IPython.display import HTML, display
-from mitosheet.enterprise.mito_log_uploader import MitoLogUploader
+from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 
 from mitosheet.kernel_utils import get_current_kernel_id, Comm
 from mitosheet.api import API
@@ -71,9 +71,8 @@ class MitoBackend():
 
         # Set up the Mito Logger class
         jupyter_log_server_url = self.mito_config.jupyter_log_server_url
-        if jupyter_log_server_url:
-            jupyter_log_server_batch_interval = self.mito_config.jupyter_log_server_batch_interval
-            self.mito_log_uploader = MitoLogUploader(jupyter_log_server_url, jupyter_log_server_batch_interval)
+        jupyter_log_server_batch_interval = self.mito_config.jupyter_log_server_batch_interval
+        self.mito_log_uploader = MitoLogUploader(jupyter_log_server_url, jupyter_log_server_batch_interval) if jupyter_log_server_url is not None else None
 
         custom_sheet_functions_path = self.mito_config.custom_sheet_functions_path
         all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []

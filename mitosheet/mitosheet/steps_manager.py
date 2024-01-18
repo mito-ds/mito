@@ -15,7 +15,7 @@ from mitosheet.api.get_parameterizable_params import get_parameterizable_params_
 from mitosheet.api.get_path_contents import get_path_parts
 
 from mitosheet.enterprise.mito_config import MitoConfig
-from mitosheet.enterprise.mito_log_uploader import MitoLogUploader
+from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer

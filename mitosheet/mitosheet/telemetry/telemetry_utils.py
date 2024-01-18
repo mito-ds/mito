@@ -21,7 +21,7 @@ from typing import Any, Dict, Optional
 import requests
 
 from unittest.mock import patch
-from mitosheet.enterprise.mito_log_uploader import MitoLogUploader
+from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_LENGTH_FIRST_ELEMENT, LOG_EXECUTION_DATA_PUBLIC

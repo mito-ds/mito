@@ -75,7 +75,7 @@ class MitoLogUploader:
         log_interval: Optional[int]
     ):
         self.log_url = log_url
-        self.log_interval = log_interval if log_interval is not None else 0
+        self.log_interval = log_interval if log_interval is not None else 10
         self.last_upload_time = time.time()
         self.unprocessed_logs: List[Dict[str, Any]] = []
 
