@@ -40,6 +40,12 @@ from mitosheet.utils import get_new_id
 from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
+# We define an empty send function here so that the mito_send function in the MitoBackend
+# can always be defined for type reasons. We don't just use a lambda function so that 
+# we can pickle / serialize the MitoBackend easily
+def empty_mito_send(x: Any) -> None:
+    return
+
 
 class MitoBackend():
     """
@@ -110,7 +116,7 @@ class MitoBackend():
         self.num_usages = len(last_50_usages if last_50_usages is not None else [])
         self.received_tours = get_user_field(UJ_RECEIVED_TOURS)
 
-        self.mito_send: Callable = lambda x: None # type: ignore
+        self.mito_send: Callable = empty_mito_send # type: ignore
 
         self.theme = theme
 

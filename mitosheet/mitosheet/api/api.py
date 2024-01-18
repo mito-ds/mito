@@ -109,6 +109,25 @@ class API:
 
         self.thread.start()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove the unpicklable entries.
+        del state['thread']
+        del state['api_queue']
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes.
+        self.__dict__.update(state)
+        # Reinitialize the thread or handle as needed.
+        self.api_queue = Queue(MAX_QUEUED_API_CALLS)
+        self.thread = Thread(
+            target=handle_api_event_thread,
+            args=(self.api_queue, self.steps_manager, self.mito_backend),
+            daemon=True,
+        )
+
+
 
     def process_new_api_call(self, event: Dict[str, Any]) -> None:
         """
