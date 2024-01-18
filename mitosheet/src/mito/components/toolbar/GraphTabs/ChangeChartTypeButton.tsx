@@ -9,6 +9,11 @@ import LineChartIcon from "../../icons/LineChartIcon";
 import ScatterPlotIcon from "../../icons/ScatterPlotIcon";
 import { GraphType } from "../../taskpanes/Graph/GraphSetupTab";
 import ToolbarButton from "./../ToolbarButton";
+import BoxGraphIcon from "../../icons/GraphToolbar/BoxGraphIcon";
+import HistogramIcon from "../../icons/GraphToolbar/HistogramIcon";
+import HeatMapIcon from "../../icons/GraphToolbar/HeatMapIcon";
+import DensityContourIcon from "../../icons/GraphToolbar/DensityContourIcon";
+import ViolinGraphIcon from "../../icons/GraphToolbar/ViolinGraphIcon";
 
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
@@ -70,24 +75,29 @@ export const ChangeChartTypeButton = (
             icon: ScatterPlotIcon,
         },
         {
-            value: GraphType.BOX,
-            label: 'Box',
-            icon: GraphIcon,
-        },
-        {
-            value: GraphType.VIOLIN,
-            label: 'Violin',
-            icon: GraphIcon,
-        },
-        {
             value: GraphType.HISTOGRAM,
             label: 'Histogram',
-            icon: GraphIcon,
+            icon: HistogramIcon,
+        },
+        {
+            value: GraphType.BOX,
+            label: 'Box',
+            icon: BoxGraphIcon,
         },
         {
             value: GraphType.DENSITY_HEATMAP,
             label: 'Density Heatmap',
-            icon: GraphIcon,
+            icon: HeatMapIcon,
+        },
+        {
+            value: GraphType.VIOLIN,
+            label: 'Violin',
+            icon: ViolinGraphIcon,
+        },
+        {
+            value: GraphType.DENSITY_CONTOUR,
+            label: 'Density Contour',
+            icon: DensityContourIcon,
         }
     ]
 

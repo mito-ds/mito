@@ -168,7 +168,7 @@ export const AddChartElementButton = (
                     >
                         <DropdownItem
                             title='None'
-                            icon={<GridlinesIcon/>}
+                            icon={<GridlinesIcon orientation="none"/>}
                             canHaveCheckMark
                             hasCheckMark={!graphStylingParams?.showlegend}
                             onClick={() => {
@@ -177,7 +177,7 @@ export const AddChartElementButton = (
                         />
                         <DropdownItem
                             title='Vertical'
-                            icon={<GridlinesIcon/>}
+                            icon={<GridlinesIcon orientation="vertical"/>}
                             canHaveCheckMark
                             hasCheckMark={graphStylingParams?.yaxis.showgrid}
                             onClick={() => {
@@ -186,7 +186,7 @@ export const AddChartElementButton = (
                         />
                         <DropdownItem
                             title='Horizontal'
-                            icon={<GridlinesIcon/>}
+                            icon={<GridlinesIcon orientation="horizontal"/>}
                             canHaveCheckMark
                             hasCheckMark={graphStylingParams?.xaxis.showgrid}
                             onClick={() => {

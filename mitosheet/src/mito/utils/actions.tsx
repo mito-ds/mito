@@ -292,7 +292,7 @@ export const getActions = (
         [ActionEnum.ChangeChartTypeDropdown]: {
             type: 'build-time',
             staticType: ActionEnum.ChangeChartTypeDropdown,
-            iconToolbar: AddChartElementIcon,
+            iconToolbar: GraphIcon,
             titleToolbar: 'Change Chart Type',
             longTitle: 'Change Chart Type',
             actionFunction: () => {
