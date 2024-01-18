@@ -35,6 +35,7 @@ from mitosheet.enterprise.mito_config import (
     MITO_CONFIG_PRO,
     MitoConfig
 )
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 
 def delete_env_var_if_exists(env_var: str) -> None: 
@@ -320,4 +321,12 @@ def test_mito_config_jupyter_log_server_url():
     mito_config[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] == "url"
     mito_config[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] == 15
 
+    # Test that the env var are used to create the mito_log_uploader
+    mito = create_mito_wrapper()
+    steps_manager = mito.mito_backend.steps_manager
+    steps_manager.mito_log_uploader.log_url == "url"
+    steps_manager.mito_log_uploader.log_interval == 15
+
     delete_all_mito_config_environment_variables()
+
+

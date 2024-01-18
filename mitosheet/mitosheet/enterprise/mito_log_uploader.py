@@ -104,33 +104,17 @@ class MitoLogUploader:
         Uploads the unprocessed logs to the log_url and clears the unprocessed logs.
         """
         log_payload = json.dumps(self.unprocessed_logs)
-        pprint.pprint(log_payload)
-        self.unprocessed_logs = []
         self.last_upload_time = last_processes_log_time
 
+        try:
+            requests.post(
+                self.log_url,
+                data=log_payload,
+                headers={'Content-Type': 'application/json'}
+            )
 
-        """
-        response = requests.post(
-            self.log_url,
-            json={
-                'user_id': get_user_field(UJ_STATIC_USER_ID),
-                'log_event': self.unprocessed_logs
-            }
-        )
-
-        response = response.json()
-        response = response['response']
-
-        # Check if the request was successful
-        if response['status'] != 'success':
-            print(response)
-            raise Exception('Log upload failed')
-        else:
-            print('Log upload successful')
-            # Clear the logs
             self.unprocessed_logs = []
 
-        """
+        except Exception as e:
+            print("Log upload failed with error: ", e)
 
-
-        
