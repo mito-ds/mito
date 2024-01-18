@@ -12,7 +12,7 @@ import LegendIcon from "../../icons/GraphToolbar/LegendIcon";
 import GridlinesIcon from "../../icons/GraphToolbar/GridlinesIcon";
 import RangeSliderIcon from "../../icons/GraphToolbar/RangeSliderIcon";
 
-type AddChartElementSubMenus = 'axis-titles' | 'chart-title' | 'legend' | 'grid-lines';
+type AddChartElementSubMenus = 'axis-titles' | 'chart-title' | 'legend' | 'grid-lines' | 'range-slider';
 
 export const AddChartElementButton = (
     props: {
@@ -200,10 +200,33 @@ export const AddChartElementButton = (
                 title='Show Range Slider'
                 icon={<RangeSliderIcon/>}
                 canHaveCheckMark
-                hasCheckMark={graphStylingParams?.xaxis.rangeslider.visible}
-                onClick={() => {
-                    return props.updateGraphParam({graph_styling: { xaxis: { rangeslider: { visible: !graphStylingParams?.xaxis.rangeslider.visible }}}});
-                }}
+                onMouseEnter={() => setCurrOpenSubmenu('range-slider')}
+                subMenu={
+                    <Dropdown
+                        display={currOpenSubmenu === 'range-slider'}
+                        position='horizontal'
+                        closeDropdown={() => setCurrOpenSubmenu(undefined)}
+                    >
+                        <DropdownItem
+                            title='None'
+                            icon={<RangeSliderIcon hasRangeSlider={false}/>}
+                            canHaveCheckMark
+                            hasCheckMark={!graphStylingParams?.xaxis.rangeslider.visible}
+                            onClick={() => {
+                                return props.updateGraphParam({graph_styling: { xaxis: { rangeslider: { visible: false }}}});
+                            }}
+                        />
+                        <DropdownItem
+                            title='Horizontal'
+                            icon={<RangeSliderIcon/>}
+                            canHaveCheckMark
+                            hasCheckMark={graphStylingParams?.xaxis.rangeslider.visible}
+                            onClick={() => {
+                                return props.updateGraphParam({graph_styling: { xaxis: { rangeslider: { visible: true }}}});
+                            }}
+                        />
+                    </Dropdown>
+                }
             />
         </Dropdown>
     </ToolbarButton>;
