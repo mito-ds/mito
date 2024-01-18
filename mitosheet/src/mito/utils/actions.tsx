@@ -1311,7 +1311,7 @@ export const getActions = (
             longTitle: 'Create new graph',
             actionFunction: async () => {
                 const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
-                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.LINE, selectedColumnIds: selectedColumnIds});
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.BAR, selectedColumnIds: selectedColumnIds});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
