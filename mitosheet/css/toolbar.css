@@ -55,10 +55,6 @@
   padding-right: 4px;
 }
 
-.mito-graph-configuration-container .spacing-row {
-  width: auto;
-}
-
 .mito-graph-configuration-container .mito-graph-configuration-option {
   height: 25px;
   display: flex;
