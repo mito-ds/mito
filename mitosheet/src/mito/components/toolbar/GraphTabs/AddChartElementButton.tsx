@@ -1,16 +1,16 @@
 import React from "react";
-import { AnalysisData, GraphParamsBackend, MitoAPI, SheetData } from "../..";
-import { ActionEnum, ColumnID, RecursivePartial, UIState } from "../../types";
-import { Actions } from "../../utils/actions";
-import ToolbarButton from "./ToolbarButton";
-import Dropdown from "../elements/Dropdown";
-import DropdownItem from "../elements/DropdownItem";
-import AxisTitlesIcon from "../icons/GraphToolbar/AxisTitlesIcon";
-import ChartTitleIcon from "../icons/GraphToolbar/ChartTitleIcon";
-import EditIcon from "../icons/EditIcon";
-import LegendIcon from "../icons/GraphToolbar/LegendIcon";
-import GridlinesIcon from "../icons/GraphToolbar/GridlinesIcon";
-import RangeSliderIcon from "../icons/GraphToolbar/RangeSliderIcon";
+import { AnalysisData, GraphParamsBackend, MitoAPI, SheetData } from "../../..";
+import { ActionEnum, ColumnID, RecursivePartial, UIState } from "../../../types";
+import { Actions } from "../../../utils/actions";
+import ToolbarButton from "./../ToolbarButton";
+import Dropdown from "../../elements/Dropdown";
+import DropdownItem from "../../elements/DropdownItem";
+import AxisTitlesIcon from "../../icons/GraphToolbar/AxisTitlesIcon";
+import ChartTitleIcon from "../../icons/GraphToolbar/ChartTitleIcon";
+import EditIcon from "../../icons/EditIcon";
+import LegendIcon from "../../icons/GraphToolbar/LegendIcon";
+import GridlinesIcon from "../../icons/GraphToolbar/GridlinesIcon";
+import RangeSliderIcon from "../../icons/GraphToolbar/RangeSliderIcon";
 
 type AddChartElementSubMenus = 'axis-titles' | 'chart-title' | 'legend' | 'grid-lines';
 

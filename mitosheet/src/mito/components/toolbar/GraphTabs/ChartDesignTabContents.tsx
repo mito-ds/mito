@@ -3,12 +3,12 @@
 
 import React from 'react';
 
-import { GraphParamsBackend, MitoAPI } from '../..';
-import { AnalysisData, ColumnID, RecursivePartial, SheetData, UIState } from '../../types';
-import { Actions } from '../../utils/actions';
-import { updateObjectWithPartialObject } from '../../utils/objects';
-import { convertBackendtoFrontendGraphParams } from '../taskpanes/Graph/graphUtils';
-import { TaskpaneType } from '../taskpanes/taskpanes';
+import { GraphParamsBackend, MitoAPI } from '../../..';
+import { AnalysisData, ColumnID, RecursivePartial, SheetData, UIState } from '../../../types';
+import { Actions } from '../../../utils/actions';
+import { updateObjectWithPartialObject } from '../../../utils/objects';
+import { convertBackendtoFrontendGraphParams } from '../../taskpanes/Graph/graphUtils';
+import { TaskpaneType } from '../../taskpanes/taskpanes';
 import { AddChartElementButton } from './AddChartElementButton';
 import { ChangeChartTypeButton } from './ChangeChartTypeButton';
 

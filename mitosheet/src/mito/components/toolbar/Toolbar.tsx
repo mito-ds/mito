@@ -20,7 +20,7 @@ import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
-import { ChartDesignTabContents } from './ChartDesignTabContents';
+import { ChartDesignTabContents } from './GraphTabs/ChartDesignTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';

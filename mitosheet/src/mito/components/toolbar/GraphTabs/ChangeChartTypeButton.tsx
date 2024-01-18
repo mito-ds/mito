@@ -1,14 +1,14 @@
 import React from "react";
-import { AnalysisData, GraphParamsBackend, MitoAPI, SheetData } from "../..";
-import { ActionEnum, ColumnID, RecursivePartial, UIState } from "../../types";
-import { Actions } from "../../utils/actions";
-import Dropdown from "../elements/Dropdown";
-import DropdownItem from "../elements/DropdownItem";
-import GraphIcon from "../icons/GraphIcon";
-import LineChartIcon from "../icons/LineChartIcon";
-import ScatterPlotIcon from "../icons/ScatterPlotIcon";
-import { GraphType } from "../taskpanes/Graph/GraphSetupTab";
-import ToolbarButton from "./ToolbarButton";
+import { AnalysisData, GraphParamsBackend, MitoAPI, SheetData } from "../../..";
+import { ActionEnum, ColumnID, RecursivePartial, UIState } from "../../../types";
+import { Actions } from "../../../utils/actions";
+import Dropdown from "../../elements/Dropdown";
+import DropdownItem from "../../elements/DropdownItem";
+import GraphIcon from "../../icons/GraphIcon";
+import LineChartIcon from "../../icons/LineChartIcon";
+import ScatterPlotIcon from "../../icons/ScatterPlotIcon";
+import { GraphType } from "../../taskpanes/Graph/GraphSetupTab";
+import ToolbarButton from "./../ToolbarButton";
 
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
