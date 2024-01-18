@@ -170,7 +170,7 @@ export const AddChartElementButton = (
                             title='None'
                             icon={<GridlinesIcon orientation="none"/>}
                             canHaveCheckMark
-                            hasCheckMark={!graphStylingParams?.showlegend}
+                            hasCheckMark={!graphStylingParams?.xaxis.showgrid && !graphStylingParams?.yaxis.showgrid}
                             onClick={() => {
                                 return props.updateGraphParam({graph_styling: { xaxis: { showgrid: false }, yaxis: { showgrid: false }}});
                             }}
