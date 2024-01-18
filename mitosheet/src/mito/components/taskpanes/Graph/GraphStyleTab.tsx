@@ -7,9 +7,7 @@ import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DropdownItem from '../../elements/DropdownItem';
 import Input from '../../elements/Input';
 import Select from '../../elements/Select';
-import Toggle from '../../elements/Toggle';
 import Col from '../../layout/Col';
-import CollapsibleSection from '../../layout/CollapsibleSection';
 import Row from '../../layout/Row';
 
 export enum AxisType {
@@ -40,8 +38,6 @@ function GraphStyleTab(props: {
 
     return ( 
         <div className='graph-sidebar-toolbar-content'>   
-            
-            <CollapsibleSection title="Titles">
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>
@@ -91,48 +87,6 @@ function GraphStyleTab(props: {
                         }}
                     />
                 </Row>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p>
-                            Display Title
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.title.visible} 
-                        onChange={() => {
-                            return updateGraphParam({graphStyling: {title: {visible: !graphStylingParams.title.visible}}});
-                        }}     
-                    />
-                </Row>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p>
-                            Display X Axis Title
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.xaxis.visible} 
-                        onChange={() => {
-                            return updateGraphParam({graphStyling: {xaxis: {visible: !graphStylingParams.xaxis.visible}}});
-                        }}     
-                    />
-                </Row>
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p>
-                            Display Y Axis Title
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.yaxis.visible} 
-                        onChange={() => {
-                            return updateGraphParam({graphStyling: {yaxis: {visible: !graphStylingParams.yaxis.visible}}});
-
-                        }}     
-                    />
-                </Row>
-            </CollapsibleSection>
-            <CollapsibleSection title="Axis Transformations">
                 <Row justify='space-between' align='center'>
                     <Col>
                         <p>
@@ -199,39 +153,6 @@ function GraphStyleTab(props: {
                         />
                     </Select>
                 </Row>
-            </CollapsibleSection>
-            <CollapsibleSection title="Legend">
-                <Row justify='space-between' align='center' title='Title of legend'>
-                    <Col>
-                        <p>
-                            Display Legend
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.showlegend} 
-                        onChange={() => {
-                            return updateGraphParam({graphStyling: {showlegend: !graphStylingParams.showlegend}});
-
-                        }}     
-                    />
-                </Row>
-                <Row justify='space-between' align='center' title='Display the legend vertically or horizontally'>
-                    <Col>
-                        <p>
-                            Orientation
-                        </p>
-                    </Col>
-                    <Select 
-                        value={graphStylingParams.legend.orientation === 'v' ? 'vertical' : 'horizontal'} 
-                        width='medium'
-                        onChange={(newOrientation: string) => {
-                            return updateGraphParam({graphStyling: {legend: {orientation: newOrientation as 'v' | 'h'}}});
-                        }}     
-                    >   
-                        <DropdownItem title='vertical' id='v' />
-                        <DropdownItem title='horizontal' id='h' />
-                    </Select>
-                </Row>
                 <Row justify='space-between' align='center' title='Title of legend'>
                     <Col>
                         <p>
@@ -286,36 +207,6 @@ function GraphStyleTab(props: {
                         }}     
                     />
                 </Row>
-            </CollapsibleSection>
-            <CollapsibleSection title="Grid Lines">
-                <Row justify='space-between' align='center' title='Turn on/off vertical grid lines'>
-                    <Col>
-                        <p>
-                            Show vertical grid
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.xaxis.showgrid} 
-                        onChange={() => {
-                            return updateGraphParam({graphStyling: {xaxis: {showgrid: !graphStylingParams.xaxis.showgrid}}});
-
-                        }}     
-                    />
-                </Row>
-                <Row justify='space-between' align='center' title='Turn on/off horizontal grid lines'>
-                    <Col>
-                        <p>
-                            Show horizontal grid
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.yaxis.showgrid} 
-                        onChange={() => {
-                            return updateGraphParam({graphStyling: {yaxis: {showgrid: !graphStylingParams.yaxis.showgrid}}});
-
-                        }}     
-                    />
-                </Row>
                 <Row justify='space-between' align='center' title='The width of the vertical grid lines'>
                     <Col>
                         <p>
@@ -350,9 +241,6 @@ function GraphStyleTab(props: {
                         }}     
                     />
                 </Row>
-            </CollapsibleSection>
-            
-            <CollapsibleSection title="Colors">
                 <LabelAndColor
                     label='Plot Background Color'
                     color={graphStylingParams.plot_bgcolor}
@@ -388,8 +276,6 @@ function GraphStyleTab(props: {
                         return updateGraphParam({graphStyling: {yaxis: {title_font_color: newColor}}});
                     }}
                 />
-            </CollapsibleSection>
-            <CollapsibleSection title="Facet Styling">
                 <Row justify='space-between' align='center' title='The number of plots to display per row. Has no effect when facet row is used.'>
                     <Col>
                         <p>
@@ -441,24 +327,6 @@ function GraphStyleTab(props: {
                         }}     
                     />
                 </Row>
-            </CollapsibleSection>
-            <CollapsibleSection title="Range slider">
-                <Row justify='space-between' align='center'>
-                    <Col>
-                        <p>
-                            Display range slider
-                        </p>
-                    </Col>
-                    <Toggle 
-                        value={graphStylingParams.xaxis.rangeslider.visible} 
-                        onChange={() => {
-                            return updateGraphParam(
-                                {graphStyling: {xaxis: {rangeslider: {visible: !graphStylingParams.xaxis.rangeslider.visible}}}}
-                            )                                
-                        }}     
-                    />
-                </Row>
-            </CollapsibleSection>
         </div> 
     )
 } 
