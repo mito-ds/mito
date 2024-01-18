@@ -11,7 +11,7 @@ import { convertBackendtoFrontendGraphParams } from '../../taskpanes/Graph/graph
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import { AddChartElementButton } from './AddChartElementButton';
 import { ChangeChartTypeButton } from './ChangeChartTypeButton';
-
+import { GraphTypeConfigurations } from './GraphTypeConfigurations';
 
 export const ChartDesignTabContents = (
     props: {
@@ -63,6 +63,11 @@ export const ChartDesignTabContents = (
             updateGraphParam={updateGraphParam}
         />
         
+        {params !== undefined && <GraphTypeConfigurations
+            {...props}
+            graphParams={params}
+            updateGraphParam={updateGraphParam}
+        />}
     </div>);
 }
 
