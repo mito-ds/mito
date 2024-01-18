@@ -1,10 +1,10 @@
 import json
 import pprint
 import time
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Dict
 import requests
 
-def preprocess_log_for_upload(log_event: str, log_params: dict[str, Any]) -> Optional[dict[str, Any]] :
+def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Convert logs into the correct format and remove any log events that are not part of the whitelisted schema.
 
@@ -77,9 +77,9 @@ class MitoLogUploader:
         self.log_url = log_url
         self.log_interval = log_interval if log_interval is not None else 0
         self.last_upload_time = time.time()
-        self.unprocessed_logs: List[dict[str, Any]] = []
+        self.unprocessed_logs: List[Dict[str, Any]] = []
 
-    def log(self, log_event: str, log_params: dict[str, Any]) -> None:
+    def log(self, log_event: str, log_params: Dict[str, Any]) -> None:
         """
         Converts log into the correct format, adds it to the queue of logs to be uploaded,
         and checks if it is time to upload the logs.
