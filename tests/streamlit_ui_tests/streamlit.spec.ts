@@ -399,9 +399,11 @@ test.describe('Insert Tab Buttons', () => {
     await clickTab(page, mito, 'Insert');
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' });
-
     await expect(mito.getByText('Setup Graph')).toBeVisible();
-    await expect(mito.getByText('scatter', { exact: true })).toBeVisible();
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Change Chart Type' });
+    // Check that there are 2 icons under the "checked" div in the chart type dropdown
+    await expect(mito.locator('.mito-dropdown-item-icon-and-title-container', { hasText: 'Scatter' }).locator('svg')).toHaveCount(2);
   });
 
   test('Test Graph (line)', async ({ page }) => {
@@ -409,10 +411,11 @@ test.describe('Insert Tab Buttons', () => {
     await clickTab(page, mito, 'Insert');
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive line graph.' });
-
     await expect(mito.getByText('Setup Graph')).toBeVisible();
-    await expect(mito.getByText('line', {exact: true})).toBeVisible();
 
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Change Chart Type' });
+    // Check that there are 2 icons under the "checked" div in the chart type dropdown
+    await expect(mito.locator('.mito-dropdown-item-icon-and-title-container', { hasText: 'Line' }).locator('svg')).toHaveCount(2);
   });
 
 })
