@@ -503,6 +503,9 @@ class StepsManager:
         if self.curr_step_idx != len(self.steps_including_skipped) - 1:
             return
 
+        if edit_event.get('refresh_use_live_updating_hooks'):
+            self.update_event_count += 1
+
         step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event["type"]]
 
         # First, we add the public interface to the params, as we might need it for any step

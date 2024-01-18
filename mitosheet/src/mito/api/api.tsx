@@ -608,12 +608,14 @@ export class MitoAPI {
         height: string,
         width: string,
         stepID: string,
+        refreshUseLiveUpdatingHooks?: boolean,
     ): Promise<MitoAPIResult<never>> {
         const graphParamsBackend = convertFrontendtoBackendGraphParams(graphParams)
         return await this.send({
             'event': 'edit_event',
             'type': 'graph_edit',
             'step_id': stepID,
+            'refresh_use_live_updating_hooks': refreshUseLiveUpdatingHooks,
             'params': {
                 'graph_id': graphID,
                 'graph_preprocessing': graphParamsBackend.graph_preprocessing,

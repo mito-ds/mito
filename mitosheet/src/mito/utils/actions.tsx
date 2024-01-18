@@ -84,6 +84,7 @@ import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNe
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
+import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -265,6 +266,50 @@ export const getActions = (
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the left of your selection."
+        },
+        [ActionEnum.AddChartElementDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.AddChartElementDropdown,
+            iconToolbar: AddChartElementIcon,
+            titleToolbar: 'Add Chart Element',
+            longTitle: 'Add Chart Element',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the graph taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'add-chart-element'
+                    }
+                });
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['add chart element', 'add chart', 'add element', 'add graph element', 'add graph', 'add element'],
+            tooltip: "Add a new chart element to the graph."
+        },
+        [ActionEnum.ChangeChartTypeDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.ChangeChartTypeDropdown,
+            iconToolbar: AddChartElementIcon,
+            titleToolbar: 'Change Chart Type',
+            longTitle: 'Change Chart Type',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the graph taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'change-chart-type'
+                    }
+                });
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['change chart type', 'change chart', 'change type', 'change graph type', 'change graph', 'change type'],
+            tooltip: "Change the type of the graph."
         },
         [ActionEnum.Catch_Up]: {
             type: 'build-time',

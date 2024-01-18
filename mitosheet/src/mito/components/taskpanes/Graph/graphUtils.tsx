@@ -440,7 +440,8 @@ export const openGraphSidebar = async (
                     graphID: newOpenGraph.graphID,
                     existingParams: existingParams
                 }
-            }
+            },
+            currentToolbarTab: 'Chart Design'
         })
     } else if (newOpenGraph.type === 'new_graph') {
         const newGraphID = getRandomId();
@@ -448,6 +449,7 @@ export const openGraphSidebar = async (
             ...uiState,
             selectedTabType: 'graph',
             currOpenModal: {type: ModalEnum.None},
+            currentToolbarTab: 'Chart Design',
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
                 graphSidebarTab: GraphSidebarTab.Setup,

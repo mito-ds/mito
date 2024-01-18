@@ -97,8 +97,8 @@ class GraphStepPerformer(StepPerformer):
         graph_type = graph_creation["graph_type"]
         sheet_index = graph_creation["sheet_index"]
         safety_filter_turned_on_by_user = graph_preprocessing["safety_filter_turned_on_by_user"]
-        height = graph_rendering["height"] if graph_rendering is not None else "100%"
-        width = graph_rendering["width"] if graph_rendering is not None else "100%"
+        height = graph_rendering.get("height") if graph_rendering is not None else "100%"
+        width = graph_rendering.get("width") if graph_rendering is not None else "100%"
 
         # Get the x axis params, if they were provided
         x_axis_column_ids = graph_creation["x_axis_column_ids"] if graph_creation["x_axis_column_ids"] is not None else []

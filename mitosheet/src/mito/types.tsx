@@ -908,7 +908,7 @@ export interface FooterContextMenu {
     sheetIndex: number;
     type: 'footer-context-menu';
 }
-export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
+export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | 'add-chart-element' | 'change-chart-type' | undefined;
 
 export interface DataTabImportDomainDropdown {
     type: 'import-domain-dropdown';
@@ -990,10 +990,12 @@ export const enum FeedbackID {
 export enum ActionEnum {
     Add_Column_Right = 'add column to the right',
     Add_Column_Left = 'add column to the left',
+    AddChartElementDropdown = 'add chart element dropdown',
     AntiMerge = 'anti merge',
     Catch_Up = 'catch up',
     Clear = 'clear',
     Change_Dtype = 'change dtype',
+    ChangeChartTypeDropdown = 'change chart type dropdown',
     Column_Summary = 'column summary',
     Copy = 'copy',
     CopyCode = 'copy code',
