@@ -1,7 +1,7 @@
 import json
 import pprint
 import time
-from typing import Any, Optional
+from typing import Any, Optional, List
 import requests
 
 def preprocess_log_for_upload(log_event: str, log_params: dict[str, Any]) -> Optional[dict[str, Any]] :
@@ -72,14 +72,14 @@ class MitoLogUploader:
     def __init__(
         self, 
         log_url: str,
-        log_interval: Optional[None]
+        log_interval: Optional[int]
     ):
         self.log_url = log_url
         self.log_interval = log_interval if log_interval is not None else 0
         self.last_upload_time = time.time()
-        self.unprocessed_logs = []
+        self.unprocessed_logs: List[dict[str, Any]] = []
 
-    def log(self, log_event: str, log_params: dict[str, Any]):
+    def log(self, log_event: str, log_params: dict[str, Any]) -> None:
         """
         Converts log into the correct format, adds it to the queue of logs to be uploaded,
         and checks if it is time to upload the logs.
@@ -93,7 +93,7 @@ class MitoLogUploader:
         if self.last_upload_time + self.log_interval < current_time and len(self.unprocessed_logs) > 0:
             self.upload_log(current_time)
 
-    def upload_log(self, last_processed_log_time: float):
+    def upload_log(self, last_processed_log_time: float) -> None:
         """
         Uploads the unprocessed logs to the log_url and clears the unprocessed logs.
         """
