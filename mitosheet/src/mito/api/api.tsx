@@ -615,6 +615,12 @@ export class MitoAPI {
             'event': 'edit_event',
             'type': 'graph_edit',
             'step_id': stepID,
+            // If the event included a flag to refresh the use of live updating hooks, then we
+            // increment the update_event_count. The update_event_count variable is usually used to detect
+            // redo/ undo events, but in this case we're using it to make API calls in conjunction with
+            // the useLiveUpdatingParams hook. This arose because we wanted to use the useLiveUpdatingParams
+            // hook in two places that would be open at the same time (the graph taskpane and the graph toolbar tabs)
+            // And it was causing issues with step ids. 
             'refresh_use_live_updating_hooks': refreshUseLiveUpdatingHooks,
             'params': {
                 'graph_id': graphID,

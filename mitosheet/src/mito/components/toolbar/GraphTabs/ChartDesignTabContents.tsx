@@ -35,6 +35,9 @@ export const ChartDesignTabContents = (
     const openGraph = currOpenTaskpane.openGraph;
     
     // Get the step params and the step id of the currently open graph by getting the most recent step from this array
+    // This is used in conjunction with useLiveUpdatingParams in the GraphSidebar with a special flag to add these edits
+    // into the same step as useLiveUpdatingParams is using. This assumes that there is already a step in the stepSummaryList
+    // for this graph. 
     const stepSummaryList = props.analysisData.stepSummaryList;
     const currGraphStep = stepSummaryList[stepSummaryList.length - 1];
     const params = currGraphStep.params as GraphParamsBackend | undefined;

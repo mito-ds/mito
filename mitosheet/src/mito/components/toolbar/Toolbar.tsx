@@ -174,6 +174,11 @@ export const Toolbar = (
                     />
                 </div>
             </div>
+            {/* Default to Home tab if the tab you were in is no longer defined.
+              * This can happen if you're in the chart design tab and then you
+              * open a non-graph tab, because it only appears if you're currently
+              * editing a graph.
+            */}
             {currentTab !== undefined ? tabs[currentTab] ?? tabs['Home'] : undefined}
         </div>
     );
