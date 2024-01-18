@@ -147,7 +147,6 @@ export const HomeTabContents = (
 
         <div className='mito-toolbar-number-format'>
             <Select
-                style={{ height: '22px', fontSize: '11px', width: '150px' }}
                 iconStyle={{ width: '18px' }}
                 disabled={!!props.actions.buildTimeActions[ActionEnum.Precision_Decrease].isDisabled()}
                 value={getColumnAppliedFormat(props.sheetData, getSelectedNumberSeriesColumnIDs(props.gridState.selections, props.sheetData))}

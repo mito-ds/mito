@@ -773,6 +773,29 @@ export const getActions = (
             searchTerms: ['export', 'download', 'excel', 'csv'],
             tooltip: "Export dataframes as a .csv or .xlsx file. Choose whether or not to include export in the code."
         },
+        [ActionEnum.ExportGraphDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.ExportGraphDropdown,
+            iconToolbar: ExportIcon,
+            titleToolbar: 'Export',
+            longTitle: 'Open Export Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'export-graph'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+            },
+            searchTerms: ['export', 'download', 'excel', 'csv'],
+            tooltip: "Export dataframes as a .csv or .xlsx file. Choose whether or not to include export in the code."
+        },
         [ActionEnum.Fill_Na]: {
             type: 'build-time',
             staticType: ActionEnum.Fill_Na,

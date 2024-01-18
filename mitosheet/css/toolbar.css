@@ -50,6 +50,27 @@
   cursor: pointer;
 }
 
+.mito-toolbar-bottom .mito-select-container {
+  height: '22px';
+  font-size: '11px';
+  width: '150px';
+}
+
+.mito-toolbar-bottom p {
+  font-size: 11px;
+}
+
+.mito-graph-configuration-container {
+  display: flex;
+  flex-flow: column wrap;
+  height: 50px;
+  padding: 5px;
+  width: min-content;
+  border: 1px solid var(--mito-text-light);
+  border-radius: 3px;
+  background-color: var(--mito-background-highlight);
+  justify-content: center;
+}
 
 .mito-toolbar-dropdown-selector-selected {
   background: var(--mito-highlight-light);

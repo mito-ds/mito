@@ -908,7 +908,7 @@ export interface FooterContextMenu {
     sheetIndex: number;
     type: 'footer-context-menu';
 }
-export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | 'add-chart-element' | 'change-chart-type' | undefined;
+export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | 'add-chart-element' | 'change-chart-type' | 'export-graph' | undefined;
 
 export interface DataTabImportDomainDropdown {
     type: 'import-domain-dropdown';
@@ -1009,6 +1009,7 @@ export enum ActionEnum {
     Docs = 'docs',
     Export = 'export',
     Export_Dropdown = 'export dropdown',
+    ExportGraphDropdown = 'export graph dropdown',
     Fill_Na = 'fill na',
     Filter = 'filter',
     FilterToCellValue = 'filter to cell value',

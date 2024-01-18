@@ -15,13 +15,7 @@ export const GraphTypeConfigurations = (
         return (<>
         {GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS.includes(props.graphParams.graph_creation?.graph_type) && 
             <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexWrap: 'wrap',
-                    height: '50px',
-                    padding: '5px'
-                }}
+                className='mito-graph-configuration-container'
             >
                 {GRAPHS_THAT_HAVE_NBINS.includes(props.graphParams.graph_creation?.graph_type) && 
                     <Row justify='space-between' align='center' title='Number of bins in histogram'>
