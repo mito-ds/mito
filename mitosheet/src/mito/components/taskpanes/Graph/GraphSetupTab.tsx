@@ -145,7 +145,22 @@ function GraphSetupTab(
                     sheetIndex={graphSheetIndex}
                     onChange={(newSheetIndex) => {
                         // Reset the graph params for the new sheet, but keep the graph type!
-                        const newSheetGraphParams = getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, newSheetIndex, props.openGraph)
+                        const newSheetGraphParams = getDefaultGraphParams(
+                            props.mitoContainerRef, 
+                            props.sheetDataArray, 
+                            newSheetIndex, 
+                            {
+                                type: 'existing_graph',
+                                graphID: props.graphID,
+                                existingParams: {
+                                    ...props.graphParams,
+                                    graphCreation: {
+                                        ...props.graphParams.graphCreation,
+                                        sheet_index: newSheetIndex,
+                                    }
+                                }
+                            }
+                        )
 
                         props.setGraphParams(newSheetGraphParams)
                     }}
