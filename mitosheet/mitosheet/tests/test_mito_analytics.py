@@ -174,6 +174,47 @@ def test_log_uploader_error_events():
         assert log_event["event"] == "error"
 
     delete_all_mito_config_environment_variables()
+    
+
+def test_log_uploader_mitosheet_rendered():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] = f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "0"
+    
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    with patch('requests.post') as mock_post:
+        mito.mito_backend.receive_message({
+            'params': {'user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15'}, 
+            'event': 'log_event', 
+            'type': 'mitosheet_rendered', 
+            'id': '_pt4wgfw0z'
+        })
+
+        assert len(mock_post.call_args_list) == 1
+
+        log_call = mock_post.call_args_list[0]
+
+        # Get the URL from the log call
+        actual_url = log_call[0][0]
+        assert actual_url == URL
+
+        # From the call object, get the payload 
+        # that was passed to requests.post
+        data = log_call[1]['data']
+        log_event = json.loads(data)[0]
+
+        assert len(log_event) == 6
+        assert log_event["params_user_agent"] == "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15"
+        assert log_event["version_python"] == version_python
+        assert log_event["version_pandas"] == pandas_version
+        assert log_event["version_mito"] is not None
+        assert log_event["timestamp_gmt"] is not None
+        assert log_event["event"] == "mitosheet_rendered"
+
+    delete_all_mito_config_environment_variables()
+
 
 
 def test_log_uploader_long_interval_does_not_trigger_upload():
