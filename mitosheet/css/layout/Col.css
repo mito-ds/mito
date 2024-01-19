@@ -8,3 +8,9 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* Custom CSS for the toolbar */
+.mito-graph-configuration-container .text-body-1,
+.mito-graph-configuration-container .spacing-col {
+    width: min-content;
+}

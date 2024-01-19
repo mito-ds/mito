@@ -10,7 +10,8 @@ import { convertToStringOrUndefined } from "../../../utils/strings"
 import DropdownItem from "../../elements/DropdownItem"
 import { ModalEnum } from "../../modals/modals"
 import { TaskpaneType } from "../taskpanes"
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GRAPH_SAFETY_FILTER_CUTOFF, GraphType } from "./GraphSetupTab"
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS } from "../../toolbar/GraphTabs/ChangeChartTypeButton"
+import { GRAPH_SAFETY_FILTER_CUTOFF, GraphType } from "./GraphSetupTab"
 import { OpenGraphType } from "../../../types"
 
 // Note: these should match the constants in Python as well
@@ -440,7 +441,8 @@ export const openGraphSidebar = async (
                     graphID: newOpenGraph.graphID,
                     existingParams: existingParams
                 }
-            }
+            },
+            currentToolbarTab: 'Chart Design'
         })
     } else if (newOpenGraph.type === 'new_graph') {
         const newGraphID = getRandomId();
@@ -448,6 +450,7 @@ export const openGraphSidebar = async (
             ...uiState,
             selectedTabType: 'graph',
             currOpenModal: {type: ModalEnum.None},
+            currentToolbarTab: 'Chart Design',
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
                 graphSidebarTab: GraphSidebarTab.Setup,

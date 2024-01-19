@@ -49,3 +49,19 @@
 
     color: var(--mito-text-light);
 }
+
+/*
+    Custom CSS for special cases
+*/
+.mito-toolbar-bottom .mito-input {
+  height: 22px;
+  font-size: 11px;
+  width: -webkit-fill-available;
+  width: -moz-fill-available;
+  width: fill-available;
+  margin-left: 4px;
+}
+
+.mito-toolbar-bottom .mito-graph-configuration-container .mito-input {
+    width: 50px;
+  }

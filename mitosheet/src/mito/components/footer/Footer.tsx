@@ -99,7 +99,7 @@ function Footer(props: FooterProps): JSX.Element {
                         />
                     )
                 })}
-                {props.graphDataArray.map((graphData, index) => {
+                {props.graphDataArray.map((graphData) => {
                     return (
                         <SheetTab
                             key={graphData.graph_id}
@@ -114,13 +114,17 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataArray={props.graphDataArray}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
-                            display={displayContextMenuForIndex === (props.sheetDataArray.length + index)}
+                            display={typeof props.uiState.currOpenDropdown === 'object' && props.uiState.currOpenDropdown.type === 'footer-context-menu' && props.uiState.currOpenDropdown.graphID === graphData.graph_id}
                             setDisplayContextMenu={(display: boolean) => {
-                                if (display) {
-                                    setDisplayContextMenuForIndex(props.sheetDataArray.length + index);
-                                } else {
-                                    setDisplayContextMenuForIndex(null);
-                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: display ? {
+                                            type: 'footer-context-menu',
+                                            graphID: graphData.graph_id
+                                        } : undefined
+                                    }
+                                })
                             }}
                         />
                     )

@@ -503,6 +503,13 @@ class StepsManager:
         if self.curr_step_idx != len(self.steps_including_skipped) - 1:
             return
 
+        # If the event included a flag to refresh the use of live updating hooks, then we
+        # increment the update_event_count. The update_event_count variable is usually used to detect
+        # redo/ undo events, but in this case we're using it to make API calls in conjunction with
+        # the useLiveUpdatingParams hook.
+        if edit_event.get('refresh_use_live_updating_hooks'):
+            self.update_event_count += 1
+
         step_performer = EVENT_TYPE_TO_STEP_PERFORMER[edit_event["type"]]
 
         # First, we add the public interface to the params, as we might need it for any step

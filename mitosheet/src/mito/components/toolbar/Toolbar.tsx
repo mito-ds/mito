@@ -19,12 +19,14 @@ import ToolbarButton from './ToolbarButton';
 import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
+import { TaskpaneType } from '../taskpanes/taskpanes';
+import { ChartDesignTabContents } from './GraphTabs/ChartDesignTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
 export const MITO_TOOLBAR_REDO_ID = 'mito-redo-button';
 
-export type TabName = 'Home' | 'Insert' | 'Data' | 'Formulas' | 'Code';
+export type TabName = 'Home' | 'Insert' | 'Data' | 'Formulas' | 'Code' | 'Chart Design';
 type TabContents = JSX.Element;
 type Tabs = {
     [ tab: string ]: TabContents
@@ -52,6 +54,7 @@ export const Toolbar = (
         uiState: UIState;
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         sheetData: SheetData;
+        sheetDataArray: SheetData[];
         userProfile: UserProfile;
         editorState: EditorState | undefined;
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
@@ -78,6 +81,9 @@ export const Toolbar = (
                 />
             })}
         </div>
+    }
+    if (props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH) {
+        tabs['Chart Design'] = <ChartDesignTabContents {...props} />
     }
     const isLoading = () => {
         if (props.uiState.loading.length > 0) {
@@ -168,7 +174,12 @@ export const Toolbar = (
                     />
                 </div>
             </div>
-            {currentTab !== undefined ? tabs[currentTab] ?? <div> No tab found </div> : undefined}
+            {/* Default to Home tab if the tab you were in is no longer defined.
+              * This can happen if you're in the chart design tab and then you
+              * open a non-graph tab, because it only appears if you're currently
+              * editing a graph.
+            */}
+            {currentTab !== undefined ? tabs[currentTab] ?? tabs['Home'] : undefined}
         </div>
     );
 };

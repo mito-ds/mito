@@ -1310,7 +1310,7 @@ class MitoWidgetTestWrapper:
         self, 
         graph_id: str,
         graph_type: str, 
-        sheet_index: number,
+        sheet_index: int,
         safety_filter_turned_on_by_user: bool,
         xAxisColumnIDs: List[ColumnID],
         yAxisColumnIDs: List[ColumnID],

@@ -98,7 +98,7 @@ def get_graph_index_by_graph_id(graph_data_array: List[Dict[str, Any]], graph_id
     return -1
 
 def get_html_and_script_from_figure(
-    fig: go.Figure, height: int, width: int,
+    fig: go.Figure, height: str, width: str,
     include_plotlyjs: bool,
 ) -> Dict[str, str]:
     """

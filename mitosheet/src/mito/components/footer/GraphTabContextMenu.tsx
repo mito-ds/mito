@@ -95,7 +95,18 @@ export default function GraphTabContextMenu(props: {
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setDisplayActions(false)}
+            closeDropdown={() => {
+                props.setUIState((prevUIState) => {
+                    // If the dropdown is open, then close it. Otherwise, don't change the state. 
+                    const display = typeof prevUIState.currOpenDropdown === 'object' 
+                        && prevUIState.currOpenDropdown.type === 'footer-context-menu' 
+                        && prevUIState.currOpenDropdown.graphID === props.graphID;
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown
+                    }
+                });
+            }}
             width='small'
         >
             <DropdownItem

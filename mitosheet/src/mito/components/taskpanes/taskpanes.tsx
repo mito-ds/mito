@@ -69,7 +69,6 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.GRAPH,
         graphSidebarTab: GraphSidebarTab,
-
         openGraph: OpenGraphType
     }    
     | {type: TaskpaneType.IMPORT_FILES}

@@ -88,3 +88,19 @@
 .select-disabled > .select-dropdown-icon-container {
     background-color: var(--mito-background-off) !important;
 }
+
+/*
+    Custom CSS for special cases
+*/
+
+.mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
+    background-color: var(--mito-text-light)!important;
+  }
+
+.mito-toolbar-bottom .select-container,
+.mito-toolbar-bottom .mito-input {
+  height: 22px;
+  font-size: 11px;
+  width: -webkit-fill-available;
+  margin-left: 4px;
+}

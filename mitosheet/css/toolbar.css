@@ -50,6 +50,30 @@
   cursor: pointer;
 }
 
+.mito-toolbar-bottom .mito-graph-configuration-container p {
+  text-wrap: nowrap;
+  padding-right: 4px;
+}
+
+.mito-graph-configuration-container .mito-graph-configuration-option {
+  height: 25px;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 9px;
+  align-items: center;
+}
+
+.mito-toolbar-bottom p {
+  font-size: 11px;
+}
+
+.mito-graph-configuration-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 50px;
+  padding: 5px;
+}
 
 .mito-toolbar-dropdown-selector-selected {
   background: var(--mito-highlight-light);
@@ -340,10 +364,6 @@
 
 .mito-toolbar-number-precision {
   display: flex;
-}
-
-.mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
-  background-color: var(--mito-text-light)!important;
 }
 
 .mito-toolbar-tabbar-right .mito-toolbar-button-container {

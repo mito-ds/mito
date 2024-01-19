@@ -79,11 +79,13 @@ import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GraphSidebarTab, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
+import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
+import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -265,6 +267,50 @@ export const getActions = (
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the left of your selection."
+        },
+        [ActionEnum.AddChartElementDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.AddChartElementDropdown,
+            iconToolbar: AddChartElementIcon,
+            titleToolbar: 'Add Chart Element',
+            longTitle: 'Add Chart Element',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the graph taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'add-chart-element'
+                    }
+                });
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['add chart element', 'add chart', 'add element', 'add graph element', 'add graph', 'add element'],
+            tooltip: "Add a new chart element to the graph."
+        },
+        [ActionEnum.ChangeChartTypeDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.ChangeChartTypeDropdown,
+            iconToolbar: GraphIcon,
+            titleToolbar: 'Change Chart Type',
+            longTitle: 'Change Chart Type',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the graph taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'change-chart-type'
+                    }
+                });
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['change chart type', 'change chart', 'change type', 'change graph type', 'change graph', 'change type'],
+            tooltip: "Change the type of the graph."
         },
         [ActionEnum.Catch_Up]: {
             type: 'build-time',
@@ -719,6 +765,61 @@ export const getActions = (
                     return {
                         ...prevUIState,
                         currOpenDropdown: 'export'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+            },
+            searchTerms: ['export', 'download', 'excel', 'csv'],
+            tooltip: "Export dataframes as a .csv or .xlsx file. Choose whether or not to include export in the code."
+        },
+        [ActionEnum.Graph_SelectData]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_SelectData,
+            iconToolbar: SelectDataIcon,
+            titleToolbar: 'Select Data',
+            longTitle: 'Select Data',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                const currOpenTaskpane = uiState.currOpenTaskpane;
+                if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
+                    const openGraph = currOpenTaskpane.openGraph;
+                    // We open the graph taskpane
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                ...currOpenTaskpane,
+                                openGraph: {
+                                    ...openGraph,
+                                    selectedTab: GraphSidebarTab.Setup
+                                }
+                            }
+                        }
+                    });
+                }
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['select data', 'select'],
+            tooltip: "Select the data to be used in the graph."
+        },
+        [ActionEnum.ExportGraphDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.ExportGraphDropdown,
+            iconToolbar: ExportIcon,
+            titleToolbar: 'Export',
+            longTitle: 'Open Export Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'export-graph'
                     }
                 })
             },
@@ -1210,7 +1311,7 @@ export const getActions = (
             longTitle: 'Create new graph',
             actionFunction: async () => {
                 const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
-                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.LINE, selectedColumnIds: selectedColumnIds});
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.BAR, selectedColumnIds: selectedColumnIds});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],

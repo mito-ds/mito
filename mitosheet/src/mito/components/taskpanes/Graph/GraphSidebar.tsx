@@ -10,7 +10,6 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
-import GraphExportTab from './GraphExportTab';
 import GraphSetupTab from './GraphSetupTab';
 import GraphSidebarTabs from './GraphSidebarTabs';
 import GraphStyleTab from './GraphStyleTab';
@@ -60,7 +59,6 @@ const GraphSidebar = (props: {
     const dataSourceSheetIndex = graphParams?.graphCreation.sheet_index
     const graphData = props.graphDataArray.find(graphData => graphData.graph_id === props.openGraph.graphID)
     const graphOutput = graphData?.graph_output;
-    const graphTabName = graphData?.graph_tab_name;
 
     /*
          If the openGraph changes, which happens when opening a graph:
@@ -182,16 +180,6 @@ const GraphSidebar = (props: {
                         <GraphStyleTab 
                             graphParams={graphParams}
                             setGraphParams={setGraphParams}
-                        />
-                    }
-                    {props.graphSidebarTab === GraphSidebarTab.Export && 
-                        <GraphExportTab 
-                            graphTabName={graphTabName ?? 'Graph'}
-                            graphParams={graphParams}
-                            mitoAPI={props.mitoAPI}
-                            graphOutput={graphOutput}
-                            mitoContainerRef={props.mitoContainerRef}
-                            loading={loading}
                         />
                     }
                 </div>

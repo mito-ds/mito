@@ -42,14 +42,6 @@ function GraphSidebarTabs(
                     Style
                 </p>
             </div>
-            <div 
-                className={classNames('control-panel-taskpane-tab', props.selectedTab === GraphSidebarTab.Export ? 'selected' : 'unselected')} 
-                onClick={() => changeTab(GraphSidebarTab.Export)}
-            >
-                <p>
-                    Export
-                </p>
-            </div>
         </div> 
     )
 } 
