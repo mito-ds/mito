@@ -36,14 +36,12 @@ export const AddChartElementButton = (
         <Dropdown
             display={props.uiState.currOpenDropdown === 'add-chart-element'}
             closeDropdown={() => {
-                if (props.uiState.currOpenDropdown === 'add-chart-element') {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenDropdown: undefined,
-                        }
-                    })
-                }
+                props.setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: (prevUIState.currOpenDropdown === 'add-chart-element') ? undefined : prevUIState.currOpenDropdown,
+                    }
+                })
             }}
         >
             <DropdownItem

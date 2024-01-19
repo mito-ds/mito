@@ -128,14 +128,12 @@ export const ChangeChartTypeButton = (
         <Dropdown
             display={props.uiState.currOpenDropdown === 'change-chart-type'}
             closeDropdown={() => {
-                if (props.uiState.currOpenDropdown === 'change-chart-type') {
-                    props.setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenDropdown: undefined,
-                        }
-                    })
-                }
+                props.setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: (prevUIState.currOpenDropdown === 'change-chart-type') ? undefined : prevUIState.currOpenDropdown,
+                    }
+                })
             }}
         >
             {graphTypeOptions.map((option) => {

@@ -152,7 +152,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 }
                 {/* Display the dropdown that allows a user to perform some action */}
                 <div 
-                    onClick={() => {props.setDisplayContextMenu(true)}}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        props.setDisplayContextMenu(true)
+                    }}
                 >
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
