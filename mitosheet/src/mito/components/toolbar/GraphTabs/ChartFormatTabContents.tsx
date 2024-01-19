@@ -8,13 +8,15 @@ import { AnalysisData, ColumnID, RecursivePartial, SheetData, UIState } from '..
 import { Actions } from '../../../utils/actions';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import DropdownItem from '../../elements/DropdownItem';
-import Input from '../../elements/Input';
 import Select from '../../elements/Select';
 import { convertBackendtoFrontendGraphParams } from '../../taskpanes/Graph/graphUtils';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
-import Toggle from '../../elements/Toggle';
-import ColorInput from '../../elements/ColorInput';
-import { AxisType } from '../../taskpanes/Graph/GraphStyleTab';
+import { AxesFormatOptions } from './AxesFormatOptions';
+import { ChartTitleFormatOptions } from './ChartTitleFormatOptions';
+import { FacetFormatOptions } from './FacetFormatOptions';
+import { GridlinesFormatOptions } from './GridlinesFormatOptions';
+import { LegendFormatOptions } from './LegendFormatOptions';
+import { PlotFormatOptions } from './PlotFormatOptions';
 
 export const ChartFormatTabContents = (
     props: {
@@ -59,275 +61,6 @@ export const ChartFormatTabContents = (
     const elementOptions = ['Chart Title', 'Plot', 'Legend', 'Gridlines', 'Axes', 'Facet'];
     const [currElement, setCurrElement] = React.useState<typeof elementOptions[number]>('Chart Title');
 
-    let optionsForElement: { [title: typeof elementOptions[number]]: JSX.Element } = {
-        'Chart Title': <div className='graph-element-style-options mito-toolbar-button-container-enabled vertical-align-content'>
-            <ColorInput
-                value={params?.graph_styling?.title?.title_font_color ?? ''}
-                onChange={(value) => {
-                    updateGraphParam({
-                        graph_styling: {
-                            title: {
-                                title_font_color: value
-                            }
-                        }
-                    })
-                }}
-                type='font-color'
-            />
-            <p>Text Fill</p>
-        </div>,
-        'Plot': <div className='graph-element-style-options mito-toolbar-button-container-enabled vertical-align-content'>
-            <ColorInput
-                value={params?.graph_styling?.plot_bgcolor ?? ''}
-                onChange={(value) => {
-                    updateGraphParam({
-                        graph_styling: {
-                            plot_bgcolor: value
-                        }
-                    })
-                }}
-                type='background-color'
-            />
-            <p>Fill</p>
-        </div>,
-        'Legend': <div className='graph-element-style-options'>
-            <div className='horizontal-input-with-label'>
-                <p>X Position</p>
-                <Input
-                    type='number'
-                    value={`${params?.graph_styling?.legend.x ?? ''}`}
-                    onChange={(e) => {
-                        if (+e.target.value > 0) {
-                            updateGraphParam({
-                                graph_styling: {
-                                    legend: {
-                                        x: +e.target.value
-                                    }
-                                }
-                            })
-                        }
-                    }}
-                />
-            </div>
-            <div className='horizontal-input-with-label'>
-                <p>Y Position</p>
-                <Input
-                    type='number'
-                    value={`${params?.graph_styling?.legend.y ?? ''}`}
-                    onChange={(e) => {
-                        if (+e.target.value > 0) {
-                            updateGraphParam({
-                                graph_styling: {
-                                    legend: {
-                                        y: +e.target.value
-                                    }
-                                }
-                            })
-                        }
-                    }}
-                />
-            </div>
-            <div className='horizontal-input-with-label'>
-                <p>Display Legend</p>
-                <Toggle
-                    value={!!params?.graph_styling?.showlegend}
-                    onChange={() => {
-                        updateGraphParam({
-                            graph_styling: {
-                                showlegend: !params?.graph_styling?.showlegend
-                            }
-                        })
-                    }}
-                />
-            </div>
-        </div>,
-        'Gridlines': <div className='graph-element-style-options'>
-            <div className='horizontal-input-with-label'>
-                <p>Vertical Grid Width</p>
-                <Input
-                    type='number'
-                    value={`${params?.graph_styling?.xaxis.gridwidth ?? ''}`}
-                    onChange={(e) => {
-                        if (+e.target.value > 0) {
-                            updateGraphParam({
-                                graph_styling: {
-                                    xaxis: {
-                                        gridwidth: +e.target.value
-                                    }
-                                }
-                            })
-                        }
-                    }}
-                />
-            </div>
-            <div className='horizontal-input-with-label'>
-                <p>Horizontal Grid Width</p>
-                <Input
-                    type='number'
-                    value={`${params?.graph_styling?.yaxis.gridwidth ?? ''}`}
-                    onChange={(e) => {
-                        if (+e.target.value > 0) {
-                            updateGraphParam({
-                                graph_styling: {
-                                    yaxis: {
-                                        gridwidth: +e.target.value
-                                    }
-                                }
-                            })
-                        }
-                    }}
-                />
-            </div>
-            <div className='horizontal-input-with-label'>
-                <p>Display Horizontal Gridlines</p>
-                <Toggle
-                    value={!!params?.graph_styling?.yaxis.showgrid}
-                    onChange={() => {
-                        updateGraphParam({
-                            graph_styling: {
-                                yaxis: {
-                                    showgrid: !params?.graph_styling?.yaxis.showgrid
-                                }
-                            }
-                        })
-                    }}
-                />
-            </div>
-
-            <div className='horizontal-input-with-label'>
-                <p>Display Vertical Gridlines</p>
-                <Toggle
-                    value={!!params?.graph_styling?.xaxis.showgrid}
-                    onChange={() => {
-                        updateGraphParam({
-                            graph_styling: {
-                                xaxis: {
-                                    showgrid: !params?.graph_styling?.xaxis.showgrid
-                                }
-                            }
-                        })
-                    }}
-                />
-            </div>
-        </div>,
-        'Axes': <div className='graph-element-style-options'>
-            <div className='horizontal-input-with-label'>
-                <p>X Axis Transform</p>
-                <Select
-                    value={params?.graph_styling?.xaxis.type ?? AxisType.DEFAULT}
-                    onChange={(value) => {
-                        updateGraphParam({
-                            graph_styling: {
-                                xaxis: {
-                                    type: value
-                                }
-                            }
-                        })
-                    }}
-                >
-                    <DropdownItem
-                        title={AxisType.DEFAULT}
-                    />
-                    <DropdownItem
-                        title={AxisType.LINEAR}
-                    />
-                    <DropdownItem
-                        title={AxisType.LOG}
-                    />
-                    <DropdownItem
-                        title={AxisType.DATE}
-                    />
-                    <DropdownItem
-                        title={AxisType.CATEGORY}
-                    />
-                </Select>
-            </div>
-            <div className='horizontal-input-with-label'>
-                <p>Y Axis Transform</p>
-                <Select
-                    value={params?.graph_styling.yaxis.type ?? AxisType.DEFAULT}
-                    onChange={(value) => {
-                        updateGraphParam({
-                            graph_styling: {
-                                yaxis: {
-                                    type: value
-                                }
-                            }
-                        })
-                    }}
-                >
-                    <DropdownItem
-                        title={AxisType.DEFAULT}
-                    />
-                    <DropdownItem
-                        title={AxisType.LINEAR}
-                    />
-                    <DropdownItem
-                        title={AxisType.LOG}
-                    />
-                    <DropdownItem
-                        title={AxisType.DATE}
-                    />
-                    <DropdownItem
-                        title={AxisType.CATEGORY}
-                    />
-                </Select>
-            </div>
-        </div>,
-        'Facet': <div className='graph-element-style-options'>
-            <div className='horizontal-input-with-label'>
-                <p>Number of Columns</p>
-                <Input
-                    type='number'
-                    value={`${params?.graph_creation?.facet_col_wrap ?? ''}`}
-                    onChange={(e) => {
-                        if (+e.target.value > 0) {
-                            updateGraphParam({
-                                graph_creation: {
-                                    facet_col_wrap: +e.target.value
-                                }
-                            })
-                        }
-                    }}
-                />
-            </div>
-
-            <div className='horizontal-input-with-label'>
-                <p>Column Spacing</p>
-                <Input
-                    type='number'
-                    value={`${params?.graph_creation?.facet_col_spacing ?? ''}`}
-                    onChange={(e) => {
-                        if (+e.target.value > 0) {
-                            updateGraphParam({
-                                graph_creation: {
-                                    facet_col_spacing: +e.target.value
-                                }
-                            })
-                        }
-                    }}
-                />
-            </div>
-
-            <div className='horizontal-input-with-label'>
-                <p>Row Spacing</p>
-                <Input
-                    type='number'
-                    value={`${params?.graph_creation?.facet_row_spacing ?? ''}`}
-                    onChange={(e) => {
-                        if (+e.target.value > 0) {
-                            updateGraphParam({
-                                graph_creation: {
-                                    facet_row_spacing: +e.target.value
-                                }
-                            })
-                        }
-                    }}
-                />
-            </div>
-        </div>
-    }
-
     return (<div className='mito-toolbar-bottom'>
         <Select
             display={props.uiState.currOpenDropdown === 'chart-format'}
@@ -355,7 +88,12 @@ export const ChartFormatTabContents = (
                 />)
             ) }
         </Select>
-        { optionsForElement[currElement] }        
+        {currElement === 'Chart Title' && <ChartTitleFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
+        {currElement === 'Plot' && <PlotFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
+        {currElement === 'Legend' && <LegendFormatOptions params={params} updateGraphParam={updateGraphParam} />}
+        {currElement === 'Gridlines' && <GridlinesFormatOptions params={params} updateGraphParam={updateGraphParam} />}
+        {currElement === 'Axes' && <AxesFormatOptions params={params} updateGraphParam={updateGraphParam} />}
+        {currElement === 'Facet' && <FacetFormatOptions params={params} updateGraphParam={updateGraphParam} />}        
     </div>);
 }
 
