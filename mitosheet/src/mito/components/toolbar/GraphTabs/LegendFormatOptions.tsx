@@ -15,15 +15,13 @@ export const LegendFormatOptions = (props: {
                 type='number'
                 value={`${props.params?.graph_styling?.legend.x ?? ''}`}
                 onChange={(e) => {
-                    if (+e.target.value > 0) {
-                        props.updateGraphParam({
-                            graph_styling: {
-                                legend: {
-                                    x: +e.target.value
-                                }
+                    props.updateGraphParam({
+                        graph_styling: {
+                            legend: {
+                                x: +e.target.value
                             }
-                        })
-                    }
+                        }
+                    })
                 }}
             />
         </div>
@@ -33,15 +31,13 @@ export const LegendFormatOptions = (props: {
                 type='number'
                 value={`${props.params?.graph_styling?.legend.y ?? ''}`}
                 onChange={(e) => {
-                    if (+e.target.value > 0) {
-                        props.updateGraphParam({
-                            graph_styling: {
-                                legend: {
-                                    y: +e.target.value
-                                }
+                    props.updateGraphParam({
+                        graph_styling: {
+                            legend: {
+                                y: +e.target.value
                             }
-                        })
-                    }
+                        }
+                    })
                 }}
             />
         </div>

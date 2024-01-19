@@ -7,18 +7,34 @@ export const PlotFormatOptions = (props: {
     params?: GraphParamsBackend;
     updateGraphParam: (update: RecursivePartial<GraphParamsBackend>) => void;
 }) => {
-    return <div className='graph-element-style-options mito-toolbar-button-container-enabled vertical-align-content'>
-    <ColorInput
-        value={props.params?.graph_styling?.plot_bgcolor ?? ''}
-        onChange={(value) => {
-            props.updateGraphParam({
-                graph_styling: {
-                    plot_bgcolor: value
-                }
-            })
-        }}
-        type='background-color'
-    />
-    <p>Fill</p>
-</div>
+    return <div className="graph-element-style-options">
+        <div className='mito-toolbar-button-container-enabled vertical-align-content'>
+            <ColorInput
+                value={props.params?.graph_styling?.plot_bgcolor ?? ''}
+                onChange={(value) => {
+                    props.updateGraphParam({
+                        graph_styling: {
+                            plot_bgcolor: value
+                        }
+                    })
+                }}
+                type='background-color'
+            />
+            <p>Background Fill</p>
+        </div>
+        <div className='mito-toolbar-button-container-enabled vertical-align-content'>
+            <ColorInput
+                value={props.params?.graph_styling?.paper_bgcolor ?? ''}
+                onChange={(value) => {
+                    props.updateGraphParam({
+                        graph_styling: {
+                            paper_bgcolor: value
+                        }
+                    })
+                }}
+                type='background-color'
+            />
+            <p>Paper Fill</p>
+        </div>
+    </div>
 }
