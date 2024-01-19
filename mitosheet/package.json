@@ -28,11 +28,13 @@
     "@jupyterlab/application": "^3.5.0",
     "@jupyterlab/notebook": "^3.0.6",
     "@types/fscreen": "^1.0.1",
-    "@types/react-dom": "^17.0.2",
     "fscreen": "^1.1.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
     "streamlit-component-lib": "^2.0.0"
+  },
+  "peerDependencies": {
+    "@types/react-dom": "^17.0.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
@@ -101,8 +103,8 @@
     "typescript": "^4.4.3"
   },
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "homepage": "https://trymito.io",
-  "types": "./lib/index.d.ts",
   "description": "The Mito Spreadsheet",
   "resolutions": {
     "@types/react": "^17.0.2"
