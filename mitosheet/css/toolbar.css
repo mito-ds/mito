@@ -73,9 +73,6 @@
   flex-wrap: wrap;
   height: 50px;
   padding: 5px;
-  /* border: 1px solid var(--mito-text-light);
-  border-radius: 3px; */
-  /* background-color: var(--mito-background-highlight); */
 }
 
 .mito-toolbar-dropdown-selector-selected {
