@@ -95,6 +95,7 @@ export const AxesFormatOptions = (props: {
                             }
                         })
                     }}
+                    id='x-axis-title-color'
                     type='font-color'
                 />
                 <p>X Axis Title Color</p>
@@ -114,6 +115,7 @@ export const AxesFormatOptions = (props: {
                         })
                     }}
                     type='font-color'
+                    id='y-axis-title-color'
                 />
                 <p>Y Axis Title Color</p>
             </div>

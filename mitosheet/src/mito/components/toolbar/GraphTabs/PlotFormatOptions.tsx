@@ -18,6 +18,7 @@ export const PlotFormatOptions = (props: {
                         }
                     })
                 }}
+                id='plot-bgcolor'
                 type='background-color'
             />
             <p>Background Fill</p>
@@ -32,6 +33,7 @@ export const PlotFormatOptions = (props: {
                         }
                     })
                 }}
+                id='paper-bgcolor'
                 type='background-color'
             />
             <p>Paper Fill</p>
