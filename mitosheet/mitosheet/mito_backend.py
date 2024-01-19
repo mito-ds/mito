@@ -22,7 +22,7 @@ from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 
 from mitosheet.kernel_utils import get_current_kernel_id, Comm
 from mitosheet.api import API
-from mitosheet.enterprise.mito_config import MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH, MITO_CONFIG_CUSTOM_IMPORTERS_PATH, MITO_CONFIG_JUPYTER_LOG_SERVER_URL, MitoConfig
+from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
 from mitosheet.saved_analyses import write_analysis
@@ -70,9 +70,9 @@ class MitoBackend():
         self.mito_config = MitoConfig() # type: ignore
 
         # Set up the Mito Logger class
-        jupyter_log_server_url = self.mito_config.jupyter_log_server_url
-        jupyter_log_server_batch_interval = self.mito_config.jupyter_log_server_batch_interval
-        self.mito_log_uploader = MitoLogUploader(jupyter_log_server_url, jupyter_log_server_batch_interval) if jupyter_log_server_url is not None else None
+        log_server_url = self.mito_config.log_server_url
+        log_server_batch_interval = self.mito_config.log_server_batch_interval
+        self.mito_log_uploader = MitoLogUploader(log_server_url, log_server_batch_interval) if log_server_url is not None else None
 
         custom_sheet_functions_path = self.mito_config.custom_sheet_functions_path
         all_user_defined_functions = user_defined_functions if user_defined_functions is not None else []

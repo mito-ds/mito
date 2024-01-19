@@ -34,8 +34,8 @@ MITO_CONFIG_LLM_URL = 'MITO_CONFIG_LLM_URL'
 MITO_CONFIG_ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL'
 MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH = 'MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH'
 MITO_CONFIG_CUSTOM_IMPORTERS_PATH = 'MITO_CONFIG_CUSTOM_IMPORTERS_PATH'
-MITO_CONFIG_JUPYTER_LOG_SERVER_URL = 'MITO_CONFIG_JUPYTER_LOG_SERVER_URL'
-MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL = 'MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL'
+MITO_CONFIG_LOG_SERVER_URL = 'MITO_CONFIG_LOG_SERVER_URL'
+MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL = 'MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL'
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -62,8 +62,8 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
         MITO_CONFIG_LLM_URL,
         MITO_CONFIG_ANALYTICS_URL,
-        MITO_CONFIG_JUPYTER_LOG_SERVER_URL,
-        MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL,
+        MITO_CONFIG_LOG_SERVER_URL,
+        MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL,
         MITO_CONFIG_FEATURE_TELEMETRY,
         MITO_CONFIG_PRO,
         MITO_CONFIG_ENTERPRISE,
@@ -325,16 +325,16 @@ class MitoConfig:
         return self.mec[MITO_CONFIG_ANALYTICS_URL]
     
     @property
-    def jupyter_log_server_url(self) -> Optional[str]:
-        if self.mec is None or self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_URL] is None:
+    def log_server_url(self) -> Optional[str]:
+        if self.mec is None or self.mec[MITO_CONFIG_LOG_SERVER_URL] is None:
             return None
-        return self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_URL]
+        return self.mec[MITO_CONFIG_LOG_SERVER_URL]
     
     @property
-    def jupyter_log_server_batch_interval(self) -> Optional[int]:
-        if self.mec is None or self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] is None:
+    def log_server_batch_interval(self) -> Optional[int]:
+        if self.mec is None or self.mec[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] is None:
             return None
-        return int(self.mec[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL])
+        return int(self.mec[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL])
 
     @property
     def custom_sheet_functions_path(self) -> Optional[str]:
@@ -394,8 +394,8 @@ class MitoConfig:
             MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: self.display_scheduling,
             MITO_CONFIG_LLM_URL: self.llm_url,
             MITO_CONFIG_ANALYTICS_URL: self.analytics_url,
-            MITO_CONFIG_JUPYTER_LOG_SERVER_URL: self.jupyter_log_server_url,
-            MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL: self.jupyter_log_server_batch_interval,
+            MITO_CONFIG_LOG_SERVER_URL: self.log_server_url,
+            MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL: self.log_server_batch_interval,
             MITO_CONFIG_FEATURE_TELEMETRY: self.feature_telemetry,
             MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: self.custom_sheet_functions_path,
             MITO_CONFIG_CUSTOM_IMPORTERS_PATH: self.custom_importers_path,

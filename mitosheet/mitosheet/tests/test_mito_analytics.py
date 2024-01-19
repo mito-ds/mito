@@ -13,7 +13,7 @@ import sys
 import time
 import pandas as pd
 from mitosheet.column_headers import get_column_header_id
-from mitosheet.enterprise.mito_config import MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL, MITO_CONFIG_JUPYTER_LOG_SERVER_URL, MITO_CONFIG_VERSION
+from mitosheet.enterprise.mito_config import MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL, MITO_CONFIG_LOG_SERVER_URL, MITO_CONFIG_VERSION
 from mitosheet.errors import MitoError
 from mitosheet.telemetry.telemetry_utils import PRINT_LOGS
 import pytest
@@ -43,8 +43,8 @@ def test_not_printing_logs():
 def test_log_uploader_single_edit_event():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_URL] =  f"{URL}"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] = "0"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "0"
     
     mito = create_mito_wrapper_with_data([123])
 
@@ -79,8 +79,8 @@ def test_log_uploader_single_edit_event():
 def test_log_uploader_multiple_edit_events():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_URL] =  f"{URL}"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] = "1"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
     
     mito = create_mito_wrapper_with_data([123])
 
@@ -136,8 +136,8 @@ def test_log_uploader_multiple_edit_events():
 def test_log_uploader_error_events():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_URL] =  f"{URL}"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] = "0"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "0"
     
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
 
@@ -179,8 +179,8 @@ def test_log_uploader_error_events():
 def test_log_uploader_long_interval_does_not_trigger_upload():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_URL] =  f"{URL}"
-    os.environ[MITO_CONFIG_JUPYTER_LOG_SERVER_BATCH_INTERVAL] = "100"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "100"
     
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
 
