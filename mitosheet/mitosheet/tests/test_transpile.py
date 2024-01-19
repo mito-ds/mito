@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import os
+from mitosheet.step_performers.graph_steps.graph_utils import BAR
 from mitosheet.transpiler.transpile_utils import NEWLINE_TAB, TAB, NEWLINE
 import pytest
 import pandas as pd
@@ -1309,3 +1310,12 @@ def test_all_edits_optimized_after_import_pivot(tmp_path):
         '',
     ]
 
+def test_does_not_reorder_around_empty_code_chunk():
+    df = pd.DataFrame({'A': [1], 'B': [2], 'C': [3]})
+    mito = create_mito_wrapper(df)
+
+    mito.add_column(0, 'D')
+    mito.delete_columns(0, ['A', 'B'])
+    result = mito.generate_graph('test', BAR, 0, False, ['C'], [], '400', '400')
+    assert result
+    assert mito.dfs[0].equals(pd.DataFrame({'C': [3], 'D': [0]}))
