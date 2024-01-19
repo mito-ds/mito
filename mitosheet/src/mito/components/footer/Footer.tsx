@@ -99,7 +99,7 @@ function Footer(props: FooterProps): JSX.Element {
                         />
                     )
                 })}
-                {props.graphDataArray.map((graphData, index) => {
+                {props.graphDataArray.map((graphData) => {
                     return (
                         <SheetTab
                             key={graphData.graph_id}

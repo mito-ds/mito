@@ -263,7 +263,7 @@ export const GraphTypeConfigurations = (
                 }}
             >
                 <div className="toolbar-vertical-line" />
-                    {configurationInputsWithSeparators}
+                {configurationInputsWithSeparators}
                 <div className="toolbar-vertical-line" />
             </div>
     );
