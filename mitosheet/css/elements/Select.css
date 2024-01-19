@@ -101,6 +101,10 @@
 .mito-toolbar-bottom .mito-input {
   height: 22px;
   font-size: 11px;
-  width: -webkit-fill-available;
   margin-left: 4px;
+}
+
+.mito-graph-configuration-container .select-container,
+.mito-graph-configuration-container .mito-input {
+  width: -webkit-fill-available;
 }

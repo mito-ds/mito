@@ -393,3 +393,24 @@
   stroke: var(--mito-text-medium)!important;
   stroke-width: 0.75px;
 }
+
+.graph-element-style-options {
+  display: flex;
+  height: 50px;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+}
+
+.horizontal-input-with-label {
+  display: flex;
+  flex-direction: row;
+  height: 24px;
+}
+
+.horizontal-input-with-label p:not(.select-text) {
+  width: max-content;
+  height: 25px;
+  align-items: center;
+  display: flex;
+}

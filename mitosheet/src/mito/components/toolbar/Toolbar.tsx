@@ -21,6 +21,7 @@ import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { ChartDesignTabContents } from './GraphTabs/ChartDesignTabContents';
+import { ChartFormatTabContents } from './GraphTabs/ChartFormatTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -84,6 +85,7 @@ export const Toolbar = (
     }
     if (props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH) {
         tabs['Chart Design'] = <ChartDesignTabContents {...props} />
+        tabs['Format'] = <ChartFormatTabContents {...props} />
     }
     const isLoading = () => {
         if (props.uiState.loading.length > 0) {
