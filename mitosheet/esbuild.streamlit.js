@@ -5,7 +5,7 @@ esbuild
         entryPoints: ["src/streamlit/renderMitoStreamlitWrapper.tsx"],
         outfile: 'mitosheet/streamlit/v1/mitoBuild/component.js',
         bundle: true,
-        minify: true,
+        //minify: true,
         plugins: [],
         loader: {
             '.ttf': 'dataurl'

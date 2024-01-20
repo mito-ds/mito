@@ -8,15 +8,12 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID, MitoAPI, PublicInterfaceVersion, containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, getOperatingSystem, keyboardShortcuts } from 'mitosheet-frontend';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
-import { MitoAPI, PublicInterfaceVersion } from './mito';
-import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
-import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
-import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 

@@ -27,14 +27,9 @@
   "dependencies": {
     "@jupyterlab/application": "^3.5.0",
     "@jupyterlab/notebook": "^3.0.6",
-    "@types/fscreen": "^1.0.1",
-    "fscreen": "^1.1.0",
-    "streamlit-component-lib": "^2.0.0"
-  },
-  "peerDependencies": {
-    "@types/react-dom": "^17.0.2",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "streamlit-component-lib": "^2.0.0",
+    "react-dom": "^17.0.1",
+    "mitosheet-frontend": "../mitosheet-frontend"
   },
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
@@ -81,12 +76,14 @@
     "ipywidgets"
   ],
   "devDependencies": {
+    "@types/react-dom": "^17.0.2",
     "@jupyterlab/builder": "^3.0.0",
     "@types/expect.js": "^0.3.29",
     "@types/node": "^18.11.18",
     "@types/react": "^17.0.26",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
+    "react": "^17.0.1",
     "esbuild": "^0.15.16",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.3.0",

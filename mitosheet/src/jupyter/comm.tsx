@@ -41,7 +41,7 @@ import {
     MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType,
     waitUntilConditionReturnsTrueOrTimeout,
     isInJupyterLab, isInJupyterNotebook
-} from "../mito";
+} from 'mitosheet-frontend';
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 
 /**

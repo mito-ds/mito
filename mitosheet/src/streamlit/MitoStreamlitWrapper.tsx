@@ -1,12 +1,11 @@
+import { Mito, MitoResponse, MitoTheme, SendFunctionReturnType } from "mitosheet-frontend";
+import React, { ReactNode } from "react";
 import {
+    Streamlit,
     StreamlitComponentBase,
-    withStreamlitConnection,
     Theme,
-    Streamlit
-} from "streamlit-component-lib"
-import Mito from '../mito/Mito';
-import React, { ReactNode } from "react"
-import { MitoResponse, MitoTheme, SendFunctionReturnType } from "../mito";
+    withStreamlitConnection
+} from "streamlit-component-lib";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
 
 

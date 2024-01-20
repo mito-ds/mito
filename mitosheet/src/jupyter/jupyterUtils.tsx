@@ -21,7 +21,7 @@ import {
     AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile,
     MitoAPI,
     isInJupyterLab, isInJupyterNotebook
-} from "../mito"
+} from "mitosheet-frontend"
 import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
 
 

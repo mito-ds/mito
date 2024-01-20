@@ -1,9 +1,7 @@
 
-import Mito from '../mito/Mito';
-import React, { Component } from "react"
-import { MitoResponse, SendFunctionReturnType } from "../mito";
+import { MitoResponse, SendFunctionReturnType, getRandomId, Mito } from 'mitosheet-frontend';
+import React, { Component } from "react";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
-import { getRandomId } from '../mito/api/api';
 
 export const DELAY_BETWEEN_SET_DASH_PROPS = 25;
 

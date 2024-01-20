@@ -1,6 +1,6 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom';
-import { Mito } from './mito';
+import { Mito } from 'mitosheet-frontend';
 import { getAnalysisDataFromString, getArgs, getSheetDataArrayFromString, getUserProfileFromString, overwriteAnalysisToReplayToMitosheetCall, writeAnalysisToReplayToMitosheetCall, writeCodeSnippetCell, writeGeneratedCodeToCell } from './jupyter/jupyterUtils';
 import { getCommSend } from './jupyter/comm';
 
