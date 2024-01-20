@@ -1,0 +1,70 @@
+.mito-search-bar {
+    position: absolute;
+    right: 0;
+    background-color: var(--mito-background-highlight);
+    box-shadow: 0px 3px 11px -4px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+.mito-search-bar-content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 5px;
+}
+
+.mito-search-bar-search {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 5px;
+}
+
+.mito-search-bar-replace {
+    display: flex;
+    flex-direction: row;
+}
+
+.mito-search-bar-replace .mito-search-button:hover {
+    background: var(--mito-highlight-medium);
+}
+
+.mito-search-bar-replace .mito-search-button {
+    background: var(--mito-highlight-light);
+}
+
+
+.mito-search-bar span {
+    margin-left: 5px;
+    min-width: 5ch;
+    justify-content: flex-end;
+    display: flex;
+}
+
+.mito-search-button {
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    height: fit-content;
+    padding: 4px;
+    align-self: center;
+    justify-content: center;
+    margin-left: 4px;
+}
+
+.mito-search-button:hover {
+    background-color: var(--mito-highlight-light);
+}
+
+.mito-search-caution {
+    position: absolute;
+    background: #FFE092;
+    display: flex;
+    padding: 3px;
+}
+
+.mito-search-bar-search .mito-input-container {
+    flex-grow: 1;
+}

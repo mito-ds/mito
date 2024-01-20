@@ -1,0 +1,41 @@
+/* Note: these should match the sizes in the sizes types file */
+
+.element-width-hug-content {
+    width: min-content;
+}
+
+.element-width-small {
+    width: 100px;
+}
+
+.element-width-medium {
+    width: 170px;
+}
+
+.element-width-medium-large {
+    width: 250px;
+}
+
+.element-width-large {
+    width: 345px;
+}
+
+.element-width-block {
+    width: 100%;
+}
+
+.element-height-small {
+    height: 75px;
+}
+
+.element-height-medium {
+    height: 150px;
+}
+
+.element-height-large {
+    height: 200px;
+}
+
+.element-height-block {
+    height: 100%;
+}

@@ -1,0 +1,36 @@
+.endo-index-headers-container {
+    overflow: hidden;
+    grid-area: index-headers;
+    user-select: none;
+    background-color: var(--mito-background-off);
+    width: 80px; /* Update the cell editor placement if you change this */
+}
+
+.endo-index-headers-container > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.index-header-container {
+    height: var(--cell-height);
+    box-sizing: border-box;
+
+    text-align: center;
+
+    color: var(--mito-text);
+    font-weight: bold;
+
+    /* Align vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.index-header-container:hover {
+    background-color: var(--mito-highlight-light);
+}
+
+.index-header-selected {
+    background-color: var(--mito-highlight-light);
+}

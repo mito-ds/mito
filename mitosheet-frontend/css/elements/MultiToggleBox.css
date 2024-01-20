@@ -1,0 +1,67 @@
+.multi-toggle-box-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Avoid some strange JNotebook overwrites */
+.multi-toggle-box-container * input[type="checkbox"] {
+    margin: 3px;
+}
+
+.multi-toggle-box {
+    /* These in pair make it so less than the max height will just take up the space it needs, and anything larger scrolls */
+    overflow: auto;
+
+    border: 0.5px solid var(--mito-text-light);
+    box-sizing: border-box;
+    border-radius: 3px;
+    background-color: var(--mito-background-off);
+}
+
+.caution-text-container {
+    background-color: var(--mito-status-warning);
+    border: 1px solid var(--mito-status-warning-dark);
+    display: flex;
+    padding: 5px;
+    align-items: center;
+    margin: 5px 0;
+    width: fit-content;
+}
+
+.expandable-caution-text-container {
+    flex-direction: column;
+}
+
+.caution-text-container svg {
+    padding: 0 5px 0 0;
+}
+
+.caution-text-container svg:hover line {
+    stroke-width: 3px;
+}
+
+.caution-text {
+    color: var(--mito-status-warning-dark);
+    font-size: 11px;
+    padding-right: 4px;
+    word-break: break-word;
+}
+
+.multi-toggle-box-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    width: 100%;
+}
+
+.multi-toggle-box-row:hover {
+    background-color: var(--mito-background-highlight);
+}
+
+.multi-toggle-box-row-selected {
+    background-color: var(--mito-background-highlight);
+}
+
+.multi-toggle-box-row-disabled {
+    opacity: 70%;
+}

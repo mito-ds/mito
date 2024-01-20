@@ -1,0 +1,214 @@
+/* 
+    This file contains all of the styling for fonts in Mito. 
+*/
+
+/* Use for big headings, specially in modals */
+.text-header-1 {
+    font-size: 40px;
+    font-family: Roboto Medium;
+    font-weight: 500;
+    color: var(--mito-text);
+}
+
+/* Use as side bar titles */
+.text-header-2 {
+    font-size: 20px;
+    font-family: Roboto Medium;
+    font-weight: 500;
+    color: var(--mito-text);
+}
+
+/* 
+    Uses: 
+    - Questions in the side bar
+    - Text in buttons 
+*/
+.text-header-3 {
+    font-size: 15px;
+    font-family: Roboto Medium;
+    font-weight: 500;
+    color: var(--mito-text);
+}
+
+/* Use for Small titles */
+.text-header-4 {
+    font-size: 13px;
+    font-family: Roboto Medium;
+    font-weight: 500;
+    color: var(--mito-text);
+}
+
+/* 
+    Uses: 
+    - Side Bar Subtext for title
+    - General Text
+*/
+.text-body-1 {
+    font-size: 15px;
+    font-family: Roboto;
+    font-weight: 400;
+    color: var(--mito-text);
+}
+
+/* Use for links */
+.text-body-1-link {
+    font-size: 15px;
+    font-family: Roboto;
+    font-weight: 400;
+    color: var(--mito-highlight);
+    text-decoration: underline;
+}
+
+.text-link {
+    color: var(--mito-highlight);
+    text-decoration: underline;
+}
+
+/* 
+    Use: 
+    - subtext for step history
+    -  text inside selectors
+    -  text inside input
+*/
+.text-body-2 {
+    font-size: 13px;
+    font-family: Roboto;
+    font-weight: 400;
+    color: var(--mito-text);
+}
+
+.text-body-2-link {
+    font-size: 13px;
+    font-family: Roboto;
+    font-weight: 400;
+    color: var(--mito-highlight);
+    text-decoration: underline;
+}
+
+/* Use for subtext in lists */
+.text-subtext-1 {
+    font-size: 12px;
+    font-family: Roboto;
+    font-weight: 400;
+    color: var(--mito-text-medium);
+}
+
+/* 
+    Sometimes we want to use the above text styles, but
+    also have white text (e.g. the tour). In this case, we
+    can override the color with this text
+*/
+.text-color-mito-text {
+    color: var(--mito-text) !important;
+}
+.text-color-mito-highlight {
+    color: var(--mito-highlight) !important;
+}
+.text-color-mito-highlight-light {
+    color: var(--mito-highlight-light)
+}
+.text-color-background-important {
+    color: var(--mito-background) !important;
+}
+.text-color-mito-highlight-important {
+    color: var(--mito-highlight) !important;
+}
+.text-color-medium-important {
+    color: var(--mito-text-medium) !important;
+}
+.text-font-family-normal-important {
+    font-family: Roboto !important;
+}
+.text-color-recon-created {
+    color: var(--mito-recon-created-text-color) !important;
+}
+.text-color-recon-modified {
+    color: var(--mito-recon-modified-text-color) !important;
+}
+
+
+
+/*
+    Set the text to an error color. In the future, we
+    should probably make this a bit less aggressive
+*/
+.text-color-error {
+    color: var(--mito-status-error);
+}
+
+.text-color-error-important {
+    color: var(--mito-status-error) !important;
+}
+
+.text-color-success {
+    color: var(--mito-status-success);
+}
+
+/* 
+    This makes the text unselectable - e.g. you cannot double click on it
+    to highlight it.
+*/
+.text-unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* 
+    Cuts off text and doesn't wrap it when it gets to big. Useful for chopping
+    column headers
+*/
+.text-overflow-hide {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-overflow-wrap {
+    overflow: auto;
+    white-space: normal;
+}
+
+.text-overflow-scroll {
+    overflow-x: scroll;
+    white-space: nowrap;
+}
+
+/* Utilities for aligning text */
+.text-align-left {
+    text-align: left;
+}
+.text-align-right {
+    text-align: right;
+}
+.text-align-center {
+    text-align: center;
+}
+.text-align-center-important {
+    text-align: center !important;
+}
+
+.text-underline {
+    text-decoration: underline !important;
+}
+.text-bold {
+    font-weight: bold;
+}
+
+.text-underline-on-hover:hover {
+    text-decoration: underline;
+}
+.text-color-highlight-important-on-hover:hover {
+    color: var(--mito-highlight) !important;
+}
+
+.text-color-disabled {
+    color: var(--mito-text-light);
+}
+
+.text-cursor-default {
+    cursor: default;
+}

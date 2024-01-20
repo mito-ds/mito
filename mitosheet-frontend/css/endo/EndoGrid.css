@@ -1,0 +1,57 @@
+.endo-grid-container {
+    width: 100%;
+    max-height: calc(100% - 32px);
+    flex-grow: 1;
+    display: grid;
+    grid-template: 
+        /* First row is - and column-headers*/
+        "- column-headers" auto 
+        /* Second row is index-headers and grid, and takes up remaining space */
+        "index-headers data" 1fr 
+        /* Two columns, one of 100px (which is auto) and the other of the remaining space */
+        / auto 1fr;
+    --cell-height: 25px;
+
+    /* 
+        Set position as relative so that the cell editor
+        positions itself in relation to the container
+    */
+    position: relative;
+
+    background-color: var(--mito-background);
+    
+    font-family: "Roboto Condensed";
+
+    /* Clear the outline to avoid weird outlines from JNotebooks focus */
+    outline: unset;
+}
+
+.endo-scroller-and-renderer-container {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+    grid-area: data;
+}
+
+.endo-renderer-container {
+    top: 0;
+    left: 0;
+    position: absolute;
+}
+
+/* Handling an empty grid */
+.endo-grid-empty-container {
+    height: 100%;
+    width: 100%;
+}
+
+.endo-grid-empty-text-container {
+    height: 100%;
+    width: 100%;
+
+    text-align: center !important;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}

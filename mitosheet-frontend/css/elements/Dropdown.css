@@ -1,0 +1,62 @@
+.mito-dropdown {
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+
+    z-index: 3;
+    position: absolute;
+
+    min-width: 100px;
+
+    /* 
+        This should match the definitions in the Dropdown.tsx,
+        But it doesn't. This bug has been there for a while, so we 
+        don't mess with it because it works.
+     */
+    max-height: 350px;
+
+    background: var(--mito-background);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+
+    text-align: left;
+
+    padding-top: 8px;
+    padding-bottom: 8px;    
+}
+
+/* On streamlit, */
+.mito-dropdown-streamlit {
+    max-height: 250px;
+}
+
+.mito-dropdown p {
+    margin: initial;
+    text-align: initial;
+}
+
+/* 
+    A class that is applied when the dropdown is a compressed
+    state. This class is also used in the DropdownItem.css to
+    compress the distance between elements.
+*/
+.mito-dropdown-compressed {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.mito-dropdown-search {
+    padding-top: 0px;
+}
+
+.mito-dropdown-search-input {
+    padding: 10px;
+    width: 320px;
+    padding-bottom: 10px;
+    background-color: var(--mito-background);
+    box-sizing: unset; /* Ignore the box sizing in JNotebook*/
+}
+
+.mito-dropdown-items-container {
+    overflow-y: auto;
+}

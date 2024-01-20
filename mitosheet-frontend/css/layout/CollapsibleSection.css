@@ -1,0 +1,18 @@
+.mito-blue-container {
+    padding: 5px;
+    background-color: var(--mito-background-highlight);
+    border-radius: 5px;
+}
+
+.mito-blue-container-disabled {
+    opacity: 50%;
+}
+
+.mito-collapsible-content-card-container {
+    background-color: var(--mito-background-highlight);
+    border-radius: 5px;
+}
+
+.mito-collapsible-content-card-subtext {
+    padding: 0px 5px 5px 5px;
+}

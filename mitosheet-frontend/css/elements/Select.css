@@ -1,0 +1,90 @@
+
+.select-container {
+    display: flex;
+    flex-direction: row;
+
+    height: 30px;
+
+    box-sizing: border-box;
+}
+
+.select-text {
+    display: flex;
+    align-items: center;
+
+    /* Make the text div take up the remaining space of the select */
+    flex-grow: 1;
+
+    /* Stylize border */
+    border: 1px solid var(--mito-text-light);
+    border-right: none;
+    border-radius: 3px 0px 0px 3px;
+    background: var(--mito-background-off);
+
+    /* Add spacing between text and left border of select*/
+    padding-left: 5px;
+
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+
+.select-dropdown-icon-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+    align-items: center;
+
+    width: 30px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    border-radius: 0px 3px 3px 0px;
+
+    background-color: var(--mito-highlight);
+}
+
+/* 
+    When the select is either hovered or active, 
+    set the backgroud color of the select icon container.
+*/
+.select-container:hover:not(.select-disabled) > .select-dropdown-icon-container {
+    background-color: var(--mito-highlight);
+}
+.select-dropdown-active > .select-dropdown-icon-container {
+    background-color: var(--mito-highlight);
+}
+
+/* 
+    When the select is either hovered or active, 
+    set the border color of the select select text.
+*/
+.select-container:hover:not(.select-disabled) > .select-text {
+    border-color: var(--mito-highlight);
+}
+.select-dropdown-active > .select-text {
+    border-color: var(--mito-highlight);
+}
+
+.select-dropdown-container {
+    display: flex;
+    flex-direction: row
+}
+
+.select-dropdown-justify-left {
+    justify-content: left;
+}
+
+.select-dropdown-justify-right {
+    justify-content: right;
+}
+
+/* 
+    Classes for when the select is disabled
+*/
+.select-disabled > .select-text {
+    color: var(--mito-text-light) !important;
+    border-color: var(--mito-text-light) !important;
+}
+.select-disabled > .select-dropdown-icon-container {
+    background-color: var(--mito-background-off) !important;
+}

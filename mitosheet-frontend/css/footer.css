@@ -1,0 +1,163 @@
+.footer {
+    height: min-content;
+    display: flex;
+    justify-content: space-between;
+
+    /* Stops the footer from shrinking vertically. */
+    flex-shrink: 0; 
+
+    background-color: var(--mito-background-highlight);
+    overflow-x: auto;
+    overflow-y: clip;
+
+    /* Stops the sheet tabs from wrapping text, and forces it to display in one line */
+    white-space: nowrap;
+    box-sizing: border-box;
+
+    border-top: 1px solid var(--mito-text-light);
+
+    /* Position the footer so that the add button and the size can stay in place */
+    position: relative;
+}
+
+.footer-add-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    background-color: var(--mito-highlight-light);
+
+    padding-left: 10px;
+    padding-right: 10px;
+
+    border-right: 1px solid var(--mito-text-light);
+}
+
+.footer-add-button:hover {
+    background-color: var(--mito-highlight-light);
+}
+
+.footer-tab-bar {
+    /* In order for the scrollbar-gutter css property to work, overflow must be set to auto. */
+    overflow-x: auto;
+    overflow-y: clip;
+
+    white-space: nowrap;
+    flex: auto;
+
+    /* Set the height to min-content so there is space for the tab + scrollbar */
+    height: min-content;
+
+    /* 
+        Set a minimum height so that even if there are no tabs, the footer has correct height.
+        Should be the same height as the tab
+    */
+    min-height: 32px; 
+
+}
+
+.footer-right-side {
+    display: flex;
+    flex-direction: row;
+}
+
+.footer-sheet-shape {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    padding-left: 5px;
+    padding-right: 5px;
+    color: var(--mito-text);
+
+    /* A bit of a hack to make the text centered */
+    line-height: 20px;
+    border-left: 1px solid var(--mito-text-light);
+}
+
+.tab {
+    /* Set background color and border of sheet tab*/
+    background: var(--mito-background-highlight);
+    color: var(--mito-text);
+
+    /* 
+        We only set a right border so that we don't have a doubly thick border
+        between each tab and the last tab has a border with the same thickness as 
+        the other tabs.
+    */
+    border-right: 1px solid var(--mito-text-light);
+    box-sizing: border-box;
+
+    /* Should be the same height as the min-height of the footer-tab-bar */
+    height: 32px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.tab-graph {
+    background-color: var(--mito-highlight-light)
+}
+
+/* The recon colors must be defined before the tab-selected class so the order is applied correctly */
+.tab-created-recon {
+    background-color: var(--mito-recon-created-background-color);
+    color: var(--mito-recon-text-color);
+}
+
+.tab-modified-recon {
+    background-color: var(--mito-recon-modified-background-color);
+    color: var(--mito-recon-text-color);
+}
+
+.tab-selected {
+    /* The selected sheet tab does not need a border */
+    border: 0px;  
+    box-sizing: border-box;
+    background-color: var(--mito-highlight);
+    color: var(--mito-background); 
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.tab-content p {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari, Chrome, Opera, Samsung */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Edge, IE */
+    user-select: none; /* Modern browsers */
+}
+
+.tab-content > * + * {
+    /* Evenly space all of the tab-contents children */
+    margin-left: 5px;
+}
+
+.search-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.search-navigation-icons-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.search-navigation-icons {
+    display: flex;
+    flex-direction: row;
+}

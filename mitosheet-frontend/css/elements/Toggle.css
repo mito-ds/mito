@@ -1,0 +1,102 @@
+.toggle-label {
+    --toggle-label-width: 60px;
+    --toggle-height: 30px;
+    --toggle-toggle-width: 24px;
+    --toggle-toggle-margin: 1px;
+
+    position: relative;
+    display: inline-block;
+    width: var(--toggle-label-width);
+    height: var(--toggle-height);
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+/* Don't display the default html input so we can created out own custom styled one */
+.toggle-label input {display: none;}
+  
+.toggle {
+    position: absolute;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid var(--mito-text-light);
+    border-radius: 3px;
+    background-color: var(--mito-background-off);
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+  
+/* 
+    ::before creates a pseudo-element that is the first child of the selected element.
+    It is often used to add cosmetic content to an element with the content property. 
+
+    Here, we use it for the white rectangle inside of the toggle
+*/
+.toggle:before {
+    position: absolute;
+    content: "";
+    height: var(--toggle-height);
+    width: var(--toggle-toggle-width);
+    left: var(--toggle-toggle-margin);
+    background-color: white;
+    -webkit-transition: .2s;
+    transition: .2s;
+    border-radius: 3px;
+    height: calc(var(--toggle-height) - 7px);
+}
+  
+input:checked + .toggle {
+    background-color: var(--mito-highlight);
+}
+  
+input:checked + .toggle:before {
+    -webkit-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
+    -ms-transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
+    transform: translateX(calc(var(--toggle-label-width) - var(--toggle-toggle-width) - 4 * var(--toggle-toggle-margin)));
+    height: calc(var(--toggle-height) - 7px);
+}
+ 
+/* 
+    ::after creates a pseudo-element that is the last child of the selected element.
+    It is often used to add cosmetic content to an element with the content property. 
+
+    Here, we use it for on/off text
+*/
+.toggle:after {
+    content:'Off';
+    color: var(--mito-text); 
+    position: absolute; 
+    right: 8px;
+}
+  
+input:checked + .toggle:after {  
+    content:'On';
+    left: 8px;
+    right: unset;
+    color: var(--mito-background)
+}
+
+.toggle:hover {
+    border-color: var(--mito-highlight-light);
+}
+
+.toggle-disabled {
+    background-color: var(--mito-background-off) !important;
+    border-color: var(--mito-text-light) !important;
+}
+
+.toggle-disabled:before {
+    color: var(--mito-text-light) !important;
+}
+
+.toggle-disabled:after {
+    color: var(--mito-text-light) !important;
+}
+
+  

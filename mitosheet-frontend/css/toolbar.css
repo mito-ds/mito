@@ -1,0 +1,375 @@
+.mito-toolbar-container {
+  width: 100%;
+  height: min-content;
+
+  /* We make the toolbar a flexbox, for the toolbar icons/actions */
+  display: flex;
+  flex-direction: column;
+
+  background-color: var(--mito-background-off);
+
+  /* border-box to set the border inside the div, so it doesn't get chopped */
+  box-sizing: border-box; 
+  -moz-box-sizing: border-box; /* Firefox */
+  -webkit-box-sizing: border-box; /* Older Webkit browsers */
+
+  /* We use this for seperating sections in the toolbar*/
+  --toolbar-seperator-color: var(--mito-text-light);
+}
+
+.mito-toolbar-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: var(--mito-background-highlight);
+  border-bottom: 1px solid var(--mito-text-light);
+}
+
+.mito-toolbar-top-left {
+  display: flex;
+  flex-direction: row;
+}
+
+.mito-toolbar-top-right {
+  display: flex;
+  flex-direction: row;
+}
+
+.mito-toolbar-top-right > * + * {
+  margin-left: 5px;
+}
+
+.mito-toolbar-dropdown-selector {
+  height: 22px;
+  margin-right: 5px !important; /* Needs to important due to margin overwrites by JLab rendering*/
+  padding: 0px 3px;
+  border-radius: 3px;
+  font-family: Roboto;
+  box-sizing: border-box;
+  color: var(--mito-text);
+  cursor: pointer;
+}
+
+
+.mito-toolbar-dropdown-selector-selected {
+  background: var(--mito-highlight-light);
+}
+
+.mito-toolbar-dropdown-selector:hover {
+  background: var(--mito-highlight-light);
+}
+
+/* A line that seperates the top and bottom vertically */
+.mito-toolbar-top-bottom-seperator {
+  width: 100%;
+  border-top: 1px solid var(--toolbar-seperator-color);
+  height: 100%;
+
+
+  margin-top: 1px; /* Beacuse this is a top border, we need margin on top */
+  padding-bottom: 4px;
+}
+
+.mito-toolbar-bottom {
+  display: flex;
+  flex-direction: row;
+  overflow-x: scroll;
+  min-height: 60px;
+
+  
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.mito-toolbar-bottom::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.mito-toolbar-bottom {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.mito-toolbar-bottom-left-half {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex: 3; 
+}
+
+.mito-toolbar-bottom-right-half {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  flex: .5;
+}
+
+.mito-toolbar-button-container {
+  /* Keep items evenly spaced */
+  display: flex;
+  width: fit-content;
+  height: 100%;
+
+  margin: 0px 1px;
+
+  border-radius: 3px;
+
+  align-items: baseline;
+  justify-content: flex-start;
+
+  /* Make input blend in with formula bar */
+  background-color: inherit;
+
+  color: var(--mito-text);
+}
+
+
+.mito-toolbar-button {
+  /* Stack icon and label vertically */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  box-sizing: border-box;
+  padding: 1px 2px;
+  border-radius: 3px;
+  margin: 0px;
+  width: 100%;
+  
+  /* Put items in middle of div */ 
+  align-items: center;
+
+  background-color: inherit;
+  border-style: none;
+  outline: none;
+
+  color: inherit;
+
+  /* Use Roboto font for the toolbar item label, not condensed as it makes it very unreadable at small fonts */
+  font-family: Roboto;
+}
+
+.mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container,
+.mito-toolbar-button-container-enabled.horizontal-align-content:hover {
+  background-color: var(--mito-toolbar-hover);
+}
+
+.horizontal-align-content .mito-toolbar-button-label {
+  white-space: nowrap;
+}
+
+.horizontal-align-content.mito-toolbar-button-container {
+  height: min-content;
+  width: 100%;
+}
+
+.horizontal-align-content .mito-toolbar-button {
+  align-items: flex-start;
+}
+
+.mito-toolbar-tabbar-tabname span {
+  font-size: 14px;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.mito-toolbar-tabbar-tabname:hover span {
+  font-weight: bold;
+}
+
+.mito-toolbar-number-format .mito-toolbar-button-icon-container {
+  padding: 2px;
+  height: 100%;
+}
+
+.mito-toolbar-number-format {
+  margin-top: 5px;
+}
+
+.mito-toolbar-number-precision .mito-toolbar-button-container {
+  width: fit-content;
+  height: auto;
+  display: flex;
+  align-items: center;
+}
+
+.mito-toolbar-button-container-disabled {
+  opacity: 50%;
+}
+
+.mito-toolbar-button-icon-container {
+  margin: auto;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  padding: 1px 5px;
+  border-radius: 5px;
+  align-items: center;
+}
+
+.mito-toolbar-button-label {
+  font-size: 11px;
+  
+  text-align: center !important;
+  min-width: 35px;
+  width: min-content;
+  
+  /* In notebook, the line height is set higher, so we need to set it back to normal */
+  line-height: normal;
+
+  /* Make sure the text doesn't go more than two lines */
+  overflow: hidden;
+  height: auto;
+  max-height: 27px;
+}
+
+.toolbar-vertical-line {
+  border-left: 1px solid var(--toolbar-seperator-color);
+  height: 100%;
+  margin: 0 4px;
+  padding-right: 2px;
+}
+
+.mito-toolbar-button-draw-attention {
+  border: 2px solid var(--mito-highlight);
+  border-radius: 5px;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
+	transform: scale(1);
+	animation: pulse 2s infinite;
+}
+
+/* The button in the toolbar that lets the user upgrade or tells them they are pro */
+.mito-plan-button {
+  border-radius: 3px;
+  background-color: var(--mito-highlight);
+  font-size: 12px;
+  text-align: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 5px;
+  color: var(--mito-background);
+  height: 18px;
+}
+
+/* This removes the underline that's automatically added to links */
+.mito-container a.mito-plan-button {
+  text-decoration: none;
+}
+
+.mito-toolbar-button span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vertical-align-content .mito-toolbar-button span {
+  flex-direction: column;
+}
+
+.horizontal-align-content .mito-toolbar-button span {
+  flex-direction: row;
+  align-items: center;
+}
+
+
+/* Tab Bar Style */
+.mito-toolbar-tabbar-tabname {
+  border: none;
+  background: none;
+  color: var(--mito-text);
+  margin-bottom: 2px;
+  height: max-content;
+  display: flex;
+  align-self: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.mito-toolbar-tabbar-tabname-selected {
+  display: flex;
+  flex-direction: column;
+  color: var(--mito-text);
+  margin-bottom: 0;
+  justify-items: center;
+}
+
+.mito-toolbar-tabbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.mito-toolbar-tabbar-right, .mito-toolbar-tabbar-left {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  height: 26px;
+}
+
+.mito-toolbar-tabbar-right a {
+  margin-right: 3px;
+}
+
+.mito-toolbar-top .mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container {
+  background-color: var(--mito-highlight-medium);
+}
+
+.mito-toolbar-top svg path {
+  stroke: var(--mito-text);
+  stroke-width: 0.78x;
+}
+
+.mito-toolbar-top .mito-toolbar-button-icon-container {
+  align-items: center;
+}
+
+.mito-toolbar-tabbar-selected-underline {
+  width: 100%;
+  height: 2px;
+  background: var(--mito-highlight);
+  border-radius: 2px;
+}
+
+.mito-toolbar-button-dropdown-icon {
+  display: flex;
+  margin-left: 5px;
+  font-size: 7px;
+  align-self: center;
+}
+
+.mito-toolbar-number-precision {
+  display: flex;
+}
+
+.mito-toolbar-container .select-disabled > .select-dropdown-icon-container {
+  background-color: var(--mito-text-light)!important;
+}
+
+.mito-toolbar-tabbar-right .mito-toolbar-button-container {
+  height: 26px;
+}
+
+.mito-toolbar-tabbar .mito-toolbar-button-icon-container {
+  height: 100%;
+}
+
+.mito-toolbar-icon-buttons .mito-toolbar-button-container {
+  height: min-content;
+}
+
+.mito-toolbar-save-indicator {
+  color: var(--mito-text-medium);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  width: 56px;
+  justify-content: space-evenly;
+  margin-right: 5px;
+}
+
+.mito-toolbar-save-indicator path {
+  stroke: var(--mito-text-medium)!important;
+  stroke-width: 0.75px;
+}

@@ -1,0 +1,129 @@
+/* 
+    The following two css rules are used to style the Create new Mitosheet button in the notebook toolbar. 
+    The pure css selectors are used for the JLab button, and the id selection is used for the notebook 
+    button, since we're not able to set the class name of our button in notebooks. 
+*/
+:root .toolbar-mito-button-class, #mito-toolbar-button-id {
+    background-color: var(--mito-highlight-very-light, #ece3ff);
+    border-radius: 3px;
+    border: .5px solid var(--mito-text-light, #ACACAD);
+}
+
+:root .toolbar-mito-button-class .jp-ToolbarButtonComponent-label, #mito-toolbar-button-id {
+    color: var(--mito-highlight, #9D6CFF);
+}
+
+.jp-RenderedHTMLCommon > .mito-container-container {
+    margin-right: -20px;
+}
+/* We overwrite rendering rules that give us problems in HTML output*/
+/* In Lab */
+.mito-container p {
+    margin: initial;
+    text-align: initial;
+}
+.jp-RenderedHTMLCommon .mito-container a:link,
+.jp-RenderedHTMLCommon .mito-container a:visited {
+    color: initial;
+    text-decoration: initial;
+}
+/* In Notebook */
+.rendered_html .mito-container p {
+    margin: initial;
+    text-align: initial;
+}
+.jp-rendered_html .mito-container a:link,
+.jp-rendered_html .mito-container a:visited {
+    color: initial;
+    text-decoration: initial;
+}
+
+.rendered_html .mito-container :visited {
+    text-decoration: initial;
+}
+
+/* 
+    We override the the overflow behavior on the jupyter-widgets class, which 
+    seems to only be applied to the container of the widgets themselves (e.g.
+    which Mito is). 
+    
+    Specifically, we want overflow to be hidden. This keeps the Mitosheet, and
+    all other things inside the box. 
+
+    NOTE: do not change the name of this class. We didn't decide it, we inherited
+    it. 
+
+    To see where this class is used by Jupyter, search for it in the HTML. It is in
+    the parent of the parent of the .mito-container div!
+*/
+.jupyter-widgets {
+    overflow: hidden !important;
+}
+
+.mito-container {
+    height: 538px;
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid var(--mito-text-light);
+
+    /* Set the default font to Roboto */
+    font-family: Roboto;
+
+    /* 
+        Set the position to relative to make the overlay base its height and width off of the mito container.
+        Read more here: https://stackoverflow.com/questions/49209970/width-100-of-an-absolute-positioned-element-is-bigger-than-the-parent
+    */
+    position: relative;
+}
+
+
+/*
+    When the container is fullscreen, we expand it so it fills the 
+    entire view point. We do webkit as well, so it works on safari
+*/
+.mito-container:fullscreen .mito-container:-webkit-full-screen {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.mito-center-content-container {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.mito-sheet-and-formula-bar-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.mito-sheet-and-formula-bar-container-wide-taskpane-open {
+    width: 0%;
+    height: 0%;
+}
+
+.mito-taskpane-container-wide {
+    visibility: visible;
+    width: 100%;
+}
+
+.mito-taskpane-container-narrow {
+    visibility: visible;
+}
+
+.mito-taskpane-container {
+    width: 0%;
+    visibility: hidden;
+} 
+
+/* Note this only works with one div, p, etc. at a time. */
+.vertical-align-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

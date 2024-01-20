@@ -1,0 +1,68 @@
+.mito-modal-container {
+    /* Render above other divs */
+    z-index: 3;
+    position: absolute;
+
+    width: 100%;
+    align-items: center;
+    text-align: center;
+
+    margin-top: 60px;
+
+    color: var(--mito-text);
+}
+
+.mito-modal {
+    background-color: var(--mito-background);
+
+    /* Place the modal*/
+    width: max(40%, 500px);
+    margin: auto; /* Center it */
+
+    /* Center the elements in the modal */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+
+    /* Style it! */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 3px;
+}
+
+.mito-modal-header-text-div {
+    text-align: center;
+    color: var(--mito-text);
+
+    font-weight: bold;
+    font-size: 18px;
+
+    width: 100%;
+}
+
+.mito-modal-message {
+    color: var(--mito-text);
+    font-size: 14px;
+    width: 80%;
+    margin-top: 15px;
+
+    text-align: center;
+}
+
+.mito-modal-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+    /* Center the button text on the same horizontal axis */
+    align-items: baseline;
+    font-size: 15px;
+
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.mito-modal-buttons > *:first-child:not(:last-child) {
+    margin-right: 4vw;
+}

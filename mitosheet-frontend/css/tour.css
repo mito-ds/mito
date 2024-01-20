@@ -1,0 +1,37 @@
+.tour-container {
+    border: 1px solid var(--mito-text-light);
+    border-radius: 5px;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25); /* Add drop shadows */
+    
+    z-index: 3;
+    position: absolute;
+    width: 300px;
+
+    background-color: var(--mito-highlight);
+
+    padding: 20px;
+}
+
+.tour-container-bottom-left {
+    margin-left: 20px;
+    position: absolute;
+    bottom: 35px;
+}
+
+.tour-container-bottom-right {
+    right: 20px; /* Set the tour container 20px from the right hand side of Mito */
+    position: absolute;
+    bottom: 35px;
+}
+
+.tour-container-top-right {
+    right: 20px; /* Set the tour container 20px from the right hand side of Mito */
+    position: absolute;
+    margin-top: 70px;
+}
+
+.tour-container-top-left {
+    margin-left: 20px;
+    position: absolute;
+    margin-top: 70px;
+}

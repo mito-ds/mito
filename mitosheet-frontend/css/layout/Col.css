@@ -1,0 +1,10 @@
+
+.spacing-col {
+    /* 
+        We hide the overflow from the items in a Column, and
+        also cut off text with a nice ellipsis.
+    */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

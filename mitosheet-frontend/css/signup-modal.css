@@ -1,0 +1,72 @@
+.signup-modal-container {
+    margin: auto;
+    height: 350px;
+
+    display: flex;
+    justify-content: space-between;
+
+    border-radius: 5px;
+    background-color: var(--mito-background);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.signup-modal-left-column-container {
+    display: flex;
+    flex-direction: column;
+
+    width: 350px;
+    margin: 50px 20px 50px 50px
+}
+
+
+.signup-modal-right-column-container {
+    width: 300px;
+    border-radius: 0px 5px 5px 0px; 
+}
+
+.signup-modal-left-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    height: 100%;
+}
+
+.signup-modal-text {
+    color: #838383;
+    line-height: 1.5;
+    font-size: 17px;
+    margin-top: '50px';
+}
+
+.signup-modal-text-error {
+    color: var(--mito-status-error) !important;
+}
+
+.signup-modal-buttons {
+    display: flex;
+    justify-content: space-evenly;
+}  
+
+.signup-modal-email-form {
+    display: flex;
+    flex-direction: column;
+
+    width: 90%;
+}
+
+.signup-modal-pro-text {
+    color: #9D6CFF;
+    line-height: 1.5;
+    font-size: 17px;
+}
+
+.signup-modal-pro-text:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 800px) {
+    .signup-modal-right-column-container {
+      display: none; /* Hide the divs when the parent width is less than 750px */
+    }
+  }

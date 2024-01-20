@@ -1,0 +1,28 @@
+
+.loading-indicator-header {
+    background-color: var(--mito-highlight);
+    padding: 5px 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.loading-indicator-content {
+    padding: 5px 10px;
+}
+
+.loading-indicator-item {
+    display: flex;
+    flex-direction: row;
+}
+
+.loading-indicator-icon {
+    width: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.loading-indicator-loader {
+    position: absolute;
+    right: 10px;
+}

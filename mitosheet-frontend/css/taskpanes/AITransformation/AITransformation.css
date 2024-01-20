@@ -1,0 +1,82 @@
+.ai-transformation-example {
+    box-sizing: border-box;
+
+    /* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 3px 5px;
+    gap: 10px;
+
+    background: var(--mito-background-off);
+    border: 1px solid var(--mito-text-light);
+    border-radius: 3px;
+}
+
+.ai-transformation-user-input-text-area {
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    resize: none;
+
+    /* Auto layout */
+    padding: 5px;
+
+    background-color: var(--mito-background-off);
+    border: 1px solid var(--mito-text-light);
+    color: var(--mito-text);
+    border-radius: 3px;
+
+    font-size: 13px;
+}
+
+.ai-transformation-message {
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 10px;
+
+    background: var(--mito-background-off);
+    border: 1px solid var(--mito-text-light);
+    border-radius: 3px;
+    border: 1px solid var(--mito-text-light);
+
+    word-break: break-word; 
+    white-space: pre-line; 
+    overflow-wrap: break-word; 
+
+}
+.ai-transformation-message-user {
+    border: 1px solid var(--mito-text-light);
+}
+.ai-transformation-message-ai {
+    background: var(--mito-highlight-very-light);
+}
+
+.ai-transformation-example:hover {
+    border: 1px solid var(--mito-highlight-light);
+}
+
+.ai-transformation-feedback-button {
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.ai-transformation-feedback-button:hover {
+    background-color: var(--mito-background-off);
+}
+
+.ai-transformation-feedback-button-selected {
+    background-color: var(--mito-background-off);
+}
+
+.ai-transformation-result-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}

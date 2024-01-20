@@ -1,0 +1,112 @@
+/* 
+    Apply basic formatting to all text buttons. 
+    We apply some basic css foundation to both the anchor tags and buttons 
+    so that applying additional styling has the same effect to both type
+    of text buttons. See the below link for more information:
+    https://css-tricks.com/a-complete-guide-to-links-and-buttons/#a-consistent-button-class
+*/
+.text-button {
+    /* We want all text buttons to have the same height and not display overflow text */
+    height: 30px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    font-family: Roboto;
+
+    /* CSS reset for text buttons */
+    border: 0;
+    border-radius: 3px;
+    font-size: 15px;
+    line-height: 1.2;
+    text-decoration: none;
+    margin: 0;
+    cursor: default;
+}
+
+.text-button span::-webkit-scrollbar {
+    display: none;
+}
+  
+/* Hide scrollbar for IE, Edge and Firefox */
+.text-button span {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.cell-editor-suggestion, .cell-editor-suggestion-subtext {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow: auto;
+}
+
+.text-button:focus-visible {
+    /* We clear the outline and border, which is set on JNotebooks for some reason on focus*/
+    outline: unset; 
+}
+
+/* 
+    Remove the default border applied to buttons.
+*/
+button.text-button {    
+    border: 0; 
+}
+
+/* 
+    We apply special formatting to the anchor 
+    tag that is not required for the button element.
+*/
+a.text-button {   
+    display: grid; 
+    text-align: center;
+    align-items: center;
+}
+
+.text-button-size-small {
+    width: 100px;
+}
+
+.text-button-size-medium {
+    width: 185px;
+}
+
+.text-button-size-block {
+    width: 100%;
+}
+
+.text-button-variant-light {
+    background-color: var(--mito-highlight-very-light);
+    color: var(--mito-highlight);
+}
+
+.text-button-variant-dark {
+    background-color: var(--mito-highlight);
+    color: var(--mito-background); 
+}
+
+/* Style the LIGHT text button when it is hovered and not disabled */
+.text-button-variant-light:hover:not(.text-button-disabled) {
+    background-color: var(--mito-highlight-light);
+    color: var(--mito-highlight);
+}
+
+/* Style the DARK text button when it is hovered and not disabled */
+.text-button-variant-dark:hover:not(.text-button-disabled) {
+    background-color: var(--mito-highlight-medium);
+    color: var(--mito-background); 
+}
+
+/* Style the LIGHT text button when it is disabled */
+.text-button-variant-light.text-button-disabled {
+    background-color: var(--mito-background-off);
+    color: var(--mito-text);
+}
+
+/* Style the DARK text button when it is disabled */
+.text-button-variant-dark.text-button-disabled {
+    background-color: var(--mito-highlight-very-light);
+    color: var(--mito-highlight-medium);
+}

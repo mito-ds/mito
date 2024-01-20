@@ -1,0 +1,17 @@
+
+.preview-table {
+    width: 100%;
+    border-spacing: 0; /* Removes the cell spacing via CSS */
+    border-collapse: collapse;  /* If you don't want to have double border where cells touch */
+}
+
+.preview-table-table-row:nth-child(even) {
+    background-color: var(--mito-background-off);
+}
+
+.preview-table-table-data {
+    border: 1px solid #ddd;
+    border-width: 0 1px 0 1px;
+    padding: 4px;
+    overflow: scroll;
+}

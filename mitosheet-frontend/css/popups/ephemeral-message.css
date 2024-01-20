@@ -1,0 +1,22 @@
+.ephemeral-message-container {
+    border-radius: 5px;
+    padding: 15px 20px;
+
+    background-color: var(--mito-highlight);
+}  
+
+/* The 5s must match the 6000 (5s + 1s buffer) in the setInterval function in EphemeralMessage.tsx */ 
+.ephemeral-message-animation {
+    animation: movein 0.5s ease forwards, moveout 0.5s 5s ease forwards;
+}
+  
+@keyframes movein {
+    from { right: -400px; }
+    to   { right: 6px; }
+}
+
+@keyframes moveout {
+    from { right: 6px; }
+    to   { right: -400px; }
+}
+

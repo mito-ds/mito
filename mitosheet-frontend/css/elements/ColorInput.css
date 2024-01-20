@@ -1,0 +1,19 @@
+.color-input {
+    --color-input-width: 60px;
+
+    position: relative;
+    display: inline-block;
+    width: var(--color-input-width);
+
+    /* 
+        Different browsers render this element a bit differently. We choose
+        this height as some browsers put a box around the input, which is fine.
+    */
+    height: 23px;
+    border: 1px solid var(--mito-text-light)
+}
+
+/* 
+    NOTE: we don't style the color input hover as it looks fine, and appears to be finicky
+    to mess with in a cross browser way
+*/
