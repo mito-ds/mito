@@ -47,7 +47,10 @@ export const LegendFormatOptions = (props: {
                 }}
             />
         </div>
-        <div className='horizontal-input-with-label'>
+        <div
+            className='horizontal-input-with-label'
+            style={{ width: '150px' }}
+        >
             <p>Display Legend</p>
             <Toggle
                 value={!!props.params?.graph_styling?.showlegend}
