@@ -83,7 +83,9 @@ export const AxesFormatOptions = (props: {
             </div>
         </div>
         <div className='graph-element-style-options'>
-            <div className='mito-toolbar-button-container-enabled vertical-align-content'>
+            <div
+                className='mito-toolbar-button-container mito-toolbar-button-container-enabled vertical-align-content'
+                style={{ width: '60px', marginLeft: '10px' }}>    
                 <ColorInput
                     value={props.params?.graph_styling?.xaxis?.title_font_color ?? ''}
                     onChange={(value) => {
@@ -102,7 +104,9 @@ export const AxesFormatOptions = (props: {
             </div>
         </div>
         <div className='graph-element-style-options'>
-            <div className='mito-toolbar-button-container-enabled vertical-align-content'>
+            <div
+                className='mito-toolbar-button-container mito-toolbar-button-container-enabled vertical-align-content'
+                style={{ width: '60px', marginLeft: '5px' }}>
                 <ColorInput
                     value={props.params?.graph_styling?.yaxis.title_font_color ?? ''}
                     onChange={(value) => {

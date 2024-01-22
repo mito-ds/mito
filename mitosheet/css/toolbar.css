@@ -67,6 +67,10 @@
   font-size: 11px;
 }
 
+.mito-toolbar-button-container.vertical-align-content p {
+  text-align: center;
+}
+
 .mito-graph-configuration-container {
   display: flex;
   flex-direction: column;
