@@ -23,6 +23,7 @@ export const AxesFormatOptions = (props: {
                 <p>X Axis Transform</p>
                 <Select
                     value={props.params?.graph_styling?.xaxis.type ?? AxisType.DEFAULT}
+                    width={'small'}
                     onChange={(value) => {
                         props.updateGraphParam({
                             graph_styling: {
@@ -54,6 +55,7 @@ export const AxesFormatOptions = (props: {
                 <p>Y Axis Transform</p>
                 <Select
                     value={props.params?.graph_styling.yaxis.type ?? AxisType.DEFAULT}
+                    width={'small'}
                     onChange={(value) => {
                         props.updateGraphParam({
                             graph_styling: {
