@@ -21,7 +21,7 @@ import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { ChartDesignTabContents } from './GraphTabs/ChartDesignTabContents';
-import { ChartFormatTabContents } from './GraphTabs/ChartFormatTabContents';
+import { ChartFormatTabContents, ElementOptionsType } from './GraphTabs/ChartFormatTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -90,7 +90,7 @@ export const Toolbar = (
     // If the graph editor is open, add the graph tabs. 
     // Also, keep track of the element that the user is currently editing in the format tab
     // so that we can default to that element when the user opens the format tab.
-    const [currElement, setCurrElement] = React.useState<string>('Chart Title');
+    const [currElement, setCurrElement] = React.useState<ElementOptionsType>('Chart Title');
     if (props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH) {
         tabs['Chart Design'] = <ChartDesignTabContents {...props} />
         tabs['Format'] = <ChartFormatTabContents {...props} defaultCurrElement={currElement} setDefaultCurrElement={setCurrElement}/>

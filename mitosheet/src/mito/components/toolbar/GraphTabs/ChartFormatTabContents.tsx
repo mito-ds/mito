@@ -18,7 +18,7 @@ import { GridlinesFormatOptions } from './GridlinesFormatOptions';
 import { LegendFormatOptions } from './LegendFormatOptions';
 import { PlotFormatOptions } from './PlotFormatOptions';
 
-type ElementOptionsType = 'Chart Title' | 'Chart Area' | 'Legend' | 'Gridlines' | 'Axes' | 'Facet';
+export type ElementOptionsType = 'Chart Title' | 'Chart Area' | 'Legend' | 'Gridlines' | 'Axes' | 'Facet';
 
 export const ChartFormatTabContents = (
     props: {
