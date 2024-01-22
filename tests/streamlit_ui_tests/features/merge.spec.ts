@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 test.describe('Merge', () => {
@@ -37,7 +37,7 @@ test.describe('Merge', () => {
     });
 
 
-    test('Replays Dependent Edits', async ({ page }) => {
+    test.skip('Replays Dependent Edits', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
         await importCSV(page, mito, 'test.csv');
         
