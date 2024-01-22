@@ -17,6 +17,7 @@ export const LegendFormatOptions = (props: {
                 value={xPos}
                 width="small"
                 onChange={(e) => {
+                    if (+e.target.value > 3 || +e.target.value < -2) return;
                     setXPos(e.target.value);
                     props.updateGraphParam({
                         graph_styling: {
@@ -35,6 +36,7 @@ export const LegendFormatOptions = (props: {
                 value={`${yPos ?? ''}`}
                 width="small"
                 onChange={(e) => {
+                    if (+e.target.value > 3 || +e.target.value < -2) return;
                     setYPos(e.target.value);
                     props.updateGraphParam({
                         graph_styling: {
