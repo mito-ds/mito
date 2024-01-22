@@ -18,6 +18,8 @@ import { GridlinesFormatOptions } from './GridlinesFormatOptions';
 import { LegendFormatOptions } from './LegendFormatOptions';
 import { PlotFormatOptions } from './PlotFormatOptions';
 
+type ElementOptionsType = 'Chart Title' | 'Chart Area' | 'Legend' | 'Gridlines' | 'Axes' | 'Facet';
+
 export const ChartFormatTabContents = (
     props: {
         actions: Actions;
@@ -28,8 +30,8 @@ export const ChartFormatTabContents = (
         sheetDataArray: SheetData[];
         selectedColumnsIds?: ColumnID[];
         mitoContainerRef: React.RefObject<HTMLDivElement>;
-        defaultCurrElement: string;
-        setDefaultCurrElement: React.Dispatch<React.SetStateAction<string>>;
+        defaultCurrElement: ElementOptionsType;
+        setDefaultCurrElement: React.Dispatch<React.SetStateAction<ElementOptionsType>>;
     }): JSX.Element => {
     const currOpenTaskpane = props.uiState.currOpenTaskpane;
     if (currOpenTaskpane.type !== TaskpaneType.GRAPH) {
@@ -60,7 +62,7 @@ export const ChartFormatTabContents = (
         );
     }
 
-    const elementOptions = ['Chart Title', 'Chart Area', 'Legend', 'Gridlines', 'Axes', 'Facet'];
+    const elementOptions: ElementOptionsType[] = ['Chart Title', 'Chart Area', 'Legend', 'Gridlines', 'Axes', 'Facet'];
     // Remove elements that are not currently present in the graph
     if (params?.graph_styling?.showlegend === false) {
         elementOptions.splice(elementOptions.indexOf('Legend'), 1);
@@ -71,7 +73,24 @@ export const ChartFormatTabContents = (
     if (params?.graph_creation?.facet_col_column_id === undefined && params?.graph_creation?.facet_row_column_id === undefined) {
         elementOptions.splice(elementOptions.indexOf('Facet'), 1);
     }
-    const [currElement, setCurrElement] = React.useState<typeof elementOptions[number]>(elementOptions.includes(props.defaultCurrElement) ? props.defaultCurrElement : elementOptions[0]);
+    const [currElement, setCurrElement] = React.useState<ElementOptionsType>(elementOptions.includes(props.defaultCurrElement) ? props.defaultCurrElement : elementOptions[0]);
+
+    const renderFormatOptions = (): JSX.Element => {
+        switch (currElement) {
+            case 'Chart Title':
+                return <ChartTitleFormatOptions params={params} updateGraphParam={updateGraphParam}/>
+            case 'Chart Area':
+                return <PlotFormatOptions params={params} updateGraphParam={updateGraphParam}/>
+            case 'Legend':
+                return <LegendFormatOptions params={params} updateGraphParam={updateGraphParam} />
+            case 'Gridlines':
+                return <GridlinesFormatOptions params={params} updateGraphParam={updateGraphParam} />
+            case 'Axes':
+                return <AxesFormatOptions params={params} updateGraphParam={updateGraphParam} />
+            case 'Facet':
+                return <FacetFormatOptions params={params} updateGraphParam={updateGraphParam} />
+        }
+    }
 
     return (<div className='mito-toolbar-bottom'>
         <Select
@@ -105,12 +124,7 @@ export const ChartFormatTabContents = (
             ) }
         </Select>
         <div className='toolbar-vertical-line'/>
-        {currElement === 'Chart Title' && <ChartTitleFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
-        {currElement === 'Chart Area' && <PlotFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
-        {currElement === 'Legend' && <LegendFormatOptions params={params} updateGraphParam={updateGraphParam} />}
-        {currElement === 'Gridlines' && <GridlinesFormatOptions params={params} updateGraphParam={updateGraphParam} />}
-        {currElement === 'Axes' && <AxesFormatOptions params={params} updateGraphParam={updateGraphParam} />}
-        {currElement === 'Facet' && <FacetFormatOptions params={params} updateGraphParam={updateGraphParam} />}        
+        {renderFormatOptions()}
     </div>);
 }
 
