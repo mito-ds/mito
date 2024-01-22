@@ -67,6 +67,10 @@
   font-size: 11px;
 }
 
+.mito-toolbar-button-container.vertical-align-content p {
+  text-align: center;
+}
+
 .mito-graph-configuration-container {
   display: flex;
   flex-direction: column;
@@ -392,4 +396,35 @@
 .mito-toolbar-save-indicator path {
   stroke: var(--mito-text-medium)!important;
   stroke-width: 0.75px;
+}
+
+.graph-element-style-options {
+  display: flex;
+  height: 50px;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  width: min-content;
+}
+
+.horizontal-input-with-label {
+  display: flex;
+  flex-direction: row;
+  height: 24px;
+  margin: 0 5px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.horizontal-input-with-label p:not(.select-text) {
+  width: max-content;
+  height: 25px;
+  align-items: center;
+  display: flex;
+  margin: 0 5px;
+  white-space: nowrap;
+}
+
+.mito-toolbar-tabbar-tabname-extra {
+  color: var(--mito-highlight);
 }

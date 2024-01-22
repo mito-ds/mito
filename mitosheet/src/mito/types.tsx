@@ -909,7 +909,7 @@ export interface FooterContextMenu {
     graphID?: GraphID;
     type: 'footer-context-menu';
 }
-export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | 'add-chart-element' | 'change-chart-type' | 'export-graph' | undefined;
+export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | 'add-chart-element' | 'change-chart-type' | 'export-graph' | 'chart-format' | undefined;
 
 export interface DataTabImportDomainDropdown {
     type: 'import-domain-dropdown';

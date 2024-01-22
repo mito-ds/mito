@@ -21,6 +21,7 @@ import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { ChartDesignTabContents } from './GraphTabs/ChartDesignTabContents';
+import { ChartFormatTabContents, ElementOptionsType } from './GraphTabs/ChartFormatTabContents';
 
 export const MITO_TOOLBAR_OPEN_SEARCH_ID = 'mito-open-search';
 export const MITO_TOOLBAR_UNDO_ID = 'mito-undo-button';
@@ -64,6 +65,9 @@ export const Toolbar = (
     }): JSX.Element => {  
     
     const currentTab = props.uiState.currentToolbarTab;
+    // This array is used to determine if we're in an "extra" tab, like the graph tabs.
+    // We change the color of extra tabs. 
+    const originalTabs = ['Home', 'Insert', 'Data', 'Formulas', 'Code'];
     const tabs: Tabs = {
         'Home': <HomeTabContents {...props}/>,
         'Insert': <InsertTabContents {...props}/>,
@@ -82,8 +86,14 @@ export const Toolbar = (
             })}
         </div>
     }
+
+    // If the graph editor is open, add the graph tabs. 
+    // Also, keep track of the element that the user is currently editing in the format tab
+    // so that we can default to that element when the user opens the format tab.
+    const [currElement, setCurrElement] = React.useState<ElementOptionsType>('Chart Title');
     if (props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH) {
         tabs['Chart Design'] = <ChartDesignTabContents {...props} />
+        tabs['Format'] = <ChartFormatTabContents {...props} defaultCurrElement={currElement} setDefaultCurrElement={setCurrElement}/>
     }
     const isLoading = () => {
         if (props.uiState.loading.length > 0) {
@@ -151,7 +161,7 @@ export const Toolbar = (
                                     }
                                 })
                             }}
-                            className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
+                            className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '', originalTabs.includes(tab) ? '' : 'mito-toolbar-tabbar-tabname-extra')}
                         >
                             <span>{tab}</span>
                             {currentTab === tab && <div className='mito-toolbar-tabbar-selected-underline'/>}
