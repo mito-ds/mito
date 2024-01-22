@@ -66,7 +66,7 @@ export const ChangeChartTypeButton = (
             value: GraphType.BAR,
             label: 'Bar',
             icon: GraphIcon,
-            subMenu: <Dropdown position="horizontal" display={currDropdown === 'bar'} closeDropdown={() => {
+            subMenu: <Dropdown layout="vertical" position="horizontal" display={currDropdown === 'bar'} closeDropdown={() => {
                 if (currDropdown === 'bar') {
                     setCurrDropdown(undefined);
                 }
@@ -74,7 +74,6 @@ export const ChangeChartTypeButton = (
                 <DropdownItem
                     key='grouped'
                     title='Grouped'
-                    layout='vertical'
                     icon={<GroupVerticalIcon />}
                     tooltip="Grouped"
                     onClick={() => {
@@ -88,7 +87,6 @@ export const ChangeChartTypeButton = (
                 <DropdownItem
                     key='grouped'
                     title='Grouped'
-                    layout='vertical'
                     icon={<GroupVerticalIcon />}
                     tooltip="Grouped"
                     onClick={() => {
@@ -102,7 +100,6 @@ export const ChangeChartTypeButton = (
                 <DropdownItem
                     key='grouped'
                     title='Grouped'
-                    layout='vertical'
                     icon={<GroupVerticalIcon />}
                     tooltip="Grouped"
                     onClick={() => {
@@ -116,7 +113,6 @@ export const ChangeChartTypeButton = (
                 <DropdownItem
                     key='grouped'
                     title='Grouped'
-                    layout='vertical'
                     icon={<GroupVerticalIcon />}
                     tooltip="Grouped"
                     onClick={() => {
@@ -130,7 +126,6 @@ export const ChangeChartTypeButton = (
                 <DropdownItem
                     key='grouped'
                     title='Grouped'
-                    layout='vertical'
                     icon={<GroupVerticalIcon />}
                     tooltip="Grouped"
                     onClick={() => {
