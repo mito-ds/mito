@@ -420,3 +420,7 @@
   margin: 0 5px;
   white-space: nowrap;
 }
+
+.mito-toolbar-tabbar-tabname-extra {
+  color: var(--mito-highlight);
+}

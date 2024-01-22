@@ -65,6 +65,9 @@ export const Toolbar = (
     }): JSX.Element => {  
     
     const currentTab = props.uiState.currentToolbarTab;
+    // This array is used to determine if we're in an "extra" tab, like the graph tabs.
+    // We change the color of extra tabs. 
+    const originalTabs = ['Home', 'Insert', 'Data', 'Formulas', 'Code'];
     const tabs: Tabs = {
         'Home': <HomeTabContents {...props}/>,
         'Insert': <InsertTabContents {...props}/>,
@@ -153,7 +156,7 @@ export const Toolbar = (
                                     }
                                 })
                             }}
-                            className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '')}
+                            className={classNames('mito-toolbar-tabbar-tabname', currentTab === tab ? 'mito-toolbar-tabbar-tabname-selected' : '', originalTabs.includes(tab) ? '' : 'mito-toolbar-tabbar-tabname-extra')}
                         >
                             <span>{tab}</span>
                             {currentTab === tab && <div className='mito-toolbar-tabbar-selected-underline'/>}
