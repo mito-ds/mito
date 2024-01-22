@@ -16,6 +16,7 @@ export const LegendFormatOptions = (props: {
             <Input
                 type='number'
                 value={xPos}
+                width="small"
                 onChange={(e) => {
                     setXPos(e.target.value);
                     props.updateGraphParam({
