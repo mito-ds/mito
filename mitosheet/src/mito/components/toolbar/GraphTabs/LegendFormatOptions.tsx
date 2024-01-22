@@ -8,13 +8,16 @@ export const LegendFormatOptions = (props: {
     params?: GraphParamsBackend;
     updateGraphParam: (update: RecursivePartial<GraphParamsBackend>) => void;
 }) => {
+    const [xPos, setXPos] = React.useState<string>(`${props.params?.graph_styling?.legend.x ?? ''}`); // [xPos, setXPos
+    const [yPos, setYPos] = React.useState<string>(`${props.params?.graph_styling?.legend.y ?? ''}`);
     return <div className='graph-element-style-options'>
         <div className='horizontal-input-with-label'>
-            <p>X Position</p>
+            <p>X Position (-2 to 3)</p>
             <Input
                 type='number'
-                value={`${props.params?.graph_styling?.legend.x ?? ''}`}
+                value={xPos}
                 onChange={(e) => {
+                    setXPos(e.target.value);
                     props.updateGraphParam({
                         graph_styling: {
                             legend: {
@@ -26,11 +29,13 @@ export const LegendFormatOptions = (props: {
             />
         </div>
         <div className='horizontal-input-with-label'>
-            <p>Y Position</p>
+            <p>Y Position (-2 to 3)</p>
             <Input
                 type='number'
-                value={`${props.params?.graph_styling?.legend.y ?? ''}`}
+                value={`${yPos ?? ''}`}
+                width="small"
                 onChange={(e) => {
+                    setYPos(e.target.value);
                     props.updateGraphParam({
                         graph_styling: {
                             legend: {
