@@ -99,6 +99,12 @@ interface DropdownItemProps {
      * that have checkmarks. 
      */
     canHaveCheckMark?: boolean;
+
+    /**
+     * Some dropdown items (see the "Change Chart Type" submenus) have a vertical layout.
+     * If undefined, we'll use the default horizontal layout. 
+     */
+    layout?: 'horizontal' | 'vertical';
 }
 
 /**
@@ -112,7 +118,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
     
     return (
         <div 
-            className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
+        className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className, props.layout === 'vertical' ? 'mito-dropdown-item-vertical' : undefined)}
             style={(props.canHaveCheckMark && !props.hasCheckMark) ? { paddingLeft: '32px' } : undefined}
             onClick={(e) => {
                 e.stopPropagation();

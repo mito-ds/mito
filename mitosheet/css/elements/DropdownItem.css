@@ -84,5 +84,29 @@
     color: var(--mito-text-light) !important;
 }
 
+/* Special CSS for vertical dropdown items */
 
+.mito-dropdown-item-vertical .mito-dropdown-item-icon-and-title-container {
+    flex-direction: column;
+}
 
+.mito-dropdown-items-container:has(.mito-dropdown-item-vertical) {
+    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+}
+
+.mito-dropdown-item.mito-dropdown-item-vertical {
+    width: fit-content;
+    align-items: center;
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-item-icon-container {
+    width: 50px;
+    height: 50px;
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-item-icon-and-title-container .mito-dropdown-item-title-and-shortcut-container {
+    justify-content: center;
+}

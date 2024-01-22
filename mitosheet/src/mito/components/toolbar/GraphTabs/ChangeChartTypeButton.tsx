@@ -14,6 +14,7 @@ import HistogramIcon from "../../icons/GraphToolbar/HistogramIcon";
 import HeatMapIcon from "../../icons/GraphToolbar/HeatMapIcon";
 import DensityContourIcon from "../../icons/GraphToolbar/DensityContourIcon";
 import ViolinGraphIcon from "../../icons/GraphToolbar/ViolinGraphIcon";
+import GroupVerticalIcon from "../../icons/GraphToolbar/GroupVerticalIcon";
 
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
@@ -54,15 +55,93 @@ export const ChangeChartTypeButton = (
         updateGraphParam: (update: RecursivePartial<GraphParamsBackend>) => void;
     }): JSX.Element => {
     const graphType = props.params?.graph_creation?.graph_type ?? GraphType.BAR;
+    const [currDropdown, setCurrDropdown] = React.useState<GraphType | undefined>(undefined);
     const graphTypeOptions: {
         value: GraphType,
         label: string,
+        subMenu?: JSX.Element,
         icon: React.FC<any>
     }[] = [
         {
             value: GraphType.BAR,
             label: 'Bar',
             icon: GraphIcon,
+            subMenu: <Dropdown position="horizontal" display={currDropdown === 'bar'} closeDropdown={() => {
+                if (currDropdown === 'bar') {
+                    setCurrDropdown(undefined);
+                }
+            }}>
+                <DropdownItem
+                    key='grouped'
+                    title='Grouped'
+                    layout='vertical'
+                    icon={<GroupVerticalIcon />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_styling: {
+                                barmode: 'group'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='grouped'
+                    title='Grouped'
+                    layout='vertical'
+                    icon={<GroupVerticalIcon />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_styling: {
+                                barmode: 'group'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='grouped'
+                    title='Grouped'
+                    layout='vertical'
+                    icon={<GroupVerticalIcon />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_styling: {
+                                barmode: 'group'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='grouped'
+                    title='Grouped'
+                    layout='vertical'
+                    icon={<GroupVerticalIcon />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_styling: {
+                                barmode: 'group'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='grouped'
+                    title='Grouped'
+                    layout='vertical'
+                    icon={<GroupVerticalIcon />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_styling: {
+                                barmode: 'group'
+                            }
+                        })
+                    }}
+                />
+            </Dropdown>
         },
         {
             value: GraphType.LINE,
@@ -143,9 +222,13 @@ export const ChangeChartTypeButton = (
                     icon={<option.icon />}
                     canHaveCheckMark
                     hasCheckMark={option.value === graphType}
+                    onMouseEnter={() => {
+                        setCurrDropdown(option.value)
+                    }}
                     onClick={() => {
                         return setGraphType(option.value);
                     }}
+                    subMenu={option.subMenu}
                 />
             })}
         </Dropdown>
