@@ -4,6 +4,7 @@ import React from 'react';
 // import css
 import '../../../../css/elements/ColorInput.css'
 import ColorIcon from '../icons/GraphToolbar/ColorIcon';
+import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 
 interface ColorInputProps {
     /** 
@@ -32,6 +33,11 @@ interface ColorInputProps {
  * input.
  */
 const ColorInput = (props: ColorInputProps): JSX.Element => {
+    const [color, setColor] = React.useState<string>(props.value);
+
+    useDebouncedEffect(() => {
+        props.onChange(color);
+    }, [color], 100);
 
     return (props.type === undefined ? 
         <input 
@@ -39,7 +45,7 @@ const ColorInput = (props: ColorInputProps): JSX.Element => {
             type="color"
             value={props.value} 
             onChange={(e) => {
-                props.onChange(e.target.value);
+                setColor(e.target.value);
             }}
         /> : 
         <label className='mito-toolbar-button-icon-container' htmlFor={`color-picker-${props.id ?? ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '35px', justifyContent: 'space-evenly' }}>
@@ -50,7 +56,7 @@ const ColorInput = (props: ColorInputProps): JSX.Element => {
                 type="color"
                 value={props.value} 
                 onChange={(e) => {
-                    props.onChange(e.target.value);
+                    setColor(e.target.value);
                 }}
             />
         </label>
