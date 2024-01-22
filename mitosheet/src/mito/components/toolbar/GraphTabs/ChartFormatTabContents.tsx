@@ -67,6 +67,9 @@ export const ChartFormatTabContents = (
         <Select
             display={props.uiState.currOpenDropdown === 'chart-format'}
             width='small'
+            style={{
+                alignSelf: 'center'
+            }}
             onChangeDisplay={(display) => {
                 props.setUIState(prevUIState => {
                     return {
@@ -91,6 +94,7 @@ export const ChartFormatTabContents = (
                 />)
             ) }
         </Select>
+        <div className='toolbar-vertical-line'/>
         {currElement === 'Chart Title' && <ChartTitleFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
         {currElement === 'Chart Area' && <PlotFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
         {currElement === 'Legend' && <LegendFormatOptions params={params} updateGraphParam={updateGraphParam} />}
