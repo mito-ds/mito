@@ -21,6 +21,7 @@ from typing import Any, Dict, Optional
 import requests
 
 from unittest.mock import patch
+from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 from mitosheet.errors import MitoError, get_recent_traceback_as_list
 from mitosheet.telemetry.anonymization_utils import anonymize_object, get_final_private_params_for_single_kv
 from mitosheet.telemetry.private_params_map import LOG_EXECUTION_DATA_LENGTH_FIRST_ELEMENT, LOG_EXECUTION_DATA_PUBLIC
@@ -177,7 +178,7 @@ def _get_processing_time_log_params(steps_manager: Optional[StepsManagerType]=No
     """
 
     processing_time_params = {}
-     # We also log some timing information - which we round to a single decimal place just
+    # We also log some timing information - which we round to a single decimal place just
     # so that we can bucket these items easily. Note we include a variety of roundings of 
     # the time, so that we can make sure to aggregate in Mixpanel well (which will die if 
     # it is given to many values).
@@ -223,6 +224,11 @@ try:
     from ipywidgets import __version__ as ipywidgets_version
 except:
     ipywidgets_version = 'no pandas'
+try:
+    # Format version_python as "3.8.5"
+    version_python = '.'.join([str(x) for x in sys.version_info[:3]])
+except:
+    version_python = 'no python'
 
 
 __location = None
@@ -238,7 +244,7 @@ def _get_environment_params() -> Dict[str, Any]:
     
     # Add the python properties to every log event we can
     environment_params = {
-        'version_python': sys.version_info,
+        'version_python': version_python,
         'version_pandas': pandas_version,
         'version_ipywidgets': ipywidgets_version,
         'version_jupyterlab': jupyterlab_version,
@@ -345,7 +351,7 @@ def identify() -> None:
     operating_system = platform.system()
 
     params = {
-        'version_python': sys.version_info,
+        'version_python': version_python,
         'version_pandas': pandas_version,
         'version_ipywidgets': ipywidgets_version,
         'version_sys': sys.version,
@@ -374,7 +380,14 @@ def identify() -> None:
             analytics.identify(static_user_id, params)
 
 
-def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Optional[StepsManagerType]=None, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
+def log(
+        log_event: str, 
+        params: Optional[Dict[str, Any]]=None, 
+        steps_manager: Optional[StepsManagerType]=None, 
+        failed: bool=False, 
+        mito_error: Optional[MitoError]=None, 
+        start_time: Optional[float]=None,
+    ) -> None:
     """
     This function is the entry point for all logging. It collects
     all relevant parameters, exeuction data, and more info while
@@ -441,7 +454,7 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
             final_params
         )
 
-    analytics_url = steps_manager.mito_config.get_analytics_url() if steps_manager is not None else None
+    analytics_url = steps_manager.mito_config.analytics_url if steps_manager is not None else None
     if analytics_url is not None:
         requests.post(
             analytics_url,
@@ -450,3 +463,7 @@ def log(log_event: str, params: Optional[Dict[str, Any]]=None, steps_manager: Op
                 'log_event': log_event
             }
         )
+
+    mito_log_uploader = steps_manager.mito_log_uploader if steps_manager is not None else None
+    if mito_log_uploader is not None:
+        mito_log_uploader.log(log_event, final_params)
