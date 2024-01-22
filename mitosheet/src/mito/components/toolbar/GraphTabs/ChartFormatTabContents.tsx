@@ -28,6 +28,8 @@ export const ChartFormatTabContents = (
         sheetDataArray: SheetData[];
         selectedColumnsIds?: ColumnID[];
         mitoContainerRef: React.RefObject<HTMLDivElement>;
+        defaultCurrElement: string;
+        setDefaultCurrElement: React.Dispatch<React.SetStateAction<string>>;
     }): JSX.Element => {
     const currOpenTaskpane = props.uiState.currOpenTaskpane;
     if (currOpenTaskpane.type !== TaskpaneType.GRAPH) {
@@ -59,7 +61,7 @@ export const ChartFormatTabContents = (
     }
 
     const elementOptions = ['Chart Title', 'Chart Area', 'Legend', 'Gridlines', 'Axes', 'Facet'];
-    const [currElement, setCurrElement] = React.useState<typeof elementOptions[number]>('Chart Title');
+    const [currElement, setCurrElement] = React.useState<typeof elementOptions[number]>(props.defaultCurrElement);
 
     return (<div className='mito-toolbar-bottom'>
         <Select
@@ -75,6 +77,7 @@ export const ChartFormatTabContents = (
             }}
             onChange={(value) => {
                 setCurrElement(value as typeof elementOptions[number]);
+                props.setDefaultCurrElement(value as typeof elementOptions[number]);
             }}
             value={currElement}
         >

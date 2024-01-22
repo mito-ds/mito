@@ -86,9 +86,14 @@ export const Toolbar = (
             })}
         </div>
     }
+
+    // If the graph editor is open, add the graph tabs. 
+    // Also, keep track of the element that the user is currently editing in the format tab
+    // so that we can default to that element when the user opens the format tab.
+    const [currElement, setCurrElement] = React.useState<string>('Chart Title');
     if (props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH) {
         tabs['Chart Design'] = <ChartDesignTabContents {...props} />
-        tabs['Format'] = <ChartFormatTabContents {...props} />
+        tabs['Format'] = <ChartFormatTabContents {...props} defaultCurrElement={currElement} setDefaultCurrElement={setCurrElement}/>
     }
     const isLoading = () => {
         if (props.uiState.loading.length > 0) {
