@@ -112,7 +112,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
     
     return (
         <div 
-        className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
+            className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
             style={(props.canHaveCheckMark && !props.hasCheckMark) ? { paddingLeft: '32px' } : undefined}
             onClick={(e) => {
                 e.stopPropagation();

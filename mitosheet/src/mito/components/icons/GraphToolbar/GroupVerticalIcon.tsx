@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export default (): JSX.Element => {
+const GroupVerticalIcon = (): JSX.Element => {
     return (
         <svg width="45" height="45" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4.38477 17.5195C4.38477 16.9672 4.83248 16.5195 5.38477 16.5195H10.6003C11.1526 16.5195 11.6003 16.9672 11.6003 17.5195V44.0018H4.38477V17.5195Z" fill="#BA9BF8" stroke="#6229AB"/>
@@ -13,3 +13,5 @@ export default (): JSX.Element => {
         </svg>
     )
 }
+
+export default GroupVerticalIcon;
