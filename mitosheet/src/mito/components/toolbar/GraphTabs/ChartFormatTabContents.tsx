@@ -58,7 +58,7 @@ export const ChartFormatTabContents = (
         );
     }
 
-    const elementOptions = ['Chart Title', 'Plot', 'Legend', 'Gridlines', 'Axes', 'Facet'];
+    const elementOptions = ['Chart Title', 'Chart Area', 'Legend', 'Gridlines', 'Axes', 'Facet'];
     const [currElement, setCurrElement] = React.useState<typeof elementOptions[number]>('Chart Title');
 
     return (<div className='mito-toolbar-bottom'>
@@ -89,7 +89,7 @@ export const ChartFormatTabContents = (
             ) }
         </Select>
         {currElement === 'Chart Title' && <ChartTitleFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
-        {currElement === 'Plot' && <PlotFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
+        {currElement === 'Chart Area' && <PlotFormatOptions params={params} updateGraphParam={updateGraphParam}/>}
         {currElement === 'Legend' && <LegendFormatOptions params={params} updateGraphParam={updateGraphParam} />}
         {currElement === 'Gridlines' && <GridlinesFormatOptions params={params} updateGraphParam={updateGraphParam} />}
         {currElement === 'Axes' && <AxesFormatOptions params={params} updateGraphParam={updateGraphParam} />}
