@@ -2,7 +2,6 @@ import React from "react";
 import { GraphParamsBackend } from "../../..";
 import { RecursivePartial } from "../../../types";
 import Input from "../../elements/Input";
-import Toggle from "../../elements/Toggle";
 
 export const LegendFormatOptions = (props: {
     params?: GraphParamsBackend;
@@ -42,22 +41,6 @@ export const LegendFormatOptions = (props: {
                             legend: {
                                 y: +e.target.value
                             }
-                        }
-                    })
-                }}
-            />
-        </div>
-        <div
-            className='horizontal-input-with-label'
-            style={{ width: '150px' }}
-        >
-            <p>Display Legend</p>
-            <Toggle
-                value={!!props.params?.graph_styling?.showlegend}
-                onChange={() => {
-                    props.updateGraphParam({
-                        graph_styling: {
-                            showlegend: !props.params?.graph_styling?.showlegend
                         }
                     })
                 }}

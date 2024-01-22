@@ -61,7 +61,17 @@ export const ChartFormatTabContents = (
     }
 
     const elementOptions = ['Chart Title', 'Chart Area', 'Legend', 'Gridlines', 'Axes', 'Facet'];
-    const [currElement, setCurrElement] = React.useState<typeof elementOptions[number]>(props.defaultCurrElement);
+    // Remove elements that are not currently present in the graph
+    if (params?.graph_styling?.showlegend === false) {
+        elementOptions.splice(elementOptions.indexOf('Legend'), 1);
+    }
+    if (params?.graph_styling?.title.visible === false) {
+        elementOptions.splice(elementOptions.indexOf('Chart Title'), 1);
+    }
+    if (params?.graph_creation?.facet_col_column_id === undefined && params?.graph_creation?.facet_row_column_id === undefined) {
+        elementOptions.splice(elementOptions.indexOf('Facet'), 1);
+    }
+    const [currElement, setCurrElement] = React.useState<typeof elementOptions[number]>(elementOptions.includes(props.defaultCurrElement) ? props.defaultCurrElement : elementOptions[0]);
 
     return (<div className='mito-toolbar-bottom'>
         <Select
