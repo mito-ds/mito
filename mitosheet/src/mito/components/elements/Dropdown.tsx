@@ -437,7 +437,8 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         'mito-dropdown-compressed': React.Children.count(props.children) > 4,
         'mito-dropdown-search': props.searchable === true,
         'mito-dropdown-streamlit': isInStreamlit(), 
-        'mito-dropdown-item-vertical': props.layout === 'vertical'
+        'mito-dropdown-item-vertical': props.layout === 'vertical',
+        'mito-dropdown-item-horizontal': props.layout === 'horizontal' || props.layout === undefined,
     })
 
     
