@@ -13,7 +13,13 @@ then
     export NODE_OPTIONS=--openssl-legacy-provider
 fi
 
+# Install dependencies and build for mitosheet-frontend
+cd ../mitosheet-frontend
+npm install
+npm run build
+
 # Setup a new venv
+cd ../mitosheet
 rm -rf venv/
 python3 -m venv venv
 source venv/bin/activate
