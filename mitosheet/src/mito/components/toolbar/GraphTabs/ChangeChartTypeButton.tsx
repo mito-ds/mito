@@ -275,7 +275,7 @@ export const ChangeChartTypeButton = (
                 />
                 <DropdownItem
                     key='overlay_x'
-                    title='overlay'
+                    title='Overlay'
                     icon={<StackedIcon />}
                     tooltip="Overlay"
                     onClick={() => {
@@ -340,7 +340,7 @@ export const ChangeChartTypeButton = (
                 />
                 <DropdownItem
                     key='overlay_y'
-                    title='overlay'
+                    title='Overlay'
                     icon={<OverlayIcon axis="y" />}
                     tooltip="Overlay"
                     onClick={() => {
@@ -497,6 +497,7 @@ export const ChangeChartTypeButton = (
                     }
                 })
             }}
+            width='medium'
         >
             {graphTypeOptions.map((option) => {
                 return <DropdownItem
