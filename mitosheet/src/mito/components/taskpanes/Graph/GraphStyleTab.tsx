@@ -15,6 +15,7 @@ import Row from '../../layout/Row';
 function GraphStyleTab(props: {
     graphParams: GraphParamsFrontend
     setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
+    selectedGraphElement: 'xtitle' | 'ytitle' | 'gtitle' | null;
 }): JSX.Element {
 
     const graphStylingParams = props.graphParams.graphStyling;
@@ -27,7 +28,7 @@ function GraphStyleTab(props: {
 
     return ( 
         <div className='graph-sidebar-toolbar-content'>   
-            <Row justify='space-between' align='center'>
+            {props.selectedGraphElement === 'gtitle' && <Row justify='space-between' align='center'>
                 <Col>
                     <p>
                             Graph Title
@@ -43,7 +44,8 @@ function GraphStyleTab(props: {
                     }}
                 />
             </Row>
-            <Row justify='space-between' align='center'>
+            }
+            {(props.selectedGraphElement === 'xtitle' && props.graphParams.graphStyling.xaxis.visible) && <Row justify='space-between' align='center'>
                 <Col>
                     <p>
                             X Axis Title
@@ -59,8 +61,8 @@ function GraphStyleTab(props: {
 
                     }}
                 />
-            </Row>
-            <Row justify='space-between' align='center'>
+            </Row>}
+            {(props.selectedGraphElement === 'ytitle' && props.graphParams.graphStyling.yaxis.visible) && <Row justify='space-between' align='center'>
                 <Col>
                     <p>
                             Y Axis Title
@@ -75,7 +77,7 @@ function GraphStyleTab(props: {
 
                     }}
                 />
-            </Row>
+            </Row>}
             <Row justify='space-between' align='center' title='Title of legend'>
                 <Col>
                     <p>

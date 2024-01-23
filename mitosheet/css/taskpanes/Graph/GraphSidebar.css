@@ -52,6 +52,18 @@
     box-sizing: border-box;
 }
 
+.gtitle-highlighted .g-gtitle {
+    outline: 1px solid var(--mito-text-light);
+}
+
+.xtitle-highlighted .g-xtitle {
+    outline: 1px solid var(--mito-text-light);
+}
+
+.ytitle-highlighted .g-ytitle {
+    outline: 1px solid var(--mito-text-light);
+}
+
 .graph-sidebar-toolbar-content-container {
     display: flex;
     flex-direction: column;

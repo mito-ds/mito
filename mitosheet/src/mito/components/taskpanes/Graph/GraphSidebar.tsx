@@ -4,7 +4,7 @@ import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import { AnalysisData, GraphDataArray, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, OpenGraphType, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, GraphDataArray, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, OpenGraphType, RecursivePartial, SheetData, StepType, UIState } from '../../../types';
 import XIcon from '../../icons/XIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
@@ -15,6 +15,8 @@ import GraphSidebarTabs from './GraphSidebarTabs';
 import GraphStyleTab from './GraphStyleTab';
 import LoadingSpinner from './LoadingSpinner';
 import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams } from './graphUtils';
+import { updateObjectWithPartialObject } from '../../../utils/objects';
+import { classNames } from '../../../utils/classNames';
 
 /*
     This is the main component that displays all graphing
@@ -88,6 +90,8 @@ const GraphSidebar = (props: {
         })
     }, [], props.mitoContainerRef, '#mito-center-content-container')
 
+    const [ selectedGraphElement, setSelectedGraphElement ] = React.useState<'gtitle' | 'xtitle' | 'ytitle' | null>(null)
+
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
     // not when it is a script tag inside innerHtml (which react does not execute
@@ -99,6 +103,35 @@ const GraphSidebar = (props: {
             }
             const executeScript = new Function(graphOutput.graphScript);
             executeScript()
+            const div: any = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])
+            if (div === null) {
+                return;
+            }
+            div.on('plotly_legendclick', (event: any) => {
+                console.log(event)
+            })
+            
+            // Main Title
+            console.log(div.getElementsByClassName('g-gtitle')[0])
+            const gtitle = div.getElementsByClassName('g-gtitle')[0]
+            const xtitle = div.getElementsByClassName('g-xtitle')[0]
+            const ytitle = div.getElementsByClassName('g-ytitle')[0]
+                            
+            // First, add the style to make it clickable with pointer-events: all
+            gtitle.style.pointerEvents = 'all'
+            xtitle.style.pointerEvents = 'all'
+            ytitle.style.pointerEvents = 'all'
+
+            gtitle.addEventListener('click', (event: any) => {
+                setSelectedGraphElement('gtitle')
+            })
+            xtitle.addEventListener('click', (event: any) => {
+                setSelectedGraphElement('xtitle')
+            })
+            ytitle.addEventListener('click', (event: any) => {
+                setSelectedGraphElement('ytitle')
+            })
+
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
@@ -118,7 +151,19 @@ const GraphSidebar = (props: {
     } 
 
     return (
-        <div className='graph-sidebar-div'>
+        <div className={classNames('graph-sidebar-div', selectedGraphElement !== null ? `${selectedGraphElement}-highlighted` : undefined)} tabIndex={0} onKeyDown={(e) => {
+            if (e.key === 'Backspace') {
+                const newGraphParams: RecursivePartial<GraphParamsFrontend> = {};
+                if (selectedGraphElement === 'gtitle') {
+                    newGraphParams.graphStyling = { title: { visible: false } };
+                } else if (selectedGraphElement === 'xtitle') {
+                    newGraphParams.graphStyling = { xaxis: { visible: false } };
+                } else if (selectedGraphElement === 'ytitle') {
+                    newGraphParams.graphStyling = { yaxis: { visible: false } };
+                }
+                setGraphParams(updateObjectWithPartialObject(graphParams, newGraphParams));
+            }
+        }}>
             <div 
                 className='graph-sidebar-graph-div' 
                 id='graph-div'
@@ -180,6 +225,7 @@ const GraphSidebar = (props: {
                         <GraphStyleTab 
                             graphParams={graphParams}
                             setGraphParams={setGraphParams}
+                            selectedGraphElement={selectedGraphElement}
                         />
                     }
                 </div>
