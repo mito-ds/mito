@@ -13,8 +13,12 @@ import BoxGraphIcon from "../../icons/GraphToolbar/BoxGraphIcon";
 import HistogramIcon from "../../icons/GraphToolbar/HistogramIcon";
 import HeatMapIcon from "../../icons/GraphToolbar/HeatMapIcon";
 import DensityContourIcon from "../../icons/GraphToolbar/DensityContourIcon";
-import ViolinGraphIcon from "../../icons/GraphToolbar/ViolinGraphIcon";
-import GroupVerticalIcon from "../../icons/GraphToolbar/GroupVerticalIcon";
+import GroupIcon from "../../icons/GraphToolbar/GroupIcon";
+import StackedIcon from "../../icons/GraphToolbar/StackedIcon";
+import NormalizedIcon from "../../icons/GraphToolbar/NormalizedIcon";
+import LineChartSubMenuIcon from "../../icons/GraphToolbar/LineChartSubMenuIcons";
+import OverlayIcon from "../../icons/GraphToolbar/OverlayIcon";
+import BoxPlotSubMenuIcon from "../../icons/GraphToolbar/BoxPlotSubMenuIcon";
 
 
 const GRAPHS_THAT_DONT_SUPPORT_COLOR = [GraphType.DENSITY_HEATMAP]
@@ -72,12 +76,64 @@ export const ChangeChartTypeButton = (
                 }
             }}>
                 <DropdownItem
-                    key='grouped'
+                    key='grouped_x'
                     title='Grouped'
-                    icon={<GroupVerticalIcon />}
+                    icon={<GroupIcon />}
                     tooltip="Grouped"
                     onClick={() => {
                         props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.BAR,
+                            },
+                            graph_styling: {
+                                barmode: 'group',
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='stacked_x'
+                    title='Stacked'
+                    icon={<StackedIcon />}
+                    tooltip="Stacked"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.BAR,
+                            },
+                            graph_styling: {
+                                barmode: 'relative'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='normalized_x'
+                    title='Normalized'
+                    icon={<NormalizedIcon />}
+                    tooltip="Normalized"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.BAR,
+                            },
+                            graph_styling: {
+                                barmode: 'relative',
+                                barnorm: 'percent'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='grouped_y'
+                    title='Grouped'
+                    icon={<GroupIcon axis="y" />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.BAR,
+                            },
                             graph_styling: {
                                 barmode: 'group'
                             }
@@ -85,12 +141,15 @@ export const ChangeChartTypeButton = (
                     }}
                 />
                 <DropdownItem
-                    key='grouped'
-                    title='Grouped'
-                    icon={<GroupVerticalIcon />}
+                    key='stacked_y'
+                    title='Stacked'
+                    icon={<StackedIcon axis="y" />}
                     tooltip="Grouped"
                     onClick={() => {
                         props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.BAR,
+                            },
                             graph_styling: {
                                 barmode: 'group'
                             }
@@ -98,40 +157,18 @@ export const ChangeChartTypeButton = (
                     }}
                 />
                 <DropdownItem
-                    key='grouped'
-                    title='Grouped'
-                    icon={<GroupVerticalIcon />}
-                    tooltip="Grouped"
+                    key='normalized_y'
+                    title='Normalized'
+                    icon={<NormalizedIcon axis="y" />}
+                    tooltip="Normalized"
                     onClick={() => {
                         props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.BAR,
+                            },
                             graph_styling: {
-                                barmode: 'group'
-                            }
-                        })
-                    }}
-                />
-                <DropdownItem
-                    key='grouped'
-                    title='Grouped'
-                    icon={<GroupVerticalIcon />}
-                    tooltip="Grouped"
-                    onClick={() => {
-                        props.updateGraphParam({
-                            graph_styling: {
-                                barmode: 'group'
-                            }
-                        })
-                    }}
-                />
-                <DropdownItem
-                    key='grouped'
-                    title='Grouped'
-                    icon={<GroupVerticalIcon />}
-                    tooltip="Grouped"
-                    onClick={() => {
-                        props.updateGraphParam({
-                            graph_styling: {
-                                barmode: 'group'
+                                barmode: 'relative',
+                                barnorm: 'percent'
                             }
                         })
                     }}
@@ -142,6 +179,54 @@ export const ChangeChartTypeButton = (
             value: GraphType.LINE,
             label: 'Line',
             icon: LineChartIcon,
+            subMenu: <Dropdown layout="vertical" position="horizontal" display={currDropdown === 'line'} closeDropdown={() => {
+                if (currDropdown === 'line') {
+                    setCurrDropdown(undefined);
+                }
+            }}>
+                <DropdownItem
+                    key='linear'
+                    title='Linear'
+                    icon={<LineChartSubMenuIcon type="linear" />}
+                    tooltip="Linear"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                line_shape: 'linear',
+                                graph_type: GraphType.LINE
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='interpolated'
+                    title='Interpolated'
+                    icon={<LineChartSubMenuIcon type="interpolated" />}
+                    tooltip="Interpolated"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                line_shape: 'spline',
+                                graph_type: GraphType.LINE
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='horizontal'
+                    title='Horizontal'
+                    icon={<LineChartSubMenuIcon type="horizontal" />}
+                    tooltip="Horizontal"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                line_shape: 'hv',
+                                graph_type: GraphType.LINE
+                            }
+                        })
+                    }}
+                />
+            </Dropdown>
         },
         {
             value: GraphType.SCATTER,
@@ -152,26 +237,229 @@ export const ChangeChartTypeButton = (
             value: GraphType.HISTOGRAM,
             label: 'Histogram',
             icon: HistogramIcon,
+            subMenu: <Dropdown layout="vertical" position="horizontal" style={{ width: '426px' }} display={currDropdown === 'histogram'} closeDropdown={() => {
+                if (currDropdown === 'histogram') {
+                    setCurrDropdown(undefined);
+                }
+            }}><DropdownItem
+                    key='grouped_x'
+                    title='Grouped'
+                    icon={<GroupIcon />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'group'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='stacked_x'
+                    title='Stacked'
+                    icon={<StackedIcon />}
+                    tooltip="Stacked"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'relative'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='overlay_x'
+                    title='overlay'
+                    icon={<StackedIcon />}
+                    tooltip="Overlay"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'overlay'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='normalized_x'
+                    title='Normalized'
+                    icon={<NormalizedIcon />}
+                    tooltip="Normalized"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'relative',
+                                barnorm: 'percent'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='grouped_y'
+                    title='Grouped'
+                    icon={<GroupIcon axis="y" />}
+                    tooltip="Grouped"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'group'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='stacked_y'
+                    title='Stacked'
+                    icon={<StackedIcon axis="y" />}
+                    tooltip="Stacked"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'relative'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='overlay_y'
+                    title='overlay'
+                    icon={<OverlayIcon axis="y" />}
+                    tooltip="Overlay"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'overlay'
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='normalized_y'
+                    title='Normalized'
+                    icon={<NormalizedIcon axis="y" />}
+                    tooltip="Normalized"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.HISTOGRAM
+                            },
+                            graph_styling: {
+                                barmode: 'relative',
+                                barnorm: 'percent'
+                            }
+                        })
+                    }}
+                />
+            </Dropdown>
         },
         {
             value: GraphType.BOX,
             label: 'Box',
             icon: BoxGraphIcon,
-        },
-        {
-            value: GraphType.DENSITY_HEATMAP,
-            label: 'Density Heatmap',
-            icon: HeatMapIcon,
-        },
-        {
-            value: GraphType.VIOLIN,
-            label: 'Violin',
-            icon: ViolinGraphIcon,
+            subMenu: <Dropdown layout="vertical" position="horizontal" display={currDropdown === 'box'} closeDropdown={() => {
+                if (currDropdown === 'box') {
+                    setCurrDropdown(undefined);
+                }
+            }}>
+                <DropdownItem
+                    key='box'
+                    title='Box'
+                    icon={<BoxPlotSubMenuIcon type='box' />}
+                    tooltip="Box"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                points: undefined,
+                                graph_type: GraphType.BOX
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='violin'
+                    title='Violin'
+                    icon={<BoxPlotSubMenuIcon type='violin' />}
+                    tooltip="Violin"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.VIOLIN
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='ecdf'
+                    title='ECDF'
+                    icon={<BoxPlotSubMenuIcon type='ecdf' />}
+                    tooltip="ECDF"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.ECDF
+                            }
+                        })
+                    }}
+                />
+            </Dropdown>
         },
         {
             value: GraphType.DENSITY_CONTOUR,
-            label: 'Density Contour',
+            label: 'Density',
             icon: DensityContourIcon,
+            subMenu: <Dropdown layout="vertical" position="horizontal" display={currDropdown === GraphType.DENSITY_CONTOUR} closeDropdown={() => {
+                if (currDropdown === GraphType.DENSITY_HEATMAP) {
+                    setCurrDropdown(undefined);
+                }
+            }}>
+                <DropdownItem
+                    key='heatmap'
+                    title='Heatmap'
+                    icon={<HeatMapIcon width='45px' />}
+                    tooltip="Heatmap"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.DENSITY_HEATMAP
+                            }
+                        })
+                    }}
+                />
+                <DropdownItem
+                    key='contour'
+                    title='Density Contour'
+                    icon={<DensityContourIcon width="45px" />}
+                    tooltip="Density Contour"
+                    onClick={() => {
+                        props.updateGraphParam({
+                            graph_creation: {
+                                graph_type: GraphType.DENSITY_CONTOUR
+                            }
+                        })
+                    }}
+                />
+            </Dropdown>
         }
     ]
 
@@ -221,7 +509,10 @@ export const ChangeChartTypeButton = (
                         setCurrDropdown(option.value)
                     }}
                     onClick={() => {
-                        return setGraphType(option.value);
+                        // Only change the chart type on click if there is no sub menu
+                        if (option.subMenu === undefined) {
+                            return setGraphType(option.value);
+                        }
                     }}
                     subMenu={option.subMenu}
                 />

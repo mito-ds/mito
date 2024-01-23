@@ -119,3 +119,7 @@
     outline: 3px solid var(--mito-highlight-light);
 }
 
+.mito-dropdown-item-vertical p {
+    text-wrap: wrap;
+    width: min-content;
+}
