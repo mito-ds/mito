@@ -278,8 +278,8 @@ test.describe('Home Tab Buttons', () => {
     
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
 
-    await expect(mito.locator('p.select-text').nth(3)).toHaveText('Column1');
-    await expect(mito.locator('p.select-text').nth(4)).toHaveText('Column2');
+    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(1)).toHaveText('Column1');
+    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(2)).toHaveText('Column2');
   })
 
   test('Scatter plot from selection', async ({ page }) => {
