@@ -40,9 +40,9 @@ import {
     MitoResponse,
     MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType,
     waitUntilConditionReturnsTrueOrTimeout,
-    isInJupyterLab, isInJupyterNotebook
+    isInJupyterLab, isInJupyterNotebook, 
+    getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString
 } from 'mitosheet-frontend';
-import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 
 /**
  * Note the difference between the Lab and Notebook comm interfaces. 

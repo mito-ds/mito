@@ -1,4 +1,6 @@
-import { Mito, MitoResponse, MitoTheme, SendFunctionReturnType } from "mitosheet-frontend";
+import {
+    Mito, MitoResponse, MitoTheme, SendFunctionReturnType, getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString
+} from "mitosheet-frontend";
 import React, { ReactNode } from "react";
 import {
     Streamlit,
@@ -6,7 +8,6 @@ import {
     Theme,
     withStreamlitConnection
 } from "streamlit-component-lib";
-import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
 
 
 interface State {

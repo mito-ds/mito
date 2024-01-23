@@ -1,5 +1,5 @@
 {
-  "name": "mitosheet",
+  "name": "mitosheet-frontend",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
@@ -49,5 +49,5 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "homepage": "https://trymito.io",
-  "description": "The Mito Spreadsheet"
+  "description": "The Mito Spreadsheet Frontend"
 }

@@ -1,7 +1,6 @@
 
-import { MitoResponse, SendFunctionReturnType, getRandomId, Mito } from 'mitosheet-frontend';
+import { Mito, MitoResponse, SendFunctionReturnType, getAnalysisDataFromString, getRandomId, getSheetDataArrayFromString, getUserProfileFromString } from 'mitosheet-frontend';
 import React, { Component } from "react";
-import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "../jupyter/jupyterUtils";
 
 export const DELAY_BETWEEN_SET_DASH_PROPS = 25;
 

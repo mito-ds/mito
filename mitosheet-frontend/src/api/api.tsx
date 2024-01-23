@@ -198,8 +198,10 @@ export class MitoAPI {
             return {error: 'Connection error. Unable to establish comm.', errorShort: 'Connection error', showErrorModal: true};
         }
 
-        const loadingTimeout = this._startLoading(msg);        
+        const loadingTimeout = this._startLoading(msg);
+        console.log("CALLING SEND FUNCTION", msg)  
         const response = await this._send<ResultType>(msg);
+        console.log("GOT RESPONSE", response)
         this._stopLoading(id, loadingTimeout);
 
         if ('error' in response) {
