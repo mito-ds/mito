@@ -86,6 +86,10 @@
 
 /* Special CSS for vertical dropdown items */
 
+.mito-dropdown-item-vertical .mito-dropdown-item {
+    border-radius: 3px;;
+}
+
 .mito-dropdown-item-vertical .mito-dropdown-item-icon-and-title-container {
     flex-direction: column;
 }
