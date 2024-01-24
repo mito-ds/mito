@@ -131,9 +131,14 @@
     z-index: -1;
 }
 
-.graph-element-popup-div-caret-below.graph-element-popup-div.popup-div:before {
+.graph-element-popup-div-caret-below-left.graph-element-popup-div.popup-div:before {
     top: 100%;
     left: 12px;
+}
+
+.graph-element-popup-div-caret-below-centered.graph-element-popup-div.popup-div:before {
+    top: 100%;
+    left: 70px;
 }
 
 .graph-element-popup-div-caret-above.graph-element-popup-div.popup-div:before {

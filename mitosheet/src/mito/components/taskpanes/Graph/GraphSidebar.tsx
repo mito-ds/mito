@@ -26,7 +26,7 @@ const Popup = (props: {
     setValue: (value: string) => void;
     display: boolean;
     onClose: () => void;
-    caretPosition?: 'above' | 'below';
+    caretPosition?: 'above' | 'below-left' | 'below-centered';
 }) => {
     if (!props.display) {
         return <></>
@@ -37,9 +37,15 @@ const Popup = (props: {
         setNewValue(props.value);
     }, [props.value]);
 
+    React.useEffect(() => {
+        // Grab focus when we switch the location of the popup
+        const input = document.getElementsByClassName('popup-input')[0] as HTMLInputElement;
+        input.focus();
+    }, [props.xPosition, props.yPosition])
+
     return (
         <div
-            className={`graph-element-popup-div popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : 'graph-element-popup-div-caret-below'}`}
+            className={`graph-element-popup-div popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : props.caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
             style={{
                 position: 'fixed',
                 left: props.xPosition,
@@ -181,10 +187,11 @@ const GraphSidebar = (props: {
                 })
             })
             xtitle.addEventListener('click', (event: any) => {
+                const clientRect = xtitle.getBoundingClientRect()
                 setSelectedGraphElement({
                     element: 'xtitle',
-                    xPosition: xtitle.getBoundingClientRect().left - 20,
-                    yPosition: xtitle.getBoundingClientRect().top - 45
+                    xPosition: (clientRect.left + clientRect.right) / 2 - 70,
+                    yPosition: xtitle.getBoundingClientRect().top - 48
                 });
             })
             ytitle.addEventListener('click', (event: any) => {
@@ -250,7 +257,7 @@ const GraphSidebar = (props: {
                         }
                     }))
                 }}
-                caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : 'below'}
+                caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
                 display={selectedGraphElement !== null}
                 xPosition={selectedGraphElement?.xPosition ?? 0}
                 yPosition={selectedGraphElement?.yPosition ?? 0}
