@@ -26,6 +26,7 @@ MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFL
 MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT'
 MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
 MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING = 'MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING'
+MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS = 'MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS'
 MITO_CONFIG_FEATURE_TELEMETRY = 'MITO_CONFIG_FEATURE_TELEMETRY'
 MITO_CONFIG_PRO = 'MITO_CONFIG_PRO'
 MITO_CONFIG_ENTERPRISE = 'MITO_CONFIG_ENTERPRISE'
@@ -36,6 +37,7 @@ MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH = 'MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PA
 MITO_CONFIG_CUSTOM_IMPORTERS_PATH = 'MITO_CONFIG_CUSTOM_IMPORTERS_PATH'
 MITO_CONFIG_LOG_SERVER_URL = 'MITO_CONFIG_LOG_SERVER_URL'
 MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL = 'MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL'
+
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -60,6 +62,7 @@ MEC_VERSION_KEYS = {
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
         MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
+        MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS,
         MITO_CONFIG_LLM_URL,
         MITO_CONFIG_ANALYTICS_URL,
         MITO_CONFIG_LOG_SERVER_URL,
@@ -268,6 +271,21 @@ class MitoConfig:
             return display_scheduling if raw_display_scheduling is not None else True # default to True
         
         return True
+    
+    @property
+    def display_code_options(self) -> bool:
+        """
+        We display the code snippets functionality on the frontend if MITO_CONFIG_FEATURE_CODE_OPTIONS is not set to False.
+
+        Note: That this just determines if the feature is __visible__ in the frontend, not if its enabled/disabled.
+        """
+        
+        if self.mec is not None:
+            raw_display_code_options = self.mec[MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS]
+            display_scheduling = is_env_variable_set_to_true(raw_display_code_options)
+            return display_scheduling if raw_display_code_options is not None else True # default to True
+        
+        return True
 
     def _get_code_snippets_version(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CODE_SNIPPETS_VERSION] is None:
@@ -392,6 +410,7 @@ class MitoConfig:
             MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: self.display_snowflake_import,
             MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: self.display_ai_transform,
             MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: self.display_scheduling,
+            MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS: self.display_code_options,
             MITO_CONFIG_LLM_URL: self.llm_url,
             MITO_CONFIG_ANALYTICS_URL: self.analytics_url,
             MITO_CONFIG_LOG_SERVER_URL: self.log_server_url,
