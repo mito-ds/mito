@@ -11,8 +11,6 @@ import Row from '../../layout/Row';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSetupTab from './GraphSetupTab';
-import GraphSidebarTabs from './GraphSidebarTabs';
-import GraphStyleTab from './GraphStyleTab';
 import LoadingSpinner from './LoadingSpinner';
 import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams } from './graphUtils';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
@@ -320,37 +318,15 @@ const GraphSidebar = (props: {
                             openGraph={props.openGraph}
                         />
                     }
-                    {props.graphSidebarTab === GraphSidebarTab.Style &&
-                        <GraphStyleTab 
-                            graphParams={graphParams}
-                            setGraphParams={setGraphParams}
-                            selectedGraphElement={selectedGraphElement?.element ?? null}
-                        />
-                    }
                 </div>
-                <GraphSidebarTabs
-                    selectedTab={props.graphSidebarTab}
-                    setSelectedGraphSidebarTab={(tab: GraphSidebarTab) => {
-                        props.setUIState(prevUIState => {
-                            return {
-                                ...prevUIState,
-                                currOpenTaskpane: {
-                                    ...prevUIState.currOpenTaskpane,
-                                    graphSidebarTab: tab
-                                }
-                            }
-                        })
-                    }}
-                    mitoAPI={props.mitoAPI}
-                />
             </div>
             {loading &&
-                    <div className='popup-div'>
-                        <LoadingSpinner />
-                        <p className='popup-text-div'>
-                            loading
-                        </p>
-                    </div>
+                <div className='popup-div'>
+                    <LoadingSpinner />
+                    <p className='popup-text-div'>
+                        loading
+                    </p>
+                </div>
             }
         </div>
         

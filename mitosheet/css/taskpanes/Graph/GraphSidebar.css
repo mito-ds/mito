@@ -79,7 +79,6 @@
         Make sure that content doesn't get cutoff by the graph tabs.
         Must be the same height as the height of the tabs defined .control-panel-taskpane-tab
     */
-    height: calc(100% - 30px);
     width: 300px;
     
     padding-top: 5px;
@@ -89,7 +88,6 @@
 }
 
 .graph-sidebar-toolbar-content {
-    height: 90%;
     padding-right: 10px; /* Extra padding on the right to make room for the scrollbar */
     overflow-y: scroll;
 
