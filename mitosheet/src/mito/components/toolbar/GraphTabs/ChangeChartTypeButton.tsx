@@ -586,11 +586,13 @@ export const ChangeChartTypeButton = (
                         setCurrDropdown(option.value)
                     }}
                     onClick={() => {
-                        return updateGraphParams({
-                            graph_creation: {
-                                graph_type: option.value
-                            }
-                        });
+                        if (option.subMenu === undefined) {
+                            return updateGraphParams({
+                                graph_creation: {
+                                    graph_type: option.value
+                                }
+                            });
+                        }
                     }}
                     subMenu={option.subMenu}
                 />
