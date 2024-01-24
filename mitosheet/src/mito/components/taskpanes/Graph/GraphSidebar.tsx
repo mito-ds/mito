@@ -17,6 +17,45 @@ import LoadingSpinner from './LoadingSpinner';
 import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams } from './graphUtils';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
+import Input from '../../elements/Input';
+
+const Popup = (props: {
+    value: string;
+    xPosition: number;
+    yPosition: number;
+    setValue: (value: string) => void;
+    display: boolean;
+    onClose: () => void;
+    caretPosition?: 'above' | 'below';
+}) => {
+    if (!props.display) {
+        return <></>
+    }
+    return (
+        <div
+            className={`graph-element-popup-div popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : 'graph-element-popup-div-caret-below'}`}
+            style={{
+                position: 'fixed',
+                left: props.xPosition,
+                top: props.yPosition,
+            }}
+        >
+            <Input
+                className='popup-input'
+                value={props.value}
+                onKeyDown={(e) => {
+                    if (e.key === 'Backspace') {
+                        e.stopPropagation();
+                    }
+                }}
+                autoFocus
+                onChange={(e) => {
+                    props.setValue(e.target.value);
+                }}
+            />
+        </div>
+    )
+}
 
 /*
     This is the main component that displays all graphing
@@ -90,7 +129,11 @@ const GraphSidebar = (props: {
         })
     }, [], props.mitoContainerRef, '#mito-center-content-container')
 
-    const [ selectedGraphElement, setSelectedGraphElement ] = React.useState<'gtitle' | 'xtitle' | 'ytitle' | null>(null)
+    const [ selectedGraphElement, setSelectedGraphElement ] = React.useState<{
+        element: 'gtitle' | 'xtitle' | 'ytitle',
+        xPosition: number,
+        yPosition: number
+    } | null>(null);
 
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
@@ -123,13 +166,28 @@ const GraphSidebar = (props: {
             ytitle.style.pointerEvents = 'all'
 
             gtitle.addEventListener('click', (event: any) => {
-                setSelectedGraphElement('gtitle')
+                setSelectedGraphElement({
+                    element: 'gtitle',
+                    xPosition: gtitle.getBoundingClientRect().left,
+                    yPosition: gtitle.getBoundingClientRect().top + 30
+                })
             })
             xtitle.addEventListener('click', (event: any) => {
-                setSelectedGraphElement('xtitle')
+                console.log(event)
+                setSelectedGraphElement({
+                    element: 'xtitle',
+                    xPosition: xtitle.getBoundingClientRect().left - 20,
+                    yPosition: xtitle.getBoundingClientRect().top - 45
+                });
             })
             ytitle.addEventListener('click', (event: any) => {
-                setSelectedGraphElement('ytitle')
+                console.log(event)
+
+                setSelectedGraphElement({
+                    element: 'ytitle',
+                    xPosition: ytitle.getBoundingClientRect().left - 10,
+                    yPosition: ytitle.getBoundingClientRect().top - 40
+                })
             })
 
         } catch (e) {
@@ -151,19 +209,48 @@ const GraphSidebar = (props: {
     } 
 
     return (
-        <div className={classNames('graph-sidebar-div', selectedGraphElement !== null ? `${selectedGraphElement}-highlighted` : undefined)} tabIndex={0} onKeyDown={(e) => {
-            if (e.key === 'Backspace') {
-                const newGraphParams: RecursivePartial<GraphParamsFrontend> = {};
-                if (selectedGraphElement === 'gtitle') {
-                    newGraphParams.graphStyling = { title: { visible: false } };
-                } else if (selectedGraphElement === 'xtitle') {
-                    newGraphParams.graphStyling = { xaxis: { visible: false } };
-                } else if (selectedGraphElement === 'ytitle') {
-                    newGraphParams.graphStyling = { yaxis: { visible: false } };
+        <div
+            className={classNames('graph-sidebar-div', selectedGraphElement !== null ? `${selectedGraphElement}-highlighted` : undefined)}
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === 'Backspace') {
+                    const newGraphParams: RecursivePartial<GraphParamsFrontend> = {};
+                    if (selectedGraphElement?.element === 'gtitle') {
+                        newGraphParams.graphStyling = { title: { visible: false } };
+                    } else if (selectedGraphElement?.element === 'xtitle') {
+                        newGraphParams.graphStyling = { xaxis: { visible: false } };
+                    } else if (selectedGraphElement?.element === 'ytitle') {
+                        newGraphParams.graphStyling = { yaxis: { visible: false } };
+                    }
+                    setGraphParams(updateObjectWithPartialObject(graphParams, newGraphParams));
                 }
-                setGraphParams(updateObjectWithPartialObject(graphParams, newGraphParams));
-            }
-        }}>
+                if ((e.key === 'Escape' || e.key === 'Enter') && (selectedGraphElement !== null)) {
+                    setSelectedGraphElement(null);
+                }
+            }}
+            onClick={(e) => {
+                if (selectedGraphElement !== null && !(e.target as HTMLElement).className.includes('popup-input')) {
+                    setSelectedGraphElement(null)
+                }
+            }}
+        >
+            <Popup
+                value={(selectedGraphElement?.element === 'gtitle' ? graphParams?.graphStyling.title.title : selectedGraphElement?.element === 'xtitle' ? graphParams?.graphStyling.xaxis.title : selectedGraphElement?.element === 'ytitle' ? graphParams?.graphStyling.yaxis.title : '') ?? ''}
+                setValue={(value) => {
+                    setGraphParams(updateObjectWithPartialObject(graphParams, {
+                        graphStyling: {
+                            title: selectedGraphElement?.element === 'gtitle' ? { title: value } : graphParams?.graphStyling.title,
+                            xaxis: selectedGraphElement?.element === 'xtitle' ? { title: value } : graphParams?.graphStyling.xaxis,
+                            yaxis: selectedGraphElement?.element === 'ytitle' ? { title: value } : graphParams?.graphStyling.yaxis,
+                        }
+                    }))
+                }}
+                caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : 'below'}
+                display={selectedGraphElement !== null}
+                xPosition={selectedGraphElement?.xPosition ?? 0}
+                yPosition={selectedGraphElement?.yPosition ?? 0}
+                onClose={() => setSelectedGraphElement(null)}
+            />
             <div 
                 className='graph-sidebar-graph-div' 
                 id='graph-div'
@@ -225,7 +312,7 @@ const GraphSidebar = (props: {
                         <GraphStyleTab 
                             graphParams={graphParams}
                             setGraphParams={setGraphParams}
-                            selectedGraphElement={selectedGraphElement}
+                            selectedGraphElement={selectedGraphElement?.element ?? null}
                         />
                     }
                 </div>

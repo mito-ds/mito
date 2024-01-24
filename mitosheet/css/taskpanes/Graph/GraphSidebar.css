@@ -64,6 +64,13 @@
     outline: 1px solid var(--mito-text-light);
 }
 
+.g-gtitle:hover,
+.g-xtitle:hover,
+.g-ytitle:hover {
+    cursor: pointer;
+    outline: 1px solid var(--mito-text-light)
+}
+
 .graph-sidebar-toolbar-content-container {
     display: flex;
     flex-direction: column;
@@ -103,6 +110,39 @@
     left: 39%; /* This puts the loading indicator in the middle of the graph sidebar */
 
     text-align: center;
+}
+
+.graph-element-popup-div.popup-div:before {
+    content: "";
+    display: block;
+    height: 1em;
+    width: 1em;
+    right: 50%;
+    margin-left: 0;
+    margin-top: -0.5em;
+    background: var(--mito-highlight-light);
+    position: absolute;
+    top: 0;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.graph-element-popup-div-caret-below.graph-element-popup-div.popup-div:before {
+    top: 100%;
+    left: 12px;
+}
+
+.graph-element-popup-div-caret-above.graph-element-popup-div.popup-div:before {
+    top: 0;
+}
+
+.graph-element-popup-div.popup-div {
+    padding: 3px;
+    background: var(--mito-highlight-light);
 }
 
 .popup-text-div {
