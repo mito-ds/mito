@@ -99,7 +99,7 @@
 }
 
 .mito-dropdown-item-vertical .mito-dropdown-item {
-    width: fit-content;
+    width: 85px;
     align-items: center;
     border: 1px solid var(--mito-text-light);
     margin: 10px;
