@@ -107,8 +107,10 @@
 }
 
 .mito-dropdown-item-vertical .mito-dropdown-item-icon-container {
-    width: 50px;
+    width: 100%;
     height: 50px;
+    display: flex;
+    justify-content: center;
 }
 
 .mito-dropdown-item-vertical .mito-dropdown-item-icon-and-title-container .mito-dropdown-item-title-and-shortcut-container {
