@@ -115,11 +115,11 @@
 .graph-element-popup-div.popup-div:before {
     content: "";
     display: block;
-    height: 1em;
-    width: 1em;
+    height: 10px;
+    width: 10px;
     right: 50%;
     margin-left: 0;
-    margin-top: -0.5em;
+    margin-top: -5px;
     background: var(--mito-highlight-light);
     position: absolute;
     top: 0;
