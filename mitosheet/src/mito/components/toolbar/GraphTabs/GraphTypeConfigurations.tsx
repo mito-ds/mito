@@ -42,7 +42,7 @@ export const GraphTypeConfigurations = (
                         props.updateGraphParam({graph_creation: {points: newPointsParams}})
 
                     }}
-                    width='small'
+                    width='medium'
                     dropdownWidth='medium'
                 >
                     <DropdownItem

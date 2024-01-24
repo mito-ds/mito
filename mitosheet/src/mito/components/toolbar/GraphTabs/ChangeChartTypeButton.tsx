@@ -486,7 +486,6 @@ export const ChangeChartTypeButton = (
                     onClick={() => {
                         updateGraphParams({
                             graph_creation: {
-                                points: undefined,
                                 graph_type: GraphType.BOX
                             }
                         })
