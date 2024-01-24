@@ -31,6 +31,12 @@ const Popup = (props: {
     if (!props.display) {
         return <></>
     }
+    const [ newValue, setNewValue ] = React.useState(props.value);
+    
+    React.useEffect(() => {
+        setNewValue(props.value);
+    }, [props.value]);
+
     return (
         <div
             className={`graph-element-popup-div popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : 'graph-element-popup-div-caret-below'}`}
@@ -42,15 +48,18 @@ const Popup = (props: {
         >
             <Input
                 className='popup-input'
-                value={props.value}
+                value={newValue}
                 onKeyDown={(e) => {
                     if (e.key === 'Backspace') {
                         e.stopPropagation();
                     }
+                    if (e.key === 'Enter') {
+                        props.setValue(newValue);
+                    }
                 }}
                 autoFocus
                 onChange={(e) => {
-                    props.setValue(e.target.value);
+                    setNewValue(e.target.value);
                 }}
             />
         </div>
@@ -155,7 +164,6 @@ const GraphSidebar = (props: {
             })
             
             // Main Title
-            console.log(div.getElementsByClassName('g-gtitle')[0])
             const gtitle = div.getElementsByClassName('g-gtitle')[0]
             const xtitle = div.getElementsByClassName('g-xtitle')[0]
             const ytitle = div.getElementsByClassName('g-ytitle')[0]
@@ -173,7 +181,6 @@ const GraphSidebar = (props: {
                 })
             })
             xtitle.addEventListener('click', (event: any) => {
-                console.log(event)
                 setSelectedGraphElement({
                     element: 'xtitle',
                     xPosition: xtitle.getBoundingClientRect().left - 20,
@@ -181,8 +188,6 @@ const GraphSidebar = (props: {
                 });
             })
             ytitle.addEventListener('click', (event: any) => {
-                console.log(event)
-
                 setSelectedGraphElement({
                     element: 'ytitle',
                     xPosition: ytitle.getBoundingClientRect().left - 10,
@@ -229,7 +234,7 @@ const GraphSidebar = (props: {
                 }
             }}
             onClick={(e) => {
-                if (selectedGraphElement !== null && !(e.target as HTMLElement).className.includes('popup-input')) {
+                if (selectedGraphElement !== null && (e.target instanceof HTMLElement && !(e.target.className.includes('popup-input')))) {
                     setSelectedGraphElement(null)
                 }
             }}
