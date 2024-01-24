@@ -52,15 +52,15 @@ export const GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS = [...new Set([
  */
 const updatePrimaryAxis = (primaryAxis: 'x' | 'y', x_axis_column_ids?: ColumnID[], y_axis_column_ids?: ColumnID[]): [ColumnID[] | undefined, ColumnID[] | undefined] => {
     if (primaryAxis === 'x') {
-        // Only switch if there are columns in the y axis 
-        if ((y_axis_column_ids?.length ?? 0) > 0) {
+        // Only switch if there are more columns in the y axis than in the x axis
+        if ((y_axis_column_ids?.length ?? 0) > (x_axis_column_ids?.length ?? 0)) {
             const tmp_y_axis_column_ids = x_axis_column_ids;
             x_axis_column_ids = y_axis_column_ids;
             y_axis_column_ids = tmp_y_axis_column_ids;
         }
     } else {
-        // Only switch if there are columns in the x axis
-        if ((x_axis_column_ids?.length ?? 0) > 0) {
+        // Only switch if there are more columns in the x axis than in the y axis
+        if ((x_axis_column_ids?.length ?? 0) > (y_axis_column_ids?.length ?? 0)) {
             const tmp_x_axis_column_ids = x_axis_column_ids;
             x_axis_column_ids = y_axis_column_ids;
             y_axis_column_ids = tmp_x_axis_column_ids;
