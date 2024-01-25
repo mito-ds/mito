@@ -690,7 +690,7 @@ test.describe('Keyboard Shortcuts', () => {
     }
 
     const mito = await getMitoFrameWithTestCSV(page);
-    await page.keyboard.press('control+Shift+h');
+    await page.keyboard.press('Control+Shift+h');
     await awaitResponse(page);
     await expect(mito.getByPlaceholder('Find...')).toBeVisible()
     await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
