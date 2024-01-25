@@ -164,7 +164,7 @@ const GraphSidebar = (props: {
             if (div === null) {
                 return;
             }
-            div.on('plotly_click', (event: any) => {
+            div.on('plotly_click', () => {
                 setSelectedGraphElement(null)
             });
             
@@ -181,19 +181,19 @@ const GraphSidebar = (props: {
             /**
              * Set selected graph element when clicked
              */
-            gtitle.addEventListener('click', (event: any) => {
+            gtitle.addEventListener('click', () => {
                 setSelectedGraphElement({
                     element: 'gtitle',
                     displayPopup: false
                 })
             })
-            xtitle.addEventListener('click', (event: any) => {
+            xtitle.addEventListener('click', () => {
                 setSelectedGraphElement({
                     element: 'xtitle',
                     displayPopup: false
                 });
             })
-            ytitle.addEventListener('click', (event: any) => {
+            ytitle.addEventListener('click', () => {
                 setSelectedGraphElement({
                     element: 'ytitle',
                     displayPopup: false
@@ -203,7 +203,7 @@ const GraphSidebar = (props: {
             /**
              * Open popup when double clicked
              */
-            gtitle.addEventListener('dblclick', (event: any) => {
+            gtitle.addEventListener('dblclick', () => {
                 setSelectedGraphElement({
                     element: 'gtitle',
                     xPosition: gtitle.getBoundingClientRect().left,
@@ -212,7 +212,7 @@ const GraphSidebar = (props: {
                 })
             });
 
-            xtitle.addEventListener('dblclick', (event: any) => {
+            xtitle.addEventListener('dblclick', () => {
                 const clientRect = xtitle.getBoundingClientRect()
                 setSelectedGraphElement({
                     element: 'xtitle',
@@ -222,7 +222,7 @@ const GraphSidebar = (props: {
                 })
             });
 
-            ytitle.addEventListener('dblclick', (event: any) => {
+            ytitle.addEventListener('dblclick', () => {
                 setSelectedGraphElement({
                     element: 'ytitle',
                     xPosition: ytitle.getBoundingClientRect().left - 10,
