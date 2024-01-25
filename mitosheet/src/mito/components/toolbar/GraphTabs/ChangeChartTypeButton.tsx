@@ -250,7 +250,7 @@ export const ChangeChartTypeButton = (
             value: GraphType.LINE,
             label: 'Line',
             icon: LineChartIcon,
-            subMenu: <Dropdown layout="vertical" position="horizontal" display={currDropdown === 'line'} closeDropdown={() => {
+            subMenu: <Dropdown layout="vertical" position="horizontal" width="hug-contents" display={currDropdown === 'line'} closeDropdown={() => {
                 if (currDropdown === 'line') {
                     setCurrDropdown(undefined);
                 }
@@ -264,20 +264,6 @@ export const ChangeChartTypeButton = (
                         updateGraphParams({
                             graph_creation: {
                                 line_shape: 'linear',
-                                graph_type: GraphType.LINE
-                            }
-                        })
-                    }}
-                />
-                <DropdownItem
-                    key='interpolated'
-                    title='Interpolated'
-                    icon={<LineChartSubMenuIcon type="interpolated" />}
-                    tooltip="Interpolated"
-                    onClick={() => {
-                        updateGraphParams({
-                            graph_creation: {
-                                line_shape: 'spline',
                                 graph_type: GraphType.LINE
                             }
                         })
@@ -524,7 +510,7 @@ export const ChangeChartTypeButton = (
             label: 'Density',
             icon: DensityContourIcon,
             isSelected: graphType === GraphType.DENSITY_HEATMAP || graphType === GraphType.DENSITY_CONTOUR,
-            subMenu: <Dropdown layout="vertical" position="horizontal" display={currDropdown === GraphType.DENSITY_CONTOUR} closeDropdown={() => {
+            subMenu: <Dropdown layout="vertical" position="horizontal" width="hug-contents" display={currDropdown === GraphType.DENSITY_CONTOUR} closeDropdown={() => {
                 if (currDropdown === GraphType.DENSITY_HEATMAP) {
                     setCurrDropdown(undefined);
                 }
