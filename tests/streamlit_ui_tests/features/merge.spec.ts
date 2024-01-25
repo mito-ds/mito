@@ -37,7 +37,7 @@ test.describe('Merge', () => {
     });
 
 
-    test.skip('Replays Dependent Edits', async ({ page }) => {
+    test('Replays Dependent Edits', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
         await importCSV(page, mito, 'test.csv');
         
@@ -46,6 +46,9 @@ test.describe('Merge', () => {
         await awaitResponse(page);
     
         await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+
+        // Wait for the merge to be finished before continuing so adding a column works!
+        await expect(mito.getByText('df_merge')).toBeVisible();
     
         // Check that Column1 exists
         const ch1 = await getColumnHeaderContainer(mito, 'Column1');
@@ -74,6 +77,6 @@ test.describe('Merge', () => {
         await expect(Column3_test_1).toBeVisible();
 
         // Check that there are 5 columns still
-        await expect(mito.locator('.endo-column-header-container')).toHaveCount(4);
+        await expect(mito.locator('.endo-column-header-container')).toHaveCount(5);
     });
 });
