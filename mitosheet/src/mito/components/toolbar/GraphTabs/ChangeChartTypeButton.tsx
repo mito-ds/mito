@@ -544,7 +544,7 @@ export const ChangeChartTypeButton = (
                 />
                 <DropdownItem
                     key='contour'
-                    title='Density Contour'
+                    title='Contour'
                     icon={<DensityContourIcon width="45px" />}
                     tooltip="Density Contour"
                     onClick={() => {
