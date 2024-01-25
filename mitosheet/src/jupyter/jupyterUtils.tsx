@@ -16,13 +16,12 @@
  */
 
 
-import { 
-    convertBackendtoFrontendGraphParams,
-    AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile,
+import {
     MitoAPI,
+    PublicInterfaceVersion,
     isInJupyterLab, isInJupyterNotebook
-} from "mitosheet-frontend"
-import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
+} from "mitosheet-frontend";
+import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils";
 
 
 export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
