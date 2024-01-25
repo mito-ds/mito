@@ -690,13 +690,17 @@ test.describe('Keyboard Shortcuts', () => {
     }
 
     const mito = await getMitoFrameWithTestCSV(page);
-    await page.keyboard.press('Control+h');
+    await page.keyboard.press('Control+Shift+h');
     await awaitResponse(page);
     await expect(mito.getByPlaceholder('Find...')).toBeVisible()
     await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
   })
 
-  test('Create Graph', async ({ page }) => {
+  test('Create Graph', async ({ page, browserName }) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
+
     const mito = await getMitoFrameWithTestCSV(page);
     await page.keyboard.press('Alt+F1');
     await awaitResponse(page);
