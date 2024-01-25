@@ -95,12 +95,6 @@ class MitoMessagePasser extends StreamlitComponentBase<{messageQueue: any[], isS
         // how to do that.
 
         if (event.data.type === 'mito') { 
-            // We don't send log events, we have a limited messaging budget for performance reasons
-            // and because there is debouncing that cause messages to get lost. 
-            if (event.data.data.event === 'log_event') {
-                return
-            }
-
             const message = event.data.data;
         
             // Add the message to the queue

@@ -210,6 +210,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                         selections
                     });
                 }: undefined}
+                suppressLogMessages
             />  
         )
     }

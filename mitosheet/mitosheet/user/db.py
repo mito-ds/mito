@@ -48,6 +48,7 @@ def set_user_field(field: str, value: Any) -> None:
     Updates the value of a specific feild in user.json
     """
     with open(USER_JSON_PATH, 'r') as user_file_old:
+        print("OLD FILE")
         old_user_json = json.load(user_file_old)
         old_user_json[field] = value
         with open(USER_JSON_PATH, 'w+') as f:

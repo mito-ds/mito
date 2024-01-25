@@ -162,3 +162,11 @@ def is_dash() -> bool:
     except:
         pass
     return False
+
+
+def is_flask() -> bool:
+    try:
+        from flask import request
+        return True
+    except:
+        return False

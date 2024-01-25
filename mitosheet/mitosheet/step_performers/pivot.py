@@ -95,13 +95,7 @@ class PivotStepPerformer(StepPerformer):
         destination_sheet_index: Optional[int] = get_param(params, 'destination_sheet_index')
         
         final_destination_sheet_index = destination_sheet_index if destination_sheet_index is not None else len(prev_state.dfs)
-
-        if len(get_param(params, 'pivot_rows_column_ids_with_transforms')) == 0:
-            print("SLEEPING")
-            import time
-            time.sleep(5)
-            print("DONE SLEEPING")
-
+        
         new_df_name = get_new_pivot_df_name(prev_state, sheet_index) if destination_sheet_index is None else prev_state.df_names[destination_sheet_index]
 
         execution_data = {

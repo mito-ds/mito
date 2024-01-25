@@ -142,12 +142,6 @@ export default class MitoDashWrapper extends Component<Props, State> {
         // TODO: I think we have to check the origin here, but I'm not sure
         // how to do that.
 
-        // We don't send log events, we have a limited messaging budget for performance reasons
-        // and because there is debouncing that cause messages to get lost. 
-        if (message.event === 'log_event') {
-            return
-        }
-    
         // Add the message to the queue
         this.setState((prevState) => ({
             messageQueue: [...prevState.messageQueue, [propName, message]],
@@ -227,6 +221,11 @@ export default class MitoDashWrapper extends Component<Props, State> {
                         selections
                     });
                 } : undefined}
+
+                // We don't send log events, we have a limited messaging budget for performance reasons
+                // and because there is debouncing that cause messages to get lost. 
+                suppressLogMessages
+                
             />  
         )
     }
