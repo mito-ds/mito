@@ -308,7 +308,7 @@ export const ChangeChartTypeButton = (
             value: GraphType.HISTOGRAM,
             label: 'Histogram',
             icon: HistogramIcon,
-            subMenu: <Dropdown layout="vertical" position="horizontal" style={{ width: '426px' }} display={currDropdown === 'histogram'} closeDropdown={() => {
+            subMenu: <Dropdown layout="vertical" position="horizontal" style={{ width: '445px' }} display={currDropdown === 'histogram'} closeDropdown={() => {
                 if (currDropdown === 'histogram') {
                     setCurrDropdown(undefined);
                 }
