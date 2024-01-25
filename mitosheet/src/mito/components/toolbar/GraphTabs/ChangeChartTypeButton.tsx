@@ -50,7 +50,7 @@ export const GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS = [...new Set([
  * So, if there are multiple columns in the X axis and we set primaryAxis = 'y', then the x and y axes
  * will be switched.
  */
-const updatePrimaryAxis = (primaryAxis: 'x' | 'y', x_axis_column_ids?: ColumnID[], y_axis_column_ids?: ColumnID[]): [ColumnID[] | undefined, ColumnID[] | undefined] => {
+const getXandYColumnIDs = (primaryAxis: 'x' | 'y', x_axis_column_ids?: ColumnID[], y_axis_column_ids?: ColumnID[]): [ColumnID[] | undefined, ColumnID[] | undefined] => {
     if (primaryAxis === 'x') {
         // Only switch if there are more columns in the y axis than in the x axis
         if ((y_axis_column_ids?.length ?? 0) > (x_axis_column_ids?.length ?? 0)) {
@@ -133,7 +133,7 @@ export const ChangeChartTypeButton = (
                     icon={<GroupIcon />}
                     tooltip="Grouped"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.BAR,
@@ -152,7 +152,7 @@ export const ChangeChartTypeButton = (
                     icon={<StackedIcon />}
                     tooltip="Stacked"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.BAR,
@@ -171,7 +171,7 @@ export const ChangeChartTypeButton = (
                     icon={<NormalizedIcon />}
                     tooltip="Normalized"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.BAR,
@@ -191,7 +191,7 @@ export const ChangeChartTypeButton = (
                     icon={<GroupIcon axis="y" />}
                     tooltip="Grouped"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.BAR,
@@ -210,7 +210,7 @@ export const ChangeChartTypeButton = (
                     icon={<StackedIcon axis="y" />}
                     tooltip="Grouped"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.BAR,
@@ -230,7 +230,7 @@ export const ChangeChartTypeButton = (
                     icon={<NormalizedIcon axis="y" />}
                     tooltip="Normalized"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.BAR,
@@ -318,7 +318,7 @@ export const ChangeChartTypeButton = (
                     icon={<GroupIcon />}
                     tooltip="Grouped"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
@@ -337,7 +337,7 @@ export const ChangeChartTypeButton = (
                     icon={<StackedIcon />}
                     tooltip="Stacked"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
@@ -356,7 +356,7 @@ export const ChangeChartTypeButton = (
                     icon={<StackedIcon />}
                     tooltip="Overlay"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
@@ -375,7 +375,7 @@ export const ChangeChartTypeButton = (
                     icon={<NormalizedIcon />}
                     tooltip="Normalized"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
@@ -395,7 +395,7 @@ export const ChangeChartTypeButton = (
                     icon={<GroupIcon axis="y" />}
                     tooltip="Grouped"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
@@ -414,7 +414,7 @@ export const ChangeChartTypeButton = (
                     icon={<StackedIcon axis="y" />}
                     tooltip="Stacked"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
@@ -433,7 +433,7 @@ export const ChangeChartTypeButton = (
                     icon={<OverlayIcon axis="y" />}
                     tooltip="Overlay"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
@@ -452,7 +452,7 @@ export const ChangeChartTypeButton = (
                     icon={<NormalizedIcon axis="y" />}
                     tooltip="Normalized"
                     onClick={() => {
-                        const [x_axis_column_ids, y_axis_column_ids] = updatePrimaryAxis('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
+                        const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('y', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
                         updateGraphParams({
                             graph_creation: {
                                 graph_type: GraphType.HISTOGRAM,
