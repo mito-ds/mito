@@ -144,8 +144,9 @@ const GraphSidebar = (props: {
 
     const [ selectedGraphElement, setSelectedGraphElement ] = React.useState<{
         element: 'gtitle' | 'xtitle' | 'ytitle',
-        xPosition: number,
-        yPosition: number
+        xPosition?: number,
+        yPosition?: number,
+        displayPopup: boolean
     } | null>(null);
 
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
@@ -163,9 +164,9 @@ const GraphSidebar = (props: {
             if (div === null) {
                 return;
             }
-            div.on('plotly_legendclick', (event: any) => {
-                console.log(event)
-            })
+            div.on('plotly_click', (event: any) => {
+                setSelectedGraphElement(null)
+            });
             
             // Main Title
             const gtitle = div.getElementsByClassName('g-gtitle')[0]
@@ -177,29 +178,58 @@ const GraphSidebar = (props: {
             xtitle.style.pointerEvents = 'all'
             ytitle.style.pointerEvents = 'all'
 
+            /**
+             * Set selected graph element when clicked
+             */
             gtitle.addEventListener('click', (event: any) => {
                 setSelectedGraphElement({
                     element: 'gtitle',
-                    xPosition: gtitle.getBoundingClientRect().left,
-                    yPosition: gtitle.getBoundingClientRect().top + 30
+                    displayPopup: false
                 })
             })
             xtitle.addEventListener('click', (event: any) => {
-                const clientRect = xtitle.getBoundingClientRect()
                 setSelectedGraphElement({
                     element: 'xtitle',
-                    xPosition: (clientRect.left + clientRect.right) / 2 - 70,
-                    yPosition: xtitle.getBoundingClientRect().top - 48
+                    displayPopup: false
                 });
             })
             ytitle.addEventListener('click', (event: any) => {
                 setSelectedGraphElement({
                     element: 'ytitle',
-                    xPosition: ytitle.getBoundingClientRect().left - 10,
-                    yPosition: ytitle.getBoundingClientRect().top - 40
+                    displayPopup: false
                 })
             })
 
+            /**
+             * Open popup when double clicked
+             */
+            gtitle.addEventListener('dblclick', (event: any) => {
+                setSelectedGraphElement({
+                    element: 'gtitle',
+                    xPosition: gtitle.getBoundingClientRect().left,
+                    yPosition: gtitle.getBoundingClientRect().top + 30,
+                    displayPopup: true
+                })
+            });
+
+            xtitle.addEventListener('dblclick', (event: any) => {
+                const clientRect = xtitle.getBoundingClientRect()
+                setSelectedGraphElement({
+                    element: 'xtitle',
+                    xPosition: (clientRect.left + clientRect.right) / 2 - 70,
+                    yPosition: xtitle.getBoundingClientRect().top - 48,
+                    displayPopup: true
+                })
+            });
+
+            ytitle.addEventListener('dblclick', (event: any) => {
+                setSelectedGraphElement({
+                    element: 'ytitle',
+                    xPosition: ytitle.getBoundingClientRect().left - 10,
+                    yPosition: ytitle.getBoundingClientRect().top - 40,
+                    displayPopup: true
+                })
+            });
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
@@ -220,7 +250,7 @@ const GraphSidebar = (props: {
 
     return (
         <div
-            className={classNames('graph-sidebar-div', selectedGraphElement !== null ? `${selectedGraphElement}-highlighted` : undefined)}
+            className={classNames('graph-sidebar-div', selectedGraphElement !== null ? `${selectedGraphElement.element}-highlighted` : undefined)}
             tabIndex={0}
             onKeyDown={(e) => {
                 if (e.key === 'Backspace') {
@@ -256,7 +286,7 @@ const GraphSidebar = (props: {
                     }))
                 }}
                 caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
-                display={selectedGraphElement !== null}
+                display={selectedGraphElement?.displayPopup ?? false}
                 xPosition={selectedGraphElement?.xPosition ?? 0}
                 yPosition={selectedGraphElement?.yPosition ?? 0}
                 onClose={() => setSelectedGraphElement(null)}
