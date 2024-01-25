@@ -248,9 +248,11 @@ const GraphSidebar = (props: {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} />
     } 
 
+    const selectedGraphElementClass = selectedGraphElement !== null ? `${selectedGraphElement.element}-highlighted` : undefined;
+
     return (
         <div
-            className={classNames('graph-sidebar-div', selectedGraphElement !== null ? `${selectedGraphElement.element}-highlighted` : undefined)}
+            className={classNames('graph-sidebar-div', selectedGraphElementClass)}
             tabIndex={0}
             onKeyDown={(e) => {
                 if (e.key === 'Backspace') {
