@@ -1,7 +1,7 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
 import { MitoAPI, getRandomId } from "../../../api/api"
-import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, GraphSidebarTab, SheetData, UIState } from "../../../types"
+import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphOutput, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, GraphSidebarTab, SheetData, UIState } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
@@ -18,6 +18,14 @@ import { OpenGraphType } from "../../../types"
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
 const DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
 const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
+
+export interface GraphElementType {
+    element: 'gtitle' | 'xtitle' | 'ytitle',
+    popupPosition?: {
+        xPosition: number,
+        yPosition: number
+    }
+}
 
 /**
  * Returns the default axis column ids for a given graph type and selected column ids.
@@ -487,4 +495,82 @@ export const openGraphSidebar = async (
             }
         })
     }
+}
+
+export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: React.Dispatch<React.SetStateAction<GraphElementType | null>>) => {
+    console.log('here')
+    if (graphOutput === undefined) {
+        return;
+    }
+    const div: any = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])
+    if (div === null) {
+        return;
+    }
+    div.on('plotly_click', () => {
+        setSelectedGraphElement(null)
+    });
+    
+    // Main Title
+    const gtitle = div.getElementsByClassName('g-gtitle')[0]
+    const xtitle = div.getElementsByClassName('g-xtitle')[0]
+    const ytitle = div.getElementsByClassName('g-ytitle')[0]
+                    
+    // First, add the style to make it clickable with pointer-events: all
+    gtitle.style.pointerEvents = 'all'
+    xtitle.style.pointerEvents = 'all'
+    ytitle.style.pointerEvents = 'all'
+
+    /**
+     * Set selected graph element when clicked
+     */
+    gtitle.addEventListener('click', () => {
+        console.log('gtitle click')
+        setSelectedGraphElement({
+            element: 'gtitle',
+        })
+    })
+    xtitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'xtitle',
+        });
+    })
+    ytitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'ytitle',
+        })
+    })
+
+    /**
+     * Open popup when double clicked
+     */
+    gtitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement({
+            element: 'gtitle',
+            popupPosition: {
+                xPosition: gtitle.getBoundingClientRect().left,
+                yPosition: gtitle.getBoundingClientRect().top + 30
+            },
+        })
+    });
+
+    xtitle.addEventListener('dblclick', () => {
+        const clientRect = xtitle.getBoundingClientRect()
+        setSelectedGraphElement({
+            element: 'xtitle',
+            popupPosition: {
+                xPosition: (clientRect.left + clientRect.right) / 2 - 70,
+                yPosition: xtitle.getBoundingClientRect().top - 48
+            }
+        })
+    });
+
+    ytitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement({
+            element: 'ytitle',
+            popupPosition: {
+                xPosition: ytitle.getBoundingClientRect().left - 10,
+                yPosition: ytitle.getBoundingClientRect().top - 40
+            }
+        })
+    });
 }

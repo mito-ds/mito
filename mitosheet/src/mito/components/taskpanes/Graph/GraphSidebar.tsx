@@ -12,58 +12,76 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSetupTab from './GraphSetupTab';
 import LoadingSpinner from './LoadingSpinner';
-import { convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams } from './graphUtils';
+import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
 import Input from '../../elements/Input';
 
 const Popup = (props: {
     value: string;
-    xPosition: number;
-    yPosition: number;
+    position?: {
+        xPosition: number;
+        yPosition: number;
+    };
     setValue: (value: string) => void;
-    display: boolean;
     onClose: () => void;
     caretPosition?: 'above' | 'below-left' | 'below-centered';
 }) => {
-    if (!props.display) {
+    /**
+     * If position is undefined, we don't display the popup. 
+     */
+    if (!props.position) {
         return <></>
     }
-    const [ newValue, setNewValue ] = React.useState(props.value);
+
+    /**
+     * We use a temporary value to store the value of the popup input. This is because
+     * we don't want to update the graphParams until the user presses enter.
+     */
+    const [ temporaryValue, setTemporaryValue ] = React.useState(props.value);
     
     React.useEffect(() => {
-        setNewValue(props.value);
+        setTemporaryValue(props.value);
     }, [props.value]);
 
+    /**
+     * The popup input is autofocusing, but when the popup is already open and we switch
+     * to a new graph element, we lose focus. This effect re-focuses the input when the
+     * graph element changes.
+     */
     React.useEffect(() => {
-        // Grab focus when we switch the location of the popup
         const input = document.getElementsByClassName('popup-input')[0] as HTMLInputElement;
         input.focus();
-    }, [props.xPosition, props.yPosition])
+    }, [props.position])
 
     return (
         <div
             className={`graph-element-popup-div popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : props.caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
             style={{
                 position: 'fixed',
-                left: props.xPosition,
-                top: props.yPosition,
+                left: props.position.xPosition,
+                top: props.position.yPosition,
             }}
         >
             <Input
                 className='popup-input'
-                value={newValue}
+                value={temporaryValue}
                 onKeyDown={(e) => {
+                    /**
+                     * Normally, when the user has a graph element selected, pressing backspace
+                     * should delete the element. However, we don't want to delete the element
+                     * when the user is typing in the popup input.
+                     */
                     if (e.key === 'Backspace') {
                         e.stopPropagation();
                     }
                     if (e.key === 'Enter') {
-                        props.setValue(newValue);
+                        props.setValue(temporaryValue);
                     }
                 }}
                 autoFocus
                 onChange={(e) => {
-                    setNewValue(e.target.value);
+                    setTemporaryValue(e.target.value);
                 }}
             />
         </div>
@@ -142,12 +160,7 @@ const GraphSidebar = (props: {
         })
     }, [], props.mitoContainerRef, '#mito-center-content-container')
 
-    const [ selectedGraphElement, setSelectedGraphElement ] = React.useState<{
-        element: 'gtitle' | 'xtitle' | 'ytitle',
-        xPosition?: number,
-        yPosition?: number,
-        displayPopup: boolean
-    } | null>(null);
+    const [ selectedGraphElement, setSelectedGraphElement ] = React.useState<GraphElementType | null>(null);
 
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
@@ -160,76 +173,7 @@ const GraphSidebar = (props: {
             }
             const executeScript = new Function(graphOutput.graphScript);
             executeScript()
-            const div: any = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])
-            if (div === null) {
-                return;
-            }
-            div.on('plotly_click', () => {
-                setSelectedGraphElement(null)
-            });
-            
-            // Main Title
-            const gtitle = div.getElementsByClassName('g-gtitle')[0]
-            const xtitle = div.getElementsByClassName('g-xtitle')[0]
-            const ytitle = div.getElementsByClassName('g-ytitle')[0]
-                            
-            // First, add the style to make it clickable with pointer-events: all
-            gtitle.style.pointerEvents = 'all'
-            xtitle.style.pointerEvents = 'all'
-            ytitle.style.pointerEvents = 'all'
-
-            /**
-             * Set selected graph element when clicked
-             */
-            gtitle.addEventListener('click', () => {
-                setSelectedGraphElement({
-                    element: 'gtitle',
-                    displayPopup: false
-                })
-            })
-            xtitle.addEventListener('click', () => {
-                setSelectedGraphElement({
-                    element: 'xtitle',
-                    displayPopup: false
-                });
-            })
-            ytitle.addEventListener('click', () => {
-                setSelectedGraphElement({
-                    element: 'ytitle',
-                    displayPopup: false
-                })
-            })
-
-            /**
-             * Open popup when double clicked
-             */
-            gtitle.addEventListener('dblclick', () => {
-                setSelectedGraphElement({
-                    element: 'gtitle',
-                    xPosition: gtitle.getBoundingClientRect().left,
-                    yPosition: gtitle.getBoundingClientRect().top + 30,
-                    displayPopup: true
-                })
-            });
-
-            xtitle.addEventListener('dblclick', () => {
-                const clientRect = xtitle.getBoundingClientRect()
-                setSelectedGraphElement({
-                    element: 'xtitle',
-                    xPosition: (clientRect.left + clientRect.right) / 2 - 70,
-                    yPosition: xtitle.getBoundingClientRect().top - 48,
-                    displayPopup: true
-                })
-            });
-
-            ytitle.addEventListener('dblclick', () => {
-                setSelectedGraphElement({
-                    element: 'ytitle',
-                    xPosition: ytitle.getBoundingClientRect().left - 10,
-                    yPosition: ytitle.getBoundingClientRect().top - 40,
-                    displayPopup: true
-                })
-            });
+            registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement);
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
@@ -288,9 +232,7 @@ const GraphSidebar = (props: {
                     }))
                 }}
                 caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
-                display={selectedGraphElement?.displayPopup ?? false}
-                xPosition={selectedGraphElement?.xPosition ?? 0}
-                yPosition={selectedGraphElement?.yPosition ?? 0}
+                position={selectedGraphElement?.popupPosition}
                 onClose={() => setSelectedGraphElement(null)}
             />
             <div 
