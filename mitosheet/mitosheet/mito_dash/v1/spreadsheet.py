@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
+from threading import Lock
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selection_utils import get_selected_element
 from mitosheet.streamlit.v1 import RunnableAnalysis
@@ -140,7 +141,7 @@ try:
             # in the callback in the order that they were received -- without them interrupting
             # eachother and having to deal with race conditions
             self.unprocessed_messages: Any = Queue()
-            self.processing_messages = False
+            self.processing_messages = Lock()
 
             self.index_and_selections: Optional[MitoFrontendIndexAndSelections] = None
 
@@ -268,26 +269,20 @@ try:
                 
         def process_single_message(self, session_key: str) -> None:
 
-            # If we are already processing messages -- then wait until it is
-            if self.processing_messages:
-                while self.processing_messages:
-                    time.sleep(0.1)
+            # Use a lock to make sure that only a single thread is processing messages at a single
+            # time. This ensures that we don't have strange race conditions that occur when we have
+            # messages processing in the queue in a stange order
+            with self.processing_messages:
+                    
+                # Process all the messages in the queue
+                try:
+                    if not self.unprocessed_messages.empty():
+                        value = self.unprocessed_messages.get()
+                        self.mito_backend.receive_message(value)
+                except:
+                    # Make sure we always set the processing flag to false
+                    pass
                 
-            # Otherwise, set the processing flag to true
-            self.processing_messages = True
-
-            # Process all the messages in the queue
-            try:
-                if not self.unprocessed_messages.empty():
-                    value = self.unprocessed_messages.get()
-                    self.mito_backend.receive_message(value)
-            except:
-                # Make sure we always set the processing flag to false
-                pass
-                
-            # Set the processing flag to false
-            self.processing_messages = False
-
             self.spreadsheet_result = WRONG_CALLBACK_ERROR_MESSAGE.format(prop_name='spreadsheet_result', num_messages=self.num_messages, id=self.mito_id, session_key=session_key)
             
             
