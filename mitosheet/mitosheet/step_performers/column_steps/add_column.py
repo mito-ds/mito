@@ -36,7 +36,7 @@ class AddColumnStepPerformer(StepPerformer):
 
         # If the column_header_index is out of range, then make the new column the last column
         if column_header_index < 0 or len(prev_state.dfs[sheet_index].columns) <= column_header_index:
-            column_header_index = len(prev_state.dfs[sheet_index].columns)
+            column_header_index = -1
 
         new_column_id = get_column_header_id(column_header)
 

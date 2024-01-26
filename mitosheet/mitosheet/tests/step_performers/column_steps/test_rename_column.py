@@ -267,9 +267,9 @@ def test_two_new_columns_two_renames():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'new_one', 0)",
+        "df1['new_one'] = 0",
         '',
-        "df1.insert(2, 'new_two', 0)",
+        "df1['new_two'] = 0",
         '',
         "df1.rename(columns={'new_one': 'new_one_prime', 'new_two': 'new_two_prime'}, inplace=True)",
         '',

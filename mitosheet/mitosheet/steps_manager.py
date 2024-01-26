@@ -15,6 +15,7 @@ from mitosheet.api.get_parameterizable_params import get_parameterizable_params_
 from mitosheet.api.get_path_contents import get_path_parts
 
 from mitosheet.enterprise.mito_config import MitoConfig
+from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
@@ -94,8 +95,10 @@ def execute_step_list_from_index(
         new_step = Step(step.step_type, step.step_id, step.params)
 
         # Set the previous state of the new step, and then update
-        # what the last valid step is
-        new_step.set_prev_state_and_execute(last_valid_step.final_defined_state)
+        # what the last valid step is. Note that we find the actually
+        # executed steps before passing them
+        non_skipped_steps = [step for index, step in enumerate(new_step_list) if index not in step_indexes_to_skip]
+        new_step.set_prev_state_and_execute(last_valid_step.final_defined_state, non_skipped_steps)
         last_valid_step = new_step
 
         new_step_list.append(new_step)
@@ -177,6 +180,7 @@ class StepsManager:
             self, 
             args: Collection[Union[pd.DataFrame, str, None]], 
             mito_config: MitoConfig, 
+            mito_log_uploader: Optional[MitoLogUploader]=None,
             analysis_to_replay: Optional[str]=None,
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
@@ -243,8 +247,6 @@ class StepsManager:
         self.user_defined_importers = user_defined_importers
         if not is_running_test() and not is_enterprise() and self.user_defined_importers is not None and len(self.user_defined_importers) > 0:
             raise ValueError("importers are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
-        
-
         
         self.user_defined_editors = validate_user_defined_editors(user_defined_editors)
         if not is_running_test() and not is_enterprise() and self.user_defined_editors is not None and len(self.user_defined_editors) > 0:
@@ -326,6 +328,9 @@ class StepsManager:
 
         # We store the mito_config variables here so that we can use them in the api
         self.mito_config = mito_config
+
+        # Store the mito_log_uploader
+        self.mito_log_uploader = mito_log_uploader
 
         # The options for the transpiled code. The user can optionally pass these 
         # in, but if they don't, we use the default options

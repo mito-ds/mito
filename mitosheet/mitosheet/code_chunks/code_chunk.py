@@ -31,8 +31,14 @@ class CodeChunk:
     ):
         self.prev_state = prev_state
 
+        self.optional_code_that_successfully_executed: Tuple[List[str], List[str]] = ([], [])
+
     def __repr__(self) -> str:
-        return self.__class__.__name__
+        members = [
+            (attr, getattr(self, attr)) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")
+            and ('sheet_index' in attr or 'file_name' in attr)
+        ]
+        return f"{self.__class__.__name__}({members})"
 
     def get_display_name(self) -> str:
         """Returns a short name to display for this CodeChunk"""
@@ -49,7 +55,41 @@ class CodeChunk:
         is the imports required for the code. ie: import pandas as pd
         """
         raise NotImplementedError('Implement in subclass')
+    
+    def get_optional_code_that_successfully_executed(self) -> Tuple[List[str], List[str]]:
+        """
+        Consider a code chunk like PivotCodeChunk. The main work it does is creating a new
+        dataframe that has a pivot table inside of it. 
 
+        However, if the user is editing a pivot table, we may want to replay some edits on
+        top of it. Our strategy for this is to go and find all of the code chunks that edit
+        the OG pivot table, and then to try to execute the code from each of these code 
+        chunks on top of the new edited pivot table. 
+
+        For example if you:
+        1. Make a pivot
+        2. Add a column to the pivot
+        3. Rename a column in the pivot
+        4. Filter the renamed column
+        5. Edit the pivot
+
+        Then the new column, rename, and filter will be replayed on top of the edited pivot. 
+        However, if a code chunk fails (e.g. the rename fails), then we don't execute later 
+        code lines, as to avoid getting the pivot into a super strange state. 
+
+        Thus, we have a new type of code for the code chunk. The `get_code` results _must_
+        all execute correctly, for the step to terminate correctly. If any of the lines of
+        code from get_code fail, then the entire step is rolled back and not created. 
+
+        However, optional code lines can fail and the step still be correctly executed. Thus, 
+        we have to have a notion of a) optional code lines, and b) the code chunk needs to know
+        which of these optional lines was executed correctly. 
+
+        In the above example, if the rename step failed, then this function would return the 
+        code to add a column to the pivot table, and not the code to rename or filter.
+        """
+        return self.optional_code_that_successfully_executed
+        
     # TODO: we could add a function that returns a list of params and execution
     # data that you're allowed to reference, and then check this when you create
     # the step, for strong typing!
@@ -94,6 +134,19 @@ class CodeChunk:
         """
         return None
     
+    def get_source_sheet_indexes(self) -> Optional[List[int]]:
+        """
+        This funciton returns a list of sheet indexes that go into
+        creating any created_sheet_indexes. 
+
+        If there are no created_sheet_indexes, than this function can
+        be ignored. If there are created_sheet_indexes, than an empty
+        list means there were no source dataframes -- e.g. from a CSV 
+        import from a file.
+        """
+        return []
+
+    
     def combine_right(self, other_code_chunk: "CodeChunk") -> Optional["CodeChunk"]:
         """
         Given a list of CodeChunks [A, B], combine right called on A with
@@ -132,4 +185,33 @@ class CodeChunk:
         """
         return []
     
+    def can_be_reordered_with(self, code_chunk: "CodeChunk") -> bool:
+        """
+        Returns true if the passed code chunk can be moved from
+        before to after (or after to before) with this code chunk. 
 
+        Note that this function is meant to be conservative. It should
+        only return True if the reordering of the code chunks _positively_
+        does not break generated code. 
+
+
+        """
+
+        created_sheet_indexes = self.get_created_sheet_indexes()
+        edited_sheet_indexes = self.get_edited_sheet_indexes()
+        source_sheet_indexes = self.get_source_sheet_indexes()
+        other_edited_indexes = code_chunk.get_edited_sheet_indexes()
+
+        # Don't reorder if the code chunk is editing what this code chunk created
+        if created_sheet_indexes is not None and other_edited_indexes is not None and any(index in created_sheet_indexes for index in other_edited_indexes):
+            return False
+
+        # Don't reorder if the code chunks are editing the same sheet
+        if edited_sheet_indexes is not None and other_edited_indexes is not None and set(edited_sheet_indexes) == set(other_edited_indexes):
+            return False
+        
+        # Don't reorder if the other code chunk edits where this code chunk pulls from
+        if source_sheet_indexes is not None and other_edited_indexes is not None and any(index in source_sheet_indexes for index in other_edited_indexes):
+            return False
+
+        return True

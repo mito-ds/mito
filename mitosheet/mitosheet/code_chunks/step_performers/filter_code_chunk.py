@@ -389,8 +389,6 @@ class FilterCodeChunk(CodeChunk):
         column_ids = [f['column_id'] for f in self.column_ids_with_filter_groups]
         self.column_headers = self.prev_state.column_ids.get_column_headers_by_ids(self.sheet_index, column_ids)
 
-
-
     def get_display_name(self) -> str:
         return 'Filtered'
     

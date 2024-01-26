@@ -9,7 +9,9 @@ from mitosheet.enterprise.license_key import encode_date_to_license
 from mitosheet.enterprise.mito_config import (
     DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, 
     MEC_VERSION_KEYS,
-    MITO_CONFIG_ANALYTICS_URL, 
+    MITO_CONFIG_ANALYTICS_URL,
+    MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL, 
+    MITO_CONFIG_LOG_SERVER_URL,
     MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
     MITO_CONFIG_CODE_SNIPPETS, 
     MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
@@ -28,10 +30,13 @@ from mitosheet.enterprise.mito_config import (
     MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
     MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
     MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
+    MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
+    MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS,
     MITO_CONFIG_FEATURE_TELEMETRY,
     MITO_CONFIG_PRO,
     MitoConfig
 )
+from mitosheet.tests.test_utils import create_mito_wrapper
 
 
 def delete_env_var_if_exists(env_var: str) -> None: 
@@ -64,7 +69,7 @@ def test_none_works():
     delete_all_mito_config_environment_variables()
 
     mito_config = MitoConfig()
-    mito_config_dict = mito_config.get_mito_config()
+    mito_config_dict = mito_config.mito_config_dict
     assert mito_config_dict == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: DEFAULT_MITO_CONFIG_SUPPORT_EMAIL,
@@ -73,10 +78,15 @@ def test_none_works():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True,
+        MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS: True,
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
+        MITO_CONFIG_LOG_SERVER_URL: None,
+        MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
+        MITO_CONFIG_ENTERPRISE: False,
         MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
         MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
     }
@@ -86,7 +96,7 @@ def test_none_config_version_is_string():
     delete_all_mito_config_environment_variables()
 
     mito_config = MitoConfig()
-    mito_config_dict = mito_config.get_mito_config()
+    mito_config_dict = mito_config.mito_config_dict
     assert isinstance(mito_config_dict[MITO_CONFIG_VERSION], str)
 
 def test_version_2_works():
@@ -100,7 +110,7 @@ def test_version_2_works():
 
     # Test reading environment variables works properly
     mito_config = MitoConfig()
-    assert mito_config.get_mito_config() == {
+    assert mito_config.mito_config_dict == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
         MITO_CONFIG_DISABLE_TOURS: True,
@@ -112,10 +122,15 @@ def test_version_2_works():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True, 
+        MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS: True,
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
+        MITO_CONFIG_LOG_SERVER_URL: None,
+        MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
+        MITO_CONFIG_ENTERPRISE: False,
         MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
         MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
     }
@@ -130,7 +145,7 @@ def test_mito_config_update_version_1_to_2():
     
     # Test reading environment variables works properly
     mito_config = MitoConfig()
-    assert mito_config.get_mito_config() == {
+    assert mito_config.mito_config_dict == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
         MITO_CONFIG_DISABLE_TOURS: False,
@@ -138,10 +153,15 @@ def test_mito_config_update_version_1_to_2():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True, 
+        MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS: True,
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
+        MITO_CONFIG_LOG_SERVER_URL: None,
+        MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
+        MITO_CONFIG_ENTERPRISE: False,
         MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
         MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
     }    
@@ -156,7 +176,7 @@ def test_mito_config_enable_snowflake_import():
     os.environ[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT] = "True"
     
     mito_config = MitoConfig()
-    assert mito_config.get_mito_config() == {
+    assert mito_config.mito_config_dict == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
         MITO_CONFIG_DISABLE_TOURS: False,
@@ -164,67 +184,55 @@ def test_mito_config_enable_snowflake_import():
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: True, 
+        MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS: True,
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
+        MITO_CONFIG_LOG_SERVER_URL: None,
+        MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
+        MITO_CONFIG_ENTERPRISE: False,
         MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
         MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
     }    
 
     delete_all_mito_config_environment_variables()
 
-def test_mito_config_dont_display_snowflake_import():
+def test_mito_config_dont_display_features():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_SUPPORT_EMAIL] = "aaron@sagacollab.com"
-    os.environ[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT] = "True"
     os.environ[MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT] = "False"
+    os.environ[MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION] = "F"
+    os.environ[MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING] = "0"
+    os.environ[MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS] = "false"
     
     mito_config = MitoConfig()
-    assert mito_config.get_mito_config() == {
+    assert mito_config.mito_config_dict == {
         MITO_CONFIG_VERSION: '2',
         MITO_CONFIG_SUPPORT_EMAIL: 'aaron@sagacollab.com',
         MITO_CONFIG_DISABLE_TOURS: False,
         MITO_CONFIG_CODE_SNIPPETS: None,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: True,
-        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: False,
-        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: True,
-        MITO_CONFIG_LLM_URL: None,
-        MITO_CONFIG_ANALYTICS_URL: None,
-        MITO_CONFIG_FEATURE_TELEMETRY: True,
-        MITO_CONFIG_PRO: False,
-        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
-        MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
-    }    
-
-    delete_all_mito_config_environment_variables()
-
-def test_mito_config_dont_display_ai_transform():
-    
-    os.environ[MITO_CONFIG_VERSION] = "2"
-    os.environ[MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION] = "False"
-    
-    mito_config = MitoConfig()
-    assert mito_config.get_mito_config() == {
-        MITO_CONFIG_VERSION: '2',
-        MITO_CONFIG_SUPPORT_EMAIL: 'founders@sagacollab.com',
-        MITO_CONFIG_DISABLE_TOURS: False,
-        MITO_CONFIG_CODE_SNIPPETS: None,
         MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: False,
-        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: True,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: False,
         MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: False,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: False, 
+        MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS: False, 
         MITO_CONFIG_LLM_URL: None,
         MITO_CONFIG_ANALYTICS_URL: None,
+        MITO_CONFIG_LOG_SERVER_URL: None,
+        MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL: None, 
         MITO_CONFIG_FEATURE_TELEMETRY: True,
         MITO_CONFIG_PRO: False,
+        MITO_CONFIG_ENTERPRISE: False,
         MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
         MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
     }    
 
     delete_all_mito_config_environment_variables()
 
-def test_mit_config_disable_telemetry():
+def test_mito_config_disable_telemetry():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_FEATURE_TELEMETRY] = "False"
@@ -235,7 +243,7 @@ def test_mit_config_disable_telemetry():
     delete_all_mito_config_environment_variables()
 
 
-def test_mito_config_enable_pro_telemetry():
+def test_mito_config_enable_pro():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_PRO] = "True"
@@ -258,7 +266,6 @@ def test_mito_config_enable_enterprise():
 
 def test_mito_config_enable_enterprise_date():
     
-
     # Get tomorrow as a date
     from datetime import date, timedelta
     tomorrow = date.today() + timedelta(days=1)
@@ -291,7 +298,7 @@ def test_mito_config_custom_sheet_functions_path():
     os.environ[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] = "./folder/file.py"
 
     mito_config = MitoConfig()
-    mito_config = mito_config.get_mito_config()
+    mito_config = mito_config.mito_config_dict
     mito_config[MITO_CONFIG_VERSION] == '2'
     mito_config[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] == "./folder/file.py"
 
@@ -303,8 +310,30 @@ def test_mito_config_custom_importers_path():
     os.environ[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] = "./folder/file.py"
 
     mito_config = MitoConfig()
-    mito_config = mito_config.get_mito_config()
+    mito_config = mito_config.mito_config_dict
     mito_config[MITO_CONFIG_VERSION] == '2'
     mito_config[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] == "./folder/file.py"
 
     delete_all_mito_config_environment_variables()
+
+def test_mito_config_log_server_url():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  "url"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "15"
+
+    mito_config = MitoConfig()
+    mito_config = mito_config.mito_config_dict
+    mito_config[MITO_CONFIG_VERSION] == '2'
+    mito_config[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] == "url"
+    mito_config[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] == 15
+
+    # Test that the env var are used to create the mito_log_uploader
+    mito = create_mito_wrapper()
+    steps_manager = mito.mito_backend.steps_manager
+    steps_manager.mito_log_uploader.log_url == "url"
+    steps_manager.mito_log_uploader.log_interval == 15
+
+    delete_all_mito_config_environment_variables()
+
+

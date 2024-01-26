@@ -42,6 +42,7 @@ export default function SheetTabContextMenu(props: {
 }): JSX.Element {
 
     const imported = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Imported;
+    const pivoted = props.sheetDataArray[props.sheetIndex]?.dfSource === DFSource.Pivoted;
 
     // Log opening the data sheet tab actions
     useEffect(() => {
@@ -139,6 +140,26 @@ export default function SheetTabContextMenu(props: {
             title='Export'
             onClick={openDownloadTaskpane}
         />,
+        pivoted ? <DropdownItem key='Edit Pivot' title='Edit Pivot' onClick={async () => {
+            const response = await props.mitoAPI.getPivotParams(props.sheetIndex);
+            const existingPivotParams = 'error' in response ? undefined : response.result;
+
+            if (existingPivotParams !== undefined) {
+                props.setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {type: ModalEnum.None},
+                        currOpenTaskpane: {
+                            type: TaskpaneType.PIVOT,
+                            sourceSheetIndex: existingPivotParams.sheet_index,
+                            destinationSheetIndex: prevUIState.selectedSheetIndex,
+                            existingPivotParams: existingPivotParams
+                        },
+                        selectedTabType: 'data'
+                    }
+                })
+            }
+        }}/> : undefined,
         // if this dataframe is imported, then allow the user to change the import
         imported ? <DropdownItem key='Change Import' title='Change Import' onClick={() => {
             props.closeOpenEditingPopups();

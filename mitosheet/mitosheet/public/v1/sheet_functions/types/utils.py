@@ -11,6 +11,7 @@ from distutils.version import LooseVersion
 from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
+import datetime
 
 from mitosheet.public.v1.sheet_functions.sheet_function_utils import is_series_of_constant
 
@@ -87,7 +88,7 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     # Import log function here to avoid circular import
     from mitosheet.telemetry.telemetry_utils import log
 
-    # Filter to only the strings, as this is all we're trying to convert really
+    # Filter to only the strings since that is all we're convertin
     string_series = string_series[string_series.apply(lambda x: isinstance(x, str))]
 
     # If we can convert all non null inputs, then we assume we guessed correctly
@@ -102,7 +103,6 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     # TODO: Add the most popular formats to here and check them first before 
     # trying all of the formats below for performance.
 
-    # Then we try a bunch of other formats it could be
     sample_string_datetime = string_series[string_series.first_valid_index()]
     FORMATS = [
         '%m{s}%d{s}%Y', 
@@ -113,6 +113,7 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
         '%m{s}%d{s}%Y %H:%M:%S', 
         '%Y{s}%m{s}%d  %H:%M:%S',
         '%Y{s}%d{s}%m  %H:%M:%S', 
+
     ]
     SEPERATORS = ['/', '-', '.', ',', ':', ' ', '']
 

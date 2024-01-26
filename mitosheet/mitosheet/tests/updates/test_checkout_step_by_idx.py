@@ -62,7 +62,7 @@ def test_can_rollback_many_steps():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        'df1.insert(1, \'B\', 0)',
+        'df1[\'B\'] = 0',
         '',
         IN_PREVIOUS_STEP_COMMENT,
     ]
@@ -72,13 +72,13 @@ def test_can_rollback_many_steps():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *',
         '',
-        'df1.insert(1, \'B\', 0)',
+        'df1[\'B\'] = 0',
         '',
-        'df1.insert(2, \'C\', 0)',
+        'df1[\'C\'] = 0',
         '',
-        'df1.insert(3, \'D\', 0)',
+        'df1[\'D\'] = 0',
         '',
-        'df1.insert(4, \'E\', 0)',
+        'df1[\'E\'] = 0',
         '',
     ]
 

@@ -11,7 +11,7 @@ this folder for more details on our approach to private telemetry.
 
 from typing import Any, Dict, Optional
 from mitosheet.parser import parse_formula
-from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_MAP_KEYS_TO_MAKE_PRIVATE, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
+from mitosheet.telemetry.private_params_map import LOG_PARAMS_FORMULAS, LOG_PARAMS_LENGTH_FIRST_ELEMENT, LOG_PARAMS_MAP_KEYS_TO_MAKE_PRIVATE, LOG_PARAMS_TO_LINEARIZE, LOG_PARAMS_PUBLIC
 from mitosheet.types import StepsManagerType
 from mitosheet.user.db import get_user_field
 from mitosheet.user.schemas import UJ_USER_SALT
@@ -118,6 +118,8 @@ def get_final_private_params_for_single_kv(key: str, value: Any, params: Dict[st
 
     if key in LOG_PARAMS_PUBLIC:
         private_params[key] = value
+    elif key in LOG_PARAMS_LENGTH_FIRST_ELEMENT:
+        private_params[key] = len(value[0]) if value else 0
     elif key in LOG_PARAMS_FORMULAS:
         private_params[key] = anonymize_formula(value, params['sheet_index'], steps_manager)
     else:

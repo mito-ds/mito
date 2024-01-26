@@ -35,17 +35,6 @@ def test_create_mulitple_columns():
     for letter in ascii_lowercase:
         assert letter in mito.dfs[0]
 
-
-def test_create_column_mulitple_times():
-    mito = create_mito_wrapper_with_data([123])
-
-    mito.add_column(0, 'B')
-    mito.set_formula('=A', 0, 'B')
-    mito.add_column(0, 'B')
-
-    assert 'B' in mito.dfs[0]
-    assert mito.dfs[0]['B'].equals(mito.dfs[0]['A'])
-
 def test_multi_sheet_add_columns_correct_dfs():
     df1 = pd.DataFrame(data={'A': [1]})
     df2 = pd.DataFrame(data={'A': [2]})
@@ -136,7 +125,7 @@ def test_add_then_rename_multiple_optimizes():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'C', 0)",
+        "df1['C'] = 0",
         ''
     ]
 
@@ -157,7 +146,7 @@ def test_add_then_rename_then_set_formula_optimizes():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'C', 10)",
+        "df1['C'] = 10",
         '',
     ]
 
@@ -201,7 +190,7 @@ def test_add_then_set_formula_then_rename_optimizes():
     assert mito.transpiled_code == [
         'from mitosheet.public.v3 import *', 
         '',
-        "df1.insert(1, 'C', 10)",
+        "df1['C'] = 10",
         '',
     ]
 
@@ -221,7 +210,7 @@ def test_add_then_set_formula_then_rename_then_delete_optimizes():
     ]
 
     
-def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimize():
+def test_add_then_set_formula_then_rename_then_delete_diff_sheet_optimizes_by_reorder():
     mito = create_mito_wrapper_with_data([1])
     mito.duplicate_dataframe(0)
     mito.add_column(1, 'B')
@@ -238,11 +227,9 @@ def test_add_then_set_formula_then_rename_then_delete_diff_sheet_does_not_optimi
         '',
         "df1_copy = df1.copy(deep=True)",
         '',
-        "df1_copy.insert(1, 'C', 0)",
+        "df1_copy.drop(['A'], axis=1, inplace=True)",
         '',
-        "df1.insert(1, 'C', 10)",
-        '',
-        "df1_copy.drop(['A', 'C'], axis=1, inplace=True)",
+        "df1['C'] = 10",
         '',
     ]
 
