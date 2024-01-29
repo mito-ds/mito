@@ -21,6 +21,10 @@ const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
 
 export interface GraphElementType {
     element: 'gtitle' | 'xtitle' | 'ytitle',
+
+    /** This is the value to default to if there is no value defined in the graph params */
+    defaultValue?: string,
+    
     popupPosition?: {
         xPosition: number,
         yPosition: number
@@ -498,7 +502,6 @@ export const openGraphSidebar = async (
 }
 
 export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: React.Dispatch<React.SetStateAction<GraphElementType | null>>) => {
-    console.log('here')
     if (graphOutput === undefined) {
         return;
     }
@@ -524,7 +527,6 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
      * Set selected graph element when clicked
      */
     gtitle.addEventListener('click', () => {
-        console.log('gtitle click')
         setSelectedGraphElement({
             element: 'gtitle',
         })
@@ -546,6 +548,7 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
     gtitle.addEventListener('dblclick', () => {
         setSelectedGraphElement({
             element: 'gtitle',
+            defaultValue: gtitle.children?.[0]?.innerHTML,
             popupPosition: {
                 xPosition: gtitle.getBoundingClientRect().left,
                 yPosition: gtitle.getBoundingClientRect().top + 30
@@ -557,6 +560,7 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
         const clientRect = xtitle.getBoundingClientRect()
         setSelectedGraphElement({
             element: 'xtitle',
+            defaultValue: xtitle.children?.[0]?.innerHTML,
             popupPosition: {
                 xPosition: (clientRect.left + clientRect.right) / 2 - 70,
                 yPosition: xtitle.getBoundingClientRect().top - 48
@@ -567,6 +571,7 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
     ytitle.addEventListener('dblclick', () => {
         setSelectedGraphElement({
             element: 'ytitle',
+            defaultValue: ytitle.children?.[0]?.innerHTML,
             popupPosition: {
                 xPosition: ytitle.getBoundingClientRect().left - 10,
                 yPosition: ytitle.getBoundingClientRect().top - 40
