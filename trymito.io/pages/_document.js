@@ -34,6 +34,14 @@ class MyDocument extends Document {
             {/* Import Prism.js and css*/}
             <link rel="stylesheet" href="/prism.css" />
             <script defer src="/prism.js"></script>
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-8HTSX1HSC2"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){window.dataLayer.push(arguments)}
+              gtag('js', new Date());
+
+              gtag('config', 'G-8HTSX1HSC2');
+            </script>
         </Head> 
         <body>
           <Main />

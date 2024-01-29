@@ -105,6 +105,7 @@ export type MitoProps = {
         textColor?: string
     }
     onSelectionChange?: (selectedDataframeIndex: number, selections: MitoSelection[]) => void;
+    suppressLogMessages?: boolean
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
@@ -155,7 +156,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [previousAITransformParams, setPreviousAITransformParams] = useState<AITransformationParams[]>([])
 
     // Create the Mito API
-    const {mitoAPI, sendFunctionStatus} = useMitoAPI(props.getSendFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
+    const {mitoAPI, sendFunctionStatus} = useMitoAPI(props.getSendFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState, props.suppressLogMessages)
     
     // If the comm ends up failing to be created, then we open a taskpane that let's
     // the user know of this error

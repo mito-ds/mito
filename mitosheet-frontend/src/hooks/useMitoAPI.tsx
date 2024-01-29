@@ -9,10 +9,11 @@ export const useMitoAPI = (
     setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
-    setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
+    suppressLogMessages?: boolean
 ): {mitoAPI: MitoAPI, sendFunctionStatus: SendFunctionStatus} => {
 
-    const [sendFunctionStatus, setCommCreationStatus] = useState<SendFunctionStatus>('loading');
+    const [sendFunctionStatus, setSendFunctionStatus] = useState<SendFunctionStatus>('loading');
 
     const [mitoAPI] = useState<MitoAPI>(
         () => {
@@ -20,10 +21,10 @@ export const useMitoAPI = (
                 async () => {
                     const fetchFunction = await getSendFunction();
                     if (typeof fetchFunction === 'string') { // Check if it's an error
-                        setCommCreationStatus(fetchFunction);
+                        setSendFunctionStatus(fetchFunction);
                         return undefined;
                     } else {
-                        setCommCreationStatus('finished');
+                        setSendFunctionStatus('finished');
                         return fetchFunction
                     }
                 },
@@ -31,6 +32,7 @@ export const useMitoAPI = (
                 setAnalysisData,
                 setUserProfile,
                 setUIState,
+                suppressLogMessages 
             )
         }
     )

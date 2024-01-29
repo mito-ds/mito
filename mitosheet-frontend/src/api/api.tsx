@@ -106,19 +106,22 @@ export class MitoAPI {
     setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>
     setUIState: React.Dispatch<React.SetStateAction<UIState>>
+    suppressLogMessages: boolean | undefined;
     
     constructor(
         getSendFunction: () => Promise<SendFunction | undefined>,
         setSheetDataArray: React.Dispatch<React.SetStateAction<SheetData[]>>,
         setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData>>,
         setUserProfile: React.Dispatch<React.SetStateAction<UserProfile>>,
-        setUIState: React.Dispatch<React.SetStateAction<UIState>>
+        setUIState: React.Dispatch<React.SetStateAction<UIState>>,
+        suppressLogMessages?: boolean
     ) {
         this.getSendFunction = getSendFunction;
         this.setSheetDataArray = setSheetDataArray;
         this.setAnalysisData = setAnalysisData; 
         this.setUserProfile = setUserProfile;
         this.setUIState = setUIState;
+        this.suppressLogMessages = suppressLogMessages;
     }
 
     _updateSharedStateVariables<ResultType>(response: SendFunctionSuccessReturnType<ResultType>) {
@@ -199,9 +202,7 @@ export class MitoAPI {
         }
 
         const loadingTimeout = this._startLoading(msg);
-        console.log("CALLING SEND FUNCTION", msg)  
         const response = await this._send<ResultType>(msg);
-        console.log("GOT RESPONSE", response)
         this._stopLoading(id, loadingTimeout);
 
         if ('error' in response) {
@@ -1299,6 +1300,13 @@ export class MitoAPI {
         logEventType: string,
         params?: Record<string, unknown>
     ): Promise<void> {
+
+        // If we're supressing log messages, then don't send them
+        // Except the mitosheet_rendered event, which is used to track
+        // various things and is required for correct functioning of the sheet
+        if (this.suppressLogMessages && logEventType !== "mitosheet_rendered") {
+            return;
+        }
 
         const message: Record<string, unknown> = {};
 

@@ -111,7 +111,6 @@ const getToolbarButtonsForUserDefinedImports = (
                 searchable
             >
                 {domainActions.map(action => {
-                    console.log(action)
                     return (<DropdownItem
                         title={action.titleToolbar || action.longTitle}
                         subtext={action.tooltip}

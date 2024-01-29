@@ -241,7 +241,6 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     setTaskpaneState({type: 'error executing code', userInput: userInput, attempt: i, error: possibleError})
                     previousFailedCompletions.push([completion.completion, possibleError])
                 } else {
-                    console.log("Setting success to true")
                     setTaskpaneState({type: 'default'});
                     setDisplayRecon(true); // Mark a successful execution
                     return;
