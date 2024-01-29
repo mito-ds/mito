@@ -118,7 +118,7 @@
     right: 50%;
     margin-left: 0;
     margin-top: -5px;
-    background: var(--mito-highlight-medium);
+    background: var(--mito-highlight);
     position: absolute;
     top: 0;
     -webkit-transform: rotate(45deg);
@@ -145,7 +145,7 @@
 
 .graph-element-popup-div.popup-div {
     padding: 3px;
-    background: var(--mito-highlight-medium);
+    background: var(--mito-highlight);
     border-radius: 3px;
 }
 
