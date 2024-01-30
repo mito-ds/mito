@@ -16,7 +16,6 @@ import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendt
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
 import Input from '../../elements/Input';
-import { ModalEnum } from '../../modals/modals';
 
 const Popup = (props: {
     value: string;
@@ -161,14 +160,14 @@ const GraphSidebar = (props: {
         })
     }, [], props.mitoContainerRef, '#mito-center-content-container')
 
-    const selectedGraphElement = props.uiState.currOpenModal?.type === ModalEnum.GraphTitleEditor ? props.uiState.currOpenModal.graphElementInfo : undefined;
+    const selectedGraphElement = props.uiState.currOpenTaskpane?.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.currentGraphElement : undefined;
     const setSelectedGraphElement = (graphElement: GraphElementType | null) => {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
-                currOpenModal: graphElement === null ? { type: ModalEnum.None } : {
-                    type: ModalEnum.GraphTitleEditor,
-                    graphElementInfo: graphElement,
+                currOpenTaskpane: graphElement === null ? { type: TaskpaneType.NONE } : {
+                    ...prevUIState.currOpenTaskpane,
+                    currentGraphElement: graphElement,
                 }
             }
         });

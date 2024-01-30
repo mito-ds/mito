@@ -515,9 +515,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
                 />
             )
-            case ModalEnum.GraphTitleEditor: return (
-                <></>
-            )
         }
     }
 
@@ -1024,7 +1021,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             }}
             onClick={(e) => {
                 const eventTarget = e.target;
-                if (uiState.currOpenModal.type === ModalEnum.GraphTitleEditor &&
+                if (uiState.currOpenTaskpane.type === TaskpaneType.GRAPH &&
                     !(eventTarget instanceof HTMLInputElement && eventTarget.className.includes('popup-input'))) {
                     e.stopPropagation();
                     setUIState(prevUIState => {

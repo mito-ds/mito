@@ -11,7 +11,6 @@ import EditIcon from "../../icons/EditIcon";
 import LegendIcon from "../../icons/GraphToolbar/LegendIcon";
 import GridlinesIcon from "../../icons/GraphToolbar/GridlinesIcon";
 import RangeSliderIcon from "../../icons/GraphToolbar/RangeSliderIcon";
-import { ModalEnum } from "../../modals/modals";
 import { getGraphElementObjects, getGraphElementInfoFromHTMLElement } from "../../taskpanes/Graph/graphUtils";
 
 type AddChartElementSubMenus = 'axis-titles' | 'chart-title' | 'legend' | 'grid-lines' | 'range-slider';
@@ -80,6 +79,7 @@ export const AddChartElementButton = (
                             title='Edit X Axis Title'
                             icon={<AxisTitlesIcon axis="horizontal"/>}
                             canHaveCheckMark
+                            supressFocusSettingOnClose
                             onClick={() => {
                                 const graphElementObjects = getGraphElementObjects(props.graphOutput);
                                 if (graphElementObjects === undefined) {
@@ -89,9 +89,9 @@ export const AddChartElementButton = (
                                     return {
                                         ...prevUIState,
                                         currOpenDropdown: undefined,
-                                        currOpenModal: { 
-                                            type: ModalEnum.GraphTitleEditor, 
-                                            graphElementInfo: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle')
+                                        currOpenTaskpane: { 
+                                            ...prevUIState.currOpenTaskpane, 
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle')
                                         },
                                     }
                                 })
@@ -101,6 +101,7 @@ export const AddChartElementButton = (
                             title='Edit Y Axis Title'
                             icon={<AxisTitlesIcon axis="vertical"/>}
                             canHaveCheckMark
+                            supressFocusSettingOnClose
                             onClick={() => {
                                 const graphElementObjects = getGraphElementObjects(props.graphOutput);
                                 if (graphElementObjects === undefined) {
@@ -110,9 +111,9 @@ export const AddChartElementButton = (
                                     return {
                                         ...prevUIState,
                                         currOpenDropdown: undefined,
-                                        currOpenModal: { 
-                                            type: ModalEnum.GraphTitleEditor, 
-                                            graphElementInfo: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle')
+                                        currOpenTaskpane: { 
+                                            ...prevUIState.currOpenTaskpane, 
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle')
                                         },
                                     }
                                 })
@@ -144,6 +145,7 @@ export const AddChartElementButton = (
                         <DropdownItem
                             title='Edit Title'
                             icon={<EditIcon/>}
+                            supressFocusSettingOnClose
                             canHaveCheckMark
                             onClick={() => {
                                 const graphElementObjects = getGraphElementObjects(props.graphOutput);
@@ -154,9 +156,9 @@ export const AddChartElementButton = (
                                     return {
                                         ...prevUIState,
                                         currOpenDropdown: undefined,
-                                        currOpenModal: { 
-                                            type: ModalEnum.GraphTitleEditor, 
-                                            graphElementInfo: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle')
+                                        currOpenTaskpane: { 
+                                            ...prevUIState.currOpenTaskpane, 
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle')
                                         },
                                     }
                                 })
