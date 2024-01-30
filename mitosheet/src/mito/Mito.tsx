@@ -515,6 +515,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
                 />
             )
+            case ModalEnum.GraphTitleEditor: return (
+                <></>
+            )
         }
     }
 
@@ -1018,6 +1021,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     }
                 }
                 handleKeyboardShortcuts(e, actions);
+            }}
+            onClick={(e) => {
+                if (uiState.currOpenModal.type === ModalEnum.GraphTitleEditor) {
+                    e.stopPropagation();
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenModal: {
+                                type: ModalEnum.None
+                            }
+                        }
+                    })
+                }
             }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>

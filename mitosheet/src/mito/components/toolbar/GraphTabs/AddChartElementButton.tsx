@@ -1,6 +1,6 @@
 import React from "react";
 import { AnalysisData, GraphParamsBackend, MitoAPI, SheetData } from "../../..";
-import { ActionEnum, ColumnID, RecursivePartial, UIState } from "../../../types";
+import { ActionEnum, ColumnID, GraphOutput, RecursivePartial, UIState } from "../../../types";
 import { Actions } from "../../../utils/actions";
 import ToolbarButton from "./../ToolbarButton";
 import Dropdown from "../../elements/Dropdown";
@@ -11,6 +11,8 @@ import EditIcon from "../../icons/EditIcon";
 import LegendIcon from "../../icons/GraphToolbar/LegendIcon";
 import GridlinesIcon from "../../icons/GraphToolbar/GridlinesIcon";
 import RangeSliderIcon from "../../icons/GraphToolbar/RangeSliderIcon";
+import { ModalEnum } from "../../modals/modals";
+import { getGraphElementObjects, getPopupPositionFromGraphElement } from "../../taskpanes/Graph/graphUtils";
 
 type AddChartElementSubMenus = 'axis-titles' | 'chart-title' | 'legend' | 'grid-lines' | 'range-slider';
 
@@ -24,6 +26,7 @@ export const AddChartElementButton = (
         sheetDataArray: SheetData[];
         selectedColumnsIds?: ColumnID[];
         mitoContainerRef: React.RefObject<HTMLDivElement>;
+        graphOutput: GraphOutput;
         params?: GraphParamsBackend;
         updateGraphParam: (update: RecursivePartial<GraphParamsBackend>) => void;
     }): JSX.Element => {
@@ -74,9 +77,52 @@ export const AddChartElementButton = (
                             }}
                         />
                         <DropdownItem
-                            title='Edit Axis Titles'
-                            icon={<AxisTitlesIcon/>}
+                            title='Edit X Axis Title'
+                            icon={<AxisTitlesIcon axis="horizontal"/>}
                             canHaveCheckMark
+                            onClick={() => {
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: undefined,
+                                        currOpenModal: { 
+                                            type: ModalEnum.GraphTitleEditor, 
+                                            graphElementInfo: {
+                                                element: 'xtitle',
+                                                popupPosition: getPopupPositionFromGraphElement(graphElementObjects.xtitle, 'xtitle')
+                                            }
+                                        },
+                                    }
+                                })
+                            }}
+                        />
+                        <DropdownItem
+                            title='Edit Y Axis Title'
+                            icon={<AxisTitlesIcon axis="vertical"/>}
+                            canHaveCheckMark
+                            onClick={() => {
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: undefined,
+                                        currOpenModal: { 
+                                            type: ModalEnum.GraphTitleEditor, 
+                                            graphElementInfo: {
+                                                element: 'ytitle',
+                                                popupPosition: getPopupPositionFromGraphElement(graphElementObjects.ytitle, 'ytitle')
+                                            }
+                                        },
+                                    }
+                                })
+                            }}
                         />
                     </Dropdown>
                 }
@@ -106,7 +152,23 @@ export const AddChartElementButton = (
                             icon={<EditIcon/>}
                             canHaveCheckMark
                             onClick={() => {
-                                return props.updateGraphParam({graph_styling: {title: {visible: !graphStylingParams?.title.visible}}});
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: undefined,
+                                        currOpenModal: { 
+                                            type: ModalEnum.GraphTitleEditor, 
+                                            graphElementInfo: {
+                                                element: 'gtitle',
+                                                popupPosition: getPopupPositionFromGraphElement(graphElementObjects.gtitle, 'gtitle')
+                                            }
+                                        },
+                                    }
+                                })
                             }}
                         />
                     </Dropdown>

@@ -1,6 +1,7 @@
 // Copyright (c) Mito
 
 import { MitoError } from "../../types";
+import { GraphElementType } from "../taskpanes/Graph/graphUtils";
 
 
 export enum ModalEnum {
@@ -14,6 +15,7 @@ export enum ModalEnum {
     Feedback = 'Feedback',
     DeleteGraphs = 'DeleteGraphs',
     ErrorReplayedAnalysis = 'ErrorReplayAnalysis',
+    GraphTitleEditor = 'GraphTitleEditor',
 }
 
 /* 
@@ -65,6 +67,12 @@ interface DeleteGraphsModalInfo {
     }[]
 }
 
+export interface GraphTitleEditorModalInfo {
+    type: ModalEnum.GraphTitleEditor;
+
+    graphElementInfo: GraphElementType;
+}
+
 export type ModalInfo = 
     | NoneModalInfo 
     | ErrorModalInfo
@@ -73,3 +81,4 @@ export type ModalInfo =
     | DeleteGraphsModalInfo
     | ErrorReplayedAnalysisInfo
     | StreamlitSignUpModalInfo
+    | GraphTitleEditorModalInfo

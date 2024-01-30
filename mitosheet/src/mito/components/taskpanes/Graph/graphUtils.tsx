@@ -501,7 +501,7 @@ export const openGraphSidebar = async (
     }
 }
 
-export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: React.Dispatch<React.SetStateAction<GraphElementType | null>>) => {
+export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     if (graphOutput === undefined) {
         return;
     }
@@ -509,15 +509,48 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
     if (div === null) {
         return;
     }
+    
+    // Main Title
+    return { 
+        div: div,
+        gtitle: div.getElementsByClassName('g-gtitle')[0],
+        xtitle: div.getElementsByClassName('g-xtitle')[0],
+        ytitle: div.getElementsByClassName('g-ytitle')[0]
+    }
+}
+
+export const getPopupPositionFromGraphElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle') => {
+    if (elementType === 'gtitle') {
+        return {
+            xPosition: graphElement.getBoundingClientRect().left,
+            yPosition: graphElement.getBoundingClientRect().top + 30
+        }
+    } else if (elementType === 'xtitle') {
+        const clientRect = graphElement.getBoundingClientRect()
+        return {
+            xPosition: (clientRect.left + clientRect.right) / 2 - 70,
+            yPosition: graphElement.getBoundingClientRect().top - 48
+        }
+    } else if (elementType === 'ytitle') {
+        return {
+            xPosition: graphElement.getBoundingClientRect().left - 10,
+            yPosition: graphElement.getBoundingClientRect().top - 40
+        }
+    }
+}
+
+export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void)) => {
+    const graphElementObjects = getGraphElementObjects(graphOutput);
+    if (graphElementObjects === undefined) {
+        return;
+    }
+    
+    const { div, gtitle, ytitle, xtitle } = graphElementObjects;
+
     div.on('plotly_click', () => {
         setSelectedGraphElement(null)
     });
-    
-    // Main Title
-    const gtitle = div.getElementsByClassName('g-gtitle')[0]
-    const xtitle = div.getElementsByClassName('g-xtitle')[0]
-    const ytitle = div.getElementsByClassName('g-ytitle')[0]
-                    
+
     // First, add the style to make it clickable with pointer-events: all
     gtitle.style.pointerEvents = 'all'
     xtitle.style.pointerEvents = 'all'
@@ -549,22 +582,15 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
         setSelectedGraphElement({
             element: 'gtitle',
             defaultValue: gtitle.children?.[0]?.innerHTML,
-            popupPosition: {
-                xPosition: gtitle.getBoundingClientRect().left,
-                yPosition: gtitle.getBoundingClientRect().top + 30
-            },
+            popupPosition: getPopupPositionFromGraphElement(gtitle, 'gtitle'),
         })
     });
 
     xtitle.addEventListener('dblclick', () => {
-        const clientRect = xtitle.getBoundingClientRect()
         setSelectedGraphElement({
             element: 'xtitle',
             defaultValue: xtitle.children?.[0]?.innerHTML,
-            popupPosition: {
-                xPosition: (clientRect.left + clientRect.right) / 2 - 70,
-                yPosition: xtitle.getBoundingClientRect().top - 48
-            }
+            popupPosition: getPopupPositionFromGraphElement(xtitle, 'xtitle')
         })
     });
 
@@ -572,10 +598,7 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
         setSelectedGraphElement({
             element: 'ytitle',
             defaultValue: ytitle.children?.[0]?.innerHTML,
-            popupPosition: {
-                xPosition: ytitle.getBoundingClientRect().left - 10,
-                yPosition: ytitle.getBoundingClientRect().top - 40
-            }
+            popupPosition: getPopupPositionFromGraphElement(ytitle, 'ytitle')
         })
     });
 }

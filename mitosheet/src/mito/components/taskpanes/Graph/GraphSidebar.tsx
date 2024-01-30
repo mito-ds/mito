@@ -16,6 +16,7 @@ import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendt
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
 import Input from '../../elements/Input';
+import { ModalEnum } from '../../modals/modals';
 
 const Popup = (props: {
     value: string;
@@ -160,7 +161,18 @@ const GraphSidebar = (props: {
         })
     }, [], props.mitoContainerRef, '#mito-center-content-container')
 
-    const [ selectedGraphElement, setSelectedGraphElement ] = React.useState<GraphElementType | null>(null);
+    const selectedGraphElement = props.uiState.currOpenModal?.type === ModalEnum.GraphTitleEditor ? props.uiState.currOpenModal.graphElementInfo : undefined;
+    const setSelectedGraphElement = (graphElement: GraphElementType | null) => {
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenModal: graphElement === null ? { type: ModalEnum.None } : {
+                    type: ModalEnum.GraphTitleEditor,
+                    graphElementInfo: graphElement,
+                }
+            }
+        });
+    };
 
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
@@ -192,7 +204,7 @@ const GraphSidebar = (props: {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} />
     } 
 
-    const selectedGraphElementClass = selectedGraphElement !== null ? `${selectedGraphElement.element}-highlighted` : undefined;
+    const selectedGraphElementClass = selectedGraphElement !== undefined ? `${selectedGraphElement.element}-highlighted` : undefined;
 
     return (
         <div
@@ -212,11 +224,6 @@ const GraphSidebar = (props: {
                 }
                 if ((e.key === 'Escape' || e.key === 'Enter') && (selectedGraphElement !== null)) {
                     setSelectedGraphElement(null);
-                }
-            }}
-            onClick={(e) => {
-                if (selectedGraphElement !== null && (e.target instanceof HTMLElement && !(e.target.className.includes('popup-input')))) {
-                    setSelectedGraphElement(null)
                 }
             }}
         >
