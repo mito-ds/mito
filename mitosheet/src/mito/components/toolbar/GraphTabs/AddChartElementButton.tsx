@@ -12,7 +12,7 @@ import LegendIcon from "../../icons/GraphToolbar/LegendIcon";
 import GridlinesIcon from "../../icons/GraphToolbar/GridlinesIcon";
 import RangeSliderIcon from "../../icons/GraphToolbar/RangeSliderIcon";
 import { ModalEnum } from "../../modals/modals";
-import { getGraphElementObjects, getPopupPositionFromGraphElement } from "../../taskpanes/Graph/graphUtils";
+import { getGraphElementObjects, getGraphElementInfoFromHTMLElement } from "../../taskpanes/Graph/graphUtils";
 
 type AddChartElementSubMenus = 'axis-titles' | 'chart-title' | 'legend' | 'grid-lines' | 'range-slider';
 
@@ -91,10 +91,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenModal: { 
                                             type: ModalEnum.GraphTitleEditor, 
-                                            graphElementInfo: {
-                                                element: 'xtitle',
-                                                popupPosition: getPopupPositionFromGraphElement(graphElementObjects.xtitle, 'xtitle')
-                                            }
+                                            graphElementInfo: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle')
                                         },
                                     }
                                 })
@@ -115,10 +112,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenModal: { 
                                             type: ModalEnum.GraphTitleEditor, 
-                                            graphElementInfo: {
-                                                element: 'ytitle',
-                                                popupPosition: getPopupPositionFromGraphElement(graphElementObjects.ytitle, 'ytitle')
-                                            }
+                                            graphElementInfo: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle')
                                         },
                                     }
                                 })
@@ -162,10 +156,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenModal: { 
                                             type: ModalEnum.GraphTitleEditor, 
-                                            graphElementInfo: {
-                                                element: 'gtitle',
-                                                popupPosition: getPopupPositionFromGraphElement(graphElementObjects.gtitle, 'gtitle')
-                                            }
+                                            graphElementInfo: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle')
                                         },
                                     }
                                 })

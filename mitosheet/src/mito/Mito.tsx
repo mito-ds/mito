@@ -1023,7 +1023,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 handleKeyboardShortcuts(e, actions);
             }}
             onClick={(e) => {
-                if (uiState.currOpenModal.type === ModalEnum.GraphTitleEditor) {
+                const eventTarget = e.target;
+                if (uiState.currOpenModal.type === ModalEnum.GraphTitleEditor &&
+                    !(eventTarget instanceof HTMLInputElement && eventTarget.className.includes('popup-input'))) {
                     e.stopPropagation();
                     setUIState(prevUIState => {
                         return {

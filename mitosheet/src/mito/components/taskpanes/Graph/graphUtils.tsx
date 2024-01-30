@@ -519,22 +519,34 @@ export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     }
 }
 
-export const getPopupPositionFromGraphElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle') => {
+export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle'): GraphElementType => {
     if (elementType === 'gtitle') {
         return {
-            xPosition: graphElement.getBoundingClientRect().left,
-            yPosition: graphElement.getBoundingClientRect().top + 30
+            element: 'gtitle',
+            popupPosition: {
+                xPosition: graphElement.getBoundingClientRect().left,
+                yPosition: graphElement.getBoundingClientRect().top + 30
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
         }
     } else if (elementType === 'xtitle') {
         const clientRect = graphElement.getBoundingClientRect()
         return {
-            xPosition: (clientRect.left + clientRect.right) / 2 - 70,
-            yPosition: graphElement.getBoundingClientRect().top - 48
+            element: 'xtitle',
+            popupPosition: {
+                xPosition: (clientRect.left + clientRect.right) / 2 - 70,
+                yPosition: graphElement.getBoundingClientRect().top - 48
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
         }
-    } else if (elementType === 'ytitle') {
+    } else {
         return {
-            xPosition: graphElement.getBoundingClientRect().left - 10,
-            yPosition: graphElement.getBoundingClientRect().top - 40
+            element: 'ytitle',
+            popupPosition: {
+                xPosition: graphElement.getBoundingClientRect().left - 10,
+                yPosition: graphElement.getBoundingClientRect().top - 40
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
         }
     }
 }
@@ -579,26 +591,14 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
      * Open popup when double clicked
      */
     gtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement({
-            element: 'gtitle',
-            defaultValue: gtitle.children?.[0]?.innerHTML,
-            popupPosition: getPopupPositionFromGraphElement(gtitle, 'gtitle'),
-        })
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle'))
     });
 
     xtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement({
-            element: 'xtitle',
-            defaultValue: xtitle.children?.[0]?.innerHTML,
-            popupPosition: getPopupPositionFromGraphElement(xtitle, 'xtitle')
-        })
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle'))
     });
 
     ytitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement({
-            element: 'ytitle',
-            defaultValue: ytitle.children?.[0]?.innerHTML,
-            popupPosition: getPopupPositionFromGraphElement(ytitle, 'ytitle')
-        })
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle'))
     });
 }
