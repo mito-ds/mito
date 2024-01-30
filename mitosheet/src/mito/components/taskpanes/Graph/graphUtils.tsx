@@ -512,7 +512,6 @@ export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     
     // Main Title
     return { 
-        div: div,
         gtitle: div.getElementsByClassName('g-gtitle')[0],
         xtitle: div.getElementsByClassName('g-xtitle')[0],
         ytitle: div.getElementsByClassName('g-ytitle')[0]
@@ -557,11 +556,7 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
         return;
     }
     
-    const { div, gtitle, ytitle, xtitle } = graphElementObjects;
-
-    div.on('plotly_click', () => {
-        setSelectedGraphElement(null)
-    });
+    const { gtitle, ytitle, xtitle } = graphElementObjects;
 
     // First, add the style to make it clickable with pointer-events: all
     gtitle.style.pointerEvents = 'all'
