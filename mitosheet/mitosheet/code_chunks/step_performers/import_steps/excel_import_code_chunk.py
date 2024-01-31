@@ -48,8 +48,9 @@ class ExcelImportCodeChunk(CodeChunk):
 
         df_definitions = []
         for index, sheet_name in enumerate(self.sheet_names):
+            sheet_name = get_column_header_as_transpiled_code(sheet_name)
             df_definitions.append(
-                f'{self.new_df_names[index]} = sheet_df_dictonary[\'{sheet_name}\']'
+                f'{self.new_df_names[index]} = sheet_df_dictonary[{sheet_name}]'
             )
 
         return [

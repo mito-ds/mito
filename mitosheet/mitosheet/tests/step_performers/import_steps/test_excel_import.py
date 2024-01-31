@@ -244,3 +244,24 @@ def test_only_creates_valid_python_variables():
 
     # Remove the test file
     os.remove(TEST_FILE)
+
+
+@pandas_post_1_only
+@python_post_3_6_only
+def test_can_import_a_single_excel_single_quote():
+    df = pd.DataFrame(data={'A': [1, 2, 3], 'B': [2, 3, 4]})
+    df.to_excel(TEST_FILE, index=False, sheet_name="Sheet '1")
+
+    # Create with no dataframes
+    mito = create_mito_wrapper()
+    # And then import just a test file
+    mito.excel_import(TEST_FILE, ["Sheet '1"], True, 0, DEFAULT_DECIMAL)
+
+    # Make sure a step has been created, and that the dataframe is the correct dataframe
+    assert mito.curr_step.step_type == 'excel_import'
+    assert len(mito.dfs) == 1
+    assert mito.dfs[0].equals(df)
+    assert mito.df_names == ["Sheet_1"]
+
+    # Remove the test file
+    os.remove(TEST_FILE)
