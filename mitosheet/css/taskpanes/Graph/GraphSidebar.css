@@ -110,7 +110,7 @@
     text-align: center;
 }
 
-.graph-element-popup-div.popup-div:before {
+.graph-element-popup-div-caret {
     content: "";
     display: block;
     height: 10px;
@@ -126,24 +126,23 @@
     -ms-transform: rotate(45deg);
     -o-transform: rotate(45deg);
     transform: rotate(45deg);
-    z-index: -1;
 }
 
-.graph-element-popup-div-caret-below-left.graph-element-popup-div.popup-div:before {
+.graph-element-popup-div-caret-below-left .graph-element-popup-div-caret {
     top: 100%;
     left: 12px;
 }
 
-.graph-element-popup-div-caret-below-centered.graph-element-popup-div.popup-div:before {
+.graph-element-popup-div-caret-below-centered .graph-element-popup-div-caret {
     top: 100%;
     left: 70px;
 }
 
-.graph-element-popup-div-caret-above.graph-element-popup-div.popup-div:before {
+.graph-element-popup-div-caret-above .graph-element-popup-div-caret {
     top: 0;
 }
 
-.graph-element-popup-div.popup-div {
+.graph-element-popup-div {
     padding: 3px;
     background: var(--mito-highlight);
     border-radius: 3px;

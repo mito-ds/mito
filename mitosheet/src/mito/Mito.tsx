@@ -1027,8 +1027,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState(prevUIState => {
                         return {
                             ...prevUIState,
-                            currOpenModal: {
-                                type: ModalEnum.None
+                            currOpenTaskpane: {
+                                ...prevUIState.currOpenTaskpane,
+                                currentGraphElement: undefined
                             }
                         }
                     })

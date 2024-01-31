@@ -17,12 +17,15 @@ import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
 import Input from '../../elements/Input';
 
-const Popup = (props: {
+export const Popup = (props: {
     value: string;
     position?: {
-        xPosition: number;
-        yPosition: number;
+        left?: number;
+        right?: number;
+        top?: number;
+        bottom?: number;
     };
+    containerRef?: React.RefObject<HTMLDivElement>;
     setValue: (value: string) => void;
     onClose: () => void;
     caretPosition?: 'above' | 'below-left' | 'below-centered';
@@ -56,16 +59,24 @@ const Popup = (props: {
 
     return (
         <div
-            className={`graph-element-popup-div popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : props.caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
+            className={`graph-element-popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : props.caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
             style={{
-                position: 'fixed',
-                left: props.position.xPosition,
-                top: props.position.yPosition,
+                position: 'absolute',
+                height: '32px',
+                left: props.position.left,
+                right: props.position.right,
+                top: props.position.top,
+                bottom: props.position.bottom,
             }}
         >
+            <div className='graph-element-popup-div-caret'/>
             <Input
                 className='popup-input'
                 value={temporaryValue}
+                style={{
+                    zIndex: 1,
+                    position: 'relative'
+                }}
                 onKeyDown={(e) => {
                     /**
                      * Normally, when the user has a graph element selected, pressing backspace
@@ -184,7 +195,7 @@ const GraphSidebar = (props: {
             }
             const executeScript = new Function(graphOutput.graphScript);
             executeScript()
-            registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement);
+            registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement, props.mitoContainerRef);
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
@@ -204,11 +215,13 @@ const GraphSidebar = (props: {
     } 
 
     const selectedGraphElementClass = selectedGraphElement !== undefined ? `${selectedGraphElement.element}-highlighted` : undefined;
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
     return (
         <div
             className={classNames('graph-sidebar-div', selectedGraphElementClass)}
             tabIndex={0}
+            ref={containerRef}
             onKeyDown={(e) => {
                 if (e.key === 'Backspace') {
                     const newGraphParams: RecursivePartial<GraphParamsFrontend> = {};
@@ -226,21 +239,6 @@ const GraphSidebar = (props: {
                 }
             }}
         >
-            <Popup
-                value={(selectedGraphElement?.element === 'gtitle' ? graphParams?.graphStyling.title.title : selectedGraphElement?.element === 'xtitle' ? graphParams?.graphStyling.xaxis.title : selectedGraphElement?.element === 'ytitle' ? graphParams?.graphStyling.yaxis.title : '') ?? selectedGraphElement?.defaultValue ?? ''}
-                setValue={(value) => {
-                    setGraphParams(updateObjectWithPartialObject(graphParams, {
-                        graphStyling: {
-                            title: selectedGraphElement?.element === 'gtitle' ? { title: value } : graphParams?.graphStyling.title,
-                            xaxis: selectedGraphElement?.element === 'xtitle' ? { title: value } : graphParams?.graphStyling.xaxis,
-                            yaxis: selectedGraphElement?.element === 'ytitle' ? { title: value } : graphParams?.graphStyling.yaxis,
-                        }
-                    }))
-                }}
-                caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
-                position={selectedGraphElement?.popupPosition}
-                onClose={() => setSelectedGraphElement(null)}
-            />
             <div 
                 className='graph-sidebar-graph-div' 
                 id='graph-div'
@@ -259,6 +257,22 @@ const GraphSidebar = (props: {
                 {graphOutput !== undefined &&
                     <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
                 }
+                <Popup
+                    value={(selectedGraphElement?.element === 'gtitle' ? graphParams?.graphStyling.title.title : selectedGraphElement?.element === 'xtitle' ? graphParams?.graphStyling.xaxis.title : selectedGraphElement?.element === 'ytitle' ? graphParams?.graphStyling.yaxis.title : '') ?? selectedGraphElement?.defaultValue ?? ''}
+                    setValue={(value) => {
+                        setGraphParams(updateObjectWithPartialObject(graphParams, {
+                            graphStyling: {
+                                title: selectedGraphElement?.element === 'gtitle' ? { title: value } : graphParams?.graphStyling.title,
+                                xaxis: selectedGraphElement?.element === 'xtitle' ? { title: value } : graphParams?.graphStyling.xaxis,
+                                yaxis: selectedGraphElement?.element === 'ytitle' ? { title: value } : graphParams?.graphStyling.yaxis,
+                            }
+                        }))
+                    }}
+                    caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
+                    position={selectedGraphElement?.popupPosition}
+                    onClose={() => setSelectedGraphElement(null)}
+                    containerRef={containerRef}
+                />
             </div>
             <div className='graph-sidebar-toolbar-container'>
                 <div className='graph-sidebar-toolbar-content-container'>
