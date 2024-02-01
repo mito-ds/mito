@@ -568,7 +568,7 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
     }
 }
 
-export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void), mitoContainerRef: React.RefObject<HTMLDivElement>) => {
+export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void)) => {
     const graphElementObjects = getGraphElementObjects(graphOutput);
     if (graphElementObjects === undefined) {
         return;

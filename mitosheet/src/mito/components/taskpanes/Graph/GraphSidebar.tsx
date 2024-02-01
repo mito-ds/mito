@@ -195,7 +195,7 @@ const GraphSidebar = (props: {
             }
             const executeScript = new Function(graphOutput.graphScript);
             executeScript()
-            registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement, props.mitoContainerRef);
+            registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement);
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
