@@ -114,7 +114,7 @@ const GraphSidebar = (props: {
     analysisData: AnalysisData,
     openGraph: OpenGraphType
 }): JSX.Element => {
-    
+
     const {params: graphParams, setParams: setGraphParams, startNewStep, loading } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
         () => getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.openGraph),
         StepType.Graph,
@@ -176,9 +176,9 @@ const GraphSidebar = (props: {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
-                currOpenTaskpane: graphElement === null ? { type: TaskpaneType.NONE } : {
+                currOpenTaskpane: {
                     ...prevUIState.currOpenTaskpane,
-                    currentGraphElement: graphElement,
+                    currentGraphElement: graphElement === null ? undefined : graphElement,
                 }
             }
         });
@@ -264,13 +264,28 @@ const GraphSidebar = (props: {
                 <Popup
                     value={(selectedGraphElement?.element === 'gtitle' ? graphParams?.graphStyling.title.title : selectedGraphElement?.element === 'xtitle' ? graphParams?.graphStyling.xaxis.title : selectedGraphElement?.element === 'ytitle' ? graphParams?.graphStyling.yaxis.title : '') ?? selectedGraphElement?.defaultValue ?? ''}
                     setValue={(value) => {
-                        setGraphParams(updateObjectWithPartialObject(graphParams, {
+                        const update = {
                             graphStyling: {
                                 title: selectedGraphElement?.element === 'gtitle' ? { title: value } : graphParams?.graphStyling.title,
                                 xaxis: selectedGraphElement?.element === 'xtitle' ? { title: value } : graphParams?.graphStyling.xaxis,
                                 yaxis: selectedGraphElement?.element === 'ytitle' ? { title: value } : graphParams?.graphStyling.yaxis,
                             }
-                        }))
+                        };
+                        const currOpenTaskpane = props.uiState.currOpenTaskpane;
+                        const stepSummaryList = props.analysisData.stepSummaryList;
+                        const currGraphStep = stepSummaryList[stepSummaryList.length - 1];
+                        const params = currGraphStep.params as GraphParamsBackend | undefined;
+                        if (currOpenTaskpane.type !== TaskpaneType.GRAPH || params === undefined) {
+                            return;
+                        }
+                        void props.mitoAPI.editGraph(
+                            currOpenTaskpane.openGraph.graphID,
+                            updateObjectWithPartialObject(graphParams, update),
+                            graphParams.graphRendering.height ?? '100%',
+                            graphParams.graphRendering.width ?? '100%',
+                            currGraphStep.step_id,
+                            true
+                        );
                     }}
                     caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
                     position={selectedGraphElement?.popupPosition}
