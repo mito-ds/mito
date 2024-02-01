@@ -514,6 +514,7 @@ export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     
     // Main Title
     return { 
+        div: div,
         gtitle: div.getElementsByClassName('g-gtitle')[0],
         xtitle: div.getElementsByClassName('g-xtitle')[0],
         ytitle: div.getElementsByClassName('g-ytitle')[0]

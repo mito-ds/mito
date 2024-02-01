@@ -12,7 +12,7 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSetupTab from './GraphSetupTab';
 import LoadingSpinner from './LoadingSpinner';
-import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
+import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphElementObjects, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
 import Input from '../../elements/Input';
@@ -195,7 +195,11 @@ const GraphSidebar = (props: {
             }
             const executeScript = new Function(graphOutput.graphScript);
             executeScript()
-            registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement);
+
+            const graphObjects = getGraphElementObjects(graphOutput);
+            graphObjects?.div.on('plotly_afterplot', () => {
+                registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement);
+            });
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
