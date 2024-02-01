@@ -83,6 +83,8 @@ interface DropdownProps {
      * If undefined, we'll use the default horizontal layout. 
      */
     layout?: 'horizontal' | 'vertical';
+
+    style?: React.CSSProperties;
 }
 
 // Where to place the dropdown
@@ -491,6 +493,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         bottom: boundingRect.bottom, 
                         right: boundingRect.right, 
                         left: boundingRect.left, 
+                        ...props.style
                     }}>
                     {props.searchable && 
                         <div className={classNames('mito-dropdown-search-input', DROPDOWN_IGNORE_CLICK_CLASS)}>

@@ -124,7 +124,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
             onMouseEnter={props.onMouseEnter}
         > 
             <div className={classNames('mito-dropdown-item-icon-and-title-container')}>
-                { props.hasCheckMark && <CheckmarkIcon color='var(--mito-text-medium)' width='26' height='13'/> }
+                { props.hasCheckMark && <CheckmarkIcon paddingRight={'4px'} color='var(--mito-text-medium)' width='26' height='13'/> }
                 { props.icon !== undefined &&
                 <div className={classNames('mito-dropdown-item-icon-container')}>
                     {props.icon}

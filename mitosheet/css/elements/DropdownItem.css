@@ -114,7 +114,7 @@
 }
 
 .mito-dropdown-item-vertical .mito-dropdown-item {
-    width: fit-content;
+    width: 85px;
     align-items: center;
     border: 1px solid var(--mito-text-light);
     margin: 10px;
@@ -122,8 +122,10 @@
 }
 
 .mito-dropdown-item-vertical .mito-dropdown-item-icon-container {
-    width: 50px;
+    width: 100%;
     height: 50px;
+    display: flex;
+    justify-content: center;
 }
 
 .mito-dropdown-item-vertical .mito-dropdown-item-title-and-shortcut-container {
@@ -135,3 +137,7 @@
     outline: 3px solid var(--mito-highlight-light);
 }
 
+.mito-dropdown-item-vertical p {
+    text-wrap: wrap;
+    width: min-content;
+}
