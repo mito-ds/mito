@@ -171,7 +171,7 @@ const GraphSidebar = (props: {
         })
     }, [], props.mitoContainerRef, '#mito-center-content-container')
 
-    const selectedGraphElement = props.uiState.currOpenTaskpane?.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.currentGraphElement : undefined;
+    const selectedGraphElement = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.currentGraphElement : undefined;
     const setSelectedGraphElement = (graphElement: GraphElementType | null) => {
         props.setUIState(prevUIState => {
             return {
