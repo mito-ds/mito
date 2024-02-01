@@ -77,6 +77,14 @@ interface DropdownProps {
     theme?: MitoTheme;
 
     position?: 'horizontal' | 'vertical';
+
+    /**
+     * Some dropdown items (see the "Change Chart Type" submenus) have a vertical layout.
+     * If undefined, we'll use the default horizontal layout. 
+     */
+    layout?: 'horizontal' | 'vertical';
+
+    style?: React.CSSProperties;
 }
 
 // Where to place the dropdown
@@ -430,7 +438,9 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const dropdownClassNames = classNames('mito-dropdown', `element-width-${width}`,{
         'mito-dropdown-compressed': React.Children.count(props.children) > 4,
         'mito-dropdown-search': props.searchable === true,
-        'mito-dropdown-streamlit': isInStreamlit()
+        'mito-dropdown-streamlit': isInStreamlit(), 
+        'mito-dropdown-item-vertical': props.layout === 'vertical',
+        'mito-dropdown-item-horizontal': props.layout === 'horizontal' || props.layout === undefined,
     })
 
     
@@ -483,6 +493,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         bottom: boundingRect.bottom, 
                         right: boundingRect.right, 
                         left: boundingRect.left, 
+                        ...props.style
                     }}>
                     {props.searchable && 
                         <div className={classNames('mito-dropdown-search-input', DROPDOWN_IGNORE_CLICK_CLASS)}>
