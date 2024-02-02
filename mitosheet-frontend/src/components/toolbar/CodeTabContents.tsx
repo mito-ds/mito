@@ -25,7 +25,9 @@ export const CodeTabContents = (
             iconOverride={<CopyCodeIcon success={clickedCopy}/>}
             action={props.actions.buildTimeActions[ActionEnum.CopyCode]}
         />
-        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.CODEOPTIONS]}/>
+        {props.userProfile.mitoConfig[MitoEnterpriseConfigKey.DISPLAY_CODE_OPTIONS] &&
+            <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.CODEOPTIONS]}/>
+        }
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}/>
         {props.userProfile.mitoConfig[MitoEnterpriseConfigKey.DISPLAY_SCHEDULING] && 
             <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Schedule_Github]}/>

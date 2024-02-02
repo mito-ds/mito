@@ -129,14 +129,15 @@ export const keyboardShortcuts: KeyboardShortcut[] = [
         },
         winKeyCombo: {
             ctrlKey: true,
+            shiftKey: true,
             keys: ['h']
         },
         action: ActionEnum.OpenFindAndReplace
     },
     {
         macKeyCombo: {
-            altKey: true,
-            keys: ['F1']
+            ctrlKey: true,
+            keys: ['G']
         },
         winKeyCombo: {
             altKey: true,
@@ -183,15 +184,15 @@ export const keyboardShortcuts: KeyboardShortcut[] = [
         action: ActionEnum.Merge
     },
     {
+        // TODO: The mac shortcut is not consistent with the Excel
         macKeyCombo: {
             shiftKey: true,
             ctrlKey: true,
             keys: ['L']
         },
         winKeyCombo: {
-            shiftKey: true,
-            ctrlKey: true,
-            keys: ['L']
+            altKey: true,
+            keys: ['F11']
         },
         preventDefaultAndStopPropagation: true,
         action: ActionEnum.Pivot

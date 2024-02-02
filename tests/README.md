@@ -1,13 +1,15 @@
 # Frontend Tests
 
-To setup, run
+To setup on Mac or Linux:
 ```
-bash dev-setup.sh
+bash mac-setup.sh
+source venv/bin/activate
 ```
 
-Then start the virtual enviornment by running:
+To setup on Windows:
 ```
-source venv/bin/activate
+windows-setup.bat
+venv\Scripts\activate.bat
 ```
 ## Running tests
 
@@ -17,12 +19,12 @@ The Streamlit tests contain most tests of basic functionality.
 
 Run
 ```
-streamlit run streamlit-test.py --server.port 8555
+streamlit run streamlit_test.py --server.port 8555
 ```
 
 And then run
 ```
-npm run test:streamlit
+npm run test:streamlit -- --project=chromium
 ```
 
 ### Dash Specific Tests
@@ -34,10 +36,15 @@ python dash-test.py
 
 Then, run the tests with
 ```
-npm run test:dash
+npm run test:dash -- --project=chromium
 ```
 
 ### Jupyter Specific Tests
+
+First, you need to run:
+```
+jupyter labextension develop . --overwrite
+```
 
 Run 
 ```
@@ -46,7 +53,7 @@ jupyter lab --config jupyter_server_test_config.py
 
 And then in a separate terminal run 
 ```
-npm run test:jupyterlab
+npm run test:jupyterlab -- --project=chromium
 ```
 
 Add a `--headed` flag to see the test run.

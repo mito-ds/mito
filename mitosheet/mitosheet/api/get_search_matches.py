@@ -20,8 +20,10 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
     # First, generate a count for each value in the dataframe:
     unique_value_counts = df.stack().value_counts()
 
+    escaped_search_value = re.escape(search_value)
+
     # Use the same regex for all searching
-    search_regex = re.compile(search_value, re.IGNORECASE)
+    search_regex = re.compile(escaped_search_value, re.IGNORECASE)
 
     # Then, filter for the search value:
     matches = unique_value_counts.filter(regex=search_regex, axis=0)
@@ -41,7 +43,7 @@ def get_search_matches(params: Dict[str, Any], steps_manager: StepsManagerType) 
     cell_matches = [{'rowIndex': i, 'colIndex': j} for i in range(min(1500, num_rows)) for j in range(num_cols) if (re.search(search_regex,str(df.iat[i, j])) is not None)]
 
     # Find the indices of columns containing the search value
-    column_matches = [{'rowIndex': -1, 'colIndex': j} for j, column in enumerate(df.columns) if (re.search(re.compile(search_value, re.IGNORECASE),str(column)) is not None)]
+    column_matches = [{'rowIndex': -1, 'colIndex': j} for j, column in enumerate(df.columns) if (re.search(search_regex,str(column)) is not None)]
     
     # We want the columns to come first
     all_matches = column_matches + cell_matches

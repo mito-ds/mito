@@ -6,6 +6,7 @@
 
 from ast import List
 import datetime
+import pprint
 from typing import Any, Callable, Dict, Optional, Union
 import os
 from mitosheet.enterprise.license_key import decode_license_to_date
@@ -25,6 +26,7 @@ MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_ENABLE_SNOWFL
 MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT = 'MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT'
 MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION = 'MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION'
 MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING = 'MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING'
+MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS = 'MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS'
 MITO_CONFIG_FEATURE_TELEMETRY = 'MITO_CONFIG_FEATURE_TELEMETRY'
 MITO_CONFIG_PRO = 'MITO_CONFIG_PRO'
 MITO_CONFIG_ENTERPRISE = 'MITO_CONFIG_ENTERPRISE'
@@ -33,6 +35,9 @@ MITO_CONFIG_LLM_URL = 'MITO_CONFIG_LLM_URL'
 MITO_CONFIG_ANALYTICS_URL = 'MITO_CONFIG_ANALYTICS_URL'
 MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH = 'MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH'
 MITO_CONFIG_CUSTOM_IMPORTERS_PATH = 'MITO_CONFIG_CUSTOM_IMPORTERS_PATH'
+MITO_CONFIG_LOG_SERVER_URL = 'MITO_CONFIG_LOG_SERVER_URL'
+MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL = 'MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL'
+
 
 # Note: The below keys can change since they are not set by the user.
 MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
@@ -40,6 +45,36 @@ MITO_CONFIG_CODE_SNIPPETS = 'MITO_CONFIG_CODE_SNIPPETS'
 # The default values to use if the mec does not define them
 DEFAULT_MITO_CONFIG_SUPPORT_EMAIL = 'founders@sagacollab.com'
 DEFAULT_MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL = 'founders@sagacollab.com'
+
+# Since Mito needs to look up individual environment variables, we need to 
+# know the names of the variables associated with each mito config version. 
+# To do so we store them as a list here. 
+MEC_VERSION_KEYS = {
+    '1': [MITO_CONFIG_VERSION, MITO_CONFIG_SUPPORT_EMAIL],
+    '2': [
+        MITO_CONFIG_VERSION, 
+        MITO_CONFIG_SUPPORT_EMAIL, 
+        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
+        MITO_CONFIG_CODE_SNIPPETS_VERSION,
+        MITO_CONFIG_CODE_SNIPPETS_URL, 
+        MITO_CONFIG_DISABLE_TOURS,
+        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
+        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
+        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
+        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
+        MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS,
+        MITO_CONFIG_LLM_URL,
+        MITO_CONFIG_ANALYTICS_URL,
+        MITO_CONFIG_LOG_SERVER_URL,
+        MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL,
+        MITO_CONFIG_FEATURE_TELEMETRY,
+        MITO_CONFIG_PRO,
+        MITO_CONFIG_ENTERPRISE,
+        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE,
+        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH,
+        MITO_CONFIG_CUSTOM_IMPORTERS_PATH,
+    ]
+}
 
 def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -62,26 +97,14 @@ def upgrade_mec_1_to_2(mec: Dict[str, Any]) -> Dict[str, Any]:
         
     }
     """
-    return {
-        MITO_CONFIG_VERSION: '2',
-        MITO_CONFIG_SUPPORT_EMAIL: mec[MITO_CONFIG_SUPPORT_EMAIL],
-        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL: None,
-        MITO_CONFIG_CODE_SNIPPETS_VERSION: None,
-        MITO_CONFIG_CODE_SNIPPETS_URL: None,
-        MITO_CONFIG_DISABLE_TOURS: None,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: None,
-        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: None,
-        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: None,
-        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: None,
-        MITO_CONFIG_LLM_URL: None,
-        MITO_CONFIG_ANALYTICS_URL: None,
-        MITO_CONFIG_FEATURE_TELEMETRY: None,
-        MITO_CONFIG_PRO: None,
-        MITO_CONFIG_ENTERPRISE: None,
-        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE: None,
-        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: None,
-        MITO_CONFIG_CUSTOM_IMPORTERS_PATH: None
-    }
+
+    # Find the new keys in version 2 that are not in version 1
+    new_keys = set(MEC_VERSION_KEYS['2']) - set(mec.keys())
+    for key in new_keys:
+        mec[key] = None
+
+    mec[MITO_CONFIG_VERSION] = '2'
+    return mec
 
 """
 When updating the MEC_VERSION, add a function here to update the previous mec to the new version. For example, 
@@ -112,33 +135,6 @@ def upgrade_mito_enterprise_configuration(mec: Optional[Dict[str, Any]]) -> Opti
 def is_env_variable_set_to_true(env_variable: Union[str, int, bool]) -> bool: 
     truth_values = ['True', 'true', True, 1, '1', 't', 'T']
     return env_variable in truth_values
-
-# Since Mito needs to look up individual environment variables, we need to 
-# know the names of the variables associated with each mito config version. 
-# To do so we store them as a list here. 
-MEC_VERSION_KEYS = {
-    '1': [MITO_CONFIG_VERSION, MITO_CONFIG_SUPPORT_EMAIL],
-    '2': [
-        MITO_CONFIG_VERSION, 
-        MITO_CONFIG_SUPPORT_EMAIL, 
-        MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL, 
-        MITO_CONFIG_CODE_SNIPPETS_VERSION,
-        MITO_CONFIG_CODE_SNIPPETS_URL, 
-        MITO_CONFIG_DISABLE_TOURS,
-        MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT,
-        MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT,
-        MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION,
-        MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING,
-        MITO_CONFIG_LLM_URL,
-        MITO_CONFIG_ANALYTICS_URL,
-        MITO_CONFIG_FEATURE_TELEMETRY,
-        MITO_CONFIG_PRO,
-        MITO_CONFIG_ENTERPRISE,
-        MITO_CONFIG_ENTERPRISE_TEMP_LICENSE,
-        MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH,
-        MITO_CONFIG_CUSTOM_IMPORTERS_PATH
-    ]
-}
 
 def create_mec_from_environment_variables() -> Optional[Dict[str, Any]]:
     """
@@ -192,31 +188,36 @@ class MitoConfig:
         if self.mec is not None:
             log('loaded_mito_enterprise_config')
 
-    def get_version(self) -> str:
+    @property
+    def version(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_VERSION] is None:
             return '2' # NOTE: update this to be the most recent version, when we bump the version
         return self.mec[MITO_CONFIG_VERSION]
-
-    def get_support_email(self) -> str:
+    
+    @property
+    def support_email(self) -> str:
         if self.mec is None or self.mec[MITO_CONFIG_SUPPORT_EMAIL] is None:
             return DEFAULT_MITO_CONFIG_SUPPORT_EMAIL
         return self.mec[MITO_CONFIG_SUPPORT_EMAIL]
 
-    def get_disable_tours(self) -> bool:
+    @property
+    def disable_tours(self) -> bool:
         if self.mec is None or self.mec[MITO_CONFIG_DISABLE_TOURS] is None:
             return False
 
         disable_tours = is_env_variable_set_to_true(self.mec[MITO_CONFIG_DISABLE_TOURS])
         return disable_tours
 
-    def get_enable_snowflake_import(self) -> bool:
+    @property
+    def enable_snowflake_import(self) -> bool:
         if self.mec is None or self.mec[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT] is None:
             return False
 
         enable_snowflake_import = is_env_variable_set_to_true(self.mec[MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT])
         return enable_snowflake_import
     
-    def get_display_ai_transform(self) -> bool:
+    @property
+    def display_ai_transform(self) -> bool:
         """
         We display AI transformation on the frontend if:
         1. The user is not on Mito Enterprise
@@ -240,7 +241,8 @@ class MitoConfig:
         
         return True
     
-    def get_display_snowflake_import(self) -> bool:
+    @property
+    def display_snowflake_import(self) -> bool:
         """
         We display the snowflake import on the frontend if MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT is not set to False.
 
@@ -255,8 +257,8 @@ class MitoConfig:
         
         return True
         
-
-    def get_display_scheduling(self) -> bool:
+    @property
+    def display_scheduling(self) -> bool:
         """
         We display the scheduling functionality on the frontend if MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING is not set to False.
 
@@ -267,6 +269,21 @@ class MitoConfig:
             raw_display_scheduling = self.mec[MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING]
             display_scheduling = is_env_variable_set_to_true(raw_display_scheduling)
             return display_scheduling if raw_display_scheduling is not None else True # default to True
+        
+        return True
+    
+    @property
+    def display_code_options(self) -> bool:
+        """
+        We display the code snippets functionality on the frontend if MITO_CONFIG_FEATURE_CODE_OPTIONS is not set to False.
+
+        Note: That this just determines if the feature is __visible__ in the frontend, not if its enabled/disabled.
+        """
+        
+        if self.mec is not None:
+            raw_display_code_options = self.mec[MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS]
+            display_scheduling = is_env_variable_set_to_true(raw_display_code_options)
+            return display_scheduling if raw_display_code_options is not None else True # default to True
         
         return True
 
@@ -285,7 +302,8 @@ class MitoConfig:
             return None
         return self.mec[MITO_CONFIG_CODE_SNIPPETS_SUPPORT_EMAIL]
 
-    def get_code_snippets(self) -> Optional[CodeSnippetEnvVars]:
+    @property
+    def code_snippets(self) -> Optional[CodeSnippetEnvVars]:
         code_snippets_version = self._get_code_snippets_version()
         code_snippets_url = self._get_code_snippets_url()
         code_snippets_support_email = self._get_code_snippets_support_email()
@@ -312,43 +330,62 @@ class MitoConfig:
         }
         return code_snippets
     
-    def get_llm_url(self) -> Optional[str]:
+    @property
+    def llm_url(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_LLM_URL] is None:
             return None
         return self.mec[MITO_CONFIG_LLM_URL]
     
-    def get_analytics_url(self) -> Optional[str]:
+    @property
+    def analytics_url(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_ANALYTICS_URL] is None:
             return None
         return self.mec[MITO_CONFIG_ANALYTICS_URL]
+    
+    @property
+    def log_server_url(self) -> Optional[str]:
+        if self.mec is None or self.mec[MITO_CONFIG_LOG_SERVER_URL] is None:
+            return None
+        return self.mec[MITO_CONFIG_LOG_SERVER_URL]
+    
+    @property
+    def log_server_batch_interval(self) -> Optional[int]:
+        if self.mec is None or self.mec[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] is None:
+            return None
+        return int(self.mec[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL])
 
-    def get_custom_sheet_functions_path(self) -> Optional[str]:
+    @property
+    def custom_sheet_functions_path(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH] is None:
             return None
         else:
             return self.mec[MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH]
 
-    def get_custom_importers_path(self) -> Optional[str]:
+    @property
+    def custom_importers_path(self) -> Optional[str]:
         if self.mec is None or self.mec[MITO_CONFIG_CUSTOM_IMPORTERS_PATH] is None:
             return None
         else:
             return self.mec[MITO_CONFIG_CUSTOM_IMPORTERS_PATH]
     
-    def get_feature_telemetry(self) -> bool:
+    @property
+    def feature_telemetry(self) -> bool:
         if self.mec is None or self.mec[MITO_CONFIG_FEATURE_TELEMETRY] is None:
             return True
 
         feature_telemetry = is_env_variable_set_to_true(self.mec[MITO_CONFIG_FEATURE_TELEMETRY])
         return feature_telemetry
     
-    def get_pro(self) -> bool:
+    @property
+    def pro(self) -> bool:
         if self.mec is None or self.mec[MITO_CONFIG_PRO] is None:
             return False
 
         pro = is_env_variable_set_to_true(self.mec[MITO_CONFIG_PRO])
         return pro
     
-    def get_enterprise(self) -> bool:
+    @property
+    def enterprise(self) -> bool:
         if self.mec is None or (
             self.mec[MITO_CONFIG_ENTERPRISE] is None
             and self.mec[MITO_CONFIG_ENTERPRISE_TEMP_LICENSE] is None
@@ -362,21 +399,26 @@ class MitoConfig:
 
     # Add new mito configuration options here ...
 
-    def get_mito_config(self) -> Dict[str, Any]:
+    @property
+    def mito_config_dict(self) -> Dict[str, Any]:
         return {
-            MITO_CONFIG_VERSION: self.get_version(),
-            MITO_CONFIG_SUPPORT_EMAIL: self.get_support_email(),
-            MITO_CONFIG_DISABLE_TOURS: self.get_disable_tours(),
-            MITO_CONFIG_CODE_SNIPPETS: self.get_code_snippets(),
-            MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: self.get_enable_snowflake_import(),
-            MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: self.get_display_snowflake_import(),
-            MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: self.get_display_ai_transform(),
-            MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: self.get_display_scheduling(),
-            MITO_CONFIG_LLM_URL: self.get_llm_url(),
-            MITO_CONFIG_ANALYTICS_URL: self.get_analytics_url(),
-            MITO_CONFIG_FEATURE_TELEMETRY: self.get_feature_telemetry(),
-            MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: self.get_custom_sheet_functions_path(),
-            MITO_CONFIG_CUSTOM_IMPORTERS_PATH: self.get_custom_importers_path(),
-            MITO_CONFIG_PRO: self.get_pro(),
+            MITO_CONFIG_VERSION: self.version,
+            MITO_CONFIG_SUPPORT_EMAIL: self.support_email,
+            MITO_CONFIG_DISABLE_TOURS: self.disable_tours,
+            MITO_CONFIG_CODE_SNIPPETS: self.code_snippets,
+            MITO_CONFIG_FEATURE_ENABLE_SNOWFLAKE_IMPORT: self.enable_snowflake_import,
+            MITO_CONFIG_FEATURE_DISPLAY_SNOWFLAKE_IMPORT: self.display_snowflake_import,
+            MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION: self.display_ai_transform,
+            MITO_CONFIG_FEATURE_DISPLAY_SCHEDULING: self.display_scheduling,
+            MITO_CONFIG_FEATURE_DISPLAY_CODE_OPTIONS: self.display_code_options,
+            MITO_CONFIG_LLM_URL: self.llm_url,
+            MITO_CONFIG_ANALYTICS_URL: self.analytics_url,
+            MITO_CONFIG_LOG_SERVER_URL: self.log_server_url,
+            MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL: self.log_server_batch_interval,
+            MITO_CONFIG_FEATURE_TELEMETRY: self.feature_telemetry,
+            MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH: self.custom_sheet_functions_path,
+            MITO_CONFIG_CUSTOM_IMPORTERS_PATH: self.custom_importers_path,
+            MITO_CONFIG_PRO: self.pro,
+            MITO_CONFIG_ENTERPRISE: self.enterprise
         }
 
