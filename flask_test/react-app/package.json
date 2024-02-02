@@ -1,0 +1,43 @@
+{
+  "name": "react-test",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.72",
+    "@types/react": "^17.0.1",
+    "@types/react-dom": "^17.0.1",
+    "esbuild": "^0.15.16",
+    "mitosheet-frontend": "../../mitosheet-frontend",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-scripts": "5.0.1",
+    "serve": "^14.2.1",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "build": "tsc && node esbuild.js",
+    "start": "npm run build && serve ."
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "esbuild-plugin-alias": "^0.2.1"
+  }
+}
