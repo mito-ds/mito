@@ -786,7 +786,7 @@ export const getActions = (
 
                 const currOpenTaskpane = uiState.currOpenTaskpane;
                 if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
-                    // We open the graph taskpane
+                    // Open the graph taskpane
                     setUIState(prevUIState => {
                         return {
                             ...prevUIState,
@@ -2091,30 +2091,6 @@ export const getActions = (
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['steps', 'history'],
             tooltip: "View a list of all the edits you've made to your data."
-        },
-        [ActionEnum.Open_Graph_Select_Data_Taskpane]: {
-            type: 'build-time',
-            staticType: ActionEnum.Open_Graph_Select_Data_Taskpane,
-            longTitle: 'Open graph select data taskpane',
-            titleToolbar: 'Select Data',
-            iconToolbar: SelectDataIcon,
-            actionFunction: () => {
-                setUIState(prevUIState => {
-                    if (prevUIState.currOpenTaskpane.type !== TaskpaneType.GRAPH) {
-                        return prevUIState;
-                    }
-                    return {
-                        ...prevUIState,
-                        currOpenTaskpane: {
-                            ...prevUIState.currOpenTaskpane,
-                            graphSidebarOpen: true
-                        },
-                    }
-                })
-            },
-            isDisabled: () => {return defaultActionDisabledMessage},
-            searchTerms: ['graph', 'select', 'data', 'taskpane', 'select data'],
-            tooltip: "Select the data to use for a new graph."
         },
         [ActionEnum.OpenFind]: {
             type: 'build-time',

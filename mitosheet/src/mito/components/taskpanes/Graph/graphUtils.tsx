@@ -99,7 +99,7 @@ export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIS
             selectedTabType: 'graph',
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarOpen: true,
+                graphSidebarOpen: false,
                 openGraph: {
                     type: 'existing_graph',
                     graphID: remainingGraphIDs[0],
@@ -451,7 +451,7 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarOpen: true,
+                graphSidebarOpen: false,
                 openGraph: {
                     type: 'existing_graph',
                     graphID: newOpenGraph.graphID,

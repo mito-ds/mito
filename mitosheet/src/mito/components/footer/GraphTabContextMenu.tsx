@@ -84,7 +84,7 @@ export default function GraphTabContextMenu(props: {
                 selectedTabType: 'graph',
                 currOpenTaskpane: {
                     type: TaskpaneType.GRAPH, 
-                    graphSidebarOpen: true,
+                    graphSidebarOpen: false,
                     openGraph: {
                         type: 'existing_graph',
                         graphID: props.graphID,

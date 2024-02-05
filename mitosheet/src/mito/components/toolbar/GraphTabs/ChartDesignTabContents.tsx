@@ -86,18 +86,18 @@ export const ChartDesignTabContents = (
     }
 
     return (<div className='mito-toolbar-bottom'>
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Graph_SelectData]}/>
+        <ChangeChartTypeButton
+            {...props}
+            params={params}
+            updateGraphParam={updateGraphParam}
+        />
         <AddChartElementButton 
             {...props}
             params={params}
             updateGraphParam={updateGraphParam}
             graphOutput={graphData?.graph_output}
         />
-        <ChangeChartTypeButton
-            {...props}
-            params={params}
-            updateGraphParam={updateGraphParam}
-        />
-        
         {params === undefined ? <p> Loading... </p> : <GraphTypeConfigurations
             {...props}
             graphParams={params}
@@ -149,7 +149,6 @@ export const ChartDesignTabContents = (
                 />
             </Dropdown>
         </ToolbarButton>
-        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Open_Graph_Select_Data_Taskpane]}/>
     </div>);
 }
 
