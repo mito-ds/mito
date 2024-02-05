@@ -574,7 +574,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <GraphSidebar 
                     setUIState={setUIState} 
                     uiState={uiState}
-                    graphSidebarTab={uiState.currOpenTaskpane.graphSidebarTab}
                     sheetDataArray={sheetDataArray}
                     mitoAPI={mitoAPI}
                     graphDataArray={analysisData.graphDataArray}
@@ -1125,6 +1124,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoContainerRef={mitoContainerRef}
                     setEditorState={setEditorState}
+                    actions={actions}
                 />
                 {getCurrentModalComponent()}
                 <BottomLeftPopup

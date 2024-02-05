@@ -4,7 +4,7 @@ import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import { AnalysisData, GraphDataArray, GraphParamsBackend, GraphParamsFrontend, GraphSidebarTab, OpenGraphType, RecursivePartial, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, GraphDataArray, GraphParamsBackend, GraphParamsFrontend, OpenGraphType, RecursivePartial, SheetData, StepType, UIState } from '../../../types';
 import XIcon from '../../icons/XIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
@@ -112,7 +112,6 @@ const GraphSidebar = (props: {
     mitoAPI: MitoAPI;
     graphDataArray: GraphDataArray
     mitoContainerRef: React.RefObject<HTMLDivElement>,
-    graphSidebarTab: GraphSidebarTab,
     analysisData: AnalysisData,
     openGraph: OpenGraphType
 }): JSX.Element => {
@@ -145,6 +144,11 @@ const GraphSidebar = (props: {
     const graphData = props.graphDataArray.find(graphData => graphData.graph_id === props.openGraph.graphID)
     const graphOutput = graphData?.graph_output;
 
+    const currOpenTaskpane = props.uiState.currOpenTaskpane;
+    if (currOpenTaskpane.type !== TaskpaneType.GRAPH) {
+        return <></>
+    }
+
     /*
          If the openGraph changes, which happens when opening a graph:
          1. reset the stepID so we don't overwrite the previous edits.
@@ -171,7 +175,7 @@ const GraphSidebar = (props: {
                 graphRendering: getGraphRenderingParams(props.mitoContainerRef)
             }
         })
-    }, [], props.mitoContainerRef, '#mito-center-content-container')
+    }, [currOpenTaskpane.graphSidebarOpen], props.mitoContainerRef, '#mito-center-content-container')
 
     const selectedGraphElement = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.currentGraphElement : undefined;
     const setSelectedGraphElement = (graphElement: GraphElementType | null) => {
@@ -295,14 +299,12 @@ const GraphSidebar = (props: {
                     containerRef={containerRef}
                 />
             </div>
-            <div className='graph-sidebar-toolbar-container'>
+            {currOpenTaskpane.graphSidebarOpen && <div className='graph-sidebar-toolbar-container'>
                 <div className='graph-sidebar-toolbar-content-container'>
                     <Row justify='space-between' align='center'>
                         <Col>
                             <p className='text-header-2'>
-                                {props.graphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
-                                {props.graphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
-                                {props.graphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
+                                Select Data
                             </p>
                         </Col>
                         <Col>
@@ -311,30 +313,30 @@ const GraphSidebar = (props: {
                                     props.setUIState((prevUIState) => {
                                         return {
                                             ...prevUIState,
-                                            selectedTabType: 'data',
-                                            currOpenTaskpane: { type: TaskpaneType.NONE }
+                                            currOpenTaskpane: {
+                                                ...prevUIState.currOpenTaskpane,
+                                                graphSidebarOpen: false,
+                                            }
                                         }
                                     })
                                 }}
                             />
                         </Col>
                     </Row>
-                    {props.graphSidebarTab === GraphSidebarTab.Setup && 
-                        <GraphSetupTab 
-                            graphParams={graphParams}
-                            setGraphParams={setGraphParams}
-                            uiState={props.uiState}
-                            mitoAPI={props.mitoAPI}
-                            graphID={props.openGraph.graphID}
-                            sheetDataArray={props.sheetDataArray}
-                            columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
-                            setUIState={props.setUIState}
-                            mitoContainerRef={props.mitoContainerRef}
-                            openGraph={props.openGraph}
-                        />
-                    }
+                    <GraphSetupTab 
+                        graphParams={graphParams}
+                        setGraphParams={setGraphParams}
+                        uiState={props.uiState}
+                        mitoAPI={props.mitoAPI}
+                        graphID={props.openGraph.graphID}
+                        sheetDataArray={props.sheetDataArray}
+                        columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
+                        setUIState={props.setUIState}
+                        mitoContainerRef={props.mitoContainerRef}
+                        openGraph={props.openGraph}
+                    />
                 </div>
-            </div>
+            </div>}
             {loading &&
                 <div className='popup-div'>
                     <LoadingSpinner />

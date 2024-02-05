@@ -113,7 +113,18 @@ export const ChartDesignTabContents = (
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.ExportGraphDropdown]}>
             <Dropdown
                 display={props.uiState.currOpenDropdown === 'export-graph'}
-                closeDropdown={() => props.setUIState({ ...props.uiState, currOpenDropdown: undefined })}
+                closeDropdown={() => {
+                    props.setUIState(prevUIState => {
+                        if (prevUIState.currOpenDropdown !== 'export-graph') {
+                            return prevUIState;
+                        }
+
+                        return {
+                            ...prevUIState,
+                            currOpenDropdown: undefined
+                        }
+                    })
+                }}
             >
                 <DropdownItem
                     title="Copy code that displays graph"
@@ -138,6 +149,7 @@ export const ChartDesignTabContents = (
                 />
             </Dropdown>
         </ToolbarButton>
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Open_Graph_Select_Data_Taskpane]}/>
     </div>);
 }
 

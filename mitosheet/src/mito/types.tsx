@@ -1070,6 +1070,7 @@ export enum ActionEnum {
     Melt = 'melt',
     One_Hot_Encoding = 'one_hot_encoding',
     Open_Next_Sheet = 'open next sheet',
+    Open_Graph_Select_Data_Taskpane = 'open graph select data taskpane',
     Open_Previous_Sheet = 'open previous sheet',
     Set_Dataframe_Format = 'set_dataframe_format',
     Conditional_Formatting = 'ConditionalFormatting',
@@ -1146,13 +1147,6 @@ export interface BaseAction<Type, StaticType> {
 export type BuildTimeAction = BaseAction<'build-time', ActionEnum>
 export type RunTimeAction = BaseAction<'run-time', string>
 export type Action = BuildTimeAction | RunTimeAction;
-
-
-export enum GraphSidebarTab {
-    Setup = 'setup',
-    Style = 'style',
-    Export = 'export'
-}
 
 export type OpenGraphType = {
     type: 'existing_graph'

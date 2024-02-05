@@ -1,7 +1,7 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
 import { MitoAPI, getRandomId } from "../../../api/api"
-import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphOutput, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, GraphSidebarTab, SheetData, UIState } from "../../../types"
+import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphOutput, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, SheetData, UIState } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
@@ -99,7 +99,7 @@ export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIS
             selectedTabType: 'graph',
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: true,
                 openGraph: {
                     type: 'existing_graph',
                     graphID: remainingGraphIDs[0],
@@ -304,7 +304,9 @@ export const getGraphRenderingParams = (mitoContainerRef: React.RefObject<HTMLDi
         ?.querySelector('.graph-sidebar-toolbar-container')
         ?.getBoundingClientRect();
 
-    if (centerContentContainerBoundingRect === undefined || graphSidebarToolbarContainerBoundingRect === undefined) {
+    const graphSidebarToolbarContainerWidth = graphSidebarToolbarContainerBoundingRect?.width ?? 0;
+
+    if (centerContentContainerBoundingRect === undefined) {
         return {
             height: undefined,
             width: undefined
@@ -312,7 +314,7 @@ export const getGraphRenderingParams = (mitoContainerRef: React.RefObject<HTMLDi
     }
 
     const newHeight = `${centerContentContainerBoundingRect?.height - 10}px`; // Subtract pixels from the height & width to account for padding
-    const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerBoundingRect.width}px`;
+    const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerWidth}px`;
 
     return {
         height: newHeight,
@@ -449,7 +451,7 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: true,
                 openGraph: {
                     type: 'existing_graph',
                     graphID: newOpenGraph.graphID,
@@ -467,7 +469,7 @@ export const openGraphSidebar = async (
             currentToolbarTab: 'Chart Design',
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: true,
                 openGraph: {
                     type: 'new_graph',
                     graphID: newGraphID,
@@ -491,7 +493,7 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: true,
                 openGraph: {
                     type: 'new_duplicate_graph',
                     graphID: newGraphID,
