@@ -2,12 +2,13 @@
 
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
-import { EditorState, GraphDataArray, GraphID, GraphSidebarTab, SheetData, UIState } from '../../types';
+import { ActionEnum, EditorState, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
-import { TaskpaneType } from '../taskpanes/taskpanes';
 import { deleteGraphs, getParamsForExistingGraph, openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { Actions } from '../../utils/actions';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
 /*
@@ -26,6 +27,7 @@ export default function GraphTabContextMenu(props: {
     display: boolean;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
     sheetDataArray: SheetData[];
+    actions: Actions;
 }): JSX.Element {
 
     // Log opening the graph sheet tab actions
@@ -70,7 +72,7 @@ export default function GraphTabContextMenu(props: {
         props.setIsRename(true);
     }
 
-    const openExportGraphTaskpaneTab = async (): Promise<void> => {
+    const openExportGraphTaskpaneDropdown = async (): Promise<void> => {
         const existingParams = await getParamsForExistingGraph(props.mitoAPI, props.graphID);
 
         if (existingParams === undefined) {
@@ -79,9 +81,10 @@ export default function GraphTabContextMenu(props: {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
+                selectedTabType: 'graph',
                 currOpenTaskpane: {
                     type: TaskpaneType.GRAPH, 
-                    graphSidebarTab: GraphSidebarTab.Export,
+                    graphSidebarOpen: false,
                     openGraph: {
                         type: 'existing_graph',
                         graphID: props.graphID,
@@ -90,6 +93,8 @@ export default function GraphTabContextMenu(props: {
                 },
             }
         })
+
+        props.actions.buildTimeActions[ActionEnum.ExportGraphDropdown].actionFunction()
     }
     
     return (
@@ -115,7 +120,7 @@ export default function GraphTabContextMenu(props: {
                     // Stop propogation so that the onClick of the sheet tab div
                     // doesn't compete setting the currOpenTaskpane
                     e?.stopPropagation()
-                    void openExportGraphTaskpaneTab()
+                    void openExportGraphTaskpaneDropdown()
                 }}
             />
             <DropdownSectionSeperator isDropdownSectionSeperator={true} />

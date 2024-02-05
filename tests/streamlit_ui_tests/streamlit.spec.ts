@@ -252,7 +252,7 @@ test.describe('Home Tab Buttons', () => {
     
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
 
-    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
     await mito.getByTitle('Select columns to graph on the X axis.').getByText('+ Add').click();
     await mito.locator('.mito-dropdown-item').first().click();
     await expect(mito.locator('.plotly-graph-div').first()).toBeVisible();
@@ -390,7 +390,7 @@ test.describe('Insert Tab Buttons', () => {
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph', exact: true });
 
-    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
     // We test graph functionality elsewhere, so we skip here
   });
 
@@ -399,7 +399,7 @@ test.describe('Insert Tab Buttons', () => {
     await clickTab(page, mito, 'Insert');
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' });
-    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Change Chart Type' });
     // Check that there are 2 icons under the "checked" div in the chart type dropdown
@@ -411,7 +411,7 @@ test.describe('Insert Tab Buttons', () => {
     await clickTab(page, mito, 'Insert');
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive line graph.' });
-    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Change Chart Type' });
     // Check that there are 2 icons under the "checked" div in the chart type dropdown
@@ -727,7 +727,7 @@ test.describe('Keyboard Shortcuts', () => {
     const mito = await getMitoFrameWithTestCSV(page);
     await page.keyboard.press('Alt+F1');
     await awaitResponse(page);
-    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
   })
 
   test('Open File Import', async ({ page }) => {

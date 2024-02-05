@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 
 import { SendFunctionError } from "../../api/send";
-import { BackendPivotParams, ColumnID, GraphSidebarTab, MergeParams, OpenGraphType } from "../../types";
+import { BackendPivotParams, ColumnID, MergeParams, OpenGraphType } from "../../types";
 import { GraphElementType } from "./Graph/graphUtils";
 import { MergeType } from "./Merge/MergeTaskpane";
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
@@ -69,7 +69,7 @@ export type TaskpaneInfo =
     | {type: TaskpaneType.DROP_DUPLICATES}
     | {
         type: TaskpaneType.GRAPH,
-        graphSidebarTab: GraphSidebarTab,
+        graphSidebarOpen: boolean,
         openGraph: OpenGraphType,
         currentGraphElement?: GraphElementType,
     }    

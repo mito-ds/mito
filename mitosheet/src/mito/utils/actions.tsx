@@ -79,7 +79,7 @@ import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GraphSidebarTab, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
@@ -786,17 +786,13 @@ export const getActions = (
 
                 const currOpenTaskpane = uiState.currOpenTaskpane;
                 if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
-                    const openGraph = currOpenTaskpane.openGraph;
-                    // We open the graph taskpane
+                    // Open the graph taskpane
                     setUIState(prevUIState => {
                         return {
                             ...prevUIState,
                             currOpenTaskpane: {
                                 ...currOpenTaskpane,
-                                openGraph: {
-                                    ...openGraph,
-                                    selectedTab: GraphSidebarTab.Setup
-                                }
+                                graphSidebarOpen: true,
                             }
                         }
                     });

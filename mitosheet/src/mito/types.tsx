@@ -1147,13 +1147,6 @@ export type BuildTimeAction = BaseAction<'build-time', ActionEnum>
 export type RunTimeAction = BaseAction<'run-time', string>
 export type Action = BuildTimeAction | RunTimeAction;
 
-
-export enum GraphSidebarTab {
-    Setup = 'setup',
-    Style = 'style',
-    Export = 'export'
-}
-
 export type OpenGraphType = {
     type: 'existing_graph'
     graphID: GraphID,
