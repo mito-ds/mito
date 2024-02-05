@@ -90,6 +90,7 @@ export const ChartDesignTabContents = (
             {...props}
             params={params}
             updateGraphParam={updateGraphParam}
+            graphOutput={graphData?.graph_output}
         />
         <ChangeChartTypeButton
             {...props}

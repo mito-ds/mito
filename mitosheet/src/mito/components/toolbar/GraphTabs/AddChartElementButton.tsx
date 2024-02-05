@@ -1,6 +1,6 @@
 import React from "react";
 import { AnalysisData, GraphParamsBackend, MitoAPI, SheetData } from "../../..";
-import { ActionEnum, ColumnID, RecursivePartial, UIState } from "../../../types";
+import { ActionEnum, ColumnID, GraphOutput, RecursivePartial, UIState } from "../../../types";
 import { Actions } from "../../../utils/actions";
 import ToolbarButton from "./../ToolbarButton";
 import Dropdown from "../../elements/Dropdown";
@@ -11,6 +11,7 @@ import EditIcon from "../../icons/EditIcon";
 import LegendIcon from "../../icons/GraphToolbar/LegendIcon";
 import GridlinesIcon from "../../icons/GraphToolbar/GridlinesIcon";
 import RangeSliderIcon from "../../icons/GraphToolbar/RangeSliderIcon";
+import { getGraphElementObjects, getGraphElementInfoFromHTMLElement } from "../../taskpanes/Graph/graphUtils";
 
 type AddChartElementSubMenus = 'axis-titles' | 'chart-title' | 'legend' | 'grid-lines' | 'range-slider';
 
@@ -24,6 +25,7 @@ export const AddChartElementButton = (
         sheetDataArray: SheetData[];
         selectedColumnsIds?: ColumnID[];
         mitoContainerRef: React.RefObject<HTMLDivElement>;
+        graphOutput: GraphOutput;
         params?: GraphParamsBackend;
         updateGraphParam: (update: RecursivePartial<GraphParamsBackend>) => void;
     }): JSX.Element => {
@@ -74,9 +76,48 @@ export const AddChartElementButton = (
                             }}
                         />
                         <DropdownItem
-                            title='Edit Axis Titles'
-                            icon={<AxisTitlesIcon/>}
+                            title='Edit X Axis Title'
+                            icon={<AxisTitlesIcon axis="horizontal"/>}
                             canHaveCheckMark
+                            supressFocusSettingOnClose
+                            onClick={() => {
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: undefined,
+                                        currOpenTaskpane: { 
+                                            ...prevUIState.currOpenTaskpane, 
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle', props.graphOutput)
+                                        },
+                                    }
+                                })
+                            }}
+                        />
+                        <DropdownItem
+                            title='Edit Y Axis Title'
+                            icon={<AxisTitlesIcon axis="vertical"/>}
+                            canHaveCheckMark
+                            supressFocusSettingOnClose
+                            onClick={() => {
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: undefined,
+                                        currOpenTaskpane: { 
+                                            ...prevUIState.currOpenTaskpane, 
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle', props.graphOutput)
+                                        },
+                                    }
+                                })
+                            }}
                         />
                     </Dropdown>
                 }
@@ -104,9 +145,23 @@ export const AddChartElementButton = (
                         <DropdownItem
                             title='Edit Title'
                             icon={<EditIcon/>}
+                            supressFocusSettingOnClose
                             canHaveCheckMark
                             onClick={() => {
-                                return props.updateGraphParam({graph_styling: {title: {visible: !graphStylingParams?.title.visible}}});
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: undefined,
+                                        currOpenTaskpane: { 
+                                            ...prevUIState.currOpenTaskpane, 
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle', props.graphOutput)
+                                        },
+                                    }
+                                })
                             }}
                         />
                     </Dropdown>

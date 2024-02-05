@@ -50,7 +50,7 @@ export const GraphTypeConfigurations = (
                         subtext='only display sample points outside the whiskers'
                     />
                     <DropdownItem
-                        title={'supsected outliers'}
+                        title={'suspected outliers'}
                         id={'suspectedoutliers'}
                         subtext='display outlier and suspected outlier points'
                     />

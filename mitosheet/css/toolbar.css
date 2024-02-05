@@ -300,6 +300,11 @@
   align-items: center;
 }
 
+.vertical-align-content .mito-toolbar-button p {
+  width: auto;
+  max-width: 60px;
+}
+
 
 /* Tab Bar Style */
 .mito-toolbar-tabbar-tabname {

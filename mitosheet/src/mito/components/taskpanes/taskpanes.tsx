@@ -2,6 +2,7 @@
 
 import { SendFunctionError } from "../../api/send";
 import { BackendPivotParams, ColumnID, GraphSidebarTab, MergeParams, OpenGraphType } from "../../types";
+import { GraphElementType } from "./Graph/graphUtils";
 import { MergeType } from "./Merge/MergeTaskpane";
 import { FailedReplayData } from "./UpdateImports/UpdateImportsTaskpane";
 
@@ -69,7 +70,8 @@ export type TaskpaneInfo =
     | {
         type: TaskpaneType.GRAPH,
         graphSidebarTab: GraphSidebarTab,
-        openGraph: OpenGraphType
+        openGraph: OpenGraphType,
+        currentGraphElement?: GraphElementType,
     }    
     | {type: TaskpaneType.IMPORT_FILES}
     | {type: TaskpaneType.MERGE, defaultMergeType?: MergeType, existingParams?: MergeParams}

@@ -52,6 +52,25 @@
     box-sizing: border-box;
 }
 
+.gtitle-highlighted .g-gtitle {
+    outline: 1px solid var(--mito-text-light);
+}
+
+.xtitle-highlighted .g-xtitle {
+    outline: 1px solid var(--mito-text-light);
+}
+
+.ytitle-highlighted .g-ytitle {
+    outline: 1px solid var(--mito-text-light);
+}
+
+.g-gtitle:hover,
+.g-xtitle:hover,
+.g-ytitle:hover {
+    cursor: pointer;
+    outline: 1px solid var(--mito-text-light)
+}
+
 .graph-sidebar-toolbar-content-container {
     display: flex;
     flex-direction: column;
@@ -60,7 +79,6 @@
         Make sure that content doesn't get cutoff by the graph tabs.
         Must be the same height as the height of the tabs defined .control-panel-taskpane-tab
     */
-    height: calc(100% - 30px);
     width: 300px;
     
     padding-top: 5px;
@@ -70,7 +88,6 @@
 }
 
 .graph-sidebar-toolbar-content {
-    height: 90%;
     padding-right: 10px; /* Extra padding on the right to make room for the scrollbar */
     overflow-y: scroll;
 
@@ -91,6 +108,44 @@
     left: 39%; /* This puts the loading indicator in the middle of the graph sidebar */
 
     text-align: center;
+}
+
+.graph-element-popup-div-caret {
+    content: "";
+    display: block;
+    height: 10px;
+    width: 10px;
+    right: 50%;
+    margin-left: 0;
+    margin-top: -5px;
+    background: var(--mito-highlight);
+    position: absolute;
+    top: 0;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.graph-element-popup-div-caret-below-left .graph-element-popup-div-caret {
+    top: 100%;
+    left: 12px;
+}
+
+.graph-element-popup-div-caret-below-centered .graph-element-popup-div-caret {
+    top: 100%;
+    left: 70px;
+}
+
+.graph-element-popup-div-caret-above .graph-element-popup-div-caret {
+    top: 0;
+}
+
+.graph-element-popup-div {
+    padding: 3px;
+    background: var(--mito-highlight);
+    border-radius: 3px;
 }
 
 .popup-text-div {

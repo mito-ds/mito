@@ -2,7 +2,6 @@
 
 import { MitoError } from "../../types";
 
-
 export enum ModalEnum {
     None = 'None',
     Error = 'Error',
@@ -14,6 +13,7 @@ export enum ModalEnum {
     Feedback = 'Feedback',
     DeleteGraphs = 'DeleteGraphs',
     ErrorReplayedAnalysis = 'ErrorReplayAnalysis',
+    GraphTitleEditor = 'GraphTitleEditor',
 }
 
 /* 
