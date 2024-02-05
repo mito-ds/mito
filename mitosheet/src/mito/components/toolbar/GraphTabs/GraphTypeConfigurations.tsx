@@ -3,7 +3,8 @@ import { GraphParamsBackend, RecursivePartial } from "../../../types"
 import DropdownItem from "../../elements/DropdownItem"
 import Input from "../../elements/Input"
 import Select from "../../elements/Select"
-import { GRAPHS_THAT_HAVE_NBINS, GRAPHS_THAT_HAVE_POINTS, GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS } from "./ChangeChartTypeButton"
+import { GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_NBINS, GRAPHS_THAT_HAVE_POINTS, GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS } from "./ChangeChartTypeButton"
+import LabelAndTooltip from "../../elements/LabelAndTooltip"
 
 export const GraphTypeConfigurations = (
     props: {
@@ -28,6 +29,42 @@ export const GraphTypeConfigurations = (
                     }}
                     width='small'
                 />
+            </div>);
+        }
+        if (GRAPHS_THAT_HAVE_HISTFUNC.includes(props.graphParams.graph_creation?.graph_type)) { 
+            configurationInputs.push(<div className="mito-graph-configuration-option">
+                <LabelAndTooltip tooltip='The metric displayed for each bin of data' textBody>
+                        Aggregation Type
+                </LabelAndTooltip>
+                <Select
+                    value={props.graphParams.graph_creation?.histfunc || 'count'}
+                    onChange={(newHistfunc: string) => {
+                        props.updateGraphParam({graph_creation: {histfunc: newHistfunc}})
+                    }}
+                    width='medium'
+                    dropdownWidth='medium'
+                >
+                    <DropdownItem
+                        title={'count'}
+                        subtext='number of values in each bin'
+                    />
+                    <DropdownItem
+                        title={'sum'}
+                        subtext='sum of values in each bin'
+                    />
+                    <DropdownItem
+                        title={'avg'}
+                        subtext='average value in each bin'
+                    />
+                    <DropdownItem
+                        title={'min'}
+                        subtext='min value in each bin'
+                    />
+                    <DropdownItem
+                        title={'max'}
+                        subtext='max value in each bin'
+                    />
+                </Select>
             </div>);
         }
         if (GRAPHS_THAT_HAVE_POINTS.includes(props.graphParams.graph_creation?.graph_type)) { 
