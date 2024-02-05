@@ -16,6 +16,7 @@ import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendt
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
 import Input from '../../elements/Input';
+import { getInputWidth } from '../../elements/Input';
 
 export const Popup = (props: {
     value: string;
@@ -75,7 +76,8 @@ export const Popup = (props: {
                 value={temporaryValue}
                 style={{
                     zIndex: 1,
-                    position: 'relative'
+                    position: 'relative',
+                    width: getInputWidth(temporaryValue, 150),
                 }}
                 onKeyDown={(e) => {
                     /**

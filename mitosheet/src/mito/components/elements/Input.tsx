@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import '../../../../css/elements/Input.css'
 import { classNames } from '../../utils/classNames';
 import { Width } from './sizes.d';
+import { getTextWidth } from '../../utils/text';
 
 interface InputProps {
     /** 
@@ -115,6 +116,19 @@ interface InputProps {
      * @param [style] - Optional style to apply to this input
      */
     style?: React.CSSProperties
+}
+
+/**
+ * This function is used to determine the width of the input based on the length of the value in the input.
+ * It is used by other components because the default input width depends on the component. 
+ */
+const MAX_INPUT_WIDTH = 500;
+
+export const getInputWidth = (value: string, defaultInputWidth: number): number => {
+
+    const textWidth = getTextWidth(value, '11px system-ui') + 10 // Add 10 just for a nice little end padding
+
+    return Math.min(Math.max(defaultInputWidth, textWidth), MAX_INPUT_WIDTH);
 }
 
 /**

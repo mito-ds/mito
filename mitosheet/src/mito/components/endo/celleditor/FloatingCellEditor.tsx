@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { MitoAPI } from '../../../api/api'
 import { AnalysisData, EditorState, GridState, SheetData, UIState } from '../../../types';
 import { isPrimitiveColumnHeader } from '../../../utils/columnHeaders';
-import CellEditor from './CellEditor';
+import CellEditor, { CELL_EDITOR_DEFAULT_WIDTH } from './CellEditor';
 import { calculateCurrentSheetView, getCellInColumn, getCellInRow } from '../sheetViewUtils';
 import { getCellDataFromCellIndexes } from '../utils';
 import '../../../../../css/endo/CellEditor.css';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
-import { getCellEditorWidth, getFullFormula } from './cellEditorUtils';
+import { getFullFormula } from './cellEditorUtils';
+import { getInputWidth } from '../../elements/Input';
 
 // Style that we apply to the cell editor in order to place it
 interface EditorStyle {top?: number, left?: number, bottom?: number, right?: number, display?: string}
@@ -46,7 +47,7 @@ const FloatingCellEditor = (props: {
     const {columnID, columnHeader} = getCellDataFromCellIndexes(sheetData, props.editorState.rowIndex, props.editorState.columnIndex);
 
     const fullFormula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex);
-    const cellEditorWidth = getCellEditorWidth(fullFormula, props.editorState.editorLocation)
+    const cellEditorWidth = props.editorState.editorLocation === 'cell' ? getInputWidth(fullFormula, CELL_EDITOR_DEFAULT_WIDTH) : CELL_EDITOR_DEFAULT_WIDTH;
 
     // Ensures that the cell editor is in the right location, when initially placed.
     // We don't move it, as it doesn't really make things better, as GSheets does not
