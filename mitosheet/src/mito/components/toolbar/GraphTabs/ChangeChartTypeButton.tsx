@@ -93,7 +93,7 @@ export const ChangeChartTypeButton = (
                 ...newParams,
                 graph_creation: {
                     graph_type: newGraphType,
-                    color: GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(newGraphType) ? undefined : props.params?.graph_creation.color,
+                    color: GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(newGraphType) ? undefined : props.params?.graph_creation?.color,
                     points: GRAPHS_THAT_HAVE_POINTS.includes(newGraphType) ? 'outliers' : undefined,
                     line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(newGraphType) ? 'linear' : undefined,
                     nbins: undefined,

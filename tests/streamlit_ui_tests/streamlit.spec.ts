@@ -287,6 +287,48 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(2)).toHaveText('Column2');
   })
 
+  test('Change Chart type to Linear', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Change Chart Type' }).click();
+    await mito.getByText('Line').hover();
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Linear' })
+
+    expect(mito.getByText('Column1 line')).toBeVisible();
+
+  });
+
+  test('Change Chart type to Horizontal Line Graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Change Chart Type' }).click();
+    await mito.getByText('Line').hover();
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Horizontal' })
+
+    expect(mito.getByText('Column1 line')).toBeVisible();
+    // Make sure that the snapshot of the graph is the same
+    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('horizontal-line-graph.png');
+  });
+
+  test.only('Change Chart type to scatter', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Change Chart Type' }).click();
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Scatter' })
+
+    await expect(mito.getByText('Column1 scatter plot')).toBeVisible();
+    expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('scatter-plot.png');
+  });
+
   test('Scatter plot from selection', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     

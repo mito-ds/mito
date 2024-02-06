@@ -339,11 +339,11 @@ export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphPa
             ...graphParamsFrontend.graphStyling,
             xaxis: {
                 ...graphParamsFrontend.graphStyling.xaxis,
-                gridwidth: convertStringToFloatOrUndefined(graphStylingParams.xaxis.gridwidth)
+                gridwidth: convertStringToFloatOrUndefined(graphStylingParams?.xaxis?.gridwidth)
             },
             yaxis: {
                 ...graphParamsFrontend.graphStyling.yaxis,
-                gridwidth: convertStringToFloatOrUndefined(graphStylingParams.yaxis.gridwidth)
+                gridwidth: convertStringToFloatOrUndefined(graphStylingParams?.yaxis?.gridwidth)
             },
             legend: {
                 ...graphParamsFrontend.graphStyling.legend,
@@ -373,16 +373,16 @@ export const convertBackendtoFrontendGraphParams = (graphParamsBackend: GraphPar
             ...graphStylingParams,
             xaxis: {
                 ...graphStylingParams.xaxis,
-                gridwidth: convertToStringOrUndefined(graphStylingParams.xaxis.gridwidth)
+                gridwidth: convertToStringOrUndefined(graphStylingParams.xaxis?.gridwidth)
             },
             yaxis: {
                 ...graphStylingParams.yaxis,
-                gridwidth: convertToStringOrUndefined(graphStylingParams.yaxis.gridwidth)
+                gridwidth: convertToStringOrUndefined(graphStylingParams.yaxis?.gridwidth)
             },
             legend: {
                 ...graphStylingParams.legend,
-                x: convertToStringOrUndefined(graphStylingParams.legend.x),
-                y: convertToStringOrUndefined(graphStylingParams.legend.y)
+                x: convertToStringOrUndefined(graphStylingParams.legend?.x),
+                y: convertToStringOrUndefined(graphStylingParams.legend?.y)
             }
         },
         graphPreprocessing: graphParamsBackend.graph_preprocessing,

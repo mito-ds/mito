@@ -50,8 +50,8 @@ export const ChartDesignTabContents = (
         void props.mitoAPI.editGraph(
             openGraph.graphID,
             convertBackendtoFrontendGraphParams(updateObjectWithPartialObject(params, update)),
-            params.graph_rendering.height ?? '100%',
-            params.graph_rendering.width ?? '100%',
+            params.graph_rendering?.height ?? '100%',
+            params.graph_rendering?.width ?? '100%',
             currGraphStep.step_id,
             true
         );
