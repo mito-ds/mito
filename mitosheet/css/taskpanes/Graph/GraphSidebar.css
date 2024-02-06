@@ -52,23 +52,14 @@
     box-sizing: border-box;
 }
 
-.gtitle-highlighted .g-gtitle {
-    outline: 1px solid var(--mito-text-light);
-}
-
-.xtitle-highlighted .g-xtitle {
-    outline: 1px solid var(--mito-text-light);
-}
-
-.ytitle-highlighted .g-ytitle {
-    outline: 1px solid var(--mito-text-light);
-}
-
+.gtitle-highlighted .g-gtitle,
+.xtitle-highlighted .g-xtitle,
+.ytitle-highlighted .g-ytitle,
 .g-gtitle:hover,
 .g-xtitle:hover,
 .g-ytitle:hover {
     cursor: pointer;
-    outline: 1px solid var(--mito-text-light)
+    outline: 1px solid var(--mito-medium-gray)
 }
 
 .graph-sidebar-toolbar-content-container {
