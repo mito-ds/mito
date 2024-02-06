@@ -15,6 +15,7 @@ import GraphIcon from '../icons/GraphIcon';
 import SheetTabContextMenu from './SheetTabContextMenu';
 import GraphTabContextMenu from './GraphTabContextMenu';
 import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { Actions } from '../../utils/actions';
 
 type SheetTabProps = {
     tabName: string;
@@ -30,6 +31,7 @@ type SheetTabProps = {
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
     display: boolean;
     setDisplayContextMenu: (display: boolean) => void;
+    actions: Actions;
 };
 
 /*
@@ -188,6 +190,7 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                     mitoAPI={props.mitoAPI}
                     graphDataArray={props.graphDataArray}
                     display={props.display}
+                    actions={props.actions}
                 />
             }
         </div>

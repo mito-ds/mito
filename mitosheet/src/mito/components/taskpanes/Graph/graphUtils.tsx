@@ -1,7 +1,7 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
 import { MitoAPI, getRandomId } from "../../../api/api"
-import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, GraphSidebarTab, SheetData, UIState } from "../../../types"
+import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphOutput, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, SheetData, UIState } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
 import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
@@ -18,6 +18,20 @@ import { OpenGraphType } from "../../../types"
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
 const DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
 const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
+
+export interface GraphElementType {
+    element: 'gtitle' | 'xtitle' | 'ytitle',
+
+    /** This is the value to default to if there is no value defined in the graph params */
+    defaultValue?: string,
+    
+    popupPosition?: {
+        left?: number,
+        right?: number,
+        top?: number,
+        bottom?: number,
+    }
+}
 
 /**
  * Returns the default axis column ids for a given graph type and selected column ids.
@@ -85,7 +99,7 @@ export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIS
             selectedTabType: 'graph',
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: false,
                 openGraph: {
                     type: 'existing_graph',
                     graphID: remainingGraphIDs[0],
@@ -290,7 +304,9 @@ export const getGraphRenderingParams = (mitoContainerRef: React.RefObject<HTMLDi
         ?.querySelector('.graph-sidebar-toolbar-container')
         ?.getBoundingClientRect();
 
-    if (centerContentContainerBoundingRect === undefined || graphSidebarToolbarContainerBoundingRect === undefined) {
+    const graphSidebarToolbarContainerWidth = graphSidebarToolbarContainerBoundingRect?.width ?? 0;
+
+    if (centerContentContainerBoundingRect === undefined) {
         return {
             height: undefined,
             width: undefined
@@ -298,7 +314,7 @@ export const getGraphRenderingParams = (mitoContainerRef: React.RefObject<HTMLDi
     }
 
     const newHeight = `${centerContentContainerBoundingRect?.height - 10}px`; // Subtract pixels from the height & width to account for padding
-    const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerBoundingRect.width}px`;
+    const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerWidth}px`;
 
     return {
         height: newHeight,
@@ -435,7 +451,7 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: false,
                 openGraph: {
                     type: 'existing_graph',
                     graphID: newOpenGraph.graphID,
@@ -453,7 +469,7 @@ export const openGraphSidebar = async (
             currentToolbarTab: 'Chart Design',
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: true,
                 openGraph: {
                     type: 'new_graph',
                     graphID: newGraphID,
@@ -477,7 +493,7 @@ export const openGraphSidebar = async (
             currOpenModal: {type: ModalEnum.None},
             currOpenTaskpane: {
                 type: TaskpaneType.GRAPH,
-                graphSidebarTab: GraphSidebarTab.Setup,
+                graphSidebarOpen: true,
                 openGraph: {
                     type: 'new_duplicate_graph',
                     graphID: newGraphID,
@@ -487,4 +503,118 @@ export const openGraphSidebar = async (
             }
         })
     }
+}
+
+export const getGraphElementObjects = (graphOutput: GraphOutput) => {
+    if (graphOutput === undefined) {
+        return;
+    }
+    const div: any = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])
+    if (div === null) {
+        return;
+    }
+    
+    // Main Title
+    return { 
+        div: div,
+        gtitle: div.getElementsByClassName('g-gtitle')[0],
+        xtitle: div.getElementsByClassName('g-xtitle')[0],
+        ytitle: div.getElementsByClassName('g-ytitle')[0]
+    }
+}
+
+export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput): GraphElementType => {
+    const clientRect = graphElement.getBoundingClientRect()
+
+    if (graphOutput === undefined) {
+        return {
+            element: elementType,
+            popupPosition: {
+                left: 0,
+                top: 0
+            },
+            defaultValue: ''
+        }
+    }
+    const parentDiv = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0]);
+    const parentDivClientRect = parentDiv?.getBoundingClientRect();
+    const parentDivLeft = parentDivClientRect?.left ?? 0;
+    const parentDivTop = parentDivClientRect?.top ?? 0;
+    const parentDivBottom = parentDivClientRect?.bottom ?? 0;
+    if (elementType === 'gtitle') {
+        return {
+            element: 'gtitle',
+            popupPosition: {
+                left: clientRect.left - parentDivLeft,
+                top: clientRect.bottom - parentDivTop + 10
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
+        }
+    } else if (elementType === 'xtitle') {
+        return {
+            element: 'xtitle',
+            popupPosition: {
+                left: (clientRect.left + clientRect.right) / 2 - parentDivLeft - 70,
+                bottom: (parentDivBottom - clientRect.top) + 10
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
+        }
+    } else {
+        return {
+            element: 'ytitle',
+            popupPosition: {
+                left: clientRect.left - parentDivLeft,
+                bottom: parentDivBottom - clientRect.top + 10
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
+        }
+    }
+}
+
+export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void)) => {
+    const graphElementObjects = getGraphElementObjects(graphOutput);
+    if (graphElementObjects === undefined) {
+        return;
+    }
+    
+    const { gtitle, ytitle, xtitle } = graphElementObjects;
+
+    // First, add the style to make it clickable with pointer-events: all
+    gtitle.style.pointerEvents = 'all'
+    xtitle.style.pointerEvents = 'all'
+    ytitle.style.pointerEvents = 'all'
+
+    /**
+     * Set selected graph element when clicked
+     */
+    gtitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'gtitle',
+        })
+    })
+    xtitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'xtitle',
+        });
+    })
+    ytitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'ytitle',
+        })
+    })
+
+    /**
+     * Open popup when double clicked
+     */
+    gtitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput))
+    });
+
+    xtitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput))
+    });
+
+    ytitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput))
+    });
 }

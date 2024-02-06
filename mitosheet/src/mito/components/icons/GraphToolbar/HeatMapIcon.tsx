@@ -2,9 +2,9 @@
 
 import React from 'react';
 
-const HeatMapIcon = (): JSX.Element => {
+const HeatMapIcon = (props: { width?: string }): JSX.Element => {
     return (
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width={props.width ?? "10"} height={props.width ?? "10"} viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="5" height="5" fill="#F2C94C"/>
             <rect x="5" y="5" width="5" height="5" fill="#EB5757"/>
             <rect y="5" width="5" height="5" fill="#F2994A"/>

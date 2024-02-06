@@ -10,6 +10,7 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
 import { EditorState, GraphDataArray, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
+import { Actions } from '../../utils/actions';
 
 type FooterProps = {
     sheetDataArray: SheetData[];
@@ -21,7 +22,8 @@ type FooterProps = {
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    actions: Actions;
 };
 
 /*
@@ -78,6 +80,7 @@ function Footer(props: FooterProps): JSX.Element {
                         <SheetTab
                             key={idx}
                             tabName={dfName}
+                            actions={props.actions}
                             tabIDObj={{tabType: 'data', sheetIndex: idx}}
                             isSelectedTab={selectedTabType === 'data' && idx === selectedSheetIndex}
                             uiState={props.uiState}
@@ -114,6 +117,7 @@ function Footer(props: FooterProps): JSX.Element {
                             graphDataArray={props.graphDataArray}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
+                            actions={props.actions}
                             display={typeof props.uiState.currOpenDropdown === 'object' && props.uiState.currOpenDropdown.type === 'footer-context-menu' && props.uiState.currOpenDropdown.graphID === graphData.graph_id}
                             setDisplayContextMenu={(display: boolean) => {
                                 props.setUIState(prevUIState => {

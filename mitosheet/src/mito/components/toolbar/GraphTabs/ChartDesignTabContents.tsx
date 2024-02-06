@@ -86,17 +86,18 @@ export const ChartDesignTabContents = (
     }
 
     return (<div className='mito-toolbar-bottom'>
-        <AddChartElementButton 
-            {...props}
-            params={params}
-            updateGraphParam={updateGraphParam}
-        />
+        <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Graph_SelectData]}/>
         <ChangeChartTypeButton
             {...props}
             params={params}
             updateGraphParam={updateGraphParam}
         />
-        
+        <AddChartElementButton 
+            {...props}
+            params={params}
+            updateGraphParam={updateGraphParam}
+            graphOutput={graphData?.graph_output}
+        />
         {params === undefined ? <p> Loading... </p> : <GraphTypeConfigurations
             {...props}
             graphParams={params}
@@ -112,7 +113,18 @@ export const ChartDesignTabContents = (
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.ExportGraphDropdown]}>
             <Dropdown
                 display={props.uiState.currOpenDropdown === 'export-graph'}
-                closeDropdown={() => props.setUIState({ ...props.uiState, currOpenDropdown: undefined })}
+                closeDropdown={() => {
+                    props.setUIState(prevUIState => {
+                        if (prevUIState.currOpenDropdown !== 'export-graph') {
+                            return prevUIState;
+                        }
+
+                        return {
+                            ...prevUIState,
+                            currOpenDropdown: undefined
+                        }
+                    })
+                }}
             >
                 <DropdownItem
                     title="Copy code that displays graph"

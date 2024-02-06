@@ -2,9 +2,9 @@ import React from "react"
 import { GraphParamsBackend, RecursivePartial } from "../../../types"
 import DropdownItem from "../../elements/DropdownItem"
 import Input from "../../elements/Input"
-import LabelAndTooltip from "../../elements/LabelAndTooltip"
 import Select from "../../elements/Select"
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_BARNORM, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_HISTNORM, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_NBINS, GRAPHS_THAT_HAVE_POINTS, GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS } from "./ChangeChartTypeButton"
+import { GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_NBINS, GRAPHS_THAT_HAVE_POINTS, GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS } from "./ChangeChartTypeButton"
+import LabelAndTooltip from "../../elements/LabelAndTooltip"
 
 export const GraphTypeConfigurations = (
     props: {
@@ -24,121 +24,24 @@ export const GraphTypeConfigurations = (
                     placeholder='5'
                     onChange={(e) => {
                         const newNumberBins = e.target.value === '' ? undefined : e.target.value
+                        if (newNumberBins === undefined || +newNumberBins < 0) return;
                         props.updateGraphParam({graph_creation: {nbins: +(newNumberBins ?? '')}})
                     }}
                     width='small'
                 />
             </div>);
         }
-        if (GRAPHS_THAT_HAVE_BARMODE.includes(props.graphParams.graph_creation?.graph_type)) {
-            configurationInputs.push(<div className="mito-graph-configuration-option">
-                <LabelAndTooltip tooltip='How bars are grouped together when there are multiple' textBody>
-                        Bar mode
-                </LabelAndTooltip>
-                <Select
-                    value={props.graphParams.graph_styling.barmode || 'group'}
-                    onChange={(newBarMode: string) => {
-                        props.updateGraphParam({graph_styling: {barmode: newBarMode}})
-                    }}
-                    width='small'
-                    dropdownWidth='medium'
-                >
-                    <DropdownItem
-                        title={'stack'}
-                    />
-                    <DropdownItem
-                        title={'group'}
-                    />
-                    <DropdownItem
-                        title={'overlay'}
-                    />
-                    <DropdownItem
-                        title={'relative'}
-                    />
-                </Select>
-            </div>);
-        }
-        if (GRAPHS_THAT_HAVE_BARNORM.includes(props.graphParams.graph_creation?.graph_type)) { 
-            configurationInputs.push(<div className="mito-graph-configuration-option">
-                <LabelAndTooltip tooltip="Normalize strategy used for each group of bars at a specific location on the graph's domain" textBody>
-                        Bar normalization
-                </LabelAndTooltip>
-                <Select
-                    value={props.graphParams.graph_styling.barnorm || 'none'}
-                    onChange={(newBarNorm: string) => {
-                        if (newBarNorm === 'none') {
-                            props.updateGraphParam({graph_styling: {barnorm: undefined}});
-                            return;
-                        }
-                        props.updateGraphParam({graph_styling: {barnorm: newBarNorm}})
-                    }}
-                    width='small'
-                    dropdownWidth='medium'
-                >
-                    <DropdownItem
-                        title={'none'}
-                    />
-                    <DropdownItem
-                        title={'fraction'}
-                        subtext='value of each bar divided by the sum of all values at that location'
-                    />
-                    <DropdownItem
-                        title={'percent'}
-                        subtext='fraction multiplied by 100'
-                    />
-                </Select>
-            </div>);
-        }
-        if (GRAPHS_THAT_HAVE_HISTNORM.includes(props.graphParams.graph_creation?.graph_type)) { 
-            configurationInputs.push(<div className="mito-graph-configuration-option">
-                <LabelAndTooltip tooltip='Normalization strategy used for each graphed series in the histogram' textBody>
-                        Hist normalization
-                </LabelAndTooltip>
-                <Select
-                    value={props.graphParams.graph_creation?.histnorm || 'none'}
-                    onChange={(newHistnorm: string) => {
-                        if (newHistnorm === 'none') {
-                            props.updateGraphParam({graph_creation: {histnorm: undefined}});
-                            return;
-                        }
-                        props.updateGraphParam({graph_creation: {histnorm: newHistnorm}})
-                    }}
-                    width='small'
-                    dropdownWidth='medium'
-                >
-                    <DropdownItem
-                        title={'none'}
-                    />
-                    <DropdownItem
-                        title={'probability'}
-                        subtext='occurrences in bin divided by total number of sample points'
-                    />
-                    <DropdownItem
-                        title={'percent'}
-                        subtext='probabilty multiplied by 100'
-                    />
-                    <DropdownItem
-                        title={'density'}
-                        subtext='occurences in bin divided by bin interval'
-                    />
-                    <DropdownItem
-                        title={'probability density'}
-                        subtext='probability that a point falls into bin'
-                    />
-                </Select>
-            </div>);
-        }
         if (GRAPHS_THAT_HAVE_HISTFUNC.includes(props.graphParams.graph_creation?.graph_type)) { 
             configurationInputs.push(<div className="mito-graph-configuration-option">
                 <LabelAndTooltip tooltip='The metric displayed for each bin of data' textBody>
-                        Hist Function
+                        Aggregation Type
                 </LabelAndTooltip>
                 <Select
                     value={props.graphParams.graph_creation?.histfunc || 'count'}
                     onChange={(newHistfunc: string) => {
                         props.updateGraphParam({graph_creation: {histfunc: newHistfunc}})
                     }}
-                    width='small'
+                    width='medium'
                     dropdownWidth='medium'
                 >
                     <DropdownItem
@@ -176,7 +79,7 @@ export const GraphTypeConfigurations = (
                         props.updateGraphParam({graph_creation: {points: newPointsParams}})
 
                     }}
-                    width='small'
+                    width='medium'
                     dropdownWidth='medium'
                 >
                     <DropdownItem
@@ -184,7 +87,7 @@ export const GraphTypeConfigurations = (
                         subtext='only display sample points outside the whiskers'
                     />
                     <DropdownItem
-                        title={'supsected outliers'}
+                        title={'suspected outliers'}
                         id={'suspectedoutliers'}
                         subtext='display outlier and suspected outlier points'
                     />
@@ -196,46 +99,6 @@ export const GraphTypeConfigurations = (
                         title={'none'}
                         id='false'
                         subtext='display no individual sample points'
-                    />
-                </Select>
-            </div>);
-        }
-        if (GRAPHS_THAT_HAVE_LINE_SHAPE.includes(props.graphParams.graph_creation?.graph_type)) { 
-            configurationInputs.push(<div className="mito-graph-configuration-option">
-                <p>
-                        Line shape
-                </p>
-                <Select
-                    value={props.graphParams.graph_creation?.line_shape || 'linear'}
-                    onChange={(newLineShape) => {
-                        props.updateGraphParam({graph_creation: {line_shape: newLineShape}})
-                    }}
-                    width='small'
-                    dropdownWidth='medium'
-                >
-                    <DropdownItem 
-                        title={'linear'} 
-                        subtext='straight line between points'
-                    />
-                    <DropdownItem 
-                        title={'spline'} 
-                        subtext='spline interpolation between points'
-                    />
-                    <DropdownItem 
-                        title={'hv'} 
-                        subtext='horizontal vertical' 
-                    />
-                    <DropdownItem 
-                        title={'vh'} 
-                        subtext='veritical horizontal'
-                    />
-                    <DropdownItem
-                        title={'hvh'}
-                        subtext='horizontal vertical horizontal'
-                    />
-                    <DropdownItem 
-                        title={'vhv'} 
-                        subtext='vertical horizontal vertical'
                     />
                 </Select>
             </div>);

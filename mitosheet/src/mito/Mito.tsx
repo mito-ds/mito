@@ -577,7 +577,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <GraphSidebar 
                     setUIState={setUIState} 
                     uiState={uiState}
-                    graphSidebarTab={uiState.currOpenTaskpane.graphSidebarTab}
                     sheetDataArray={sheetDataArray}
                     mitoAPI={mitoAPI}
                     graphDataArray={analysisData.graphDataArray}
@@ -1029,6 +1028,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 }
                 handleKeyboardShortcuts(e, actions);
             }}
+            onClick={(e) => {
+                const eventTarget = e.target;
+                if (uiState.currOpenTaskpane.type === TaskpaneType.GRAPH &&
+                    uiState.currOpenTaskpane.currentGraphElement?.popupPosition !== undefined &&
+                    !(eventTarget instanceof HTMLInputElement && eventTarget.className.includes('popup-input'))) {
+                    e.stopPropagation();
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                ...prevUIState.currOpenTaskpane,
+                                currentGraphElement: undefined
+                            }
+                        }
+                    })
+                }
+            }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 
@@ -1118,6 +1134,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoContainerRef={mitoContainerRef}
                     setEditorState={setEditorState}
+                    actions={actions}
                 />
                 {getCurrentModalComponent()}
                 <BottomLeftPopup
