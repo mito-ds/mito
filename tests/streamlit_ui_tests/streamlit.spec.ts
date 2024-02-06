@@ -316,6 +316,22 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('horizontal-line-graph.png');
   });
 
+  test('Change Chart type to vertical grouped bar Graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Change Chart Type' }).click();
+    await mito.getByRole('button', { name: 'Bar' }).hover();
+    await mito.getByRole('button', { name: 'Grouped' }).first().click();
+    await awaitResponse(page);
+
+    expect(mito.getByText('Column1 bar')).toBeVisible();
+    // Make sure that the snapshot of the graph is the same
+    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('vertical-grouped-bar-graph.png');
+  });
+
   test.only('Change Chart type to scatter', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
