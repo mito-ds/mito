@@ -136,7 +136,7 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
         )
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-        byo_url = steps_manager.mito_config.get_llm_url()
+        byo_url = steps_manager.mito_config.llm_url
 
         if byo_url is not None:
                 return _get_ai_completion_from_open_ai_api_compatible_server(byo_url, user_input, prompt)

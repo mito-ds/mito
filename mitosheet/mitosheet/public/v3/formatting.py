@@ -23,7 +23,6 @@ from mitosheet.types import (
 CONDITION_TO_COMPARISON_FORMULA: Dict[str, str] = {
     FC_NUMBER_GREATER: '>',
     FC_NUMBER_LESS: '<',
-    FC_NUMBER_EXACTLY: '=',
     FC_NUMBER_NOT_EXACTLY: '<>',
     FC_NUMBER_GREATER_THAN_OR_EQUAL: '>=',
     FC_NUMBER_LESS_THAN_OR_EQUAL: '<=',
@@ -50,6 +49,16 @@ def get_conditional_format_rule(
         formula = [f'{cell_range}{comparison}DATEVALUE("{filter_value}")']
     elif comparison is not None:
         formula = [f'{cell_range}{comparison}{filter_value}']
+    elif filter_condition == FC_NUMBER_EXACTLY:
+        # Sometimes, users will enter a string for a number filter -- because it is just
+        # displayed as an = on the frontend. This is a reasonably thing for them
+        # to do -- so we take special care in this case to wrap the filter value in
+        # quotes
+        try:
+            float(filter_value)
+            formula = [f'{cell_range}={filter_value}']
+        except ValueError:
+            formula = [f'{cell_range}="{filter_value}"']
     elif filter_condition == FC_STRING_CONTAINS:
         formula = [f'NOT(ISERROR(FIND("{filter_value}",{cell_range})))']
     elif filter_condition == FC_STRING_CONTAINS_CASE_INSENSITIVE:

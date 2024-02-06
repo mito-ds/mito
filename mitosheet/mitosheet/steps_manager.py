@@ -15,6 +15,7 @@ from mitosheet.api.get_parameterizable_params import get_parameterizable_params_
 from mitosheet.api.get_path_contents import get_path_parts
 
 from mitosheet.enterprise.mito_config import MitoConfig
+from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 from mitosheet.experiments.experiment_utils import get_current_experiment
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
@@ -179,6 +180,7 @@ class StepsManager:
             self, 
             args: Collection[Union[pd.DataFrame, str, None]], 
             mito_config: MitoConfig, 
+            mito_log_uploader: Optional[MitoLogUploader]=None,
             analysis_to_replay: Optional[str]=None,
             import_folder: Optional[str]=None,
             user_defined_functions: Optional[List[Callable]]=None,
@@ -326,6 +328,9 @@ class StepsManager:
 
         # We store the mito_config variables here so that we can use them in the api
         self.mito_config = mito_config
+
+        # Store the mito_log_uploader
+        self.mito_log_uploader = mito_log_uploader
 
         # The options for the transpiled code. The user can optionally pass these 
         # in, but if they don't, we use the default options

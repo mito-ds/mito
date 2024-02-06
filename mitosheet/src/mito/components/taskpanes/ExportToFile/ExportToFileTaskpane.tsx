@@ -81,6 +81,13 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
         invalidFileNameWarning = getInvalidFileNameError(params.file_name);
     }
 
+    let exportFileDisabledMessage = undefined;
+    if (!props.userProfile.isPro) {
+        exportFileDisabledMessage = 'Upgrade to Mito Pro to export with formatting.'
+    } else if (params.type !== 'excel') {
+        exportFileDisabledMessage = 'CSV files cannot be formatted. Switch to Excel export to export formatting.'
+    }
+
     return (
         <DefaultTaskpane>
             <DefaultTaskpaneHeader 
@@ -138,21 +145,20 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                         </Select>
                     </Col>
                 </Row>
-                {params.type === 'excel' &&
-                <Row justify='space-between' align='center'>
+                <Row justify='space-between' align='center' title={exportFileDisabledMessage}>
                     <Col style={{ display: 'flex' }}>
                         <p className="text-header-3">Export with formatting</p>&nbsp;
                         {!props.userProfile.isPro && 
-                            <div title='Upgrade to Mito Pro or Enterprise to generate formatted Excel files'>
+                            <div>
                                 <ProIcon/>
                             </div>
                         }
                     </Col>
                     <Col>
                         <Toggle
-                            value={params.export_formatting ?? true}
-                            disabled={!props.userProfile.isPro}
-                            title={!props.userProfile.isPro ? 'Upgrade to Mito Pro or Enterprise to generate formatted Excel files' : undefined}
+                            value={params.type === 'excel' ? params.export_formatting : false}
+                            disabled={!props.userProfile.isPro || params.type !== 'excel'}
+                            title={exportFileDisabledMessage}
                             onChange={() => {
                                 setParams(prevParams => {
                                     return {
@@ -163,7 +169,7 @@ const ExportToFileTaskpane = (props: ExportToFileTaskpaneProps): JSX.Element => 
                             }}
                         />
                     </Col>
-                </Row>}
+                </Row>
                 <Row>
                     <Col>
                         <p className="text-header-3">Dataframes to Export</p>

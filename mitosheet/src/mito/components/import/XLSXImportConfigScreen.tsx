@@ -155,7 +155,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
                                 })
                             }}
                         >
-                            {fileMetadata.sheet_names.map((sheetName, idx) => {
+                            {fileMetadata.sheet_names?.map((sheetName, idx) => {
                                 return (
                                     <MultiToggleItem
                                         key={idx}

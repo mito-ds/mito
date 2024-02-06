@@ -83,6 +83,9 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
+import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
+import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
+import DevTaskpane from './components/taskpanes/Dev/DevTaskpane';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -829,6 +832,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <GithubScheduleTaskpane
                     userProfile={userProfile}
                     analysisData={analysisData}
+                    setUIState={setUIState}
+                    mitoAPI={mitoAPI}
+                />
+            )
+            case TaskpaneType.DEV_TASKPANE: return (
+                <DevTaskpane
+                    userProfile={userProfile}
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                 />

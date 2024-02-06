@@ -117,11 +117,13 @@ STRING_TESTS = [
     ('datetime64[ns]', [pd.to_datetime('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_datetime(df1[\'A\'], format=\'%m-%d-%Y\', errors=\'coerce\')'), 
     ('timedelta', [pd.to_timedelta('A', errors='coerce') for x in [None, None, None]], 'df1[\'A\'] = pd.to_timedelta(df1[\'A\'], errors=\'coerce\')'), 
 ]
-@pytest.mark.parametrize("new_dtype, result, code", STRING_TESTS)
-def test_string_to_other_types(new_dtype, result, code):
+@pytest.mark.parametrize("new_dtype, expected, code", STRING_TESTS)
+def test_string_to_other_types(new_dtype, expected, code):
     mito = create_mito_wrapper_with_data(STRING_ARRAY)
     mito.change_column_dtype(0, ['A'], new_dtype)
-    assert mito.get_column(0, 'A', as_list=True) == result
+
+    assert mito.get_column(0, 'A', as_list=True) == expected
+
     if code is not None:            
         assert len(mito.transpiled_code) > 0
     else:
@@ -358,8 +360,6 @@ def test_change_dtype_to_datetime_mixed_string_type():
     mito = create_mito_wrapper(df)
 
     mito.change_column_dtype(0, ['Date'], 'datetime')
-
-    print(mito.dfs[0])
 
     assert mito.dfs[0].equals(
         pd.DataFrame({

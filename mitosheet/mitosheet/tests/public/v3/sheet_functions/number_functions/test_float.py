@@ -17,10 +17,15 @@ from mitosheet.public.v3.sheet_functions.number_functions import FLOAT
 FLOAT_VALID_TESTS = [
     (['123'], 123),
     (['$123'], 123),
+    (['-$123,123.12 M'], [-123123120000]),
+    (['82%'], .82),
     ([pd.Series(['abc'])], pd.Series([np.nan])),
     ([pd.Series(['123'])], pd.Series([123])),
     ([pd.Series(['  123   '])], pd.Series([123])),
     ([pd.Series(['123.123'])], pd.Series([123.123])),
+    ([pd.Series(['82%'])], pd.Series([.82])),
+    ([pd.Series(['8.2%'])], pd.Series([.082])),
+    ([pd.Series(['-82%'])], pd.Series([-.82])),
     # NOTE: we do our best to handle european conventions, but there
     # is no sure way to tell (e.g. three decimals).
     ([pd.Series(['123,12'])], pd.Series([123.12])),
@@ -65,4 +70,5 @@ def test_value(_argv, expected):
         if np.isnan(result) :
             assert np.isnan(expected)
         else:
-            assert result == expected
+            # Check if two floats are close to eachother, while also handling nan values
+            assert np.isclose(result, expected, equal_nan=True)

@@ -250,5 +250,23 @@ def test_filter_then_vlookup():
 
     assert result == list(expected)
 
+def test_vlookup_with_datetime():
+    df1 = pd.DataFrame({
+        'A': [1, 2, 3],
+    })
 
+    df2 = pd.DataFrame({
+        'A': [1, 2, 3],
+        pd.to_datetime('2011-02-12'): pd.to_datetime(['2011-02-12', '2018-04-02', '2017-01-04']),
+    })
+
+    mito = create_mito_wrapper(df1, df2)
+    mito.set_formula('=VLOOKUP(A0,df2!A:2011-02-12 00:00:00, 2)', 0, 'C', True)
+
+    assert mito.dfs[0].equals(
+        pd.DataFrame({
+            'A': [1, 2, 3],
+            'C': pd.to_datetime(['2011-02-12', '2018-04-02', '2017-01-04']),
+        })
+    )
 

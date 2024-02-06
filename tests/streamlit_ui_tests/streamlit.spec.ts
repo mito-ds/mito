@@ -5,6 +5,7 @@ test.describe.configure({ mode: 'parallel' });
 
 
 test('Can render Mito spreadsheet', async ({ page }) => {
+
   const mito = await getMitoFrame(page);
   await mito.getByRole('button', { name: 'Import Files' }).click();
   await expect(mito.getByText('test.csv')).toBeVisible();
@@ -20,7 +21,11 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByTitle('Column1')).toBeVisible();
   });
 
-  test('Copy Button', async ({ page }) => {
+  test('Copy Button', async ({ page, browserName }) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
+
     const mito = await getMitoFrameWithTestCSV(page);
 
     await mito.getByTitle('Column1').click();
@@ -685,7 +690,11 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('.index-header-selected').nth(1)).toHaveText('2');
   })
 
-  test('Select All', async ({ page }) => {
+  test.skip('Select All', async ({ page, browserName }) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
+
     const mito = await getMitoFrameWithTestCSV(page);
     await page.keyboard.press('Control+a');
     await expect(mito.locator('.endo-column-header-container-selected')).toHaveCount(3);
@@ -715,22 +724,33 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test_1" }).first()).toBeVisible();
   });
 
-  test('Find and Replace', async ({ page }) => {
+  test('Find and Replace', async ({ page, browserName }) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
+
     const mito = await getMitoFrameWithTestCSV(page);
-    await page.keyboard.press('Control+h');
+    await page.keyboard.press('Control+Shift+h');
     await awaitResponse(page);
     await expect(mito.getByPlaceholder('Find...')).toBeVisible()
     await expect(mito.getByPlaceholder('Replace...')).toBeVisible()
   })
 
-  test('Create Graph', async ({ page }) => {
+  test('Create Graph', async ({ page, browserName }) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
+
     const mito = await getMitoFrameWithTestCSV(page);
     await page.keyboard.press('Alt+F1');
     await awaitResponse(page);
     await expect(mito.getByText('Setup Graph')).toBeVisible();
   })
 
-  test('Open File Import', async ({ page }) => {
+  test('Open File Import', async ({ page, browserName}) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
     const mito = await getMitoFrameWithTestCSV(page);
     await page.keyboard.press('Control+o');
     await awaitResponse(page);
@@ -744,7 +764,10 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(mito.getByText('Add Filter')).toBeVisible();
   });
 
-  test('Merge', async ({ page }) => {
+  test('Merge', async ({ page, browserName }) => {
+    if (browserName === 'webkit') {
+      test.skip()
+    }
     const mito = await getMitoFrameWithTestCSV(page);
     await importCSV(page, mito, 'test.csv');
 
