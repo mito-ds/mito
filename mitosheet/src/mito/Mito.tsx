@@ -70,6 +70,7 @@ import { SendFunction, SendFunctionError } from './api/send';
 import BottomLeftPopup from './components/elements/BottomLeftPopup';
 import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 import EphemeralMessage from './components/popups/EphemeralMessage';
+import DevTaskpane from './components/taskpanes/Dev/DevTaskpane';
 import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
@@ -83,9 +84,6 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
-import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
-import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
-import DevTaskpane from './components/taskpanes/Dev/DevTaskpane';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
