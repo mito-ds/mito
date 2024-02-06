@@ -25,12 +25,14 @@ const LabelAndTooltip = (props: {
     */
     textBody?: boolean
 
+    style?: React.CSSProperties;
+
 }): JSX.Element => {
 
     return (
         <Row justify='start' align='center' title={props.tooltip} suppressTopBottomMargin>
             <Col>
-                <p className={props.textBody ? 'text-body-1' : 'text-header-3'}>
+                <p style={props.style} className={props.textBody ? 'text-body-1' : 'text-header-3'}>
                     {props.children}
                 </p>
             </Col>

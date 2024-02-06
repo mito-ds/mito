@@ -103,8 +103,3 @@
   font-size: 11px;
   margin-left: 4px;
 }
-
-.mito-graph-configuration-container .select-container,
-.mito-graph-configuration-container .mito-input {
-  width: -webkit-fill-available;
-}

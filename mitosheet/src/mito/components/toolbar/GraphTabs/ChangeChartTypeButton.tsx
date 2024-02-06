@@ -339,7 +339,7 @@ export const ChangeChartTypeButton = (
                 <DropdownItem
                     key='overlay_x'
                     title='Overlay'
-                    icon={<StackedIcon />}
+                    icon={<OverlayIcon axis='x' />}
                     tooltip="Overlay"
                     onClick={() => {
                         const [x_axis_column_ids, y_axis_column_ids] = getXandYColumnIDs('x', props.params?.graph_creation?.x_axis_column_ids, props.params?.graph_creation?.y_axis_column_ids);
