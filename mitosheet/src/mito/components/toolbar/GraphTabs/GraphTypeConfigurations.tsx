@@ -42,7 +42,7 @@ export const GraphTypeConfigurations = (
                         props.updateGraphParam({graph_creation: {histfunc: newHistfunc}})
                     }}
                     style={{ width: '70px' }}
-                    dropdownWidth='small'
+                    dropdownWidth='medium'
                 >
                     <DropdownItem
                         title={'count'}
