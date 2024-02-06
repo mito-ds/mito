@@ -15,7 +15,7 @@ export const GraphTypeConfigurations = (
     if (GRAPHS_WITH_UNIQUE_CONFIG_OPTIONS.includes(props.graphParams.graph_creation?.graph_type)) {
         if (GRAPHS_THAT_HAVE_NBINS.includes(props.graphParams.graph_creation?.graph_type)) {
             configurationInputs.push(<div className="mito-graph-configuration-option">
-                <p style={{ fontWeight: 'bold' }}>
+                <p className="text-body-1" style={{ fontWeight: 'bold' }}>
                         Number of bins (int)
                 </p>
                 <Input
