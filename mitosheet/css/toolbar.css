@@ -79,7 +79,7 @@
   background: var(--mito-background-highlight);
   border-radius: 5px;
   border: 1px solid var(--mito-text-light);
-  margin: 5px 1px;
+  margin: 4px 1px;
   justify-content: space-evenly;
 }
 
