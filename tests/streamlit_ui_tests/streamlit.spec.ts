@@ -297,8 +297,8 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Line').hover();
     await clickButtonAndAwaitResponse(page, mito, { name: 'Linear' })
 
-    expect(mito.getByText('Column1 line')).toBeVisible();
-
+    await expect(mito.getByText('Column1 line')).toBeVisible();
+    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('linear-line-graph.png');
   });
 
   test('Change Chart type to Horizontal Line Graph', async ({ page }) => {
@@ -311,7 +311,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByText('Line').hover();
     await clickButtonAndAwaitResponse(page, mito, { name: 'Horizontal' })
 
-    expect(mito.getByText('Column1 line')).toBeVisible();
+    await expect(mito.getByText('Column1 line')).toBeVisible();
     // Make sure that the snapshot of the graph is the same
     await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('horizontal-line-graph.png');
   });
@@ -327,7 +327,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Grouped' }).first().click();
     await awaitResponse(page);
 
-    expect(mito.getByText('Column1 bar')).toBeVisible();
+    await expect(mito.getByText('Column1 bar')).toBeVisible();
     // Make sure that the snapshot of the graph is the same
     await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('vertical-grouped-bar-graph.png');
   });
@@ -344,7 +344,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Grouped' }).nth(1).click();
     await awaitResponse(page);
 
-    expect(mito.getByText('Column1 bar')).toBeVisible();
+    await expect(mito.getByText('Column1 bar')).toBeVisible();
     // Make sure that the snapshot of the graph is the same
     await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('horizontal-grouped-bar-graph.png');
   });
@@ -359,7 +359,7 @@ test.describe('Home Tab Buttons', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Scatter' })
 
     await expect(mito.getByText('Column1 scatter plot')).toBeVisible();
-    expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('scatter-plot.png');
+    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('scatter-plot.png');
   });
 
   test('Scatter plot from selection', async ({ page }) => {
@@ -374,6 +374,70 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
     await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();
   })
+
+  test('Update Graph Title', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.getByText('Column1 bar chart').dblclick();
+
+    await expect(mito.locator('.popup-input')).toBeVisible();
+    await mito.locator('.popup-input').fill('My Graph Title');
+    await mito.locator('.popup-input').press('Enter');
+
+    await awaitResponse(page);
+    await expect(mito.getByText('My Graph Title')).toBeVisible();
+  });
+
+  test('Update X axis Title', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.locator('.g-xtitle', { hasText: 'Column1' }).dblclick();
+
+    await expect(mito.locator('.popup-input')).toBeVisible();
+    await mito.locator('.popup-input').fill('X axis Title');
+    await mito.locator('.popup-input').press('Enter');
+
+    await awaitResponse(page);
+    await expect(mito.getByText('X axis Title')).toBeVisible();
+  });
+
+  test('Update Y axis Title', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.getByText('count').dblclick();
+
+    await expect(mito.locator('.popup-input')).toBeVisible();
+    await mito.locator('.popup-input').fill('Y axis Title');
+    await mito.locator('.popup-input').press('Enter');
+
+    await awaitResponse(page);
+    await expect(mito.getByText('Y axis Title')).toBeVisible();
+  });
+
+  test('Escape key closes graph title input', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.getByText('count').dblclick();
+
+    await expect(mito.locator('.popup-input')).toBeVisible();
+    await mito.locator('.popup-input').fill('Y axis Title');
+    await mito.locator('.popup-input').press('Escape');
+
+    await awaitResponse(page);
+    await expect(mito.getByText('count')).toBeVisible();
+  });
 
   test('AI Not Exist on Enterprise', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
