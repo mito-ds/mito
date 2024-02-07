@@ -8,7 +8,6 @@ permissions:
   contents: read
 
 jobs:
-
   update-snapshots:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'update playwright snapshots') }}
     runs-on: ubuntu-20.04
