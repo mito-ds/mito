@@ -135,7 +135,11 @@
     margin-left: 5px;
 }
 
-
+.in_content_cta_video {
+    max-width: 100%;
+    border-radius: 10px;
+    padding: 1.5rem 2rem; 
+}
 
 @media only screen and (min-width: 50em) {
 
@@ -202,6 +206,33 @@
         font-size: 2rem;
     }
 
+    .in_content_cta_card {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+
+    }
+
+    .in_content_cta_text {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        margin-right: 3rem;
+    }
+
+    .in_content_cta_text > p {
+        margin-top: 0;
+    }
+
+    .in_content_cta_video {
+        max-width: 30vw;
+        max-height: 40rem;
+        padding: 3px 3px; 
+    }
 }
 
 
