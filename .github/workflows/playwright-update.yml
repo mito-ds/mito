@@ -1,9 +1,6 @@
 name: Update Playwright Snapshots
 
 on:
-  issue_comment:
-    types: [created, edited]
-
   workflow_dispatch:
     inputs:
       command:
@@ -14,6 +11,9 @@ on:
         description: 'Browser to run'
         required: true
         default: 'chromium'
+
+  issue_comment:
+    types: [created, edited]
 
 permissions:
   contents: read
