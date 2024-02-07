@@ -3,16 +3,6 @@ name: Update Playwright Snapshots
 on:
   issue_comment:
     types: [created, edited]
-  workflow-dispatch:
-    inputs:
-      command:
-        description: 'Command to run'
-        required: true
-        default: 'update playwright snapshots'
-      browser:
-        description: 'Browser to run'
-        required: true
-        default: 'chromium'
 
 permissions:
   contents: read
@@ -41,7 +31,6 @@ jobs:
             project: 'Microsoft Edge'
           - os: 'ubuntu-latest'
             project: 'webkit'
-    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
