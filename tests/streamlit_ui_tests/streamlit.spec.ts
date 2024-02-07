@@ -391,36 +391,74 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('My Graph Title')).toBeVisible();
   });
 
-  test('Update X axis Title', async ({ page }) => {
+  test('Update X axis Title on double click', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
     await expect(mito.getByText('Column1 bar chart')).toBeVisible();
 
-    await mito.locator('.g-xtitle', { hasText: 'Column1' }).dblclick();
+    await mito.locator('.g-xtitle', { hasText: 'count' }).dblclick();
 
     await expect(mito.locator('.popup-input')).toBeVisible();
     await mito.locator('.popup-input').fill('X axis Title');
     await mito.locator('.popup-input').press('Enter');
 
     await awaitResponse(page);
-    await expect(mito.getByText('X axis Title')).toBeVisible();
+    await expect(mito.locator('.g-xtitle', { hasText: 'X axis Title' })).toBeVisible();
   });
 
-  test('Update Y axis Title', async ({ page }) => {
+  test('Update Y axis Title with double click', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
     await expect(mito.getByText('Column1 bar chart')).toBeVisible();
 
-    await mito.getByText('count').dblclick();
+    await mito.locator('.g-ytitle', { hasText: 'Column1' }).dblclick();
 
     await expect(mito.locator('.popup-input')).toBeVisible();
     await mito.locator('.popup-input').fill('Y axis Title');
     await mito.locator('.popup-input').press('Enter');
 
     await awaitResponse(page);
-    await expect(mito.getByText('Y axis Title')).toBeVisible();
+    await expect(mito.locator('.g-ytitle', { hasText: 'Y axis Title' })).toBeVisible();
+  });
+
+  test('Update X axis title through toolbar', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.locator('.g-xtitle', { hasText: 'count' })).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Axis Titles' }).hover();
+    await mito.getByRole('button', { name: 'Edit X Axis Title' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.popup-input')).toBeVisible();
+    await mito.locator('.popup-input').fill('X axis Title');
+    await mito.locator('.popup-input').press('Enter');
+
+    await awaitResponse(page);
+    await expect(mito.locator('.g-xtitle', { hasText: 'X axis Title' })).toBeVisible();
+  });
+
+  test('Update Y axis title through toolbar', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Axis Titles' }).hover();
+    await mito.getByRole('button', { name: 'Edit Y Axis Title' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.popup-input')).toBeVisible();
+    await mito.locator('.popup-input').fill('Y axis Title');
+    await mito.locator('.popup-input').press('Enter');
+
+    await awaitResponse(page);
+    await expect(mito.locator('.g-ytitle', { hasText: 'Y axis Title' })).toBeVisible();
   });
 
   test('Hide X axis title', async ({ page }) => {

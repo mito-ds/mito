@@ -1,0 +1,154 @@
+name: Update Playwright Snapshots
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  contents: read
+
+jobs:
+
+  update-snapshots:
+
+
+  test-mitosheet-frontend-streamlit:
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'update playwright snapshots') }}
+    runs-on: ubuntu-20.04
+    permissions:
+      # Required by actions/update-snapshots
+      contents: write
+      pull-requests: write
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        python-version: ['3.10']
+        project: ['chromium', 'firefox', 'webkit', 'Google Chrome', 'Microsoft Edge']
+        exclude:
+          - os: 'windows-latest'
+            project: webkit
+          - os: 'macos-latest'
+            project: 'Microsoft Edge'
+          - os: 'ubuntu-latest'
+            project: 'Microsoft Edge'
+          - os: 'ubuntu-latest'
+            project: 'webkit'
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: |
+          mitosheet/setup.py
+          tests/requirements.txt
+          tests/extra-requirements.txt
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+        cache-dependency-path: mitosheet/package-lock.json
+    - name: Install dependencies (ubuntu, macos)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd tests
+        bash mac-setup.sh
+        source venv/bin/activate
+        pip install -r extra-requirements.txt
+    - name: Setup streamlit (ubuntu, macos)
+      if: matrix.os != 'windows-latest'
+      run: |
+        mkdir -p ~/.streamlit/
+        echo "[general]"  > ~/.streamlit/credentials.toml
+        echo "email = \"\""  >> ~/.streamlit/credentials.toml
+    - name: Setup streamlit (windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        $streamlitDir = "$HOME\.streamlit"
+        if (-not (Test-Path -Path $streamlitDir)) {
+          New-Item -ItemType Directory -Path $streamlitDir
+        }
+        Set-Content -Path "$streamlitDir\credentials.toml" -Value @"
+        [general]
+        email = ""
+        "@
+    - name: Install dependencies (windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd tests
+
+        python3 -m venv venv
+        .\venv\Scripts\Activate.ps1
+
+        pip install -r requirements.txt
+        pip install -r extra-requirements.txt
+
+        npm install
+        npx playwright install chromium firefox chrome msedge
+
+        cd ../mitosheet
+        pip install -e ".[test]"
+
+        npm install
+        npm run build
+    - name: Start a server and run tests (ubuntu, macos)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd tests
+        source venv/bin/activate
+        streamlit run streamlit_test.py --server.port 8555 &
+        bash check_server.sh
+        npm run test:streamlit -- --project="${{ matrix.project }}"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: React to the triggering comment
+        run: |
+          gh api repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions --raw-field 'content=+1'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout the branch from the PR that triggered the job
+        run: |
+          # PR branch remote must be checked out using https URL
+          git config --global hub.protocol https
+
+          gh pr checkout ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Build
+        uses: ./.github/actions/build-dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: notebook-dist-${{ github.run_number }}
+          path: ./dist
+
+      - name: Install the package
+        run: |
+          cd dist
+          python -m pip install -vv notebook*.whl
+
+          # disable git hooks
+          git config core.hooksPath no-hooks
+
+      - name: Update snapshots
+        uses: jupyterlab/maintainer-tools/.github/actions/update-snapshots@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          npm_client: jlpm
+          test_folder: ui-tests
+          start_server_script: 'null'
+          update_script: test:update --browser ${{ matrix.browser }}
+        env:
+          DEBUG: pw:webserver
