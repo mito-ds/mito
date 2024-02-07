@@ -12,7 +12,6 @@ on:
         required: true
         default: 'chromium'
 
-
   issue_comment:
     types: [created, edited]
 
