@@ -62,6 +62,21 @@
                 ]
             },
             {
+                "title": "Use the Mito FILLNAN function",
+                "shortTitle": "Mito FILLNAN",
+                "paragraphs": [
+                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's FILLNAN function works exactly like the Excel FILLNAN function.",
+                    "To use it, `pip install mitosheet` and then use the following code:"
+                ],
+                "codeLines": [
+                    "# Import the mitosheet Excel functions",
+                    "from mitosheet.public.v3 import *;",
+                    "",
+                    "# Use FILLNAN function",
+                    "df['A'] = FILLNAN(df['A'], 0)"
+                ]
+            },
+            {
                 "title": "Casing on Missing Values in Conditionals",
                 "shortTitle": "Casing on NaN values",
                 "paragraphs": [
@@ -70,7 +85,7 @@
                 "codeLines": [
                     "import numpy as np",
                     "",
-                    "# Create a custom function that squares values",
+                    "# Create a custom function that labels values",
                     "def label_values(value):",
                     "    if np.isnan(value):",
                     "        return \"Value is None\"",

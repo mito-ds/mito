@@ -60,6 +60,21 @@
                 ]
             },
             {
+                "title": "Use the Mito AVG function",
+                "shortTitle": "Mito AVG",
+                "paragraphs": [
+                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's AVG function works exactly like the Excel AVG function.",
+                    "To use it, `pip install mitosheet` and then use the following code:"
+                ],
+                "codeLines": [
+                    "# Import the mitosheet Excel functions",
+                    "from mitosheet.public.v3 import *;",
+                    "",
+                    "# Use AVG function",
+                    "df['Row_Average'] = AVG(df['Col1'], df['Col2'], df['Col3'])"
+                ]
+            },
+            {
                 "title": "Entire column average",
                 "shortTitle": "Column average",
                 "paragraphs": [
