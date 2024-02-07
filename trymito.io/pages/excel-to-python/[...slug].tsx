@@ -29,7 +29,7 @@ import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
+import { PLAUSIBLE_FEATURE_DOCS_CTA_LOCATION_GLOSSAY, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
 require('prismjs/components/prism-python');
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
@@ -209,7 +209,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                           <div className={excelToPythonStyles.in_content_cta_text}>
                             <h3>Mito lets you use Excel formulas in Python</h3>
                             <p>
-                              Every edit you make in the Mito spreadsheet, generates the equivalent Python code for you. Use <a href="https://docs.trymito.io/how-to/interacting-with-your-data/mito-spreadsheet-formulas" target="_blank" rel="noreferrer" className={pageStyles.link}>spreadsheet formulas</a>, <a href="https://docs.trymito.io/how-to/pivot-tables" target="_blank" rel="noreferrer" className={pageStyles.link}>pivot tables</a>, and <a href="https://docs.trymito.io/how-to/graphing" target="_blank" rel="noreferrer" className={pageStyles.link}>graphs</a> without writing a single line of Python.
+                              Every edit you make in the Mito spreadsheet, generates the equivalent Python code for you. Use <a href="https://docs.trymito.io/how-to/interacting-with-your-data/mito-spreadsheet-formulas" target="_blank" rel="noreferrer" className={classNames(PLAUSIBLE_FEATURE_DOCS_CTA_LOCATION_GLOSSAY, pageStyles.link)}>spreadsheet formulas</a>, <a href="https://docs.trymito.io/how-to/pivot-tables" target="_blank" rel="noreferrer" className={classNames(PLAUSIBLE_FEATURE_DOCS_CTA_LOCATION_GLOSSAY, pageStyles.link)}>pivot tables</a>, and <a href="https://docs.trymito.io/how-to/graphing" target="_blank" rel="noreferrer" className={classNames(PLAUSIBLE_FEATURE_DOCS_CTA_LOCATION_GLOSSAY, pageStyles.link)}>graphs</a> without writing a single line of Python.
                             </p>
                             <TextButton 
                               text={'Install Mito'} 
