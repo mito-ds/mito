@@ -423,6 +423,48 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('Y axis Title')).toBeVisible();
   });
 
+  test('Hide X axis title', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('count')).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Axis Titles' }).hover();
+    await mito.getByRole('button', { name: 'Horizontal' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.getByText('count')).toBeHidden();
+  });
+
+  test('Hide Y axis title', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Axis Titles' }).hover();
+    await mito.getByRole('button', { name: 'Vertical' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).toBeHidden();
+  });
+
+  test('Hide graph title', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Chart Title' }).hover();
+    await mito.getByRole('button', { name: 'Display Title' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).toBeHidden();
+  });
+
   test('Escape key closes graph title input', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
