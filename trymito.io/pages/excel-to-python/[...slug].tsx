@@ -29,7 +29,7 @@ import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA } from '../../utils/plausible';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
 require('prismjs/components/prism-python');
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
@@ -201,6 +201,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       {codeSection.codeLines.length > 0 &&
                         <CodeBlock
                           code={codeSection.codeLines.join('\n')}
+                          className={codeSection.shortTitle.startsWith('Mito') ? PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED : ''}
                         />
                       }
                       {index === 0 &&
@@ -256,7 +257,10 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                         return <p key={text}>{text}</p>
                       })}
                       {codeSections.codeLines.length > 0 && 
-                        <CodeBlock code={codeSections.codeLines.join('\n')}/>
+                        <CodeBlock 
+                          code={codeSections.codeLines.join('\n')}
+                          className={codeSections.shortTitle.startsWith('Mito') ? 'mito-code-block' : ''}
+                        />
                       }
                     </>
                   )

@@ -5,7 +5,10 @@ import codeBlockStyles from './CodeBlock.module.css'
 import { classNames } from '../../utils/classNames';
 
 
-const CodeBlock = (props:{code: string}) => {
+const CodeBlock = (props:{
+  code: string
+  className?: string
+}) => {
 
   const [copied, setCopied] = useState(false);
   useEffect(() => {
@@ -15,7 +18,7 @@ const CodeBlock = (props:{code: string}) => {
   }, [copied])
 
   return (
-    <div className={codeBlockStyles.container_div} onClick={async () => {
+    <div className={classNames(codeBlockStyles.container_div, props.className)} onClick={async () => {
 
       // Undefined on some mobile devices so we disable it as to not error
       if (navigator.clipboard === undefined) {
