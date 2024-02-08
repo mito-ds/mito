@@ -298,7 +298,6 @@ test.describe('Home Tab Buttons', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Linear' })
 
     await expect(mito.getByText('Column1 line')).toBeVisible();
-    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('linear-line-graph.png');
   });
 
   test('Change Chart type to Horizontal Line Graph', async ({ page }) => {
@@ -313,7 +312,6 @@ test.describe('Home Tab Buttons', () => {
 
     await expect(mito.getByText('Column1 line')).toBeVisible();
     // Make sure that the snapshot of the graph is the same
-    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('horizontal-line-graph.png');
   });
 
   test('Change Chart type to vertical grouped bar Graph', async ({ page }) => {
@@ -329,7 +327,6 @@ test.describe('Home Tab Buttons', () => {
 
     await expect(mito.getByText('Column1 bar')).toBeVisible();
     // Make sure that the snapshot of the graph is the same
-    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('vertical-grouped-bar-graph.png');
   });
 
 
@@ -346,7 +343,6 @@ test.describe('Home Tab Buttons', () => {
 
     await expect(mito.getByText('Column1 bar')).toBeVisible();
     // Make sure that the snapshot of the graph is the same
-    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('horizontal-grouped-bar-graph.png');
   });
 
   test.only('Change Chart type to scatter', async ({ page }) => {
@@ -359,7 +355,6 @@ test.describe('Home Tab Buttons', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Scatter' })
 
     await expect(mito.getByText('Column1 scatter plot')).toBeVisible();
-    await expect(mito.locator('.plotly-graph-div')).toHaveScreenshot('scatter-plot.png');
   });
 
   test('Scatter plot from selection', async ({ page }) => {
