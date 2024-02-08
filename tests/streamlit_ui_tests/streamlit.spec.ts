@@ -311,7 +311,6 @@ test.describe('Home Tab Buttons', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Horizontal' })
 
     await expect(mito.getByText('Column1 line')).toBeVisible();
-    // Make sure that the snapshot of the graph is the same
   });
 
   test('Change Chart type to vertical grouped bar Graph', async ({ page }) => {
@@ -326,7 +325,6 @@ test.describe('Home Tab Buttons', () => {
     await awaitResponse(page);
 
     await expect(mito.getByText('Column1 bar')).toBeVisible();
-    // Make sure that the snapshot of the graph is the same
   });
 
 
@@ -342,7 +340,6 @@ test.describe('Home Tab Buttons', () => {
     await awaitResponse(page);
 
     await expect(mito.getByText('Column1 bar')).toBeVisible();
-    // Make sure that the snapshot of the graph is the same
   });
 
   test.only('Change Chart type to scatter', async ({ page }) => {
