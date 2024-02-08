@@ -508,7 +508,7 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).not.toBeVisible();
   });
 
-  test('Hide range slider', async ({ page }) => {
+  test('Hide and show range slider', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
@@ -520,6 +520,62 @@ test.describe('Home Tab Buttons', () => {
     await awaitResponse(page);
 
     await expect(mito.locator('.rangeslider-slidebox')).not.toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Show Range Slider' }).hover();
+    await mito.getByRole('button', { name: 'Horizontal' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.rangeslider-slidebox')).toBeVisible();
+  });
+
+  test('Hide and show gridlines', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    // Check that the gridlines are visible (by default)
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.locator('.xgrid.crisp')).toHaveCount(5);
+    await expect(mito.locator('.ygrid.crisp')).toHaveCount(4);
+
+    // Hide the y gridlines
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Grid Lines' }).hover();
+    await mito.getByRole('button', { name: 'Horizontal' }).click();
+    await awaitResponse(page);
+
+    // check that the y gridlines are hidden and the x gridlines are not affected
+    await expect(mito.locator('.ygrid.crisp')).toHaveCount(0);
+    await expect(mito.locator('.xgrid.crisp')).toHaveCount(5);
+
+    // Hide the x gridlines
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Grid Lines' }).hover();
+    await mito.getByRole('button', { name: 'Vertical' }).click();
+    await awaitResponse(page);
+
+    // check that the x gridlines are hidden and the y gridlines are not affected
+    await expect(mito.locator('.ygrid.crisp')).toHaveCount(0);
+    await expect(mito.locator('.xgrid.crisp')).toHaveCount(0);
+
+    // Show the y gridlines
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Grid Lines' }).hover();
+    await mito.getByRole('button', { name: 'Horizontal' }).click();
+    await awaitResponse(page);
+
+    // Check that the y gridlines are visible and the x gridlines are not affected
+    await expect(mito.locator('.ygrid.crisp')).toHaveCount(4);
+    await expect(mito.locator('.xgrid.crisp')).toHaveCount(0);
+
+    // Show the x gridlines
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Grid Lines' }).hover();
+    await mito.getByRole('button', { name: 'Vertical' }).click();
+    await awaitResponse(page);
+
+    // Check that the x gridlines are visible and the y gridlines are not affected
+    await expect(mito.locator('.ygrid.crisp')).toHaveCount(4);
+    await expect(mito.locator('.xgrid.crisp')).toHaveCount(5);
   });
 
   test('Escape key closes graph title input', async ({ page }) => {
