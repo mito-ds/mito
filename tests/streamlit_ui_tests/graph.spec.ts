@@ -8,13 +8,12 @@ const openPopupAndEditTitle = async (mito: any, selector: string, newTitle: stri
     await expect(mito.locator('.popup-input')).toBeVisible();
     await mito.locator('.popup-input').fill(newTitle);
     await mito.locator('.popup-input').press('Enter');
-    await awaitResponse(mito);
 
     await expect(mito.locator('.popup-input')).not.toBeVisible();
     await expect(mito.locator(selector, { hasText: newTitle })).toBeVisible();
 }
 
-test.describe('Home Tab Buttons', () => {
+test.describe('Graph Functionality', () => {
     test('Graph', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     
