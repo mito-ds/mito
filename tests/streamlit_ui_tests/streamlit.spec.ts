@@ -354,6 +354,19 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('Column1 scatter plot')).toBeVisible();
   });
 
+  test('Close Select Data taskpane then open it again', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
+    await mito.locator('.spacing-row', { hasText: 'Select Data' }).locator('svg').click();
+    await expect(mito.locator('.spacing-row', { hasText: 'Select Data' })).not.toBeVisible();
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Select Data' })
+    await expect(mito.locator('.spacing-row', { hasText: 'Select Data' })).toBeVisible();
+  });
+
   test('Scatter plot from selection', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     
