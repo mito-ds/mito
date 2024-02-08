@@ -19,7 +19,7 @@ const ErrorModal = (
         mitoAPI: MitoAPI;
         userProfile: UserProfile
     }): JSX.Element => {
-    const [viewTraceback, setViewTraceback] = useState(true);
+    const [viewTraceback, setViewTraceback] = useState(false);
 
     if (props.error === undefined) {
         return (<></>)
