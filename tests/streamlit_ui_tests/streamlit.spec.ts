@@ -477,7 +477,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Horizontal' }).click();
     await awaitResponse(page);
 
-    await expect(mito.getByText('count')).toBeHidden();
+    await expect(mito.getByText('count')).not.toBeVisible();
   });
 
   test('Hide Y axis title', async ({ page }) => {
@@ -491,7 +491,7 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Vertical' }).click();
     await awaitResponse(page);
 
-    await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).toBeHidden();
+    await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).not.toBeVisible();
   });
 
   test('Hide graph title', async ({ page }) => {
@@ -505,7 +505,21 @@ test.describe('Home Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Display Title' }).click();
     await awaitResponse(page);
 
-    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).toBeHidden();
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).not.toBeVisible();
+  });
+
+  test('Hide range slider', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.locator('.rangeslider-slidebox')).toBeVisible();
+
+    await mito.getByRole('button', { name: '▾ Add Chart Element' }).click();
+    await mito.getByRole('button', { name: 'Show Range Slider' }).hover();
+    await mito.getByRole('button', { name: 'None' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.rangeslider-slidebox')).not.toBeVisible();
   });
 
   test('Escape key closes graph title input', async ({ page }) => {
