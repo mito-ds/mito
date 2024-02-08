@@ -342,7 +342,7 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('Column1 bar')).toBeVisible();
   });
 
-  test.only('Change Chart type to scatter', async ({ page }) => {
+  test('Change Chart type to scatter', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
