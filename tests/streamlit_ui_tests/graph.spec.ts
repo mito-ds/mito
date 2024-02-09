@@ -245,6 +245,22 @@ test.describe('Graph Functionality', () => {
     await openPopupAndEditTitle(mito, '.g-ytitle', 'Y axis Title');
   });
 
+  test('Update Y axis Title with double click after interacting with the legend', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    // Add a column to the graph
+    await mito.locator('.spacing-row', { hasText: 'Y Axis' }).getByText('+ Add').click();
+    await mito.locator('.mito-dropdown-item').getByText('Column2').click();
+
+    // Interact with the legend
+    await mito.locator('.legend .groups').first().click();
+
+    await openPopupAndEditTitle(mito, '.g-ytitle', 'Y axis Title');
+  });
+
   test('Update X axis title through toolbar', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
