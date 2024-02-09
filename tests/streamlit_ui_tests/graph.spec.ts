@@ -116,7 +116,7 @@ test.describe('Graph Functionality', () => {
     await expect(mito.getByText('Column1 scatter plot')).toBeVisible();
   });
 
-  test('Close Select Data taskpane then open it again', async ({ page }) => {
+  test('Close Select Data taskpane then open it again and make an edit', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
@@ -127,6 +127,82 @@ test.describe('Graph Functionality', () => {
 
     await clickButtonAndAwaitResponse(page, mito, { name: 'Select Data' })
     await expect(mito.locator('.spacing-row', { hasText: 'Select Data' })).toBeVisible();
+
+    // Add a column to the graph
+    await mito.locator('.spacing-row', { hasText: 'Y Axis' }).getByText('+ Add').click();
+    await mito.locator('.mito-dropdown-item').getByText('Column2').click();
+
+    // Check that the graph has been updated by checking the legend
+    await expect(mito.locator('.legend')).toHaveText('variableColumn1 Column2');
+  });
+
+  test('Make a histogram and change the aggregation function', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).toBeVisible();
+    await mito.getByRole('button', { name: '▾ Change Chart Type' }).click();
+    await mito.getByRole('button', { name: 'Histogram' }).hover();
+    await mito.getByRole('button', { name: 'Grouped' }).first().click();
+
+    await mito.locator('.mito-graph-configuration-container').getByText('count').click();
+    await mito.locator('.mito-dropdown-item', { hasText: 'sum' }).click();
+    await expect(mito.locator('.g-ytitle')).toHaveText('sum of None');
+  });
+
+  test('Switch between graph and data tab', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).toBeVisible();
+    await mito.locator('.footer').getByText('test' ).click();
+
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).not.toBeVisible();
+    await mito.locator('.footer').getByText('graph0' ).click();
+
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).toBeVisible();
+  });
+
+  test('Update graph when data changes', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).toBeVisible();
+    await expect(mito.locator('g.point')).toHaveCount(8);
+    
+    await mito.locator('.footer').getByText('test' ).click();
+
+    // Apply a filter to the data
+    await mito.locator('.endo-column-header-final-container').first().getByTitle('Edit Filters').click();
+    await mito.getByText('Add Filter').click();
+    await mito.getByText('Add a Filter').click();
+    await mito.locator('.spacing-row', { hasText: 'Where' }).locator('input').fill('1');
+    await expect(mito.locator('.mito-grid-cell-selected')).toHaveCount(3);
+
+    // Check that the graph has been updated
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).not.toBeVisible();
+    await mito.locator('.footer').getByText('graph0').click();
+
+    await awaitResponse(page);
+    await awaitResponse(page);
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).toBeVisible();
+    await expect(mito.locator('g.point')).toHaveCount(6);
+  });
+
+  test('Select Data taskpane still visible after toggling full screen', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
+    await mito.getByTitle('Enter fullscreen mode to see more of your data.').click();
+
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
+    await mito.getByTitle('Enter fullscreen mode to see more of your data.').click();
+    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
   });
 
   test('Scatter plot from selection', async ({ page }) => {
