@@ -76,6 +76,8 @@
     padding-right: 5px; 
     padding-left: 5px;
     box-sizing: border-box;
+
+    height: 100%;
 }
 
 .graph-sidebar-toolbar-content {
