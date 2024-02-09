@@ -447,14 +447,14 @@ test.describe('Graph Functionality', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
     await expect(mito.getByText('Column1 bar chart')).toBeVisible();
 
-    await mito.getByText('count').dblclick();
+    await mito.locator('.g-xtitle', { hasText: 'count' }).dblclick();
 
     await expect(mito.locator('.popup-input')).toBeVisible();
     await mito.locator('.popup-input').fill('Y axis Title');
     await mito.locator('.popup-input').press('Escape');
 
     await awaitResponse(page);
-    await expect(mito.getByText('count')).toBeVisible();
+    await expect(mito.locator('.g-xtitle', { hasText: 'count' })).toBeVisible();
   });
 
   test('Change font color of the graph title', async ({ page }) => {
