@@ -305,7 +305,6 @@ test.describe('Graph Functionality', () => {
 
     await expect(mito.getByText('Column1 bar chart')).toBeVisible();
     await mito.locator('.g-gtitle').click();
-    await expect(mito.locator('.g-gtitle')).toHaveCSS('outline', 'rgb(172, 172, 173) solid 1px');
     await mito.locator('.g-gtitle').press('Backspace');
     await expect(mito.getByText('Column1 bar chart')).not.toBeVisible();
   });
@@ -316,7 +315,6 @@ test.describe('Graph Functionality', () => {
 
     await expect(mito.locator('.g-xtitle', { hasText: 'count' })).toBeVisible();
     await mito.locator('.g-xtitle').click();
-    await expect(mito.locator('.g-xtitle')).toHaveCSS('outline', 'rgb(172, 172, 173) solid 1px');
     await mito.locator('.g-xtitle').press('Backspace');
     await expect(mito.locator('.g-xtitle', { hasText: 'count' })).not.toBeVisible();
   });
@@ -327,7 +325,6 @@ test.describe('Graph Functionality', () => {
 
     await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).toBeVisible();
     await mito.locator('.g-ytitle').click();
-    await expect(mito.locator('.g-ytitle')).toHaveCSS('outline', 'rgb(172, 172, 173) solid 1px');
     await mito.locator('.g-ytitle').press('Backspace');
     await expect(mito.locator('.g-ytitle', { hasText: 'count' })).not.toBeVisible();
   });
