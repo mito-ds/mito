@@ -59,6 +59,10 @@ export const Popup = (props: {
         input.focus();
     }, [props.position])
 
+    if (!props.mitoContainerRef) {
+        return <></>
+    }
+
     return (
         ReactDOM.createPortal(
             <div
@@ -100,7 +104,7 @@ export const Popup = (props: {
                     }}
                 />
             </div>,
-            props.mitoContainerRef?.current as HTMLDivElement
+            props.mitoContainerRef.current as HTMLDivElement
         )
     )
 }
