@@ -163,7 +163,7 @@ const PRESENTATION_FEATURES: Feature[] = [
   {
     feature: 'Graph Formatting',
     planSupport: {
-      'Open Source': false,
+      'Open Source': true,
       'Pro': true,
       'Enterprise': true 
     }

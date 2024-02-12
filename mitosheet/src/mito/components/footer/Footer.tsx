@@ -8,12 +8,13 @@ import "../../../../css/footer.css"
 import { MitoAPI } from '../../api/api';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import PlusIcon from '../icons/PlusIcon';
-import { EditorState, GraphDataDict, GridState, SheetData, UIState } from '../../types';
+import { EditorState, GraphDataArray, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
+import { Actions } from '../../utils/actions';
 
 type FooterProps = {
     sheetDataArray: SheetData[];
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     gridState: GridState;
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
     mitoAPI: MitoAPI;
@@ -21,7 +22,8 @@ type FooterProps = {
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
-    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    actions: Actions;
 };
 
 /*
@@ -31,7 +33,7 @@ type FooterProps = {
 function Footer(props: FooterProps): JSX.Element {
 
     const selectedSheetIndex = props.uiState.selectedSheetIndex
-    const selectedGraphID = props.uiState.selectedGraphID
+    const selectedGraphID = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.openGraph.graphID : undefined;
     const selectedTabType = props.uiState.selectedTabType
     const displayContextMenuForIndex = (typeof props.uiState.currOpenDropdown === 'object' && props.uiState.currOpenDropdown.type === 'footer-context-menu') ? props.uiState.currOpenDropdown.sheetIndex : null;
     const setDisplayContextMenuForIndex = (index: number | null) => {
@@ -48,8 +50,7 @@ function Footer(props: FooterProps): JSX.Element {
 
     // Get the sheet index to display the rows and columns of. 
     // If the sheet tab is a graph, then display the info from the data being graphed 
-    const sheetIndex = selectedTabType === 'graph' && selectedGraphID !== undefined && props.graphDataDict[selectedGraphID] !== undefined ? 
-        props.graphDataDict[selectedGraphID].graphParams.graphCreation.sheet_index : selectedSheetIndex
+    const sheetIndex = selectedSheetIndex
     const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex]
 
     const disabledDueToReplayAnalysis = props.uiState.currOpenTaskpane.type === TaskpaneType.UPDATEIMPORTS && props.uiState.currOpenTaskpane.failedReplayData !== undefined;
@@ -79,6 +80,7 @@ function Footer(props: FooterProps): JSX.Element {
                         <SheetTab
                             key={idx}
                             tabName={dfName}
+                            actions={props.actions}
                             tabIDObj={{tabType: 'data', sheetIndex: idx}}
                             isSelectedTab={selectedTabType === 'data' && idx === selectedSheetIndex}
                             uiState={props.uiState}
@@ -86,7 +88,7 @@ function Footer(props: FooterProps): JSX.Element {
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
-                            graphDataDict={props.graphDataDict}
+                            graphDataArray={props.graphDataArray}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
                             display={displayContextMenuForIndex === idx}
@@ -100,28 +102,33 @@ function Footer(props: FooterProps): JSX.Element {
                         />
                     )
                 })}
-                {Object.entries(props.graphDataDict || {}).map(([graphID, graphData], index) => {
+                {props.graphDataArray.map((graphData) => {
                     return (
                         <SheetTab
-                            key={graphID}
-                            tabName={graphData.graphTabName}
-                            tabIDObj={{tabType: 'graph', graphID: graphID}}
-                            isSelectedTab={selectedTabType === 'graph' && graphID === selectedGraphID}
+                            key={graphData.graph_id}
+                            tabName={graphData.graph_tab_name}
+                            tabIDObj={{tabType: 'graph', graphID: graphData.graph_id}}
+                            isSelectedTab={selectedTabType === 'graph' && graphData.graph_id === selectedGraphID}
                             uiState={props.uiState}
                             setUIState={props.setUIState}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             mitoAPI={props.mitoAPI}
                             mitoContainerRef={props.mitoContainerRef}
-                            graphDataDict={props.graphDataDict}
+                            graphDataArray={props.graphDataArray}
                             sheetDataArray={props.sheetDataArray}
                             setEditorState={props.setEditorState}
-                            display={displayContextMenuForIndex === (props.sheetDataArray.length + index)}
+                            actions={props.actions}
+                            display={typeof props.uiState.currOpenDropdown === 'object' && props.uiState.currOpenDropdown.type === 'footer-context-menu' && props.uiState.currOpenDropdown.graphID === graphData.graph_id}
                             setDisplayContextMenu={(display: boolean) => {
-                                if (display) {
-                                    setDisplayContextMenuForIndex(props.sheetDataArray.length + index);
-                                } else {
-                                    setDisplayContextMenuForIndex(null);
-                                }
+                                props.setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenDropdown: display ? {
+                                            type: 'footer-context-menu',
+                                            graphID: graphData.graph_id
+                                        } : undefined
+                                    }
+                                })
                             }}
                         />
                     )

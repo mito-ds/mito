@@ -1,11 +1,12 @@
 .mito-dropdown-item {
     display: flex;
     flex-direction: column;
-    width: 100%;
     padding: 10px;
     box-sizing: border-box;
     overflow: hidden;
     color: var(--mito-text);
+    border: none;
+    background-color: inherit;
 }
 
 /* 
@@ -17,24 +18,16 @@
     padding-bottom: 4px;
 }
 
-.mito-dropdown-item-selected {
-    background-color: var(--mito-background-highlight);
-}
-.mito-dropdown-item:hover {
-    background-color: var(--mito-background-highlight);
-}
-
 .mito-dropdown-item-icon-and-title-container {
     width: 100%;
     display: flex;
-    flex-direction: row;
 }
 
-.mito-dropdown-item-icon-and-title-container .mito-dropdown-item-icon-container {
+.mito-dropdown-item-icon-container {
     padding-right: 7px;
 }
 
-.mito-dropdown-item-icon-and-title-container .mito-dropdown-item-title-and-shortcut-container {
+.mito-dropdown-item-title-and-shortcut-container {
     display: flex;
     flex-direction: row;
     place-content: center space-between;
@@ -52,10 +45,6 @@
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-
-    /* Must be the same width as the .mito-dropdown-item-subtext-container */
-    width: 18px;
-    height: 15px;
     flex-shrink: 0;
 }
 
@@ -84,5 +73,73 @@
     color: var(--mito-text-light) !important;
 }
 
+/* Special CSS for horizontal dropdown items */
 
+.mito-dropdown-item-horizontal .mito-dropdown-item-icon-and-title-container {
+    flex-direction: row;
+}
 
+.mito-dropdown-item-horizontal .mito-dropdown-item {
+    width: 100%;
+}
+
+.mito-dropdown-item-horizontal .mito-dropdown-item:hover {
+    background-color: var(--mito-background-highlight);
+}
+
+.mito-dropdown-item-horizontal .mito-dropdown-item-icon-container {
+    /* Must be the same width as the .mito-dropdown-item-subtext-container */
+    width: 18px;
+    height: 15px;
+}
+
+.mito-dropdown-item-horizontal .mito-dropdown-item-selected {
+    background-color: var(--mito-background-highlight);
+}
+
+/* Special CSS for vertical dropdown items */
+
+.mito-dropdown-item-vertical .mito-dropdown-item {
+    border-radius: 3px;;
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-item-icon-and-title-container {
+    flex-direction: column;
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-items-container {
+    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    background: var(--mito-background-off);
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-item {
+    width: 85px;
+    align-items: center;
+    border: 1px solid var(--mito-text-light);
+    margin: 10px;
+    background-color: var(--mito-background);
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-item-icon-container {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-item-title-and-shortcut-container {
+    justify-content: center;
+}
+
+.mito-dropdown-item-vertical .mito-dropdown-item:hover,
+.mito-dropdown-item-vertical .mito-dropdown-item-selected {
+    outline: 3px solid var(--mito-highlight-light);
+}
+
+.mito-dropdown-item-vertical p {
+    text-wrap: wrap;
+    width: min-content;
+}

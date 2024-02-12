@@ -11,3 +11,13 @@
 .spacing-row-top-bottom-margin {
     margin: 4px 0px;
 }
+
+/* CSS for special cases */
+
+/* This is set specifically in the "Chart Design" tab because the space is
+    limited and we want to make sure there isn't any extra width.
+*/
+.mito-graph-configuration-container .spacing-row {
+    width: auto;
+  }
+  

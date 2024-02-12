@@ -4,70 +4,18 @@ import React, { useEffect, useState } from 'react';
 import { MitoAPI } from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { EditorState, GraphDataDict, GraphID, SheetData, UIState } from '../../types';
+import { EditorState, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
 import SelectedSheetTabDropdownIcon from '../icons/SelectedSheetTabDropdownIcon';
 import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownIcon';
 import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
-import { ModalEnum } from '../modals/modals';
 import GraphIcon from '../icons/GraphIcon';
 import SheetTabContextMenu from './SheetTabContextMenu';
-import GraphSheetTabContextMenu from './GraphSheetContextMenu';
-
-export const selectPreviousGraphSheetTab = (
-    graphDataDict: GraphDataDict, 
-    prevGraphIndex: number,
-    setUIState: React.Dispatch<React.SetStateAction<UIState>>
-): GraphID | undefined => {
-    /*
-        Try to select the graph that is at the same index as the previous graph.
-        If no graph exists at that index, then select the graph at the previous index.
-        If there are no graphs, then select the last sheet index
-    */
-    const graphIDs = Object.keys(graphDataDict || {})
-
-    let newGraphID: GraphID | undefined = undefined 
-    if (graphIDs.length > prevGraphIndex) {
-        // If the the number of graphIDs is larger than the prevGraphIndex, 
-        // then a new graphID is at the prevGraphIndex
-        newGraphID = graphIDs[prevGraphIndex]
-    } else if (graphIDs.length > 0) {
-        // Otherwise if the prevGraphIndex was the highest index graphID 
-        // and there is another graph, get the previous index
-        newGraphID = graphIDs[prevGraphIndex - 1]
-    } 
-
-    if (newGraphID !== undefined) {
-        // If there is a graph, then keep displaying graphs, otherwise display a data tab
-        // Safely mark as GraphID because of the check above that the compiler is unable to understand
-        const _newGraphID: GraphID = newGraphID
-
-        setUIState((prevUIState) => {
-            return {
-                ...prevUIState,
-                selectedGraphID: _newGraphID,
-                selectedTabType: 'graph',
-                currOpenTaskpane: {type: TaskpaneType.GRAPH, graphID: _newGraphID}
-            }
-        })
-
-        return _newGraphID
-    } else {
-        // If there are no more graphs, close the graph taskpane and display a data sheet instead
-        setUIState((prevUIState) => {
-            return {
-                ...prevUIState,
-                selectedGraphID: undefined,
-                selectedTabType: 'data',
-                currOpenTaskpane: {type: TaskpaneType.NONE}
-            }
-        })
-
-        return undefined
-    }
-}
+import GraphTabContextMenu from './GraphTabContextMenu';
+import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { Actions } from '../../utils/actions';
 
 type SheetTabProps = {
     tabName: string;
@@ -78,11 +26,12 @@ type SheetTabProps = {
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     sheetDataArray: SheetData[]
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>
     display: boolean;
     setDisplayContextMenu: (display: boolean) => void;
+    actions: Actions;
 };
 
 /*
@@ -143,11 +92,14 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
 
                 if (props.tabIDObj.tabType === 'graph') {
                     // If opening a graph tab, close the cell editor 
-                    props.setEditorState(undefined)
+                    props.setEditorState(undefined);
+                    const graphID = props.tabIDObj.graphID;
+                    void openGraphSidebar(props.setUIState, props.uiState, props.setEditorState, props.sheetDataArray, props.mitoAPI, {type: 'existing_graph', 'graphID': graphID});
                 }
                 
-                props.setUIState(prevUIState => {
-                    if (props.tabIDObj.tabType === 'data') {
+                if (props.tabIDObj.tabType === 'data') {
+                    const sheetIndex = props.tabIDObj.sheetIndex;
+                    props.setUIState(prevUIState => {
                         // If the user clicks on a data sheet tab, switch to it and make sure the graph taskpane is not open
                         const taskpaneInfo: TaskpaneInfo = prevUIState.currOpenTaskpane.type === TaskpaneType.GRAPH ? 
                             {type: TaskpaneType.NONE} : prevUIState.currOpenTaskpane
@@ -155,22 +107,11 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                         return {
                             ...prevUIState,
                             selectedTabType: 'data',
-                            selectedSheetIndex: props.tabIDObj.sheetIndex,
+                            selectedSheetIndex: sheetIndex,
                             currOpenTaskpane: taskpaneInfo
                         }
-                    } else {
-                        return {
-                            ...prevUIState,
-                            selectedTabType: 'graph',
-                            selectedGraphID: props.tabIDObj.graphID,
-                            currOpenModal: {type: ModalEnum.None},
-                            currOpenTaskpane: {
-                                type: TaskpaneType.GRAPH,
-                                graphID: props.tabIDObj.graphID
-                            } 
-                        }
-                    }
-                })
+                    })
+                }
             }} 
             onDoubleClick={() => {setIsRename(true)}} 
             onContextMenu={(e) => {
@@ -213,7 +154,10 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 }
                 {/* Display the dropdown that allows a user to perform some action */}
                 <div 
-                    onClick={() => {props.setDisplayContextMenu(true)}}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        props.setDisplayContextMenu(true)
+                    }}
                 >
                     {props.isSelectedTab ? <SelectedSheetTabDropdownIcon /> : <UnselectedSheetTabDropdownIcon />}
                 </div>
@@ -222,25 +166,31 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 <SheetTabContextMenu 
                     setDisplayContextMenu={props.setDisplayContextMenu}
                     setUIState={props.setUIState}
+                    uiState={props.uiState}
+                    setEditorState={props.setEditorState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
                     setIsRename={setIsRename}
                     sheetIndex={props.tabIDObj.sheetIndex}
                     mitoAPI={props.mitoAPI}
-                    graphDataDict={props.graphDataDict}
+                    graphDataArray={props.graphDataArray}
                     sheetDataArray={props.sheetDataArray}
                     display={props.display}
                 />
             }
             {props.tabIDObj.tabType === 'graph' &&
-                <GraphSheetTabContextMenu 
+                <GraphTabContextMenu 
                     setDisplayActions={props.setDisplayContextMenu}
                     setUIState={props.setUIState}
+                    uiState={props.uiState}
+                    sheetDataArray={props.sheetDataArray}
+                    setEditorState={props.setEditorState}
                     closeOpenEditingPopups={props.closeOpenEditingPopups}
                     setIsRename={setIsRename}
                     graphID={props.tabIDObj.graphID}
                     mitoAPI={props.mitoAPI}
-                    graphDataDict={props.graphDataDict}
+                    graphDataArray={props.graphDataArray}
                     display={props.display}
+                    actions={props.actions}
                 />
             }
         </div>

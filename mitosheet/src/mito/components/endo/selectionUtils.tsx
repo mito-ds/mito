@@ -781,7 +781,7 @@ export const isSelectionEntireSelectedColumn = (selection: MitoSelection): boole
     return (selection.startingRowIndex === -1 && selection.endingRowIndex === -1);
 }
 
-export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSelection[], sheetData: SheetData | undefined ): ColumnID[] => {
+export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSelection[], sheetData: SheetData | undefined, inSameOrderAsDataframe?: boolean ): ColumnID[] => {
     if (sheetData === undefined) {
         return []
     }
@@ -794,6 +794,9 @@ export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSel
     })
     // Deduplicate the list
     columnIndexes = [...new Set(columnIndexes)];
+    if (inSameOrderAsDataframe) {
+        columnIndexes = columnIndexes.sort();
+    }
 
     return columnIndexes
         .filter(colIdx => sheetData.data.length > colIdx)

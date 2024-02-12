@@ -100,3 +100,9 @@ input:checked + .toggle:after {
 }
 
   
+/* Special CSS for the toolbar */
+.mito-toolbar-bottom .toggle {
+  height: 22px;
+  font-size: 11px;
+  margin-left: 4px;
+}

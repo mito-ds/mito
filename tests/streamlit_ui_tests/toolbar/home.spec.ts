@@ -242,7 +242,7 @@ test.describe('Home Tab Buttons', () => {
     
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
 
-    await expect(mito.getByText('Setup Graph')).toBeVisible();
+    await expect(mito.locator('#mito-center-content-container', { hasText: 'Select Data' })).toBeVisible();
     await mito.getByTitle('Select columns to graph on the X axis.').getByText('+ Add').click();
     await mito.locator('.mito-dropdown-item').first().click();
     await expect(mito.locator('.plotly-graph-div').first()).toBeVisible();

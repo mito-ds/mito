@@ -1,46 +1,196 @@
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
-import { ColumnID, ColumnIDsMap, EditorState, GraphDataDict, GraphID, GraphParamsBackend, GraphParamsFrontend, SheetData, UIState } from "../../../types"
+import { MitoAPI, getRandomId } from "../../../api/api"
+import { ColumnID, ColumnIDsMap, EditorState, GraphData, GraphID, GraphOutput, GraphParamsBackend, GraphParamsFrontend, GraphRenderingParams, SheetData, UIState } from "../../../types"
 import { intersection } from "../../../utils/arrays"
 import { getDisplayColumnHeader } from "../../../utils/columnHeaders"
-import { isDatetimeDtype } from "../../../utils/dtypes"
+import { isDatetimeDtype, isNumberDtype } from "../../../utils/dtypes"
 import { convertStringToFloatOrUndefined } from "../../../utils/numbers"
 import { convertToStringOrUndefined } from "../../../utils/strings"
 import DropdownItem from "../../elements/DropdownItem"
-import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS, GraphType, GRAPH_SAFETY_FILTER_CUTOFF } from "./GraphSetupTab"
-import { MitoAPI, getRandomId } from "../../../api/api"
+import { ModalEnum } from "../../modals/modals"
 import { TaskpaneType } from "../taskpanes"
+import { GRAPHS_THAT_HAVE_BARMODE, GRAPHS_THAT_HAVE_HISTFUNC, GRAPHS_THAT_HAVE_LINE_SHAPE, GRAPHS_THAT_HAVE_POINTS } from "../../toolbar/GraphTabs/ChangeChartTypeButton"
+import { GRAPH_SAFETY_FILTER_CUTOFF, GraphType } from "./GraphSetupTab"
+import { OpenGraphType } from "../../../types"
 
 // Note: these should match the constants in Python as well
 const DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT = '#FFFFFF'
 const DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT = '#E6EBF5'
 const DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT = '#2F3E5D'
 
-// unless a graph type is provided
-export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: number, graphType?: GraphType): GraphParamsFrontend => {
-    graphType = graphType || GraphType.BAR
+export interface GraphElementType {
+    element: 'gtitle' | 'xtitle' | 'ytitle',
+
+    /** This is the value to default to if there is no value defined in the graph params */
+    defaultValue?: string,
+    
+    popupPosition?: {
+        left?: number,
+        right?: number,
+        top?: number,
+        bottom?: number,
+    }
+}
+
+/**
+ * Returns the default axis column ids for a given graph type and selected column ids.
+ * Used to set the default axis column ids based on the current selection when creating a new graph.
+ */
+const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedColumnIds?: ColumnID[]): {
+    x_axis_column_ids: ColumnID[],
+    y_axis_column_ids: ColumnID[]
+} => {
+    if (selectedColumnIds === undefined || selectedColumnIds.length === 0) {
+        return {
+            x_axis_column_ids: [],
+            y_axis_column_ids: []
+        }
+    }
+    if (selectedColumnIds.length === 1) {
+        return {
+            x_axis_column_ids: [],
+            y_axis_column_ids: selectedColumnIds
+        }
+    }
+    if (graphType === GraphType.SCATTER) {
+        return {
+            x_axis_column_ids: [selectedColumnIds[0]],
+            y_axis_column_ids: selectedColumnIds.slice(1)
+        }
+    } else {
+        if (!isNumberDtype(sheetData.columnDtypeMap[selectedColumnIds[0]])) {
+            return {
+                x_axis_column_ids: [selectedColumnIds[0]],
+                y_axis_column_ids: selectedColumnIds.slice(1)
+            }
+        } else {
+            return {
+                x_axis_column_ids: [],
+                y_axis_column_ids: selectedColumnIds
+            }
+        }
+    }
+}
+
+export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIState: React.Dispatch<React.SetStateAction<UIState>>, graphDataArray: GraphData[]) => {
+    const remainingGraphIDs = graphDataArray.filter(graphData => !graphIDs.includes(graphData.graph_id)).map(graphData => graphData.graph_id);
+    for (const graphID of graphIDs) {
+        await mitoAPI.editGraphDelete(graphID)
+    }
+    if (remainingGraphIDs.length === 0) {
+        return setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                selectedTabType: 'data',
+                selectedSheetIndex: 0,
+                currOpenTaskpane: { type: TaskpaneType.NONE }
+            }
+        })
+    }
+
+    const existingParams = await getParamsForExistingGraph(mitoAPI, remainingGraphIDs[0]);
+    if (existingParams === undefined) {
+        return;
+    }
+    return setUIState(prevUIState => {
+        return {
+            ...prevUIState,
+            selectedTabType: 'graph',
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphSidebarOpen: false,
+                openGraph: {
+                    type: 'existing_graph',
+                    graphID: remainingGraphIDs[0],
+                    existingParams: existingParams
+                }
+            }
+        }
+    })
+}
+
+export const getValidParamsFromExistingParams = (existingParams: GraphParamsFrontend, sheetDataArray: SheetData[]): GraphParamsFrontend => {
+    const graphDataSourceSheetIndex = existingParams.graphCreation.sheet_index;
+    const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
+
+    const xAxisColumnIDs = intersection(
+        validColumnIDs,
+        existingParams.graphCreation.x_axis_column_ids
+    )
+    const yAxisColumnIDs = intersection(
+        validColumnIDs,
+        existingParams.graphCreation.y_axis_column_ids
+    )
+
+    const color = existingParams.graphCreation.color !== undefined && validColumnIDs.includes(existingParams.graphCreation.color) ? existingParams.graphCreation.color : undefined
+
     return {
+        ...existingParams,
+        graphCreation: {
+            ...existingParams.graphCreation,
+            x_axis_column_ids: xAxisColumnIDs,
+            y_axis_column_ids: yAxisColumnIDs,
+            color: color
+        }
+    }
+}
+
+
+export const getDefaultGraphParams = (
+    mitoContainerRef: React.RefObject<HTMLDivElement>,
+    sheetDataArray: SheetData[],
+    selectedSheetIndex: number,
+    openGraph: OpenGraphType
+): GraphParamsFrontend => {
+
+    const graphRenderingParams = getGraphRenderingParams(mitoContainerRef)
+
+    if (openGraph.type === 'existing_graph') {
+        const newValidParams = getValidParamsFromExistingParams(openGraph.existingParams, sheetDataArray);
+        return {
+            ...newValidParams,
+            graphRendering: graphRenderingParams
+        }
+    }
+
+
+    if (openGraph.type === 'new_duplicate_graph') {
+        const newValidParams = getValidParamsFromExistingParams(openGraph.existingParamsOfDuplicated, sheetDataArray);
+        return {
+            ...newValidParams,
+            graphID: openGraph.graphID,
+            graphRendering: graphRenderingParams
+        }
+    }
+
+    // This is the case where we are creating a new graph
+    const newGraphType = openGraph.graphType;
+    const selectedColumnIDs = openGraph.selectedColumnIds;
+    
+    const axis_column_ids = getAxisColumnIDs(sheetDataArray[selectedSheetIndex], newGraphType, selectedColumnIDs);
+    
+    return {
+        graphID: openGraph.graphID,
         graphPreprocessing: {
             safety_filter_turned_on_by_user: true
         },
         graphCreation: {
-            graph_type: graphType,
-            sheet_index: sheetIndex,
-            x_axis_column_ids: [],
-            y_axis_column_ids: [],
+            graph_type: newGraphType,
+            sheet_index: selectedSheetIndex,
             color: undefined,
             facet_col_column_id: undefined,
             facet_row_column_id: undefined,
             facet_col_wrap: undefined,
             facet_col_spacing: undefined,
             facet_row_spacing: undefined,
-
+            ...axis_column_ids,
             // Params that are only available to some graph types
-            points: GRAPHS_THAT_HAVE_POINTS.includes(graphType) ? 'outliers' : undefined,
-            line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(graphType) ? 'linear' : undefined,
+            points: GRAPHS_THAT_HAVE_POINTS.includes(newGraphType) ? 'outliers' : undefined,
+            line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(newGraphType) ? 'linear' : undefined,
             nbins: undefined,
             histnorm: undefined,
-            histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(graphType) ? 'count' : undefined
+            histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(newGraphType) ? 'count' : undefined
         },
         graphStyling: {
             title: {
@@ -80,9 +230,10 @@ export const getDefaultGraphParams = (sheetDataArray: SheetData[], sheetIndex: n
             plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
 
             // Params that are only available to some graph types
-            barmode: GRAPHS_THAT_HAVE_BARMODE.includes(graphType) ? 'group' : undefined,
+            barmode: GRAPHS_THAT_HAVE_BARMODE.includes(newGraphType) ? 'group' : undefined,
             barnorm: undefined,
-        }
+        },
+        graphRendering: graphRenderingParams
     }
 }
 
@@ -93,63 +244,10 @@ export const getDefaultSafetyFilter = (sheetDataArray: SheetData[], sheetIndex: 
     return sheetDataArray[sheetIndex] === undefined || sheetDataArray[sheetIndex].numRows > GRAPH_SAFETY_FILTER_CUTOFF
 }
 
-/*
-    A helper function for getting the params for the graph for this sheet when
-    opening the graphing taskpane, or when switching to a sheet.
-
-    Notably, will filter oout any columns that are no longer in the dataset, 
-    which stops the user from having invalid columns selected in their graph
-    params.
-*/
-export const getGraphParams = (   
-    graphDataDict: GraphDataDict,
-    graphID: GraphID,
-    selectedSheetIndex: number,
-    sheetDataArray: SheetData[],
-): GraphParamsFrontend => {
-
-    const graphParamsCopy: GraphParamsFrontend = window.structuredClone(graphDataDict[graphID]?.graphParams); 
-
-    // If the graph already exists, get the data source sheet index from the graph params.
-    // Otherwise create a new graph of the selectedSheetIndex
-    const graphDataSourceSheetIndex = graphParamsCopy !== undefined ? graphParamsCopy.graphCreation.sheet_index : selectedSheetIndex
-
-    // If the graph already exists, retrieve the graph params that still make sense. In other words, 
-    // if a column was previously included in the graph and it no longer exists, remove it from the graph. 
-    if (graphParamsCopy !== undefined) {
-        // Filter out column headers that no longer exist
-        const validColumnIDs = sheetDataArray[graphDataSourceSheetIndex] !== undefined ? sheetDataArray[graphDataSourceSheetIndex].data.map(c => c.columnID) : [];
-        const xAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParamsCopy.graphCreation.x_axis_column_ids
-        )
-        const yAxisColumnIDs = intersection(
-            validColumnIDs,
-            graphParamsCopy.graphCreation.y_axis_column_ids
-        )
-        const color = graphParamsCopy.graphCreation.color !== undefined && validColumnIDs.includes(graphParamsCopy.graphCreation.color) ? graphParamsCopy.graphCreation.color : undefined
-
-        
-        return {
-            ...graphParamsCopy,
-            graphCreation: {
-                ...graphParamsCopy.graphCreation,
-                x_axis_column_ids: xAxisColumnIDs,
-                y_axis_column_ids: yAxisColumnIDs,
-                color: color
-            }
-        }
-    }
-
-    // If the graph does not already exist, create a default graph.
-    return getDefaultGraphParams(sheetDataArray, graphDataSourceSheetIndex);
-}
-
 // Returns a list of dropdown items. Selecting them sets the color attribute of the graph.
 // Option 'None' always comes first.
 export const getColorDropdownItems = (
-    graphSheetIndex: number,
-    columnIDsMapArray: ColumnIDsMap[],
+    columnIDsMap: ColumnIDsMap,
     columnDtypesMap: Record<string, string>,
     setColor: (columnID: ColumnID | undefined) => void,
 ): JSX.Element[] => {
@@ -161,8 +259,8 @@ export const getColorDropdownItems = (
         />
     )]
     
-    const columnDropdownItems = Object.keys(columnIDsMapArray[graphSheetIndex] || {}).map(columnID => {
-        const columnHeader = columnIDsMapArray[graphSheetIndex][columnID];
+    const columnDropdownItems = Object.keys(columnIDsMap || {}).map(columnID => {
+        const columnHeader = columnIDsMap[columnID];
 
         // Plotly doesn't support setting the color as a date series, so we disable date series dropdown items
         const disabled = isDatetimeDtype(columnDtypesMap[columnID])
@@ -197,106 +295,326 @@ export const getGraphTypeFullName = (graphType: GraphType): string => {
     }
 }
 
+export const getGraphRenderingParams = (mitoContainerRef: React.RefObject<HTMLDivElement>): GraphRenderingParams => {
+    const centerContentContainerBoundingRect: DOMRect | undefined = mitoContainerRef.current
+        ?.querySelector('#mito-center-content-container')
+        ?.getBoundingClientRect();
+
+    const graphSidebarToolbarContainerBoundingRect: DOMRect | undefined = mitoContainerRef.current
+        ?.querySelector('.graph-sidebar-toolbar-container')
+        ?.getBoundingClientRect();
+
+    const graphSidebarToolbarContainerWidth = graphSidebarToolbarContainerBoundingRect?.width ?? 0;
+
+    if (centerContentContainerBoundingRect === undefined) {
+        return {
+            height: undefined,
+            width: undefined
+        };
+    }
+
+    const newHeight = `${centerContentContainerBoundingRect?.height - 10}px`; // Subtract pixels from the height & width to account for padding
+    const newWidth = `${centerContentContainerBoundingRect?.width - 20 - graphSidebarToolbarContainerWidth}px`;
+
+    return {
+        height: newHeight,
+        width: newWidth,
+    }
+}
+
 export const convertFrontendtoBackendGraphParams = (graphParamsFrontend: GraphParamsFrontend): GraphParamsBackend => {
     const graphCreationParams = graphParamsFrontend.graphCreation
     const graphStylingParams = graphParamsFrontend.graphStyling
 
-    const x =  {
-        ...graphParamsFrontend,
-        graphCreation: {
+    return {
+        graph_id: graphParamsFrontend.graphID,
+        graph_creation: {
             ...graphParamsFrontend.graphCreation,
             facet_col_wrap: convertStringToFloatOrUndefined(graphCreationParams.facet_col_wrap),
             facet_col_spacing: convertStringToFloatOrUndefined(graphCreationParams.facet_col_spacing),
             facet_row_spacing: convertStringToFloatOrUndefined(graphCreationParams.facet_row_spacing),
             nbins: convertStringToFloatOrUndefined(graphCreationParams.nbins),
         },
-        graphStyling: {
+        graph_styling: {
             ...graphParamsFrontend.graphStyling,
             xaxis: {
                 ...graphParamsFrontend.graphStyling.xaxis,
-                gridwidth: convertStringToFloatOrUndefined(graphStylingParams.xaxis.gridwidth)
+                gridwidth: convertStringToFloatOrUndefined(graphStylingParams?.xaxis?.gridwidth)
             },
             yaxis: {
                 ...graphParamsFrontend.graphStyling.yaxis,
-                gridwidth: convertStringToFloatOrUndefined(graphStylingParams.yaxis.gridwidth)
+                gridwidth: convertStringToFloatOrUndefined(graphStylingParams?.yaxis?.gridwidth)
             },
             legend: {
                 ...graphParamsFrontend.graphStyling.legend,
                 x: convertStringToFloatOrUndefined(graphStylingParams.legend.x),
                 y: convertStringToFloatOrUndefined(graphStylingParams.legend.y)
             }
-        }
+        },
+        graph_preprocessing: graphParamsFrontend.graphPreprocessing,
+        graph_rendering: graphParamsFrontend.graphRendering
     }
-
-    return x
 }
 
-export const convertBackendtoFrontendGraphParams = (graphParamsFrontend: GraphParamsBackend): GraphParamsFrontend => {
-    const graphCreationParams = graphParamsFrontend.graphCreation
-    const graphStylingParams = graphParamsFrontend.graphStyling
+export const convertBackendtoFrontendGraphParams = (graphParamsBackend: GraphParamsBackend): GraphParamsFrontend => {
+    const graphCreationParams = graphParamsBackend.graph_creation
+    const graphStylingParams = graphParamsBackend.graph_styling
 
     return {
-        ...graphParamsFrontend,
+        graphID: graphParamsBackend.graph_id,
         graphCreation: {
-            ...graphParamsFrontend.graphCreation,
+            ...graphCreationParams,
             facet_col_wrap: convertToStringOrUndefined(graphCreationParams.facet_col_wrap),
             facet_col_spacing: convertToStringOrUndefined(graphCreationParams.facet_col_spacing),
             facet_row_spacing: convertToStringOrUndefined(graphCreationParams.facet_row_spacing),
             nbins: convertToStringOrUndefined(graphCreationParams.nbins)
         },
         graphStyling: {
-            ...graphParamsFrontend.graphStyling,
+            ...graphStylingParams,
             xaxis: {
-                ...graphParamsFrontend.graphStyling.xaxis,
-                gridwidth: convertToStringOrUndefined(graphStylingParams.xaxis.gridwidth)
+                ...graphStylingParams.xaxis,
+                gridwidth: convertToStringOrUndefined(graphStylingParams.xaxis?.gridwidth)
             },
             yaxis: {
-                ...graphParamsFrontend.graphStyling.yaxis,
-                gridwidth: convertToStringOrUndefined(graphStylingParams.yaxis.gridwidth)
+                ...graphStylingParams.yaxis,
+                gridwidth: convertToStringOrUndefined(graphStylingParams.yaxis?.gridwidth)
             },
             legend: {
-                ...graphParamsFrontend.graphStyling.legend,
-                x: convertToStringOrUndefined(graphStylingParams.legend.x),
-                y: convertToStringOrUndefined(graphStylingParams.legend.y)
+                ...graphStylingParams.legend,
+                x: convertToStringOrUndefined(graphStylingParams.legend?.x),
+                y: convertToStringOrUndefined(graphStylingParams.legend?.y)
             }
+        },
+        graphPreprocessing: graphParamsBackend.graph_preprocessing,
+        graphRendering: graphParamsBackend.graph_rendering
+    }
+}
+
+export const getParamsForExistingGraph = async (
+    mitoAPI: MitoAPI,
+    graphID: GraphID,
+): Promise<GraphParamsFrontend | undefined> => {
+    const response = await mitoAPI.getGraphParams(graphID);
+    const existingParamsBackend = 'error' in response ? undefined : response.result;
+    if (existingParamsBackend !== undefined) {
+        return convertBackendtoFrontendGraphParams(existingParamsBackend);
+    }
+}
+
+
+export const openGraphSidebar = async (
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>,
+    uiState: UIState,
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
+    sheetDataArray: SheetData[],
+    mitoAPI: MitoAPI,
+    newOpenGraph: {
+        type: 'existing_graph'
+        graphID: GraphID
+    } | {
+        type: 'new_graph'
+        graphType: GraphType
+        selectedColumnIds?: ColumnID[]
+    } | {
+        type: 'new_duplicate_graph',
+        graphIDToDuplicate: GraphID
+    }
+) => {
+
+
+
+    // We turn off editing mode, if it is on
+    setEditorState(undefined);
+
+    // If there is no data, prompt the user to import and nothing else
+    if (sheetDataArray.length === 0) {
+        setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {
+                    type: TaskpaneType.IMPORT_FIRST,
+                    message: 'Before graphing data, you need to import some!'
+                }
+            }
+        })
+        return;
+    }
+
+    if (newOpenGraph.type === 'existing_graph') {
+        const existingParams = await getParamsForExistingGraph(mitoAPI, newOpenGraph.graphID);
+        if (existingParams === undefined) {
+            return;
+        }
+        setUIState({
+            ...uiState,
+            selectedTabType: 'graph',
+            currOpenModal: {type: ModalEnum.None},
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphSidebarOpen: false,
+                openGraph: {
+                    type: 'existing_graph',
+                    graphID: newOpenGraph.graphID,
+                    existingParams: existingParams
+                }
+            },
+            currentToolbarTab: 'Chart Design'
+        })
+    } else if (newOpenGraph.type === 'new_graph') {
+        const newGraphID = getRandomId();
+        setUIState({
+            ...uiState,
+            selectedTabType: 'graph',
+            currOpenModal: {type: ModalEnum.None},
+            currentToolbarTab: 'Chart Design',
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphSidebarOpen: true,
+                openGraph: {
+                    type: 'new_graph',
+                    graphID: newGraphID,
+                    graphType: newOpenGraph.graphType,
+                    selectedColumnIds: newOpenGraph.selectedColumnIds
+                }
+            }
+        })
+    } else {
+        // If we're duplicating a graph, we get its params, but also get a new graph ID
+        // with these params
+        const existingParams = await getParamsForExistingGraph(mitoAPI, newOpenGraph.graphIDToDuplicate);
+        if (existingParams === undefined) {
+            return;
+        }
+        
+        const newGraphID = getRandomId();
+        setUIState({
+            ...uiState,
+            selectedTabType: 'graph',
+            currOpenModal: {type: ModalEnum.None},
+            currOpenTaskpane: {
+                type: TaskpaneType.GRAPH,
+                graphSidebarOpen: true,
+                openGraph: {
+                    type: 'new_duplicate_graph',
+                    graphID: newGraphID,
+                    graphIDOfDuplicated: newOpenGraph.graphIDToDuplicate,
+                    existingParamsOfDuplicated: existingParams
+                }
+            }
+        })
+    }
+}
+
+export const getGraphElementObjects = (graphOutput: GraphOutput) => {
+    if (graphOutput === undefined) {
+        return;
+    }
+    const div: any = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])
+    if (div === null) {
+        return;
+    }
+    
+    // Main Title
+    return { 
+        div: div,
+        gtitle: div.getElementsByClassName('g-gtitle')[0],
+        xtitle: div.getElementsByClassName('g-xtitle')[0],
+        ytitle: div.getElementsByClassName('g-ytitle')[0]
+    }
+}
+
+export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput): GraphElementType => {
+    const clientRect = graphElement.getBoundingClientRect()
+
+    if (graphOutput === undefined) {
+        return {
+            element: elementType,
+            popupPosition: {
+                left: 0,
+                top: 0
+            },
+            defaultValue: ''
+        }
+    }
+    const parentDiv = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0]);
+    const parentDivClientRect = parentDiv?.getBoundingClientRect();
+    const parentDivLeft = parentDivClientRect?.left ?? 0;
+    const parentDivTop = parentDivClientRect?.top ?? 0;
+    const parentDivBottom = parentDivClientRect?.bottom ?? 0;
+    if (elementType === 'gtitle') {
+        return {
+            element: 'gtitle',
+            popupPosition: {
+                left: clientRect.left - parentDivLeft,
+                top: clientRect.bottom - parentDivTop + 10
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
+        }
+    } else if (elementType === 'xtitle') {
+        return {
+            element: 'xtitle',
+            popupPosition: {
+                left: (clientRect.left + clientRect.right) / 2 - parentDivLeft - 70,
+                bottom: (parentDivBottom - clientRect.top) + 10
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
+        }
+    } else {
+        return {
+            element: 'ytitle',
+            popupPosition: {
+                left: clientRect.left - parentDivLeft,
+                bottom: parentDivBottom - clientRect.top + 10
+            },
+            defaultValue: graphElement.children?.[0]?.innerHTML
         }
     }
 }
 
-export const openGraphEditor = 
-    async (
-        setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>,
-        sheetDataArray: SheetData[],
-        setUIState: React.Dispatch<React.SetStateAction<UIState>>,
-        sheetIndex: number,
-        mitoAPI: MitoAPI,
-        graphType?: GraphType
-    ) => {
-    // We turn off editing mode, if it is on
-        setEditorState(undefined);
-
-        // If there is no data, prompt the user to import and nothing else
-        if (sheetDataArray.length === 0) {
-            setUIState((prevUIState) => {
-                return {
-                    ...prevUIState,
-                    currOpenTaskpane: {
-                        type: TaskpaneType.IMPORT_FIRST,
-                        message: 'Before graphing data, you need to import some!'
-                    }
-                }
-            })
-            return;
-        }
-
-        const newGraphID = getRandomId() // Create a new GraphID
-        const graphParams = getDefaultGraphParams(sheetDataArray, sheetIndex, graphType)
-
-        await mitoAPI.editGraph(
-            newGraphID,
-            graphParams,
-            '100%',
-            '100%',
-            getRandomId(), 
-        );
+export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void)) => {
+    const graphElementObjects = getGraphElementObjects(graphOutput);
+    if (graphElementObjects === undefined) {
+        return;
     }
+    
+    const { gtitle, ytitle, xtitle } = graphElementObjects;
+
+    // First, add the style to make it clickable with pointer-events: all
+    gtitle.style.pointerEvents = 'all'
+    xtitle.style.pointerEvents = 'all'
+    ytitle.style.pointerEvents = 'all'
+
+    /**
+     * Set selected graph element when clicked
+     */
+    gtitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'gtitle',
+        })
+    })
+    xtitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'xtitle',
+        });
+    })
+    ytitle.addEventListener('click', () => {
+        setSelectedGraphElement({
+            element: 'ytitle',
+        })
+    })
+
+    /**
+     * Open popup when double clicked
+     */
+    gtitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput))
+    });
+
+    xtitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput))
+    });
+
+    ytitle.addEventListener('dblclick', () => {
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput))
+    });
+}

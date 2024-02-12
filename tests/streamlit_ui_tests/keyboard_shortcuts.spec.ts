@@ -81,7 +81,7 @@ test.describe('Keyboard Shortcuts', () => {
       const mito = await getMitoFrameWithTestCSV(page);
       await page.keyboard.press('Alt+F1');
       await awaitResponse(page);
-      await expect(mito.getByText('Setup Graph')).toBeVisible();
+      await expect(mito.locator('#mito-center-content-container', { hasText: 'Select Data' })).toBeVisible();
     })
   
     test('Open File Import', async ({ page, browserName}) => {
