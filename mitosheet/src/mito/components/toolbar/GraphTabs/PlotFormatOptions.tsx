@@ -36,7 +36,7 @@ export const PlotFormatOptions = (props: {
                 id='paper-bgcolor'
                 type='background-color'
             />
-            <p>Chart Interior</p>
+            <p>Chart Exterior</p>
         </div>
     </div>
 }
