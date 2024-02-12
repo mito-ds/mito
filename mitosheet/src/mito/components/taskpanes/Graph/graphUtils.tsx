@@ -523,10 +523,10 @@ export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     }
 }
 
-export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput): GraphElementType => {
+export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput, mitoContainer: HTMLElement | null): GraphElementType => {
     const clientRect = graphElement.getBoundingClientRect()
 
-    if (graphOutput === undefined) {
+    if (mitoContainer === null || graphOutput === undefined) {
         return {
             element: elementType,
             popupPosition: {
@@ -536,17 +536,18 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
             defaultValue: ''
         }
     }
-    const parentDiv = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0]);
-    const parentDivClientRect = parentDiv?.getBoundingClientRect();
-    const parentDivLeft = parentDivClientRect?.left ?? 0;
-    const parentDivTop = parentDivClientRect?.top ?? 0;
-    const parentDivBottom = parentDivClientRect?.bottom ?? 0;
+
+    const graphOutputTop = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])?.getBoundingClientRect().top ?? 0;
+    const mitoDivClientRect = mitoContainer?.getBoundingClientRect();
+    const mitoDivLeft = mitoDivClientRect?.left ?? 0;
+    const mitoDivTop = mitoDivClientRect?.top ?? 0;
+    const mitoDivBottom = mitoDivClientRect?.bottom ?? 0;
     if (elementType === 'gtitle') {
         return {
             element: 'gtitle',
             popupPosition: {
-                left: clientRect.left - parentDivLeft,
-                top: clientRect.bottom - parentDivTop + 10
+                left: clientRect.left - mitoDivLeft,
+                top: clientRect.bottom - mitoDivTop + 10
             },
             defaultValue: graphElement.children?.[0]?.innerHTML
         }
@@ -554,24 +555,26 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
         return {
             element: 'xtitle',
             popupPosition: {
-                left: (clientRect.left + clientRect.right) / 2 - parentDivLeft - 70,
-                bottom: (parentDivBottom - clientRect.top) + 10
+                left: (clientRect.left + clientRect.right) / 2 - mitoDivLeft - 70,
+                bottom: (mitoDivBottom - clientRect.top) + 10
             },
             defaultValue: graphElement.children?.[0]?.innerHTML
         }
     } else {
+        const titleDivTop = mitoDivBottom - clientRect.top + 10;
+        const graphDivTop = mitoDivBottom - graphOutputTop;
         return {
             element: 'ytitle',
             popupPosition: {
-                left: clientRect.left - parentDivLeft,
-                bottom: parentDivBottom - clientRect.top + 10
+                left: clientRect.left - mitoDivLeft,
+                bottom: Math.min(titleDivTop, graphDivTop)
             },
             defaultValue: graphElement.children?.[0]?.innerHTML
         }
     }
 }
 
-export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void)) => {
+export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void), mitoContainer: HTMLElement | null) => {
     const graphElementObjects = getGraphElementObjects(graphOutput);
     if (graphElementObjects === undefined) {
         return;
@@ -607,14 +610,14 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
      * Open popup when double clicked
      */
     gtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput, mitoContainer))
     });
 
     xtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, mitoContainer))
     });
 
     ytitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, mitoContainer))
     });
 }
