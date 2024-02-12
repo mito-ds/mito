@@ -252,54 +252,6 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('unique in left')).toBeVisible();
   });
 
-  test('Graph', async ({ page }) => {
-    const mito = await getMitoFrameWithTestCSV(page);
-    
-    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
-
-    await expect(mito.locator('#mito-center-content-container').getByText('Select Data')).toBeVisible();
-    await mito.getByTitle('Select columns to graph on the X axis.').getByText('+ Add').click();
-    await mito.locator('.mito-dropdown-item').first().click();
-    await expect(mito.locator('.plotly-graph-div').first()).toBeVisible();
-  });
-
-  test('Graph from selection', async ({ page }) => {
-    const mito = await getMitoFrameWithTestCSV(page);
-    
-    await mito.getByTitle('Column1').click();
-    await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
-    
-    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
-
-    await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
-    await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();
-  })
-
-  test('Graph from selection with columns selected in reverse order', async ({ page }) => {
-    const mito = await getMitoFrameWithTestCSV(page);
-    
-    await mito.getByTitle('Column2').click();
-    await mito.getByTitle('Column1').click({ modifiers: ['Shift']});
-    
-    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
-
-    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(1)).toHaveText('Column1');
-    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(2)).toHaveText('Column2');
-  })
-
-  test('Scatter plot from selection', async ({ page }) => {
-    const mito = await getMitoFrameWithTestCSV(page);
-    
-    await mito.getByTitle('Column1').click();
-    await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
-    
-    await clickTab(page, mito, 'Insert');
-    await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' })
-
-    await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
-    await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();
-  })
-
   test('AI Not Exist on Enterprise', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 

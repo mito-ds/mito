@@ -111,7 +111,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
     const displaySubtextOnHover = props.displaySubtextOnHover === true;
     
     return (
-        <div 
+        <button 
             className={classNames('mito-dropdown-item', {[DROPDOWN_IGNORE_CLICK_CLASS]: disabled, [DROPDOWN_SUPRESS_FOCUS_ON_CLOSE]: props.supressFocusSettingOnClose}, props.className)}
             style={(props.canHaveCheckMark && !props.hasCheckMark) ? { paddingLeft: '32px' } : undefined}
             onClick={(e) => {
@@ -162,7 +162,7 @@ const DropdownItem = (props: DropdownItemProps): JSX.Element => {
                 </div>
             }
             {props.subMenu}
-        </div>
+        </button>
     )
 } 
 

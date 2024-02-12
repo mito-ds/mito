@@ -5,6 +5,8 @@
     box-sizing: border-box;
     overflow: hidden;
     color: var(--mito-text);
+    border: none;
+    background-color: inherit;
 }
 
 /* 

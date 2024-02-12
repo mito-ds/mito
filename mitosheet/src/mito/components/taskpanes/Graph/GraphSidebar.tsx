@@ -268,7 +268,7 @@ const GraphSidebar = (props: {
                     <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
                 }
                 <Popup
-                    value={(selectedGraphElement?.element === 'gtitle' ? graphParams?.graphStyling.title.title : selectedGraphElement?.element === 'xtitle' ? graphParams?.graphStyling.xaxis.title : selectedGraphElement?.element === 'ytitle' ? graphParams?.graphStyling.yaxis.title : '') ?? selectedGraphElement?.defaultValue ?? ''}
+                    value={(selectedGraphElement?.element === 'gtitle' ? graphParams?.graphStyling.title.title : selectedGraphElement?.element === 'xtitle' ? graphParams?.graphStyling.xaxis?.title : selectedGraphElement?.element === 'ytitle' ? graphParams?.graphStyling.yaxis?.title : '') ?? selectedGraphElement?.defaultValue ?? ''}
                     setValue={(value) => {
                         const update = {
                             graphStyling: {
