@@ -569,6 +569,8 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
         return {
             element: 'ytitle',
             popupPosition: {
+                // Special case for ytitle, we don't want the context menu to be on top of the title,
+                // so we move it to the right a bit
                 left: display === 'context-menu' ? clientRect.left - parentDivLeft + 25 : clientRect.left - parentDivLeft,
                 bottom: parentDivBottom - clientRect.top + 10
             },

@@ -245,6 +245,37 @@ test.describe('Graph Functionality', () => {
     await openPopupAndEditTitle(mito, '.g-ytitle', 'Y axis Title');
   });
 
+  test('Update Y axis title with context menu', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.locator('.g-ytitle').click({ button: 'right' });
+    await mito.getByRole('button', { name: 'Edit Title' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.popup-input')).toBeVisible();
+    await mito.locator('.popup-input').fill('Y axis Title');
+    await mito.locator('.popup-input').press('Enter');
+
+    await awaitResponse(page);
+    await expect(mito.locator('.g-ytitle', { hasText: 'Y axis Title' })).toBeVisible();
+  });
+
+  test('Delete y axis title with context menu', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).toBeVisible();
+
+    await mito.locator('.g-ytitle').click({ button: 'right' });
+    await mito.getByRole('button', { name: 'Delete' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator('.g-ytitle', { hasText: 'Column1' })).not.toBeVisible();
+  });
+
   test('Update Y axis Title with double click after interacting with the legend', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
