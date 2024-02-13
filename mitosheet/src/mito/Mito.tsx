@@ -1029,7 +1029,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             onClick={(e) => {
                 const eventTarget = e.target;
                 if (uiState.currOpenTaskpane.type === TaskpaneType.GRAPH &&
-                    !!uiState.currOpenTaskpane.currentGraphElement?.display &&
+                    (['context-menu', 'popup-title-editor'].includes(uiState.currOpenTaskpane.currentGraphElement?.display ?? '')) &&
                     !(eventTarget instanceof HTMLInputElement && eventTarget.className.includes('popup-input'))) {
                     e.stopPropagation();
                     setUIState(prevUIState => {
