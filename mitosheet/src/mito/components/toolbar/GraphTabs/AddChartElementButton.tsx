@@ -91,7 +91,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenTaskpane: { 
                                             ...prevUIState.currOpenTaskpane, 
-                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle', props.graphOutput)
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle', props.graphOutput, props.mitoContainerRef?.current)
                                         },
                                     }
                                 })
@@ -113,7 +113,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenTaskpane: { 
                                             ...prevUIState.currOpenTaskpane, 
-                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle', props.graphOutput)
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle', props.graphOutput, props.mitoContainerRef?.current)
                                         },
                                     }
                                 })
@@ -158,7 +158,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenTaskpane: { 
                                             ...prevUIState.currOpenTaskpane, 
-                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle', props.graphOutput)
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle', props.graphOutput, props.mitoContainerRef?.current)
                                         },
                                     }
                                 })

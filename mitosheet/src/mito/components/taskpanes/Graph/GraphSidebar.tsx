@@ -17,6 +17,7 @@ import { updateObjectWithPartialObject } from '../../../utils/objects';
 import { classNames } from '../../../utils/classNames';
 import Input from '../../elements/Input';
 import { getInputWidth } from '../../elements/Input';
+import ReactDOM from 'react-dom';
 
 export const Popup = (props: {
     value: string;
@@ -26,7 +27,7 @@ export const Popup = (props: {
         top?: number;
         bottom?: number;
     };
-    containerRef?: React.RefObject<HTMLDivElement>;
+    mitoContainerRef?: React.RefObject<HTMLDivElement>;
     setValue: (value: string) => void;
     onClose: () => void;
     caretPosition?: 'above' | 'below-left' | 'below-centered';
@@ -58,46 +59,53 @@ export const Popup = (props: {
         input.focus();
     }, [props.position])
 
+    if (!props.mitoContainerRef) {
+        return <></>
+    }
+
     return (
-        <div
-            className={`graph-element-popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : props.caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
-            style={{
-                position: 'absolute',
-                height: '32px',
-                left: props.position.left,
-                right: props.position.right,
-                top: props.position.top,
-                bottom: props.position.bottom,
-            }}
-        >
-            <div className='graph-element-popup-div-caret'/>
-            <Input
-                className='popup-input'
-                value={temporaryValue}
+        ReactDOM.createPortal(
+            <div
+                className={`graph-element-popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : props.caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
                 style={{
-                    zIndex: 1,
-                    position: 'relative',
-                    width: getInputWidth(temporaryValue, 150),
+                    position: 'absolute',
+                    height: '32px',
+                    left: props.position.left,
+                    right: props.position.right,
+                    top: props.position.top,
+                    bottom: props.position.bottom,
                 }}
-                onKeyDown={(e) => {
-                    /**
-                     * Normally, when the user has a graph element selected, pressing backspace
-                     * should delete the element. However, we don't want to delete the element
-                     * when the user is typing in the popup input.
-                     */
-                    if (e.key === 'Backspace') {
-                        e.stopPropagation();
-                    }
-                    if (e.key === 'Enter') {
-                        props.setValue(temporaryValue);
-                    }
-                }}
-                autoFocus
-                onChange={(e) => {
-                    setTemporaryValue(e.target.value);
-                }}
-            />
-        </div>
+            >
+                <div className='graph-element-popup-div-caret'/>
+                <Input
+                    className='popup-input'
+                    value={temporaryValue}
+                    style={{
+                        zIndex: 1,
+                        position: 'relative',
+                        width: getInputWidth(temporaryValue, 150),
+                    }}
+                    onKeyDown={(e) => {
+                        /**
+                         * Normally, when the user has a graph element selected, pressing backspace
+                         * should delete the element. However, we don't want to delete the element
+                         * when the user is typing in the popup input.
+                         */
+                        if (e.key === 'Backspace') {
+                            e.stopPropagation();
+                        }
+                        if (e.key === 'Enter') {
+                            props.setValue(temporaryValue);
+                        }
+                    }}
+                    autoFocus
+                    onChange={(e) => {
+                        setTemporaryValue(e.target.value);
+                    }}
+                />
+            </div>,
+            props.mitoContainerRef.current as HTMLDivElement
+        )
     )
 }
 
@@ -204,7 +212,7 @@ const GraphSidebar = (props: {
 
             const graphObjects = getGraphElementObjects(graphOutput);
             graphObjects?.div.on('plotly_afterplot', () => {
-                registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement);
+                registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement, props.mitoContainerRef?.current);
             });
         } catch (e) {
             console.error("Failed to execute graph function", e)
@@ -296,7 +304,7 @@ const GraphSidebar = (props: {
                     caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
                     position={selectedGraphElement?.popupPosition}
                     onClose={() => setSelectedGraphElement(null)}
-                    containerRef={containerRef}
+                    mitoContainerRef={props.mitoContainerRef}
                 />
             </div>
             {currOpenTaskpane.graphSidebarOpen && <div className='graph-sidebar-toolbar-container'>
