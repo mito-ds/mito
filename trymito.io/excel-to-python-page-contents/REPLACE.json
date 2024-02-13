@@ -164,5 +164,13 @@
                 "codeLines": []
             }
         ]
+    },
+    "mitoCTA": {
+        "title": "Use the Mito SUBSITUTE function",
+        "codeLines": [
+            "# Note: No need to convert the column to a string first",
+            "# because Mito's SUBSTITUTE formula does so automatically",
+            "df['column'] = SUBSITUTE(df['column'], 'old_text', 'new_text')"
+        ]
     }
 }

@@ -124,5 +124,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['today'] = TODAY()"
+        ]
     }
 }

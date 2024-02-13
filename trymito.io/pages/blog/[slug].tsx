@@ -79,7 +79,6 @@ const PostPage = (props: {post: PostOrPage}) => {
               <DownloadCTACard />
             </section>
           </main>
-
           <Footer />
         </div>
       </>

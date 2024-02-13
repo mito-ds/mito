@@ -110,5 +110,10 @@
                 "codeLines": []
             }
         ]
+    },
+    "mitoCTA":{
+        "codeLines": [
+            "df['Exponential'] = EXP(df['number'])"
+        ]
     }
 }

@@ -70,7 +70,7 @@
                 "codeLines": [
                     "import numpy as np",
                     "",
-                    "# Create a custom function that squares values",
+                    "# Create a custom function that labels values",
                     "def label_values(value):",
                     "    if np.isnan(value):",
                     "        return \"Value is None\"",
@@ -123,6 +123,11 @@
                     "    print('Value is NaN')"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['A'] = FILLNAN(df['A'], 0)"
         ]
     }
 }

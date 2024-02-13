@@ -247,5 +247,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: Mito's VLOOKUP formula automatically performs a",
+            "# case-insensitive lookup, just like Excel",
+            "df1['returned_value'] = VLOOKUP(df1['A'],df2.loc[:, 'A':'B'], 2)"
+        ]
     }
 }

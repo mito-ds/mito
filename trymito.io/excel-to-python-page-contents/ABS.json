@@ -122,5 +122,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Absolute Value'] = ABS(df['A'])"
+        ]
     }
 }

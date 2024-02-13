@@ -173,5 +173,13 @@
                 "codeLines": []
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: The Mito ROUND formula is implemented to replicate",
+            "# Excel's behavior, so we don't need to create edge cases for",
+            "# handling .5 rounding differently.",
+            "df['A'] = ROUND(df['A'], 2)"
+        ]
     }
 }

@@ -133,5 +133,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to create a regular expression because",
+            "# Mito's TRIM function handles stripping whitespaces automatically",
+            "df['Column'] = TRIM(df['Column'])"
+        ]
     }
 }

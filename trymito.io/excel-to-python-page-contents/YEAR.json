@@ -114,5 +114,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: no need to convert the Date columns to a datetime",
+            "# because Mito's YEAR formula does so automatically",
+            "df['year'] = YEAR(df['Date'])"
+        ]
     }
 }

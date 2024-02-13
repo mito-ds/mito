@@ -121,5 +121,10 @@
                 "codeLines": []
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['min_value'] = MIN(df['A'], df['B'], 2)"
+        ]
     }
 }

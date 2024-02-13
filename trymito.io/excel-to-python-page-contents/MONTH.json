@@ -126,5 +126,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to convert the column to a datetime first",
+            "# because Mito's MONTH formula handles that for us",
+            "df['Month'] = MONTH(df['Date'])"
+        ]
     }
 }
