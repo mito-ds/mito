@@ -190,6 +190,16 @@ NUMBER_MATCHES_TESTS_MULTIPLE_DF = [
         '3',
         4,
         [(0, 0), (1, 0), (2, 0), (2, 3)]
+    ),
+    (
+        [
+            pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c'], 'C': [True, False, True], 'D': [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03')]}),
+            pd.DataFrame({'E': [3, 3, 3], 'F': ['c', 'c', 'd'], 'G': [True, False, False], 'H': [pd.Timestamp('2021-01-01'), pd.Timestamp('2021-01-02'), pd.Timestamp('2021-01-03')]})
+        ],
+        1,
+        '$',
+        0,
+        []
     )
 ]
 

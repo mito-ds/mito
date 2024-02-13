@@ -1,11 +1,13 @@
 // Copyright (c) Mito
 
 import React, { useEffect } from 'react';
-import { MitoAPI,  getRandomId } from '../../api/api';
-import { GraphDataDict, GraphID, GraphSidebarTab, UIState } from '../../types';
+import { MitoAPI } from '../../api/api';
+import { ActionEnum, EditorState, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
+import { deleteGraphs, getParamsForExistingGraph, openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { Actions } from '../../utils/actions';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 
@@ -13,15 +15,19 @@ import { TaskpaneType } from '../taskpanes/taskpanes';
     Displays a set of actions one can perform on a graph sheet tab, including
     deleting, duplicating, or renaming.
 */
-export default function GraphSheetTabContextMenu(props: {
+export default function GraphTabContextMenu(props: {
     setDisplayActions: (display: boolean) => void,
     setIsRename: React.Dispatch<React.SetStateAction<boolean>>;
+    uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     closeOpenEditingPopups: () => void;
     mitoAPI: MitoAPI,
     graphID: GraphID,
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     display: boolean;
+    setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
+    sheetDataArray: SheetData[];
+    actions: Actions;
 }): JSX.Element {
 
     // Log opening the graph sheet tab actions
@@ -40,7 +46,7 @@ export default function GraphSheetTabContextMenu(props: {
         // Close 
         props.closeOpenEditingPopups();
 
-        await props.mitoAPI.editGraphDelete(props.graphID)
+        await deleteGraphs([props.graphID], props.mitoAPI, props.setUIState, props.graphDataArray)
     }
 
     const onDuplicate = async (): Promise<void> => {
@@ -48,8 +54,17 @@ export default function GraphSheetTabContextMenu(props: {
         props.closeOpenEditingPopups();
         
         // Duplicate the graph
-        const newGraphID = getRandomId()
-        await props.mitoAPI.editGraphDuplicate(props.graphID, newGraphID)
+        await openGraphSidebar(
+            props.setUIState,
+            props.uiState, 
+            props.setEditorState,
+            props.sheetDataArray, 
+            props.mitoAPI,
+            {
+                type: 'new_duplicate_graph',
+                graphIDToDuplicate: props.graphID,
+            }
+        )
     }
 
     /* Rename helper, which requires changes to the sheet tab itself */
@@ -57,23 +72,46 @@ export default function GraphSheetTabContextMenu(props: {
         props.setIsRename(true);
     }
 
-    const openExportGraphTaskpaneTab = async (): Promise<void> => {
+    const openExportGraphTaskpaneDropdown = async (): Promise<void> => {
+        const existingParams = await getParamsForExistingGraph(props.mitoAPI, props.graphID);
+
+        if (existingParams === undefined) {
+            return;
+        }
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
+                selectedTabType: 'graph',
                 currOpenTaskpane: {
                     type: TaskpaneType.GRAPH, 
-                    graphID: props.graphID, 
-                    graphSidebarTab: GraphSidebarTab.Export
+                    graphSidebarOpen: false,
+                    openGraph: {
+                        type: 'existing_graph',
+                        graphID: props.graphID,
+                        existingParams: existingParams
+                    }
                 },
             }
         })
+
+        props.actions.buildTimeActions[ActionEnum.ExportGraphDropdown].actionFunction()
     }
     
     return (
         <Dropdown
             display={props.display}
-            closeDropdown={() => props.setDisplayActions(false)}
+            closeDropdown={() => {
+                props.setUIState((prevUIState) => {
+                    // If the dropdown is open, then close it. Otherwise, don't change the state. 
+                    const display = typeof prevUIState.currOpenDropdown === 'object' 
+                        && prevUIState.currOpenDropdown.type === 'footer-context-menu' 
+                        && prevUIState.currOpenDropdown.graphID === props.graphID;
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: display ? undefined : prevUIState.currOpenDropdown
+                    }
+                });
+            }}
             width='small'
         >
             <DropdownItem
@@ -82,7 +120,7 @@ export default function GraphSheetTabContextMenu(props: {
                     // Stop propogation so that the onClick of the sheet tab div
                     // doesn't compete setting the currOpenTaskpane
                     e?.stopPropagation()
-                    void openExportGraphTaskpaneTab()
+                    void openExportGraphTaskpaneDropdown()
                 }}
             />
             <DropdownSectionSeperator isDropdownSectionSeperator={true} />

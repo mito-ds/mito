@@ -5,13 +5,15 @@ import { ModalEnum } from './modals';
 import DefaultModal from '../DefaultModal';
 import { MitoAPI } from '../../api/api';
 import TextButton from '../elements/TextButton';
-import { GraphID, UIState } from '../../types';
+import { GraphData, GraphID, UIState } from '../../types';
 import { TaskpaneType } from '../taskpanes/taskpanes';
+import { deleteGraphs } from '../taskpanes/Graph/graphUtils';
 
 
 type DeleteGraphsModalProps = {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     mitoAPI: MitoAPI;
+    graphDataArray: GraphData[];
     sheetIndex: number;
     dfName: string;
     dependantGraphTabNamesAndIDs: {
@@ -31,9 +33,7 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
     const clickDelete = async () => {
 
         // Delete the graphs 
-        graphIDs.forEach(graphID => {
-            void props.mitoAPI.editGraphDelete(graphID)
-        })
+        await deleteGraphs(graphIDs, props.mitoAPI, props.setUIState, props.graphDataArray)
         
         // Then delete the dataframe
         await props.mitoAPI.editDataframeDelete(props.sheetIndex)

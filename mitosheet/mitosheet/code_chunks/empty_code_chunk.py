@@ -48,3 +48,22 @@ class EmptyCodeChunk(CodeChunk):
         new_other_code_chunk = deepcopy(other_code_chunk)
         new_other_code_chunk.prev_state = self.prev_state
         return new_other_code_chunk
+    
+    def can_be_reordered_with(self, code_chunk: CodeChunk) -> bool:
+        """
+        An empty code chunk should not ever be reordered, because then it might
+        take a prev_state to a place where it does not belong. 
+
+        For example:
+        1. Import CSV
+        2. Delete some columns
+        3. Graph it (generates EmptyCodeChunk)
+
+        But if the EmptyCodeChunks ends up BEFORE the delete, then the delete will
+        fail -- as the prev_state it has been optimized to have (from the EmptyCodeChunk)
+        will not have the columns that it is trying to delete.
+
+        So, we just return False here, to make sure that EmptyCodeChunks are never
+        reordered.
+        """
+        return False

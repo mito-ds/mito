@@ -1,24 +1,23 @@
 // Copyright (c) Mito
 
 import React from 'react';
+import { MitoAPI } from '../../../api/api';
+import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import { AnalysisData, BackendPivotParams, SheetData, StepType, UIState } from '../../../types';
+import DataframeSelect from '../../elements/DataframeSelect';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
+import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
+import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
+import PivotTableFilterSection from './PivotTableFilterSection';
 import PivotTableKeySelection from './PivotTableKeySelection';
 import PivotTableValueSelection from './PivotTableValueSelection';
-import { MitoAPI } from '../../../api/api';
-import { getPivotFrontendParamsFromBackendParams, getPivotBackendParamsFromFrontendParams, getDefaultPivotParams } from './pivotUtils';
-import { AnalysisData, BackendPivotParams, ColumnIDsMap, SheetData, StepType, UIState } from '../../../types';
-import DefaultTaskpaneHeader from '../DefaultTaskpane/DefaultTaskpaneHeader';
-import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
-import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import DataframeSelect from '../../elements/DataframeSelect';
-import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import PivotTableFilterSection from './PivotTableFilterSection';
+import { getDefaultPivotParams, getPivotBackendParamsFromFrontendParams, getPivotFrontendParamsFromBackendParams } from './pivotUtils';
 
 
 export type PivotTaskpaneProps = {
     dfNames: string[],
     sheetDataArray: SheetData[],
-    columnIDsMapArray: ColumnIDsMap[],
     sourceSheetIndex: number,
 
     /* 

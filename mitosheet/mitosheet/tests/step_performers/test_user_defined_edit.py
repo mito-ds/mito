@@ -179,3 +179,19 @@ def test_user_defined_edit_with_other_operation_around_it():
     mito.user_defined_edit('editor', {'df': 'df1'})
     mito.delete_columns(0, ['B'])
     assert mito.dfs[0].equals(df + 1)
+
+def test_user_defined_edit_uses_column_header_not_column_id_in_tranpiled_code():
+
+    def editor(df: pd.DataFrame, column: ColumnHeader) -> pd.DataFrame:
+        df['D'] = column
+        return df
+    
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    mito = create_mito_wrapper(df, editors=[editor])
+    mito.add_column(0, 'B')
+    mito.rename_column(0, 'B', 'C')
+    mito.user_defined_edit('editor', {'df': 'df1', 'column': 'B'})
+    assert "df1 = editor(df=df1, column='C')" in mito.transpiled_code
+    assert mito.get_column(0, 'D', True) == ['C', 'C', 'C']
+
+

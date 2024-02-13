@@ -16,13 +16,13 @@
  */
 
 
-import { 
-    convertBackendtoFrontendGraphParams,
-    AnalysisData, GraphDataBackend, GraphDataDict, GraphParamsBackend, PublicInterfaceVersion, SheetData, UserProfile,
+import {
+    AnalysisData,
     MitoAPI,
+    PublicInterfaceVersion, SheetData, UserProfile,
     isInJupyterLab, isInJupyterNotebook
-} from "../mito"
-import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils"
+} from "../mito";
+import { notebookGetArgs, notebookOverwriteAnalysisToReplayToMitosheetCall, notebookWriteAnalysisToReplayToMitosheetCall, notebookWriteCodeSnippetCell, notebookWriteGeneratedCodeToCell } from "./notebook/extensionUtils";
 
 
 export const writeAnalysisToReplayToMitosheetCall = (analysisName: string, mitoAPI: MitoAPI): void => {
@@ -116,20 +116,5 @@ export const getUserProfileFromString = (user_profile_json: string): UserProfile
     return userProfile;
 }
 export const getAnalysisDataFromString = (analysis_data_json: string): AnalysisData =>  {
-    const parsed = JSON.parse(analysis_data_json)
-
-    // Convert the graphData from backend to frontend form.
-    const graphDataDict: GraphDataDict = {} 
-    Object.entries(parsed['graphDataDict']).map(([graphID, graphDataBackend]) => {
-        const graphDataBackendTyped = graphDataBackend as GraphDataBackend
-        const graphParamsBackend: GraphParamsBackend = graphDataBackendTyped['graphParams']
-        const graphParamsFrontend = convertBackendtoFrontendGraphParams(graphParamsBackend)
-        graphDataDict[graphID] = {
-            ...graphDataBackendTyped,
-            graphParams: graphParamsFrontend
-        }
-    })
-
-    parsed['graphDataDict'] = graphDataDict;
-    return parsed;
+    return JSON.parse(analysis_data_json)
 }

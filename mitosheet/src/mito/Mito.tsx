@@ -29,7 +29,6 @@ import EndoGrid from './components/endo/EndoGrid';
 import { focusGrid } from './components/endo/focusUtils';
 import { getCellDataFromCellIndexes, getDefaultGridState } from './components/endo/utils';
 import Footer from './components/footer/Footer';
-import { selectPreviousGraphSheetTab } from './components/footer/SheetTab';
 import ClearAnalysisModal from './components/modals/ClearAnalysisModal';
 import DeleteGraphsModal from './components/modals/DeleteGraphsModal';
 import ErrorModal from './components/modals/ErrorModal';
@@ -71,6 +70,8 @@ import { SendFunction, SendFunctionError } from './api/send';
 import BottomLeftPopup from './components/elements/BottomLeftPopup';
 import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 import EphemeralMessage from './components/popups/EphemeralMessage';
+import DevTaskpane from './components/taskpanes/Dev/DevTaskpane';
+import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
 import StepsTaskpane from './components/taskpanes/Steps/StepsTaskpane';
 import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTaskpane';
 import UserDefinedEditTaskpane from './components/taskpanes/UserDefinedEdit/UserDefinedEditTaskpane';
@@ -80,11 +81,9 @@ import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSVariablesFromTheme } from './utils/colors';
+import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
-import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
-import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
-import DevTaskpane from './components/taskpanes/Dev/DevTaskpane';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -108,7 +107,6 @@ export type MitoProps = {
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
-
     const mitoContainerRef = useRef<HTMLDivElement>(null);
 
     const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
@@ -125,7 +123,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
-        selectedGraphID: Object.keys(analysisData.graphDataDict || {}).length === 0 ? undefined : Object.keys(analysisData.graphDataDict)[0],
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
@@ -334,54 +331,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         previousNumSheetsRef.current = sheetDataArray.length;
     }, [sheetDataArray])
 
-    const previousNumGraphsRef = useRef<number>(Object.keys(analysisData.graphDataDict || {}).length)
-    const previousGraphIndex = useRef<number>(uiState.selectedGraphID !== undefined ?
-        Object.keys(analysisData.graphDataDict  || {}).indexOf(uiState.selectedGraphID) : -1)
-
-    // When we switch graphID's make sure that we keep the previousGraphIndex up to date
-    useEffect(() => {
-        previousGraphIndex.current = uiState.selectedGraphID !== undefined ?
-            Object.keys(analysisData.graphDataDict || {}).indexOf(uiState.selectedGraphID) : -1
-    }, [uiState.selectedGraphID])
-
-    // Update the selected sheet tab when the number of graphs change. 
-    useEffect(() => {
-        const graphIDs = Object.keys(analysisData.graphDataDict || {})
-        const previousNumGraphs = previousNumGraphsRef.current;
-        const newNumGraphs = Object.keys(analysisData.graphDataDict || {}).length
-
-        // Handle new graph created
-        if (previousNumGraphs < newNumGraphs) {
-            const newGraphID = graphIDs[newNumGraphs - 1]
-            setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    selectedGraphID: newGraphID,
-                    selectedTabType: 'graph',
-                    currOpenTaskpane: {
-                        type: TaskpaneType.GRAPH,
-                        graphID: newGraphID,
-                    },
-                }
-            })
-
-            // Update the previous graph index for next time
-            previousGraphIndex.current = graphIDs.indexOf(newGraphID)
-
-        // Handle graph removal
-        } else if (previousNumGraphs > newNumGraphs) {
-            // Try to go to the same sheet index, if it doesn't exist go to the graph index - 1, 
-            // if no graphs exists, go to the last sheet index
-            const newGraphID = selectPreviousGraphSheetTab(analysisData.graphDataDict, previousGraphIndex.current, setUIState)
-
-            // Update the previous graph index for next time
-            previousGraphIndex.current = newGraphID !== undefined ? graphIDs.indexOf(newGraphID) : -1
-        }
-
-        previousNumGraphsRef.current = newNumGraphs
-    }, [Object.keys(analysisData.graphDataDict || {}).length])
-
-
     /*
         Code to be executed everytime the sheet is switched. 
         1. if the sheet that is switched to is a pivot sheet, we start editing this pivot table
@@ -465,7 +414,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
-    const columnIDsMapArray = sheetDataArray.map(sheetData => sheetData.columnIDsMap);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -562,6 +510,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <DeleteGraphsModal
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
+                    graphDataArray={analysisData.graphDataArray}
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
                     dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
@@ -580,7 +529,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         key={'' + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab} 
                         selectedSheetIndex={uiState.selectedSheetIndex}
                         sheetData={sheetDataArray[uiState.selectedSheetIndex]}
-                        columnIDsMapArray={columnIDsMapArray}
                         selection={gridState.selections[gridState.selections.length - 1]} 
                         gridState={gridState}
                         mitoContainerRef={mitoContainerRef}
@@ -625,18 +573,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.GRAPH: return (
                 <GraphSidebar 
-                    graphID={uiState.currOpenTaskpane.graphID}
-                    graphSidebarTab={uiState.currOpenTaskpane.graphSidebarTab}
-                    dfNames={dfNames}
-                    columnIDsMapArray={columnIDsMapArray}
-                    sheetDataArray={sheetDataArray}
-                    mitoAPI={mitoAPI}
                     setUIState={setUIState} 
                     uiState={uiState}
-                    graphDataDict={analysisData.graphDataDict}
+                    sheetDataArray={sheetDataArray}
+                    mitoAPI={mitoAPI}
+                    graphDataArray={analysisData.graphDataArray}
                     analysisData={analysisData}
                     mitoContainerRef={mitoContainerRef}
-                    userProfile={userProfile}
+                    openGraph={uiState.currOpenTaskpane.openGraph}
                 />
             )
             case TaskpaneType.IMPORT_FILES: return (
@@ -676,7 +620,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 <PivotTaskpane
                     dfNames={dfNames}
                     sheetDataArray={sheetDataArray}
-                    columnIDsMapArray={columnIDsMapArray}
                     mitoAPI={mitoAPI}
                     sourceSheetIndex={uiState.currOpenTaskpane.sourceSheetIndex}
                     analysisData={analysisData}
@@ -1048,7 +991,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 if (e.key === 'Escape') {
                     if (editorState !== undefined) {
                         setEditorState(undefined)
-                    } else if (uiState.currOpenTaskpane.type !== TaskpaneType.NONE) {
+                    } else if (uiState.currOpenTaskpane.type !== TaskpaneType.NONE && uiState.currOpenTaskpane.type !== TaskpaneType.GRAPH) {
                         setUIState(prevUIState => {
                             return {
                                 ...prevUIState,
@@ -1083,6 +1026,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 }
                 handleKeyboardShortcuts(e, actions);
             }}
+            onClick={(e) => {
+                const eventTarget = e.target;
+                if (uiState.currOpenTaskpane.type === TaskpaneType.GRAPH &&
+                    (['context-menu', 'popup-title-editor'].includes(uiState.currOpenTaskpane.currentGraphElement?.display ?? '')) &&
+                    !(eventTarget instanceof HTMLInputElement && eventTarget.className.includes('popup-input'))) {
+                    e.stopPropagation();
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                ...prevUIState.currOpenTaskpane,
+                                currentGraphElement: undefined
+                            }
+                        }
+                    })
+                }
+            }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
                 <Toolbar 
@@ -1098,6 +1058,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     uiState={uiState}
                     setUIState={setUIState}
                     sheetData={sheetDataArray[uiState.selectedSheetIndex]}
+                    sheetDataArray={sheetDataArray}
                     userProfile={userProfile}
                     editorState={editorState}
                     setEditorState={setEditorState}
@@ -1162,7 +1123,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 {getCurrTour()}
                 <Footer
                     sheetDataArray={sheetDataArray}
-                    graphDataDict={analysisData.graphDataDict}
+                    graphDataArray={analysisData.graphDataArray}
                     gridState={gridState}
                     setGridState={setGridState}
                     mitoAPI={mitoAPI}
@@ -1171,6 +1132,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoContainerRef={mitoContainerRef}
                     setEditorState={setEditorState}
+                    actions={actions}
                 />
                 {getCurrentModalComponent()}
                 <BottomLeftPopup

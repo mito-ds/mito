@@ -397,33 +397,41 @@ export type GraphStylingParams<T> = {
     barnorm: string | undefined
 }
 
-type GraphParamsGeneric<T> = {
-    graphPreprocessing: GraphPreprocessingParams,
-    graphCreation: GraphCreationParams<T>,
-    graphStyling: GraphStylingParams<T>,
-};
+export type GraphRenderingParams = {
+    height: string | undefined,
+    width: string | undefined
+}
 
 /**
- * Data about all of the graphs. For each graph, it contains all of the parameters used to construct the graph,
+ * Data about all of the graphs. For each graph, it contains 
  * the actual graph html & javascript, and the generated code.
- * 
- * @param graphParams - all of the parameters used to construct the graph
- * @param [graphOutput] - the python code, the graph html, and the graph script 
  */
-type GraphDataGeneric<T> = {
-    graphParams: GraphParamsGeneric<T>,
-    graphOutput: GraphOutput, 
-    graphTabName: string
+export type GraphData = {
+    graph_id: GraphID,
+    graph_output: GraphOutput, 
+    graph_tab_name: string
 };
-
-// We have separate frontend and backend params so that we can 
-// handle input fields which must be strings on the frontend to handle 
-// decimal places and negative signs, while also allowing us to send 
-// correctly types params to the backend.
-export type GraphDataFrontend = GraphDataGeneric<string>
-export type GraphDataBackend = GraphDataGeneric<number>
-export type GraphParamsFrontend = GraphParamsGeneric<string>
-export type GraphParamsBackend = GraphParamsGeneric<number>
+/**
+ * 
+ * We have separate frontend and backend params so that we can 
+ * handle input fields which must be strings on the frontend to handle 
+ * decimal places and negative signs, while also allowing us to send 
+ * correctly types params to the backend.
+ */
+export type GraphParamsFrontend = {
+    graphID: string,
+    graphPreprocessing: GraphPreprocessingParams,
+    graphCreation: GraphCreationParams<string>,
+    graphStyling: GraphStylingParams<string>,
+    graphRendering: GraphRenderingParams
+};
+export type GraphParamsBackend = {
+    graph_id: string,
+    graph_preprocessing: GraphPreprocessingParams,
+    graph_creation: GraphCreationParams<number>,
+    graph_styling: GraphStylingParams<number>,
+    graph_rendering: GraphRenderingParams
+};
 
 export type GraphOutput = {
     graphGeneratedCode: string,
@@ -433,7 +441,7 @@ export type GraphOutput = {
 
 export type GraphID = string;
 
-export type GraphDataDict = Record<GraphID, GraphDataFrontend>
+export type GraphDataArray = GraphData[];
 
 
 export interface ConcatParams {
@@ -750,7 +758,7 @@ export type UserDefinedFunction = {
  * @param code - the transpiled code of this analysis
  * @param stepSummaryList - a list of step summaries for the steps in this analysis
  * @param currStepIdx - the index of the currently checked out step, in the stepSummaryList
- * @param graphDataDict - a mapping from graphID to all of the relevant graph information
+ * @param graphDataArray - a mapping from graphID to all of the relevant graph information
  * @param updateEventCount - the number of update events that have been successfully processed by the frontend
  * @param undoCount - the number of undos
  * @param redoCount - the number of redos
@@ -776,7 +784,7 @@ export interface AnalysisData {
     code: string[],
     stepSummaryList: StepSummary[],
     currStepIdx: number,
-    graphDataDict: GraphDataDict;
+    graphDataArray: GraphDataArray;
     updateEventCount: number;
     undoCount: number,
     redoCount: number,
@@ -907,10 +915,11 @@ export interface ContextMenu {
     columnIndex: number;
 }
 export interface FooterContextMenu {
-    sheetIndex: number;
+    sheetIndex?: number;
+    graphID?: GraphID;
     type: 'footer-context-menu';
 }
-export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | undefined;
+export type ToolbarDropdown = 'import' | 'format' | 'dtype' | 'export' | 'merge' | 'reset-index' | 'formula-math' | 'formula-logic' | 'formula-finance' | 'formula-date' | 'formula-text' | 'formula-reference' | 'formula-custom' | 'formula-more' | 'add-chart-element' | 'change-chart-type' | 'export-graph' | 'chart-format' | undefined;
 
 export interface DataTabImportDomainDropdown {
     type: 'import-domain-dropdown';
@@ -947,7 +956,6 @@ export interface UIState {
     selectedColumnControlPanelTab: ControlPanelTab;
     exportConfiguration: ExportState;
     selectedSheetIndex: number;
-    selectedGraphID: GraphID | undefined;
     selectedTabType: 'data' | 'graph';
     currOpenDropdown: undefined | OpenDropdownType;
     currentToolbarTab?: TabName;
@@ -993,10 +1001,12 @@ export const enum FeedbackID {
 export enum ActionEnum {
     Add_Column_Right = 'add column to the right',
     Add_Column_Left = 'add column to the left',
+    AddChartElementDropdown = 'add chart element dropdown',
     AntiMerge = 'anti merge',
     Catch_Up = 'catch up',
     Clear = 'clear',
     Change_Dtype = 'change dtype',
+    ChangeChartTypeDropdown = 'change chart type dropdown',
     Column_Summary = 'column summary',
     Copy = 'copy',
     CopyCode = 'copy code',
@@ -1007,10 +1017,10 @@ export enum ActionEnum {
     Delete_Graph = 'delete graph',
     Drop_Duplicates = 'drop duplicates',
     Duplicate_Dataframe = 'duplicate dataframe',
-    Duplicate_Graph = 'duplicate graph',
     Docs = 'docs',
     Export = 'export',
     Export_Dropdown = 'export dropdown',
+    ExportGraphDropdown = 'export graph dropdown',
     Fill_Na = 'fill na',
     Filter = 'filter',
     FilterToCellValue = 'filter to cell value',
@@ -1020,6 +1030,7 @@ export enum ActionEnum {
     Graph_Bar = 'bar chart',
     Graph_Line = 'line graph',
     Graph_Scatter = 'scatter plot',
+    Graph_SelectData = 'graph select data',
     Help = 'help',
     Import_Dropdown = 'import dropdown',
     Import_Files = 'import files',
@@ -1146,13 +1157,21 @@ export type BuildTimeAction = BaseAction<'build-time', ActionEnum>
 export type RunTimeAction = BaseAction<'run-time', string>
 export type Action = BuildTimeAction | RunTimeAction;
 
-
-export enum GraphSidebarTab {
-    Setup = 'setup',
-    Style = 'style',
-    Export = 'export'
+export type OpenGraphType = {
+    type: 'existing_graph'
+    graphID: GraphID,
+    existingParams: GraphParamsFrontend
+} | {
+    type: 'new_graph'
+    graphID: GraphID,
+    graphType: GraphType
+    selectedColumnIds?: ColumnID[]
+} | {
+    type: 'new_duplicate_graph',
+    graphID: GraphID,
+    graphIDOfDuplicated: GraphID,
+    existingParamsOfDuplicated: GraphParamsFrontend
 }
-
 
 // A fancy type taken from here: https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript
 export type RecursivePartial<T> = {

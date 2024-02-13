@@ -252,7 +252,7 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
                 # notably, the column header type will actually be provided as a column id? Does that make sense? I think so -- that's what we can 
                 # select on in the frontend. TODO: think about if this makes sense with the way replaying works...
                 column_header = state.column_ids.get_column_header_by_id(sheet_index, param_value)
-                user_defined_function_params[param_name] = (param_type, column_header, get_column_header_as_transpiled_code(param_value))
+                user_defined_function_params[param_name] = (param_type, column_header, get_column_header_as_transpiled_code(column_header))
             elif param_type == 'str':
                 user_defined_function_params[param_name] = (param_type, param_value, get_column_header_as_transpiled_code(param_value))
             elif param_type == 'int':

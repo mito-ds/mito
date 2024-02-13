@@ -1,48 +1,190 @@
-import React, { useEffect, useState } from 'react';
-import { MitoAPI,  getRandomId } from '../../../api/api';
-import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
-import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
-import { AnalysisData, ColumnIDsMap, GraphDataDict, GraphID, GraphSidebarTab, SheetData, UIState, UserProfile } from '../../../types';
-import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
-import { TaskpaneType } from '../taskpanes';
-import GraphSidebarTabs from './GraphSidebarTabs';
-import LoadingSpinner from './LoadingSpinner';
-import { getGraphParams } from './graphUtils';
-
-// import css
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
-import Row from '../../layout/Row';
-import Col from '../../layout/Col';
-import XIcon from '../../icons/XIcon';
-import GraphStyleTab from './GraphStyleTab';
-import GraphSetupTab from './GraphSetupTab';
-import GraphExportTab from './GraphExportTab';
+import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
+import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
+import { AnalysisData, GraphDataArray, GraphOutput, GraphParamsBackend, GraphParamsFrontend, OpenGraphType, RecursivePartial, SheetData, StepType, UIState } from '../../../types';
+import { classNames } from '../../../utils/classNames';
+import { updateObjectWithPartialObject } from '../../../utils/objects';
+import DropdownItem from '../../elements/DropdownItem';
+import Input, { getInputWidth } from '../../elements/Input';
+import EditIcon from '../../icons/EditIcon';
+import TrashIcon from '../../icons/TrashIcon';
+import XIcon from '../../icons/XIcon';
+import Col from '../../layout/Col';
+import Row from '../../layout/Row';
+import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
+import { TaskpaneType } from '../taskpanes';
+import GraphSetupTab from './GraphSetupTab';
+import LoadingSpinner from './LoadingSpinner';
+import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphElementInfoFromHTMLElement, getGraphElementObjects, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
 
+export const GraphTitleEditorPopup = (props: {
+    containerRef?: React.RefObject<HTMLDivElement>;
+    mitoContainerRef?: React.RefObject<HTMLDivElement>;
+    setValue: (value: string) => void;
+    selectedGraphElement?: GraphElementType;
+    setSelectedGraphElement: (graphElement?: GraphElementType) => void;
+    graphOutput: GraphOutput;
+}) => {
+    /**
+     * If position is undefined, we don't display the popup. 
+     */
+    if (props.selectedGraphElement?.display !== 'popup-title-editor') {
+        return <></>
+    }
 
-// Millisecond delay between loading graphs, so that
-// we don't load to many graphs when the user is clicking around
-const LOAD_GRAPH_TIMEOUT = 1000;
+    /**
+     * We use a temporary value to store the value of the popup input. This is because
+     * we don't want to update the graphParams until the user presses enter.
+     */
+    const [ temporaryValue, setTemporaryValue ] = React.useState(props.selectedGraphElement?.defaultValue);
+    
+    React.useEffect(() => {
+        setTemporaryValue(props.selectedGraphElement?.defaultValue);
+    }, [props.selectedGraphElement?.defaultValue]);
+
+    /**
+     * The popup input is autofocusing, but when the popup is already open and we switch
+     * to a new graph element, we lose focus. This effect re-focuses the input when the
+     * graph element changes.
+     */
+    React.useEffect(() => {
+        const input = document.getElementsByClassName('popup-input')[0] as HTMLInputElement;
+        input?.focus();
+    }, [props.selectedGraphElement?.popupPosition])
+
+    const caretPosition = props.selectedGraphElement?.element === 'gtitle' ? 'above' : props.selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'
+
+    if (!props.mitoContainerRef) {
+        return <></>
+    }
+
+    return (
+        ReactDOM.createPortal(
+            <div
+                className={`graph-element-popup-div ${caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
+                style={{
+                    position: 'absolute',
+                    height: '32px',
+                    ...props.selectedGraphElement?.popupPosition,
+                }}
+            >
+                <div className='graph-element-popup-div-caret'/>
+                <Input
+                    className='popup-input'
+                    value={temporaryValue ?? ''}
+                    style={{
+                        zIndex: 1,
+                        position: 'relative',
+                        width: getInputWidth(temporaryValue ?? '', 150),
+                    }}
+                    onKeyDown={(e) => {
+                        /**
+                         * Normally, when the user has a graph element selected, pressing backspace
+                         * should delete the element. However, we don't want to delete the element
+                         * when the user is typing in the popup input.
+                         */
+                        if (e.key === 'Backspace') {
+                            e.stopPropagation();
+                        }
+                        if (e.key === 'Enter') {
+                            props.setValue(temporaryValue ?? '');
+                        }
+                    }}
+                    autoFocus
+                    onChange={(e) => {
+                        setTemporaryValue(e.target.value);
+                    }}
+                />
+            </div>,
+            props.mitoContainerRef.current as HTMLDivElement
+        )
+    );
+}
+
+const GraphTitleContextMenu = (props: {
+    selectedGraphElement?: GraphElementType;
+    setSelectedGraphElement: (graphElement?: GraphElementType) => void;
+    graphOutput: GraphOutput;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    deleteSelectedGraphElement: () => void;
+    mitoContainerRef?: React.RefObject<HTMLDivElement>;
+}) => {
+
+    if (!props.mitoContainerRef || props.selectedGraphElement?.display !== 'context-menu') {
+        return <></>
+    }
+
+    return (
+        ReactDOM.createPortal(
+            <div
+                className='mito-dropdown mito-dropdown-item-horizontal'
+                style={{
+                    position: 'absolute',
+                    ...props.selectedGraphElement?.popupPosition
+                }}
+            >
+                <div className='mito-dropdown-items-container'>
+                    <DropdownItem
+                        icon={<TrashIcon />}
+                        onClick={() => {
+                            props.deleteSelectedGraphElement();
+                            props.setSelectedGraphElement(undefined);
+                        }}
+                        supressFocusSettingOnClose
+                        title='Delete Title'
+                    />
+                    <DropdownItem
+                        icon={<EditIcon width='15px'/>}
+                        onClick={() => {
+                            if (props.selectedGraphElement !== undefined) {
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, props.mitoContainerRef?.current ?? null, 'popup-title-editor');
+                                props.setSelectedGraphElement(elementInfo);
+                            }
+                        }}
+                        supressFocusSettingOnClose
+                        title='Edit Title'
+                    />
+                </div>
+            </div>,
+            props.mitoContainerRef.current as HTMLDivElement
+        )
+    );
+}
 
 /*
     This is the main component that displays all graphing
     functionality, allowing the user to build and view graphs.
 */
 const GraphSidebar = (props: {
-    sheetDataArray: SheetData[];
-    columnIDsMapArray: ColumnIDsMap[],
-    dfNames: string[];
-    graphID: GraphID
-    mitoAPI: MitoAPI;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     uiState: UIState;
-    graphDataDict: GraphDataDict
-    analysisData: AnalysisData
+    sheetDataArray: SheetData[];
+    mitoAPI: MitoAPI;
+    graphDataArray: GraphDataArray
     mitoContainerRef: React.RefObject<HTMLDivElement>,
-    userProfile: UserProfile
-    graphSidebarTab?: GraphSidebarTab
+    analysisData: AnalysisData,
+    openGraph: OpenGraphType
 }): JSX.Element => {
+
+    const {params: graphParams, setParams: setGraphParams, startNewStep, loading } = useLiveUpdatingParams<GraphParamsFrontend, GraphParamsBackend>(
+        () => getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.openGraph),
+        StepType.Graph,
+        props.mitoAPI,
+        props.analysisData,
+        1000, // Relatively long debounce delay, so we don't send too many graphing messages
+        {
+            getBackendFromFrontend: convertFrontendtoBackendGraphParams,
+            getFrontendFromBackend: convertBackendtoFrontendGraphParams,
+        },
+    )
 
     /*
         The graphID is the keystone of the graphSidebar. Each graph tab has one graphID that does not switch even if the user changes source data sheets. 
@@ -56,38 +198,25 @@ const GraphSidebar = (props: {
         To create a graph, we always pass a graphID. That means that if we're creating a new graph, the opener of the taskpane is required
         to create a new graphID. 
     */
-    const graphID = props.graphID
+    const dataSourceSheetIndex = graphParams?.graphCreation.sheet_index
+    const graphData = props.graphDataArray.find(graphData => graphData.graph_id === props.openGraph.graphID)
+    const graphOutput = graphData?.graph_output;
 
-    // Every configuration that the user makes with this graphID is the same step, until the graphID is changed.
-    const [stepID, setStepID] = useState<string>(() => getRandomId());
+    const currOpenTaskpane = props.uiState.currOpenTaskpane;
+    if (currOpenTaskpane.type !== TaskpaneType.GRAPH) {
+        return <></>
+    }
 
-    // We keep track of the graph data separately from the backend state so that 
-    // the UI updates immediately, even though the backend takes a while to process.
-    const [graphParams, setGraphParams] = useState(() => getGraphParams(props.graphDataDict, graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
-
-    const dataSourceSheetIndex = graphParams.graphCreation.sheet_index
-    const graphOutput = props.graphDataDict[graphID]?.graphOutput
-    const graphTabName = props.graphDataDict[graphID]?.graphTabName;
-    const [loading, setLoading] = useState<boolean>(false)
-
-    const [selectedGraphSidebarTab, setSelectedGraphSidebarTab] = useState<GraphSidebarTab>(GraphSidebarTab.Setup)
-
-    // If the graphSidebarTab changes to Export then update it. 
-    // This occurs if the graph tab action is used.
+    /*
+         If the openGraph changes, which happens when opening a graph:
+         1. reset the stepID so we don't overwrite the previous edits.
+         2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
+     */
     useEffect(() => {
-        if (props.graphSidebarTab === GraphSidebarTab.Export) {
-            setSelectedGraphSidebarTab(props.graphSidebarTab)
-        }
-    }, [props.graphSidebarTab])
-
-    /* 
-        When graphUpdatedNumber is updated, we send a new getGraphMessage with the current graphParams
-        in order to update the graphDataDict. We only increment graphUpdatedNumber when the user updates the params.
-
-        We use this method instead of using a useEffect on the graphParams because the graphParams update when we don't want
-        to sendGraphMessage, ie: during an Undo. 
-    */
-    const [graphUpdatedNumber, setGraphUpdatedNumber] = useState(0)
+        startNewStep();
+        const newParams = getDefaultGraphParams(props.mitoContainerRef, props.sheetDataArray, props.uiState.selectedSheetIndex, props.openGraph);
+        setGraphParams(newParams);
+    }, [props.openGraph])
 
     // We log if plotly is not defined
     useEffect(() => {
@@ -96,35 +225,28 @@ const GraphSidebar = (props: {
         }
     }, [])
 
-    // Whenever the graph is resized, we update it (so it resizes as well)
+    // Handle graph resizing
     useEffectOnResizeElement(() => {
-        setGraphUpdatedNumber(old => old + 1)
-    }, [], props.mitoContainerRef, '#mito-center-content-container')
+        setGraphParams(prevGraphParams => {
+            return {
+                ...prevGraphParams,
+                graphRendering: getGraphRenderingParams(props.mitoContainerRef)
+            }
+        })
+    }, [currOpenTaskpane.graphSidebarOpen], props.mitoContainerRef, '#mito-center-content-container')
 
-    // If there has been an undo or redo, then we refresh the params to this graph
-    useEffectOnUpdateEvent(() => {
-        void refreshParams()
-    }, props.analysisData)
-
-    /*
-        If the props.graphID changes, which happens when opening a graph:
-        1. reset the stepID so we don't overwrite the previous edits.
-        2. refresh the graphParams so the UI is up to date with the new graphID's configuration.
-        3. update the graphUpdateNumber so the graph refreshes
-    */
-    useEffect(() => {
-        setStepID(getRandomId())
-        setGraphParams(getGraphParams(props.graphDataDict, props.graphID, props.uiState.selectedSheetIndex, props.sheetDataArray))
-        setGraphUpdatedNumber(old => old + 1)
-    }, [props.graphID])
-
-    // Async load in the data from the mitoAPI
-    useDebouncedEffect(() => {
-        // Send the editGraph message when the graph is updated
-        setLoading(true)
-        void getGraphAsync()
-    }, [graphUpdatedNumber], LOAD_GRAPH_TIMEOUT)
-
+    const selectedGraphElement = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.currentGraphElement : undefined;
+    const setSelectedGraphElement = (graphElement?: GraphElementType) => {
+        props.setUIState(prevUIState => {
+            return {
+                ...prevUIState,
+                currOpenTaskpane: {
+                    ...prevUIState.currOpenTaskpane,
+                    currentGraphElement: graphElement,
+                }
+            }
+        });
+    };
 
     // When we get a new graph ouput, we execute the graph script here. This is a workaround
     // that is required because we need to make sure this code runs, which it does
@@ -137,50 +259,20 @@ const GraphSidebar = (props: {
             }
             const executeScript = new Function(graphOutput.graphScript);
             executeScript()
+
+            const graphObjects = getGraphElementObjects(graphOutput);
+            graphObjects?.div.on('plotly_afterplot', () => {
+                registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement, props.mitoContainerRef?.current);
+            });
         } catch (e) {
             console.error("Failed to execute graph function", e)
         }
 
     }, [graphOutput])
 
-    /* 
-        This is the actual function responsible for loading the new
-        graph from the backend, making sure this graph is the correct
-        size.
-    */
-    const getGraphAsync = async () => {
-        // The reason that we use the mito-center-content-container instead of the graph-div is because the size of the graph div
-        // changes depending on the size of the graph. Specifically, when exiting fullscreen mode, the graph-div is wider
-        // than we actually have space for. 
-        const boundingRect: DOMRect | undefined = props.mitoContainerRef.current
-            ?.querySelector('#graph-div')
-            ?.getBoundingClientRect();
-
-        if (boundingRect !== undefined) {
-            await props.mitoAPI.editGraph(
-                graphID,
-                graphParams,
-                `${boundingRect?.height - 10}px`, // Subtract pixels from the height & width to account for padding
-                `${boundingRect?.width - 20}px`,
-                stepID
-            );
-        }
-
-        // Turn off the loading icon once the user get their graph back
-        setLoading(false);
-    }
-
-    /*
-        Updates the graph params so that the graph configuration is in sync
-        with the graph shown, which is useful in the case of an undo or redo
-    */
-    const refreshParams = async (): Promise<void> => {        
-        const newGraphParams = getGraphParams(props.graphDataDict, graphID, dataSourceSheetIndex, props.sheetDataArray)
-        setGraphParams(newGraphParams)
-    } 
-
-    if (props.sheetDataArray.length === 0) {
-        // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
+    // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
+    // If there is no data to graph
+    if (props.sheetDataArray.length === 0 || graphParams === undefined || dataSourceSheetIndex === undefined) {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
@@ -188,104 +280,144 @@ const GraphSidebar = (props: {
             }
         })
         return <DefaultEmptyTaskpane setUIState={props.setUIState} />
-    } else {
-        return (
-            <div className='graph-sidebar-div'>
-                <div 
-                    className='graph-sidebar-graph-div' 
-                    id='graph-div'
-                    // Because we have padding on this div, but we want the graph to appear
-                    // to take up the whole screen, we also style it with the background color
-                    // NOTE: there's a minor visual bug where this updates quicker than the graph
-                    // but we choose to view it as a nice preview rather than something to fix :-)
-                    style={{
-                        backgroundColor: graphParams.graphStyling.paper_bgcolor,
-                        color: graphParams.graphStyling.title.title_font_color,
+    } 
+
+    const selectedGraphElementClass = selectedGraphElement !== undefined ? `${selectedGraphElement.element}-highlighted` : undefined;
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    const deleteSelectedGraphElement = () => {
+        const newGraphParams: RecursivePartial<GraphParamsFrontend> = {};
+        if (selectedGraphElement?.element === 'gtitle') {
+            newGraphParams.graphStyling = { title: { visible: false } };
+        } else if (selectedGraphElement?.element === 'xtitle') {
+            newGraphParams.graphStyling = { xaxis: { visible: false } };
+        } else if (selectedGraphElement?.element === 'ytitle') {
+            newGraphParams.graphStyling = { yaxis: { visible: false } };
+        }
+        setGraphParams(updateObjectWithPartialObject(graphParams, newGraphParams));
+    }
+
+    return (
+        <div
+            className={classNames('graph-sidebar-div', selectedGraphElementClass)}
+            tabIndex={0}
+            ref={containerRef}
+            onKeyDown={(e) => {
+                if (e.key === 'Backspace') {
+                    deleteSelectedGraphElement();
+                }
+                if ((e.key === 'Escape' || e.key === 'Enter') && (selectedGraphElement !== undefined)) {
+                    setSelectedGraphElement(undefined);
+                }
+            }}
+        >
+            <div 
+                className='graph-sidebar-graph-div' 
+                id='graph-div'
+                // Because we have padding on this div, but we want the graph to appear
+                // to take up the whole screen, we also style it with the background color
+                // NOTE: there's a minor visual bug where this updates quicker than the graph
+                // but we choose to view it as a nice preview rather than something to fix :-)
+                style={{
+                    backgroundColor: graphParams?.graphStyling.paper_bgcolor,
+                    color: graphParams?.graphStyling.title.title_font_color,
+                }}
+            >
+                {graphOutput === undefined &&
+                    <p className='graph-sidebar-welcome-text text-align-center-important' >To generate a graph, select an axis.</p>
+                }
+                {graphOutput !== undefined &&
+                    <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
+                }
+                <GraphTitleEditorPopup
+                    setSelectedGraphElement={setSelectedGraphElement}
+                    selectedGraphElement={selectedGraphElement}
+                    graphOutput={graphOutput}
+                    setValue={(value) => {
+                        const update = {
+                            graphStyling: {
+                                title: selectedGraphElement?.element === 'gtitle' ? { title: value } : graphParams?.graphStyling.title,
+                                xaxis: selectedGraphElement?.element === 'xtitle' ? { title: value } : graphParams?.graphStyling.xaxis,
+                                yaxis: selectedGraphElement?.element === 'ytitle' ? { title: value } : graphParams?.graphStyling.yaxis,
+                            }
+                        };
+                        const currOpenTaskpane = props.uiState.currOpenTaskpane;
+                        const stepSummaryList = props.analysisData.stepSummaryList;
+                        const currGraphStep = stepSummaryList[stepSummaryList.length - 1];
+                        const params = currGraphStep.params as GraphParamsBackend | undefined;
+                        if (currOpenTaskpane.type !== TaskpaneType.GRAPH || params === undefined) {
+                            return;
+                        }
+                        void props.mitoAPI.editGraph(
+                            currOpenTaskpane.openGraph.graphID,
+                            updateObjectWithPartialObject(graphParams, update),
+                            graphParams.graphRendering.height ?? '100%',
+                            graphParams.graphRendering.width ?? '100%',
+                            currGraphStep.step_id,
+                            true
+                        );
                     }}
-                >
-                    {graphOutput === undefined &&
-                        <p className='graph-sidebar-welcome-text text-align-center-important' >To generate a graph, select an axis.</p>
-                    }
-                    {graphOutput !== undefined &&
-                        <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
-                    }
-                </div>
-                <div className='graph-sidebar-toolbar-container'>
-                    <div className='graph-sidebar-toolbar-content-container'>
-                        <Row justify='space-between' align='center'>
-                            <Col>
-                                <p className='text-header-2'>
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Setup && 'Setup Graph'}
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Style && 'Style Graph'}
-                                    {selectedGraphSidebarTab === GraphSidebarTab.Export && 'Export Graph'}
-                                </p>
-                            </Col>
-                            <Col>
-                                <XIcon
-                                    onClick={() => {
-                                        props.setUIState((prevUIState) => {
-                                            return {
-                                                ...prevUIState,
-                                                selectedTabType: 'data',
-                                                currOpenTaskpane: { type: TaskpaneType.NONE }
+                    containerRef={containerRef}
+                    mitoContainerRef={props.mitoContainerRef}
+                />
+                <GraphTitleContextMenu
+                    setSelectedGraphElement={setSelectedGraphElement}
+                    selectedGraphElement={selectedGraphElement}
+                    graphOutput={graphOutput}
+                    setUIState={props.setUIState}
+                    deleteSelectedGraphElement={deleteSelectedGraphElement}
+                    mitoContainerRef={props.mitoContainerRef}
+                />
+            </div>
+            {currOpenTaskpane.graphSidebarOpen && <div className='graph-sidebar-toolbar-container'>
+                <div className='graph-sidebar-toolbar-content-container'>
+                    <Row justify='space-between' align='center'>
+                        <Col>
+                            <p className='text-header-2'>
+                                Select Data
+                            </p>
+                        </Col>
+                        <Col>
+                            <XIcon
+                                onClick={() => {
+                                    props.setUIState((prevUIState) => {
+                                        return {
+                                            ...prevUIState,
+                                            currOpenTaskpane: {
+                                                ...prevUIState.currOpenTaskpane,
+                                                graphSidebarOpen: false,
                                             }
-                                        })
-                                    }}
-                                />
-                            </Col>
-                        </Row>
-                        {selectedGraphSidebarTab === GraphSidebarTab.Setup && 
-                            <GraphSetupTab 
-                                graphParams={graphParams}
-                                setGraphParams={setGraphParams}
-                                setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                uiState={props.uiState}
-                                mitoAPI={props.mitoAPI}
-                                sheetDataArray={props.sheetDataArray}
-                                dfNames={props.dfNames}
-                                columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
-                                columnIDsMapArray={props.columnIDsMapArray}
-                                setUIState={props.setUIState}
+                                        }
+                                    })
+                                }}
                             />
-                        }
-                        {selectedGraphSidebarTab === GraphSidebarTab.Style &&
-                            <GraphStyleTab 
-                                graphParams={graphParams}
-                                setGraphParams={setGraphParams}
-                                setGraphUpdatedNumber={setGraphUpdatedNumber}
-                                userProfile={props.userProfile}
-                            />
-                        }
-                        {selectedGraphSidebarTab === GraphSidebarTab.Export && 
-                            <GraphExportTab 
-                                graphTabName={graphTabName}
-                                graphParams={graphParams}
-                                mitoAPI={props.mitoAPI}
-                                loading={loading}
-                                graphOutput={graphOutput}
-                                mitoContainerRef={props.mitoContainerRef}
-                            />
-                        }
-                    </div>
-                    <GraphSidebarTabs
-                        selectedTab={selectedGraphSidebarTab}
-                        setSelectedGraphSidebarTab={setSelectedGraphSidebarTab}
+                        </Col>
+                    </Row>
+                    <GraphSetupTab 
+                        graphParams={graphParams}
+                        setGraphParams={setGraphParams}
+                        uiState={props.uiState}
                         mitoAPI={props.mitoAPI}
+                        graphID={props.openGraph.graphID}
+                        sheetDataArray={props.sheetDataArray}
+                        columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
+                        setUIState={props.setUIState}
+                        mitoContainerRef={props.mitoContainerRef}
+                        openGraph={props.openGraph}
                     />
                 </div>
-                
-                {loading &&
-                    <div className='popup-div'>
-                        <LoadingSpinner />
-                        <p className='popup-text-div'>
-                            loading
-                        </p>
-                    </div>
-                }
-            </div>
-            
-        )
-    }
+            </div>}
+            {loading &&
+                <div className='popup-div'>
+                    <LoadingSpinner />
+                    <p className='popup-text-div'>
+                        loading
+                    </p>
+                </div>
+            }
+        </div>
+        
+    )
 };
 
 export default GraphSidebar;

@@ -74,7 +74,17 @@ interface DropdownProps {
      */
     width?: Width;
 
-    theme?: MitoTheme
+    theme?: MitoTheme;
+
+    position?: 'horizontal' | 'vertical';
+
+    /**
+     * Some dropdown items (see the "Change Chart Type" submenus) have a vertical layout.
+     * If undefined, we'll use the default horizontal layout. 
+     */
+    layout?: 'horizontal' | 'vertical';
+
+    style?: React.CSSProperties;
 }
 
 // Where to place the dropdown
@@ -374,33 +384,42 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             right: undefined,
             left: undefined 
         };
-        if (topInBounds(parentBottom) && leftInBounds(parentLeft, widthPixels)) {
+        if (props.position === 'vertical' || props.position === undefined) {
+            if (topInBounds(parentBottom) && leftInBounds(parentLeft, widthPixels)) {
+                newBoundingRect = {
+                    top: parentBottom,
+                    bottom: undefined,
+                    right: undefined,
+                    left: parentLeft
+                }
+            } else if (topInBounds(parentBottom) && rightInBounds(parentRight, widthPixels)) {
+                newBoundingRect = {
+                    top: parentBottom,
+                    bottom: undefined,
+                    right: window.innerWidth - parentRight,
+                    left:  undefined
+                }
+            } else if (bottomInBounds(parentTop) && leftInBounds(parentLeft, widthPixels)) {
+                newBoundingRect = {
+                    top: undefined,
+                    bottom: window.innerHeight - parentTop,
+                    right: undefined,
+                    left: parentLeft
+                }
+            } else {
+                newBoundingRect = {
+                    top: undefined,
+                    bottom: window.innerHeight - parentTop,
+                    right: window.innerWidth - parentRight,
+                    left:  undefined
+                }
+            }
+        } else { // This is the horizontal case
             newBoundingRect = {
-                top: parentBottom,
+                top: parentTop,
                 bottom: undefined,
                 right: undefined,
-                left: parentLeft
-            }
-        } else if (topInBounds(parentBottom) && rightInBounds(parentRight, widthPixels)) {
-            newBoundingRect = {
-                top: parentBottom,
-                bottom: undefined,
-                right: window.innerWidth - parentRight,
-                left:  undefined
-            }
-        } else if (bottomInBounds(parentTop) && leftInBounds(parentLeft, widthPixels)) {
-            newBoundingRect = {
-                top: undefined,
-                bottom: window.innerHeight - parentTop,
-                right: undefined,
-                left: parentLeft
-            }
-        } else {
-            newBoundingRect = {
-                top: undefined,
-                bottom: window.innerHeight - parentTop,
-                right: window.innerWidth - parentRight,
-                left:  undefined
+                left: parentRight
             }
         }
 
@@ -419,7 +438,9 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     const dropdownClassNames = classNames('mito-dropdown', `element-width-${width}`,{
         'mito-dropdown-compressed': React.Children.count(props.children) > 4,
         'mito-dropdown-search': props.searchable === true,
-        'mito-dropdown-streamlit': isInStreamlit()
+        'mito-dropdown-streamlit': isInStreamlit(), 
+        'mito-dropdown-item-vertical': props.layout === 'vertical',
+        'mito-dropdown-item-horizontal': props.layout === 'horizontal' || props.layout === undefined,
     })
 
     
@@ -472,6 +493,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                         bottom: boundingRect.bottom, 
                         right: boundingRect.right, 
                         left: boundingRect.left, 
+                        ...props.style
                     }}>
                     {props.searchable && 
                         <div className={classNames('mito-dropdown-search-input', DROPDOWN_IGNORE_CLICK_CLASS)}>

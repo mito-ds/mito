@@ -7,7 +7,9 @@ import LoadingDots from '../../elements/LoadingDots';
 import Toggle from '../../elements/Toggle';
 import Row from '../../layout/Row';
 import { getCellDataFromCellIndexes } from '../utils';
-import { getCellEditorWidth, getDocumentationFunction, getFormulaEndsInReference, getFullFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
+import { getDocumentationFunction, getFormulaEndsInReference, getFullFormula, getSuggestedColumnHeaders, getSuggestedFunctions } from './cellEditorUtils';
+import { getInputWidth } from '../../elements/Input';
+import { CELL_EDITOR_DEFAULT_WIDTH } from './CellEditor';
 
 const FORMULA_DOC_LINK = 'https://docs.trymito.io/how-to/interacting-with-your-data/mito-spreadsheet-formulas';
 export const MAX_SUGGESTIONS = 4;
@@ -102,7 +104,7 @@ const CellEditorDropdown = (props: {
     const displayedDropdownType = props.displayedDropdownType;
 
     const formula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex)
-    const cellEditorWidth = getCellEditorWidth(formula, props.editorState.editorLocation);
+    const cellEditorWidth = props.editorState.editorLocation === 'cell' ? getInputWidth(formula, CELL_EDITOR_DEFAULT_WIDTH) : CELL_EDITOR_DEFAULT_WIDTH;
 
     return (
         <div className='cell-editor-dropdown-box' style={{width: `${cellEditorWidth}px`}}>

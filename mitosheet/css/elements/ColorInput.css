@@ -17,3 +17,26 @@
     NOTE: we don't style the color input hover as it looks fine, and appears to be finicky
     to mess with in a cross browser way
 */
+.mito-color-input-with-icon-container:hover {
+    background-color: var(--mito-text-light);
+}
+
+input.color-input-with-icon[type="color"] {
+    padding: 0;
+    height: 7px;
+    width: 35px;
+    border: 1px transparent;
+  }
+  
+input.color-input-with-icon[type="color"]::-moz-color-swatch {
+    border: none;
+}
+
+input.color-input-with-icon[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border-radius: none;
+}
+
+input.color-input-with-icon[type="color"]::-webkit-color-swatch {
+    border: none;
+}

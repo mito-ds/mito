@@ -2,6 +2,7 @@ import { Action, ActionEnum, ColumnFilters, ColumnFormatType, ColumnHeader, Colu
 import { isBoolDtype, isDatetimeDtype, isFloatDtype, isIntDtype, isTimedeltaDtype } from "../../utils/dtypes";
 import { getKeyboardShortcutString } from "../../utils/keyboardShortcuts";
 import StepsIcon from "../icons/StepsIcon";
+import { TaskpaneType } from "../taskpanes/taskpanes";
 import { getFormulaStringFromFrontendFormula } from "./celleditor/cellEditorUtils";
 import { getWidthData } from "./widthUtils";
 import React from 'react';
@@ -184,8 +185,8 @@ export const doesSheetContainData = (sheetIndex: number, sheetDataArray: SheetDa
 /* 
     Determines if a graphing tab is selected in the sheet
 */
-export const getGraphIsSelected = (uiState: UIState): boolean => {
-    return uiState.selectedTabType === 'graph' && uiState.selectedGraphID !== undefined;
+export const getAnyGraphIsSelected = (uiState: UIState): boolean => {
+    return uiState.selectedTabType === 'graph' && uiState.currOpenTaskpane.type === TaskpaneType.GRAPH;
 }
 
 /* 

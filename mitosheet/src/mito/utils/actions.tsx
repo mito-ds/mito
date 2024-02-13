@@ -1,89 +1,91 @@
 import fscreen from "fscreen";
+import { getCodeString } from "../../jupyter/code";
+import { MitoAPI, getRandomId } from "../api/api";
+import { SendFunctionStatus } from "../api/send";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
 import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
-import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getGraphIsSelected } from "../components/endo/utils";
+import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getAnyGraphIsSelected } from "../components/endo/utils";
+import AIIcon from "../components/icons/AIIcon";
+import AddColumnIcon from "../components/icons/AddColumnIcon";
+import AntiMergeIcon from "../components/icons/AntiMergeIcon";
+import BulkHeaderTransformIcon from "../components/icons/BulkColumnHeaderTransformIcon";
+import CatchUpIcon from "../components/icons/CatchUpIcon";
+import ClearIcon from "../components/icons/ClearIcon";
+import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
+import ConcatIcon from "../components/icons/ConcatIcon";
+import ConditionalFormatIcon from "../components/icons/ConditionalFormatIcon";
+import CopyContextMenuIcon from "../components/icons/CopyContextMenuItem";
+import CopyIcon from "../components/icons/CopyIcon";
+import CurrencyIcon from "../components/icons/CurrencyIcon";
+import DataFrameImportIcon from "../components/icons/DataFrameImportIcon";
+import DateTimeFunctionsIcon from "../components/icons/DateTimeFunctionsIcon";
+import DeleteColumnIcon from "../components/icons/DeleteColumnIcon";
+import DtypeIcon from "../components/icons/DtypeIcon";
+import EditIcon from "../components/icons/EditIcon";
+import ExportIcon from "../components/icons/ExportIcon";
+import FileImportIcon from "../components/icons/FileImportIcon";
+import FillNanIcon from "../components/icons/FillNanIcon";
+import { FilterIcon } from "../components/icons/FilterIcons";
+import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
+import FormatContextMenuIcon from "../components/icons/FormatContextMenuIcon";
+import FormatIcon from "../components/icons/FormatIcon";
+import FunctionIcon from "../components/icons/FunctionIcon";
+import GearIcon from "../components/icons/GearIcon";
+import GraphIcon from "../components/icons/GraphIcon";
+import ImportIcon from "../components/icons/ImportIcon";
+import LessIcon from "../components/icons/LessIcon";
+import LineChartIcon from "../components/icons/LineChartIcon";
+import LogicalFunctionsIcon from "../components/icons/LogicalFunctionsIcon";
+import MathFunctionsIcon from "../components/icons/MathFunctionsIcon";
+import MergeIcon from "../components/icons/MergeIcon";
+import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
+import MoreIcon from "../components/icons/MoreIcon";
+import NumberFormatIcon from "../components/icons/NumberFormatIcon";
+import OneHotEncodingIcon from "../components/icons/OneHotEncodingIcon";
+import PercentIcon from "../components/icons/PercentIcon";
+import PivotIcon from "../components/icons/PivotIcon";
+import PlusIcon from "../components/icons/PlusIcon";
+import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
+import RedoIcon from "../components/icons/RedoIcon";
+import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
+import RemoveDuplicatesIcon from "../components/icons/RemoveDuplicatesIcon";
+import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
+import ResetIcon from "../components/icons/ResetIcon";
+import ResetIndexIcon from "../components/icons/ResetIndexIcon";
+import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
+import ScheduleIcon from "../components/icons/ScheduleIcon";
+import SearchIcon from "../components/icons/SearchIcon";
+import SnowflakeIcon from "../components/icons/SnowflakeIcon";
+import SortAscendingIcon from "../components/icons/SortAscendingIcon";
+import SortDescendingIcon from "../components/icons/SortDescendingIcon";
+import SortIcon from "../components/icons/SortIcon";
+import StarIcon from "../components/icons/StarIcon";
+import SummaryIcon from "../components/icons/SummaryIcon";
+import TextFunctionsIcon from "../components/icons/TextFunctionsIcon";
+import TextToColumnsIcon from "../components/icons/TextToColumnsIcon";
+import TransposeIcon from "../components/icons/TransposeIcon";
+import TrashIcon from "../components/icons/TrashIcon";
+import UndoIcon from "../components/icons/UndoIcon";
+import UnpivotIcon from "../components/icons/UnpivotIcon";
 import { ModalEnum } from "../components/modals/modals";
 import { ControlPanelTab } from "../components/taskpanes/ControlPanel/ControlPanelTaskpane";
-import { openGraphEditor } from "../components/taskpanes/Graph/graphUtils";
+import { ColumnDtypes } from "../components/taskpanes/ControlPanel/FilterAndSortTab/DtypeCard";
+import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
+import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
+import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
+import { deleteGraphs, openGraphSidebar } from "../components/taskpanes/Graph/graphUtils";
+import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
-import { MitoAPI, getRandomId } from "../api/api";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, BuildTimeAction, RunTimeAction, ActionEnum, AnalysisData, DFSource, DataframeFormat, EditorState, GridState, SheetData, UIState, UserProfile, NumberColumnFormatEnum, FilterType } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
-import { SendFunctionStatus } from "../api/send";
-import {getDisplayNameOfPythonVariable} from './userDefinedFunctionUtils'
-import UndoIcon from "../components/icons/UndoIcon";
-import AddColumnIcon from "../components/icons/AddColumnIcon";
-import CatchUpIcon from "../components/icons/CatchUpIcon";
-import DtypeIcon from "../components/icons/DtypeIcon";
-import ClearIcon from "../components/icons/ClearIcon";
-import DeleteColumnIcon from "../components/icons/DeleteColumnIcon";
-import PivotIcon from "../components/icons/PivotIcon";
-import AIIcon from "../components/icons/AIIcon";
-import ImportIcon from "../components/icons/ImportIcon";
-import ExportIcon from "../components/icons/ExportIcon";
-import LessIcon from "../components/icons/LessIcon";
-import MoreIcon from "../components/icons/MoreIcon";
-import GraphIcon from "../components/icons/GraphIcon";
-import SearchIcon from "../components/icons/SearchIcon";
-import RedoIcon from "../components/icons/RedoIcon";
-import ConditionalFormatIcon from "../components/icons/ConditionalFormatIcon";
-import { FilterIcon } from "../components/icons/FilterIcons";
-import FormatIcon from "../components/icons/FormatIcon";
-import CopyIcon from "../components/icons/CopyIcon";
-import PercentIcon from "../components/icons/PercentIcon";
-import CurrencyIcon from "../components/icons/CurrencyIcon";
-import MergeIcon from "../components/icons/MergeIcon";
-import UnpivotIcon from "../components/icons/UnpivotIcon";
-import TransposeIcon from "../components/icons/TransposeIcon";
-import ConcatIcon from "../components/icons/ConcatIcon";
-import AntiMergeIcon from "../components/icons/AntiMergeIcon";
-import ScatterPlotIcon from "../components/icons/ScatterPlotIcon";
-import LineChartIcon from "../components/icons/LineChartIcon";
-import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
-import { GraphType } from "../components/taskpanes/Graph/GraphSetupTab";
-import SortIcon from "../components/icons/SortIcon";
-import SortDescendingIcon from "../components/icons/SortDescendingIcon";
-import SortAscendingIcon from "../components/icons/SortAscendingIcon";
-import GearIcon from "../components/icons/GearIcon";
-import SnowflakeIcon from "../components/icons/SnowflakeIcon";
-import DataFrameImportIcon from "../components/icons/DataFrameImportIcon";
-import FileImportIcon from "../components/icons/FileImportIcon";
-import TextToColumnsIcon from "../components/icons/TextToColumnsIcon";
-import FillNanIcon from "../components/icons/FillNanIcon";
-import OneHotEncodingIcon from "../components/icons/OneHotEncodingIcon";
-import ResetIcon from "../components/icons/ResetIcon";
-import RemoveDuplicatesIcon from "../components/icons/RemoveDuplicatesIcon";
-import { SortDirection } from "../components/taskpanes/ControlPanel/FilterAndSortTab/SortCard";
-import MathFunctionsIcon from "../components/icons/MathFunctionsIcon";
-import LogicalFunctionsIcon from "../components/icons/LogicalFunctionsIcon";
-import TextFunctionsIcon from "../components/icons/TextFunctionsIcon";
-import DateTimeFunctionsIcon from "../components/icons/DateTimeFunctionsIcon";
-import LookupFunctionsIcon from "../components/icons/ReferenceFunctionsIcons";
-import MoreFunctionsIcon from "../components/icons/MoreFunctionsIcon";
-import FinancialFunctionsIcon from "../components/icons/FinancialFunctionsIcon";
-import CodeSnippetIcon from "../components/icons/CodeSnippetIcon";
-import FunctionIcon from "../components/icons/FunctionIcon";
-import ScheduleIcon from "../components/icons/ScheduleIcon";
-import { getCodeString } from "../../jupyter/code";
-import BulkHeaderTransformIcon from "../components/icons/BulkColumnHeaderTransformIcon";
-import SummaryIcon from "../components/icons/SummaryIcon";
-import CopyContextMenuIcon from "../components/icons/CopyContextMenuItem";
-import PlusIcon from "../components/icons/PlusIcon";
-import TrashIcon from "../components/icons/TrashIcon";
-import EditIcon from "../components/icons/EditIcon";
-import FormatContextMenuIcon from "../components/icons/FormatContextMenuIcon";
-import StarIcon from "../components/icons/StarIcon";
-import PromoteToHeaderIcon from "../components/icons/PromoteToHeaderIcon";
-import ResetIndexIcon from "../components/icons/ResetIndexIcon";
-import NumberFormatIcon from "../components/icons/NumberFormatIcon";
-import ResetAndDropIndexIcon from "../components/icons/ResetAndDropIndexIcon";
-import { getEqualityFilterCondition } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
-import { ColumnDtypes } from "../components/taskpanes/ControlPanel/FilterAndSortTab/DtypeCard";
+import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
+import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
+import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -154,7 +156,6 @@ export const getActions = (
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
     const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
     const {columnID, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
-    
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex);
     const startingColumnID = columnID;
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
@@ -266,6 +267,50 @@ export const getActions = (
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
             tooltip: "Add a new formula column to the left of your selection."
+        },
+        [ActionEnum.AddChartElementDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.AddChartElementDropdown,
+            iconToolbar: AddChartElementIcon,
+            titleToolbar: 'Add Chart Element',
+            longTitle: 'Add Chart Element',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the graph taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'add-chart-element'
+                    }
+                });
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['add chart element', 'add chart', 'add element', 'add graph element', 'add graph', 'add element'],
+            tooltip: "Add a new chart element to the graph."
+        },
+        [ActionEnum.ChangeChartTypeDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.ChangeChartTypeDropdown,
+            iconToolbar: GraphIcon,
+            titleToolbar: 'Change Chart Type',
+            longTitle: 'Change Chart Type',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                // We open the graph taskpane
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'change-chart-type'
+                    }
+                });
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['change chart type', 'change chart', 'change type', 'change graph type', 'change graph', 'change type'],
+            tooltip: "Change the type of the graph."
         },
         [ActionEnum.Catch_Up]: {
             type: 'build-time',
@@ -604,12 +649,13 @@ export const getActions = (
             titleToolbar: 'Delete Graph',
             longTitle: 'Delete graph',
             actionFunction: async () => {
-                if (uiState.selectedGraphID) {
-                    await mitoAPI.editGraphDelete(uiState.selectedGraphID);
+                const selectedGraphID = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? uiState.currOpenTaskpane.openGraph.graphID : undefined;
+                if (selectedGraphID) {
+                    await deleteGraphs([selectedGraphID], mitoAPI, setUIState, analysisData.graphDataArray);
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : "There is no selected graph to delete."
+                return getAnyGraphIsSelected(uiState) ? defaultActionDisabledMessage : "There is no selected graph to delete."
             },
             searchTerms: ['delete', 'delete graph', 'delete chart', 'del', 'del chart', 'del chart', 'remove', 'remove chart', 'remove graph'],
             tooltip: "Delete the selected graph."
@@ -677,26 +723,6 @@ export const getActions = (
             searchTerms: ['duplicate', 'copy'],
             tooltip: "Make a copy of the selected sheet."
         },
-        [ActionEnum.Duplicate_Graph]: {
-            type: 'build-time',
-            staticType: ActionEnum.Duplicate_Graph,
-            titleToolbar: 'Duplicate Graph',
-            longTitle: 'Duplicate selected graph',
-            actionFunction: async () => {
-                // We turn off editing mode, if it is on
-                setEditorState(undefined);
-                
-                if (uiState.selectedGraphID) {
-                    const newGraphID = getRandomId()
-                    await mitoAPI.editGraphDuplicate(uiState.selectedGraphID, newGraphID)
-                }
-            },
-            isDisabled: () => {
-                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is no selected graph to duplicate.'
-            },
-            searchTerms: ['duplicate', 'copy', 'graph'],
-            tooltip: "Make a copy of the selected graph."
-        },
         [ActionEnum.Export]: {
             type: 'build-time',
             staticType: ActionEnum.Export,
@@ -739,6 +765,57 @@ export const getActions = (
                     return {
                         ...prevUIState,
                         currOpenDropdown: 'export'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to export. Import data.'
+            },
+            searchTerms: ['export', 'download', 'excel', 'csv'],
+            tooltip: "Export dataframes as a .csv or .xlsx file. Choose whether or not to include export in the code."
+        },
+        [ActionEnum.Graph_SelectData]: {
+            type: 'build-time',
+            staticType: ActionEnum.Graph_SelectData,
+            iconToolbar: SelectDataIcon,
+            titleToolbar: 'Select Data',
+            longTitle: 'Select Data',
+            actionFunction: () => {
+                // We turn off editing mode, if it is on
+                setEditorState(undefined);
+
+                const currOpenTaskpane = uiState.currOpenTaskpane;
+                if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
+                    // Open the graph taskpane
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenTaskpane: {
+                                ...currOpenTaskpane,
+                                graphSidebarOpen: true,
+                            }
+                        }
+                    });
+                }
+            },
+            isDisabled: () => {return defaultActionDisabledMessage},
+            searchTerms: ['select data', 'select'],
+            tooltip: "Select the data to be used in the graph."
+        },
+        [ActionEnum.ExportGraphDropdown]: {
+            type: 'build-time',
+            staticType: ActionEnum.ExportGraphDropdown,
+            iconToolbar: ExportIcon,
+            titleToolbar: 'Export',
+            longTitle: 'Open Export Dropdown',
+            actionFunction: () => {
+                setEditorState(undefined);
+                closeOpenEditingPopups();
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenDropdown: 'export-graph'
                     }
                 })
             },
@@ -1229,7 +1306,8 @@ export const getActions = (
             titleToolbar: 'Graph',
             longTitle: 'Create new graph',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI);
+                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.BAR, selectedColumnIds: selectedColumnIds});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1241,7 +1319,8 @@ export const getActions = (
             iconToolbar: GraphIcon,
             longTitle: 'Create new bar chart',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.BAR);
+                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.BAR, selectedColumnIds: selectedColumnIds});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1253,7 +1332,8 @@ export const getActions = (
             iconToolbar: LineChartIcon,
             longTitle: 'Create new line graph',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.LINE);
+                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.LINE, selectedColumnIds: selectedColumnIds});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1265,7 +1345,8 @@ export const getActions = (
             iconToolbar: ScatterPlotIcon,
             longTitle: 'Create new scatter plot',
             actionFunction: async () => {
-                await openGraphEditor(setEditorState, sheetDataArray, setUIState, sheetIndex, mitoAPI, GraphType.SCATTER);
+                const selectedColumnIds = getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData);
+                await openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {type: 'new_graph', graphType: GraphType.SCATTER, selectedColumnIds: selectedColumnIds});
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to graph. Import data.'},
             searchTerms: ['graph', 'chart', 'visualize', 'bar chart', 'box plot', 'scatter plot', 'histogram'],
@@ -1678,7 +1759,7 @@ export const getActions = (
                 }
             },
             isDisabled: () => {
-                return getGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is not selected graph to rename.'
+                return getAnyGraphIsSelected(uiState) ? defaultActionDisabledMessage : 'There is not selected graph to rename.'
             },
             searchTerms: ['rename', 'name', 'graph'],
             tooltip: "Rename the selected graph."
@@ -2110,14 +2191,27 @@ export const getActions = (
             staticType: ActionEnum.Undo,
             iconToolbar: UndoIcon,
             longTitle: 'Undo',
-            actionFunction: () => {
+            actionFunction: async () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
         
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
         
-                void mitoAPI.updateUndo();
+                await mitoAPI.updateUndo();
+                
+                const currOpenTaskpane = uiState.currOpenTaskpane;
+                if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
+                    if (!analysisData.graphDataArray.find(graphData => graphData.graph_id === currOpenTaskpane.openGraph.graphID)) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {type: TaskpaneType.NONE},
+                                selectedTabType: 'data'
+                            }
+                        })
+                    }
+                }
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['undo', 'go back', 'redo'],
