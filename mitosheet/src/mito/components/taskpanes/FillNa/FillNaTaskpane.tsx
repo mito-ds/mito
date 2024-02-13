@@ -2,8 +2,8 @@
 // Distributed under the terms of the Modified BSD License.
 
 import React, { useEffect } from 'react';
-import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import { MitoAPI } from '../../../api/api';
+import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import { AnalysisData, ColumnHeader, ColumnID, SheetData, StepType, UIState } from '../../../types';
 import { intersection } from '../../../utils/arrays';
 import { getFirstCharactersOfColumnHeaders } from '../../../utils/columnHeaders';
@@ -17,7 +17,6 @@ import Select from '../../elements/Select';
 import TextButton from '../../elements/TextButton';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
-import Spacer from '../../layout/Spacer';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
@@ -179,7 +178,6 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         });
                     }}
                 />
-                <Spacer px={10}/>
                 <Row justify='space-between' align='center' title='Select the columns to fill nan values in.'>
                     <Col>
                         <p className='text-header-3'>
@@ -204,7 +202,6 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         })
                     }}
                 />
-                <Spacer px={10}/>
                 <Row justify='space-between' align='center' title='Select the method for filling nan values'>
                     <Col>
                         <p className='text-header-3'>
@@ -298,7 +295,13 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                         </Col>
                     </Row>
                 }
-                <Spacer px={10 + (params.fill_method.type === 'value' ? 0 : 38)}/>
+                {editApplied && !loading &&
+                    <Row className='mt-5'>
+                        <p className='text-subtext-1'>
+                            {getSuccessMessage(sheetData, params.column_ids)} 
+                        </p>
+                    </Row>
+                }
                 <TextButton
                     variant='dark'
                     width='block'
@@ -329,13 +332,6 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
                 >
                     {getButtonMessage(sheetData, params.column_ids)}
                 </TextButton>
-                {editApplied && !loading &&
-                    <Row className='mt-5'>
-                        <p className='text-subtext-1'>
-                            {getSuccessMessage(sheetData, params.column_ids)} 
-                        </p>
-                    </Row>
-                }
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     )

@@ -26,6 +26,7 @@
     text-decoration: none;
     margin: 0;
     cursor: default;
+    flex-shrink: 0;
 }
 
 .text-button span::-webkit-scrollbar {
