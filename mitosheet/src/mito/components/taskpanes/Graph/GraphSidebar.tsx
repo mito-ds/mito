@@ -106,7 +106,6 @@ const GraphTitleContextMenu = (props: {
 }) => {
     return (
         <div
-            className='graph-element-context-menu'
             style={{
                 position: 'absolute',
                 ...props.selectedGraphElement?.popupPosition
