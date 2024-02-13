@@ -49,8 +49,8 @@
 }
 
 .mito-dropdown-item-subtext-container {
+    text-align: left;
     margin-top: 4px;
-
     cursor: default;
 }
 
