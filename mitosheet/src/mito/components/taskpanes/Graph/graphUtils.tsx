@@ -32,8 +32,9 @@ export interface GraphElementType {
         bottom?: number,
     }
 
-    /** Whether to display the popup */
-    display: 'editor' | 'context-menu' | 'none'
+    /** This indicates whether to display the title editor popup, 
+     * the context menu, or just highlight the selected element */
+    display: 'popup-title-editor' | 'context-menu' | 'highlight-selected-element'
 }
 
 /**
@@ -526,7 +527,7 @@ export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     }
 }
 
-export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput, display: 'editor' | 'context-menu' | 'none'): GraphElementType => {
+export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput, display: 'popup-title-editor' | 'context-menu' | 'highlight-selected-element'): GraphElementType => {
     const clientRect = graphElement.getBoundingClientRect()
 
     if (graphOutput === undefined) {
@@ -536,7 +537,7 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
                 left: 0,
                 top: 0
             },
-            display: 'none',
+            display: 'highlight-selected-element',
             defaultValue: ''
         }
     }
@@ -613,27 +614,27 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
      * Set selected graph element when clicked
      */
     gtitle.addEventListener('click', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'gtitle', graphOutput, 'none'))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'gtitle', graphOutput, 'highlight-selected-element'))
     })
     xtitle.addEventListener('click', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, 'none'))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, 'highlight-selected-element'))
     })
     ytitle.addEventListener('click', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, 'none'))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, 'highlight-selected-element'))
     })
 
     /**
      * Open popup when double clicked
      */
     gtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput, 'editor'))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput, 'popup-title-editor'))
     });
 
     xtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, 'editor'))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, 'popup-title-editor'))
     });
 
     ytitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, 'editor'))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, 'popup-title-editor'))
     });
 }

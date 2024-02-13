@@ -30,7 +30,7 @@ export const GraphTitleEditorPopup = (props: {
     /**
      * If position is undefined, we don't display the popup. 
      */
-    if (props.selectedGraphElement?.display !== 'editor') {
+    if (props.selectedGraphElement?.display !== 'popup-title-editor') {
         return <></>
     }
 
@@ -143,7 +143,7 @@ const GraphTitleContextMenu = (props: {
                             if (graphElementObjects === undefined) {
                                 return;
                             }
-                            const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, 'editor');
+                            const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, 'popup-title-editor');
                             props.setSelectedGraphElement(elementInfo);
                         }
                     }}
