@@ -211,12 +211,15 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                             className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
                             style={{marginTop: '5px'}}
                           >
-                            Use Mito's {functionNameShort} function</h3>
+                            Use Mito&apos;s {functionNameShort} function</h3>
                           <p>
                             Mito is an open source library that lets you write Excel formulas in Python. Either write the formula directly in Python or <Link href='/spreadsheet-automation'><a className={pageStyles.link}>use the {functionNameShort} formula in the Mito Spreadsheet</a></Link> and generate the equivalent Python code automatically.
                           </p>
                           <p>
-                            Mito's {functionNameShort} function works exactly like it does in Excel. That means you don't need worry about managing data types, handling errors, or the edge case differences between Excel and Python formulas.
+                            Mito&apos;s {functionNameShort} function works exactly like it does in Excel. That means you don&apos;t need worry about managing data types, handling errors, or the edge case differences between Excel and Python formulas.
+                          </p>
+                          <p>
+                            <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer" className={classNames(pageStyles.link, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA)}>Install Mito</a> to start using Excel formulas in Python.
                           </p>
                           <CodeBlock
                             code={[
@@ -227,9 +230,6 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                             ].concat(pageContent.mitoCTA.codeLines).join('\n')}
                             className={PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED}
                           />
-                          <p style={{marginTop: '14px'}}>
-                            <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer" className={classNames(pageStyles.link, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA)}>Install Mito</a> to start using Excel formulas in Python.
-                          </p>
                         </div>
                       }
                     </>
