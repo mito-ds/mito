@@ -13,6 +13,37 @@ const openPopupAndEditTitle = async (mito: any, selector: string, newTitle: stri
     await expect(mito.locator(selector, { hasText: newTitle })).toBeVisible();
 }
 
+const testEditTitleThroughContextMenu = async (page, selector) => {
+  const mito = await getMitoFrameWithTypeCSV(page);
+
+  await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+  await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+  await mito.locator(selector).click({ button: 'right' });
+  await mito.getByRole('button', { name: 'Edit Title' }).click();
+  await awaitResponse(page);
+
+  await expect(mito.locator('.popup-input')).toBeVisible();
+  await mito.locator('.popup-input').fill('New Title');
+  await mito.locator('.popup-input').press('Enter');
+
+  await awaitResponse(page);
+  await expect(mito.locator(selector, { hasText: 'New Title' })).toBeVisible();
+};
+
+const testDeleteTitleThroughContextMenu = async (page, selector) => {
+  const mito = await getMitoFrameWithTypeCSV(page);
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+    await mito.locator(selector).click({ button: 'right' });
+    await mito.getByRole('button', { name: 'Delete Title' }).click();
+    await awaitResponse(page);
+
+    await expect(mito.locator(selector)).not.toBeVisible();
+};
+
 test.describe('Graph Functionality', () => {
     test('Graph', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
@@ -243,6 +274,30 @@ test.describe('Graph Functionality', () => {
     await expect(mito.getByText('Column1 bar chart')).toBeVisible();
 
     await openPopupAndEditTitle(mito, '.g-ytitle', 'Y axis Title');
+  });
+
+  test('Update graph title with context menu', async ({ page }) => {
+    await testEditTitleThroughContextMenu(page, '.g-gtitle');
+  });
+
+  test('Update X axis title with context menu', async ({ page }) => {
+    await testEditTitleThroughContextMenu(page, '.g-xtitle');
+  });
+
+  test('Update Y axis title with context menu', async ({ page }) => {
+    await testEditTitleThroughContextMenu(page, '.g-ytitle');
+  });
+
+  test('Delete graph title with context menu', async ({ page }) => {
+    await testDeleteTitleThroughContextMenu(page, '.g-gtitle');
+  });
+
+  test('Delete x axis title with context menu', async ({ page }) => {
+    await testDeleteTitleThroughContextMenu(page, '.g-xtitle');
+  });
+
+  test('Delete y axis title with context menu', async ({ page }) => {
+    await testDeleteTitleThroughContextMenu(page, '.g-ytitle');
   });
 
   test('Update Y axis Title with double click after interacting with the legend', async ({ page }) => {

@@ -1,10 +1,17 @@
 import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
-import { AnalysisData, GraphDataArray, GraphParamsBackend, GraphParamsFrontend, OpenGraphType, RecursivePartial, SheetData, StepType, UIState } from '../../../types';
+import { AnalysisData, GraphDataArray, GraphOutput, GraphParamsBackend, GraphParamsFrontend, OpenGraphType, RecursivePartial, SheetData, StepType, UIState } from '../../../types';
+import { classNames } from '../../../utils/classNames';
+import { updateObjectWithPartialObject } from '../../../utils/objects';
+import DropdownItem from '../../elements/DropdownItem';
+import Input, { getInputWidth } from '../../elements/Input';
+import EditIcon from '../../icons/EditIcon';
+import TrashIcon from '../../icons/TrashIcon';
 import XIcon from '../../icons/XIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
@@ -12,30 +19,20 @@ import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
 import GraphSetupTab from './GraphSetupTab';
 import LoadingSpinner from './LoadingSpinner';
-import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphElementObjects, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
-import { updateObjectWithPartialObject } from '../../../utils/objects';
-import { classNames } from '../../../utils/classNames';
-import Input from '../../elements/Input';
-import { getInputWidth } from '../../elements/Input';
-import ReactDOM from 'react-dom';
+import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphElementInfoFromHTMLElement, getGraphElementObjects, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
 
-export const Popup = (props: {
-    value: string;
-    position?: {
-        left?: number;
-        right?: number;
-        top?: number;
-        bottom?: number;
-    };
+export const GraphTitleEditorPopup = (props: {
+    containerRef?: React.RefObject<HTMLDivElement>;
     mitoContainerRef?: React.RefObject<HTMLDivElement>;
     setValue: (value: string) => void;
-    onClose: () => void;
-    caretPosition?: 'above' | 'below-left' | 'below-centered';
+    selectedGraphElement?: GraphElementType;
+    setSelectedGraphElement: (graphElement?: GraphElementType) => void;
+    graphOutput: GraphOutput;
 }) => {
     /**
      * If position is undefined, we don't display the popup. 
      */
-    if (!props.position) {
+    if (props.selectedGraphElement?.display !== 'popup-title-editor') {
         return <></>
     }
 
@@ -43,11 +40,11 @@ export const Popup = (props: {
      * We use a temporary value to store the value of the popup input. This is because
      * we don't want to update the graphParams until the user presses enter.
      */
-    const [ temporaryValue, setTemporaryValue ] = React.useState(props.value);
+    const [ temporaryValue, setTemporaryValue ] = React.useState(props.selectedGraphElement?.defaultValue);
     
     React.useEffect(() => {
-        setTemporaryValue(props.value);
-    }, [props.value]);
+        setTemporaryValue(props.selectedGraphElement?.defaultValue);
+    }, [props.selectedGraphElement?.defaultValue]);
 
     /**
      * The popup input is autofocusing, but when the popup is already open and we switch
@@ -56,8 +53,10 @@ export const Popup = (props: {
      */
     React.useEffect(() => {
         const input = document.getElementsByClassName('popup-input')[0] as HTMLInputElement;
-        input.focus();
-    }, [props.position])
+        input?.focus();
+    }, [props.selectedGraphElement?.popupPosition])
+
+    const caretPosition = props.selectedGraphElement?.element === 'gtitle' ? 'above' : props.selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'
 
     if (!props.mitoContainerRef) {
         return <></>
@@ -66,24 +65,21 @@ export const Popup = (props: {
     return (
         ReactDOM.createPortal(
             <div
-                className={`graph-element-popup-div ${props.caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : props.caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
+                className={`graph-element-popup-div ${caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
                 style={{
                     position: 'absolute',
                     height: '32px',
-                    left: props.position.left,
-                    right: props.position.right,
-                    top: props.position.top,
-                    bottom: props.position.bottom,
+                    ...props.selectedGraphElement?.popupPosition,
                 }}
             >
                 <div className='graph-element-popup-div-caret'/>
                 <Input
                     className='popup-input'
-                    value={temporaryValue}
+                    value={temporaryValue ?? ''}
                     style={{
                         zIndex: 1,
                         position: 'relative',
-                        width: getInputWidth(temporaryValue, 150),
+                        width: getInputWidth(temporaryValue ?? '', 150),
                     }}
                     onKeyDown={(e) => {
                         /**
@@ -95,7 +91,7 @@ export const Popup = (props: {
                             e.stopPropagation();
                         }
                         if (e.key === 'Enter') {
-                            props.setValue(temporaryValue);
+                            props.setValue(temporaryValue ?? '');
                         }
                     }}
                     autoFocus
@@ -106,7 +102,61 @@ export const Popup = (props: {
             </div>,
             props.mitoContainerRef.current as HTMLDivElement
         )
-    )
+    );
+}
+
+const GraphTitleContextMenu = (props: {
+    selectedGraphElement?: GraphElementType;
+    setSelectedGraphElement: (graphElement?: GraphElementType) => void;
+    graphOutput: GraphOutput;
+    setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    deleteSelectedGraphElement: () => void;
+    mitoContainerRef?: React.RefObject<HTMLDivElement>;
+}) => {
+
+    if (!props.mitoContainerRef || props.selectedGraphElement?.display !== 'context-menu') {
+        return <></>
+    }
+
+    return (
+        ReactDOM.createPortal(
+            <div
+                className='mito-dropdown mito-dropdown-item-horizontal'
+                style={{
+                    position: 'absolute',
+                    ...props.selectedGraphElement?.popupPosition
+                }}
+            >
+                <div className='mito-dropdown-items-container'>
+                    <DropdownItem
+                        icon={<TrashIcon />}
+                        onClick={() => {
+                            props.deleteSelectedGraphElement();
+                            props.setSelectedGraphElement(undefined);
+                        }}
+                        supressFocusSettingOnClose
+                        title='Delete Title'
+                    />
+                    <DropdownItem
+                        icon={<EditIcon width='15px'/>}
+                        onClick={() => {
+                            if (props.selectedGraphElement !== undefined) {
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, props.mitoContainerRef?.current ?? null, 'popup-title-editor');
+                                props.setSelectedGraphElement(elementInfo);
+                            }
+                        }}
+                        supressFocusSettingOnClose
+                        title='Edit Title'
+                    />
+                </div>
+            </div>,
+            props.mitoContainerRef.current as HTMLDivElement
+        )
+    );
 }
 
 /*
@@ -186,13 +236,13 @@ const GraphSidebar = (props: {
     }, [currOpenTaskpane.graphSidebarOpen], props.mitoContainerRef, '#mito-center-content-container')
 
     const selectedGraphElement = props.uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? props.uiState.currOpenTaskpane.currentGraphElement : undefined;
-    const setSelectedGraphElement = (graphElement: GraphElementType | null) => {
+    const setSelectedGraphElement = (graphElement?: GraphElementType) => {
         props.setUIState(prevUIState => {
             return {
                 ...prevUIState,
                 currOpenTaskpane: {
                     ...prevUIState.currOpenTaskpane,
-                    currentGraphElement: graphElement === null ? undefined : graphElement,
+                    currentGraphElement: graphElement,
                 }
             }
         });
@@ -235,6 +285,18 @@ const GraphSidebar = (props: {
     const selectedGraphElementClass = selectedGraphElement !== undefined ? `${selectedGraphElement.element}-highlighted` : undefined;
     const containerRef = React.useRef<HTMLDivElement>(null);
 
+    const deleteSelectedGraphElement = () => {
+        const newGraphParams: RecursivePartial<GraphParamsFrontend> = {};
+        if (selectedGraphElement?.element === 'gtitle') {
+            newGraphParams.graphStyling = { title: { visible: false } };
+        } else if (selectedGraphElement?.element === 'xtitle') {
+            newGraphParams.graphStyling = { xaxis: { visible: false } };
+        } else if (selectedGraphElement?.element === 'ytitle') {
+            newGraphParams.graphStyling = { yaxis: { visible: false } };
+        }
+        setGraphParams(updateObjectWithPartialObject(graphParams, newGraphParams));
+    }
+
     return (
         <div
             className={classNames('graph-sidebar-div', selectedGraphElementClass)}
@@ -242,18 +304,10 @@ const GraphSidebar = (props: {
             ref={containerRef}
             onKeyDown={(e) => {
                 if (e.key === 'Backspace') {
-                    const newGraphParams: RecursivePartial<GraphParamsFrontend> = {};
-                    if (selectedGraphElement?.element === 'gtitle') {
-                        newGraphParams.graphStyling = { title: { visible: false } };
-                    } else if (selectedGraphElement?.element === 'xtitle') {
-                        newGraphParams.graphStyling = { xaxis: { visible: false } };
-                    } else if (selectedGraphElement?.element === 'ytitle') {
-                        newGraphParams.graphStyling = { yaxis: { visible: false } };
-                    }
-                    setGraphParams(updateObjectWithPartialObject(graphParams, newGraphParams));
+                    deleteSelectedGraphElement();
                 }
-                if ((e.key === 'Escape' || e.key === 'Enter') && (selectedGraphElement !== null)) {
-                    setSelectedGraphElement(null);
+                if ((e.key === 'Escape' || e.key === 'Enter') && (selectedGraphElement !== undefined)) {
+                    setSelectedGraphElement(undefined);
                 }
             }}
         >
@@ -275,8 +329,10 @@ const GraphSidebar = (props: {
                 {graphOutput !== undefined &&
                     <div dangerouslySetInnerHTML={{ __html: graphOutput.graphHTML }} />
                 }
-                <Popup
-                    value={(selectedGraphElement?.element === 'gtitle' ? graphParams?.graphStyling.title.title : selectedGraphElement?.element === 'xtitle' ? graphParams?.graphStyling.xaxis?.title : selectedGraphElement?.element === 'ytitle' ? graphParams?.graphStyling.yaxis?.title : '') ?? selectedGraphElement?.defaultValue ?? ''}
+                <GraphTitleEditorPopup
+                    setSelectedGraphElement={setSelectedGraphElement}
+                    selectedGraphElement={selectedGraphElement}
+                    graphOutput={graphOutput}
                     setValue={(value) => {
                         const update = {
                             graphStyling: {
@@ -301,9 +357,15 @@ const GraphSidebar = (props: {
                             true
                         );
                     }}
-                    caretPosition={selectedGraphElement?.element === 'gtitle' ? 'above' : selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'}
-                    position={selectedGraphElement?.popupPosition}
-                    onClose={() => setSelectedGraphElement(null)}
+                    containerRef={containerRef}
+                    mitoContainerRef={props.mitoContainerRef}
+                />
+                <GraphTitleContextMenu
+                    setSelectedGraphElement={setSelectedGraphElement}
+                    selectedGraphElement={selectedGraphElement}
+                    graphOutput={graphOutput}
+                    setUIState={props.setUIState}
+                    deleteSelectedGraphElement={deleteSelectedGraphElement}
                     mitoContainerRef={props.mitoContainerRef}
                 />
             </div>

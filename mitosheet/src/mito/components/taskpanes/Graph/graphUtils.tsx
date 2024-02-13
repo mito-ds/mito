@@ -31,6 +31,10 @@ export interface GraphElementType {
         top?: number,
         bottom?: number,
     }
+
+    /** This indicates whether to display the title editor popup, 
+     * the context menu, or just highlight the selected element */
+    display: 'popup-title-editor' | 'context-menu' | 'highlight-selected-element'
 }
 
 /**
@@ -523,7 +527,7 @@ export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     }
 }
 
-export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput, mitoContainer: HTMLElement | null): GraphElementType => {
+export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elementType: 'gtitle' | 'xtitle' | 'ytitle', graphOutput: GraphOutput, mitoContainer: HTMLElement | null, display: 'popup-title-editor' | 'context-menu' | 'highlight-selected-element'): GraphElementType => {
     const clientRect = graphElement.getBoundingClientRect()
 
     if (mitoContainer === null || graphOutput === undefined) {
@@ -533,6 +537,7 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
                 left: 0,
                 top: 0
             },
+            display: 'highlight-selected-element',
             defaultValue: ''
         }
     }
@@ -549,7 +554,8 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
                 left: clientRect.left - mitoDivLeft,
                 top: clientRect.bottom - mitoDivTop + 10
             },
-            defaultValue: graphElement.children?.[0]?.innerHTML
+            defaultValue: graphElement.children?.[0]?.innerHTML,
+            display: display
         }
     } else if (elementType === 'xtitle') {
         return {
@@ -558,23 +564,33 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
                 left: (clientRect.left + clientRect.right) / 2 - mitoDivLeft - 70,
                 bottom: (mitoDivBottom - clientRect.top) + 10
             },
-            defaultValue: graphElement.children?.[0]?.innerHTML
+            defaultValue: graphElement.children?.[0]?.innerHTML,
+            display: display
         }
     } else {
-        const titleDivTop = mitoDivBottom - clientRect.top + 10;
+        const top = display === 'context-menu' ? (clientRect.top + clientRect.bottom) / 2 : clientRect.top;
+        const titleDivTop = mitoDivBottom - top + 10;
         const graphDivTop = mitoDivBottom - graphOutputTop;
+        let left = clientRect.left - mitoDivLeft;
+        const bottom = Math.min(titleDivTop, graphDivTop);
+        // Special case for ytitle, we don't want the context menu to be on top of the title,
+        // so we move it to the right a bit
+        if (display === 'context-menu') {
+            left += 25;
+        }
         return {
             element: 'ytitle',
             popupPosition: {
-                left: clientRect.left - mitoDivLeft,
-                bottom: Math.min(titleDivTop, graphDivTop)
+                left: left,
+                bottom: bottom
             },
-            defaultValue: graphElement.children?.[0]?.innerHTML
+            defaultValue: graphElement.children?.[0]?.innerHTML,
+            display: display
         }
     }
 }
 
-export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element: GraphElementType | null) => void), mitoContainer: HTMLElement | null) => {
+export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, setSelectedGraphElement: ((element?: GraphElementType) => void), mitoContainer: HTMLElement | null) => {
     const graphElementObjects = getGraphElementObjects(graphOutput);
     if (graphElementObjects === undefined) {
         return;
@@ -588,36 +604,46 @@ export const registerClickEventsForGraphElements = (graphOutput: GraphOutput, se
     ytitle.style.pointerEvents = 'all'
 
     /**
+     * Open context menu when right clicked
+     */
+    gtitle.addEventListener('contextmenu', (e: any) => {
+        e.preventDefault();
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput, mitoContainer, 'context-menu'))
+    })
+    xtitle.addEventListener('contextmenu', (e: any) => {
+        e.preventDefault();
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, mitoContainer, 'context-menu'))
+    })
+    ytitle.addEventListener('contextmenu', (e: any) => {
+        e.preventDefault();
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, mitoContainer, 'context-menu'))
+    })
+
+    /**
      * Set selected graph element when clicked
      */
     gtitle.addEventListener('click', () => {
-        setSelectedGraphElement({
-            element: 'gtitle',
-        })
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'gtitle', graphOutput, mitoContainer, 'highlight-selected-element'))
     })
     xtitle.addEventListener('click', () => {
-        setSelectedGraphElement({
-            element: 'xtitle',
-        });
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, mitoContainer, 'highlight-selected-element'))
     })
     ytitle.addEventListener('click', () => {
-        setSelectedGraphElement({
-            element: 'ytitle',
-        })
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, mitoContainer, 'highlight-selected-element'))
     })
 
     /**
      * Open popup when double clicked
      */
     gtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput, mitoContainer))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(gtitle, 'gtitle', graphOutput, mitoContainer, 'popup-title-editor'))
     });
 
     xtitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, mitoContainer))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(xtitle, 'xtitle', graphOutput, mitoContainer, 'popup-title-editor'))
     });
 
     ytitle.addEventListener('dblclick', () => {
-        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, mitoContainer))
+        setSelectedGraphElement(getGraphElementInfoFromHTMLElement(ytitle, 'ytitle', graphOutput, mitoContainer, 'popup-title-editor'))
     });
 }

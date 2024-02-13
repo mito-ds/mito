@@ -91,7 +91,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenTaskpane: { 
                                             ...prevUIState.currOpenTaskpane, 
-                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle', props.graphOutput, props.mitoContainerRef?.current)
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.xtitle, 'xtitle', props.graphOutput, props.mitoContainerRef?.current, 'popup-title-editor')
                                         },
                                     }
                                 })
@@ -113,7 +113,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenTaskpane: { 
                                             ...prevUIState.currOpenTaskpane, 
-                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle', props.graphOutput, props.mitoContainerRef?.current)
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.ytitle, 'ytitle', props.graphOutput, props.mitoContainerRef?.current, 'popup-title-editor')
                                         },
                                     }
                                 })
@@ -158,7 +158,7 @@ export const AddChartElementButton = (
                                         currOpenDropdown: undefined,
                                         currOpenTaskpane: { 
                                             ...prevUIState.currOpenTaskpane, 
-                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle', props.graphOutput, props.mitoContainerRef?.current)
+                                            currentGraphElement: getGraphElementInfoFromHTMLElement(graphElementObjects.gtitle, 'gtitle', props.graphOutput, props.mitoContainerRef?.current, 'popup-title-editor')
                                         },
                                     }
                                 })
