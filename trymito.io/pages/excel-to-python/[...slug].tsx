@@ -29,7 +29,7 @@ import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
-import { PLAUSIBLE_FEATURE_DOCS_CTA_LOCATION_GLOSSAY, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
 require('prismjs/components/prism-python');
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
@@ -228,7 +228,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                             className={PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED}
                           />
                           <p style={{marginTop: '14px'}}>
-                            <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer" className={pageStyles.link}>Install Mito</a> to start using Excel formulas in Python.
+                            <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer" className={classNames(pageStyles.link, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA)}>Install Mito</a> to start using Excel formulas in Python.
                           </p>
                         </div>
                       }
