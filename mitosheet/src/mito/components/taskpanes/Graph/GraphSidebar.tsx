@@ -19,9 +19,11 @@ import Input from '../../elements/Input';
 import { getInputWidth } from '../../elements/Input';
 import Dropdown from '../../elements/Dropdown';
 import DropdownItem from '../../elements/DropdownItem';
+import ReactDOM from 'react-dom';
 
 export const GraphTitleEditorPopup = (props: {
     containerRef?: React.RefObject<HTMLDivElement>;
+    mitoContainerRef?: React.RefObject<HTMLDivElement>;
     setValue: (value: string) => void;
     selectedGraphElement?: GraphElementType;
     setSelectedGraphElement: (graphElement?: GraphElementType) => void;
@@ -56,16 +58,20 @@ export const GraphTitleEditorPopup = (props: {
 
     const caretPosition = props.selectedGraphElement?.element === 'gtitle' ? 'above' : props.selectedGraphElement?.element === 'ytitle' ? 'below-left' : 'below-centered'
 
+    if (!props.mitoContainerRef) {
+        return <></>
+    }
+
     return (
-        <div
-            className={`graph-element-popup-div ${caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
-            style={{
-                position: 'absolute',
-                height: '32px',
-                ...props.selectedGraphElement?.popupPosition
-            }}
-        >
-            <div>
+        ReactDOM.createPortal(
+            <div
+                className={`graph-element-popup-div ${caretPosition === 'above' ? 'graph-element-popup-div-caret-above' : caretPosition === 'below-left' ? 'graph-element-popup-div-caret-below-left' : 'graph-element-popup-div-caret-below-centered'}`}
+                style={{
+                    position: 'absolute',
+                    height: '32px',
+                    ...props.selectedGraphElement?.popupPosition,
+                }}
+            >
                 <div className='graph-element-popup-div-caret'/>
                 <Input
                     className='popup-input'
@@ -93,8 +99,10 @@ export const GraphTitleEditorPopup = (props: {
                         setTemporaryValue(e.target.value);
                     }}
                 />
-            </div>
-    </div>)
+            </div>,
+            props.mitoContainerRef.current as HTMLDivElement
+        )
+    );
 }
 
 const GraphTitleContextMenu = (props: {
@@ -103,6 +111,7 @@ const GraphTitleContextMenu = (props: {
     graphOutput: GraphOutput;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     deleteSelectedGraphElement: () => void;
+    mitoContainerRef?: React.RefObject<HTMLDivElement>;
 }) => {
     return (
         <div
@@ -143,7 +152,7 @@ const GraphTitleContextMenu = (props: {
                             if (graphElementObjects === undefined) {
                                 return;
                             }
-                            const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, 'popup-title-editor');
+                            const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, props.mitoContainerRef?.current ?? null, 'popup-title-editor');
                             props.setSelectedGraphElement(elementInfo);
                         }
                     }}
@@ -258,7 +267,7 @@ const GraphSidebar = (props: {
 
             const graphObjects = getGraphElementObjects(graphOutput);
             graphObjects?.div.on('plotly_afterplot', () => {
-                registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement);
+                registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement, props.mitoContainerRef?.current);
             });
         } catch (e) {
             console.error("Failed to execute graph function", e)
@@ -354,6 +363,7 @@ const GraphSidebar = (props: {
                         );
                     }}
                     containerRef={containerRef}
+                    mitoContainerRef={props.mitoContainerRef}
                 />
                 <GraphTitleContextMenu
                     setSelectedGraphElement={setSelectedGraphElement}
