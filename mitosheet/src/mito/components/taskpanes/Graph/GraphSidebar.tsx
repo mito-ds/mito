@@ -1,10 +1,17 @@
 import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
 import { MitoAPI } from '../../../api/api';
 import { useEffectOnResizeElement } from '../../../hooks/useEffectOnElementResize';
 import useLiveUpdatingParams from '../../../hooks/useLiveUpdatingParams';
 import { AnalysisData, GraphDataArray, GraphOutput, GraphParamsBackend, GraphParamsFrontend, OpenGraphType, RecursivePartial, SheetData, StepType, UIState } from '../../../types';
+import { classNames } from '../../../utils/classNames';
+import { updateObjectWithPartialObject } from '../../../utils/objects';
+import DropdownItem from '../../elements/DropdownItem';
+import Input, { getInputWidth } from '../../elements/Input';
+import EditIcon from '../../icons/EditIcon';
+import TrashIcon from '../../icons/TrashIcon';
 import XIcon from '../../icons/XIcon';
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
@@ -13,13 +20,6 @@ import { TaskpaneType } from '../taskpanes';
 import GraphSetupTab from './GraphSetupTab';
 import LoadingSpinner from './LoadingSpinner';
 import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphElementInfoFromHTMLElement, getGraphElementObjects, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
-import { updateObjectWithPartialObject } from '../../../utils/objects';
-import { classNames } from '../../../utils/classNames';
-import Input from '../../elements/Input';
-import { getInputWidth } from '../../elements/Input';
-import Dropdown from '../../elements/Dropdown';
-import DropdownItem from '../../elements/DropdownItem';
-import ReactDOM from 'react-dom';
 
 export const GraphTitleEditorPopup = (props: {
     containerRef?: React.RefObject<HTMLDivElement>;
@@ -113,54 +113,49 @@ const GraphTitleContextMenu = (props: {
     deleteSelectedGraphElement: () => void;
     mitoContainerRef?: React.RefObject<HTMLDivElement>;
 }) => {
+
+    if (!props.mitoContainerRef || props.selectedGraphElement?.display !== 'context-menu') {
+        return <></>
+    }
+
     return (
-        <div
-            style={{
-                position: 'absolute',
-                ...props.selectedGraphElement?.popupPosition
-            }}
-        >
-            <Dropdown
-                display={props.selectedGraphElement?.display === 'context-menu'}
-                closeDropdown={() => {
-                    props.setUIState(prevUIState => {
-                        if (prevUIState.currOpenTaskpane.type !== TaskpaneType.GRAPH
-                            || prevUIState.currOpenTaskpane.currentGraphElement?.display !== props.selectedGraphElement?.display) {
-                            return prevUIState;
-                        }
-                        return {
-                            ...prevUIState,
-                            currOpenTaskpane: {
-                                ...prevUIState.currOpenTaskpane,
-                                currentGraphElement: undefined,
-                            }
-                        }
-                    })
+        ReactDOM.createPortal(
+            <div
+                className='mito-dropdown mito-dropdown-item-horizontal'
+                style={{
+                    position: 'absolute',
+                    ...props.selectedGraphElement?.popupPosition
                 }}
             >
-                <DropdownItem
-                    onClick={() => {
-                        props.deleteSelectedGraphElement();
-                    }}
-                    supressFocusSettingOnClose
-                    title='Delete Title'
-                />
-                <DropdownItem
-                    onClick={() => {
-                        if (props.selectedGraphElement !== undefined) {
-                            const graphElementObjects = getGraphElementObjects(props.graphOutput);
-                            if (graphElementObjects === undefined) {
-                                return;
+                <div className='mito-dropdown-items-container'>
+                    <DropdownItem
+                        icon={<TrashIcon />}
+                        onClick={() => {
+                            props.deleteSelectedGraphElement();
+                            props.setSelectedGraphElement(undefined);
+                        }}
+                        supressFocusSettingOnClose
+                        title='Delete Title'
+                    />
+                    <DropdownItem
+                        icon={<EditIcon width='15px'/>}
+                        onClick={() => {
+                            if (props.selectedGraphElement !== undefined) {
+                                const graphElementObjects = getGraphElementObjects(props.graphOutput);
+                                if (graphElementObjects === undefined) {
+                                    return;
+                                }
+                                const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, props.mitoContainerRef?.current ?? null, 'popup-title-editor');
+                                props.setSelectedGraphElement(elementInfo);
                             }
-                            const elementInfo = getGraphElementInfoFromHTMLElement(graphElementObjects[props.selectedGraphElement.element], props.selectedGraphElement.element, props.graphOutput, props.mitoContainerRef?.current ?? null, 'popup-title-editor');
-                            props.setSelectedGraphElement(elementInfo);
-                        }
-                    }}
-                    supressFocusSettingOnClose
-                    title='Edit Title'
-                />
-            </Dropdown>
-        </div>
+                        }}
+                        supressFocusSettingOnClose
+                        title='Edit Title'
+                    />
+                </div>
+            </div>,
+            props.mitoContainerRef.current as HTMLDivElement
+        )
     );
 }
 
@@ -371,6 +366,7 @@ const GraphSidebar = (props: {
                     graphOutput={graphOutput}
                     setUIState={props.setUIState}
                     deleteSelectedGraphElement={deleteSelectedGraphElement}
+                    mitoContainerRef={props.mitoContainerRef}
                 />
             </div>
             {currOpenTaskpane.graphSidebarOpen && <div className='graph-sidebar-toolbar-container'>
