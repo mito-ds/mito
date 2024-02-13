@@ -568,7 +568,8 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
             display: display
         }
     } else {
-        const titleDivTop = mitoDivBottom - clientRect.top + 10;
+        const top = display === 'context-menu' ? (clientRect.top + clientRect.bottom) / 2 : clientRect.top;
+        const titleDivTop = mitoDivBottom - top + 10;
         const graphDivTop = mitoDivBottom - graphOutputTop;
         let left = clientRect.left - mitoDivLeft;
         let bottom = Math.min(titleDivTop, graphDivTop);
@@ -576,7 +577,6 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
         // so we move it to the right a bit
         if (display === 'context-menu') {
             left += 25;
-            bottom -= 25;
         }
         return {
             element: 'ytitle',
