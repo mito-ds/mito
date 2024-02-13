@@ -38,7 +38,7 @@ const testDeleteTitleThroughContextMenu = async (page, selector) => {
     await expect(mito.getByText('Column1 bar chart')).toBeVisible();
 
     await mito.locator(selector).click({ button: 'right' });
-    await mito.getByRole('button', { name: 'Delete' }).click();
+    await mito.getByRole('button', { name: 'Delete Title' }).click();
     await awaitResponse(page);
 
     await expect(mito.locator(selector)).not.toBeVisible();

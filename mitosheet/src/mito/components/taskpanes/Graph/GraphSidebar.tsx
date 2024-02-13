@@ -134,7 +134,7 @@ const GraphTitleContextMenu = (props: {
                         props.deleteSelectedGraphElement();
                     }}
                     supressFocusSettingOnClose
-                    title='Delete'
+                    title='Delete Title'
                 />
                 <DropdownItem
                     onClick={() => {
