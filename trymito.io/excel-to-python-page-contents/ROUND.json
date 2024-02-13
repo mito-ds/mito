@@ -73,21 +73,6 @@
                 ]
             },
             {
-                "title": "Use the Mito ROUND function",
-                "shortTitle": "Mito ROUND",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's ROUND function works exactly like the Excel ROUND function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use ROUND function",
-                    "df['A'] = ROUND(df['A'], 2)"
-                ]
-            },
-            {
                 "title": "Rounding like Excel",
                 "shortTitle": "Rounding like Excel",
                 "paragraphs": [
@@ -187,6 +172,14 @@
                 ],
                 "codeLines": []
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: The Mito ROUND formula is implemented to replicate",
+            "# Excel's behavior, so we don't need to create edge cases for",
+            "# handling .5 rounding differently.",
+            "df['A'] = ROUND(df['A'], 2)"
         ]
     }
 }

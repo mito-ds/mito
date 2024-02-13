@@ -57,21 +57,6 @@
                 ]
             },
             {
-                "title": "Use the Mito LEN function",
-                "shortTitle": "Mito LEN",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's LEN function works exactly like the Excel LEN function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use LEN function",
-                    "df['length'] = LEN(df['A'])"
-                ]
-            },
-            {
                 "title": "Calculating the length of each value in a column",
                 "shortTitle": "Column values",
                 "paragraphs": [
@@ -120,6 +105,11 @@
                     "df['length'] = len(df['A'])"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['length'] = LEN(df['A'])"
         ]
     }
 }

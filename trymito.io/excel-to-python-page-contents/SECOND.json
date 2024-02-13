@@ -60,21 +60,6 @@
                 ]
             },
             {
-                "title": "Use the Mito SECOND function",
-                "shortTitle": "Mito SECOND",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's SECOND function works exactly like the Excel SECOND function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use SECOND function",
-                    "df['Second'] = SECOND(df['Datetime_Column'])"
-                ]
-            },
-            {
                 "title": "Converting string to datetime and then extracting the second",
                 "shortTitle": "String to Second",
                 "paragraphs": [
@@ -121,6 +106,13 @@
                     "df['Second'] = df['Datetime_Column'].dt.second"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to convert the Date column to a string because",
+            "# Mito's SECOND formula handles that automatically",
+            "df['Second'] = SECOND(df['Date'])"
         ]
     }
 }

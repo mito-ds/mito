@@ -56,21 +56,6 @@
                 ]
             },
             {
-                "title": "Use the Mito MID function",
-                "shortTitle": "Mito MID",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's MID function works exactly like the Excel MID function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use MID function",
-                    "df['extracted'] = MID(df['column'], 5, 3)"
-                ]
-            },
-            {
                 "title": "Extracting characters from the start of a string (prefixes)",
                 "shortTitle": "Extracting Prefixes",
                 "paragraphs": [
@@ -164,6 +149,13 @@
                     "df['extracted'] = df['column'].str[start:start+length]"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to convert the column to a string column before",
+            "# using Mito's MID function b/c Mito does so automatically",
+            "df['extracted'] = MID(df['column'], 5, 3)"
         ]
     }
 }

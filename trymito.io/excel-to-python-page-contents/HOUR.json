@@ -55,21 +55,6 @@
                 ]
             },
             {
-                "title": "Use the Mito HOUR function",
-                "shortTitle": "Mito HOUR",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's HOUR function works exactly like the Excel HOUR function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use HOUR function",
-                    "df['Hour'] = HOUR(df['Datetime_column'])"
-                ]
-            },
-            {
                 "title": "Converting string to datetime and then extracting hour",
                 "shortTitle": "String to Hour",
                 "paragraphs": [
@@ -143,6 +128,11 @@
                     "df['Hour'] = df['Datetime_Column'].dt.hour"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Hour'] = HOUR(df['Datetime_column'])"
         ]
     }
 }

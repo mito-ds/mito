@@ -65,21 +65,6 @@
                 ]
             },
             {
-                "title": "Use the Mito SUM function to sum values in the same row",
-                "shortTitle": "Mito SUM Row-wise",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's SUM function works exactly like the Excel SUM function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use SUM function",
-                    "df['sum'] = SUM(df['Col1'], df['Col2'])"
-                ]
-            },
-            {
                 "title": "Summing a single column",
                 "shortTitle": "Column sum",
                 "paragraphs": [
@@ -87,21 +72,6 @@
                 ],
                 "codeLines": [
                     "total = df['Column1'].sum()"
-                ]
-            },
-            {
-                "title": "Use the Mito SUM function to sum all values in multiple columns",
-                "shortTitle": "Mito SUM Column-wise",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's SUM function works exactly like the Excel SUM function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use SUM function",
-                    "df['sum'] = SUM(df[['Col1', 'Col2']])"
                 ]
             },
             {
@@ -207,6 +177,11 @@
                     "column_total = df[['Col1', 'Col2']].sum(axis=0)"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['sum'] = SUM(df[['Col1', 'Col2']])"
         ]
     }
 }

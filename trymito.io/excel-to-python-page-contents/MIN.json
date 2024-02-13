@@ -59,21 +59,6 @@
                 ]
             },
             {
-                "title": "Use the Mito MIN function",
-                "shortTitle": "Mito MIN",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's MIN function works exactly like the Excel MIN function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use MIN function",
-                    "df['min_value'] = MIN(df['A'], df['B'], 2)"
-                ]
-            },
-            {
                 "title": "Finding the Minimum Value Across Rows in dataframe",
                 "shortTitle": "Row Min",
                 "paragraphs": [
@@ -135,6 +120,11 @@
                 ],
                 "codeLines": []
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['min_value'] = MIN(df['A'], df['B'], 2)"
         ]
     }
 }

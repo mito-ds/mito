@@ -94,21 +94,6 @@
                 ]
             },
             {
-                "title": "Use the Mito VLOOKUP function",
-                "shortTitle": "Mito VLOOKUP",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's VLOOKUP function works exactly like the Excel VLOOKUP function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use VLOOKUP function",
-                    "df1['returned_value'] = VLOOKUP(df1['A'],df2.loc[:, 'A':'B'], 2)"
-                ]
-            },
-            {
                 "title": "Merge dataframes using mulitple conditions (merge keys)",
                 "shortTitle": "Multiple condition lookup",
                 "paragraphs": [
@@ -261,6 +246,13 @@
                     "result = df1.merge(df2, on='key', how='left')"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: Mito's VLOOKUP formula automatically performs a",
+            "# case-insensitive lookup, just like Excel",
+            "df1['returned_value'] = VLOOKUP(df1['A'],df2.loc[:, 'A':'B'], 2)"
         ]
     }
 }

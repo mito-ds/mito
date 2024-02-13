@@ -55,21 +55,6 @@
                 ]
             },
             {
-                "title": "Use the Mito DAY function",
-                "shortTitle": "Mito AVG",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's DAY function works exactly like the Excel DAY function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use AVG function",
-                    "df['Day'] = DAY(df['Datetime_Column'])"
-                ]
-            },
-            {
                 "title": "Converting string to datetime and then extracting day",
                 "shortTitle": "String to Day",
                 "paragraphs": [
@@ -152,6 +137,13 @@
                     "df['Day'] = df['Datetime_Column'].dt.day"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: We don't need to convert the Date column to a ",
+            "# datetime first because Mito does so automatically",
+            "df['Day'] = DAY(df['Date'])"
         ]
     }
 }

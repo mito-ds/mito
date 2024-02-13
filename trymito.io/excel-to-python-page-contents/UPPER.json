@@ -43,21 +43,6 @@
                 "codeLines": [
                     "df['name'] = df['name'].str.upper()"
                 ]
-            },
-            {
-                "title": "Use the Mito UPPER function",
-                "shortTitle": "Mito UPPER",
-                "paragraphs": [
-                    "Mito is a Python library that implements Excel's spreadsheet formulas in pandas. Mito's UPPER function works exactly like the Excel UPPER function.",
-                    "To use it, `pip install mitosheet` and then use the following code:"
-                ],
-                "codeLines": [
-                    "# Import the mitosheet Excel functions",
-                    "from mitosheet.public.v3 import *;",
-                    "",
-                    "# Use UPPER function",
-                    "df['name'] = UPPER(df['name'])"
-                ]
             }
         ]
     },
@@ -81,6 +66,11 @@
                     "df['column'].str.upper()"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['name'] = UPPER(df['name'])"
         ]
     }
 }
