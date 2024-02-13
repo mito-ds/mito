@@ -132,7 +132,9 @@
     },
     "mitoCTA": {
         "codeLines": [
-            "df['Hour'] = HOUR(df['Datetime_column'])"
+            "# Note: No need to convert the Date column to datetime",
+            " # because Mito's HOUR function does so automatically",
+            "df['Hour'] = HOUR(df['Date'])"
         ]
     }
 }
