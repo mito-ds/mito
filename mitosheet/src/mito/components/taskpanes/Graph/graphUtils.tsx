@@ -572,7 +572,7 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
         const titleDivTop = mitoDivBottom - top + 10;
         const graphDivTop = mitoDivBottom - graphOutputTop;
         let left = clientRect.left - mitoDivLeft;
-        let bottom = Math.min(titleDivTop, graphDivTop);
+        const bottom = Math.min(titleDivTop, graphDivTop);
         // Special case for ytitle, we don't want the context menu to be on top of the title,
         // so we move it to the right a bit
         if (display === 'context-menu') {
