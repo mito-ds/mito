@@ -50,14 +50,14 @@ const CTAButtons = (props: {
                     <div className='only-on-desktop'>
                         <TextButton 
                             text='Book an Enterprise Demo'
-                            href="mailto:founders@sagacollab.com"
+                            href="https://calendly.com/jake_from_mito/30min"
                             variant='secondary'
                         />
                     </div>
                     <div className='only-on-mobile'>
                         <TextButton 
                             text='Book a Demo'
-                            href="mailto:founders@sagacollab.com"
+                            href="https://calendly.com/jake_from_mito/30min"
                             variant='secondary'
                         />
                     </div>
