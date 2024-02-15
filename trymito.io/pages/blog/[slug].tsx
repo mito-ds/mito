@@ -80,14 +80,14 @@ const PostPage = (props: {post: PostOrPage}) => {
           </div>
         </div>
         
-        {/* More Like This */}
+        {/* Suggested Blogs */}
         <div className={postStyles.suggested_blogs_section}>
           <h1>More Like This</h1>
           <div className={postStyles.suggested_blogs_links}>
             { /* For each post, render a card with the post title and excerpt */}
-            { ['','','','', '',''].map(() => {
+            { ['','','','', '',''].map((value, index) => {
               return (
-                <div className={postStyles.suggested_blog_card}>
+                <div key={index} className={postStyles.suggested_blog_card}>
                   <h2>Post Title</h2>
                   <p>Post Excerpt</p>
                 </div>
