@@ -18,6 +18,7 @@ import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
 import Prism from 'prismjs';
+import LogoSection from '../components/LogoSection/LogoSection';
 
 const Home: NextPage = () => {
 
@@ -72,6 +73,8 @@ const Home: NextPage = () => {
               </video>
             </div>
         </section>
+
+        <LogoSection></LogoSection>
 
         <section className={pageStyles.background_card} >
           {/* So that we can scroll to the correct location on the page, and 
