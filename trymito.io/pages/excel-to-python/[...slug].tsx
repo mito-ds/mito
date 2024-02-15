@@ -24,11 +24,13 @@ import { GetStaticProps } from 'next';
 import { getGlossaryPageInfo, getPageContentJsonArray, GlossaryPageInfo } from '../../utils/excel-to-python';
 import { PageContent } from '../../excel-to-python-page-contents/types';
 
+// TODO: can we document and explain these...
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
+require('prismjs/components/prism-python');
+
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
-require('prismjs/components/prism-python');
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
   const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {
@@ -263,9 +265,9 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                         return <p key={text}> {text}</p>
                       })}
                       {codeSection.codeLines.length > 0 &&
-                        <CodeBlock
-                          code={codeSection.codeLines.join('\n')}
-                        />
+                        <CodeBlock>
+                          {codeSection.codeLines.join('\n')}
+                        </CodeBlock>
                       }
                       
                     </>
@@ -299,7 +301,9 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                         return <p key={text}>{text}</p>
                       })}
                       {codeSections.codeLines.length > 0 && 
-                        <CodeBlock code={codeSections.codeLines.join('\n')}/>
+                        <CodeBlock>
+                          {codeSections.codeLines.join('\n')}
+                        </CodeBlock>
                       }
                     </>
                   )

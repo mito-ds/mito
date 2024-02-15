@@ -69,6 +69,7 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   background-color: var(--color-background);
   font-size: 8px;
+  scroll-behavior: smooth;
 
   /* 
     Overflow-x: hidden was important for the Tweets section to work properly. It cut the tweets off at the border of the page

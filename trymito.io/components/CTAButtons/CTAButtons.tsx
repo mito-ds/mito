@@ -7,7 +7,7 @@ import { classNames } from '../../utils/classNames';
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
 
 const CTAButtons = (props: {
-    variant: 'download' | 'contact' | 'try jupyterlite',
+    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install',
     align: 'left' | 'center',
     displaySecondaryCTA?: boolean
     secondaryCTA?: 'pro' | 'learn more'
@@ -24,6 +24,13 @@ const CTAButtons = (props: {
                 <TextButton 
                     text='Install Mito'
                     href={MITO_INSTALLATION_DOCS_LINK}
+                />
+            }
+            {props.variant === 'scroll-to-install' && 
+                <TextButton 
+                    text='Install Mito'
+                    href='#installation'
+                    openInNewTab={false}
                 />
             }
             {props.variant === 'try jupyterlite' && 

@@ -8,7 +8,6 @@ import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import textImageSplitStyles from '../styles/TextImageSplit.module.css'
 import CTAButtons from '../components/CTAButtons/CTAButtons';
-import GithubButton from '../components/GithubButton/GithubButton';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import TextButton from '../components/TextButton/TextButton';
 import AIThesis from '../components/AIThesis/AIThesis';
@@ -17,6 +16,7 @@ import { classNames } from '../utils/classNames';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Link from 'next/link';
 import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import CodeBlock from '../components/CodeBlock/CodeBlock';
 
 const Home: NextPage = () => {
 
@@ -40,31 +40,44 @@ const Home: NextPage = () => {
 
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
-              <h1 className={titleStyles.title}>
-                Automate your spreadsheets. No computer science degree required.
-              </h1>
+            <h1 className={titleStyles.title}>
+              Automate your spreadsheets. No computer science degree required.
+            </h1>
 
-              <h2 className={titleStyles.description}>
-                Analysts at the world&apos;s largest banks  
-                save themselves from hours of repetitive work.
-              </h2>
-              
-              <div className={homeStyles.cta_button_and_video_spacer}>
-                <CTAButtons variant='download' align='center'/>
-              </div>
-              
-              <iframe
-                className='display-desktop-only-inline-block'
-                src="https://mito-for-st-demo.streamlit.app/?embed=true"
-                height="650"
-                style={{width: '80%', border: 'none'}}
-              ></iframe>
-              <div id='video' className='display-mobile-only'>
-               <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                 <source src="/demo.mp4" />
-               </video>
-             </div>
-          </section>
+            <h2 className={titleStyles.description}>
+              Analysts at the world&apos;s largest banks  
+              save themselves from hours of repetitive work.
+            </h2>
+            <div className={homeStyles.cta_button_and_video_spacer}>
+              <CTAButtons variant='scroll-to-install' align='center'/>
+            </div>
+            
+            <iframe
+              className='display-desktop-only-inline-block'
+              src="https://mito-for-st-demo.streamlit.app/?embed=true"
+              height="650"
+              style={{width: '80%', border: 'none'}}
+            ></iframe>
+            <div id='video' className='display-mobile-only'>
+              <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                <source src="/demo.mp4" />
+              </video>
+            </div>
+        </section>
+        <section className={pageStyles.background_card + ' ' + titleStyles.title_card} id='installation'>
+          <h2>
+            Install <span className='text-highlight'><a className={pageStyles.link} href='https://github.com/mito-ds/mito' target="_blank" rel="noreferrer">open-source</a></span> Mito in under a minute.
+          </h2>
+
+          <div>
+            <CodeBlock prefix='$ '>
+              pip install mitosheet
+            </CodeBlock>
+            <CodeBlock prefix='$ '>
+              python -m mitosheet hello
+            </CodeBlock>
+          </div>
+        </section>
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
@@ -233,7 +246,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito open source?'>
               <div>
                 <p>
-                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href='https://github.com/mito-ds/monorepo' target="_blank" rel="noreferrer">Github</a>.
+                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href='https://github.com/mito-ds/mito' target="_blank" rel="noreferrer">Github</a>.
                 </p>
                 <p>
                   Outside contributions are welcome and encouraged! 

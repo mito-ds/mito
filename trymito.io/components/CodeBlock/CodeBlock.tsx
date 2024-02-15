@@ -5,7 +5,10 @@ import codeBlockStyles from './CodeBlock.module.css'
 import { classNames } from '../../utils/classNames';
 
 
-const CodeBlock = (props:{code: string}) => {
+const CodeBlock = (props:{
+  children: string,
+  prefix?: string,
+}) => {
 
   const [copied, setCopied] = useState(false);
   useEffect(() => {
@@ -22,11 +25,11 @@ const CodeBlock = (props:{code: string}) => {
         return;
       }
       
-      await navigator.clipboard.writeText(props.code);
+      await navigator.clipboard.writeText(props.children);
       setCopied(true);
     }}>
       <pre className={codeBlockStyles.code_container} >
-        <code className={classNames("language-python")}>{props.code}</code>
+        {props.prefix}<code className={classNames("language-python")}>{props.children}</code>
       </pre>
       <div className={codeBlockStyles.clipboard_container}>
         {!copied && <div className={codeBlockStyles.copy_text}>Copy!</div>}
