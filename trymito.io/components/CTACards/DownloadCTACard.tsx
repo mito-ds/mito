@@ -1,11 +1,11 @@
 import titleStyles from '../../styles/Title.module.css';
 import CTAButtons from '../CTAButtons/CTAButtons';
 
-const DownloadCTACard = (): JSX.Element => {
+const DownloadCTACard = (props: { headerStyle?: React.CSSProperties}): JSX.Element => {
 
     return (
         <div> 
-            <h2 className={titleStyles.title}>
+            <h2 style={props.headerStyle} className={titleStyles.title}>
                 Want to install Mito locally?
             </h2>
             <div className='center'>

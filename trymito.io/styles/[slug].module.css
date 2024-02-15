@@ -2,18 +2,35 @@
 .post {
     margin-top: 4rem;
     margin-bottom: 4rem;
+    font-family: Inter, Ubuntu, Helvetica, Arial, sans-serif;
+}
+
+.post a {
+    text-decoration: underline 0.15em rgba(0, 0, 0, 0);
+    transition: text-decoration-color 300ms;
+}
+  
+.post a:hover {
+text-decoration-color: rgba(0, 0, 0, 1);
 }
 
 .post_title {
-    max-width: min(800px, 90vw);
+    background-color: var(--color-purple);
+    padding: 50px 325px;
+    width: 100%;
 }
 
 .post_title h1 {
     font-size: 3rem;
 }
 
+.post_title p {
+    margin-top: 0
+}
+
 .post_content {
-    max-width: min(720px, 90vw);
+    margin: 0 30px;
+    max-width: 720px;
 }
 
 /* Make lists start at the right place*/
@@ -47,17 +64,22 @@
 
 .post_content h1 {
     margin-top: 3rem;
+    font-size: 2.7rem;
 }
 .post_content h2 {
     margin-top: 2rem;
+    font-size: 2.3rem;
 }
 .post_content h3 {
     margin-top: 2rem;
 }
-.post_content figcaption {
-    color: var(--color-text-secondary);
-    font-size: .7rem;
-    text-align: center;
+.post_content p, .post_content li, .post_content a {
+    font-size: 1.4rem;
+    color: var(--color-text-primary);
+    font-weight: 100;
+}
+.post_content a {
+    color: var(--color-purple);
 }
 
 .post_content blockquote {
@@ -102,9 +124,73 @@
   border-bottom: 1.5px solid black; 
 }
 
+.post_toc {
+    width: 265px;
+    min-width: 265px;
+    height: fit-content;
+    position: sticky;
+    top: 67px;
+    margin-left: 30px;
+}
+
 .post_content table thead {
     background-color: black;
     border-radius: 1rem;
+}
+
+.post_cta {
+    width: 265px;
+    min-width: 265px;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+    right: 0;
+    background-color: #F2C94C;
+    border-radius: 15px;
+    padding: 30px 30px 0 30px;
+    margin-right: 30px;
+    margin-top: 30px;
+}
+
+.suggested_blogs_section {
+    margin: 60px;
+    display: flex;
+    flex-direction: column;
+}
+
+.suggested_blogs_section h1 {
+    margin: 30px;
+    color: var(--color-light-purple);
+}
+
+.suggested_blogs_links {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.suggested_blog_card {
+    width: 250px;
+    margin: 30px;
+}
+
+@media only screen and (max-width: 1400px) {
+    .post_cta {
+        display: none;
+    }
+
+    .post_title {
+        padding: 50px 100px 50px 325px;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .post_toc {
+        display: none;
+    }
+
+    .post_title {
+        padding: 50px;
+    }
 }
 
 @media only screen and (min-width: 50em) {
