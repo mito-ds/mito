@@ -56,7 +56,7 @@ const Home: NextPage = () => {
             </h2>
             <div className={homeStyles.cta_button_and_video_spacer}>
               <div className={homeStyles.cta_buttons_homepage_container}>
-                <CTAButtons variant='scroll-to-install' align='center' displaySecondaryCTA={false}/>
+                <CTAButtons variant='download' align='center' displaySecondaryCTA={false}/>
                 <CTAButtons variant='book a demo' align='center' displaySecondaryCTA={false}/>
               </div>
             </div>
@@ -76,14 +76,14 @@ const Home: NextPage = () => {
 
         <LogoSection></LogoSection>
 
-        <section className={pageStyles.background_card} >
+        {false && <section className={pageStyles.background_card} >
           {/* So that we can scroll to the correct location on the page, and 
             because we have a fixed header taking up some space, we scroll 
             to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
           */}
           <a className="anchor" id='installation'></a>
           <InstallInstructions/>
-        </section>
+        </section>}
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
