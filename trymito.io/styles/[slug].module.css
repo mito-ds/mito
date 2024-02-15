@@ -1,7 +1,8 @@
 
 .post {
-    margin-top: 4rem;
+    margin-top: 7rem;
     margin-bottom: 4rem;
+    width: 100%;
     font-family: Inter, Ubuntu, Helvetica, Arial, sans-serif;
 }
 
@@ -14,14 +15,23 @@
 text-decoration-color: rgba(0, 0, 0, 1);
 }
 
-.post_title {
+.post_banner {
     background-color: var(--color-purple);
-    padding: 50px 325px;
+    padding: 5rem 20rem;
     width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.post_title {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
 }
 
 .post_title h1 {
     font-size: 3rem;
+    max-width: 78rem;
 }
 
 .post_title p {
@@ -29,8 +39,8 @@ text-decoration-color: rgba(0, 0, 0, 1);
 }
 
 .post_content {
-    margin: 0 30px;
-    max-width: 720px;
+    margin: 0 2rem;
+    max-width: 78rem;
 }
 
 /* Make lists start at the right place*/
@@ -73,8 +83,8 @@ text-decoration-color: rgba(0, 0, 0, 1);
 .post_content h3 {
     margin-top: 2rem;
 }
-.post_content p, .post_content li, .post_content a {
-    font-size: 1.4rem;
+.post_content span {
+    font-size: 1.5rem;
     color: var(--color-text-primary);
     font-weight: 100;
 }
@@ -83,7 +93,7 @@ text-decoration-color: rgba(0, 0, 0, 1);
 }
 
 .post_content blockquote {
-    font-size: 3rem;
+    font-size: 1.5rem;
     color: var(--color-text-secondary);
 }
 
@@ -125,12 +135,12 @@ text-decoration-color: rgba(0, 0, 0, 1);
 }
 
 .post_toc {
-    width: 265px;
-    min-width: 265px;
+    width: 16rem;
+    min-width: 16rem;
     height: fit-content;
     position: sticky;
-    top: 67px;
-    margin-left: 30px;
+    top: 5rem;
+    margin-left: 2rem;
 }
 
 .post_content table thead {
@@ -139,27 +149,27 @@ text-decoration-color: rgba(0, 0, 0, 1);
 }
 
 .post_cta {
-    width: 265px;
-    min-width: 265px;
+    width: 16rem;
+    min-width: 16rem;
     height: fit-content;
     position: sticky;
-    top: 100px;
+    top: 6rem;
     right: 0;
     background-color: #F2C94C;
     border-radius: 15px;
-    padding: 30px 30px 0 30px;
-    margin-right: 30px;
-    margin-top: 30px;
+    padding: 2rem 2rem 0 2rem;
+    margin-right: 2rem;
+    margin-top: 2rem;
 }
 
 .suggested_blogs_section {
-    margin: 60px;
+    margin: 4rem;
     display: flex;
     flex-direction: column;
 }
 
 .suggested_blogs_section h1 {
-    margin: 30px;
+    margin: 2rem;
     color: var(--color-light-purple);
 }
 
@@ -169,36 +179,76 @@ text-decoration-color: rgba(0, 0, 0, 1);
 }
 
 .suggested_blog_card {
-    width: 250px;
-    margin: 30px;
+    width: 18em;
+    margin: 3em;
 }
 
-@media only screen and (max-width: 1400px) {
+.post_additional_info {
+    margin-left: 3em;
+}
+
+.post_title h1 {
+    margin-top: 0;
+}
+
+.post_content_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.post_content_container {
+    justify-content: space-between;
+}
+
+.post_content p, .post_content li, .post_content a {
+    font-size: 1.4rem;
+}
+
+.post_content table {
+    font-size: 1rem;
+}
+
+@media only screen and (max-width: 96em) {
     .post_cta {
         display: none;
     }
 
-    .post_title {
-        padding: 50px 100px 50px 325px;
+    .post_content_container {
+        justify-content: flex-start;
+    }
+
+    .post_banner {
+        padding: 5rem 14rem 5rem 20rem;
     }
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 50em) {
     .post_toc {
         display: none;
     }
 
-    .post_title {
-        padding: 50px;
+    .post_banner {
+        padding: 3rem;
     }
-}
 
-@media only screen and (min-width: 50em) {
-    .post_content blockquote {
-        font-size: 1.5rem;
+    .post_content_container {
+        padding: 3rem;
+        justify-content: center;
     }
-    
-    .post_content table {
-        font-size: 1rem;
+    .post_content p, .post_content li, .post_content a {
+        font-size: 2rem;
+        color: var(--color-text-primary);
+        font-weight: 100;
+    }
+    .post_content blockquote {
+        font-size: 3rem;
+    }
+    .post_content h1 {
+        font-size: 3.5rem;
+    }
+    .post_content {
+        margin: 0;
+        max-width: unset;
     }
 }

@@ -51,19 +51,22 @@ const PostPage = (props: {post: PostOrPage}) => {
         <div className={postStyles.post}>
 
         {/* Blog Title Banner */}
-        <div className={postStyles.post_title}>
-            <div className={postStyles.post_metadata}>
-              <p>
-                { authorName ? 'By '+ props.post.primary_author?.name: 'The Mito Team' }
-              </p>
-              {publishedAt && <p style={{ marginLeft: '15px' }}> {publishedAt}</p>}
-              {readingTime && <p style={{ marginLeft: '15px'}}>{readingTime} min read</p>}
+        <div className={postStyles.post_banner}>
+          {/* We use a wrapper around the post title to get the positioning in line with the post content. */}
+          <div className={postStyles.post_title}>
+              <div className={postStyles.post_metadata}>
+                <p>
+                  { authorName ? 'By '+ props.post.primary_author?.name: 'The Mito Team' }
+                </p>
+                {publishedAt && <p className={postStyles.post_additional_info}> {publishedAt}</p>}
+                {readingTime && <p className={postStyles.post_additional_info}>{readingTime} min read</p>}
+              </div>
+              <h1>{props.post.title}</h1>
             </div>
-            <h1 style={{marginTop: '0'}}>{props.post.title}</h1>
           </div>
 
           {/* Table of Contents, post contents, and CTA */}
-          <div style={{ display: 'flex', flexDirection: 'row', alignContent: 'space-between' }}>
+          <div className={postStyles.post_content_container}>
             {/* Table of Contents */}
             <div className={postStyles.post_toc}>
               <PageTOC />
@@ -80,22 +83,6 @@ const PostPage = (props: {post: PostOrPage}) => {
           </div>
         </div>
         
-        {/* Suggested Blogs */}
-        <div className={postStyles.suggested_blogs_section}>
-          <h1>More Like This</h1>
-          <div className={postStyles.suggested_blogs_links}>
-            { /* For each post, render a card with the post title and excerpt */}
-            { ['','','','', '',''].map((value, index) => {
-              return (
-                <div key={index} className={postStyles.suggested_blog_card}>
-                  <h2>Post Title</h2>
-                  <p>Post Excerpt</p>
-                </div>
-              )
-            }) }
-          </div>
-        </div>
-
         {/* Footer */}
         <Footer />
       </main>
