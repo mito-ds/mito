@@ -34,11 +34,12 @@
     font-size: 2rem;
 }
 
+
 @media only screen and (min-width: 50em) {
     .cta_buttons_container {
         padding-top: 3rem;
         padding-bottom: 2rem;
-    }
+    }    
 
     .pro_cta_text {
         font-size: 1.25rem;

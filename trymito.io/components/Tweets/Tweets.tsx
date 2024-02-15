@@ -84,7 +84,7 @@ const Tweets = (): JSX.Element => {
                 tweets across the page while making the text easily readable, we display one tweet at a time, 
                 and flash update the tweet every 8 seconds. 
             */}
-            <div className={tweetsStyles.tweets_container + ' display-mobile-only'}>
+            <div className={tweetsStyles.tweets_container + ' only-on-mobile'}>
                 {tweetsForMobile.map((tweet, idx) => {
                     // In mobile, we only show 1 tweet at a time. To hide the other tweets, 
                     // we just say to only display them if we're in desktop mode!

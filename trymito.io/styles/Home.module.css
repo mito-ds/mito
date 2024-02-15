@@ -2,6 +2,11 @@
   margin-bottom: 32px;
 }
 
+.cta_buttons_homepage_container {
+  display: flex;
+  flex-direction: row;
+}
+
 .video {
   max-width: 100%;
   border-radius: 2rem;
@@ -78,6 +83,10 @@
 }
 
 @media only screen and (min-width: 50em) {
+
+  .cta_buttons_homepage_container {
+    gap: 25px;
+  }
 
   .video {
     max-width: 85vw;

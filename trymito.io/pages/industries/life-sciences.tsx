@@ -167,7 +167,7 @@ const LifeSciences: NextPage = () => {
                   Build scripts once and reuse them countless times, saving yourself hours per week of data wrangling and error checking. 
                 </p>
               </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-mobile-block')}>
                   <Image src={'/healthcare.png'} alt='Mito for Healthcare' width={627} height={337} layout='responsive'/>
               </div>
             </div>

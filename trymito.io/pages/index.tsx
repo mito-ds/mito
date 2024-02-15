@@ -1,22 +1,23 @@
-import type { NextPage } from 'next'
-import Image from 'next/image'
-import Head from 'next/head'
-import Footer from '../components/Footer/Footer';
-import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
-import homeStyles from '../styles/Home.module.css'
-import pageStyles from '../styles/Page.module.css'
-import titleStyles from '../styles/Title.module.css'
-import textImageSplitStyles from '../styles/TextImageSplit.module.css'
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import AIThesis from '../components/AIThesis/AIThesis';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
-import TextButton from '../components/TextButton/TextButton';
-import AIThesis from '../components/AIThesis/AIThesis';
-import { useEffect, useState } from 'react';
-import { classNames } from '../utils/classNames';
 import FAQCard from '../components/FAQCard/FAQCard';
-import Link from 'next/link';
+import Footer from '../components/Footer/Footer';
+import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
+import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
 import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
-import CodeBlock from '../components/CodeBlock/CodeBlock';
+import TextButton from '../components/TextButton/TextButton';
+import homeStyles from '../styles/Home.module.css';
+import pageStyles from '../styles/Page.module.css';
+import textImageSplitStyles from '../styles/TextImageSplit.module.css';
+import titleStyles from '../styles/Title.module.css';
+import { classNames } from '../utils/classNames';
+import Prism from 'prismjs';
 
 const Home: NextPage = () => {
 
@@ -26,6 +27,10 @@ const Home: NextPage = () => {
       setTimeout(() => {setCopied(false)}, 3000)
     }
   }, [copied])
+
+  useEffect(() => {
+    Prism.highlightAll();
+  }, []);
 
   return (
     <>
@@ -49,7 +54,10 @@ const Home: NextPage = () => {
               save themselves from hours of repetitive work.
             </h2>
             <div className={homeStyles.cta_button_and_video_spacer}>
-              <CTAButtons variant='scroll-to-install' align='center'/>
+              <div className={homeStyles.cta_buttons_homepage_container}>
+                <CTAButtons variant='scroll-to-install' align='center' displaySecondaryCTA={false}/>
+                <CTAButtons variant='book a demo' align='center' displaySecondaryCTA={false}/>
+              </div>
             </div>
             
             <iframe
@@ -58,25 +66,20 @@ const Home: NextPage = () => {
               height="650"
               style={{width: '80%', border: 'none'}}
             ></iframe>
-            <div id='video' className='display-mobile-only'>
+            <div id='video' className='only-on-mobile'>
               <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
                 <source src="/demo.mp4" />
               </video>
             </div>
         </section>
-        <section className={pageStyles.background_card + ' ' + titleStyles.title_card} id='installation'>
-          <h2>
-            Install <span className='text-highlight'><a className={pageStyles.link} href='https://github.com/mito-ds/mito' target="_blank" rel="noreferrer">open-source</a></span> Mito in under a minute.
-          </h2>
 
-          <div>
-            <CodeBlock prefix='$ '>
-              pip install mitosheet
-            </CodeBlock>
-            <CodeBlock prefix='$ '>
-              python -m mitosheet hello
-            </CodeBlock>
-          </div>
+        <section className={pageStyles.background_card} >
+          {/* So that we can scroll to the correct location on the page, and 
+            because we have a fixed header taking up some space, we scroll 
+            to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
+          */}
+          <a className="anchor" id='installation'></a>
+          <InstallInstructions/>
         </section>
 
           <section>
@@ -86,7 +89,7 @@ const Home: NextPage = () => {
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
                   Generate Python.
                 </h2>
-                <p className='display-mobile-only'> 
+                <p className='only-on-mobile'> 
                   Every edit you make to the Mito spreadsheet automatically generates Python code.
                   Stop sitting through Python trainings or waiting for IT support. 
                   Take automation into your own hands using the tools you already know.
@@ -124,7 +127,7 @@ const Home: NextPage = () => {
                   </Link>
                 </p>
               </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-mobile-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
@@ -134,7 +137,7 @@ const Home: NextPage = () => {
                 <h2>
                   All in <span className='text-color-jupyter-orange'>Jupyter</span>, <span className='text-color-streamlit-red'>Streamlit</span>, and <span className='text-highlight'>Dash</span>
                 </h2>
-                <p className='display-mobile-only'> 
+                <p className='only-on-mobile'> 
                   Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
                   Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
                 </p>

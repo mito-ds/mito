@@ -7,10 +7,10 @@ import { classNames } from '../../utils/classNames';
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
 
 const CTAButtons = (props: {
-    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install',
+    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install' | 'book a demo',
     align: 'left' | 'center',
     displaySecondaryCTA?: boolean
-    secondaryCTA?: 'pro' | 'learn more'
+    secondaryCTA?: 'pro' | 'learn more',
 }): JSX.Element => {
 
     const displaySecondaryCTA = props.displaySecondaryCTA ?? true; 
@@ -18,7 +18,7 @@ const CTAButtons = (props: {
     return (
         <div className={classNames(
             ctaButtons.cta_buttons_container, 
-            {[ctaButtons.center] : props.align === 'center'}
+            {[ctaButtons.center] : props.align === 'center'},
         )}> 
             {props.variant === 'download' && 
                 <TextButton 
@@ -28,7 +28,7 @@ const CTAButtons = (props: {
             }
             {props.variant === 'scroll-to-install' && 
                 <TextButton 
-                    text='Install Mito'
+                    text='Try Mito now'
                     href='#installation'
                     openInNewTab={false}
                 />
@@ -44,6 +44,25 @@ const CTAButtons = (props: {
                     text='Contact the Mito Team'
                     href="mailto:founders@sagacollab.com"
                 />
+            }
+            {props.variant === 'book a demo' && 
+                <>
+                    <div className='only-on-desktop'>
+                        <TextButton 
+                            text='Book an Enterprise Demo'
+                            href="mailto:founders@sagacollab.com"
+                            variant='secondary'
+                        />
+                    </div>
+                    <div className='only-on-mobile'>
+                        <TextButton 
+                            text='Book a Demo'
+                            href="mailto:founders@sagacollab.com"
+                            variant='secondary'
+                        />
+                    </div>
+                </>
+                
             }
             
             {displaySecondaryCTA && secondaryCTA === 'pro' && 
