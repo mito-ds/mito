@@ -31,6 +31,9 @@ const PostPage = (props: {post: PostOrPage}) => {
     return <div>Not found</div>
   }
 
+  // Get the current URL for sharing
+  const currentURL = typeof window !== 'undefined' ? window.location.href : '';
+
   const authorName = props.post.primary_author?.name;
   const publishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
   const readingTime = props.post.reading_time;
@@ -80,15 +83,15 @@ const PostPage = (props: {post: PostOrPage}) => {
               <div dangerouslySetInnerHTML={{ __html: props.post.html }}/>
               <div className={postStyles.share_section}>
                 <a className={postStyles.tweet_button}
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(window.location.href ?? '')}`}>
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL)}`}>
                   <TwitterLogo />
                 </a>
                 <a className={postStyles.email_button}
-                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(window.location.href ?? '')}`}>
+                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(currentURL)}`}>
                     <EmailIcon />
                   </a>
                 <a className={postStyles.linkedin_button}
-                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(window.location.href ?? '')}`}>
+                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL)}`}>
                     <LinkedinLogo />
                   </a>
               </div>
