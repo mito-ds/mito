@@ -11,7 +11,9 @@ import postStyles from '../../styles/[slug].module.css';
 import { getPosts, getSinglePost } from '../../utils/posts';
 import { SLUG_REDIRECTS } from '../blog';
 import Header from '../../components/Header/Header';
-import { EmailIcon, LinkedinLogo, TwitterLogo } from './ShareButtons';
+import TwitterLogo from './TwitterLogo';
+import EmailIcon from './EmailIcon';
+import LinkedinLogo from './LinkedinLogo';
 
 declare global {
   interface Window { Prism: any; }
