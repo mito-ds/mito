@@ -80,15 +80,15 @@ const PostPage = (props: {post: PostOrPage}) => {
               <div dangerouslySetInnerHTML={{ __html: props.post.html }}/>
               <div className={postStyles.share_section}>
                 <a className={postStyles.tweet_button}
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}>
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(window.location.href ?? '')}`}>
                   <TwitterLogo />
                 </a>
                 <a className={postStyles.email_button}
-                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(props.post.canonical_url ?? '')}`}>
+                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(window.location.href ?? '')}`}>
                     <EmailIcon />
                   </a>
                 <a className={postStyles.linkedin_button}
-                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}>
+                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(window.location.href ?? '')}`}>
                     <LinkedinLogo />
                   </a>
               </div>
