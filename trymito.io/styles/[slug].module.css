@@ -14,12 +14,12 @@
     font-family: Inter, Ubuntu, Helvetica, Arial, sans-serif;
 }
 
-.post a {
+.post a, .suggested_post h4 {
     text-decoration: underline 0.15em rgba(0, 0, 0, 0);
     transition: text-decoration-color 300ms;
 }
   
-.post a:hover {
+.post a:hover, .suggested_post:hover h4 {
     text-decoration-color: rgba(0, 0, 0, 1);
 }
 
@@ -234,7 +234,7 @@
     justify-content: flex-start;
     align-items: flex-start;
     margin-top: 2rem;
-    width: 60rem;
+    max-width: 48rem;
 }
 
 .suggested_posts_container {
@@ -246,7 +246,7 @@
     margin-bottom: 1rem;
 }
 
-a.suggested_post {
+.suggested_post {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -256,6 +256,15 @@ a.suggested_post {
     color: var(--color-text-primary);
     width: 20rem;
     padding: 2rem 2rem 2rem 0;
+    cursor: pointer;
+}
+
+.suggested_post h4 {
+    font-size: 1.5rem;
+}
+
+.suggested_post:hover h4 {
+    text-decoration: solid underline var(--color-purple);
 }
 
 .suggested_post h4, .suggested_post p {
