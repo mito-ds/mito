@@ -1,4 +1,4 @@
-export default () => {
+const LinkedinLogo = () => {
     return <svg width="32" height="32" viewBox="0 0 35 36" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
         <rect width="35" height="35.1301" fill="url(#pattern0)"/>
         <defs>
@@ -9,3 +9,5 @@ export default () => {
         </defs>
     </svg>
 };
+
+export default LinkedinLogo;
