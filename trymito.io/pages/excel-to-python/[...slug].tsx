@@ -1,42 +1,37 @@
 // Import necessary React and Next.js modules and components
-import React, { useEffect } from 'react';
 import Head from 'next/head';
-import Image from "next/image"
+import Image from "next/image";
+import { useEffect } from 'react';
 
-import pageStyles from '../../styles/Page.module.css';
-import homeStyles from '../../styles/Home.module.css';
 import excelToPythonStyles from '../../styles/ExcelToPython.module.css';
-import titleStyles from '../../styles/Title.module.css'
-import textImageSplitStyles from '../../styles/TextImageSplit.module.css'
+import pageStyles from '../../styles/Page.module.css';
+import textImageSplitStyles from '../../styles/TextImageSplit.module.css';
+import titleStyles from '../../styles/Title.module.css';
 
-import { classNames } from '../../utils/classNames';
-import TextButton from '../../components/TextButton/TextButton';
-import Header, { MITO_INSTALLATION_DOCS_LINK } from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import Header, { MITO_INSTALLATION_DOCS_LINK } from '../../components/Header/Header';
+import TextButton from '../../components/TextButton/TextButton';
+import { classNames } from '../../utils/classNames';
 
+import { GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
 import CodeBlock from '../../components/CodeBlock/CodeBlock';
+import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import GlossayHorizontalNavbar from '../../components/Glossary/HorizontalNav/HorizontalNav';
 import HorizontalNavItem from '../../components/Glossary/HorizontalNavItem/HorizontalNavItem';
-import CTAButtons from '../../components/CTAButtons/CTAButtons';
 import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
-import { useRouter } from 'next/router';
-import { GetStaticProps } from 'next';
 
-import { getGlossaryPageInfo, getPageContentJsonArray, GlossaryPageInfo } from '../../utils/excel-to-python';
 import { PageContent } from '../../excel-to-python-page-contents/types';
+import { getGlossaryPageInfo, getPageContentJsonArray, GlossaryPageInfo } from '../../utils/excel-to-python';
 
 // TODO: can we document and explain these...
+import 'prism-themes/themes/prism-coldark-dark.css';
 import Prism from 'prismjs';
-import 'prism-themes/themes/prism-coldark-dark.css'
 require('prismjs/components/prism-python');
 
-import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
-<<<<<<< HEAD
-=======
+import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
-require('prismjs/components/prism-python');
->>>>>>> main
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
   const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {
@@ -206,9 +201,10 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       })}
                       {codeSection.codeLines.length > 0 &&
                         <CodeBlock
-                          code={codeSection.codeLines.join('\n')}
                           className={codeSection.shortTitle.startsWith('Mito') ? PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED : ''}
-                        />
+                        >
+                          {codeSection.codeLines.join('\n')}
+                        </CodeBlock>
                       }
                       {index === 0 && pageContent.mitoCTA !== undefined &&
                         <div className={pageStyles.background_card} style={{padding: '10px', marginTop: '10px', borderRadius: '10px'}}>
@@ -228,14 +224,15 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                             <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer" className={classNames(pageStyles.link, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA)}>Install Mito</a> to start using Excel formulas in Python.
                           </p>
                           <CodeBlock
-                            code={[
+                            className={PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED}
+                          >
+                            {[
                               "# Import the mitosheet Excel functions",
                               "from mitosheet.public.v3 import *;",
                               "",
                               `# Use Mito's ${functionNameShort} function`
                             ].concat(pageContent.mitoCTA.codeLines).join('\n')}
-                            className={PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED}
-                          />
+                          </CodeBlock>
                         </div>
                       }
                     </>
@@ -270,9 +267,10 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       })}
                       {codeSections.codeLines.length > 0 && 
                         <CodeBlock 
-                          code={codeSections.codeLines.join('\n')}
                           className={codeSections.shortTitle.startsWith('Mito') ? 'mito-code-block' : ''}
-                        />
+                        >
+                          {codeSections.codeLines.join('\n')}
+                        </CodeBlock>
                       }
                     </>
                   )
@@ -344,79 +342,6 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
               </section>
               }
 
-<<<<<<< HEAD
-              {/* Equivalent Python Code Using Pandas */}
-              <section className={excelToPythonStyles.section}>
-                <h2 
-                  id={`Implementing ${functionNameShort} in Pandas`}
-                  className={excelToPythonStyles.link}
-                >
-                  Implementing {isFunction ? 'the ' : ''}{pageContent.functionNameLong}{FUNCTION_LOWERCASE} in Pandas
-                  <Link href={`#Implementing ${functionNameShort} in Pandas`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
-                </h2>
-                {pageContent.equivalentCode.introParagraphs.map(text => {
-                  return <p key={text}>{text}</p>
-                })}
-                {pageContent.equivalentCode.codeSections.map(codeSection => {
-                  return (
-                    <>
-                      <h3 
-                        id={codeSection.shortTitle}
-                        className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
-                      >
-                        {codeSection.title}
-                        <Link href={`#${codeSection.shortTitle}`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
-                      </h3>
-                      {codeSection.paragraphs.map(text => {
-                        return <p key={text}> {text}</p>
-                      })}
-                      {codeSection.codeLines.length > 0 &&
-                        <CodeBlock>
-                          {codeSection.codeLines.join('\n')}
-                        </CodeBlock>
-                      }
-                      
-                    </>
-                  )
-                })}
-              </section>
-
-              {/* Common Pitfalls and Tips */}
-              <section className={excelToPythonStyles.section}>
-                <h2 
-                  id="Common mistakes"
-                  className={excelToPythonStyles.link}
-                >
-                  Common mistakes when using {functionNameShort} in Python
-                  <Link href="#Common mistakes"><span className={excelToPythonStyles.section_copy}>#</span></Link>
-                </h2>
-                {pageContent.commonMistakes.introParagraphs.map(text => {
-                  return <p key={text}>{text}</p>
-                })}
-                {pageContent.commonMistakes.codeSections.map(codeSections => {
-                  return (
-                    <>
-                      <h3 
-                        id={codeSections.shortTitle} 
-                        className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
-                      >
-                        {codeSections.title}
-                        <Link href={`#${codeSections.shortTitle}`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
-                      </h3>
-                      {codeSections.paragraphs.map(text => {
-                        return <p key={text}>{text}</p>
-                      })}
-                      {codeSections.codeLines.length > 0 && 
-                        <CodeBlock>
-                          {codeSections.codeLines.join('\n')}
-                        </CodeBlock>
-                      }
-                    </>
-                  )
-                })}
-              </section>
-=======
->>>>>>> main
             </div>
             <div className={excelToPythonStyles.table_of_contents_container}>
               <PageTOC />

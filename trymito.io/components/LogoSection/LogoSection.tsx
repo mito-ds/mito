@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import logoSection from './LogoSection.module.css'
 import { log } from 'console';
+import Image from 'next/image';
 
 const RotatingLogo = ({ imgs, selectedIndex }: { imgs: { src: string, alt: string }[]; selectedIndex: number }): JSX.Element => {
     const [currentImg, setCurrentImg] = useState(imgs[selectedIndex]);
