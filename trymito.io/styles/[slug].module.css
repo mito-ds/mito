@@ -202,6 +202,27 @@
     margin-top: 2rem;
 }
 
+/* Sharing Buttons */
+.share_section a {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-size: 1rem;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.tweet_button {
+    background-image: url('../x-logo.svg');
+}
+
+.email_button {
+    background-image: url('../email.svg');
+}
+
+.linkedin_button {
+    background-image: url('../linkedin.svg');
+}
+
 /* For medium width screens */
 @media only screen and (max-width: 92rem) {
     .post_cta {

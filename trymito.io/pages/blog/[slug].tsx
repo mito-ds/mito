@@ -73,7 +73,18 @@ const PostPage = (props: {post: PostOrPage}) => {
               <PageTOC />
             </div>
             {/* Post Contents */}
-            <div className={postStyles.post_content} dangerouslySetInnerHTML={{ __html: props.post.html }} />
+            <div className={postStyles.post_content}> 
+              <div dangerouslySetInnerHTML={{ __html: props.post.html }}/>
+              <div className={postStyles.share_section}>
+                <h3>Share</h3>
+                <a className={postStyles.tweet_button}
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}/>
+                <a className={postStyles.email_button}
+                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(props.post.canonical_url ?? '')}`}/>
+                <a className={postStyles.linkedin_button}
+                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}/>
+              </div>
+            </div>
 
             {/* CTA */}
             <div className={postStyles.post_cta}>
