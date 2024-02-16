@@ -77,7 +77,6 @@ const PostPage = (props: {post: PostOrPage}) => {
             <div className={postStyles.post_content}> 
               <div dangerouslySetInnerHTML={{ __html: props.post.html }}/>
               <div className={postStyles.share_section}>
-                <h3>Share</h3>
                 <a className={postStyles.tweet_button}
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}>
                   <TwitterLogo />

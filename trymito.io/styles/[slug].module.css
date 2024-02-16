@@ -203,10 +203,21 @@
 }
 
 /* Sharing Buttons */
+.share_section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    margin-top: 2rem;
+}
+
 .share_section a {
     width: 3rem;
     height: 3rem;
     border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .share_section a:hover {
