@@ -11,6 +11,7 @@ import postStyles from '../../styles/[slug].module.css';
 import { getPosts, getSinglePost } from '../../utils/posts';
 import { SLUG_REDIRECTS } from '../blog';
 import Header from '../../components/Header/Header';
+import { EmailIcon, LinkedinLogo, TwitterLogo } from './ShareButtons';
 
 declare global {
   interface Window { Prism: any; }
@@ -78,11 +79,17 @@ const PostPage = (props: {post: PostOrPage}) => {
               <div className={postStyles.share_section}>
                 <h3>Share</h3>
                 <a className={postStyles.tweet_button}
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}/>
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}>
+                  <TwitterLogo />
+                </a>
                 <a className={postStyles.email_button}
-                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(props.post.canonical_url ?? '')}`}/>
+                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(props.post.canonical_url ?? '')}`}>
+                    <EmailIcon />
+                  </a>
                 <a className={postStyles.linkedin_button}
-                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}/>
+                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(props.post.canonical_url ?? '')}`}>
+                    <LinkedinLogo />
+                  </a>
               </div>
             </div>
 

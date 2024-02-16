@@ -204,23 +204,13 @@
 
 /* Sharing Buttons */
 .share_section a {
-    width: 1.5rem;
-    height: 1.5rem;
-    background-size: 1rem;
-    background-repeat: no-repeat;
-    background-position: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 5px;
 }
 
-.tweet_button {
-    background-image: url('../x-logo.svg');
-}
-
-.email_button {
-    background-image: url('../email.svg');
-}
-
-.linkedin_button {
-    background-image: url('../linkedin.svg');
+.share_section a:hover {
+    background-color: var(--color-light-background);
 }
 
 /* For medium width screens */
