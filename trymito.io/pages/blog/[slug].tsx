@@ -48,8 +48,8 @@ const PostPage = (props: {post: PostOrPage}) => {
         
       {/* All blog post related content */}
       <main className={pageStyles.main}>
-        <div className={postStyles.decorative_line}/>
         <div className={postStyles.post}>
+        <div className={postStyles.decorative_line}/>
 
         {/* Blog Title Banner */}
         <div className={postStyles.post_banner}>

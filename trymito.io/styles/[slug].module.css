@@ -1,7 +1,7 @@
 .decorative_line {
     position: absolute;
     width: 1px;
-    height: 100%;
+    height: calc(100% - 42rem);
     border: 0.5px dashed rgba(208, 208, 208, 0.25);
     left: max(19.5rem, calc(((100vw - 70rem) / 2) - 6px));
 }
