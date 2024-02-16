@@ -204,6 +204,10 @@
     margin-top: 2rem;
 }
 
+.post_cta a {
+    text-decoration: none;
+}
+
 /* Sharing Buttons */
 .share_section {
     display: flex;

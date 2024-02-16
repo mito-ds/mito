@@ -116,13 +116,13 @@ const PostPage = (props: {post: PostOrPage}) => {
                   <Link href='/blog/quantifying-mitos-impact-on-analyst-python-productivity'>
                     <div className={postStyles.suggested_post}>
                       <h4>Research shows Mito speeds up by 400%</h4>
-                      <p>We're always on the hunt for tools that improve our efficiency at work. Tools that let us accomplish more with less time, money, and resources.</p>
+                      <p>We&apos;re always on the hunt for tools that improve our efficiency at work. Tools that let us accomplish more with less time, money, and resources.</p>
                     </div>
                   </Link>
                   <Link href='/blog/choosing-between-sql-and-python-best-practices-for-data-analytics-workflows'>
                     <div className={postStyles.suggested_post}>
                       <h4>3 Rules for Choosing Between SQL and Python</h4>
-                      <p>Analysts at the world's top banks are automating their manual Excel work so they can spend less time creating baseline reports, and more time building new analyses that push the company forward.</p>
+                      <p>Analysts at the world&apos;s top banks are automating their manual Excel work so they can spend less time creating baseline reports, and more time building new analyses that push the company forward.</p>
                     </div>
                   </Link>
                 </div>
