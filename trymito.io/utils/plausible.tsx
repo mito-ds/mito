@@ -15,3 +15,6 @@ export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CON
 
 // The user copied the code from a code block that contains a Mito exported function, ie: SUM(df['A']) from the glossary page
 export const PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED = 'plausible-event-name=mito_exported_function_code_copied'
+
+// The user clicked a book a demo CTA
+export const PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED = 'plausible-event-name=book_a_demo_cta_pressed+location_title_card'

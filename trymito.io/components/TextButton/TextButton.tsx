@@ -6,14 +6,14 @@ const TextButton = (props : {
     onClick?: () => void;
     href?: string
     action?: string
-    variant?: 'primary'
+    variant?: 'primary' | 'secondary' | 'highlight'
     fontSize?: 'small'
     buttonSize?: 'small' 
     openInNewTab?: boolean
     className?: string
 }): JSX.Element => {
 
-    const colorStyle = props.variant === 'primary' ? textButtonStyles.primary : textButtonStyles.highlight;
+    const colorStyle = props.variant === undefined ? textButtonStyles.highlight : textButtonStyles[props.variant];
     const fontStyle = props.fontSize === 'small' ? textButtonStyles.small : textButtonStyles.large;
     const widthStyle = props.buttonSize === 'small' ? textButtonStyles.button_size_small : undefined
     const openInNewTab = props.openInNewTab ?? true

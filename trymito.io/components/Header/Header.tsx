@@ -184,7 +184,7 @@ const Header = (): JSX.Element => {
 
           {/* This next section is the header for mobile only */}
           <div 
-            className={classNames(headerStyles.menu_bar_container, 'display-mobile-only')}
+            className={classNames(headerStyles.menu_bar_container, 'only-on-mobile')}
             aria-controls='mobile_nav_menu'
             onClick={() => setMobileMenuVisible(mobileMenuVisible => !mobileMenuVisible)}
           >

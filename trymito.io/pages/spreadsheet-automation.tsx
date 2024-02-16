@@ -61,7 +61,7 @@ const SpreadsheetAutomation: NextPage = () => {
 
           <section className={textImageSplitStyles.text_image_section_container}>
             <div className={pageStyles.subsection}>
-              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'only-on-desktop-inline-block')}>
                 <Image src={'/code_snippet.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
               </div>
               <div className={textImageSplitStyles.functionality_text}>
@@ -78,7 +78,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   See our <Link href="/blog/automating-spreadsheets-with-python-101/"><span className={pageStyles.link}>guide to automating spreadsheet with Python.</span></Link>
                 </p>
               </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'only-on-mobile-block')}>
                 <Image src={'/code_snippet.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
               </div>
             </div>
@@ -99,7 +99,7 @@ const SpreadsheetAutomation: NextPage = () => {
               </div>
             </div>
             <div className={pageStyles.subsection}>
-              <div className={classNames(textImageSplitStyles.functionality_media, 'display-desktop-only-inline-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'only-on-desktop-inline-block')}>
                 <Image src={'/export_to_excel.png'} alt='Mito generated code' width={500} height={250} layout='responsive'/>
               </div>
               <div className={textImageSplitStyles.functionality_text}>
@@ -113,7 +113,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>generating presentation-ready Excel files.</a>
                 </p>
               </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, 'display-mobile-only-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, 'only-on-mobile-block')}>
                 <Image src={'/export_to_excel.png'} alt='Mito generated code!' width={500} height={250} layout='responsive'/>
               </div>
             </div>

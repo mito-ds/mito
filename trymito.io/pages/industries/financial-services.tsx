@@ -46,7 +46,7 @@ const Security: NextPage = () => {
                     </section>
 
                     <section>
-                        <div className={classNames(pageStyles.subsection, 'center', 'display-desktop-only-block')}>
+                        <div className={classNames(pageStyles.subsection, 'center', 'only-on-desktop')}>
                             <h2>
                                 Mito simplifies Python for Finance
                             </h2>

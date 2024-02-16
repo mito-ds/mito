@@ -72,7 +72,7 @@ const DataApp: NextPage = () => {
                     </div>
                 </div>
                 <div className={pageStyles.subsection}>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-desktop-inline-block')}>
                         <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
                     </div>
                     <div className={textImageSplitStyles.functionality_text}>
@@ -86,7 +86,7 @@ const DataApp: NextPage = () => {
                             Connect your Streamlit app to your data and let users self-serve their data exploration without writing any code. 
                         </p>
                     </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-mobile-block')}>
                         <Image src={'/explore_data_visually.png'} alt='Explore data with Mito' width={500} height={250} layout='responsive'/>
                     </div>
                 </div>

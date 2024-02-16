@@ -128,7 +128,7 @@ const Teams: NextPage = () => {
                     <h2>
                         Make your team Python self-sufficient
                     </h2>
-                    <p className='display-desktop-only-inline-block'>
+                    <p className='only-on-desktop-inline-block'>
                         Leverage your team&apos;s Excel expertise to make them Python self-sufficient. <br /> 
                         Don&apos;t throw away years of Excel skill building.
                     </p>
@@ -171,7 +171,7 @@ const Teams: NextPage = () => {
                     <h2>
                         Use Mito to clean, analyze, and graph data
                     </h2>
-                    <p className='display-desktop-only-inline-block'>
+                    <p className='only-on-desktop-inline-block'>
                         Join other Fortune 500 companies that are writing production-ready Python code with Mito.
                     </p>
                 </div>

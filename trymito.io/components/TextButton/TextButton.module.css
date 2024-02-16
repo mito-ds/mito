@@ -8,6 +8,7 @@
   border-radius: 10px;
   box-sizing: border-box;
   text-align: center;
+  white-space: nowrap;
 
   cursor: pointer;
 
@@ -17,6 +18,20 @@
     apply to the a tag.
   */
   display: inline-block;
+}
+
+.secondary {
+  color: var(--color-text-primary);
+  background-color: none;
+
+  text-decoration: underline;
+  text-decoration-color: var(--color-purple);
+  text-decoration-thickness: 0.2em;
+  text-underline-offset: 0.2em;
+}
+
+.secondary:hover {
+  color: var(--color-light-purple);
 }
 
 .highlight {

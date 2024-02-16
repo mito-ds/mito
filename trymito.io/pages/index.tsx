@@ -1,23 +1,26 @@
-import type { NextPage } from 'next'
-import Image from 'next/image'
-import Head from 'next/head'
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import AIThesis from '../components/AIThesis/AIThesis';
+import CTAButtons from '../components/CTAButtons/CTAButtons';
+import DownloadCTACard from '../components/CTACards/DownloadCTACard';
+import FAQCard from '../components/FAQCard/FAQCard';
 import Footer from '../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
-import homeStyles from '../styles/Home.module.css'
-import pageStyles from '../styles/Page.module.css'
-import titleStyles from '../styles/Title.module.css'
-import textImageSplitStyles from '../styles/TextImageSplit.module.css'
-import CTAButtons from '../components/CTAButtons/CTAButtons';
-import GithubButton from '../components/GithubButton/GithubButton';
-import DownloadCTACard from '../components/CTACards/DownloadCTACard';
-import TextButton from '../components/TextButton/TextButton';
-import AIThesis from '../components/AIThesis/AIThesis';
-import { useEffect, useState } from 'react';
-import { classNames } from '../utils/classNames';
-import FAQCard from '../components/FAQCard/FAQCard';
-import Link from 'next/link';
+import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
 import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
+import TextButton from '../components/TextButton/TextButton';
+import homeStyles from '../styles/Home.module.css';
+import pageStyles from '../styles/Page.module.css';
+import textImageSplitStyles from '../styles/TextImageSplit.module.css';
+import titleStyles from '../styles/Title.module.css';
+import { classNames } from '../utils/classNames';
+import Prism from 'prismjs';
+import LogoSection from '../components/LogoSection/LogoSection';
+import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
+import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 
 const Home: NextPage = () => {
 
@@ -27,6 +30,10 @@ const Home: NextPage = () => {
       setTimeout(() => {setCopied(false)}, 3000)
     }
   }, [copied])
+
+  useEffect(() => {
+    Prism.highlightAll();
+  }, []);
 
   return (
     <>
@@ -41,31 +48,45 @@ const Home: NextPage = () => {
 
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
-              <h1 className={titleStyles.title}>
-                Automate your spreadsheets. No computer science degree required.
-              </h1>
+            <h1 className={titleStyles.title}>
+              Automate your spreadsheets. No computer science degree required.
+            </h1>
 
-              <h2 className={titleStyles.description}>
-                Analysts at the world&apos;s largest banks  
-                save themselves from hours of repetitive work.
-              </h2>
+            <h2 className={titleStyles.description}>
+              Analysts at the world&apos;s largest banks  
+              save themselves from hours of repetitive work.
+            </h2>
               
-              <div className={homeStyles.cta_button_and_video_spacer}>
-                <CTAButtons variant='download' align='center' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+            <div className={homeStyles.cta_button_and_video_spacer}>
+              <div className={homeStyles.cta_buttons_homepage_container}>
+                <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+                <CTAButtons variant='book a demo' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED}/>
               </div>
-              
-              <iframe
-                className='display-desktop-only-inline-block'
-                src="https://mito-for-st-demo.streamlit.app/?embed=true"
-                height="650"
-                style={{width: '80%', border: 'none'}}
-              ></iframe>
-              <div id='video' className='display-mobile-only'>
-               <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                 <source src="/demo.mp4" />
-               </video>
-             </div>
-          </section>
+            </div>
+            
+            <iframe
+              className='only-on-desktop-inline-block'
+              src="https://mito-for-st-demo.streamlit.app/?embed=true"
+              height="650"
+              style={{width: '80%', border: 'none'}}
+            ></iframe>
+            <div id='video' className='only-on-mobile'>
+              <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
+                <source src="/demo.mp4" />
+              </video>
+            </div>
+        </section>
+
+        <LogoSection></LogoSection>
+
+        {false && <section className={pageStyles.background_card} >
+          {/* So that we can scroll to the correct location on the page, and 
+            because we have a fixed header taking up some space, we scroll 
+            to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
+          */}
+          <a className="anchor" id='installation'></a>
+          <InstallInstructions/>
+        </section>}
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
@@ -74,12 +95,12 @@ const Home: NextPage = () => {
                   <span className='text-highlight'>Edit a spreadsheet.</span> <br></br>
                   Generate Python.
                 </h2>
-                <p className='display-mobile-only'> 
+                <p className='only-on-mobile'> 
                   Every edit you make to the Mito spreadsheet automatically generates Python code.
                   Stop sitting through Python trainings or waiting for IT support. 
                   Take automation into your own hands using the tools you already know.
                 </p>
-                <p className='display-desktop-only-inline-block'>
+                <p className='only-on-desktop-inline-block'>
                   Every edit you make to the Mito spreadsheet automatically generates Python code.
                 </p>
                 <p>
@@ -96,7 +117,7 @@ const Home: NextPage = () => {
             </div>
           
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-desktop-inline-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
                 <div className={textImageSplitStyles.functionality_text}>
@@ -112,7 +133,7 @@ const Home: NextPage = () => {
                   </Link>
                 </p>
               </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-mobile-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
             </div>
@@ -122,14 +143,14 @@ const Home: NextPage = () => {
                 <h2>
                   All in <span className='text-color-jupyter-orange'>Jupyter</span>, <span className='text-color-streamlit-red'>Streamlit</span>, and <span className='text-highlight'>Dash</span>
                 </h2>
-                <p className='display-mobile-only'> 
+                <p className='only-on-mobile'> 
                   Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
                   Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
                 </p>
-                <p className='display-desktop-only-inline-block'>
+                <p className='only-on-desktop-inline-block'>
                   Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure.
                 </p>
-                <p className='display-desktop-only-inline-block'>
+                <p className='only-on-desktop-inline-block'>
                   Get started with Mito in seconds. It&apos;s easy as: <br></br><br></br>
                   <span className='code-background' onClick={async () => {
                     // Copy to clickboard on click
@@ -234,7 +255,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito open source?'>
               <div>
                 <p>
-                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href='https://github.com/mito-ds/monorepo' target="_blank" rel="noreferrer">Github</a>.
+                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">Github</a>.
                 </p>
                 <p>
                   Outside contributions are welcome and encouraged! 

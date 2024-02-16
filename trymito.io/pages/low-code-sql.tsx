@@ -84,7 +84,7 @@ const LowCodeSQL: NextPage = () => {
                 </div>
             
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-desktop-inline-block')}>
                         <Image src={'/low-code-sql/sql-to-python.png'} alt='Use SQL to import data, then Python to edit it' width={613} height={452} layout='responsive'/>
                     </div>
                     <div className={textImageSplitStyles.functionality_text}>
@@ -103,7 +103,7 @@ const LowCodeSQL: NextPage = () => {
                             </Link>
                         </p>
                     </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-mobile-block')}>
                         <Image src={'/low-code-sql/sql-to-python.png'} alt='Use SQL to import data, then Python to edit it' width={613} height={452} layout='responsive'/>
                     </div>
                 </div>

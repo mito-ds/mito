@@ -78,7 +78,7 @@ const InfrastructureIntegrationPythonTool: NextPage = () => {
                 </div>
             
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-desktop-inline-block')}>
                         <Image src={'/custom-spreadsheet-functions.png'} alt='Custom Spreadsheet Functions' width={597} height={280} layout='responsive'/>
                     </div>
                         <div className={textImageSplitStyles.functionality_text}>
@@ -93,7 +93,7 @@ const InfrastructureIntegrationPythonTool: NextPage = () => {
                             They already know how to use spreadsheets. 
                         </p>
                     </div>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-mobile-only-block')}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-mobile-block')}>
                         <Image src={'/custom-spreadsheet-functions.png'} alt='Custom Spreadsheet Functions' width={597} height={280} layout='responsive'/>
                     </div>
                 </div>
