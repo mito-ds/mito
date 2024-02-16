@@ -120,6 +120,17 @@
     color: var(--color-text-secondary);
 }
 
+.post_content blockquote:before {
+    content: '';
+    background-image: url(/_next/static/media/quote.8e8d21b6.svg);
+    width: 70px;
+    height: 100px;
+    display: block;
+    background-repeat: no-repeat;
+    background-position: top;
+    float: left;
+}
+
 .post_content img {
     max-width: 100%;
     height: auto;
