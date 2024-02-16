@@ -2,7 +2,7 @@
 import { PostOrPage } from '@tryghost/content-api';
 import Head from 'next/head';
 import { GetStaticProps } from 'next/types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import DownloadCTACard from '../../components/CTACards/DownloadCTACard';
 import Footer from '../../components/Footer/Footer';
 import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
@@ -21,18 +21,18 @@ declare global {
 
 // PostPage page component
 const PostPage = (props: {post: PostOrPage}) => {
+  // Get the current URL for sharing
+  let [currentURL, setCurrentURL] = useState<string | undefined>(undefined);
+  
   // Render post title and content in the page from props
-
   useEffect(() => {
     window.Prism.highlightAll();
+    setCurrentURL(window.location.href);
   }, []);
 
   if (!props.post.html) {
     return <div>Not found</div>
   }
-
-  // Get the current URL for sharing
-  const currentURL = typeof window !== 'undefined' ? window.location.href : '';
 
   const authorName = props.post.primary_author?.name;
   const publishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
@@ -83,15 +83,15 @@ const PostPage = (props: {post: PostOrPage}) => {
               <div dangerouslySetInnerHTML={{ __html: props.post.html }}/>
               <div className={postStyles.share_section}>
                 <a className={postStyles.tweet_button}
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL)}`}>
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL ?? '')}`}>
                   <TwitterLogo />
                 </a>
                 <a className={postStyles.email_button}
-                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(currentURL)}`}>
+                  href={`mailto:?subject=${encodeURIComponent(props.post.title ?? '')}&body=${encodeURIComponent(currentURL ?? '')}`}>
                     <EmailIcon />
                   </a>
                 <a className={postStyles.linkedin_button}
-                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL)}`}>
+                  href={`https://linkedin.com/shareArticle?title=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL ?? '')}`}>
                     <LinkedinLogo />
                   </a>
               </div>
