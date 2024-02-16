@@ -4,13 +4,14 @@ import ctaButtons from '../CTAButtons/CTAButtons.module.css'
 import installInstructions from './InstallInstructions.module.css'
 import pageStyles from '../../styles/Home.module.css';
 import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
+import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
 
 
 const InstallInstructions = (props: {}): JSX.Element => {
     return (
         <>
             <h2 style={{textAlign: 'center'}}>
-                Install <span className='text-highlight'><a className={pageStyles.link} href='https://github.com/mito-ds/mito' target="_blank" rel="noreferrer">open-source</a></span> Mito <br/>
+                Install <span className='text-highlight'><a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">open-source</a></span> Mito <br/>
                 in under a minute
             </h2>
             <div className={installInstructions.install_instructions_container}>

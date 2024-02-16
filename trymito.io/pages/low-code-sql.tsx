@@ -27,6 +27,7 @@ import SpreadsheetIcon from '../public/low-code-sql/SpreadsheetIcon.svg';
 import WideGraphIcon from '../public/low-code-sql/WideGraphIcon.svg';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import ContactCTACard from '../components/CTACards/ContactCTACard';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 
 const LowCodeSQL: NextPage = () => {
 
@@ -52,7 +53,7 @@ const LowCodeSQL: NextPage = () => {
                     Connect to your data sources, so you&apos;re always working with the most up to date data
                 </p>
                 <div className={homeStyles.cta_button_and_video_spacer}>
-                    <CTAButtons variant='contact' align='center' displaySecondaryCTA={false}/>
+                    <CTAButtons variant='contact' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
                 </div>
                 <div id='video'>
                     <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
@@ -83,7 +84,7 @@ const LowCodeSQL: NextPage = () => {
                 </div>
             
                 <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
+                    <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-desktop-inline-block')}>
                         <Image src={'/low-code-sql/sql-to-python.png'} alt='Use SQL to import data, then Python to edit it' width={613} height={452} layout='responsive'/>
                     </div>
                     <div className={textImageSplitStyles.functionality_text}>

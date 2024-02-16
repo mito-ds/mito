@@ -88,7 +88,7 @@ const Tweets = (): JSX.Element => {
                 {tweetsForMobile.map((tweet, idx) => {
                     // In mobile, we only show 1 tweet at a time. To hide the other tweets, 
                     // we just say to only display them if we're in desktop mode!
-                    const displayClass = idx !== 1 ? ' display-desktop-only-inline-block' : ''
+                    const displayClass = idx !== 1 ? ' only-on-desktop-inline-block' : ''
                     return (
                         <div className={tweetsStyles.tweet_container + displayClass} key={tweet.handle}>
                             <div className={tweetsStyles.tweet_card}>

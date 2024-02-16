@@ -134,5 +134,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['A'] = FILLNAN(df['A'], 0)"
+        ]
     }
 }

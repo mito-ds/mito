@@ -49,8 +49,52 @@
                     "# Remove leading and trailing spaces",
                     "df['Column'] = df['Column'].str.strip()",
                     "",
-                    "# Replace multiple spaces with a single space",
+                    "# Replace remaining multi-space whitespaces with single spaces",
                     "df['Column'] = df['Column'].str.replace(r'\\s+', ' ', regex=True)"
+                ]
+            },
+            {
+                "title": "Remove All Spaces",
+                "shortTitle": "Remove Spaces",
+                "paragraphs": [
+                    "If you want to remove all spaces from a text string, you can use `str.replace` with a regular expression to replace all whitespace characters with an empty string."
+                ],
+                "codeLines": [
+                    "# Remove all spaces",
+                    "df['Column'] = df['Column'].str.replace(r'\\s+', '', regex=True)"
+                ]
+            },
+            {
+                "title": "Remove whitespace characters from the front of a string",
+                "shortTitle": "Remove Leading Spaces",
+                "paragraphs": [
+                    "To remove whitespace characters from the front of a string, you can use `str.lstrip`. Doing so will remove all whitespace characters from the front of the string, including tabs and new lines, but leave white space characters elsewhere in the string untouched."
+                ],  
+                "codeLines": [
+                    "# Remove whitespace characters from the front of a string",
+                    "df['Column'] = df['Column'].str.lstrip()"
+                ]
+            },
+            {
+                "title": "Remove whitespace characters from the end of a string",
+                "shortTitle": "Remove Trailing Spaces",
+                "paragraphs": [
+                    "To remove whitespace characters from the end of a string, you can use `str.rstrip`. Doing so will remove all whitespace characters from the end of the string, including tabs and new lines, but leave white space characters elsewhere in the string untouched."
+                ],  
+                "codeLines": [
+                    "# Remove whitespace characters from the end of a string",
+                    "df['Column'] = df['Column'].str.rstrip()"
+                ]
+            },
+            {
+                "title": "Remove whitespace characters from the front and end of a string",
+                "shortTitle": "Remove Leading and Trailing Spaces",
+                "paragraphs": [
+                    "If you want to remove whitespace characters from the front and end of the string, but leave internal white space characters untouched, you can use `str.strip`."
+                ],  
+                "codeLines": [
+                    "# Remove leading and trailing whitespace characters",
+                    "df['Column'] = df['Column'].str.strip()"
                 ]
             }
         ]
@@ -88,6 +132,13 @@
                     "df['Column'] = df['Column'].str.strip()"
                 ]
             }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to create a regular expression because",
+            "# Mito's TRIM function handles stripping whitespaces automatically",
+            "df['Column'] = TRIM(df['Column'])"
         ]
     }
 }

@@ -106,5 +106,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to convert the text column to a string",
+            "# because Mito's RIGHT formula does so automatically",
+            "df['Extracted'] = RIGHT(df['Text'], 3)"
+        ]
     }
 }

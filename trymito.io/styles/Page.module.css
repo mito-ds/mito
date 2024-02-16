@@ -44,6 +44,10 @@
     margin-top: 8rem;
 }
 
+.left_aligned_section {
+    justify-content: flex-start !important;
+}
+
 .link_with_p_tag_margins {
     margin-top: 3rem;
 }

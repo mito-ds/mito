@@ -19,6 +19,8 @@ import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
 import Prism from 'prismjs';
 import LogoSection from '../components/LogoSection/LogoSection';
+import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
+import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 
 const Home: NextPage = () => {
 
@@ -54,15 +56,16 @@ const Home: NextPage = () => {
               Analysts at the world&apos;s largest banks  
               save themselves from hours of repetitive work.
             </h2>
+              
             <div className={homeStyles.cta_button_and_video_spacer}>
               <div className={homeStyles.cta_buttons_homepage_container}>
-                <CTAButtons variant='download' align='center' displaySecondaryCTA={false}/>
-                <CTAButtons variant='book a demo' align='center' displaySecondaryCTA={false}/>
+                <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+                <CTAButtons variant='book a demo' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED}/>
               </div>
             </div>
             
             <iframe
-              className='display-desktop-only-inline-block'
+              className='only-on-desktop-inline-block'
               src="https://mito-for-st-demo.streamlit.app/?embed=true"
               height="650"
               style={{width: '80%', border: 'none'}}
@@ -97,7 +100,7 @@ const Home: NextPage = () => {
                   Stop sitting through Python trainings or waiting for IT support. 
                   Take automation into your own hands using the tools you already know.
                 </p>
-                <p className='display-desktop-only-inline-block'>
+                <p className='only-on-desktop-inline-block'>
                   Every edit you make to the Mito spreadsheet automatically generates Python code.
                 </p>
                 <p>
@@ -114,7 +117,7 @@ const Home: NextPage = () => {
             </div>
           
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'display-desktop-only-inline-block')}>
+              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin, 'only-on-desktop-inline-block')}>
                 <Image src={'/Mito_AI_Taskpane.png'} alt='Use Mito AI to transform your data' width={500} height={250} layout='responsive'/>
               </div>
                 <div className={textImageSplitStyles.functionality_text}>
@@ -144,10 +147,10 @@ const Home: NextPage = () => {
                   Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
                   Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
                 </p>
-                <p className='display-desktop-only-inline-block'>
+                <p className='only-on-desktop-inline-block'>
                   Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure.
                 </p>
-                <p className='display-desktop-only-inline-block'>
+                <p className='only-on-desktop-inline-block'>
                   Get started with Mito in seconds. It&apos;s easy as: <br></br><br></br>
                   <span className='code-background' onClick={async () => {
                     // Copy to clickboard on click
@@ -252,7 +255,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito open source?'>
               <div>
                 <p>
-                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href='https://github.com/mito-ds/mito' target="_blank" rel="noreferrer">Github</a>.
+                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">Github</a>.
                 </p>
                 <p>
                   Outside contributions are welcome and encouraged! 

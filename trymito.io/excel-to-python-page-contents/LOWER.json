@@ -143,5 +143,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: We don't need to convert the Text column to a string",
+            "# before using Mito's LOWER function b/c Mito does it automatically",
+            "df['Text'] = LOWER(df['Text'])"
+        ]
     }
 }

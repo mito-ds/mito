@@ -26,4 +26,12 @@
 
 .logo {
     width: 8em;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 1s ease-in-out; /* Adjust duration as needed */
+}
+
+.logo.show {
+    opacity: 1;
 }

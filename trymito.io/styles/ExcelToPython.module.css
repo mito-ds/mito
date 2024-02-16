@@ -135,8 +135,6 @@
     margin-left: 5px;
 }
 
-
-
 @media only screen and (min-width: 50em) {
 
     .content_and_table_of_contents_container {
@@ -201,7 +199,6 @@
     .cta_card_title_text {
         font-size: 2rem;
     }
-
 }
 
 

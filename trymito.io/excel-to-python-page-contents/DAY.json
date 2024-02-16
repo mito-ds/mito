@@ -138,5 +138,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: We don't need to convert the Date column to a ",
+            "# datetime first because Mito does so automatically",
+            "df['Day'] = DAY(df['Date'])"
+        ]
     }
 }

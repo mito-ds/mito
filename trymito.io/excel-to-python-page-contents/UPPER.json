@@ -67,5 +67,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['name'] = UPPER(df['name'])"
+        ]
     }
 }

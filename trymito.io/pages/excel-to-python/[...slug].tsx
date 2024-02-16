@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Image from "next/image"
 
 import pageStyles from '../../styles/Page.module.css';
+import homeStyles from '../../styles/Home.module.css';
 import excelToPythonStyles from '../../styles/ExcelToPython.module.css';
 import titleStyles from '../../styles/Title.module.css'
 import textImageSplitStyles from '../../styles/TextImageSplit.module.css'
@@ -31,6 +32,11 @@ require('prismjs/components/prism-python');
 
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
+<<<<<<< HEAD
+=======
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
+require('prismjs/components/prism-python');
+>>>>>>> main
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
   const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {
@@ -173,6 +179,105 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                 })}
               </section>
 
+              {/* Equivalent Python Code Using Pandas */}
+              <section className={excelToPythonStyles.section}>
+                <h2 
+                  id={`Implementing ${functionNameShort} in Pandas`}
+                  className={excelToPythonStyles.link}
+                >
+                  Implementing {isFunction ? 'the ' : ''}{pageContent.functionNameLong}{FUNCTION_LOWERCASE} in Pandas
+                  <Link href={`#Implementing ${functionNameShort} in Pandas`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
+                </h2>
+                {pageContent.equivalentCode.introParagraphs.map(text => {
+                  return <p key={text}>{text}</p>
+                })}
+                {pageContent.equivalentCode.codeSections.map((codeSection, index) => {
+                  return (
+                    <>
+                      <h3 
+                        id={codeSection.shortTitle}
+                        className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
+                      >
+                        {codeSection.title}
+                        <Link href={`#${codeSection.shortTitle}`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
+                      </h3>
+                      {codeSection.paragraphs.map(text => {
+                        return <p key={text}> {text}</p>
+                      })}
+                      {codeSection.codeLines.length > 0 &&
+                        <CodeBlock
+                          code={codeSection.codeLines.join('\n')}
+                          className={codeSection.shortTitle.startsWith('Mito') ? PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED : ''}
+                        />
+                      }
+                      {index === 0 && pageContent.mitoCTA !== undefined &&
+                        <div className={pageStyles.background_card} style={{padding: '10px', marginTop: '10px', borderRadius: '10px'}}>
+                          <h3 
+                            id={`Mito's ${functionNameShort} function`}
+                            className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
+                            style={{marginTop: '5px'}}
+                          >
+                            Use Mito&apos;s {functionNameShort} function</h3>
+                          <p>
+                            Mito is an open source library that lets you write Excel formulas in Python. Either write the formula directly in Python or <Link href='/spreadsheet-automation'><a className={pageStyles.link}>use the {functionNameShort} formula in the Mito Spreadsheet</a></Link> and generate the equivalent Python code automatically.
+                          </p>
+                          <p>
+                            Mito&apos;s {functionNameShort} function works exactly like it does in Excel. That means you don&apos;t need worry about managing data types, handling errors, or the edge case differences between Excel and Python formulas.
+                          </p>
+                          <p>
+                            <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer" className={classNames(pageStyles.link, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA)}>Install Mito</a> to start using Excel formulas in Python.
+                          </p>
+                          <CodeBlock
+                            code={[
+                              "# Import the mitosheet Excel functions",
+                              "from mitosheet.public.v3 import *;",
+                              "",
+                              `# Use Mito's ${functionNameShort} function`
+                            ].concat(pageContent.mitoCTA.codeLines).join('\n')}
+                            className={PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED}
+                          />
+                        </div>
+                      }
+                    </>
+                  )
+                })}
+              </section>
+
+              {/* Common Pitfalls and Tips */}
+              <section className={excelToPythonStyles.section}>
+                <h2 
+                  id="Common mistakes"
+                  className={excelToPythonStyles.link}
+                >
+                  Common mistakes when using {functionNameShort} in Python
+                  <Link href="#Common mistakes"><span className={excelToPythonStyles.section_copy}>#</span></Link>
+                </h2>
+                {pageContent.commonMistakes.introParagraphs.map(text => {
+                  return <p key={text}>{text}</p>
+                })}
+                {pageContent.commonMistakes.codeSections.map(codeSections => {
+                  return (
+                    <>
+                      <h3 
+                        id={codeSections.shortTitle} 
+                        className={classNames(excelToPythonStyles.section_h3_tag, excelToPythonStyles.link)}
+                      >
+                        {codeSections.title}
+                        <Link href={`#${codeSections.shortTitle}`}><span className={excelToPythonStyles.section_copy}>#</span></Link>
+                      </h3>
+                      {codeSections.paragraphs.map(text => {
+                        return <p key={text}>{text}</p>
+                      })}
+                      {codeSections.codeLines.length > 0 && 
+                        <CodeBlock 
+                          code={codeSections.codeLines.join('\n')}
+                          className={codeSections.shortTitle.startsWith('Mito') ? 'mito-code-block' : ''}
+                        />
+                      }
+                    </>
+                  )
+                })}
+              </section>
               {/* Understanding the Excel Function */}
               {pageContent.excelExplanation !== undefined &&
                 <section className={excelToPythonStyles.section}>
@@ -239,6 +344,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
               </section>
               }
 
+<<<<<<< HEAD
               {/* Equivalent Python Code Using Pandas */}
               <section className={excelToPythonStyles.section}>
                 <h2 
@@ -309,13 +415,20 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                   )
                 })}
               </section>
+=======
+>>>>>>> main
             </div>
             <div className={excelToPythonStyles.table_of_contents_container}>
               <PageTOC />
               <p className={classNames('text-primary', 'margin-bottom-1')}>
                 <b>Don&apos;t re-invent the wheel. Use Excel formulas in Python.</b> 
               </p>
-              <TextButton text={'Install Mito'} href={MITO_INSTALLATION_DOCS_LINK} buttonSize='small'/>
+              <TextButton 
+                text={'Install Mito'} 
+                href={MITO_INSTALLATION_DOCS_LINK} 
+                className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA}
+                buttonSize='small'
+              />
             </div>
           </div>
           
@@ -325,7 +438,12 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                 Don&apos;t want to re-implement Excel&apos;s functionality in Python?
               </h2>
               <div className='center'>
-                <CTAButtons variant='download' align='center' secondaryCTA='learn more'/>
+                <CTAButtons 
+                  variant='download' 
+                  align='center' 
+                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA} 
+                  secondaryCTA='learn more'
+                />
               </div> 
             </div>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline, excelToPythonStyles.cta_functionality_card, 'display-desktop-only-flex')}>

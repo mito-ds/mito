@@ -69,7 +69,6 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   background-color: var(--color-background);
   font-size: 8px;
-  scroll-behavior: smooth;
 
   /* 
     Overflow-x: hidden was important for the Tweets section to work properly. It cut the tweets off at the border of the page
@@ -180,10 +179,9 @@ a {
 
 .quote {
   font-style: italic;
-  color: var(--color-text-secondary);
 }
 
-.display-desktop-only-inline-block,
+.only-on-desktop-inline-block,
 .display-desktop-only-flex,
 .only-on-desktop {
   display: none !important;
@@ -237,6 +235,15 @@ a {
     margin-top: 2rem;
   }
 
+  .code-highlight {
+    font-family: monospace;
+    background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(177, 120, 252, 0.39));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: linear-gradient(0deg, #FFFFFF, #000000);
+  }
+
   section + section {
     margin-top: 10rem;
   }
@@ -245,7 +252,7 @@ a {
     display: inline-block !important;
   }
 
-  .display-desktop-only-inline-block {
+  .only-on-desktop-inline-block {
     display: inline-block !important;
   }
 

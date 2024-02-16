@@ -107,5 +107,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to convert the Date column to a string because",
+            "# Mito's SECOND formula handles that automatically",
+            "df['Second'] = SECOND(df['Date'])"
+        ]
     }
 }
