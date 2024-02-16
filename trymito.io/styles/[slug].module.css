@@ -107,6 +107,9 @@
     color: var(--color-text-primary);
     font-weight: 100;
 }
+.post_content code span {
+    font-size: 1rem;
+}
 .post_content a {
     color: var(--color-purple);
 }
