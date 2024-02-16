@@ -1,4 +1,12 @@
+.decorative_line {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    border: 0.5px dashed rgba(208, 208, 208, 0.25);
+    left: max(19.5rem, calc(((100vw - 70rem) / 2) - 6px));
+}
 
+/* Post Styling */
 .post {
     margin-top: 7rem;
     margin-bottom: 4rem;
@@ -12,9 +20,12 @@
 }
   
 .post a:hover {
-text-decoration-color: rgba(0, 0, 0, 1);
+    text-decoration-color: rgba(0, 0, 0, 1);
 }
 
+
+
+/* Post Banner */
 .post_banner {
     background-color: var(--color-purple);
     padding: 5rem 20rem;
@@ -31,16 +42,30 @@ text-decoration-color: rgba(0, 0, 0, 1);
 
 .post_title h1 {
     font-size: 3rem;
-    max-width: 78rem;
+    max-width: 70rem;
 }
 
-.post_title p {
+.post_title p, .post_title h1 {
     margin-top: 0
 }
 
+.post_metadata {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: .5rem;
+}
+
+.post_additional_info {
+    margin-left: 3em;
+}
+
+
+
+/* Post Content */
 .post_content {
     margin: 0 2rem;
-    max-width: 78rem;
+    max-width: 70rem;
+    width: calc(100vw - 40rem);
 }
 
 /* Make lists start at the right place*/
@@ -58,12 +83,6 @@ text-decoration-color: rgba(0, 0, 0, 1);
 }
 .post_content ul > li {
     margin-top: 0.5rem;
-}
-
-.post_metadata {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: .5rem;
 }
 
 .post_content pre {
@@ -91,19 +110,14 @@ text-decoration-color: rgba(0, 0, 0, 1);
 .post_content a {
     color: var(--color-purple);
 }
+.post_content a:hover {
+    /* Underline */
+    text-decoration: underline;
+}
 
 .post_content blockquote {
     font-size: 1.5rem;
     color: var(--color-text-secondary);
-}
-
-.post_content a {
-    color: var(--color-purple);
-}
-
-.post_content a:hover {
-    /* Underline */
-    text-decoration: underline;
 }
 
 .post_content img {
@@ -134,71 +148,15 @@ text-decoration-color: rgba(0, 0, 0, 1);
   border-bottom: 1.5px solid black; 
 }
 
-.post_toc {
-    width: 16rem;
-    min-width: 16rem;
-    height: fit-content;
-    position: sticky;
-    top: 5rem;
-    margin-left: 2rem;
-}
-
 .post_content table thead {
     background-color: black;
     border-radius: 1rem;
 }
 
-.post_cta {
-    width: 16rem;
-    min-width: 16rem;
-    height: fit-content;
-    position: sticky;
-    top: 6rem;
-    right: 0;
-    background-color: #F2C94C;
-    border-radius: 15px;
-    padding: 2rem 2rem 0 2rem;
-    margin-right: 2rem;
-    margin-top: 2rem;
-}
-
-.suggested_blogs_section {
-    margin: 4rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.suggested_blogs_section h1 {
-    margin: 2rem;
-    color: var(--color-light-purple);
-}
-
-.suggested_blogs_links {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.suggested_blog_card {
-    width: 18em;
-    margin: 3em;
-}
-
-.post_additional_info {
-    margin-left: 3em;
-}
-
-.post_title h1 {
-    margin-top: 0;
-}
-
 .post_content_container {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.post_content_container {
     justify-content: space-between;
+    width: 100%;
 }
 
 .post_content p, .post_content li, .post_content a {
@@ -209,7 +167,32 @@ text-decoration-color: rgba(0, 0, 0, 1);
     font-size: 1rem;
 }
 
-@media only screen and (max-width: 96em) {
+
+/* Post CTA and TOC */
+.post_toc {
+    width: 16rem;
+    min-width: 16rem;
+    height: fit-content;
+    position: sticky;
+    top: 5rem;
+    margin-left: 2rem;
+}
+
+.post_cta {
+    width: 16rem;
+    min-width: 16rem;
+    height: fit-content;
+    position: sticky;
+    top: 6rem;
+    background-color: #F2C94C;
+    border-radius: 15px;
+    padding: 2rem 2rem 0 2rem;
+    margin-right: 2rem;
+    margin-top: 2rem;
+}
+
+/* For medium width screens */
+@media only screen and (max-width: 92rem) {
     .post_cta {
         display: none;
     }
@@ -218,12 +201,28 @@ text-decoration-color: rgba(0, 0, 0, 1);
         justify-content: flex-start;
     }
 
+    .post_content {
+        width: calc(100vw - 20rem);
+        max-width: 48rem;
+    }
+
     .post_banner {
         padding: 5rem 14rem 5rem 20rem;
     }
 }
 
-@media only screen and (max-width: 50em) {
+@media only screen and (max-width: 72rem) {
+    .post_banner {
+        padding: 5rem 6rem 5rem 25%;
+    }
+
+    .decorative_line {
+        display: none;
+    }
+}
+
+/* For small width screens */
+@media only screen and (max-width: 50rem) {
     .post_toc {
         display: none;
     }
@@ -233,7 +232,6 @@ text-decoration-color: rgba(0, 0, 0, 1);
     }
 
     .post_content_container {
-        padding: 3rem;
         justify-content: center;
     }
     .post_content p, .post_content li, .post_content a {

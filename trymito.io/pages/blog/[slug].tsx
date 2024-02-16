@@ -48,6 +48,7 @@ const PostPage = (props: {post: PostOrPage}) => {
         
       {/* All blog post related content */}
       <main className={pageStyles.main}>
+        <div className={postStyles.decorative_line}/>
         <div className={postStyles.post}>
 
         {/* Blog Title Banner */}
@@ -72,9 +73,7 @@ const PostPage = (props: {post: PostOrPage}) => {
               <PageTOC />
             </div>
             {/* Post Contents */}
-            <div className={postStyles.post_content}>
-                <div dangerouslySetInnerHTML={{ __html: props.post.html }} />
-            </div>
+            <div className={postStyles.post_content} dangerouslySetInnerHTML={{ __html: props.post.html }} />
 
             {/* CTA */}
             <div className={postStyles.post_cta}>
