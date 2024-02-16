@@ -227,6 +227,42 @@
     background-color: var(--color-light-background);
 }
 
+/* Suggested Posts */
+.suggested_posts_section {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-top: 2rem;
+    width: 60rem;
+}
+
+.suggested_posts_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+a.suggested_post {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-right: 1rem;
+    text-decoration: none;
+    color: var(--color-text-primary);
+    width: 20rem;
+    padding: 2rem 2rem 2rem 0;
+}
+
+.suggested_post h4, .suggested_post p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 /* For medium width screens */
 @media only screen and (max-width: 92rem) {
     .post_cta {

@@ -95,6 +95,30 @@ const PostPage = (props: {post: PostOrPage}) => {
                     <LinkedinLogo />
                   </a>
               </div>
+
+              {/* Suggested Posts */}
+              <div className={postStyles.suggested_posts_section}>
+                <h1>More Like This</h1>
+                <div className={postStyles.suggested_posts_container}>
+                  <a href='/blog/automating-spreadsheets-with-python-101' className={postStyles.suggested_post}>
+                    <h4>Automating Spreadsheets with Python 101</h4>
+                    <p>How to tell the difference between a good and bad Python automation target.</p>
+                  </a>
+                  <a href='/blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python' className={postStyles.suggested_post}>
+                    <h4>10 Mistakes To Look Out For When Transitioning from Excel To Python</h4>
+                    <p>10 Common Mistakes for new programmers transitioning from Excel to Python</p>
+                  </a>
+                  <a href='/blog/quantifying-mitos-impact-on-analyst-python-productivity' className={postStyles.suggested_post}>
+                    <h4>Research shows Mito speeds up by 400%</h4>
+                    <p>We're always on the hunt for tools that improve our efficiency at work. Tools that let us accomplish more with less time, money, and resources.</p>
+                  </a>
+                  <a href='/blog/choosing-between-sql-and-python-best-practices-for-data-analytics-workflows' className={postStyles.suggested_post}>
+                    <h4>3 Rules for Choosing Between SQL and Python</h4>
+                    <p>Analysts at the world's top banks are automating their manual Excel work so they can spend less time creating baseline reports, and more time building new analyses that push the company forward.</p>
+                  </a>
+                </div>
+              </div>
+
             </div>
 
             {/* CTA */}
@@ -104,6 +128,7 @@ const PostPage = (props: {post: PostOrPage}) => {
           </div>
         </div>
         
+
         {/* Footer */}
         <Footer />
       </main>
