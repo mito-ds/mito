@@ -336,6 +336,7 @@
     .post_content {
         margin: 0;
         max-width: unset;
+        width: 90%;
     }
 
     .suggested_post {
