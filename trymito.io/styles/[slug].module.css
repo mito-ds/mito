@@ -315,6 +315,9 @@
     .post_banner {
         padding: 3rem;
     }
+    .post_title {
+        flex-direction: column-reverse;
+    }
 
     .post_content_container {
         justify-content: center;
