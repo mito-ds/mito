@@ -18,6 +18,11 @@ import LinkedinLogo from './LinkedinLogo';
 import Link from 'next/link';
 import GlossayHorizontalNavbar from '../../components/Glossary/HorizontalNav/HorizontalNav';
 
+import Prism from 'prismjs';
+import 'prism-themes/themes/prism-coldark-dark.css'
+import { classNames } from '../../utils/classNames';
+require('prismjs/components/prism-python');
+
 declare global {
   interface Window { Prism: any; }
 }
@@ -29,7 +34,14 @@ const PostPage = (props: {post: PostOrPage}) => {
   
   // Render post title and content in the page from props
   useEffect(() => {
-    window.Prism.highlightAll();
+    /* 
+      Apply prism styling to all of elements that have the class "language-XXXX" 
+      (ie: language-python in the CodeBlocks component)
+
+      TODO: Figure out if there is a better place to put this. 
+      When it was in the _app.tsx file, the formatting wasn't applied if I navigated to another page and then back to this one.
+    */
+    Prism.highlightAll();
     setCurrentURL(window.location.href);
   }, []);
 
@@ -40,6 +52,10 @@ const PostPage = (props: {post: PostOrPage}) => {
   const authorName = props.post.primary_author?.name;
   const publishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
   const readingTime = props.post.reading_time;
+
+  function className(main: string, arg1: string): string | undefined {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <>
@@ -56,7 +72,7 @@ const PostPage = (props: {post: PostOrPage}) => {
       <Header />
         
       {/* All blog post related content */}
-      <main className={pageStyles.main}>
+      <main className={classNames(pageStyles.main, 'blog-content')}>
         <div className={postStyles.post}>
           <div className={postStyles.decorative_line}/>
 

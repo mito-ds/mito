@@ -26,9 +26,10 @@ import { PageContent } from '../../excel-to-python-page-contents/types';
 
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
+require('prismjs/components/prism-python');
+
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import Link from 'next/link';
-require('prismjs/components/prism-python');
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
   const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {

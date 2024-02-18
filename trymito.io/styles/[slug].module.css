@@ -295,6 +295,10 @@
     margin-bottom: 0;
 }
 
+.language-python {
+    background-color: #F2C94C;
+}
+
 /* For medium width screens */
 @media only screen and (max-width: 92rem) {
     .post_cta {

@@ -345,3 +345,23 @@ a {
   width: 100%;
   height: 250px;
 }
+
+/* 
+  Apply basic styling to the code displayed in the blog. Because the slug is not prepended
+  to the class names of the code blocks, we cannot apply this styling in [slug].module.css.
+  So instead, we apply it here, taking care to only apply the styling to code cells that have 
+  the an ancestor with the class .blog-content so we don't accidentally apply this styling to
+  other code.
+*/
+.blog-content pre[class*=language-] {
+  margin-top: 2rem !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100%;
+}
+
+.blog-content .code[class*=language-], .blog-content pre[class*=language-] {
+  text-shadow: none !important;
+  width: 100%; 
+  overflow-x: auto; /* Enables horizontal scrolling */
+}
