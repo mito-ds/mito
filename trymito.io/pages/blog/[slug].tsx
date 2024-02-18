@@ -1,6 +1,7 @@
 
 import { PostOrPage } from '@tryghost/content-api';
 import Head from 'next/head';
+import Image from "next/image";
 import { GetStaticProps } from 'next/types';
 import { useEffect, useState } from 'react';
 import DownloadCTACard from '../../components/CTACards/DownloadCTACard';
@@ -15,6 +16,7 @@ import TwitterLogo from './TwitterLogo';
 import EmailIcon from './EmailIcon';
 import LinkedinLogo from './LinkedinLogo';
 import Link from 'next/link';
+import GlossayHorizontalNavbar from '../../components/Glossary/HorizontalNav/HorizontalNav';
 
 declare global {
   interface Window { Prism: any; }
@@ -56,12 +58,21 @@ const PostPage = (props: {post: PostOrPage}) => {
       {/* All blog post related content */}
       <main className={pageStyles.main}>
         <div className={postStyles.post}>
-        <div className={postStyles.decorative_line}/>
+          <div className={postStyles.decorative_line}/>
 
-        {/* Blog Title Banner */}
-        <div className={postStyles.post_banner}>
-          {/* We use a wrapper around the post title to get the positioning in line with the post content. */}
-          <div className={postStyles.post_title}>
+          {/* Blog Title Banner */}
+          <div className={postStyles.post_banner}>
+            {/* We use a wrapper around the post title to get the positioning in line with the post content. */}
+            <div className={postStyles.post_title}>
+              <div className={postStyles.blog_home_container}>
+                <Link href='/blog'>
+                  <div className={postStyles.blog_home_image_and_text}>
+                    <Image src={'/excel-to-python/house.svg'} alt='Home Icon' width={20} height={14} />
+                    <p>See more blogs</p>
+                  </div>
+                </Link>
+              </div>
+              <h1>{props.post.title}</h1>
               <div className={postStyles.post_metadata}>
                 <p>
                   { authorName ? 'By '+ props.post.primary_author?.name: 'The Mito Team' }
@@ -69,7 +80,6 @@ const PostPage = (props: {post: PostOrPage}) => {
                 {publishedAt && <p className={postStyles.post_additional_info}> {publishedAt}</p>}
                 {readingTime && <p className={postStyles.post_additional_info}>{readingTime} min read</p>}
               </div>
-              <h1>{props.post.title}</h1>
             </div>
           </div>
 
@@ -99,7 +109,7 @@ const PostPage = (props: {post: PostOrPage}) => {
 
               {/* Suggested Posts */}
               <div className={postStyles.suggested_posts_section}>
-                <h1>More Like This</h1>
+                <h2>More Like This</h2>
                 <div className={postStyles.suggested_posts_container}>
                   <Link href='/blog/automating-spreadsheets-with-python-101'>
                     <div className={postStyles.suggested_post}>
@@ -131,13 +141,11 @@ const PostPage = (props: {post: PostOrPage}) => {
             </div>
 
             {/* CTA */}
-            <div className={postStyles.post_cta}>
-              <DownloadCTACard headerStyle={{ fontSize: '2rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} />
-            </div>
+              <div className={postStyles.post_cta}>
+                <DownloadCTACard headerStyle={{ fontSize: '2rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} />
+              </div>
           </div>
         </div>
-        
-
         {/* Footer */}
         <Footer />
       </main>

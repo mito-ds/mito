@@ -23,12 +23,17 @@
     text-decoration-color: rgba(0, 0, 0, 1);
 }
 
+.post strong {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
 
 
 /* Post Banner */
 .post_banner {
     background-color: var(--color-purple);
-    padding: 5rem 20rem;
+    padding: 5rem 22rem;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -52,11 +57,22 @@
 .post_metadata {
     display: flex;
     flex-direction: row;
-    margin-bottom: .5rem;
+    margin-top: 2rem;
 }
 
 .post_additional_info {
     margin-left: 3em;
+}
+
+.blog_home_container {
+    margin-bottom: 2rem;
+}
+
+.blog_home_image_and_text {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    cursor: pointer;
 }
 
 
@@ -65,7 +81,6 @@
 .post_content {
     margin: 0 2rem;
     max-width: 70rem;
-    width: calc(100vw - 40rem);
 }
 
 /* Make lists start at the right place*/
@@ -96,8 +111,8 @@
     font-size: 2.7rem;
 }
 .post_content h2 {
-    margin-top: 2rem;
-    font-size: 2.3rem;
+    margin-top: 4rem;
+    font-size: 2rem;
 }
 .post_content h3 {
     margin-top: 2rem;
@@ -121,6 +136,8 @@
 .post_content blockquote {
     font-size: 1.5rem;
     color: var(--color-text-secondary);
+    margin-top: 4rem;
+    margin-bottom: 4rem;
 }
 
 .post_content blockquote:before {
@@ -173,7 +190,7 @@
 }
 
 .post_content p, .post_content li, .post_content a {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
 }
 
 .post_content table {
@@ -189,6 +206,7 @@
     position: sticky;
     top: 5rem;
     margin-left: 2rem;
+    margin-right: 2rem;
 }
 
 .post_cta {
@@ -202,6 +220,7 @@
     padding: 2rem 2rem 0 2rem;
     margin-right: 2rem;
     margin-top: 2rem;
+    margin-left: 2rem;
 }
 
 .post_cta a {
