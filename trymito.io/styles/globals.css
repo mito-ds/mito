@@ -346,6 +346,11 @@ a {
   height: 250px;
 }
 
+/* We want rounded borders on images in our blog*/
+.kg-image {
+  border-radius: 3px;
+}
+
 /* 
   Apply basic styling to the code displayed in the blog. Because the slug is not prepended
   to the class names of the code blocks, we cannot apply this styling in [slug].module.css.
@@ -364,4 +369,10 @@ a {
   text-shadow: none !important;
   width: 100%; 
   overflow-x: auto; /* Enables horizontal scrolling */
+}
+
+.blog-content figcaption {
+  font-size: .8rem !important;
+  color: var(--color-text-secondary) !important;
+  text-align: center;
 }
