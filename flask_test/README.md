@@ -12,6 +12,10 @@ Then, install the mitosheet package
 ```
 cd ../mitosheet
 pip install -e "."
+mkdir mitosheet/labextension
+cp package.json mitosheet/labextension/package.json
+touch mitosheet/mito_frontend.css
+touch mitosheet/mito_frontend.js
 ```
 
 Then, setup the React App
@@ -36,6 +40,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 cd ../mitosheet
 pip install -e "."
+mkdir mitosheet/labextension
+cp package.json mitosheet/labextension/package.json
+touch mitosheet/mito_frontend.css
+touch mitosheet/mito_frontend.js
 cd ../flask_test/react-app
 npm install
 npm run build
