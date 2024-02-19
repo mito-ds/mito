@@ -53,10 +53,6 @@ const PostPage = (props: {post: PostOrPage}) => {
   const publishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
   const readingTime = props.post.reading_time;
 
-  function className(main: string, arg1: string): string | undefined {
-    throw new Error('Function not implemented.');
-  }
-
   return (
     <>
       {/* Standard Mito header - includes navigation for the website. */}
