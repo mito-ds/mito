@@ -277,3 +277,24 @@ def test_log_uploader_tries_failed_logs_again():
         assert logs[0]['params_column_header'] != logs[1]['params_column_header']
 
     delete_all_mito_config_environment_variables()
+
+def test_mito_log_uploader_exponential_backoff():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    with patch('requests.post') as mock_post:
+        mock_post.side_effect = [requests.exceptions.RequestException, None]
+        mito.add_column(0, 'B')
+        time.sleep(1.5)
+        assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 2
+
+    with patch('requests.post') as mock_post:
+        mito.add_column(0, 'C')
+        time.sleep(2)
+        assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 1
+
+    delete_all_mito_config_environment_variables()
