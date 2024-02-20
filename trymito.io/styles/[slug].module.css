@@ -341,8 +341,12 @@
     .post_banner {
         padding: 3rem;
     }
-    .post_title {
-        flex-direction: column-reverse;
+
+    .post_metadata {
+        flex-direction: column;
+    }
+    .post_additional_info {
+        margin-left: 0;
     }
 
     .post_content_container {
