@@ -236,7 +236,7 @@ def test_log_uploader_long_interval_does_not_trigger_upload():
 
     delete_all_mito_config_environment_variables()
 
-def test_log_uploader_logs_failure_as_debug():
+def test_log_uploader_logs_failure_prints():
 
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
@@ -248,11 +248,11 @@ def test_log_uploader_logs_failure_as_debug():
         mock_post.side_effect = [requests.exceptions.RequestException, None]
 
         # Capture the logging debug output
-        with patch('logging.debug') as mock_debug:
+        with patch('builtins.print') as mock_print:
             mito.add_column(0, 'B')
 
-            assert len(mock_debug.call_args_list) == 1
-            assert 'Log upload failed with error:' in mock_debug.call_args_list[0][0][0]
+            assert len(mock_print.call_args_list) == 1
+            assert 'Log upload failed with error:' in mock_print.call_args_list[0][0][0]
 
 def test_log_uploader_tries_failed_logs_again():
 

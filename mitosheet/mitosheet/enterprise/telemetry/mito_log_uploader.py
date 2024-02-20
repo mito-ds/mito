@@ -139,7 +139,7 @@ class MitoLogUploader:
                 self.current_log_interval = self.base_log_interval
 
             except Exception as e:
-                logging.debug("Log upload failed with error: ", exc_info=True)
+                print(f"Log upload failed with error:", e, flush=True)
 
                 # If the logs are not being uploaded successfully, then double the log interval
                 # This is an exponential backoff strategy to prevent overloading the logging server
