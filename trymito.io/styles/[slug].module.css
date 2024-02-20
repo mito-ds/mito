@@ -95,7 +95,9 @@
 .post_content {
     margin: 0 2rem;
     max-width: 70rem;
-    /* Without this, there is a horizontal scrollbar on the page */
+    /* This is set to explicitly be the width of the remaining space after including
+    * the toc and cta. This way when the cta disappears it doesn't cause the content
+    * to jump. */
     width: calc(100vw - 40rem)
 }
 
@@ -230,6 +232,11 @@
 
 .post_toc .post_cta {
     display: none;
+    padding: 1.25rem 1.25rem 0 1.25rem;
+    margin-top: 2rem;
+}
+.post_toc .post_cta a {
+    font-size: 1rem;
 }
 
 .post_cta_container {
@@ -319,19 +326,16 @@
     }
     .post_toc .post_cta {
         display: block;
-        padding: 1rem 1rem 0 1rem;
+    }
+    .post_toc .post_cta .cta_buttons_container {
         margin-top: 2rem;
     }
 
     .post_content_container {
         justify-content: flex-start;
     }
-
-    .post_title, .post_content {
-        /* This is intentionally set to have some extra margin on the left at first,
-        * so that when a user is resizing their screen there isn't an awkward jitter
-        * when the CTA disappears. */
-        width: calc(100vw - 20rem);
+    .post_content {
+        width: 48rem;
     }
 }
 
@@ -342,6 +346,12 @@
 
     .post_title {
         max-width: 48rem;
+    }
+    .post_title, .post_content {
+        /* This is intentionally set to have some extra margin on the left at first,
+        * so that when a user is resizing their screen there isn't an awkward jitter
+        * when the CTA disappears. */
+        width: calc(100vw - 20rem);
     }
 
     .decorative_line {

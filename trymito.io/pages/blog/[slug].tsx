@@ -123,7 +123,14 @@ const PostPage = (props: {post: PostOrPage}) => {
             <div className={postStyles.post_toc}>
               <PageTOC />
               <div className={postStyles.post_cta}>
-                <DownloadCTACard headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} />
+                <DownloadCTACard
+                  headerStyle={{
+                    fontSize: '1.25rem',
+                    color: 'var(--color-light-background-accent)',
+                    fontWeight: 'normal'
+                  }}
+                  buttonContainerStyle={{ paddingTop: '2rem' }}
+                />
               </div>
             </div>
             {/* Post Contents */}

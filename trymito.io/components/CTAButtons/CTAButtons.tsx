@@ -11,15 +11,19 @@ const CTAButtons = (props: {
     align: 'left' | 'center',
     displaySecondaryCTA?: boolean
     secondaryCTA?: 'pro' | 'learn more'
+    style?: React.CSSProperties;
 }): JSX.Element => {
 
     const displaySecondaryCTA = props.displaySecondaryCTA ?? true; 
     const secondaryCTA = props.secondaryCTA ?? 'pro';
     return (
-        <div className={classNames(
-            ctaButtons.cta_buttons_container, 
-            {[ctaButtons.center] : props.align === 'center'}
-        )}> 
+        <div
+            className={classNames(
+                ctaButtons.cta_buttons_container, 
+                {[ctaButtons.center] : props.align === 'center'}
+            )}
+            style={props.style}
+        > 
             {props.variant === 'download' && 
                 <TextButton 
                     text='Install Mito'
