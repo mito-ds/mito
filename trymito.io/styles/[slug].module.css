@@ -341,7 +341,7 @@
 
 @media only screen and (max-width: 72rem) {
     .post_banner {
-        padding: 5rem 6rem 5rem 25%;
+        padding: 5rem 10% 5rem 10%;
     }
 
     .post_title {
