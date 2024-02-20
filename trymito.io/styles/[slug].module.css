@@ -45,7 +45,7 @@
 /* Post Banner */
 .post_banner {
     background-color: var(--color-purple);
-    padding: 5rem 22rem;
+    padding: 5rem 20rem;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -55,11 +55,13 @@
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
+    /* This is intentionally set to be the same width as the content. */
+    width: calc(100vw - 40rem);
+    max-width: 70rem;
 }
 
 .post_title h1 {
     font-size: 3rem;
-    max-width: 70rem;
 }
 
 .post_title p, .post_title h1 {
@@ -93,6 +95,8 @@
 .post_content {
     margin: 0 2rem;
     max-width: 70rem;
+    /* Without this, there is a horizontal scrollbar on the page */
+    width: calc(100vw - 40rem)
 }
 
 /* Make lists start at the right place*/
@@ -214,7 +218,6 @@
     position: sticky;
     top: 5rem;
     margin-left: 2rem;
-    margin-right: 2rem;
 }
 
 .post_cta {
@@ -228,7 +231,6 @@
     padding: 2rem 2rem 0 2rem;
     margin-right: 2rem;
     margin-top: 2rem;
-    margin-left: 2rem;
 }
 
 .post_cta a {
@@ -308,19 +310,21 @@
         justify-content: flex-start;
     }
 
-    .post_content {
+    .post_title, .post_content {
+        /* This is intentionally set to have some extra margin on the left at first,
+        * so that when a user is resizing their screen there isn't an awkward jitter
+        * when the CTA disappears. */
         width: calc(100vw - 20rem);
-        max-width: 48rem;
-    }
-
-    .post_banner {
-        padding: 5rem 14rem 5rem 20rem;
     }
 }
 
 @media only screen and (max-width: 72rem) {
     .post_banner {
         padding: 5rem 6rem 5rem 25%;
+    }
+
+    .post_title {
+        max-width: 48rem;
     }
 
     .decorative_line {
