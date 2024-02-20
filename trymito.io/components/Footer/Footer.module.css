@@ -11,6 +11,7 @@
 }
 
 .footer_mito_text {
+    color: var(--color-text-primary);
     font-size: 2rem !important;
     margin-right: 2rem;
     margin-top: 0rem !important;

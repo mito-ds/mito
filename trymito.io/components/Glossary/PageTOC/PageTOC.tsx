@@ -9,9 +9,11 @@ type Heading = {
 
     // The level of the heading (e.g., "h2", "h3") is used to determine the indentation of the TOC item
     level: string;
+
+    text: string;
 }
 
-const PageTOC = () => {
+const PageTOC = (props: { style?: React.CSSProperties }) => {
     const [headings, setHeadings] = useState<Heading[]>([]);
     const [activeHeading, setActiveHeading] = useState<Heading | undefined>(undefined);
 
@@ -23,6 +25,7 @@ const PageTOC = () => {
         const headingsArray: Heading[] = Array.from(headingElements).map((heading) => ({
             level: heading.tagName.toLowerCase(),
             id: heading.id,
+            text: heading.textContent!,
         })).filter((heading) => heading.id !== "");
     
         setHeadings(headingsArray);
@@ -97,8 +100,12 @@ const PageTOC = () => {
         }
     };
 
+    if (headings.length === 0) {
+        return null;
+    }
+
     return (
-        <aside className={pageTOCStyles.container}>
+        <aside style={props.style} className={pageTOCStyles.container}>
             <p>On this Page</p>
             {headings.map((heading) => (
                 <p
@@ -111,7 +118,7 @@ const PageTOC = () => {
                         {'text-highlight': activeHeading?.id === heading.id}
                     )}
                 >
-                    {heading.id}
+                    {heading.text}
                 </p>
             ))}
         </aside>
