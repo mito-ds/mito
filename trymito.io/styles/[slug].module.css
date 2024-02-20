@@ -226,7 +226,7 @@
     height: fit-content;
     position: sticky;
     top: 6rem;
-    background-color: #F2C94C;
+    background-color: var(--color-yellow);
     border-radius: 15px;
     padding: 2rem 2rem 0 2rem;
     margin-right: 2rem;
@@ -286,7 +286,7 @@
     align-items: flex-start;
     margin-right: 1rem;
     color: var(--color-text-primary);
-    width: calc(50% - 1rem);
+    max-width: 48%;
     padding: 2rem 2rem 2rem 0;
     cursor: pointer;
 }
