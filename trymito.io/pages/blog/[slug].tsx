@@ -175,9 +175,10 @@ const PostPage = (props: {post: PostOrPage}) => {
             </div>
           </div>
         </div>
-        {/* Footer */}
-        <Footer />
       </main>
+
+      {/* Footer */}
+      <Footer />
     </>
   )
 }
