@@ -3,6 +3,18 @@
     width: 1px;
     height: calc(100% - 42rem);
     border: 0.5px dashed rgba(208, 208, 208, 0.25);
+
+    /* 
+     * The decorative line is supposed to be aligned with the header and
+     * the content, and their width is dependent on the screen width. 
+     * Here's a breakdown of the calculation:
+        * 19.5rem: The width of the sidebar
+        * 100vw: The width of the screen
+        * 70rem: The width of the content
+        * 6px: The extra cushion so it doesn't touch the content
+     * The max function is used to keep the line from going too far to the left when the screen is narrow
+     * The width of the content is (100vw - 20rem) and it is centered, so the left margin 
+     */
     left: max(19.5rem, calc(((100vw - 70rem) / 2) - 6px));
 }
 
@@ -15,12 +27,12 @@
 }
 
 .post a, .suggested_post h4 {
-    text-decoration: underline 0.15em rgba(0, 0, 0, 0);
+    text-decoration: underline rgba(0, 0, 0, 0);
     transition: text-decoration-color 300ms;
 }
-  
+
 .post a:hover, .suggested_post:hover h4 {
-    text-decoration-color: rgba(0, 0, 0, 1);
+    text-decoration-color: rgba(var(--color-purple), 1);
 }
 
 .post strong {
@@ -127,10 +139,6 @@
 }
 .post_content a {
     color: var(--color-purple);
-}
-.post_content a:hover {
-    /* Underline */
-    text-decoration: underline;
 }
 
 .post_content blockquote {
@@ -275,7 +283,6 @@
     justify-content: flex-start;
     align-items: flex-start;
     margin-right: 1rem;
-    text-decoration: none;
     color: var(--color-text-primary);
     width: calc(50% - 1rem);
     padding: 2rem 2rem 2rem 0;
@@ -284,10 +291,6 @@
 
 .suggested_post h4 {
     font-size: 1.5rem;
-}
-
-.suggested_post:hover h4 {
-    text-decoration: solid underline var(--color-purple);
 }
 
 .suggested_post h4, .suggested_post p {
