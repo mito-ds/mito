@@ -1,8 +1,10 @@
 import json
-import pprint
+import logging
 import time
-from typing import Any, Optional, List, Dict
+from typing import Any, Dict, List, Optional
+
 import requests
+
 
 def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
@@ -110,5 +112,4 @@ class MitoLogUploader:
             self.unprocessed_logs = []
 
         except Exception as e:
-            print("Log upload failed with error: ", e)
-
+            logging.debug("Log upload failed with error: ", exc_info=True)
