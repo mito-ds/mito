@@ -357,6 +357,11 @@
 
     .post_banner {
         padding: 3rem;
+        justify-content: flex-start;
+    }
+    .post_title {
+        max-width: 100%;
+        width: 100%;
     }
 
     .post_metadata {
