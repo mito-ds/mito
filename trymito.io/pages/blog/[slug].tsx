@@ -146,7 +146,7 @@ const PostPage = (props: {post: PostOrPage}) => {
                 <h2>More Like This</h2>
                 <div className={postStyles.suggested_posts_container}>
                   { suggestedPosts.map((post, index) => {
-                    return <Link href={post.link}>
+                    return <Link key={`suggested-post-${index}`} href={post.link}>
                       <a className={postStyles.suggested_post}>
                         <h4>{post.title}</h4>
                         <p>{post.description}</p>
