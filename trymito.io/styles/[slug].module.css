@@ -223,12 +223,19 @@
 .post_cta {
     width: 16rem;
     min-width: 16rem;
-    height: fit-content;
-    position: sticky;
-    top: 6rem;
     background-color: var(--color-yellow);
     border-radius: 15px;
     padding: 2rem 2rem 0 2rem;
+}
+
+.post_toc .post_cta {
+    display: none;
+}
+
+.post_cta_container {
+    position: sticky;
+    height: fit-content;
+    top: 6rem;
     margin-right: 2rem;
     margin-top: 2rem;
 }
@@ -309,6 +316,11 @@
 @media only screen and (max-width: 92rem) {
     .post_cta {
         display: none;
+    }
+    .post_toc .post_cta {
+        display: block;
+        padding: 1rem 1rem 0 1rem;
+        margin-top: 2rem;
     }
 
     .post_content_container {

@@ -122,6 +122,9 @@ const PostPage = (props: {post: PostOrPage}) => {
             {/* Table of Contents */}
             <div className={postStyles.post_toc}>
               <PageTOC />
+              <div className={postStyles.post_cta}>
+                <DownloadCTACard headerStyle={{ fontSize: '2rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} />
+              </div>
             </div>
             {/* Post Contents */}
             <div className={postStyles.post_content}> 
@@ -155,13 +158,14 @@ const PostPage = (props: {post: PostOrPage}) => {
                   })}
                 </div>
               </div>
-
             </div>
 
             {/* CTA */}
+            <div className={postStyles.post_cta_container}>
               <div className={postStyles.post_cta}>
                 <DownloadCTACard headerStyle={{ fontSize: '2rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} />
               </div>
+            </div>
           </div>
         </div>
         {/* Footer */}
