@@ -31,7 +31,7 @@
     transition: text-decoration-color 300ms;
 }
 
-.post a:hover, .suggested_post:hover h4 {
+.post a:not(.suggested_post):hover, .suggested_post:hover h4 {
     text-decoration-color: rgba(var(--color-purple), 1);
 }
 
@@ -293,11 +293,16 @@
 
 .suggested_post h4 {
     font-size: 1.5rem;
+    font-weight: 500;
 }
 
 .suggested_post h4, .suggested_post p {
     margin-top: 0;
     margin-bottom: 0;
+}
+
+.suggested_post p {
+    text-decoration: none;
 }
 
 /* For medium width screens */

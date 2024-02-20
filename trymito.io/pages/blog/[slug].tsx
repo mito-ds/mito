@@ -52,6 +52,28 @@ const PostPage = (props: {post: PostOrPage}) => {
   const authorName = props.post.primary_author?.name;
   const publishedAt = props.post.published_at && new Intl.DateTimeFormat('en-US').format(new Date(props.post.published_at));
   const readingTime = props.post.reading_time;
+  const suggestedPosts = [
+    {
+      title: 'Automating Spreadsheets with Python 101',
+      description: 'How to tell the difference between a good and bad Python automation target.',
+      link: '/blog/automating-spreadsheets-with-python-101'
+    },
+    {
+      title: '10 Mistakes To Look Out For When Transitioning from Excel To Python',
+      description: '10 Common Mistakes for new programmers transitioning from Excel to Python',
+      link: '/blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python'
+    },
+    {
+      title: 'Research shows Mito speeds up by 400%',
+      description: 'We\'re always on the hunt for tools that improve our efficiency at work. Tools that let us accomplish more with less time, money, and resources.',
+      link: '/blog/quantifying-mitos-impact-on-analyst-python-productivity'
+    },
+    {
+      title: '3 Rules for Choosing Between SQL and Python',
+      description: 'Analysts at the world\'s top banks are automating their manual Excel work so they can spend less time creating baseline reports, and more time building new analyses that push the company forward.',
+      link: '/blog/choosing-between-sql-and-python-best-practices-for-data-analytics-workflows'
+    }
+  ]
 
   return (
     <>
@@ -78,10 +100,10 @@ const PostPage = (props: {post: PostOrPage}) => {
             <div className={postStyles.post_title}>
               <div className={postStyles.blog_home_container}>
                 <Link href='/blog'>
-                  <div className={postStyles.blog_home_image_and_text}>
+                  <a className={postStyles.blog_home_image_and_text}>
                     <Image src={'/excel-to-python/house.svg'} alt='Home Icon' width={20} height={14} />
                     <p>See more blogs</p>
-                  </div>
+                  </a>
                 </Link>
               </div>
               <h1>{props.post.title}</h1>
@@ -123,30 +145,14 @@ const PostPage = (props: {post: PostOrPage}) => {
               <div className={postStyles.suggested_posts_section}>
                 <h2>More Like This</h2>
                 <div className={postStyles.suggested_posts_container}>
-                  <Link href='/blog/automating-spreadsheets-with-python-101'>
-                    <div className={postStyles.suggested_post}>
-                      <h4>Automating Spreadsheets with Python 101</h4>
-                      <p>How to tell the difference between a good and bad Python automation target.</p>
-                    </div>
-                  </Link>
-                  <Link href='/blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python'>
-                    <div className={postStyles.suggested_post}>
-                      <h4>10 Mistakes To Look Out For When Transitioning from Excel To Python</h4>
-                      <p>10 Common Mistakes for new programmers transitioning from Excel to Python</p>
-                    </div>
-                  </Link>
-                  <Link href='/blog/quantifying-mitos-impact-on-analyst-python-productivity'>
-                    <div className={postStyles.suggested_post}>
-                      <h4>Research shows Mito speeds up by 400%</h4>
-                      <p>We&apos;re always on the hunt for tools that improve our efficiency at work. Tools that let us accomplish more with less time, money, and resources.</p>
-                    </div>
-                  </Link>
-                  <Link href='/blog/choosing-between-sql-and-python-best-practices-for-data-analytics-workflows'>
-                    <div className={postStyles.suggested_post}>
-                      <h4>3 Rules for Choosing Between SQL and Python</h4>
-                      <p>Analysts at the world&apos;s top banks are automating their manual Excel work so they can spend less time creating baseline reports, and more time building new analyses that push the company forward.</p>
-                    </div>
-                  </Link>
+                  { suggestedPosts.map((post, index) => {
+                    return <Link href={post.link}>
+                      <a className={postStyles.suggested_post}>
+                        <h4>{post.title}</h4>
+                        <p>{post.description}</p>
+                      </a>
+                    </Link>
+                  })}
                 </div>
               </div>
 
