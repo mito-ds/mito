@@ -126,11 +126,13 @@ class MitoLogUploader:
             log_payload = json.dumps(self.unprocessed_logs)
 
             try:
-                requests.post(
+                result = requests.post(
                     self.log_url,
                     data=log_payload,
                     headers={'Content-Type': 'application/json'}
                 )
+                # Throw an error if the request was not successful
+                result.raise_for_status()
 
                 self.unprocessed_logs = []
                 

@@ -12,7 +12,7 @@ import json
 import os
 import sys
 import time
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 import requests
 
 import pandas as pd
@@ -298,3 +298,22 @@ def test_mito_log_uploader_exponential_backoff():
         assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 1
 
     delete_all_mito_config_environment_variables()
+
+
+def test_mito_log_uploader_prints_on_server_error():
+
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    mock_response = MagicMock(spec=requests.Response)
+    mock_response.status_code = 400
+    mock_response.raise_for_status.side_effect = requests.HTTPError
+
+    with patch('requests.post', return_value=mock_response) as mock_post:
+        mito.add_column(0, 'C')
+        time.sleep(1.5)
+
+    assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 2
