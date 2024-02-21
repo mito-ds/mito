@@ -285,7 +285,7 @@ def test_upgrades_old_analysis_before_replaying_it():
         "from mitosheet.public.v1 import *", 
         "", 
         "# Pivoted df1 into df1_pivot", 
-        "tmp_df = df1[['A', 'B']].copy()", 
+        "tmp_df = df1[['B', 'A']].copy()", 
         "pivot_table = tmp_df.pivot_table(\n    index=['A'],\n    values=['B'],\n    aggfunc={'B': ['sum']}\n)", 
         "pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)", 
         "df1_pivot = pivot_table.reset_index()", 
