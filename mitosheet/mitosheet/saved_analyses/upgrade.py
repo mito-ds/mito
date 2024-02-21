@@ -407,6 +407,7 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
         saved_analysis_with_public_interface, 
         args
     )
+    saved_analysis_with_args['code'] = saved_analysis.get('code', None)
     saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(
         saved_analysis_with_args,
         analysis_name,

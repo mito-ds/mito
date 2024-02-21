@@ -280,6 +280,21 @@ def test_upgrades_old_analysis_before_replaying_it():
     assert new_mito.dfs[1].equals(
         pd.DataFrame({'A': [123], 'B_sum': [123]})
     )
+    # Check that the code saved is correct
+    assert json.loads(new_mito.analysis_data_json)['code'] == [
+        "from mitosheet.public.v1 import *", 
+        "", 
+        "# Pivoted df1 into df1_pivot", 
+        "tmp_df = df1[['A', 'B']].copy()", 
+        "pivot_table = tmp_df.pivot_table(\n    index=['A'],\n    values=['B'],\n    aggfunc={'B': ['sum']}\n)", 
+        "pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)", 
+        "df1_pivot = pivot_table.reset_index()", 
+        "", 
+        "# Renamed headers for compatibility with previous Mito versions", 
+        "# Rename headers to make them work with Mito", 
+        "df1_pivot.rename(columns={\"B sum\": \"B_sum\"}, inplace=True)", 
+        ""
+    ]
 
 def test_save_analysis_saves_skipped_steps():
     mito = create_mito_wrapper_with_data([1, 2, 3])
@@ -333,6 +348,7 @@ def test_save_and_replay_different_interface_version_works():
     assert len(saved_analysis['steps_data']) == 0
     print(saved_analysis)
     assert saved_analysis['public_interface_version'] == 100
+    assert saved_analysis['code'] == []
 
     new_mito = create_mito_wrapper_with_data([1, 2, 3])
     new_mito.replay_analysis(random_name)
