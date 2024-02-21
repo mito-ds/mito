@@ -61,6 +61,7 @@ const CTAButtons = (props: {
                             text='Book an Enterprise Demo'
                             href="https://calendly.com/jake_from_mito/30min"
                             variant='secondary'
+                            className={props.textButtonClassName}
                         />
                     </div>
                     <div className='only-on-mobile'>
@@ -68,6 +69,7 @@ const CTAButtons = (props: {
                             text='Book a Demo'
                             href="https://calendly.com/jake_from_mito/30min"
                             variant='secondary'
+                            className={props.textButtonClassName}
                         />
                     </div>
                 </>
