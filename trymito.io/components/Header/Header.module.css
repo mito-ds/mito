@@ -115,7 +115,8 @@
     }
 
     .dropdown {
-        display: none;
+        display: flex;
+        visibility: hidden;
         flex-direction: column;
         text-align: start;
         position: absolute;
@@ -123,6 +124,8 @@
         background-color: var(--color-background);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
         padding: 1rem 1rem;
+        opacity: 0;
+        transition: opacity 0.25s ease;
         border-radius: 5px;
     }
 
@@ -167,7 +170,8 @@
 
     .dropdown_container:hover .dropdown, 
     .dropdown:hover {
-        display: flex;
+        visibility: visible;
+        opacity: 1;
     }
 
     .dropdown > * + * {

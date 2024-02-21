@@ -2,15 +2,19 @@ import titleStyles from '../../styles/Title.module.css';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD } from '../../utils/plausible';
 import CTAButtons from '../CTAButtons/CTAButtons';
 
-const DownloadCTACard = (): JSX.Element => {
+const DownloadCTACard = (props: { 
+    headerStyle?: React.CSSProperties, 
+    buttonContainerStyle?: React.CSSProperties 
+    textButtonClassName?: string | undefined;
+}): JSX.Element => {
 
     return (
         <div> 
-            <h2 className={titleStyles.title}>
-                Want to install Mito locally?
+            <h2 style={props.headerStyle} className={titleStyles.title}>
+                Ready to write Python code 4x faster?
             </h2>
             <div className='center'>
-                <CTAButtons variant='download' align='center' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD}/>
+                <CTAButtons style={props.buttonContainerStyle} variant='download' align='center' textButtonClassName={props.textButtonClassName || PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD}/>
             </div>  
         </div>
     )

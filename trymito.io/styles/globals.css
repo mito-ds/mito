@@ -9,6 +9,8 @@
 
   --color-text-gradient: linear-gradient(180deg, #9D6CFF 0.63%, rgba(157, 108, 255, 0.39) 100%);
   --color-twitter-blue: #479BE9;
+
+  --color-yellow: #F2C94C;
   
   --color-video-background: #725F98;
   --color-video-border: #7D68A8;
@@ -363,4 +365,35 @@ a.anchor {
 .kg-embed-card > iframe {
   width: 100%;
   height: 250px;
+}
+
+/* We want rounded borders on images in our blog*/
+.kg-image {
+  border-radius: 3px;
+}
+
+/* 
+  Apply basic styling to the code displayed in the blog. Because the slug is not prepended
+  to the class names of the code blocks, we cannot apply this styling in [slug].module.css.
+  So instead, we apply it here, taking care to only apply the styling to code cells that have 
+  the an ancestor with the class .blog-content so we don't accidentally apply this styling to
+  other code.
+*/
+.blog-content pre[class*=language-] {
+  margin-top: 2rem !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100%;
+}
+
+.blog-content .code[class*=language-], .blog-content pre[class*=language-] {
+  text-shadow: none !important;
+  width: 100%; 
+  overflow-x: auto; /* Enables horizontal scrolling */
+}
+
+.blog-content figcaption {
+  font-size: .8rem !important;
+  color: var(--color-text-secondary) !important;
+  text-align: center;
 }

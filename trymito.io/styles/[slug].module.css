@@ -1,19 +1,104 @@
+.decorative_line {
+    position: absolute;
+    width: 1px;
+    height: calc(100% - 18rem);
+    border: 0.5px dashed rgba(208, 208, 208, 0.25);
 
+    /* 
+     * The decorative line is supposed to be aligned with the header and
+     * the content, and their width is dependent on the screen width. 
+     * Here's a breakdown of the calculation:
+        * 19.5rem: The width of the sidebar
+        * 100vw: The width of the screen
+        * 70rem: The width of the content
+        * 6px: The extra cushion so it doesn't touch the content
+     * The max function is used to keep the line from going too far to the left when the screen is narrow
+     * The width of the content is (100vw - 20rem) and it is centered, so the left margin 
+     */
+    left: max(19.5rem, calc(((100vw - 70rem) / 2) - 6px));
+}
+
+/* Post Styling */
 .post {
-    margin-top: 4rem;
+    margin-top: 7rem;
     margin-bottom: 4rem;
+    width: 100%;
+    font-family: Inter, Ubuntu, Helvetica, Arial, sans-serif;
+}
+
+.post a, .suggested_post h4 {
+    text-decoration: underline rgba(0, 0, 0, 0);
+    transition: text-decoration-color 300ms;
+}
+
+.post a:not(.suggested_post):hover, .suggested_post:hover h4 {
+    text-decoration-color: rgba(var(--color-purple), 1);
+}
+
+.post strong {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+
+
+/* Post Banner */
+.post_banner {
+    background-color: var(--color-purple);
+    padding: 5rem 20rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .post_title {
-    max-width: min(800px, 90vw);
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    /* This is intentionally set to be the same width as the content. */
+    width: calc(100vw - 40rem);
+    max-width: 70rem;
 }
 
 .post_title h1 {
     font-size: 3rem;
 }
 
+.post_title p, .post_title h1 {
+    margin-top: 0
+}
+
+.post_metadata {
+    display: flex;
+    flex-direction: row;
+    margin-top: 2rem;
+}
+
+.post_additional_info {
+    margin-left: 3rem;
+}
+
+.blog_home_container {
+    margin-bottom: 2rem;
+}
+
+.blog_home_image_and_text {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    cursor: pointer;
+}
+
+
+
+/* Post Content */
 .post_content {
-    max-width: min(720px, 90vw);
+    margin: 0 2rem;
+    max-width: 70rem;
+    /* This is set to explicitly be the width of the remaining space after including
+    * the toc and cta. This way when the cta disappears it doesn't cause the content
+    * to jump. */
+    width: calc(100vw - 40rem)
 }
 
 /* Make lists start at the right place*/
@@ -33,12 +118,6 @@
     margin-top: 0.5rem;
 }
 
-.post_metadata {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: .5rem;
-}
-
 .post_content pre {
     padding: 1rem;
     border-radius: 0.3rem;
@@ -47,31 +126,42 @@
 
 .post_content h1 {
     margin-top: 3rem;
+    font-size: 2.7rem;
 }
 .post_content h2 {
-    margin-top: 2rem;
+    margin-top: 4rem;
+    font-size: 2rem;
 }
 .post_content h3 {
     margin-top: 2rem;
 }
-.post_content figcaption {
-    color: var(--color-text-secondary);
-    font-size: .7rem;
-    text-align: center;
+.post_content span {
+    font-size: 1.5rem;
+    color: var(--color-text-primary);
+    font-weight: 100;
 }
-
-.post_content blockquote {
-    font-size: 3rem;
-    color: var(--color-text-secondary);
+.post_content code span {
+    font-size: 1rem;
 }
-
 .post_content a {
     color: var(--color-purple);
 }
 
-.post_content a:hover {
-    /* Underline */
-    text-decoration: underline;
+.post_content blockquote {
+    font-size: 1.5rem;
+    color: var(--color-text-secondary);
+    margin: 4rem;
+    position: relative;
+}
+.post_content blockquote:before {
+    content: '';
+    background-image: url("data:image/svg+xml,%3Csvg width='43' height='33' viewBox='0 0 43 33' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M41.2871 0.275391V2.66797C37.9017 3.90495 35.2487 5.85807 33.3281 8.52734C31.4076 11.1641 30.4473 13.9147 30.4473 16.7793C30.4473 17.3978 30.5449 17.8535 30.7402 18.1465C30.8704 18.3418 31.0169 18.4395 31.1797 18.4395C31.3424 18.4395 31.5866 18.3255 31.9121 18.0977C32.9538 17.349 34.2721 16.9746 35.8672 16.9746C37.7227 16.9746 39.3665 17.7396 40.7988 19.2695C42.2311 20.7669 42.9473 22.5573 42.9473 24.6406C42.9473 26.8216 42.1172 28.7422 40.457 30.4023C38.8294 32.0625 36.8438 32.8926 34.5 32.8926C31.7656 32.8926 29.4056 31.7695 27.4199 29.5234C25.4342 27.2773 24.4414 24.2663 24.4414 20.4902C24.4414 16.0957 25.7923 12.1569 28.4941 8.67383C31.196 5.19076 35.4603 2.39128 41.2871 0.275391ZM17.8008 0.275391V2.66797C14.4154 3.90495 11.7624 5.85807 9.8418 8.52734C7.92122 11.1641 6.96094 13.9147 6.96094 16.7793C6.96094 17.3978 7.05859 17.8535 7.25391 18.1465C7.38411 18.3418 7.5306 18.4395 7.69336 18.4395C7.85612 18.4395 8.10026 18.3255 8.42578 18.0977C9.46745 17.349 10.7858 16.9746 12.3809 16.9746C14.2363 16.9746 15.8802 17.7396 17.3125 19.2695C18.7448 20.7669 19.4609 22.5573 19.4609 24.6406C19.4609 26.8216 18.6309 28.7422 16.9707 30.4023C15.3431 32.0625 13.3574 32.8926 11.0137 32.8926C8.2793 32.8926 5.91927 31.7695 3.93359 29.5234C1.94792 27.2773 0.955078 24.2663 0.955078 20.4902C0.955078 16.0957 2.30599 12.1569 5.00781 8.67383C7.70964 5.19076 11.974 2.39128 17.8008 0.275391Z' fill='white'/%3E%3C/svg%3E%0A");    width: 70px;
+    height: 100px;
+    display: block;
+    background-repeat: no-repeat;
+    background-position: top;
+    position: absolute;
+    left: -4rem;
 }
 
 .post_content img {
@@ -107,12 +197,218 @@
     border-radius: 1rem;
 }
 
-@media only screen and (min-width: 50em) {
-    .post_content blockquote {
-        font-size: 1.5rem;
+.post_content_container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.post_content p, .post_content li, .post_content a {
+    font-size: 1.2rem;
+}
+
+.post_content table {
+    font-size: 1rem;
+}
+
+
+/* Post CTA and TOC */
+.post_toc {
+    width: 16rem;
+    min-width: 16rem;
+    height: fit-content;
+    position: sticky;
+    top: 5rem;
+    margin-left: 2rem;
+}
+
+.post_cta {
+    width: 16rem;
+    min-width: 16rem;
+    background-color: var(--color-yellow);
+    border-radius: 15px;
+    padding: 2rem 2rem 0 2rem;
+}
+
+.post_toc .post_cta {
+    display: none;
+    padding: 1.25rem 1.25rem 0 1.25rem;
+    margin-top: 2rem;
+}
+.post_toc .post_cta a {
+    font-size: 1rem;
+}
+
+.post_cta_container {
+    position: sticky;
+    height: fit-content;
+    top: 6rem;
+    margin-right: 2rem;
+    margin-top: 2rem;
+}
+
+.post_cta a {
+    text-decoration: none;
+}
+
+/* Sharing Buttons */
+.share_section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    margin-top: 2rem;
+}
+
+.share_section a {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 0.5rem;
+}
+
+.share_section a:hover {
+    background-color: var(--color-light-background);
+}
+
+/* Suggested Posts */
+.suggested_posts_section {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-top: 2rem;
+    max-width: 70rem;
+}
+
+.suggested_posts_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.suggested_post {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-right: 1rem;
+    color: var(--color-text-primary);
+    max-width: 48%;
+    padding: 2rem 2rem 2rem 0;
+    cursor: pointer;
+}
+
+.suggested_post h4 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.suggested_post h4, .suggested_post p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.suggested_post p {
+    text-decoration: none;
+}
+
+/* For medium width screens */
+@media only screen and (max-width: 92rem) {
+    .post_cta {
+        display: none;
     }
-    
-    .post_content table {
-        font-size: 1rem;
+    .post_toc .post_cta {
+        display: block;
+    }
+    .post_toc .post_cta .cta_buttons_container {
+        margin-top: 2rem;
+    }
+
+    .post_content_container {
+        justify-content: flex-start;
+    }
+    .post_content {
+        width: 48rem;
+    }
+}
+
+@media only screen and (max-width: 72rem) {
+    .post_banner {
+        padding: 5rem 10% 5rem 10%;
+    }
+
+    .post_title {
+        max-width: 48rem;
+    }
+    .post_title, .post_content {
+        /* This is intentionally set to have some extra margin on the left at first,
+        * so that when a user is resizing their screen there isn't an awkward jitter
+        * when the CTA disappears. */
+        width: calc(100vw - 20rem);
+    }
+
+    .decorative_line {
+        display: none;
+    }
+}
+
+/* For small width screens */
+@media only screen and (max-width: 50rem) {
+    .post_toc {
+        display: none;
+    }
+
+    .post_banner {
+        padding: 3rem;
+        justify-content: flex-start;
+    }
+    .post_title {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .post_metadata {
+        flex-direction: column;
+    }
+    .post_additional_info {
+        margin-left: 0;
+    }
+
+    .post_content_container {
+        justify-content: center;
+    }
+    .post_content p, .post_content li, .post_content a {
+        font-size: 2rem;
+        color: var(--color-text-primary);
+        font-weight: 100;
+    }
+    .post_content blockquote {
+        font-size: 3rem;
+        margin-left: 10rem;
+    }
+    .post_content blockquote:before {
+        left: -8rem;
+    }
+    .post_content h1 {
+        font-size: 3.5rem;
+    }
+    .post_content {
+        margin: 0;
+        max-width: unset;
+        width: 90%;
+    }
+
+    .suggested_post {
+        max-width: 100%;
+    }
+    .suggested_post h4 {
+        font-size: 2.5rem;
     }
 }

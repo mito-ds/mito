@@ -27,6 +27,7 @@ import { getGlossaryPageInfo, getPageContentJsonArray, GlossaryPageInfo } from '
 // TODO: can we document and explain these...
 import 'prism-themes/themes/prism-coldark-dark.css';
 import Prism from 'prismjs';
+import 'prism-themes/themes/prism-coldark-dark.css'
 require('prismjs/components/prism-python');
 
 import Link from 'next/link';
