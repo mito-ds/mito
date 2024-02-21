@@ -51,7 +51,7 @@ const StepOne = (
                     Sign Up for Mito
                 </h1>
                 <p className='signup-modal-text' style={{marginTop: '10px'}}>
-                    We'll send you product updates, relevant documentation, and case studies. 
+                    We&apos;ll send you product updates, relevant documentation, and case studies. 
                 </p>
             </div>
             <form className='signup-modal-email-form' onSubmit={onSubmit}>
