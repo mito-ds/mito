@@ -41,6 +41,9 @@ export type PageContent = {
             paragraphs: string[],
             codeLines: string[]
         }[]
+    },
+    mitoCTA?: {
+        codeLines: string[]
     }
 }
 

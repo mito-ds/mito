@@ -178,5 +178,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['sum'] = SUM(df[['Col1', 'Col2']])"
+        ]
     }
 }

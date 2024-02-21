@@ -106,5 +106,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['length'] = LEN(df['A'])"
+        ]
     }
 }

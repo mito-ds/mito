@@ -99,5 +99,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: We don't need to first convert the column to a ",
+            "# string because Mito's LEFT function does so automatically",
+            "df['extracted'] = LEFT(df['text_column'], 2)"
+        ]
     }
 }
