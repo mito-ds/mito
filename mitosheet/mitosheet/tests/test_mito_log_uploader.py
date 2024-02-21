@@ -240,7 +240,7 @@ def test_log_uploader_logs_failure_prints():
 
     os.environ[MITO_CONFIG_VERSION] = "2"
     os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
-    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "0"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
 
     mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
 
@@ -250,6 +250,7 @@ def test_log_uploader_logs_failure_prints():
         # Capture the logging debug output
         with patch('builtins.print') as mock_print:
             mito.add_column(0, 'B')
+            time.sleep(1.5)
 
             assert len(mock_print.call_args_list) == 1
             assert 'Log upload failed with error:' in mock_print.call_args_list[0][0][0]
@@ -265,6 +266,7 @@ def test_log_uploader_tries_failed_logs_again():
     with patch('requests.post') as mock_post:
         mock_post.side_effect = [requests.exceptions.RequestException, None]
         mito.add_column(0, 'B')
+        time.sleep(1.5)
 
     with patch('requests.post') as mock_post:
         mito.add_column(0, 'C')
