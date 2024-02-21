@@ -25,7 +25,7 @@ from mitosheet.api import API
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
-from mitosheet.saved_analyses import write_analysis
+from mitosheet.saved_analyses import write_save_analysis_file
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
@@ -178,7 +178,7 @@ class MitoBackend():
         self.steps_manager.handle_edit_event(event)
 
         # Also, write the analysis to a file!
-        write_analysis(self.steps_manager)
+        write_save_analysis_file(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. NOTE: in the future, we can actually send back some data
@@ -217,7 +217,7 @@ class MitoBackend():
                 raise make_execution_error(error_modal=False)
             raise
         # Also, write the analysis to a file!
-        write_analysis(self.steps_manager)
+        write_save_analysis_file(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. 
