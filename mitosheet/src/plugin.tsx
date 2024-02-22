@@ -9,13 +9,13 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
-import { MitoAPI, PublicInterfaceVersion } from './mito';
-import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
+import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
 } from './jupyter/lab/extensionUtils';
-import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
+import { MitoAPI, PublicInterfaceVersion } from './mito';
+import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
@@ -138,9 +138,12 @@ function activateMitosheetExtension(
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
             const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
-
-            const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
             
+            // This is the last saved analysis' code, which we use to check if the user has changed
+            // the code in the cell. If they have, we don't want to overwrite their changes automatically.
+            const oldCode = args.oldCode as string[] | undefined;
+            
+            const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
             // up immediately
             const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
@@ -161,7 +164,13 @@ function activateMitosheetExtension(
 
             const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
 
-            if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
+            // We're removing the first line of the old code and the cell code because
+            // the cell code contains the analysis id and the old code does not
+            const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');
+            const cellCodeWithoutFirstLine = getCellText(codeCell)?.split('\n').slice(1).join('\n');
+
+            if (codeCell !== undefined &&
+                (isEmptyCell(codeCell) || oldCodeWithoutFirstLine === cellCodeWithoutFirstLine)) {
                 writeToCell(codeCell, code)
             } else {
                 // If we cannot write to the cell below, we have to go back a new cell below, 
