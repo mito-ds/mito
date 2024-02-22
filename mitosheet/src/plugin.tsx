@@ -165,12 +165,13 @@ function activateMitosheetExtension(
             const activeCellIndex = notebook.activeCellIndex;
 
             const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
+            const codeCellText = getCellText(codeCell);
 
-            if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCell)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
+            if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
                 writeToCell(codeCell, code)
             } else {
                 // Prevent overwriting the cell if the user has changed the code
-                if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
+                if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
                     triggerUserEditedCodeDialog();
                     return;
                 }

@@ -228,15 +228,13 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
     const activeCellIndex = (window as any).Jupyter?.notebook?.get_anchor_index() || 0;
 
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
+    const codeCellText = getCellText(codeCell);
 
-    if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCell)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
-        if (!isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
-            return;
-        }
+    if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
         writeToCell(codeCell, code)
     } else {
         // Prevent overwriting the cell if the user has changed the code
-        if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
+        if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
             triggerUserEditedCodeDialog();
             return;
         }

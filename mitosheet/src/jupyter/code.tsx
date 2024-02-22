@@ -1,8 +1,6 @@
 // Utilities for working with the generated code
 
 import { PublicInterfaceVersion } from "../mito";
-import { getCellText } from "./lab/extensionUtils";
-import { ICellModel } from '@jupyterlab/cells';
 
 const IMPORT_STATEMENTS = [
     'from mitosheet.public.v1 import *',
@@ -150,11 +148,11 @@ export function containsGeneratedCodeOfAnalysis(codeText: string, analysisName: 
  * @param codeCell - The cell that contains the code
  * @returns boolean indicating if the code cell has been changed
  */
-export function hasCodeCellBeenEditedByUser(oldCode: string[], codeCell?: ICellModel): boolean {
+export function hasCodeCellBeenEditedByUser(oldCode: string[], codeCellText?: string): boolean {
     // We're removing the first line of the old code and the cell code because
     // the cell code contains the analysis id and the old code does not
     const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');
-    const cellCodeWithoutFirstLine = getCellText(codeCell)?.split('\n').slice(1).join('\n');
+    const cellCodeWithoutFirstLine = codeCellText?.split('\n').slice(1).join('\n');
     return oldCodeWithoutFirstLine !== cellCodeWithoutFirstLine;
 }
 
