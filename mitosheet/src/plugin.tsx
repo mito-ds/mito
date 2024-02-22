@@ -9,7 +9,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
-import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
+import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
@@ -169,8 +169,11 @@ function activateMitosheetExtension(
             const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');
             const cellCodeWithoutFirstLine = getCellText(codeCell)?.split('\n').slice(1).join('\n');
 
-            if (codeCell !== undefined &&
-                (isEmptyCell(codeCell) || oldCodeWithoutFirstLine === cellCodeWithoutFirstLine)) {
+            if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
+                // Prevent overwriting the cell if the user has changed the code
+                if (!isEmptyCell(codeCell) && oldCodeWithoutFirstLine !== cellCodeWithoutFirstLine) {
+                    return;
+                }
                 writeToCell(codeCell, code)
             } else {
                 // If we cannot write to the cell below, we have to go back a new cell below, 
