@@ -53,7 +53,7 @@ MITO_STARTER_NOTEBOOK_CONTENTS = {
  "nbformat_minor": 5
 }
 
-def try_create_starter_notebook():
+def try_create_starter_notebook() -> bool:
     """
     Creates MITO_STARTER_NOTEBOOK_CONTENTS at MITO_STARTER_NOTEBOOK_PATH,
     which helps the user get started.
@@ -77,7 +77,7 @@ def try_create_starter_notebook():
 
 
 
-def run_hello():
+def run_hello() -> None:
     log('hello_command')
 
     print()
