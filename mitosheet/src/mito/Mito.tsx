@@ -84,7 +84,7 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
-import OverwriteCodeModal from './components/modals/OverwriteCodeModal';
+import UserEditedCodeModal from './components/modals/OverwriteCodeModal';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -548,12 +548,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 />
             )
             case ModalEnum.UserEditedCode: return (
-                <OverwriteCodeModal
+                <UserEditedCodeModal
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     userProfile={userProfile}
-                    header='Overwrite changes?'
-                    message='Looks like you changed the code in the cell below the Mitosheet. Do you want to overwrite these changes or insert a new cell for the Mito generated code?'
                 />
             )
         }

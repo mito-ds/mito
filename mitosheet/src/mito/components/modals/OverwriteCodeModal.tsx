@@ -12,34 +12,28 @@ import { ModalEnum } from './modals';
     1. the analysis that they are replaying does not exist on their computer
     2. the analysis errors during replay for some other reason
 */
-const OverwriteCodeModal = (
+const UserEditedCodeModal = (
     props: {
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI,
         userProfile: UserProfile,
-
-        header: string,
-        message: string,
-
     }): JSX.Element => {
-
-
     return (
         <DefaultModal
-            header={props.header}
+            header='Insert New Cell?'
             modalType={ModalEnum.Error}
             wide
             viewComponent={
                 <Fragment>
                     <div className='text-align-left text-body-1'>
-                        {props.message} {' '}
+                        Looks like you changed the code in the cell below the Mitosheet. Do you want to overwrite these changes or insert a new cell for the Mito generated code?
                     </div>
                 </Fragment>
             }
             buttons={
                 <>
                     <TextButton 
-                        variant='dark'
+                        variant='light'
                         width='hug-contents'
                         onClick={() => props.setUIState((prevUIState) => {
                             return {
@@ -72,4 +66,4 @@ const OverwriteCodeModal = (
     )    
 };
 
-export default OverwriteCodeModal;
+export default UserEditedCodeModal;
