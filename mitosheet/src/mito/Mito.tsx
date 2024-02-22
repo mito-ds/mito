@@ -553,7 +553,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={mitoAPI}
                     userProfile={userProfile}
                     header='Overwrite changes?'
-                    message='The code in the cell has been changed. Do you want to overwrite these changes?'
+                    message='Looks like you changed the code in the cell below the Mitosheet. Do you want to overwrite these changes or insert a new cell for the Mito generated code?'
                 />
             )
         }

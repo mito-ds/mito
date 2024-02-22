@@ -45,7 +45,7 @@ export function getCellAtIndex(cells: IObservableUndoableList<ICellModel> | unde
 }
 
 export function getCellText(cell: ICellModel| undefined): string {
-    if (cell == undefined) return ''; 
+    if (cell == undefined || cell.modelDB == undefined) return ''; 
     const value = cell.modelDB.get('value') as IObservableString;
     return value.text;
 }

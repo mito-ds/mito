@@ -64,7 +64,7 @@ const OverwriteCodeModal = (
                             })
                         }}
                     >
-                        Keep Changes and Create New Cell
+                        Insert New Cell
                     </TextButton>
                 </> 
             }
