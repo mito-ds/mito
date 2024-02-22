@@ -52,7 +52,7 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 }
 
 
-export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerDialog: () => void, oldCode: string[], overwriteCode?: boolean): void => {
+export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: () => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('mitosheet:write-generated-code-cell', {
             analysisName: analysisName,
@@ -60,11 +60,11 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
             telemetryEnabled: telemetryEnabled,
             publicInterfaceVersion: publicInterfaceVersion,
             oldCode: oldCode,
-            overwriteCode: overwriteCode,
-            triggerDialog: triggerDialog
+            overwriteIfUserEditedCode: overwriteIfUserEditedCode,
+            triggerUserEditedCodeDialog: triggerUserEditedCodeDialog
         });
     } else if (isInJupyterNotebook()) {
-        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion, oldCode, triggerDialog, overwriteCode);
+        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion, oldCode, triggerUserEditedCodeDialog, overwriteIfUserEditedCode);
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }

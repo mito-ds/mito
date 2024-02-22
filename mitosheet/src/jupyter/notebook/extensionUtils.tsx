@@ -207,7 +207,7 @@ export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName
     }
 }
 
-export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[], triggerDialog: () => void, overwriteCode?: boolean): void => {
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[], triggerUserEditedCodeDialog: () => void, overwriteIfUserEditedCode?: boolean): void => {
     const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
         
     // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
@@ -229,15 +229,15 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
 
-    if ((overwriteCode || !hasCodeCellBeenEditedByUser(oldCode, codeCell)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
+    if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCell)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
         if (!isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
             return;
         }
         writeToCell(codeCell, code)
     } else {
         // Prevent overwriting the cell if the user has changed the code
-        if (overwriteCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
-            triggerDialog();
+        if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
+            triggerUserEditedCodeDialog();
             return;
         }
         // If we cannot write to the cell below, we have to go back a new cell below, 

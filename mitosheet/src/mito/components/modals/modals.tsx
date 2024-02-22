@@ -14,7 +14,7 @@ export enum ModalEnum {
     DeleteGraphs = 'DeleteGraphs',
     ErrorReplayedAnalysis = 'ErrorReplayAnalysis',
     GraphTitleEditor = 'GraphTitleEditor',
-    OverwriteCode = 'OverwriteCode',
+    UserEditedCode = 'UserEditedCode',
 }
 
 /* 
@@ -36,8 +36,8 @@ interface ErrorModalInfo {
         traceback?: string
     }
 }
-interface OverwriteCodeModalInfo {
-    type: ModalEnum.OverwriteCode;
+interface UserEditedCodeModalInfo {
+    type: ModalEnum.UserEditedCode;
 }
 interface SignUpModalInfo {
     type: ModalEnum.SignUp;
@@ -71,7 +71,7 @@ interface DeleteGraphsModalInfo {
 export type ModalInfo = 
     | NoneModalInfo 
     | ErrorModalInfo
-    | OverwriteCodeModalInfo
+    | UserEditedCodeModalInfo
     | SignUpModalInfo
     | ClearAnalysisInfo
     | DeleteGraphsModalInfo

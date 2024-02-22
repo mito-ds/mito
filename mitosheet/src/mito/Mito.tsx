@@ -94,7 +94,7 @@ export type MitoProps = {
     jupyterUtils?: {
         getArgs: (analysisToReplayName: string | undefined) => Promise<string[]>,
         writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
-        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerDialog: () => void, oldCode: string[], overwriteCode?: boolean) => void
+        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: () => void, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
         writeCodeSnippetCell: (analysisName: string, code: string) => void
         overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
     }
@@ -124,7 +124,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
-        overwriteCode: undefined,
+        overwriteIfUserEditedCode: undefined,
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
@@ -302,18 +302,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         return {
                             ...prevUIState,
                             currOpenModal: {
-                                type: ModalEnum.OverwriteCode,
+                                type: ModalEnum.UserEditedCode,
                             }
                         }
                     })
                 },
                 oldCodeRef?.current,
-                uiState.overwriteCode,
+                uiState.overwriteIfUserEditedCode,
             );
             setUIState(prevUIState => {
                 return {
                     ...prevUIState,
-                    overwriteCode: undefined
+                    overwriteIfUserEditedCode: undefined
                 }
             });
         }
@@ -321,7 +321,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         oldCodeRef.current = analysisData.code;
         // TODO: we should store some data with analysis data to not make
         // this run too often?
-    }, [analysisData, uiState.overwriteCode])
+    }, [analysisData, uiState.overwriteIfUserEditedCode])
 
     // Load plotly, so we can generate graphs
     useEffect(() => {
@@ -547,7 +547,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
                 />
             )
-            case ModalEnum.OverwriteCode: return (
+            case ModalEnum.UserEditedCode: return (
                 <OverwriteCodeModal
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}

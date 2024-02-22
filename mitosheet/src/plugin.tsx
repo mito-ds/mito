@@ -138,8 +138,8 @@ function activateMitosheetExtension(
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
             const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
-            const triggerDialog = args.triggerDialog as () => void;
-            const overwriteCode = args.overwriteCode as boolean | undefined;
+            const triggerUserEditedCodeDialog = args.triggerUserEditedCodeDialog as () => void;
+            const overwriteIfUserEditedCode = args.overwriteIfUserEditedCode as boolean | undefined;
             
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
@@ -166,12 +166,12 @@ function activateMitosheetExtension(
 
             const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
 
-            if ((overwriteCode || !hasCodeCellBeenEditedByUser(oldCode, codeCell)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
+            if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCell)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
                 writeToCell(codeCell, code)
             } else {
                 // Prevent overwriting the cell if the user has changed the code
-                if (overwriteCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
-                    triggerDialog();
+                if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
+                    triggerUserEditedCodeDialog();
                     return;
                 }
                 // If we cannot write to the cell below, we have to go back a new cell below, 

@@ -45,7 +45,7 @@ const OverwriteCodeModal = (
                             return {
                                 ...prevUIState,
                                 currOpenModal: {type: ModalEnum.None},
-                                overwriteCode: true
+                                overwriteIfUserEditedCode: true
                             }
                         })}
                     >
@@ -59,7 +59,7 @@ const OverwriteCodeModal = (
                                 return {
                                     ...prevUIState,
                                     currOpenModal: {type: ModalEnum.None},
-                                    overwriteCode: false
+                                    overwriteIfUserEditedCode: false
                                 }
                             })
                         }}
