@@ -960,6 +960,9 @@ export interface UIState {
     currOpenDropdown: undefined | OpenDropdownType;
     currentToolbarTab?: TabName;
     highlightedColumnIndex?: number;
+    // This tells the editor whether the user wants to overwrite code changes that
+    // have been made in the cell editor.
+    overwriteCode?: boolean;
     currOpenPopups: {
         // This popup infrastructure allows us to easily separate the the placement logic from the content
         // and ensure that in each popup location, only one popup is displayed at a time.
