@@ -207,7 +207,7 @@ export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName
     }
 }
 
-export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion): void => {
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode?: string[]): void => {
     const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
         
     // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
@@ -229,7 +229,16 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
 
+
+    // We're removing the first line of the old code and the cell code because
+    // the cell code contains the analysis id and the old code does not
+    const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');
+    const cellCodeWithoutFirstLine = getCellText(codeCell)?.split('\n').slice(1).join('\n');
+
     if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
+        if (!isEmptyCell(codeCell) && oldCodeWithoutFirstLine !== cellCodeWithoutFirstLine) {
+            return;
+        }
         writeToCell(codeCell, code)
     } else {
         // If we cannot write to the cell below, we have to go back a new cell below, 
