@@ -80,6 +80,17 @@ def try_create_starter_notebook():
 
 def run_hello():
     log('hello_command')
+
+    print()
+    print()
+    print("\t 👋 Welcome to Mito!")
+    print()
+    print("\tThis command launches Mito in JupyterLab, but Mito is also available in Jupyter Notebook Classic, Streamlit, and Dash.")
+    print()
+    print("\tSee our docs here: https://docs.trymito.io")
+    print()
+    print()
+
     created_starter_notebook = try_create_starter_notebook()
 
     if not created_starter_notebook:
