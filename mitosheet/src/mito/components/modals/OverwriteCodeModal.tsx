@@ -40,7 +40,7 @@ const OverwriteCodeModal = (
                 <>
                     <TextButton 
                         variant='dark'
-                        width='medium'
+                        width='hug-contents'
                         onClick={() => props.setUIState((prevUIState) => {
                             return {
                                 ...prevUIState,
