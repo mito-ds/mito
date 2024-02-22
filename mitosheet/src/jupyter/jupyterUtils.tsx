@@ -64,7 +64,7 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
             triggerDialog: triggerDialog
         });
     } else if (isInJupyterNotebook()) {
-        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion, oldCode, triggerDialog);
+        notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion, oldCode, triggerDialog, overwriteCode);
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }

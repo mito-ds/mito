@@ -207,7 +207,7 @@ export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName
     }
 }
 
-export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[], triggerDialog?: () => void): void => {
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[], triggerDialog: () => void, overwriteCode?: boolean): void => {
     const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
         
     // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
@@ -229,12 +229,17 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
 
-    if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
+    if ((overwriteCode || !hasCodeCellBeenEditedByUser(oldCode, codeCell)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
         if (!isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
             return;
         }
         writeToCell(codeCell, code)
     } else {
+        // Prevent overwriting the cell if the user has changed the code
+        if (overwriteCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
+            triggerDialog();
+            return;
+        }
         // If we cannot write to the cell below, we have to go back a new cell below, 
         // which can eb a bit of an involve process
         if (mitosheetCallIndex !== activeCellIndex) {
