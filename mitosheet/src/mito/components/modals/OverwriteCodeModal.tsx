@@ -35,13 +35,16 @@ const UserEditedCodeModal = (
                     <TextButton 
                         variant='light'
                         width='hug-contents'
-                        onClick={() => props.setUIState((prevUIState) => {
-                            return {
-                                ...prevUIState,
-                                currOpenModal: {type: ModalEnum.None},
-                                overwriteIfUserEditedCode: true
-                            }
-                        })}
+                        onClick={() => {
+                            props.setUIState((prevUIState) => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenModal: {type: ModalEnum.None},
+                                    overwriteIfUserEditedCode: true
+                                }
+                            })
+                            props.mitoAPI.log('overwrite_user_edited_code')
+                        }}
                     >
                         Overwrite Changes
                     </TextButton>
@@ -56,6 +59,7 @@ const UserEditedCodeModal = (
                                     overwriteIfUserEditedCode: false
                                 }
                             })
+                            props.mitoAPI.log('insert_new_cell_for_user_edited_code')
                         }}
                     >
                         Insert New Cell
