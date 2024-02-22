@@ -150,7 +150,7 @@ export function containsGeneratedCodeOfAnalysis(codeText: string, analysisName: 
  * @param codeCell - The cell that contains the code
  * @returns boolean indicating if the code cell has been changed
  */
-export function hasCodeCellValueChanged(oldCode: string[], codeCell?: ICellModel): boolean {
+export function hasCodeCellBeenEditedByUser(oldCode: string[], codeCell?: ICellModel): boolean {
     // We're removing the first line of the old code and the cell code because
     // the cell code contains the analysis id and the old code does not
     const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');

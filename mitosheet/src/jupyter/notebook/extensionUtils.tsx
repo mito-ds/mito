@@ -1,6 +1,6 @@
 import { PublicInterfaceVersion } from "../../mito";
 import { MitoAPI } from "../../mito/api/api";
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, hasCodeCellValueChanged, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 type CellType = any;
 
@@ -230,7 +230,7 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
 
     if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
-        if (!isEmptyCell(codeCell) && hasCodeCellValueChanged(oldCode, codeCell)) {
+        if (!isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
             return;
         }
         writeToCell(codeCell, code)
