@@ -332,7 +332,7 @@ def test_mito_config_log_server_url():
     mito = create_mito_wrapper()
     steps_manager = mito.mito_backend.steps_manager
     steps_manager.mito_log_uploader.log_url == "url"
-    steps_manager.mito_log_uploader.log_interval == 15
+    steps_manager.mito_log_uploader.base_log_interval == 15
 
     delete_all_mito_config_environment_variables()
 
