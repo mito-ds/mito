@@ -93,7 +93,7 @@ export type MitoProps = {
     jupyterUtils?: {
         getArgs: (analysisToReplayName: string | undefined) => Promise<string[]>,
         writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
-        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion) => void
+        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[]) => void
         writeCodeSnippetCell: (analysisName: string, code: string) => void
         overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
     }
@@ -279,6 +279,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
     }, [mitoAPI, sendFunctionStatus])
 
+    // We're storing the last analysisData in a ref so that we can check the
+    // analysisData's code against the code in the cell and make sure we aren't
+    // overwriting any changes the user might have made. 
+    const oldCodeRef = useRef(analysisData.code);
     useEffect(() => {
         /**
          * We only write code after the render count has been incremented once, which
@@ -286,8 +290,10 @@ export const Mito = (props: MitoProps): JSX.Element => {
          */
         if (analysisData.renderCount >= 1) {
             // Finially, we can go and write the code!
-            props.jupyterUtils?.writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled, analysisData.publicInterfaceVersion);
+            props.jupyterUtils?.writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled, analysisData.publicInterfaceVersion, oldCodeRef?.current);
         }
+        // After using the ref to get the old code, we update it to the newest analysis.
+        oldCodeRef.current = analysisData.code;
         // TODO: we should store some data with analysis data to not make
         // this run too often?
     }, [analysisData])

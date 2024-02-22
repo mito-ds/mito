@@ -1,6 +1,6 @@
 import { PublicInterfaceVersion } from "../../mito";
 import { MitoAPI } from "../../mito/api/api";
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 type CellType = any;
 
@@ -207,7 +207,7 @@ export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName
     }
 }
 
-export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion): void => {
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[]): void => {
     const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
         
     // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
@@ -230,6 +230,9 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
 
     if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
+        if (!isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCell)) {
+            return;
+        }
         writeToCell(codeCell, code)
     } else {
         // If we cannot write to the cell below, we have to go back a new cell below, 
