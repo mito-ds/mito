@@ -19,7 +19,7 @@ import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
 import Prism from 'prismjs';
 import LogoSection from '../components/LogoSection/LogoSection';
-import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
+import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD, PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 
 const Home: NextPage = () => {
@@ -59,7 +59,7 @@ const Home: NextPage = () => {
               
             <div className={homeStyles.cta_button_and_video_spacer}>
               <div className={homeStyles.cta_buttons_homepage_container}>
-                <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+                <CTAButtons variant='scroll-to-install' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS}/>
                 <CTAButtons variant='book a demo' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED}/>
               </div>
             </div>
@@ -79,14 +79,14 @@ const Home: NextPage = () => {
 
         <LogoSection></LogoSection>
 
-        {false && <section className={pageStyles.background_card} >
+        <section className={pageStyles.background_card} >
           {/* So that we can scroll to the correct location on the page, and 
             because we have a fixed header taking up some space, we scroll 
             to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
           */}
           <a className="anchor" id='installation'></a>
           <InstallInstructions/>
-        </section>}
+        </section>
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>

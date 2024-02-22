@@ -73,7 +73,6 @@ def try_create_starter_notebook():
             failed=True,
             error=e
         )
-        # TODO: add a log
         return False
 
 

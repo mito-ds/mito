@@ -5,6 +5,7 @@ import installInstructions from './InstallInstructions.module.css'
 import pageStyles from '../../styles/Home.module.css';
 import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
+import { PLAUSIBLE_COPIED_MITOSHEET_HELLO_COMMAND, PLAUSIBLE_COPIED_PIP_INSTALL_COMMAND } from '../../utils/plausible';
 
 
 const InstallInstructions = (props: {}): JSX.Element => {
@@ -15,16 +16,17 @@ const InstallInstructions = (props: {}): JSX.Element => {
                 in under a minute
             </h2>
             <div className={installInstructions.install_instructions_container}>
-                <CodeBlock prefix='$ ' paddingRight='7rem'>
+                <CodeBlock prefix='$ ' paddingRight='7rem' className={PLAUSIBLE_COPIED_PIP_INSTALL_COMMAND}>
                     pip install mitosheet
                 </CodeBlock>
-                <CodeBlock prefix='$ ' paddingRight='7rem'>
+                <CodeBlock prefix='$ ' paddingRight='7rem' className={PLAUSIBLE_COPIED_MITOSHEET_HELLO_COMMAND}>
                     python -m mitosheet hello
                 </CodeBlock>
                 <div className={ctaButtons.cta_subbutton}>
                     <Link href={MITO_INSTALLATION_DOCS_LINK}>
-                        <a className={ctaButtons.pro_cta_text}>
-                            or see our docs →
+                        {/** Open in a new tab */}
+                        <a className={ctaButtons.pro_cta_text} target="_blank" rel="noreferrer">
+                            Then check out our documentation →
                         </a>
                     </Link>
                 </div>
