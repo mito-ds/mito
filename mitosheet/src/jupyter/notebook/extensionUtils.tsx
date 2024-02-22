@@ -1,6 +1,6 @@
 import { PublicInterfaceVersion } from "../../mito";
 import { MitoAPI } from "../../mito/api/api";
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
+import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, hasCodeCellValueChanged, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 type CellType = any;
 
@@ -229,14 +229,8 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
 
-
-    // We're removing the first line of the old code and the cell code because
-    // the cell code contains the analysis id and the old code does not
-    const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');
-    const cellCodeWithoutFirstLine = getCellText(codeCell)?.split('\n').slice(1).join('\n');
-
     if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
-        if (!isEmptyCell(codeCell) && oldCodeWithoutFirstLine !== cellCodeWithoutFirstLine) {
+        if (!isEmptyCell(codeCell) && hasCodeCellValueChanged(oldCode, codeCell)) {
             return;
         }
         writeToCell(codeCell, code)

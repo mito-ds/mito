@@ -9,7 +9,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
-import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine } from './jupyter/code';
+import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCodeCellValueChanged } from './jupyter/code';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
@@ -141,7 +141,7 @@ function activateMitosheetExtension(
             
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
-            const oldCode = args.oldCode as string[] | undefined;
+            const oldCode = args.oldCode as string[];
             
             const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
@@ -164,14 +164,9 @@ function activateMitosheetExtension(
 
             const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
 
-            // We're removing the first line of the old code and the cell code because
-            // the cell code contains the analysis id and the old code does not
-            const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');
-            const cellCodeWithoutFirstLine = getCellText(codeCell)?.split('\n').slice(1).join('\n');
-
             if (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName)) {
                 // Prevent overwriting the cell if the user has changed the code
-                if (!isEmptyCell(codeCell) && oldCodeWithoutFirstLine !== cellCodeWithoutFirstLine) {
+                if (!isEmptyCell(codeCell) && hasCodeCellValueChanged(oldCode, codeCell)) {
                     return;
                 }
                 writeToCell(codeCell, code)
