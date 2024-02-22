@@ -32,7 +32,7 @@ require('prismjs/components/prism-python');
 
 import Link from 'next/link';
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED } from '../../utils/plausible';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_COPIED_CODE_MITO_EXPORTED_FUNCTION, PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION } from '../../utils/plausible';
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
   const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {
@@ -202,7 +202,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       })}
                       {codeSection.codeLines.length > 0 &&
                         <CodeBlock
-                          className={codeSection.shortTitle.startsWith('Mito') ? PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED : ''}
+                          className={codeSection.shortTitle.startsWith('Mito') ? PLAUSIBLE_COPIED_CODE_MITO_EXPORTED_FUNCTION : PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION}
                         >
                           {codeSection.codeLines.join('\n')}
                         </CodeBlock>
@@ -225,7 +225,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                             <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer" className={classNames(pageStyles.link, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA)}>Install Mito</a> to start using Excel formulas in Python.
                           </p>
                           <CodeBlock
-                            className={PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED}
+                            className={PLAUSIBLE_COPIED_CODE_MITO_EXPORTED_FUNCTION}
                           >
                             {[
                               "# Import the mitosheet Excel functions",
@@ -268,7 +268,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       })}
                       {codeSections.codeLines.length > 0 && 
                         <CodeBlock 
-                          className={codeSections.shortTitle.startsWith('Mito') ? 'mito-code-block' : ''}
+                          className={PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION}
                         >
                           {codeSections.codeLines.join('\n')}
                         </CodeBlock>
