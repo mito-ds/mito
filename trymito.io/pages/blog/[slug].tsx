@@ -16,12 +16,13 @@ import TwitterLogo from './TwitterLogo';
 import EmailIcon from './EmailIcon';
 import LinkedinLogo from './LinkedinLogo';
 import Link from 'next/link';
-import GlossayHorizontalNavbar from '../../components/Glossary/HorizontalNav/HorizontalNav';
 
 import Prism from 'prismjs';
 import 'prism-themes/themes/prism-coldark-dark.css'
-import { classNames } from '../../utils/classNames';
 require('prismjs/components/prism-python');
+
+import { classNames } from '../../utils/classNames';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG } from '../../utils/plausible';
 
 declare global {
   interface Window { Prism: any; }
@@ -170,13 +171,15 @@ const PostPage = (props: {post: PostOrPage}) => {
             {/* CTA */}
             <div className={postStyles.post_cta_container}>
               <div className={postStyles.post_cta}>
-                <DownloadCTACard headerStyle={{ fontSize: '2rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} />
+                <DownloadCTACard 
+                  headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
+                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG}
+                />
               </div>
             </div>
           </div>
         </div>
       </main>
-
       {/* Footer */}
       <Footer />
     </>

@@ -144,5 +144,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA":{
+        "codeLines": [
+            "df['position'] = FIND(df['text_to_search'], 'text to search for')"
+        ]
     }
 }

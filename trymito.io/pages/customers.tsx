@@ -83,7 +83,7 @@ const Customers: NextPage = () => {
             </section>
             
             
-            <section className='display-mobile-only'>
+            <section className='only-on-mobile'>
               <div className={customerStyles.customer_logos}>
                 <div>
                   <Image src="/customers/sap.png" height={60} width={107} alt="SAP"/>

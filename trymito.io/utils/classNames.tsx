@@ -30,5 +30,10 @@ export const classNames = (...args: (string | undefined | Record<string, boolean
         }
     }
 
+    // Remove trailing space, if it exists
+    if (finalString.charAt(finalString.length - 1) === ' ') {
+        finalString = finalString.slice(0, -1);
+    }
+
     return finalString;
 }

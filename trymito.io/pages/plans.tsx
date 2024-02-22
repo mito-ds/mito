@@ -19,6 +19,7 @@ import FeatureSection from '../components/FeatureSection/FeatureSection'
 import GithubButton from '../components/GithubButton/GithubButton'
 import FlagIcon from '../public/icon-squares/FlagIcon.svg'
 import ContactCTACard from '../components/CTACards/ContactCTACard'
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS } from '../utils/plausible'
 
 
 /* 
@@ -421,6 +422,7 @@ const Plans: NextPage = () => {
                   <TextButton 
                     text='Get Started'
                     href={MITO_INSTALLATION_DOCS_LINK}
+                    className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS}
                   />
                 </div>
               </div>
@@ -507,7 +509,7 @@ const Plans: NextPage = () => {
               </div>
             </section>
 
-            <section className={'display-mobile-only'}>
+            <section className={'only-on-mobile'}>
               <div className={pageStyles.subsection + ' flex-row'}>
                 <h2 className={plansStyles.features_in_text}>
                   Features in 
@@ -542,7 +544,7 @@ const Plans: NextPage = () => {
               </div>
             </section>
 
-            <section className={pageStyles.suppress_section_margin_top + ' display-mobile-only'}>
+            <section className={pageStyles.suppress_section_margin_top + ' only-on-mobile'}>
               <FeatureSection
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Integration'
@@ -579,7 +581,7 @@ const Plans: NextPage = () => {
                 features={SUPPORT_FEATURES}
               />
             </section>
-            <section className={pageStyles.suppress_section_margin_top + ' ' + plansStyles.plan_feature_grid_container + ' display-desktop-only-inline-block'}>
+            <section className={pageStyles.suppress_section_margin_top + ' ' + plansStyles.plan_feature_grid_container + ' only-on-desktop-inline-block'}>
               <FeatureSection
                   sectionTitle='Integration'
                   features={INTEGRATION_FEATURES}

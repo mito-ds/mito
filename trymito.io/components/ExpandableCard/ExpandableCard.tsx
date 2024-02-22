@@ -36,10 +36,10 @@ const imageSrc = props.isOpen ? CloseIconLight : OpenIconLight
             <div 
                 className={expandableCardStyles.header}
             >
-                <h3 className='display-desktop-only-block'>
+                <h3 className='only-on-desktop'>
                     {props.title}
                 </h3>
-                <h3 className='display-mobile-only'>
+                <h3 className='only-on-mobile'>
                     {props.shortTitle}
                 </h3>
                 

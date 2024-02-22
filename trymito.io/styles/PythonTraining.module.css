@@ -1,0 +1,31 @@
+.training_quote_text {
+    color: var(--color-text-primary)
+}
+
+.quiz_answers > *:hover {
+    cursor: pointer;
+    color: var(--color-text-primary);
+}
+
+.display_quiz_answer {
+    color: var(--color-purple) !important;
+}
+
+.mobile_bottom_margin {
+    margin-bottom: 8rem;
+}
+
+
+@media only screen and (min-width: 50em) {
+    .three_quarter_width_header {
+        max-width: 75%;
+    }
+
+    .training_quote_container {
+        max-width: 75%;
+    }
+
+    .mobile_bottom_margin {
+        margin-bottom: 0px;
+    }
+}

@@ -114,5 +114,12 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "# Note: No need to convert the column to a datetime first",
+            "# because Mito's MINUTE function handles that automatically",
+            "df['Minute'] = MINUTE(df['Date'])"
+        ]
     }
 }

@@ -213,5 +213,10 @@
                 ]
             }
         ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Row_Average'] = AVG(df['Col1'], df['Col2'], df['Col3'])"
+        ]
     }
 }
