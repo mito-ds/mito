@@ -42,4 +42,41 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await page.notebook.runCell(0);
     await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
   });
+
+  test.only('Doesn\'t overwrite user edited code', async ({ page, tmpPath }) => {
+    // Create a new notebook with a dataframe and a mitosheet call
+    await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
+    
+    // Add an edit so that there is code in the cell below the mitosheet call
+    await clickToolbarButton(page, 'Insert');
+    await waitForIdle(page);
+    
+    // Check that the edit was successful
+    await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
+
+    // Update the following cell with some code
+    await page.notebook.setCell(1, 'code', 'hello world');
+
+    // Check that the modal appears to ask the user if they want to overwrite the code
+    await clickToolbarButton(page, 'Insert');
+    await expect(page.getByText('Insert New Cell?')).toBeVisible();
+
+    // Click the "Overwrite Changes" button
+    await page.click('text=Overwrite Changes');
+    await expect(page.getByText('Insert New Cell?')).not.toBeAttached();
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('hello world');
+
+    // Update the following cell again with some code
+    await page.notebook.setCell(1, 'code', 'martha rocks');
+
+    // Check that the modal appears to ask the user if they want to overwrite the code
+    await clickToolbarButton(page, 'Delete');
+    await expect(page.getByText('Insert New Cell?')).toBeVisible();
+
+    // Click the "Insert New Cell" button
+    await page.getByText('Insert New Cell', { exact: true }).click();
+    await expect(page.getByText('Insert New Cell?')).not.toBeAttached();
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
+    await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText('martha rocks');
+  });
 });
