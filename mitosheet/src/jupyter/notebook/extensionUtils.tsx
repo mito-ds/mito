@@ -1,6 +1,6 @@
 import { PublicInterfaceVersion } from "../../mito";
 import { MitoAPI } from "../../mito/api/api";
-import { containsGeneratedCodeOfAnalysis, containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
+import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 type CellType = any;
 
@@ -230,14 +230,17 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
     const codeCell = getCellAtIndex(mitosheetCallIndex + 1);
     const codeCellText = getCellText(codeCell);
 
-    if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
+    // Prevent overwriting the cell if the user has changed the code
+    if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
+        triggerUserEditedCodeDialog();
+        return;
+    // Only write to the cell if either of the following are true:
+    // 1. The user has authorized overwriting the cell
+    // 2. The cell hasn't been edited by the user
+    // AND the cell exists. If the cell doesn't exist we can't write to it!
+    } else if (codeCell !== undefined && (overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText))) {
         writeToCell(codeCell, code)
     } else {
-        // Prevent overwriting the cell if the user has changed the code
-        if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
-            triggerUserEditedCodeDialog();
-            return;
-        }
         // If we cannot write to the cell below, we have to go back a new cell below, 
         // which can eb a bit of an involve process
         if (mitosheetCallIndex !== activeCellIndex) {

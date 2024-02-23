@@ -132,14 +132,6 @@ export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): 
     return isMitosheetCallCode(codeText) && codeTextCleaned.includes(`analysis_to_replay=`)
 }
 
-
-/* 
-    Returns true if the cell contains the code generated for a specific analysis name
-*/
-export function containsGeneratedCodeOfAnalysis(codeText: string, analysisName: string): boolean {
-    return isMitoAnalysisCode(codeText) && codeText.includes(analysisName);
-}
-
 /**
  * This function is used to identify if the user has changed the contents of the code
  * cell that Mito is using to store the generated code. We need to know this to avoid

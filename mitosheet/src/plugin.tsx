@@ -9,7 +9,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
-import { containsGeneratedCodeOfAnalysis, getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCodeCellBeenEditedByUser } from './jupyter/code';
+import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCodeCellBeenEditedByUser } from './jupyter/code';
 import { LabComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
@@ -167,16 +167,21 @@ function activateMitosheetExtension(
             const codeCell = getCellAtIndex(cells, mitosheetCallIndex + 1);
             const codeCellText = getCellText(codeCell);
 
-            if ((overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText)) && (isEmptyCell(codeCell) || containsGeneratedCodeOfAnalysis(getCellText(codeCell), analysisName))) {
+
+            // If the user has edited the code and they haven't chosen whether or not to overwrite the contents of the cell,
+            // trigger the dialog to ask them. 
+            if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
+                triggerUserEditedCodeDialog();
+                return;
+            // Only write to the cell if either of the following are true:
+            // 1. The user has authorized overwriting the cell
+            // 2. The cell hasn't been edited by the user
+            // AND the cell exists. If the cell doesn't exist we can't write to it!
+            } else if (codeCell !== undefined && (overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText))) {
                 writeToCell(codeCell, code)
             } else {
-                // Prevent overwriting the cell if the user has changed the code
-                if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
-                    triggerUserEditedCodeDialog();
-                    return;
-                }
                 // If we cannot write to the cell below, we have to go back a new cell below, 
-                // which can eb a bit of an involve process
+                // which can be a bit of an involve process
                 if (mitosheetCallIndex !== activeCellIndex) {
                     // We have to move our selection back up to the cell that we 
                     // make the mitosheet call to 
