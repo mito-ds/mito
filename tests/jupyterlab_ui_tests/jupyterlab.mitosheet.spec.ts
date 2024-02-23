@@ -62,9 +62,13 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await expect(page.getByText('Insert New Cell?')).toBeVisible();
 
     // Click the "Overwrite Changes" button
-    await page.click('text=Overwrite Changes');
+    await page.click('text=Overwrite Edits');
     await expect(page.getByText('Insert New Cell?')).not.toBeAttached();
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('hello world');
+    // The code from the mitosheet call should still be there
+    // Don't check for the entire string because it contains a random id
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).toContainText('df.insert(1, ');
+
 
     // Update the following cell again with some code
     await page.notebook.setCell(1, 'code', 'martha rocks');
@@ -77,6 +81,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await page.getByText('Insert New Cell', { exact: true }).click();
     await expect(page.getByText('Insert New Cell?')).not.toBeAttached();
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
+    await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText('df.insert(1, ');
     await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText('martha rocks');
   });
 });
