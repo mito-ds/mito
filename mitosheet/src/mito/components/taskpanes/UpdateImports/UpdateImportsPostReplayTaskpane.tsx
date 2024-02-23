@@ -104,7 +104,7 @@ const UpdateImportsPostReplayTaskpane = (props: UpdateImportPostReplayTaskpanePr
     const retryButtonDisabled = !anyUpdated || invalidPostUpdate || loadingUpdate;
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Change Imports"
                 setUIState={props.setUIState}           

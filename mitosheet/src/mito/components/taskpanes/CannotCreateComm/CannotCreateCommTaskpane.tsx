@@ -41,7 +41,7 @@ const CannotCreateCommTaskpane = (props: CannotCreateCommTaskpaneProps): JSX.Ele
     }
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState}>
             <DefaultTaskpaneHeader 
                 header={header}
                 setUIState={props.setUIState}    

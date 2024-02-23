@@ -86,7 +86,7 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
     }
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header='Drop Duplicates'
                 setUIState={props.setUIState}   

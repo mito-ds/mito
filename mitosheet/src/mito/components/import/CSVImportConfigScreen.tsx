@@ -256,7 +256,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
     const currentErrorBadLines = error_bad_lines !== undefined ? error_bad_lines[0] : DEFAULT_ERROR_BAD_LINES;
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header={!props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`}
                 setUIState={props.setUIState}

@@ -76,7 +76,7 @@ const CodeSnippetsTaskpane = (props: CodeSnippetsTaskpaneProps): JSX.Element => 
     })
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Code Snippets"
                 setUIState={props.setUIState}           
