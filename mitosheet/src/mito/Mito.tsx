@@ -306,7 +306,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             }
                         }
                     })
-                    mitoAPI.log('user_edited_code_cell')
+                    void mitoAPI.log('user_edited_code_cell')
                 },
                 oldCodeRef?.current,
                 uiState.overwriteIfUserEditedCode,
