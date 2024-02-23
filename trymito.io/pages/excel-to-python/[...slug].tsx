@@ -202,7 +202,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
                       })}
                       {codeSection.codeLines.length > 0 &&
                         <CodeBlock
-                          className={codeSection.shortTitle.startsWith('Mito') ? PLAUSIBLE_COPIED_CODE_MITO_EXPORTED_FUNCTION : PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION}
+                          className={PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION}
                         >
                           {codeSection.codeLines.join('\n')}
                         </CodeBlock>
