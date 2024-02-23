@@ -59,7 +59,6 @@ const UserEditedCodeModal = (
                                     currOpenModal: {type: ModalEnum.None},
                                 }
                             })
-                            void props.mitoAPI.log('insert_new_cell_for_user_edited_code')
                         }}
                     >
                         Insert New Cell

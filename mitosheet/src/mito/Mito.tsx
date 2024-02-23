@@ -94,7 +94,7 @@ export type MitoProps = {
     jupyterUtils?: {
         getArgs: (analysisToReplayName: string | undefined) => Promise<string[]>,
         writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
-        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: () => void, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
+        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: () => void, mitoAPI: MitoAPI, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
         writeCodeSnippetCell: (analysisName: string, code: string) => void
         overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
     }
@@ -307,6 +307,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     })
                     void mitoAPI.log('user_edited_code_cell')
                 },
+                mitoAPI,
                 oldCodeRef?.current,
                 undefined,
             );
@@ -562,6 +563,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                     }
                                 })
                             },
+                            mitoAPI,
                             oldCodeRef?.current,
                             overwriteUserEdits,
                         )
