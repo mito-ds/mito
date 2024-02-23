@@ -17,6 +17,7 @@ const UserEditedCodeModal = (
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI,
         userProfile: UserProfile,
+        onClickButton: (overwriteUserEdits: boolean) => void,
     }): JSX.Element => {
     return (
         <DefaultModal
@@ -35,25 +36,27 @@ const UserEditedCodeModal = (
                     <TextButton 
                         variant='light'
                         width='hug-contents'
-                        onClick={() => props.setUIState((prevUIState) => {
-                            return {
-                                ...prevUIState,
-                                currOpenModal: {type: ModalEnum.None},
-                                overwriteIfUserEditedCode: true
-                            }
-                        })}
+                        onClick={() => {
+                            props.onClickButton(true);
+                            props.setUIState((prevUIState) => {
+                                return {
+                                    ...prevUIState,
+                                    currOpenModal: {type: ModalEnum.None},
+                                }
+                            });
+                        }}
                     >
                         Overwrite Edits
                     </TextButton>
                     <TextButton
                         variant='dark'
                         width='hug-contents'
-                        onClick={() => {    
+                        onClick={() => {
+                            props.onClickButton(false);
                             props.setUIState((prevUIState) => {
                                 return {
                                     ...prevUIState,
                                     currOpenModal: {type: ModalEnum.None},
-                                    overwriteIfUserEditedCode: false
                                 }
                             })
                         }}

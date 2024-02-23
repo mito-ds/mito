@@ -84,7 +84,7 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
-import UserEditedCodeModal from './components/modals/OverwriteCodeModal';
+import UserEditedCodeModal from './components/modals/UserEditedCodeModal';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -124,7 +124,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
         selectedColumnControlPanelTab: ControlPanelTab.FilterSort,
         selectedSheetIndex: 0,
-        overwriteIfUserEditedCode: undefined,
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
@@ -291,7 +290,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
          * means that we have read in and replayed the updated analysis, etc. 
          */
         if (analysisData.renderCount >= 1) {
-            // Finially, we can go and write the code!
+            // Finally, we can go and write the code!
             props.jupyterUtils?.writeGeneratedCodeToCell(
                 analysisData.analysisName, 
                 analysisData.code, 
@@ -308,20 +307,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     })
                 },
                 oldCodeRef?.current,
-                uiState.overwriteIfUserEditedCode,
+                undefined,
             );
-            setUIState(prevUIState => {
-                return {
-                    ...prevUIState,
-                    overwriteIfUserEditedCode: undefined
-                }
-            });
         }
         // After using the ref to get the old code, we update it to the newest analysis.
         oldCodeRef.current = analysisData.code;
         // TODO: we should store some data with analysis data to not make
         // this run too often?
-    }, [analysisData, uiState.overwriteIfUserEditedCode])
+    }, [analysisData])
 
     // Load plotly, so we can generate graphs
     useEffect(() => {
@@ -552,6 +545,26 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     userProfile={userProfile}
+                    onClickButton={(overwriteUserEdits: boolean) => {
+                        props.jupyterUtils?.writeGeneratedCodeToCell(
+                            analysisData.analysisName, 
+                            analysisData.code, 
+                            userProfile.telemetryEnabled, 
+                            analysisData.publicInterfaceVersion, 
+                            () => {
+                                setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenModal: {
+                                            type: ModalEnum.UserEditedCode,
+                                        }
+                                    }
+                                })
+                            },
+                            oldCodeRef?.current,
+                            overwriteUserEdits,
+                        )
+                    }}
                 />
             )
         }
