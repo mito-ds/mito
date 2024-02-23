@@ -43,7 +43,7 @@ const UserEditedCodeModal = (
                                     overwriteIfUserEditedCode: true
                                 }
                             })
-                            props.mitoAPI.log('overwrite_user_edited_code')
+                            void props.mitoAPI.log('overwrite_user_edited_code')
                         }}
                     >
                         Overwrite Changes
@@ -59,7 +59,7 @@ const UserEditedCodeModal = (
                                     overwriteIfUserEditedCode: false
                                 }
                             })
-                            props.mitoAPI.log('insert_new_cell_for_user_edited_code')
+                            void props.mitoAPI.log('insert_new_cell_for_user_edited_code')
                         }}
                     >
                         Insert New Cell
