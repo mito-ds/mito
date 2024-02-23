@@ -84,6 +84,7 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
+import UserEditedCodeModal from './components/modals/UserEditedCodeModal';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -93,7 +94,7 @@ export type MitoProps = {
     jupyterUtils?: {
         getArgs: (analysisToReplayName: string | undefined) => Promise<string[]>,
         writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
-        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[]) => void
+        writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: () => void, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
         writeCodeSnippetCell: (analysisName: string, code: string) => void
         overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
     }
@@ -289,8 +290,25 @@ export const Mito = (props: MitoProps): JSX.Element => {
          * means that we have read in and replayed the updated analysis, etc. 
          */
         if (analysisData.renderCount >= 1) {
-            // Finially, we can go and write the code!
-            props.jupyterUtils?.writeGeneratedCodeToCell(analysisData.analysisName, analysisData.code, userProfile.telemetryEnabled, analysisData.publicInterfaceVersion, oldCodeRef?.current);
+            // Finally, we can go and write the code!
+            props.jupyterUtils?.writeGeneratedCodeToCell(
+                analysisData.analysisName, 
+                analysisData.code, 
+                userProfile.telemetryEnabled, 
+                analysisData.publicInterfaceVersion, 
+                () => {
+                    setUIState(prevUIState => {
+                        return {
+                            ...prevUIState,
+                            currOpenModal: {
+                                type: ModalEnum.UserEditedCode,
+                            }
+                        }
+                    })
+                },
+                oldCodeRef?.current,
+                undefined,
+            );
         }
         // After using the ref to get the old code, we update it to the newest analysis.
         oldCodeRef.current = analysisData.code;
@@ -520,6 +538,33 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
                     dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
+                />
+            )
+            case ModalEnum.UserEditedCode: return (
+                <UserEditedCodeModal
+                    setUIState={setUIState}
+                    mitoAPI={mitoAPI}
+                    userProfile={userProfile}
+                    onClickButton={(overwriteUserEdits: boolean) => {
+                        props.jupyterUtils?.writeGeneratedCodeToCell(
+                            analysisData.analysisName, 
+                            analysisData.code, 
+                            userProfile.telemetryEnabled, 
+                            analysisData.publicInterfaceVersion, 
+                            () => {
+                                setUIState(prevUIState => {
+                                    return {
+                                        ...prevUIState,
+                                        currOpenModal: {
+                                            type: ModalEnum.UserEditedCode,
+                                        }
+                                    }
+                                })
+                            },
+                            oldCodeRef?.current,
+                            overwriteUserEdits,
+                        )
+                    }}
                 />
             )
         }
