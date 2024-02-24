@@ -181,13 +181,13 @@ function activateMitosheetExtension(
             } else if (codeCell !== undefined && (overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText))) {
                 // Logging
                 if (overwriteIfUserEditedCode) {
-                    void mitoAPI.log('overwrite_user_edited_code', { lengthOfCodeWithUserEdits: codeCellText.split('\n').length, lengthOfCodeWithoutUserEdits: oldCode.length });        
+                    void mitoAPI.log('overwrite_user_edited_code', { length_of_code_with_user_edits: codeCellText.split('\n').length, length_of_code_without_user_edits: oldCode.length });        
                 }
                 writeToCell(codeCell, code)
             } else {
                 // Logging
                 if (overwriteIfUserEditedCode === false) {
-                    void mitoAPI.log('insert_new_cell_for_user_edited_code', { lengthOfCodeWithUserEdits: codeCellText.split('\n').length, lengthOfCodeWithoutUserEdits: oldCode.length })
+                    void mitoAPI.log('insert_new_cell_for_user_edited_code', { length_of_code_with_user_edits: codeCellText.split('\n').length, length_of_code_without_user_edits: oldCode.length })
                 }
                 // If we cannot write to the cell below, we have to go back a new cell below, 
                 // which can be a bit of an involve process
