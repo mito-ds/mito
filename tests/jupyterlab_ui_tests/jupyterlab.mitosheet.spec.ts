@@ -54,7 +54,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await page.keyboard.type(cellValue);
   }
 
-  test.only('Doesn\'t overwrite user edited code', async ({ page, tmpPath }) => {
+  test('Doesn\'t overwrite user edited code', async ({ page, tmpPath }) => {
     // Create a new notebook with a dataframe and a mitosheet call
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
     
