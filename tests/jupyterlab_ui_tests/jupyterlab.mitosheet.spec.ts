@@ -49,6 +49,11 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await page.keyboard.press('Enter');
   };
 
+  const typeInNotebookCell = async (page: any, cellIndex: number, cellValue: string) => {
+    await page.locator('.jp-Cell-inputArea').nth(cellIndex).click();
+    await page.keyboard.type(cellValue);
+  }
+
   test.only('Doesn\'t overwrite user edited code', async ({ page, tmpPath }) => {
     // Create a new notebook with a dataframe and a mitosheet call
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
@@ -57,7 +62,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await updateCellValue(page, '1', "'new cell value'");
 
     // Update the following cell with some code
-    await page.notebook.setCell(1, 'code', 'hello world');
+    await typeInNotebookCell(page, 1, 'hello world');
 
     // Check that the modal appears to ask the user if they want to overwrite the code
     await updateCellValue(page, 'new cell value', "'another cell value'");
@@ -72,7 +77,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).toContainText("df['a'] = 'another cell value'");
 
     // Update the following cell again with some code
-    await page.notebook.setCell(1, 'code', 'martha rocks');
+    await typeInNotebookCell(page, 1, 'martha rocks');
 
     // Check that the modal appears to ask the user if they want to overwrite the code
     await updateCellValue(page, 'another cell value', "'a third cell value'");
