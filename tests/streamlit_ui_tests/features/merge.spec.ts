@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, checkColumnExists, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV, importCSV } from '../utils';
+
+
 
 
 test.describe('Merge', () => {
@@ -14,9 +16,7 @@ test.describe('Merge', () => {
     
         await expect(mito.getByText('Merge Dataframes')).toBeVisible();
     
-        // Check that Column1 exists
-        const ch1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(ch1).toBeVisible();
+        await checkColumnExists(mito, 'Column1');
 
         // Close the taskpane
         await closeTaskpane(mito);
@@ -28,12 +28,7 @@ test.describe('Merge', () => {
         // Add a merge key
         await mito.getByRole('button', { name: '+ Add Merge Keys' }).click();
 
-        const newCh1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(newCh1).toBeVisible();
-        const newCh2 = await getColumnHeaderContainer(mito, 'Column2');
-        await expect(newCh2).toBeVisible();
-        const Column3_test_1 = await getColumnHeaderContainer(mito, 'Column3_test_1');
-        await expect(Column3_test_1).toBeVisible();
+        await checkColumnExists(mito, ['Column1', 'Column2', 'Column3_test_1']);
     });
 
 
@@ -50,9 +45,7 @@ test.describe('Merge', () => {
         // Wait for the merge to be finished before continuing so adding a column works!
         await expect(mito.getByText('df_merge')).toBeVisible();
     
-        // Check that Column1 exists
-        const ch1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(ch1).toBeVisible();
+        await checkColumnExists(mito, 'Column1');
 
         // Add a column
         await mito.locator('[id="mito-toolbar-button-add\\ column\\ to\\ the\\ right"]').getByRole('button', { name: 'Insert' }).click();
@@ -69,14 +62,8 @@ test.describe('Merge', () => {
         // Add a merge key
         await mito.getByRole('button', { name: '+ Add Merge Keys' }).click();
 
-        const newCh1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(newCh1).toBeVisible();
-        const newCh2 = await getColumnHeaderContainer(mito, 'Column2');
-        await expect(newCh2).toBeVisible();
-        const Column3_test_1 = await getColumnHeaderContainer(mito, 'Column3_test_1');
-        await expect(Column3_test_1).toBeVisible();
-
-        // Check that there are 5 columns still
+        // Check the new columns
+        await checkColumnExists(mito, ['Column1', 'Column2', 'Column3_test_1']);
         await expect(mito.locator('.endo-column-header-container')).toHaveCount(5);
     });
 });

@@ -1,6 +1,6 @@
 
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 test.describe('Home Tab Buttons', () => {
@@ -209,8 +209,7 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('Merge Dataframes')).toBeVisible();
 
     // Check that Column1 exists
-    const ch1 = await getColumnHeaderContainer(mito, 'Column1');
-    await expect(ch1).toBeVisible();
+    await checkColumnExists(mito, 'Column1');
   });
 
   test('Open Concat (vertical)', async ({ page }) => {

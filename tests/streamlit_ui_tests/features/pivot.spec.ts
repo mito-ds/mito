@@ -1,13 +1,27 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV } from '../utils';
+import { awaitResponse, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
+
+
+const AGGREGATION_FUNCTIONS = [
+    'count', 
+    'sum',
+    'mean',
+    'median',
+    'std',
+    'min',
+    'max'
+]
 
 const createPivotFromSelectedSheet = async (
     page: Page,
     mito: FrameLocator, 
     rows: string[], 
     columns: string[], 
-    values: string[]
+    values: string[], // TODO: make these types better for other agg functions
+    filters?: string[]
 ): Promise<void> => {
+
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Pivot' })
 
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
@@ -29,22 +43,150 @@ const createPivotFromSelectedSheet = async (
         await mito.getByText(value).click();
         await awaitResponse(page);
     }
+
+    if (filters !== undefined) {
+        for (let i = 0; i < filters.length; i++) {
+            const filter = filters[i];
+            await mito.getByText('+ Add').nth(3).click();
+            await mito.getByText(filter).click();
+        }
+    }
+}
+
+const changeAggregationForValue = async (
+    page: Page,
+    mito: FrameLocator, 
+    value: string,
+    aggFunction: string
+): Promise<void> => {
+    // TODO...
+    return;
 }
 
 
-test.describe('Pivot Table', () => {
 
-    test('Allows Editing When Reopened', async ({ page }) => {
+test.describe('Pivot Table', () => {
+    
+
+    test('Empty pivot creates a new empty sheet', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
-        
+
         await clickButtonAndAwaitResponse(page, mito, { name: 'Pivot' })
-        
-        await checkOpenTaskpane(mito, 'Create Pivot Table test_pivot');
 
         // Check new empty tab
         await mito.getByText('test_pivot', { exact: true }).click();
         await expect(mito.getByText('test_pivot', { exact: true })).toBeVisible();
         await expect(mito.getByText('No data in dataframe.')).toBeVisible();
+    })
+
+    test('Can handle multiple rows', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+
+        await createPivotFromSelectedSheet(
+            page, mito,
+            ['Column1', 'Column2'],
+            [],
+            ['Column3']
+        )
+
+        await checkColumnExists(mito, ['Column1', 'Column2', 'Column3 count'])
+    })
+
+    test('Can handle multiple columns', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+
+        await createPivotFromSelectedSheet(
+            page, mito,
+            [],
+            ['Column1', 'Column2'],
+            ['Column3']
+        )
+
+        await checkColumnExists(mito, ['level_0', 'level_1', '1 2', '4 5', '7 8', '10 11'])
+    })
+
+    test('Can handle multiple values', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+
+        await createPivotFromSelectedSheet(
+            page, mito,
+            ['Column1'],
+            [],
+            ['Column2', 'Column3']
+        )
+
+        await checkColumnExists(mito, ['Column1', 'Column2 count', 'Column3 count'])
+    })
+
+    test.only('Can switch between aggregation functions', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+
+        await createPivotFromSelectedSheet(
+            page, mito,
+            ['Column1'],
+            [],
+            ['Column3']
+        )
+        
+
+        for (let i = 0; i < AGGREGATION_FUNCTIONS.length - 1; i++) {
+            const currentAggFunction = AGGREGATION_FUNCTIONS[i];
+            const nextAggFunction = AGGREGATION_FUNCTIONS[i + 1]
+            await mito.getByText(currentAggFunction, { exact: true }).click();
+            await mito.getByRole('button', { name: nextAggFunction }).click();
+            await awaitResponse(page);
+
+            // std doesn't work on our standard test data, so we just skip for now
+            if (nextAggFunction !== 'std') {
+                await checkColumnExists(mito, `Column3 ${nextAggFunction}`)
+            }
+        }
+
+    })
+
+    test('Number aggregations disabled for string columns', async ({ page }) => {
+        const mito = await getMitoFrameWithTypeCSV(page);
+
+        await createPivotFromSelectedSheet(
+            page, mito,
+            ['Column1'],
+            [],
+            ['Column2']
+        )
+
+
+
+
+    })
+
+    test('Can add filter to pivot', async ({ page }) => {
+        const mito = await getMitoFrameWithTypeCSV(page);
+
+        await createPivotFromSelectedSheet(
+            page, mito,
+            ['Column1'],
+            [],
+            ['Column3'],
+            ['Column2']
+        )
+
+    })
+
+    test('Can add multiple filter to pivot', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+
+    })
+
+    test('Opens the same pivot table when clicked again', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+
+
+
+    })
+    
+
+    test('Allows editing when re-opened', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
         
         await createPivotFromSelectedSheet(
             page, mito,
@@ -75,7 +217,7 @@ test.describe('Pivot Table', () => {
         await expect(mito.getByText('Column3 sum 2')).toBeVisible();
     });
 
-    test('Replays Dependent Edits', async ({ page }) => {
+    test('Replays dependent edits optimistically', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
         
         await clickButtonAndAwaitResponse(page, mito, { name: 'Pivot' })

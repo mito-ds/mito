@@ -67,6 +67,22 @@ export const closeTaskpane = async (mito: FrameLocator): Promise<void> => {
     // Close the taskpane, by clicking default-taskpane-header-exit-button-div
     await mito.locator('.default-taskpane-header-exit-button-div').click();
 }
+
+export const checkColumnExists = async (mito: FrameLocator, columnNamesOrName: string | string[]): Promise<void> => {
+    let columnNames: string[] = [];
+    if (Array.isArray(columnNamesOrName)) {
+        columnNames = columnNamesOrName;
+    } else {
+        columnNames = [columnNamesOrName]
+    }
+
+    for (let i = 0; i < columnNames.length; i++) {
+        const columnName = columnNames[i];
+        const columnHeaderContainer = await getColumnHeaderContainer(mito, columnName);
+        await expect(columnHeaderContainer).toBeVisible();
+    }
+
+}
   
 export const getColumnHeaderContainer = async (mito: FrameLocator, columnName: string): Promise<Locator> => {
     return mito.locator('.endo-column-header-container').locator('div').filter({ hasText: columnName }).first();

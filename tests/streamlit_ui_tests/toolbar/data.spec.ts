@@ -1,6 +1,6 @@
 
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 test.describe('Data Tab Buttons', () => {
@@ -140,8 +140,7 @@ test.describe('Data Tab Buttons', () => {
     await awaitResponse(page);
 
     // Check there is a header called index
-    const indexColumnHeader = await getColumnHeaderContainer(mito, 'index');
-    await expect(indexColumnHeader).toBeVisible();
+    await checkColumnExists(mito, 'index');
   });
 
   test('Test Reset and Drop Index', async ({ page }) => {
