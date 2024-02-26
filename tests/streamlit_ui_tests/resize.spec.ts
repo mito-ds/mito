@@ -1,8 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { getMitoFrameWithTestCSV } from './utils';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Resize taskpane', () => {
   test.skip('Resize taskpane', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
