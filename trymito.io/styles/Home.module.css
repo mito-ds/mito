@@ -12,7 +12,7 @@
   border-radius: 2rem;
   padding: 1.5rem 2rem; 
   background: var(--color-video-background);
-  border: 5px solid rgba(198, 169, 255, 0.25);
+  border: 5px solid var(--color-light-purple);
 }
 
 .metrics_container {
