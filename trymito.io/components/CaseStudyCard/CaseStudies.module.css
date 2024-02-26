@@ -1,0 +1,15 @@
+.case_study_mobile_container {
+    display: 'flex';
+    flex-direction: column;
+}
+
+.case_study_mobile_container > * {
+    margin-top: 2rem;
+}
+
+
+.case_studies_table {
+    width: min(95rem, 100%);
+    -webkit-border-horizontal-spacing: 30px;
+    -webkit-border-vertical-spacing: 30px;
+}

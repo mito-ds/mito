@@ -21,6 +21,7 @@ import Prism from 'prismjs';
 import LogoSection from '../components/LogoSection/LogoSection';
 import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
+import CaseStudies from '../components/CaseStudyCard/CaseStudies';
 
 const Home: NextPage = () => {
 
@@ -85,18 +86,25 @@ const Home: NextPage = () => {
                 <source src="/demo.mp4" />
               </video>
             </div>
-        </section>
+          </section>
 
-        <LogoSection></LogoSection>
+          <LogoSection></LogoSection>
 
-        {false && <section className={pageStyles.background_card} >
-          {/* So that we can scroll to the correct location on the page, and 
-            because we have a fixed header taking up some space, we scroll 
-            to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
-          */}
-          <a className="anchor" id='installation'></a>
-          <InstallInstructions/>
-        </section>}
+          {false && <section className={pageStyles.background_card} >
+            {/* So that we can scroll to the correct location on the page, and 
+              because we have a fixed header taking up some space, we scroll 
+              to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
+            */}
+            <a className="anchor" id='installation'></a>
+            <InstallInstructions/>
+          </section>}
+
+          <section>
+            <CaseStudies />
+            
+
+          </section>
+          
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
