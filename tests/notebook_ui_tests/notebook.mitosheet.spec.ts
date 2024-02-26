@@ -1,4 +1,5 @@
 import { IJupyterLabPageFixture, expect, test } from '@jupyterlab/galata';
+import { awaitResponse } from '../streamlit_ui_tests/utils';
 import path from 'path';
 
 test.describe.configure({ mode: 'parallel' });
@@ -31,5 +32,9 @@ test.describe('Mitosheet Jupyter Notebook integration', () => {
     await page.locator('.cell').first().click();
     await page.keyboard.press('Shift+Enter');
     await expect(page.locator('.mito-toolbar-button', { hasText: 'Insert' })).toBeVisible();
+    expect(await page.locator('.endo-column-header-final-container').count()).toBe(3);
+    await page.locator('.mito-toolbar-button', { hasText: 'Insert' }).click();
+    await awaitResponse(page);
+    expect(await page.locator('.endo-column-header-final-container').count()).toBe(4);
   });
 });
