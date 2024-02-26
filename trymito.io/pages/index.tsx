@@ -49,12 +49,22 @@ const Home: NextPage = () => {
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
             <h1 className={titleStyles.title}>
-              Automate your spreadsheets. No computer science degree required.
+              {/* Other ideas:
+                - Automate your spreadsheets. No Computer Science Degree Required.
+                - Edit a spreadsheet. Generate Python code. 
+                - Automate your spreadsheets, but successfully
+                - All the tools you need to turn Excel reports into Python.
+                - Write Python, not Spreadsheets
+                - Write Python 4x faster 
+                - Write Python 4x faster. Take the test.
+                - Don't know how to code? Now you do.
+              */}
+              Edit a spreadsheet to genererate Python. Code 4x faster. 
             </h1>
 
             <h2 className={titleStyles.description}>
-              Analysts at the world&apos;s largest banks  
-              save themselves from hours of repetitive work.
+              Join analysts at the world&apos;s largest companies  
+              automating their repetitive Excel work with Mito.
             </h2>
               
             <div className={homeStyles.cta_button_and_video_spacer}>
