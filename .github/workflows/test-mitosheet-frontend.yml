@@ -101,7 +101,7 @@ jobs:
       run: |
         cd tests
         source venv/bin/activate
-        jupyter notebook --config jupyter_server_test_config.py &
+        jupyter notebook --config jupyter_notebook_config.py &
         npm run test:notebook
     - name: Upload test-results
       uses: actions/upload-artifact@v3
