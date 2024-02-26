@@ -52,17 +52,6 @@
   margin-top: 2rem;
 }
 
-.open_source_section_logos {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-items: center;
-  justify-items: center;
-  width: 100%;
-  margin-top: 2rem;
-}
-
 .case_study_section {
   display: flex;
   flex-direction: column-reverse;
@@ -110,27 +99,5 @@
 
   .tweet_section {
     max-width: 80vw;
-  }
-
-  .open_source_section {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-  }
-
-  .open_source_section_header {
-    width: 40vw !important;
-    height: 100%;
-    margin-left: 10vw;
-    text-align: left;
-  }
-
-  .open_source_section_logos {
-    margin-top: 0 !important;
-  }
-
-  .open_source_section_logo_container {
-    text-align: center;
   }
 }
