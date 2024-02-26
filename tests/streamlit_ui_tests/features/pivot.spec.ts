@@ -1,5 +1,35 @@
-import { expect, test } from '@playwright/test';
+import { FrameLocator, Page, expect, test } from '@playwright/test';
 import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV } from '../utils';
+
+const createPivotFromSelectedSheet = async (
+    page: Page,
+    mito: FrameLocator, 
+    rows: string[], 
+    columns: string[], 
+    values: string[]
+): Promise<void> => {
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        await mito.getByText('+ Add').first().click();
+        await mito.getByText(row).click();
+        await awaitResponse(page);
+    }
+
+    for (let i = 0; i < columns.length; i++) {
+        const column = columns[i];
+        await mito.getByText('+ Add').nth(1).click();
+        await mito.getByText(column).click();
+        await awaitResponse(page);
+    }
+
+    for (let i = 0; i < values.length; i++) {
+        const value = values[i];
+        await mito.getByText('+ Add').nth(2).click();
+        await mito.getByText(value).click();
+        await awaitResponse(page);
+    }
+}
 
 
 test.describe('Pivot Table', () => {
@@ -16,16 +46,12 @@ test.describe('Pivot Table', () => {
         await expect(mito.getByText('test_pivot', { exact: true })).toBeVisible();
         await expect(mito.getByText('No data in dataframe.')).toBeVisible();
         
-        // Add a row, column and value
-        await mito.getByText('+ Add').first().click();
-        await mito.getByText('Column1').click();
-        await awaitResponse(page);
-        await mito.getByText('+ Add').nth(1).click();
-        await mito.getByText('Column2').click();
-        await awaitResponse(page);
-        await mito.getByText('+ Add').nth(2).click();
-        await mito.getByText('Column3').click();
-        await awaitResponse(page);
+        await createPivotFromSelectedSheet(
+            page, mito,
+            ['Column1'],
+            ['Column2'],
+            ['Column3']
+        )
 
         // Check that the pivot table has been created
         await expect(mito.getByText('Column3 count 2')).toBeVisible();
@@ -62,15 +88,12 @@ test.describe('Pivot Table', () => {
         await expect(mito.getByText('No data in dataframe.')).toBeVisible();
         
         // Add a row, column and value
-        await mito.getByText('+ Add').first().click();
-        await mito.getByText('Column1').click();
-        await awaitResponse(page);
-        await mito.getByText('+ Add').nth(1).click();
-        await mito.getByText('Column2').click();
-        await awaitResponse(page);
-        await mito.getByText('+ Add').nth(2).click();
-        await mito.getByText('Column3').click();
-        await awaitResponse(page);
+        await createPivotFromSelectedSheet(
+            page, mito,
+            ['Column1'],
+            ['Column2'],
+            ['Column3']
+        )
 
         // Check that the pivot table has been created
         await expect(mito.getByText('Column3 count 2')).toBeVisible();
