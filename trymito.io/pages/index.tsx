@@ -100,8 +100,6 @@ const Home: NextPage = () => {
 
           <section>
             <CaseStudies />
-            
-
           </section>
           
 
