@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, clickTab, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from './utils';
+import { awaitResponse, clickButtonAndAwaitResponse, clickTab, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -77,7 +77,7 @@ test.describe('Graph Functionality', () => {
     await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
 
     await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(1)).toHaveText('Column1');
-    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(2)).toHaveText('Column2');
+    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(2)).toHaveText('Column2');  
   })
 
   test('Change Chart type to Linear', async ({ page }) => {
