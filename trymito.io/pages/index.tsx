@@ -3,7 +3,6 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import AIThesis from '../components/AIThesis/AIThesis';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import FAQCard from '../components/FAQCard/FAQCard';
@@ -231,8 +230,6 @@ const Home: NextPage = () => {
               </p>
             </div>
           </section>
-
-          <AIThesis/>
 
           <section className={classNames(pageStyles.background_card, homeStyles.case_study_section, 'margin-top-8rem')}>
             <div>

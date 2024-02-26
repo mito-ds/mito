@@ -15,6 +15,7 @@ import { classNames } from '../utils/classNames';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import FAQCard from '../components/FAQCard/FAQCard';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
+import AIThesis from '../components/AIThesis/AIThesis';
 
 const PythonAITools: NextPage = () => {
 
@@ -145,6 +146,10 @@ const PythonAITools: NextPage = () => {
             </div>
           </section>
 
+          <section>
+            <AIThesis />
+          </section>
+          
           <section>
             <h2 className='center'>
                 Frequently Asked Questions

@@ -2,6 +2,10 @@
     margin: auto;
 }
 
+.margin-2rem {
+    margin: 2rem;
+}
+
 .margin-0 {
     margin: 0;
 }
@@ -38,7 +42,7 @@
     margin-top: 35px;
 }
 
-.margin-bottom-1 {
+.margin-bottom-1rem {
     margin-bottom: 1rem;
 }
 
