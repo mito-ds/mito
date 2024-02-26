@@ -27,7 +27,7 @@ test.describe('Mitosheet Jupyter Notebook integration', () => {
   });
   
   test('renders a mitosheet.sheet()', async ({ page, tmpPath }) => {
-    page.goto(`notebooks/${tmpPath}/${NOTEBOOK}`);
+    void page.goto(`notebooks/${tmpPath}/${NOTEBOOK}`);
     await expect(page.getByText('import mitosheet')).toBeVisible();
     await page.locator('.cell').first().click();
     await page.keyboard.press('Shift+Enter');
