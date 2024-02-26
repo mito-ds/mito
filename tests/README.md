@@ -58,7 +58,7 @@ npm run test:jupyterlab -- --project=chromium
 
 For **Jupyter notebook**, run: 
 ```
-jupyter notebook --config jupyter_server_test_config.py
+jupyter notebook --config jupyter_notebook_config.py
 ```
 
 And then in a separate terminal run 

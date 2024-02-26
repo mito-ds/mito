@@ -91,7 +91,7 @@ jobs:
       run: |
         cd tests
         bash mac-setup.sh
-    - name: Setup JupyterLab
+    - name: Setup Jupyter notebook
       run: |
         cd tests
         source venv/bin/activate
