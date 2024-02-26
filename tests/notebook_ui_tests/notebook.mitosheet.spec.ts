@@ -5,17 +5,6 @@ import path from 'path';
 test.describe.configure({ mode: 'parallel' });
 test.use({ appPath: '', autoGoto: false })
 
-const createNewNotebook = async (page: IJupyterLabPageFixture, tmpPath: string, firstCellCode?: string) => {
-    const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
-    await page.locator('button', { hasText: 'New' }).click();
-    await page.locator('li', { hasText: 'Python3' }).click();
-
-    if (firstCellCode) {
-        await page.notebook.setCell(0, 'code', firstCellCode);
-        await page.notebook.runCell(0);
-    }
-}
-
 const NOTEBOOK = 'simple.ipynb';
 
 test.describe('Mitosheet Jupyter Notebook integration', () => {
