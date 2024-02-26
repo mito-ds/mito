@@ -14,18 +14,13 @@
 }
 
 .expandable_card_container:hover {
-    background-color: var(--color-light-purple);
+    background-color: var(--color-light-background-accent);
 }
 
 .expandable_card_container_selected {
-    background-color: var(--color-light-purple);
+    background-color: var(--color-light-background-accent);
     padding-bottom: 2rem;
 }
-
-.expandable_card_container_selected p, .expandable_card_container:hover p {
-    color: var(--color-background);
-}
-
 
 .header {
     display: flex;

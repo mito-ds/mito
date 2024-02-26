@@ -1,7 +1,15 @@
 :root {
-  --color-background: #2D2D2D;
-  --color-light-background: #363637; 
-  --color-light-background-accent: #3a3a3a; 
+  /* 
+    Leaving old colors here for testing. 
+    TODO: Remove before merging
+
+    --color-background: #2D2D2D;
+    --color-light-background: #363637; 
+    --color-light-background-accent: #3a3a3a; 
+  */
+  --color-background: #1c1824;
+  --color-light-background: #130f1a; 
+  --color-light-background-accent: #221b2e; 
   --color-text-primary: #ffffff;
   --color-text-secondary: #D0D0D0;
   --color-purple: #9D6CFF; 
