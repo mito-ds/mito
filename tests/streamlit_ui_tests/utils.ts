@@ -87,6 +87,10 @@ export const checkColumnExists = async (mito: FrameLocator, columnNamesOrName: s
 export const getColumnHeaderContainer = async (mito: FrameLocator, columnName: string): Promise<Locator> => {
     return mito.locator('.endo-column-header-container').locator('div').filter({ hasText: columnName }).first();
 }
+
+export const checkColumnCount = async (mito: FrameLocator, count: number): Promise<void> => {
+    await expect(mito.locator('.endo-column-header-container')).toHaveCount(count)
+}
   
 export const clickTab = async (page: Page, mito: FrameLocator, tabName: string): Promise<void> => {
     // Button with .mito-toolbar-tabbar-tabname that has text tabName

@@ -1,6 +1,6 @@
 
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, checkColumnCount, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 test.describe('Home Tab Buttons', () => {
@@ -99,7 +99,7 @@ test.describe('Home Tab Buttons', () => {
     await awaitResponse(page);
 
     // Expect there to be 4 column headers
-    await expect(mito.locator('.endo-column-header-container')).toHaveCount(4);
+    await checkColumnCount(mito, 4);
 
     // Check that the column with .endo-column-header-container-selected 
     // starts with new-column

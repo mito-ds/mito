@@ -1,6 +1,6 @@
 
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, checkColumnCount, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 test.describe('Data Tab Buttons', () => {
@@ -69,7 +69,7 @@ test.describe('Data Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Split on delimiter' }).click();
 
     // Check that there are 4 columsn
-    await expect(mito.locator('.endo-column-header-container')).toHaveCount(4);
+    await checkColumnCount(mito, 4);
   });
 
   test('Test Bulk Rename Columns', async ({ page }) => {
@@ -128,7 +128,7 @@ test.describe('Data Tab Buttons', () => {
     await mito.getByRole('button', { name: 'One-hot Encoding' }).click();
 
     // Check there are 6 columns
-    await expect(mito.locator('.endo-column-header-container')).toHaveCount(6);
+    await checkColumnCount(mito, 6);
   });
 
   test('Test Reset and Keep Index', async ({ page }) => {

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkColumnExists, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, checkColumnCount, checkColumnExists, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 
@@ -53,7 +53,7 @@ test.describe('Merge', () => {
 
         // Check that the merge table has been updated -- there should be
         // 5 columns from merge + 1 added
-        await expect(mito.locator('.endo-column-header-container')).toHaveCount(6);
+        await checkColumnCount(mito, 6);
 
         // Reopen the edit merge
         await mito.getByText('df_merge').click({button: 'right'});
@@ -64,6 +64,6 @@ test.describe('Merge', () => {
 
         // Check the new columns
         await checkColumnExists(mito, ['Column1', 'Column2', 'Column3_test_1']);
-        await expect(mito.locator('.endo-column-header-container')).toHaveCount(5);
+        await checkColumnCount(mito, 5);
     });
 });
