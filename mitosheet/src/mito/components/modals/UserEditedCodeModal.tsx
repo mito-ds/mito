@@ -22,6 +22,43 @@ const UserEditedCodeModal = (
         codeWithoutUserEdits: string[],
         codeWithUserEdits: string[]
     }): JSX.Element => {
+    
+    const handleButtonClick = (overwriteCode: boolean) => {
+        props.jupyterUtils?.writeGeneratedCodeToCell(
+            props.analysisData.analysisName, 
+            props.analysisData.code, 
+            props.userProfile.telemetryEnabled, 
+            props.analysisData.publicInterfaceVersion, 
+            (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
+                props.setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {
+                            type: ModalEnum.UserEditedCode,
+                            codeWithoutUserEdits: codeWithoutUserEdits,
+                            codeWithUserEdits: codeWithUserEdits
+                        }
+                    }
+                })
+            },
+            props.codeWithoutUserEdits,
+            overwriteCode,
+        )
+        console.log('userCodeWithEdits', props.codeWithUserEdits, 'userCodeWithoutEdits', props.codeWithoutUserEdits)
+        void props.mitoAPI.log(
+            overwriteCode ? 'overwrite_user_edited_code' : 'insert_new_cell_for_user_edited_code',
+            {
+                length_of_code_with_user_edits: props.codeWithUserEdits.length,
+                length_of_code_without_user_edits: props.codeWithoutUserEdits.length
+            }
+        )
+        props.setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenModal: {type: ModalEnum.None},
+            }
+        })
+    }
     return (
         <DefaultModal
             header='Insert New Cell?'
@@ -39,82 +76,14 @@ const UserEditedCodeModal = (
                     <TextButton 
                         variant='light'
                         width='hug-contents'
-                        onClick={() => {
-                            props.jupyterUtils?.writeGeneratedCodeToCell(
-                                props.analysisData.analysisName, 
-                                props.analysisData.code, 
-                                props.userProfile.telemetryEnabled, 
-                                props.analysisData.publicInterfaceVersion, 
-                                (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
-                                    props.setUIState(prevUIState => {
-                                        return {
-                                            ...prevUIState,
-                                            currOpenModal: {
-                                                type: ModalEnum.UserEditedCode,
-                                                codeWithoutUserEdits: codeWithoutUserEdits,
-                                                codeWithUserEdits: codeWithUserEdits
-                                            }
-                                        }
-                                    })
-                                },
-                                props.codeWithoutUserEdits,
-                                true,
-                            )
-                            void props.mitoAPI.log(
-                                'overwrite_user_edited_code', 
-                                {
-                                    length_of_code_with_user_edits: props.codeWithUserEdits.length,
-                                    length_of_code_without_user_edits: props.codeWithoutUserEdits.length
-                                }
-                            );
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenModal: {type: ModalEnum.None},
-                                }
-                            });
-                        }}
+                        onClick={() => handleButtonClick(true)}
                     >
                         Overwrite Edits
                     </TextButton>
                     <TextButton
                         variant='dark'
                         width='hug-contents'
-                        onClick={() => {
-                            props.jupyterUtils?.writeGeneratedCodeToCell(
-                                props.analysisData.analysisName, 
-                                props.analysisData.code, 
-                                props.userProfile.telemetryEnabled, 
-                                props.analysisData.publicInterfaceVersion, 
-                                (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
-                                    props.setUIState(prevUIState => {
-                                        return {
-                                            ...prevUIState,
-                                            currOpenModal: {
-                                                type: ModalEnum.UserEditedCode,
-                                                codeWithoutUserEdits: codeWithoutUserEdits,
-                                                codeWithUserEdits: codeWithUserEdits
-                                            }
-                                        }
-                                    })
-                                },
-                                props.codeWithoutUserEdits,
-                                false,
-                            )
-                            void props.mitoAPI.log(
-                                'insert_new_cell_for_user_edited_code',
-                                {
-                                    length_of_code_with_user_edits: props.codeWithUserEdits.length,
-                                    length_of_code_without_user_edits: props.codeWithoutUserEdits.length
-                                }
-                            )
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenModal: {type: ModalEnum.None},
-                                }
-                            })
-                        }}
+                        onClick={() => handleButtonClick(false)}
                     >
                         Insert New Cell
                     </TextButton>
