@@ -5,7 +5,6 @@ import { classNames } from '../../utils/classNames'
 import caseStudyCard from './CaseStudyCard.module.css' 
 
 const CaseStudyCard = (props: {
-    title: string,
     imageSrc: string,
     link: string,
     height: number,
@@ -18,7 +17,7 @@ const CaseStudyCard = (props: {
             className={classNames(caseStudyCard.case_study_card_container, props.className)}
             onClick={props.link !== undefined ? () => window.open(props.link, '_blank'): undefined}
         >
-            <Image src={props.imageSrc} alt="Mito Logo" height={props.height} width={props.width} />
+            <Image src={props.imageSrc} alt={props.imageSrc} height={props.height} width={props.width} />
         </div>
     )   
 }

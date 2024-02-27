@@ -1,5 +1,6 @@
 .case_study_card_container {
     transition: transform .25s ease-in-out; /* Adjust duration as needed */
+    cursor: pointer;
 
 }
 

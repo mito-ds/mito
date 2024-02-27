@@ -14,9 +14,8 @@ const CaseStudies = (props: {}): JSX.Element => {
                     <tr>
                         <td>
                             <CaseStudyCard 
-                                title='Case Study 1'
-                                imageSrc='/code.png'
-                                link="ABC"  
+                                imageSrc='/case-studies/Top 10 bank automated critical monthly reports.png'
+                                link="blog/wealth-management-analyst-automates-critical-monthly-deliverable"  
                                 height={504}
                                 width={1030} 
                                 className={caseStudyCardStyle.scale_small_on_hover} 
@@ -24,17 +23,15 @@ const CaseStudies = (props: {}): JSX.Element => {
                         </td>
                         <td>
                             <CaseStudyCard 
-                                title='Case Study 1'
-                                imageSrc='/code.png'
-                                link="ABC"  
+                                imageSrc='/case-studies/special events.png'
+                                link="/blog/special-events-team-at-large-asset-manager-saves-7-hours-week-using-mito"  
                                 height={230}
                                 width={500}   
                                 className={caseStudyCardStyle.scale_normal_on_hover}  
                             />
                             <CaseStudyCard 
-                                title='Case Study 1'
-                                imageSrc='/code.png'
-                                link="ABC"   
+                                imageSrc='/case-studies/recon.png'
+                                link="blog/medicare-agency-cuts-recon-process-from-19-to-2-days-using-mito"   
                                 height={230}
                                 width={500} 
                                 className={classNames(caseStudyCardStyle.scale_normal_on_hover, 'margin-top-35px')}
@@ -45,17 +42,15 @@ const CaseStudies = (props: {}): JSX.Element => {
                         <td>
                             <div className='flex-row'>
                                 <CaseStudyCard 
-                                    title='Case Study 1'
-                                    imageSrc='/code.png'
-                                    link="ABC"   
+                                    imageSrc='/case-studies/python training.png'
+                                    link="blog/automating-spreadsheets-with-python-101"   
                                     height={230}
                                     width={500} 
                                     className={caseStudyCardStyle.scale_normal_on_hover}  
                                 />
                                 <CaseStudyCard 
-                                    title='Case Study 1'
-                                    imageSrc='/code.png'
-                                    link="ABC"   
+                                    imageSrc='/case-studies/common mistakes.png'
+                                    link="blog/10-mistakes-to-look-out-for-when-transitioning-from-excel-to-python"   
                                     height={230}
                                     width={500} 
                                     className={classNames(caseStudyCardStyle.scale_normal_on_hover, 'margin-left-30px')}
@@ -65,9 +60,8 @@ const CaseStudies = (props: {}): JSX.Element => {
                         </td>
                         <td>
                             <CaseStudyCard 
-                                title='Case Study 1'
-                                imageSrc='/code.png'
-                                link="ABC"   
+                                imageSrc='/case-studies/enigma.png'
+                                link="blog/enigma-case-study"   
                                 height={230}
                                 width={500} 
                                 className={caseStudyCardStyle.scale_normal_on_hover}  
@@ -78,27 +72,23 @@ const CaseStudies = (props: {}): JSX.Element => {
             </table>
             <div className={classNames(caseStudiesStyles.case_study_mobile_container, 'only-on-mobile')}>
                 <CaseStudyCard 
-                    title='Case Study 1'
-                    imageSrc='/code.png'
-                    link="ABC"   
+                    imageSrc='/case-studies/Top 10 bank automated critical monthly reports.png'
+                    link="blog/wealth-management-analyst-automates-critical-monthly-deliverable"
                     height={230}
                     width={500} 
                 />
                 <CaseStudyCard 
-                    title='Case Study 1'
-                    imageSrc='/code.png'
-                    link="ABC"   
+                    imageSrc='/case-studies/special events.png'
+                    link="/blog/special-events-team-at-large-asset-manager-saves-7-hours-week-using-mito"  
                     height={230}
                     width={500}  
                 />
                 <CaseStudyCard 
-                    title='Case Study 1'
-                    imageSrc='/code.png'
-                    link="ABC"   
+                    imageSrc='/case-studies/recon.png'
+                    link="blog/medicare-agency-cuts-recon-process-from-19-to-2-days-using-mito"   
                     height={230}
                     width={500} 
                 />
-
             </div>
         </>
     )
