@@ -13,7 +13,6 @@ import textImageSplitStyles from '../../styles/TextImageSplit.module.css';
 // Import Icons & Background Grid
 import { classNames } from '../../utils/classNames';
 import CTAButtons from '../../components/CTAButtons/CTAButtons';
-import customerCardStyles from '../../components/CustomerCard/CustomerCard.module.css';
 import ContactCTACard from '../../components/CTACards/ContactCTACard';
 
 import automationIcon from '../../public/python-training/automation.svg';
@@ -177,7 +176,7 @@ const PythonTraining: NextPage = () => {
 
                 <section className='center'>
                     <div className={pythonTrainingStyles.training_quote_container}>
-                        <p className='quote'><span className={classNames(customerCardStyles.quote_symbol, pythonTrainingStyles.training_quote_text)}>❝We&apos;ve trained thousands of analysts to build Python automations with Mito. Every time we make Mito a bigger part of our training, our end user reviews go up. Now Mito is the first thing we teach in our Python trainings. </span></p>
+                        <p className='quote'><span className={classNames(pageStyles.quote_symbol, pythonTrainingStyles.training_quote_text)}>❝We&apos;ve trained thousands of analysts to build Python automations with Mito. Every time we make Mito a bigger part of our training, our end user reviews go up. Now Mito is the first thing we teach in our Python trainings. </span></p>
                         <p>
                             Chief Data Architect @ Bulge Bracket Bank
                         </p>
