@@ -172,4 +172,47 @@ test.describe('Merge', () => {
         await awaitResponse(page);
         await expect(mito.locator('.endo-column-header-container')).toHaveCount(3);
     });
+
+    test('Deleting a merge key then editing a merge', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+        await importCSV(page, mito, 'test.csv');
+        
+        await clickButtonAndAwaitResponse(page, mito, { name: '▾ Merge' })
+        await mito.getByText('Merge (horizontal)').click();
+        await awaitResponse(page);
+    
+        await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+
+        // Wait for the merge to be finished before continuing so adding a column works!
+        await expect(mito.getByText('df_merge')).toBeVisible();
+    
+        // Check that Column1 exists
+        const ch1 = await getColumnHeaderContainer(mito, 'Column1');
+        await expect(ch1).toBeVisible();
+
+        // Add a merge key
+        await mito.getByRole('button', { name: '+ Add Merge Keys' }).click();
+
+        await expect(await getColumnHeaderContainer(mito, 'Column1')).toBeVisible();
+        await expect(await getColumnHeaderContainer(mito, 'Column2')).toBeVisible();
+        await expect(await getColumnHeaderContainer(mito, 'Column3_test_1')).toBeVisible();
+
+        // Check that there are 5 columns still
+        await expect(mito.locator('.endo-column-header-container')).toHaveCount(5);
+
+        // Delete a merge key
+        await mito.locator('.tab-content').getByText('test', { exact: true }).click();
+        await awaitResponse(page);
+        
+        await mito.locator('.endo-column-header-container', { hasText: 'Column2' }).click();
+        await page.keyboard.press('Delete');
+        await awaitResponse(page);
+
+        await expect(await getColumnHeaderContainer(mito, 'Column2')).not.toBeVisible();
+        await mito.locator('.tab-content').getByText('df_merge', { exact: true }).click({ button: 'right' });
+        await mito.getByText('Edit Merge').click();
+        await awaitResponse(page);
+        await expect(mito.locator('.caution-text', { hasText: 'The merge key pairing ( Column2,  Column2) was removed because “ Column2” no longer exists in “test”.'})).toBeVisible();
+        await expect(mito.locator('.select-text', { hasText: 'Column2' })).not.toBeVisible();
+    });
 });
