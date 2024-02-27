@@ -144,4 +144,32 @@ test.describe('Merge', () => {
         await hasExpectedNumberOfRows(mito, 5);
         await expect(mito.locator('.endo-column-header-final-text', { hasText: 'Column2' })).toHaveCount(1);
     });
+
+    test('Changing the columns to keep in merge', async ({ page }) => {
+        const mito = await getMitoFrame(page);
+        await importCSV(page, mito, 'merge.csv');
+        await importCSV(page, mito, 'test.csv');
+        
+        await clickButtonAndAwaitResponse(page, mito, { name: '▾ Merge' })
+        await mito.getByText('Merge (horizontal)').click();
+        await awaitResponse(page);
+
+        // Check that the correct number of rows are present
+        await hasExpectedNumberOfRows(mito, 4);
+
+        // Uncheck all of the the columns to keep
+        await mito.locator('.multi-toggle-box-row', { hasText: 'Column2' }).locator('input[type="checkbox"]').first().click();
+        await mito.locator('.multi-toggle-box-row', { hasText: 'Column3' }).locator('input[type="checkbox"]').first().click();
+
+        await mito.locator('.multi-toggle-box-row', { hasText: 'Column2' }).locator('input[type="checkbox"]').nth(1).click();
+        await mito.locator('.multi-toggle-box-row', { hasText: 'Column3' }).locator('input[type="checkbox"]').nth(1).click();
+        await awaitResponse(page);
+        await expect(mito.locator('.endo-column-header-container')).toHaveCount(1);
+
+        // Re-check a couple of the columns to keep
+        await mito.locator('.multi-toggle-box-row', { hasText: 'Column3' }).locator('input[type="checkbox"]').first().click();
+        await mito.locator('.multi-toggle-box-row', { hasText: 'Column2' }).locator('input[type="checkbox"]').nth(1).click();
+        await awaitResponse(page);
+        await expect(mito.locator('.endo-column-header-container')).toHaveCount(3);
+    });
 });
