@@ -36,8 +36,10 @@ interface ErrorModalInfo {
         traceback?: string
     }
 }
-interface UserEditedCodeModalInfo {
+export interface UserEditedCodeModalInfo {
     type: ModalEnum.UserEditedCode;
+    oldCode: string[];
+    newCode: string[];
 }
 interface SignUpModalInfo {
     type: ModalEnum.SignUp;

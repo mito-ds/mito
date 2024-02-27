@@ -2,7 +2,7 @@
 
 import React, { Fragment } from 'react';
 import { MitoAPI } from '../../api/api';
-import { UIState, UserProfile } from '../../types';
+import { AnalysisData, JupyterUtils, UIState, UserProfile } from '../../types';
 import DefaultModal from '../DefaultModal';
 import TextButton from '../elements/TextButton';
 import { ModalEnum } from './modals';
@@ -14,10 +14,13 @@ import { ModalEnum } from './modals';
 */
 const UserEditedCodeModal = (
     props: {
+        jupyterUtils?: JupyterUtils;
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI,
         userProfile: UserProfile,
-        onClickButton: (overwriteUserEdits: boolean) => void,
+        analysisData: AnalysisData,
+        oldCode: string[],
+        newCode: string[]
     }): JSX.Element => {
     return (
         <DefaultModal
@@ -37,7 +40,33 @@ const UserEditedCodeModal = (
                         variant='light'
                         width='hug-contents'
                         onClick={() => {
-                            props.onClickButton(true);
+                            props.jupyterUtils?.writeGeneratedCodeToCell(
+                                props.analysisData.analysisName, 
+                                props.analysisData.code, 
+                                props.userProfile.telemetryEnabled, 
+                                props.analysisData.publicInterfaceVersion, 
+                                (oldCode: string[], newCode: string[]) => {
+                                    props.setUIState(prevUIState => {
+                                        return {
+                                            ...prevUIState,
+                                            currOpenModal: {
+                                                type: ModalEnum.UserEditedCode,
+                                                oldCode: oldCode,
+                                                newCode: newCode
+                                            }
+                                        }
+                                    })
+                                },
+                                props.oldCode,
+                                true,
+                            )
+                            void props.mitoAPI.log(
+                                'overwrite_user_edited_code', 
+                                {
+                                    length_of_code_with_user_edits: props.newCode.length,
+                                    length_of_code_without_user_edits: props.oldCode.length
+                                }
+                            );        
                             props.setUIState((prevUIState) => {
                                 return {
                                     ...prevUIState,
@@ -52,7 +81,33 @@ const UserEditedCodeModal = (
                         variant='dark'
                         width='hug-contents'
                         onClick={() => {
-                            props.onClickButton(false);
+                            props.jupyterUtils?.writeGeneratedCodeToCell(
+                                props.analysisData.analysisName, 
+                                props.analysisData.code, 
+                                props.userProfile.telemetryEnabled, 
+                                props.analysisData.publicInterfaceVersion, 
+                                (oldCode: string[], newCode: string[]) => {
+                                    props.setUIState(prevUIState => {
+                                        return {
+                                            ...prevUIState,
+                                            currOpenModal: {
+                                                type: ModalEnum.UserEditedCode,
+                                                oldCode: oldCode,
+                                                newCode: newCode
+                                            }
+                                        }
+                                    })
+                                },
+                                props.oldCode,
+                                false,
+                            )
+                            void props.mitoAPI.log(
+                                'insert_new_cell_for_user_edited_code',
+                                {
+                                    length_of_code_with_user_edits: props.newCode.length,
+                                    length_of_code_without_user_edits: props.oldCode.length
+                                }
+                            )
                             props.setUIState((prevUIState) => {
                                 return {
                                     ...prevUIState,

@@ -140,7 +140,6 @@ function activateMitosheetExtension(
             const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
             const triggerUserEditedCodeDialog = args.triggerUserEditedCodeDialog as () => void;
             const overwriteIfUserEditedCode = args.overwriteIfUserEditedCode as boolean | undefined;
-            const mitoAPI = args.mitoAPI as MitoAPI;
 
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
@@ -179,16 +178,8 @@ function activateMitosheetExtension(
             // 2. The cell hasn't been edited by the user
             // AND the cell exists. If the cell doesn't exist we can't write to it!
             } else if (codeCell !== undefined && (overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText))) {
-                // Logging
-                if (overwriteIfUserEditedCode) {
-                    void mitoAPI.log('overwrite_user_edited_code', { length_of_code_with_user_edits: codeCellText.split('\n').length, length_of_code_without_user_edits: oldCode.length });        
-                }
                 writeToCell(codeCell, code)
             } else {
-                // Logging
-                if (overwriteIfUserEditedCode === false) {
-                    void mitoAPI.log('insert_new_cell_for_user_edited_code', { length_of_code_with_user_edits: codeCellText.split('\n').length, length_of_code_without_user_edits: oldCode.length })
-                }
                 // If we cannot write to the cell below, we have to go back a new cell below, 
                 // which can be a bit of an involve process
                 if (mitosheetCallIndex !== activeCellIndex) {
