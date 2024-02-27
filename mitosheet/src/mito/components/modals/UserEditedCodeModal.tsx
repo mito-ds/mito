@@ -45,14 +45,14 @@ const UserEditedCodeModal = (
                                 props.analysisData.code, 
                                 props.userProfile.telemetryEnabled, 
                                 props.analysisData.publicInterfaceVersion, 
-                                (oldCode: string[], newCode: string[]) => {
+                                (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
                                     props.setUIState(prevUIState => {
                                         return {
                                             ...prevUIState,
                                             currOpenModal: {
                                                 type: ModalEnum.UserEditedCode,
-                                                codeWithoutUserEdits: oldCode,
-                                                codeWithUserEdits: newCode
+                                                codeWithoutUserEdits: codeWithoutUserEdits,
+                                                codeWithUserEdits: codeWithUserEdits
                                             }
                                         }
                                     })
@@ -86,14 +86,14 @@ const UserEditedCodeModal = (
                                 props.analysisData.code, 
                                 props.userProfile.telemetryEnabled, 
                                 props.analysisData.publicInterfaceVersion, 
-                                (oldCode: string[], newCode: string[]) => {
+                                (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
                                     props.setUIState(prevUIState => {
                                         return {
                                             ...prevUIState,
                                             currOpenModal: {
                                                 type: ModalEnum.UserEditedCode,
-                                                codeWithoutUserEdits: oldCode,
-                                                codeWithUserEdits: newCode
+                                                codeWithoutUserEdits: codeWithoutUserEdits,
+                                                codeWithUserEdits: codeWithUserEdits
                                             }
                                         }
                                     })

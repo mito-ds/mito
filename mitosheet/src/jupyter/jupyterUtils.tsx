@@ -52,7 +52,7 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 }
 
 
-export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (oldCode: string[], newCode: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
+export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
     if (isInJupyterLab()) {
         window.commands?.execute('mitosheet:write-generated-code-cell', {
             analysisName: analysisName,
