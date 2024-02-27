@@ -11,7 +11,7 @@ on:
       - 'tests/**'
 
 jobs:
-  test-mitosheet-frontend:
+  test-mitosheet-frontend-jupyterlab:
     runs-on: ubuntu-20.04
     timeout-minutes: 60
     strategy:
@@ -58,6 +58,58 @@ jobs:
       if: always()
       with:
         name: jupyterlab-playwright-report
+        path: tests/playwright-report/
+        retention-days: 14
+
+  test-mitosheet-frontend-jupyternotebook:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        # Usually we'd test python 3.6 but there is an error showing up in the tests
+        # that we're not sure about. See https://github.com/mito-ds/mito/pull/1213
+        python-version: ['3.8', '3.10']
+
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.7.0
+      with:
+        access_token: ${{ github.token }}
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: |
+          mitosheet/setup.py
+          tests/requirements.txt
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+        cache-dependency-path: mitosheet/package-lock.json
+    - name: Install dependencies
+      run: |
+        cd tests
+        bash mac-setup.sh
+    - name: Setup Jupyter notebook
+      run: |
+        cd tests
+        source venv/bin/activate
+        cd ../mitosheet
+        jupyter labextension develop . --overwrite
+    - name: Start a server and run tests
+      run: |
+        cd tests
+        source venv/bin/activate
+        jupyter notebook --config jupyter_notebook_config.py &
+        npm run test:notebook
+    - name: Upload test-results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: jupyternotebook-playwright-report
         path: tests/playwright-report/
         retention-days: 14
 
