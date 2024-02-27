@@ -38,8 +38,8 @@ interface ErrorModalInfo {
 }
 export interface UserEditedCodeModalInfo {
     type: ModalEnum.UserEditedCode;
-    oldCode: string[];
-    newCode: string[];
+    codeWithoutUserEdits: string[];
+    codeWithUserEdits: string[];
 }
 interface SignUpModalInfo {
     type: ModalEnum.SignUp;

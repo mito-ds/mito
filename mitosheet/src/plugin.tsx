@@ -138,7 +138,7 @@ function activateMitosheetExtension(
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
             const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
-            const triggerUserEditedCodeDialog = args.triggerUserEditedCodeDialog as (oldCode: string[], newCode: string[]) => void;
+            const triggerUserEditedCodeDialog = args.triggerUserEditedCodeDialog as (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void;
             const overwriteIfUserEditedCode = args.overwriteIfUserEditedCode as boolean | undefined;
 
             // This is the last saved analysis' code, which we use to check if the user has changed

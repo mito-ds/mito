@@ -290,22 +290,22 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 analysisData.code, 
                 userProfile.telemetryEnabled, 
                 analysisData.publicInterfaceVersion, 
-                (oldCode: string[], newCode: string[]) => {
+                (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
                     setUIState(prevUIState => {
                         return {
                             ...prevUIState,
                             currOpenModal: {
                                 type: ModalEnum.UserEditedCode,
-                                oldCode: oldCode,
-                                newCode: newCode
+                                codeWithoutUserEdits: codeWithoutUserEdits,
+                                codeWithUserEdits: codeWithUserEdits
                             }
                         }
                     })
                     void mitoAPI.log(
                         'user_edited_code_cell', 
                         {
-                            length_of_code_with_user_edits: newCode.length,
-                            length_of_code_without_user_edits: oldCode.length
+                            length_of_code_with_user_edits: codeWithUserEdits.length,
+                            length_of_code_without_user_edits: codeWithoutUserEdits.length
                         }
                     );
                 },
@@ -550,8 +550,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     userProfile={userProfile}
                     jupyterUtils={props.jupyterUtils}
                     analysisData={analysisData}
-                    oldCode={uiState.currOpenModal.oldCode}
-                    newCode={uiState.currOpenModal.newCode}
+                    codeWithoutUserEdits={uiState.currOpenModal.codeWithoutUserEdits}
+                    codeWithUserEdits={uiState.currOpenModal.codeWithUserEdits}
                 />
             )
         }

@@ -19,8 +19,8 @@ const UserEditedCodeModal = (
         mitoAPI: MitoAPI,
         userProfile: UserProfile,
         analysisData: AnalysisData,
-        oldCode: string[],
-        newCode: string[]
+        codeWithoutUserEdits: string[],
+        codeWithUserEdits: string[]
     }): JSX.Element => {
     return (
         <DefaultModal
@@ -51,20 +51,20 @@ const UserEditedCodeModal = (
                                             ...prevUIState,
                                             currOpenModal: {
                                                 type: ModalEnum.UserEditedCode,
-                                                oldCode: oldCode,
-                                                newCode: newCode
+                                                codeWithoutUserEdits: oldCode,
+                                                codeWithUserEdits: newCode
                                             }
                                         }
                                     })
                                 },
-                                props.oldCode,
+                                props.codeWithoutUserEdits,
                                 true,
                             )
                             void props.mitoAPI.log(
                                 'overwrite_user_edited_code', 
                                 {
-                                    length_of_code_with_user_edits: props.newCode.length,
-                                    length_of_code_without_user_edits: props.oldCode.length
+                                    length_of_code_with_user_edits: props.codeWithUserEdits.length,
+                                    length_of_code_without_user_edits: props.codeWithoutUserEdits.length
                                 }
                             );
                             props.setUIState((prevUIState) => {
@@ -92,20 +92,20 @@ const UserEditedCodeModal = (
                                             ...prevUIState,
                                             currOpenModal: {
                                                 type: ModalEnum.UserEditedCode,
-                                                oldCode: oldCode,
-                                                newCode: newCode
+                                                codeWithoutUserEdits: oldCode,
+                                                codeWithUserEdits: newCode
                                             }
                                         }
                                     })
                                 },
-                                props.oldCode,
+                                props.codeWithoutUserEdits,
                                 false,
                             )
                             void props.mitoAPI.log(
                                 'insert_new_cell_for_user_edited_code',
                                 {
-                                    length_of_code_with_user_edits: props.newCode.length,
-                                    length_of_code_without_user_edits: props.oldCode.length
+                                    length_of_code_with_user_edits: props.codeWithUserEdits.length,
+                                    length_of_code_without_user_edits: props.codeWithoutUserEdits.length
                                 }
                             )
                             props.setUIState((prevUIState) => {
