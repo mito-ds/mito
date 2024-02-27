@@ -301,7 +301,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             }
                         }
                     })
-                    void mitoAPI.log('user_edited_code_cell')
+                    void mitoAPI.log(
+                        'user_edited_code_cell', 
+                        {
+                            length_of_code_with_user_edits: newCode.length,
+                            length_of_code_without_user_edits: oldCode.length
+                        }
+                    );
                 },
                 oldCodeRef?.current,
                 undefined,

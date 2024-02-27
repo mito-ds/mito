@@ -66,7 +66,7 @@ const UserEditedCodeModal = (
                                     length_of_code_with_user_edits: props.newCode.length,
                                     length_of_code_without_user_edits: props.oldCode.length
                                 }
-                            );        
+                            );
                             props.setUIState((prevUIState) => {
                                 return {
                                     ...prevUIState,
