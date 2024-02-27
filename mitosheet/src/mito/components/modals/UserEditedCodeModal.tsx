@@ -44,7 +44,6 @@ const UserEditedCodeModal = (
             props.codeWithoutUserEdits,
             overwriteCode,
         )
-        console.log('userCodeWithEdits', props.codeWithUserEdits, 'userCodeWithoutEdits', props.codeWithoutUserEdits)
         void props.mitoAPI.log(
             overwriteCode ? 'overwrite_user_edited_code' : 'insert_new_cell_for_user_edited_code',
             {
