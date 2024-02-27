@@ -1,9 +1,12 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
 import { awaitResponse, checkColumnCount, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
 
-
-const AGGREGATION_FUNCTIONS = [
+const AGGREGATION_FUNCTION_ANY_TYPE = [
     'count', 
+    'count unique'
+]
+
+const AGGREGATION_FUNCTION_NUMBERS = [
     'sum',
     'mean',
     'median',
@@ -11,6 +14,8 @@ const AGGREGATION_FUNCTIONS = [
     'min',
     'max'
 ]
+
+const AGGREGATION_FUNCTIONS = AGGREGATION_FUNCTION_ANY_TYPE.concat(AGGREGATION_FUNCTION_NUMBERS);
 
 const createPivotFromSelectedSheet = async (
     page: Page,
@@ -147,7 +152,7 @@ test.describe('Pivot Table', () => {
 
     })
 
-    test('Number aggregations disabled for string columns', async ({ page }) => {
+    test.only('Number aggregations disabled for string columns', async ({ page }) => {
         const mito = await getMitoFrameWithTypeCSV(page);
 
         await createPivotFromSelectedSheet(
@@ -157,9 +162,13 @@ test.describe('Pivot Table', () => {
             ['Column2']
         )
 
-        // TODO
-
-
+        
+        await mito.getByText('count', { exact: true }).click();
+        for (let i = 0; i < AGGREGATION_FUNCTION_NUMBERS.length; i++) {
+            const numberAggFunction = AGGREGATION_FUNCTIONS[i];
+            await mito.getByRole('button', { name: numberAggFunction}).hover()
+            await expect(mito.getByRole('button', { name: `${numberAggFunction} Not valid for string column` })).toBeVisible();            
+        }
     })
 
     test('Can add filter to pivot', async ({ page }) => {
