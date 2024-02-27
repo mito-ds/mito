@@ -77,7 +77,7 @@ const Home: NextPage = () => {
             <iframe
               className='only-on-desktop-inline-block'
               src="https://mito-for-st-demo.streamlit.app/?embed=true"
-              height="650"
+              height="750"
               style={{width: '80%', border: 'none'}}
             ></iframe>
             <div id='video' className='only-on-mobile'>
