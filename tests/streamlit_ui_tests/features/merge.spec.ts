@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, hasExpectedNumberOfRows, importCSV } from '../utils';
 
 
 test.describe('Merge', () => {
@@ -95,8 +95,7 @@ test.describe('Merge', () => {
         await expect(mito.getByText('df_merge')).toBeVisible();
     
         // Check that the correct number of rows are present
-        await expect(mito.locator('.index-header-container', { hasText: '3' })).toBeVisible();
-        await expect(mito.locator('.index-header-container', { hasText: '4' })).not.toBeVisible();
+        await hasExpectedNumberOfRows(mito, 4);
 
         const changeMergeType = async (oldMergeType: string, newMergeType: string, expectedRows: number) => {
             // Change the merge type
@@ -105,8 +104,7 @@ test.describe('Merge', () => {
             await awaitResponse(page);
 
             // Check that the correct number of rows are present
-            await expect(mito.locator('.index-header-container', { hasText: `${expectedRows - 1}` })).toBeVisible();
-            await expect(mito.locator('.index-header-container', { hasText: `${expectedRows}` })).not.toBeVisible();
+            await hasExpectedNumberOfRows(mito, expectedRows);
         }
 
         await changeMergeType('lookup', 'left', 5);
@@ -115,5 +113,35 @@ test.describe('Merge', () => {
         await changeMergeType('inner', 'outer', 6);
         await changeMergeType('outer', 'unique in left', 1);
         await changeMergeType('unique in left', 'unique in right', 1);
+    });
+
+    test('Error handling and changing merge keys / dataframes', async ({ page }) => {
+        const mito = await getMitoFrame(page);
+        await importCSV(page, mito, 'merge.csv');
+        await importCSV(page, mito, 'test.csv');
+        await importCSV(page, mito, 'types.csv');
+        
+        await clickButtonAndAwaitResponse(page, mito, { name: '▾ Merge' })
+        await mito.getByText('Merge (horizontal)').click();
+        await awaitResponse(page);
+
+        // Check that we throw an error because the default merge keys are different types
+        await expect(mito.locator('.text-color-error')).toHaveText('Column1 (object) and Column1 (int64) have different types. Either pick new keys or cast their types.');
+
+        // Test changing the dataframe
+        await mito.locator('.select-text', { hasText: 'types' }).click();
+        await mito.locator('.mito-dropdown-item span').getByText('merge', { exact: true }).click();
+        await awaitResponse(page);
+        await hasExpectedNumberOfRows(mito, 5);
+
+        // Test changing the merge keys
+        await mito.locator('.select-text', { hasText: 'Column1' }).first().click();
+        await mito.getByRole('button', { name: 'Column2' }).click();
+        await awaitResponse(page);
+        await mito.locator('.select-text', { hasText: 'Column1' }).first().click();
+        await mito.getByRole('button', { name: 'Column2' }).click();
+        await awaitResponse(page);
+        await hasExpectedNumberOfRows(mito, 5);
+        await expect(mito.locator('.endo-column-header-final-text', { hasText: 'Column2' })).toHaveCount(1);
     });
 });
