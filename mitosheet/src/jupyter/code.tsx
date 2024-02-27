@@ -137,7 +137,7 @@ export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): 
  * cell that Mito is using to store the generated code. We need to know this to avoid
  * overwriting the user's code with the generated code.
  * @param oldCode - The last analysisData code that was written to the cell
- * @param codeCell - The cell that contains the code
+ * @param codeCellText - The text in the cell that contains the code
  * @returns boolean indicating if the code cell has been changed
  */
 export function hasCodeCellBeenEditedByUser(oldCode: string[], codeCellText?: string): boolean {
