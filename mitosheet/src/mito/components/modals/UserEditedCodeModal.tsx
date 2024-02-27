@@ -21,7 +21,7 @@ const UserEditedCodeModal = (
     }): JSX.Element => {
     return (
         <DefaultModal
-            header='Insert New Cell?'
+            header='Edit to Code Detected'
             modalType={ModalEnum.Error}
             wide
             viewComponent={
