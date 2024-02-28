@@ -66,11 +66,11 @@ test.describe('Mitosheet JupyterLab integration', () => {
 
     // Check that the modal appears to ask the user if they want to overwrite the code
     await updateCellValue(page, 'new cell value', "'another cell value'");
-    await expect(page.getByText('Insert New Cell?')).toBeVisible();
+    await expect(page.getByText('Edit to Code Detected')).toBeVisible();
 
     // Click the "Overwrite Changes" button
     await page.click('text=Overwrite Edits');
-    await expect(page.getByText('Insert New Cell?')).not.toBeAttached();
+    await expect(page.getByText('Edit to Code Detected')).not.toBeAttached();
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('hello world');
     // The code from the mitosheet call should still be there
     // Don't check for the entire string because it contains a random id
@@ -81,11 +81,11 @@ test.describe('Mitosheet JupyterLab integration', () => {
 
     // Check that the modal appears to ask the user if they want to overwrite the code
     await updateCellValue(page, 'another cell value', "'a third cell value'");
-    await expect(page.getByText('Insert New Cell?')).toBeVisible();
+    await expect(page.getByText('Edit to Code Detected')).toBeVisible();
 
     // Click the "Insert New Cell" button
     await page.getByText('Insert New Cell', { exact: true }).click();
-    await expect(page.getByText('Insert New Cell?')).not.toBeVisible();
+    await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
 
     // Check that the cell below the mitosheet call has been updated and doesn't contain the edits
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
@@ -97,7 +97,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
 
     // Check that new user edits are generated correctly
     await updateCellValue(page, 'a third cell value', "'a fourth cell value'");
-    await expect(page.getByText('Insert New Cell?')).not.toBeVisible();
+    await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
     // Check that the cell below the mitosheet call has been updated and doesn't contain the edits
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText("df['a'] = 'a fourth cell value'");
