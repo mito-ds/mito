@@ -59,7 +59,7 @@ const Home: NextPage = () => {
                 - Write Python 4x faster. Take the test.
                 - Don't know how to code? Now you do.
               */}
-              Edit a spreadsheet to genererate Python. Code 4x faster. 
+              Edit a spreadsheet to generate Python. Code 4x faster. 
             </h1>
 
             <h2 className={titleStyles.description}>
@@ -226,21 +226,6 @@ const Home: NextPage = () => {
               <p className={homeStyles.metrics_label}>
                 Mito Sheets Created
               </p>
-            </div>
-          </section>
-
-          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section, 'margin-top-8rem')}>
-            <div>
-              <h2 className={homeStyles.case_study_text}>
-                Enigma’s Director of Finance saves 16 hours per month with Mito
-              </h2>
-              <TextButton 
-                text="Read Tom's Story"
-                href="/blog/enigma-case-study/"
-              />
-            </div>
-            <div className={homeStyles.case_study_headshot}>
-              <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
             </div>
           </section>
 

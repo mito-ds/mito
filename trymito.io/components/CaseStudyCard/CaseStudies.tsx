@@ -14,7 +14,7 @@ const CaseStudies = (props: {}): JSX.Element => {
                     <tr>
                         <td>
                             <CaseStudyCard 
-                                imageSrc='/case-studies/Top 10 bank automated critical monthly reports.png'
+                                imageSrc='/case-studies/Wealth Management Case Study.png'
                                 link="blog/wealth-management-analyst-automates-critical-monthly-deliverable"  
                                 height={504}
                                 width={1030} 
@@ -72,7 +72,7 @@ const CaseStudies = (props: {}): JSX.Element => {
             </table>
             <div className={classNames(caseStudiesStyles.case_study_mobile_container, 'only-on-mobile')}>
                 <CaseStudyCard 
-                    imageSrc='/case-studies/Top 10 bank automated critical monthly reports.png'
+                    imageSrc='/case-studies/Wealth Management Case Study.png'
                     link="blog/wealth-management-analyst-automates-critical-monthly-deliverable"
                     height={230}
                     width={500} 
