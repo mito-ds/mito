@@ -529,4 +529,17 @@ test.describe('Graph Functionality', () => {
     await awaitResponse(page);
     await expect(mito.getByRole('button', { name: 'Import Files' })).toBeVisible();
   });
+
+  test('Graph size changes when window resizes', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await openGraphEditor(mito, page);
+
+    // Check that the graph has the default width
+    await expect(mito.locator('.plotly-graph-div')).toHaveCSS('width', '792px');
+
+    // Change the window size and check that the graph has been updated
+    await page.setViewportSize({ width: 1000, height: 800 });
+    await awaitResponse(page);
+    await expect(mito.locator('.plotly-graph-div')).toHaveCSS('width', '512px');
+  });
 });
