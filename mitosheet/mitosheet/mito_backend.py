@@ -273,7 +273,7 @@ class MitoBackend():
                 print(e)
 
             # Log processing this event failed
-            log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
+            log_event_processed(event, self.steps_manager, failed=True, error=e, start_time=start_time)
 
             # Report it to the user, and then return
             self.mito_send({

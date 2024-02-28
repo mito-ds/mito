@@ -19,7 +19,7 @@ interface AITransformationResultSectionProps {
 const AITransformationResultSection = (props: AITransformationResultSectionProps): JSX.Element => {
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Mito AI"
                 setUIState={props.setUIState}           

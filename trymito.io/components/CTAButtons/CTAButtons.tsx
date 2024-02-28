@@ -7,11 +7,13 @@ import { classNames } from '../../utils/classNames';
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
 
 const CTAButtons = (props: {
-    variant: 'download' | 'contact' | 'try jupyterlite',
+    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install' | 'book a demo',
     align: 'left' | 'center',
     displaySecondaryCTA?: boolean
     secondaryCTA?: 'pro' | 'learn more'
     style?: React.CSSProperties;
+    ctaText?: string,
+    textButtonClassName?: string
 }): JSX.Element => {
 
     const displaySecondaryCTA = props.displaySecondaryCTA ?? true; 
@@ -26,21 +28,57 @@ const CTAButtons = (props: {
         > 
             {props.variant === 'download' && 
                 <TextButton 
-                    text='Install Mito'
+                    text={props.ctaText || 'Install Mito'}
                     href={MITO_INSTALLATION_DOCS_LINK}
+                    className={props.textButtonClassName}
+                />
+            }
+            {props.variant === 'scroll-to-install' && 
+                <TextButton 
+                    text='Try Mito now'
+                    onClick={() => {
+                        // Smoothly scroll to the #installation section
+                        const el = document.getElementById('installation');
+                        if (el) {
+                            el.scrollIntoView({behavior: 'smooth'});
+                        }
+                    }}
                 />
             }
             {props.variant === 'try jupyterlite' && 
                 <TextButton 
-                    text='Try Mito'
+                    text={props.ctaText || 'Try Mito'}
                     href={JUPYTERLITE_MITO_LINK}
+                    className={props.textButtonClassName}
                 />
             }
             {props.variant === 'contact' && 
                 <TextButton 
-                    text='Contact the Mito Team'
+                    text={props.ctaText || 'Contact the Mito Team'}
                     href="mailto:founders@sagacollab.com"
+                    className={props.textButtonClassName}
                 />
+            }
+            {props.variant === 'book a demo' && 
+                <>
+                    <div className='only-on-desktop'>
+                        <TextButton 
+                            text='Book an Enterprise Demo'
+                            href="https://calendly.com/jake_from_mito/30min"
+                            variant='secondary'
+                            className={props.textButtonClassName}
+                        />
+                    </div>
+                    <div className='only-on-mobile'>
+                        <TextButton 
+                            text='Book a Demo'
+                            href="https://calendly.com/jake_from_mito/30min"
+                            variant='secondary'
+                            className={props.textButtonClassName}
+                        />
+                    </div>
+                </>
+                
             }
             
             {displaySecondaryCTA && secondaryCTA === 'pro' && 

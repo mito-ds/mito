@@ -5,28 +5,36 @@ import codeBlockStyles from './CodeBlock.module.css'
 import { classNames } from '../../utils/classNames';
 
 
-const CodeBlock = (props:{code: string}) => {
+const CodeBlock = (props:{
+  children: string,
+  prefix?: string,
+  paddingRight?: string
+  className?: string
+}) => {
 
   const [copied, setCopied] = useState(false);
   useEffect(() => {
     if (copied) {
-      setTimeout(() => {setCopied(false)}, 3000)
+      setTimeout(() => {setCopied(false)}, 8000)
     }
   }, [copied])
 
   return (
-    <div className={codeBlockStyles.container_div} onClick={async () => {
+    <div 
+      className={classNames(codeBlockStyles.container_div, props.className)}
+      onClick={async () => {
 
-      // Undefined on some mobile devices so we disable it as to not error
-      if (navigator.clipboard === undefined) {
-        return;
-      }
-      
-      await navigator.clipboard.writeText(props.code);
-      setCopied(true);
-    }}>
-      <pre className={codeBlockStyles.code_container} >
-        <code className={classNames("language-python")}>{props.code}</code>
+        // Undefined on some mobile devices so we disable it as to not error
+        if (navigator.clipboard === undefined) {
+          return;
+        }
+        
+        await navigator.clipboard.writeText(props.children);
+        setCopied(true);
+      }}
+    >
+      <pre className={codeBlockStyles.code_container} style={{paddingRight: props.paddingRight}}>
+        {props.prefix !== undefined && <span className='text-unselectable'>{props.prefix}</span>}<code className={classNames("language-python")}>{props.children}</code>
       </pre>
       <div className={codeBlockStyles.clipboard_container}>
         {!copied && <div className={codeBlockStyles.copy_text}>Copy!</div>}

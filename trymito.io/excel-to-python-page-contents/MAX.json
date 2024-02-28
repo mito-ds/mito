@@ -121,5 +121,10 @@
                 "codeLines": []
             }
         ]
+    },
+    "mitoCTA": {
+         "codeLines": [
+            "df['Max_Value'] = MAX(df['A'], df['B'], 0)"
+        ]
     }
 }

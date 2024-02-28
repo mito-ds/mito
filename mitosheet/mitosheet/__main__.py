@@ -9,6 +9,7 @@ The main entry point for the mitosheet package, this command
 line interface allows you to set some toggles in the user.json
 """
 import sys
+from mitosheet.hello import run_hello
 from mitosheet.experiments.experiment_utils import set_experiment
 
 from mitosheet.user.db import set_user_field
@@ -36,6 +37,8 @@ def main() -> None:
 
     # Then, if we are being told to turn off logging, turn off logging
     if len(sys.argv) > 1:
+        if sys.argv[-1] == 'hello':
+            run_hello()
         if sys.argv[-1] == 'turnofflogging':
             print("Turning off all logging")
             set_user_field(UJ_MITOSHEET_TELEMETRY, False)

@@ -1,4 +1,5 @@
 import titleStyles from '../../styles/Title.module.css';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD } from '../../utils/plausible';
 import CTAButtons from '../CTAButtons/CTAButtons';
 
 const DashboardCTACard = (): JSX.Element => {
@@ -9,7 +10,7 @@ const DashboardCTACard = (): JSX.Element => {
                 Ready to save your team hours?
             </h2>
             <div className='center'>
-                <CTAButtons variant='download' align='center'/>
+                <CTAButtons variant='download' align='center' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD} />
             </div>  
         </div>
     )

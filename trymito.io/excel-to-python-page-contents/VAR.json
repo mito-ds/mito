@@ -1,0 +1,102 @@
+{
+    "slug": ["functions", "math", "VAR"],
+    "functionNameShort": "VAR",
+    "functionNameLong": "Variance",
+    "relatedFunctions": ["SUM", "MEAN", "MEDIAN"],
+    "purpose": "Perform various operations on data sets",
+    "titleCardParagraphs": [
+        "The Excel VAR function calculates the variance of a supplied set of values. It's commonly used to measure the spread of a data set, which is helpful when analyzing financial returns data, scientific data, etc."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "Variance is a measure of how spread out a data set is. The variance is calculated as the average squared deviation of each number from its mean. The result is always positive, as the deviations are first squared.",
+            "=VAR(A1:A10)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "number1",
+                "description": "The range of cells on which to calculate the variance.",
+                "dataType": "range"
+            },
+            {
+                "parameter": "number2",
+                "description": "(Optional) Additional ranges or individual cells to include in the variance.",
+                "dataType": "range"
+            },
+            {
+                "parameter": "...",
+                "description": "(Optional) Additional ranges or individual cells to include in the variance.",
+                "dataType": "range"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=VAR(1, 2, 3, 4, 5)",
+                "description": "Calculate the variance of 1, 2, 3, 4, and 5.",
+                "result": "2.5"
+            },
+            {
+                "formula": "=VAR(A1:A10)",
+                "description": "Calculate the variance of the values from A1 to A10.",
+                "result": "Variance of the values in A1:A10."
+            },
+            {
+                "formula": "=VAR(A1:A10, B1:B10)",
+                "description": "Calculate the variance of the values A1 to A10 and B1 to B10.",
+                "result": "Variance of the values in A1:A10 and B1:B10."
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In Python's pandas library, the VAR function can be used in various ways, similar to Excel but with more flexibility. Here's how to achieve similar functionality:"
+        ],
+        "codeSections": [
+            {
+                "title": "Calcualte the variance of a single pandas DataFrame column",
+                "shortTitle": "Single Column",
+                "paragraphs": [
+                    "To apply VAR to a single column in pandas, simply select the column and apply the built in `var` method. This is akin to writing the Excel formula, =VAR(A:A)"
+                ],
+                "codeLines": [
+                    "# Calculate the variance of column A",
+                    "var_value = df['A'].var()"
+                ]
+            },
+            {
+                "title": "Calculate the variance of multiple columns in a pandas DataFrame",
+                "shortTitle": "Multiple Columns",
+                "paragraphs": [
+                    "Just like in Excel how you can write the formula, =VAR(A:A, B:B), you can apply the `var` method to multiple columns in pandas.",
+                    "To do so, use the following code:"
+                ],
+                "codeLines": [
+                    "# Calculate the variance of columns A and B",
+                    "var_values = df[['Column1', 'Column2']].var()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "While using the VAR function in pandas, certain common pitfalls can lead to incorrect results or errors. Here are a few to be aware of:"
+        ],
+        "codeSections": [
+            {
+                "title": "Incorrect Data Type",
+                "shortTitle": "Data Type Issues",
+                "paragraphs": [
+                    "Calculating the variance on columns with non-numeric data will result in errors. It's crucial to ensure that the data types are consistent and appropriate for the `var` operation.",
+                    "To do so, convert the data to a numeric format using pd.to_numeric() if necessary, and handle any non-numeric values beforehand."
+                ],
+                "codeLines": [
+                    "# Convert Column1 to numeric",
+                    "df['Column1'] = pd.to_numeric(df['Column1'], errors='coerce')",
+                    "", 
+                    "# Calculate the variance of Column1",
+                    "var_value = df['Column1'].var()"
+                ]
+            }
+        ]
+    }
+}

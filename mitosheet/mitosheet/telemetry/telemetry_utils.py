@@ -154,13 +154,13 @@ def _get_wsc_log_params(steps_manager: Optional[StepsManagerType]=None) -> Dict[
     else:
         return {}
 
-def _get_error_log_params(failed: bool=False, mito_error: Optional[MitoError]=None)-> Dict[str, Any]:
+def _get_error_log_params(failed: bool=False, error: Optional[Exception]=None)-> Dict[str, Any]:
     """
     Get relevant logging data from any recently thrown error
     """
 
     # We also check there is an edit_error, and if there is, then we add the error logs
-    if mito_error is not None or failed:
+    if error is not None or failed:
         recent_traceback = get_recent_traceback_as_list() 
         # TODO: if this is to long, we should chop it, and also take only the first 10k characters of the last line...
         return {
@@ -281,7 +281,7 @@ def _get_experiment_params() -> Dict[str, Any]:
 
     return experiment_params
 
-def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, mito_error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
+def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, failed: bool=False, error: Optional[MitoError]=None, start_time: Optional[float]=None) -> None:
     """
     Helper function for logging when an event is processed by the backend,
     including an edit event, an api call, or an update event. 
@@ -303,7 +303,7 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
         'params': copy(event['params']),
         'steps_manager': steps_manager,
         'failed': failed,
-        'mito_error': mito_error,
+        'error': error,
         'start_time': start_time
     }
 
@@ -385,7 +385,7 @@ def log(
         params: Optional[Dict[str, Any]]=None, 
         steps_manager: Optional[StepsManagerType]=None, 
         failed: bool=False, 
-        mito_error: Optional[MitoError]=None, 
+        error: Optional[Exception]=None, 
         start_time: Optional[float]=None,
     ) -> None:
     """
@@ -412,7 +412,7 @@ def log(
     final_params = {**final_params, **_get_wsc_log_params(steps_manager=steps_manager)}
 
     # Then, get the logs for the error (if there is one)
-    final_params = {**final_params, **_get_error_log_params(failed=failed, mito_error=mito_error)}
+    final_params = {**final_params, **_get_error_log_params(failed=failed, error=error)}
 
     # Then, get the logs for the processing time of the operation
     final_params = {**final_params, **_get_processing_time_log_params(steps_manager=steps_manager, start_time=start_time)}

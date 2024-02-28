@@ -7,9 +7,11 @@ import CloseButton from '../../public/CloseButton.png'
 import TranslucentButton from "../TranslucentButton/TranslucentButton"
 import GithubButton, { MITO_GITHUB_LINK } from "../GithubButton/GithubButton"
 import { classNames } from "../../utils/classNames"
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER } from "../../utils/plausible"
 
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'
+export const CREATE_MITOSHEET_DOCS_LINK = 'https://docs.trymito.io/how-to/creating-a-mitosheet'
 
 
 const HeaderDropdownItem = (props: {
@@ -110,8 +112,14 @@ const Header = (): JSX.Element => {
                 </HeaderDropdown>
 
 
-                {/* Industries Dropdown */}
-                <HeaderDropdown dropdownButtonTitle="Industries">
+                {/* Use Cases Dropdown */}
+                <HeaderDropdown dropdownButtonTitle="Use Cases">
+                <HeaderDropdownItem
+                    title='Python Training'
+                    href='/use-cases/python-training'
+                    iconSrc='/education.svg'
+                    altText="Financial Services"
+                  />
                   <HeaderDropdownItem
                     title='Financial Services'
                     href='/industries/financial-services'
@@ -166,6 +174,7 @@ const Header = (): JSX.Element => {
               />              
               <TranslucentButton
                 href={MITO_INSTALLATION_DOCS_LINK}
+                className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER}
               >
                 <>
                   Install
@@ -176,7 +185,7 @@ const Header = (): JSX.Element => {
 
           {/* This next section is the header for mobile only */}
           <div 
-            className={classNames(headerStyles.menu_bar_container, 'display-mobile-only')}
+            className={classNames(headerStyles.menu_bar_container, 'only-on-mobile')}
             aria-controls='mobile_nav_menu'
             onClick={() => setMobileMenuVisible(mobileMenuVisible => !mobileMenuVisible)}
           >
@@ -212,6 +221,9 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/infrastructure-integration-python-tool'>Infrastructure Integration</Link>
+                </li>
+                <li className='highlight-on-hover'>
+                  <Link href='/use-cases/python-training'>Python Training</Link>
                 </li>
                 <li className='highlight-on-hover'>
                   <Link href='/industries/financial-services'>Financial Services</Link>
