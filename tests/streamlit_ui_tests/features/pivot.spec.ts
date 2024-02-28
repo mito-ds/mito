@@ -152,7 +152,7 @@ test.describe('Pivot Table', () => {
 
     })
 
-    test.only('Number aggregations disabled for string columns', async ({ page }) => {
+    test('Number aggregations disabled for string columns', async ({ page }) => {
         const mito = await getMitoFrameWithTypeCSV(page);
 
         await createPivotFromSelectedSheet(
@@ -165,9 +165,10 @@ test.describe('Pivot Table', () => {
         
         await mito.getByText('count', { exact: true }).click();
         for (let i = 0; i < AGGREGATION_FUNCTION_NUMBERS.length; i++) {
-            const numberAggFunction = AGGREGATION_FUNCTIONS[i];
-            await mito.getByRole('button', { name: numberAggFunction}).hover()
-            await expect(mito.getByRole('button', { name: `${numberAggFunction} Not valid for string column` })).toBeVisible();            
+            const numberAggFunction = AGGREGATION_FUNCTION_NUMBERS[i];
+            // Find a div with the class of mito-dropdown-ignore-click, that has the text of the numberAggFunction
+            const numberAggButton = await mito.locator('.mito-dropdown-ignore-click', { hasText: numberAggFunction });  
+            await expect(numberAggButton).toBeVisible();       
         }
     })
 
