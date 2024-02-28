@@ -65,11 +65,11 @@ def try_create_starter_notebook() -> bool:
         if not os.path.exists(MITO_STARTER_NOTEBOOK_PATH):
             with open(MITO_STARTER_NOTEBOOK_PATH, 'w+') as f:
                 f.write(json.dumps(MITO_STARTER_NOTEBOOK_CONTENTS))
-                
+        log('hello_command_create_starter_notebook')
         return True
     except Exception as e:
         log(
-            'hello_command_try_create_starter_notebook_error', 
+            'hello_command_create_starter_notebook_error', 
             failed=True,
             error=e
         )
@@ -90,19 +90,19 @@ def run_hello() -> None:
     print()
     print()
 
-    created_starter_notebook = try_create_starter_notebook()
-
-    if not created_starter_notebook:
-        print(f"Did not have the permissions to create a starter notebook. Check our instructions for creating a new Mitosheet at: https://docs.trymito.io/how-to/creating-a-mitosheet")
-        exit(1)
-
-    log('hello_command_success')
+    try_create_starter_notebook()
 
     # Flush any logs
     analytics.flush()
 
     # Launch JupyterLab
-    os.execl(sys.executable, 'python', '-m', 'jupyter', 'lab', MITO_STARTER_NOTEBOOK_PATH)
+    try:
+        os.execl(sys.executable, 'python', '-m', 'jupyter', 'lab', MITO_STARTER_NOTEBOOK_PATH)
+    except Exception as e:
+        log('hello_command_start_jupyterlab_error', error=e, failed=True)
+
+    # Flush any logs, again
+    analytics.flush()
 
     
 
