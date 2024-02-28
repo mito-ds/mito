@@ -544,4 +544,21 @@ test.describe('Graph Functionality', () => {
     await awaitResponse(page);
     await expect(mito.locator('.plotly-graph-div')).toHaveCSS('width', '512px');
   });
+
+  test('Delete a column that is being used in a graph', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await openGraphEditor(mito, page);
+    await addColumnToAxis(mito, page, 'X', 'Column2');
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column2,  Column1 bar chart' })).toBeVisible();
+
+    // Switch to data tab and delete on of the columns
+    await mito.locator('.footer').getByText('test').click();
+    await mito.locator('.endo-column-header-final-container').getByText('Column2').click();
+    await page.keyboard.press('Delete');
+    await awaitResponse(page);
+
+    // Switch back to graph tab and check that the graph has been updated
+    await mito.locator('.footer').getByText('graph0').click();
+    await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).toBeVisible();
+  });
 });
