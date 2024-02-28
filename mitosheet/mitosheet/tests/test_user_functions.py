@@ -3,7 +3,7 @@ import json
 import pytest
 import pandas as pd
 from mitosheet.enterprise.mito_config import MITO_CONFIG_CUSTOM_SHEET_FUNCTIONS_PATH, MITO_CONFIG_VERSION
-from mitosheet.saved_analyses.save_utils import write_analysis
+from mitosheet.saved_analyses.save_utils import write_save_analysis_file
 from mitosheet.tests.test_mito_config import delete_all_mito_config_environment_variables
 
 from mitosheet.tests.test_utils import create_mito_wrapper
@@ -38,7 +38,7 @@ def test_pass_sheet_function_then_replay_errors_if_not_passed_again():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))
 
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     new_mito = create_mito_wrapper(df)
     new_mito.replay_analysis(analysis_name)
@@ -55,7 +55,7 @@ def test_pass_sheet_function_then_replay_works_if_passed_again():
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))
 
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     new_mito = create_mito_wrapper(df, sheet_functions=[ADD1])
     new_mito.replay_analysis(analysis_name)

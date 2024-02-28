@@ -334,7 +334,7 @@ def upgrade_steps_for_new_format(saved_analysis: Optional[Dict[str, Any]]) -> Op
     }
 
 def upgrade_saved_analysis_to_have_public_interface_version(saved_analysis: Optional[Dict[str, Any]], public_interface_version: Optional[int]) -> Optional[Dict[str, Any]]:
-    
+
     if saved_analysis is None:
         return None
     
@@ -355,6 +355,16 @@ def upgrade_saved_analysis_to_have_up_to_date_args(saved_analysis: Optional[Dict
     
     # We always add the args to the saved analysis, as they should be reset when you rerun an analysis
     saved_analysis['args'] = args
+    
+    return saved_analysis
+
+def upgrade_saved_analysis_to_have_code(saved_analysis: Optional[Dict[str, Any]], code: Optional[str]) -> Optional[Dict[str, Any]]:
+
+    if saved_analysis is None:
+        return None
+    
+    if code is not None:
+        saved_analysis['code'] = code
     
     return saved_analysis
 
@@ -407,8 +417,12 @@ def upgrade_saved_analysis_to_current_version(saved_analysis: Optional[Dict[str,
         saved_analysis_with_public_interface, 
         args
     )
-    saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(
+    saved_analysis_with_args_with_code = upgrade_saved_analysis_to_have_code(
         saved_analysis_with_args,
+        saved_analysis.get('code', None) if saved_analysis is not None else None
+    )
+    saved_analysis_with_code_options = upgrade_saved_analysis_to_have_code_options(
+        saved_analysis_with_args_with_code,
         analysis_name,
         saved_analysis.get('code_options', None) if saved_analysis is not None else None,
     )
