@@ -53,8 +53,8 @@ export const awaitResponse = async (page: Page): Promise<void> => {
     if ((await page.locator('text=Running').count()) === 0) {
         // Wait at least 25 ms for the message to send, as there is 
         // a 25ms delay in the message sending in streamlit. We actually
-        // wait 250ms to be safe -- which is a bit of a cost, but 
-        await page.waitForTimeout(250);
+        // wait 500ms to be safe -- which is a bit of a cost, but 
+        await page.waitForTimeout(500);
     }
     
     // Then, wait for Streamlit to finish processing the message

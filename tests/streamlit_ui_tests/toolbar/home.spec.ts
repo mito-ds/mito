@@ -89,6 +89,7 @@ test.describe('Home Tab Buttons', () => {
     
     await clickButtonAndAwaitResponse(page, mito, { name: 'Delete' })
 
+
     await expect(mito.getByText('Column1')).not.toBeVisible();
   });
 
