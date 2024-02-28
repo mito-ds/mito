@@ -31,7 +31,7 @@ export const getGraphTabNamesAndIDsFromSheetIndex = async (sheetIndex: number, g
         return graphParams.graph_creation.sheet_index === sheetIndex
     })
     
-    return Object.entries(filteredGraphDataJSON).map(([graphID, graphData]) => {
+    return filteredGraphDataJSON.map((graphData: GraphData) => {
         return {graphTabName: graphData.graph_tab_name, graphID: graphData.graph_id}
     })
 } 
