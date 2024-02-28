@@ -20,6 +20,7 @@ def read_backend_state_string_to_mito_backend(backend_state_string: str) -> Mito
     previous_code_options = steps_manager.code_options
 
     try:
+        
         # Before we execute the steps, update to the public interface version of the saved analysis
         steps_manager.public_interface_version = analysis['public_interface_version']
         steps_manager.code_options = analysis['code_options']
