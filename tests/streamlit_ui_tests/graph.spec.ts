@@ -561,4 +561,20 @@ test.describe('Graph Functionality', () => {
     await mito.locator('.footer').getByText('graph0').click();
     await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart' })).toBeVisible();
   });
+
+  test('Invalid numbers in graph format', async ({ page }) => {
+    const mito = await getMitoFrameWithTypeCSV(page);
+    await openGraphEditor(mito, page);
+
+    await clickTab(page, mito, 'Format');
+    await mito.getByText('Chart Title').click();
+    await mito.getByText('Legend').click();
+
+    // Try to update the legend x position to an invalid number
+    await mito.locator('input[type="number"]').first().fill('-3');
+    await awaitResponse(page);
+
+    // Check that the invalid number has not been applied
+    await expect(mito.locator('input[type="number"]').first()).toHaveValue('');
+  });
 });
