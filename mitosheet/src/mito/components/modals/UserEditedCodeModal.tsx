@@ -2,7 +2,7 @@
 
 import React, { Fragment } from 'react';
 import { MitoAPI } from '../../api/api';
-import { UIState, UserProfile } from '../../types';
+import { AnalysisData, JupyterUtils, UIState, UserProfile } from '../../types';
 import DefaultModal from '../DefaultModal';
 import TextButton from '../elements/TextButton';
 import { ModalEnum } from './modals';
@@ -14,11 +14,50 @@ import { ModalEnum } from './modals';
 */
 const UserEditedCodeModal = (
     props: {
+        jupyterUtils?: JupyterUtils;
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
         mitoAPI: MitoAPI,
         userProfile: UserProfile,
-        onClickButton: (overwriteUserEdits: boolean) => void,
+        analysisData: AnalysisData,
+        codeWithoutUserEdits: string[],
+        codeWithUserEdits: string[]
     }): JSX.Element => {
+    
+    const handleUserEditedCode = (overwriteCode: boolean) => {
+        props.jupyterUtils?.writeGeneratedCodeToCell(
+            props.analysisData.analysisName, 
+            props.analysisData.code, 
+            props.userProfile.telemetryEnabled, 
+            props.analysisData.publicInterfaceVersion, 
+            (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
+                props.setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {
+                            type: ModalEnum.UserEditedCode,
+                            codeWithoutUserEdits: codeWithoutUserEdits,
+                            codeWithUserEdits: codeWithUserEdits
+                        }
+                    }
+                })
+            },
+            props.codeWithoutUserEdits,
+            overwriteCode,
+        )
+        void props.mitoAPI.log(
+            overwriteCode ? 'overwrite_user_edited_code' : 'insert_new_cell_for_user_edited_code',
+            {
+                length_of_code_with_user_edits: props.codeWithUserEdits.length,
+                length_of_code_without_user_edits: props.codeWithoutUserEdits.length
+            }
+        )
+        props.setUIState((prevUIState) => {
+            return {
+                ...prevUIState,
+                currOpenModal: {type: ModalEnum.None},
+            }
+        })
+    }
     return (
         <DefaultModal
             header='Edit to Code Detected'
@@ -36,30 +75,14 @@ const UserEditedCodeModal = (
                     <TextButton 
                         variant='light'
                         width='hug-contents'
-                        onClick={() => {
-                            props.onClickButton(true);
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenModal: {type: ModalEnum.None},
-                                }
-                            });
-                        }}
+                        onClick={() => handleUserEditedCode(true)}
                     >
                         Overwrite Edits
                     </TextButton>
                     <TextButton
                         variant='dark'
                         width='hug-contents'
-                        onClick={() => {
-                            props.onClickButton(false);
-                            props.setUIState((prevUIState) => {
-                                return {
-                                    ...prevUIState,
-                                    currOpenModal: {type: ModalEnum.None},
-                                }
-                            })
-                        }}
+                        onClick={() => handleUserEditedCode(false)}
                     >
                         Insert New Cell
                     </TextButton>

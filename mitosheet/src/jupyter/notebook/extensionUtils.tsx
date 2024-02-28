@@ -207,7 +207,7 @@ export const notebookOverwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName
     }
 }
 
-export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[], triggerUserEditedCodeDialog: () => void, overwriteIfUserEditedCode?: boolean): void => {
+export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, oldCode: string[], triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, overwriteIfUserEditedCode?: boolean): void => {
     const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
         
     // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
@@ -232,7 +232,7 @@ export const notebookWriteGeneratedCodeToCell = (analysisName: string, codeLines
 
     // Prevent overwriting the cell if the user has changed the code
     if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
-        triggerUserEditedCodeDialog();
+        triggerUserEditedCodeDialog(oldCode, codeCellText.split('\n'));
         return;
     // Only write to the cell if either of the following are true:
     // 1. The user has authorized overwriting the cell

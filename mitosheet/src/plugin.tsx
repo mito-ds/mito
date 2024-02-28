@@ -138,9 +138,9 @@ function activateMitosheetExtension(
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
             const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
-            const triggerUserEditedCodeDialog = args.triggerUserEditedCodeDialog as () => void;
+            const triggerUserEditedCodeDialog = args.triggerUserEditedCodeDialog as (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void;
             const overwriteIfUserEditedCode = args.overwriteIfUserEditedCode as boolean | undefined;
-            
+
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
             const oldCode = args.oldCode as string[];
@@ -171,7 +171,7 @@ function activateMitosheetExtension(
             // If the user has edited the code and they haven't chosen whether or not to overwrite the contents of the cell,
             // trigger the dialog to ask them. 
             if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
-                triggerUserEditedCodeDialog();
+                triggerUserEditedCodeDialog(oldCode, codeCellText.split('\n'));
                 return;
             // Only write to the cell if either of the following are true:
             // 1. The user has authorized overwriting the cell
