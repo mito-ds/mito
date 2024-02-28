@@ -35,6 +35,11 @@ export const getMitoFrameWithTestCSV = async (page: Page): Promise<FrameLocator>
     await importCSV(page, mito, 'test.csv');
     return mito;
 }
+
+export const hasExpectedNumberOfRows = async (mito: any, expectedRows: number) => {
+    await expect(mito.locator('.index-header-container', { hasText: `${expectedRows - 1}` })).toBeVisible();
+    await expect(mito.locator('.index-header-container', { hasText: `${expectedRows}` })).not.toBeVisible();
+};
   
 export const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator> => {
     const mito = await getMitoFrame(page);
