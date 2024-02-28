@@ -297,6 +297,11 @@ const GraphSidebar = (props: {
         setGraphParams(updateObjectWithPartialObject(graphParams, newGraphParams));
     }
 
+    const graphSidebarOpen = currOpenTaskpane.graphSidebarOpen || (
+        graphParams.graphCreation.x_axis_column_ids.length === 0 &&
+        graphParams.graphCreation.y_axis_column_ids.length === 0
+    )
+
     return (
         <div
             className={classNames('graph-sidebar-div', selectedGraphElementClass)}
@@ -369,7 +374,7 @@ const GraphSidebar = (props: {
                     mitoContainerRef={props.mitoContainerRef}
                 />
             </div>
-            {currOpenTaskpane.graphSidebarOpen && <div className='graph-sidebar-toolbar-container'>
+            {graphSidebarOpen && <div className='graph-sidebar-toolbar-container'>
                 <div className='graph-sidebar-toolbar-content-container'>
                     <Row justify='space-between' align='center'>
                         <Col>
