@@ -76,7 +76,7 @@ export const getColumnHeaderContainerAtIndex = async (mito: FrameLocator, index:
     return mito.locator('.endo-column-header-container').nth(index);
 }
 
-export const renameColumnByIndex = async (page: Page, mito: FrameLocator, index: number, newName: string): Promise<void> => {
+export const renameColumnAtIndex = async (page: Page, mito: FrameLocator, index: number, newName: string): Promise<void> => {
     const newColumnHeader = await getColumnHeaderContainerAtIndex(mito, index)
     await newColumnHeader.dblclick();
     await mito.getByRole('textbox').fill(newName);
@@ -113,6 +113,6 @@ export const createNewColumn = async (
 
     }
 
-    await renameColumnByIndex(page, mito, index, columnHeader);
+    await renameColumnAtIndex(page, mito, index, columnHeader);
 }
   
