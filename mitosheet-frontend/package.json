@@ -5,6 +5,11 @@
     "name": "Mito Sheet",
     "email": "naterush1997@gmail.com"
   },
+  "files": [
+    "lib",
+    "fonts",
+    "css"
+  ],
   "bugs": {
     "url": "https://github.com/mito-ds/mito/issues"
   },
@@ -12,7 +17,7 @@
     "url": "https://github.com/mito-ds/mito",
     "type": "git"
   },
-  "version": "0.3.131",
+  "version": "0.5.2",
   "dependencies": {
     "fscreen": "^1.1.0"
   },

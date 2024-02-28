@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import './App.css';
 
 import { AnalysisData, Mito, MitoResponse, SendFunctionReturnType, SheetData, UserProfile, getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from '.';
 
