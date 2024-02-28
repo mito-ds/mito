@@ -36,7 +36,8 @@ class DefaultTaskpaneErrorBoundry extends React.Component<PropsType, {hasError: 
         void this.props.mitoAPI?.log('taskpane_render_failed', {
             js_error: error,
             js_error_info: errorInfo,
-            js_taskpane_header: this.props.taskpaneHeader
+            // We don't log this as it might have sensitive information
+            // js_taskpane_header: this.props.taskpaneHeader
         });
     }
 

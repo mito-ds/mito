@@ -73,8 +73,6 @@ export function ValuesTab(
         setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     }): JSX.Element {
 
-    throw new Error('Not implemented');
-
     const [loading, setLoading] = useState(true);
 
     const [isAllData, setIsAllData] = useState(false); // Start false, so we go get the data in the start
