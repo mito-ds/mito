@@ -2,6 +2,10 @@
     margin: auto;
 }
 
+.margin-2rem {
+    margin: 2rem;
+}
+
 .margin-0 {
     margin: 0;
 }
@@ -34,7 +38,11 @@
     margin-top: 8rem;
 }
 
-.margin-bottom-1 {
+.margin-top-35px {
+    margin-top: 35px;
+}
+
+.margin-bottom-1rem {
     margin-bottom: 1rem;
 }
 
@@ -72,6 +80,10 @@
 
 .margin-left-5rem {
     margin-left: 4rem;
+}
+
+.margin-left-30px {
+    margin-left: 30px;
 }
 
 .margin-top-2rem-mobile-only {

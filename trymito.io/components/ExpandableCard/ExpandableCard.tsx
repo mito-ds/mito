@@ -5,6 +5,7 @@ import expandableCardStyles from './ExpandableCard.module.css'
 
 import OpenIconLight from '../../public/OpenIconLight.png'
 import CloseIconLight from '../../public/CloseIconLight.png'
+import { classNames } from '../../utils/classNames'
 
 const ExpandableCard = (props: {
     title: string, 
@@ -24,12 +25,12 @@ const imageSrc = props.isOpen ? CloseIconLight : OpenIconLight
 
     return (
         <div 
-            className={
-                pageStyles.background_card + ' ' + 
-                expandableCardStyles.expandable_card_container + ' ' +
-                selectedBackgroundColorClass + ' ' +
+            className={classNames(
+                pageStyles.background_card, 
+                expandableCardStyles.expandable_card_container,
+                selectedBackgroundColorClass,
                 className
-            }
+            )}
             id={props.title}
             onClick={() => props.onClick()}
         >

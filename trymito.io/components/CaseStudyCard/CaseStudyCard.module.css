@@ -1,0 +1,13 @@
+.case_study_card_container {
+    transition: transform .25s ease-in-out; /* Adjust duration as needed */
+    cursor: pointer;
+
+}
+
+.scale_small_on_hover:hover {
+    transform: scale(1.05);
+}
+
+.scale_normal_on_hover:hover {
+    transform: scale(1.1);
+}

@@ -2,6 +2,7 @@ import pageStyles from '../../styles/Page.module.css'
 import aiThesisStyles from './AIThesis.module.css'
 import { useState } from 'react'
 import ExpandableCard from '../ExpandableCard/ExpandableCard'
+import { classNames } from '../../utils/classNames'
 
 
 const AIThesis = (): JSX.Element => {
@@ -10,12 +11,12 @@ const AIThesis = (): JSX.Element => {
 
     return (
 
-        <div className={pageStyles.background_card + ' ' + aiThesisStyles.ai_thesis_container}>
-            <h2 className='margin-left-2rem'>
-                Built for AI automation
-            </h2>
-            <div className={pageStyles.subsection + ' ' + pageStyles.subsection_narrow_space_betweeen}>
+        <div className={aiThesisStyles.ai_thesis_container}>
+            <div className={classNames(pageStyles.subsection, pageStyles.subsection_narrow_space_betweeen)}>
                 <div>
+                    <h2 className={classNames('margin-left-2rem', 'margin-bottom-1rem')}>
+                        Built for AI automation
+                    </h2>
                     <ExpandableCard 
                         title={'Sometimes chatbots, sometimes spreadsheets'}
                         shortTitle={'Choose the right tool'} 

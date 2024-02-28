@@ -4,7 +4,7 @@
     align-items: center;
     
     padding: 2rem 4rem;
-    background-color: rgba(45, 45, 45, .98);
+    background-color: var(--color-background);
   
     position: fixed; /* Set the navbar to fixed position */
     top: 0; /* Position the navbar at the top of the page */

@@ -14,6 +14,7 @@
         flex-direction: row;
         justify-content: space-around;
         align-items: flex-start;
+        max-width: 70rem;
     }
 
     .bifold_container > div {

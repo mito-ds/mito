@@ -3,7 +3,6 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import AIThesis from '../components/AIThesis/AIThesis';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import FAQCard from '../components/FAQCard/FAQCard';
@@ -21,6 +20,7 @@ import Prism from 'prismjs';
 import LogoSection from '../components/LogoSection/LogoSection';
 import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
+import CaseStudies from '../components/CaseStudyCard/CaseStudies';
 
 const Home: NextPage = () => {
 
@@ -49,12 +49,22 @@ const Home: NextPage = () => {
         <main className={pageStyles.main}>
           <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
             <h1 className={titleStyles.title}>
-              Automate your spreadsheets. No computer science degree required.
+              {/* Other ideas:
+                - Automate your spreadsheets. No Computer Science Degree Required.
+                - Edit a spreadsheet. Generate Python code. 
+                - Automate your spreadsheets, but successfully
+                - All the tools you need to turn Excel reports into Python.
+                - Write Python, not Spreadsheets
+                - Write Python 4x faster 
+                - Write Python 4x faster. Take the test.
+                - Don't know how to code? Now you do.
+              */}
+              Edit a spreadsheet to generate Python. Code 4x faster. 
             </h1>
 
             <h2 className={titleStyles.description}>
-              Analysts at the world&apos;s largest banks  
-              save themselves from hours of repetitive work.
+              Join analysts at the world&apos;s largest companies  
+              automating their repetitive Excel work with Mito.
             </h2>
               
             <div className={homeStyles.cta_button_and_video_spacer}>
@@ -67,7 +77,7 @@ const Home: NextPage = () => {
             <iframe
               className='only-on-desktop-inline-block'
               src="https://mito-for-st-demo.streamlit.app/?embed=true"
-              height="650"
+              height="750"
               style={{width: '80%', border: 'none'}}
             ></iframe>
             <div id='video' className='only-on-mobile'>
@@ -75,18 +85,23 @@ const Home: NextPage = () => {
                 <source src="/demo.mp4" />
               </video>
             </div>
-        </section>
+          </section>
 
-        <LogoSection></LogoSection>
+          <LogoSection></LogoSection>
 
-        {false && <section className={pageStyles.background_card} >
-          {/* So that we can scroll to the correct location on the page, and 
-            because we have a fixed header taking up some space, we scroll 
-            to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
-          */}
-          <a className="anchor" id='installation'></a>
-          <InstallInstructions/>
-        </section>}
+          {false && <section className={pageStyles.background_card} >
+            {/* So that we can scroll to the correct location on the page, and 
+              because we have a fixed header taking up some space, we scroll 
+              to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
+            */}
+            <a className="anchor" id='installation'></a>
+            <InstallInstructions/>
+          </section>}
+
+          <section>
+            <CaseStudies />
+          </section>
+          
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
@@ -212,36 +227,6 @@ const Home: NextPage = () => {
                 Mito Sheets Created
               </p>
             </div>
-          </section>
-
-          <AIThesis/>
-
-          <section className={classNames(pageStyles.background_card, homeStyles.case_study_section, 'margin-top-8rem')}>
-            <div>
-              <h2 className={homeStyles.case_study_text}>
-                Enigma’s Director of Finance saves 16 hours per month with Mito
-              </h2>
-              <TextButton 
-                text="Read Tom's Story"
-                href="/blog/enigma-case-study/"
-              />
-            </div>
-            <div className={homeStyles.case_study_headshot}>
-              <Image src='/bellis.jpeg' alt='Explore your data with Mito' width={250} height={250} ></Image>
-            </div>
-          </section>
-
-          <section className={homeStyles.open_source_section}>
-              <div className={homeStyles.open_source_section_header + ' center'}>
-                <h2>
-                  We&apos;re proud to support important open source projects
-                </h2>
-              </div>
-              <div className={classNames(pageStyles.subsection, homeStyles.open_source_section_logos)}>
-                <a className={homeStyles.open_source_section_logo_container} href='https://numfocus.org/donate-to-jupyter' target='_blank' rel="noreferrer">
-                  <Image src={'/mito_and_jupyter.png'} alt='Mito supports Jupyter' width={800} height={600}/>
-                </a>
-              </div>
           </section>
 
           <section className={pageStyles.background_card}>
