@@ -26,7 +26,8 @@ def process_mito_event(backend_state: Optional[str], mito_event: Optional[Dict[s
         response = message
         
     mito_backend.mito_send = mito_send
-    mito_backend.receive_message(mito_event)
+    if mito_event:
+        mito_backend.receive_message(mito_event)
 
 
     return jsonify({
