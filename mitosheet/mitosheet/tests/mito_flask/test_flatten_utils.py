@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from mitosheet.tests.test_utils import create_mito_wrapper
-from mitosheet.mito_backend import MitoBackend
+from mitosheet.tests.decorators import requires_flask
 from mitosheet.mito_flask.v1.flatten_utils import (flatten_mito_backend_to_json,
                                                 read_backend_state_string_to_mito_backend)
 
@@ -14,6 +14,7 @@ TEST_DFS = [
 
 
 @pytest.mark.parametrize("df", TEST_DFS)
+@requires_flask
 def test_convert_to_string(df):
     mito = create_mito_wrapper()
 
@@ -31,7 +32,7 @@ def test_convert_to_string(df):
 
     os.remove("test.csv")
 
-
+@requires_flask
 def test_process_edit_convert_to_string_then_convert_back_still_processes():
     test_wrapper = create_mito_wrapper()
     df = pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 3]})
