@@ -528,6 +528,14 @@ def is_streamlit_installed() -> bool:
         return True
     except ImportError:
         return False
+        return False
+    
+def is_flask_installed() -> bool:
+    try:
+        import flask
+        return True
+    except ImportError:
+        return False
     
 def is_dash_installed() -> bool:
     try:
