@@ -12,11 +12,6 @@ test('Add new column to start using context menu', async ({ page }) => {
     await createNewColumn(page, mito, 0, 'Column4');
 });
 
-test('Add new column to middle using context menu', async ({ page }) => {
-    const mito = await getMitoFrameWithTypeCSV(page);
-    await createNewColumn(page, mito, 2, 'Column4');
-});
-
 test('Add multiple new columns using context menu', async ({ page }) => {
     const mito = await getMitoFrameWithTypeCSV(page);
     await createNewColumn(page, mito, 2, 'Column4');
