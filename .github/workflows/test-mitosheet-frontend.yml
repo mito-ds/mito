@@ -209,7 +209,7 @@ jobs:
       uses: actions/upload-artifact@v3
       if: always()
       with:
-        name: streamlit-playwright-report
+        name: test-results-${{ matrix.os }}-python${{ matrix.python-version }}-${{ matrix.project }}
         path: tests/playwright-report/
         retention-days: 14
 
