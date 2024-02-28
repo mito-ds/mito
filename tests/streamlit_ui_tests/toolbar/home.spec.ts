@@ -82,13 +82,14 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.locator('.endo-column-header-container').first()).toHaveAttribute('style', /background-color: rgb\(56, 80, 183\)/);
   });
 
-  test.only('Delete Column', async ({ page }) => {
+  test('Delete Column', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
-    await mito.getByTitle('Column2').click();
+    await mito.getByTitle('Column1').click();
+    
     await clickButtonAndAwaitResponse(page, mito, { name: 'Delete' })
 
-    await expect(mito.getByText('Column2')).not.toBeVisible();
+    await expect(mito.getByText('Column1')).not.toBeVisible();
   });
 
   test('Insert Column', async ({ page }) => {
