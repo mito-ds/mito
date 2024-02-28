@@ -155,7 +155,7 @@ const FillNaTaskpane = (props: FillNaTaskpaneProps): JSX.Element => {
         .every(hasDefinedMeanAndMedian => hasDefinedMeanAndMedian === true)
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header='Fill NaN Values'
                 setUIState={props.setUIState}   

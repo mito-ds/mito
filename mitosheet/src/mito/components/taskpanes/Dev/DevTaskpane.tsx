@@ -30,7 +30,7 @@ function DevTaskpane(props: DevTaskpaneProps): JSX.Element {
     }, [crashCount])
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header='Dev Taskpane'
                 setUIState={props.setUIState}

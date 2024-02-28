@@ -165,7 +165,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
     }
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Excel Range Import"
                 setUIState={props.setUIState}           

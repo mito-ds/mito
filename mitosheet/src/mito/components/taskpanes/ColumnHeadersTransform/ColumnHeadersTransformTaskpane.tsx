@@ -58,7 +58,7 @@ const ColumnHeadersTransformTaskpane = (props: ColumnHeadersTransformTaskpanePro
     const numHeaders = sheetData.data.length;
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Column Headers Transformations"
                 setUIState={props.setUIState}

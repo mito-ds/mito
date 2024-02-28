@@ -131,7 +131,7 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
     }
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Conditional Formatting"
                 setUIState={props.setUIState}           
