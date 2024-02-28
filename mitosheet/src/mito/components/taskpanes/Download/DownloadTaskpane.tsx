@@ -141,7 +141,7 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
     const invalidFileNameWarning = getInvalidFileNameError(fileName);
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header='Download'
                 setUIState={props.setUIState}   

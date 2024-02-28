@@ -7,7 +7,8 @@
     "test:streamlit": "playwright test streamlit_ui_tests --retries=3",
     "test:streamlit:headed": "playwright test streamlit_ui_tests --headed",
     "test:dash": "playwright test dash_ui_tests --retries=3 --project=\"chromium\"",
-    "test:jupyterlab": "playwright test jupyterlab_ui_tests --retries=3 --project=\"chromium\""
+    "test:jupyterlab": "playwright test jupyterlab_ui_tests --retries=3 --project=\"chromium\"",
+    "test:notebook": "playwright test notebook_ui_tests --retries=3 --project=\"chromium\""
   },
   "author": "",
   "license": "ISC",

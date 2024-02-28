@@ -120,7 +120,7 @@ const ConcatTaskpane = (props: ConcatTaskpaneProps): JSX.Element => {
     })
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Concatenate Sheet"
                 setUIState={props.setUIState}            

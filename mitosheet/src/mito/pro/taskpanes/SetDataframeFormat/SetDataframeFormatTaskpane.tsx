@@ -88,6 +88,8 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
     return (
         <DefaultTaskpane
             ref={ref}
+            setUIState={props.setUIState}
+            mitoAPI={props.mitoAPI}
         >
             <DefaultTaskpaneHeader 
                 header="Color Dataframe"

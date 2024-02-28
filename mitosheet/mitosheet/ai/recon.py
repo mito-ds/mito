@@ -81,12 +81,20 @@ def exec_for_recon(code: str, original_df_map: Dict[str, pd.DataFrame]) -> Dataf
     for df_name in potentially_modified_df_names:
         locals()[df_name] = df_map[df_name]
 
+    # If there are lambda expressions in the code, then we need to also 
+    # inject the pandas and numpy modules in as globals -- as for some
+    # reason the code inside of a lambda doesn't have access to them
+    globals = {}
+    if 'lambda' in code:
+        globals['pd'] = pd
+        globals['np'] = np
+
     # Capture the output as well
     output_string_io = StringIO()
 
     try:
         with redirect_stdout(output_string_io):
-            exec(code, {}, locals())
+            exec(code, globals, locals())
     except Exception as e:
         raise make_exec_error(e)
         

@@ -86,7 +86,7 @@ const UserDefinedEditTaskpane = (props: UserDefinedEditTaskpaneProps): JSX.Eleme
     const editorNameForDisplay = getDisplayNameOfPythonVariable(editorName);
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header={editorNameForDisplay}
                 setUIState={props.setUIState}           

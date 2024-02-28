@@ -137,7 +137,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     );
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header={!props.isUpdate ? 'Import Files' : 'Update Import'}
                 setUIState={props.setUIState}

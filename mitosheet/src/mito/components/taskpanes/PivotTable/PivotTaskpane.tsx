@@ -58,7 +58,7 @@ const PivotTaskpane = (props: PivotTaskpaneProps): JSX.Element => {
     const sheetData: SheetData | undefined = props.sheetDataArray[params.sourceSheetIndex];
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header={props.destinationSheetIndex ? 
                     `Edit Pivot Table ${props.dfNames[props.destinationSheetIndex]}` 

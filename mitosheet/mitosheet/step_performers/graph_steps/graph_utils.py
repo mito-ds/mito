@@ -117,12 +117,13 @@ def get_html_and_script_from_figure(
     fig.write_html(
         buffer,
         full_html=False,
-        include_plotlyjs=include_plotlyjs,
+        include_plotlyjs=True,
         default_height=height,
         default_width=width,
     )
 
     original_html = buffer.getvalue()
+
 
     # Everything in a script tag we want to treat as one big script
 

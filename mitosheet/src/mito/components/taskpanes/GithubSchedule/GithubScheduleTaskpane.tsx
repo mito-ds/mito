@@ -48,7 +48,7 @@ const GithubScheduleTaskpane = (props: GithubScheduleTaskpaneProps): JSX.Element
     const [automationURL, setAutomationURL] = useState<string | undefined>(undefined);
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header={'Schedule on Github'}
                 setUIState={props.setUIState}           

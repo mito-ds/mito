@@ -1,3 +1,4 @@
 notebook
 jupyterlab
 mitosheet-helper-enterprise
+requests==2.27.1

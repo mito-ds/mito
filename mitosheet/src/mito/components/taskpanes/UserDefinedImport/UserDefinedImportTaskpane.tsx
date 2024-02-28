@@ -84,7 +84,7 @@ const UserDefinedImportTaskpane = (props: UserDefinedImportTaskpaneProps): JSX.E
     }
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header={header}
                 setUIState={props.setUIState}           

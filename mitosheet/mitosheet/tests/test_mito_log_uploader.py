@@ -255,6 +255,8 @@ def test_log_uploader_logs_failure_prints():
             assert len(mock_print.call_args_list) == 1
             assert 'Log upload failed with error:' in mock_print.call_args_list[0][0][0]
 
+    delete_all_mito_config_environment_variables()
+
 def test_log_uploader_tries_failed_logs_again():
 
     os.environ[MITO_CONFIG_VERSION] = "2"
@@ -319,3 +321,5 @@ def test_mito_log_uploader_prints_on_server_error():
         time.sleep(1.5)
 
     assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 2
+
+    delete_all_mito_config_environment_variables()

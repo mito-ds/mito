@@ -24,7 +24,7 @@ const UpdateSnowflakeCredentialsScreen = (props: UpdateSnowflakeCredentialsTaskp
 
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Connect to Snowflake"
                 setUIState={props.setUIState} 

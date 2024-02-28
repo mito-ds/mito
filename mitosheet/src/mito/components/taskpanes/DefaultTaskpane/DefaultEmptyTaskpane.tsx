@@ -35,7 +35,7 @@ const DefaultEmptyTaskpane = (
     }
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState}>
             <DefaultTaskpaneHeader
                 header={props.header !== undefined ? props.header : 'Import data first'}
                 setUIState={props.setUIState}   

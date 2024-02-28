@@ -36,8 +36,13 @@ const CTAButtons = (props: {
             {props.variant === 'scroll-to-install' && 
                 <TextButton 
                     text='Try Mito now'
-                    href='#installation'
-                    openInNewTab={false}
+                    onClick={() => {
+                        // Smoothly scroll to the #installation section
+                        const el = document.getElementById('installation');
+                        if (el) {
+                            el.scrollIntoView({behavior: 'smooth'});
+                        }
+                    }}
                 />
             }
             {props.variant === 'try jupyterlite' && 

@@ -147,7 +147,7 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
 
     return (
         <React.Fragment>
-            <DefaultTaskpane>
+            <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
                 <DefaultTaskpaneHeader
                     header={getDisplayColumnHeader(columnHeader)}
                     setUIState={props.setUIState}
