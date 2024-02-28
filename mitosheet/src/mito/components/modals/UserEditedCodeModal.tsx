@@ -23,7 +23,7 @@ const UserEditedCodeModal = (
         codeWithUserEdits: string[]
     }): JSX.Element => {
     
-    const handleButtonClick = (overwriteCode: boolean) => {
+    const handleUserEditedCode = (overwriteCode: boolean) => {
         props.jupyterUtils?.writeGeneratedCodeToCell(
             props.analysisData.analysisName, 
             props.analysisData.code, 
@@ -75,14 +75,14 @@ const UserEditedCodeModal = (
                     <TextButton 
                         variant='light'
                         width='hug-contents'
-                        onClick={() => handleButtonClick(true)}
+                        onClick={() => handleUserEditedCode(true)}
                     >
                         Overwrite Edits
                     </TextButton>
                     <TextButton
                         variant='dark'
                         width='hug-contents'
-                        onClick={() => handleButtonClick(false)}
+                        onClick={() => handleUserEditedCode(false)}
                     >
                         Insert New Cell
                     </TextButton>
