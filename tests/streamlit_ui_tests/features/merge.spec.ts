@@ -1,9 +1,27 @@
-import { expect, test } from '@playwright/test';
+import { FrameLocator, Page, expect, test } from '@playwright/test';
 import { awaitResponse, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, hasExpectedNumberOfRows, importCSV } from '../utils';
 
 
-test.describe('Merge', () => {
+const changeMergeType = async (mito: FrameLocator, page: Page, mergeType: string) => {
+    // Change the merge type
+    await mito.locator('.spacing-row', { hasText: 'Merge Type' }).locator('.select-text').click();
+    await mito.locator('.mito-dropdown-item span').getByText(mergeType, { exact: true }).click();
+    await awaitResponse(page);
+}
 
+const changeDataFrame = async (mito: FrameLocator, page: Page, dataframe: string, firstOrSecond: 'first' | 'second') => {
+    await mito.locator('.spacing-col', { hasText: firstOrSecond === 'first' ? 'First DataFrame' : 'Second Dataframe' }).locator('.select-text').click();
+    await mito.locator('.mito-dropdown-item span').getByText(dataframe, { exact: true }).click();
+    await awaitResponse(page);
+}
+
+const changeMergeKeys = async (mito: FrameLocator, page: Page, newKey: string, firstOrSecond: 'first' | 'second') => {
+    await mito.locator('.expandable-content-card', { hasText: 'Match rows where:' }).locator('.select-text').nth(firstOrSecond === 'first' ? 0 : 1).click();
+    await mito.locator('.mito-dropdown-item span').getByText(newKey, { exact: true }).click();
+    await awaitResponse(page);
+}
+
+test.describe('Merge', () => {
     test('Allows Editing', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
         await importCSV(page, mito, 'test.csv');
@@ -90,29 +108,22 @@ test.describe('Merge', () => {
         await awaitResponse(page);
     
         await expect(mito.getByText('Merge Dataframes')).toBeVisible();
+        await awaitResponse(page);
 
-        // Wait for the merge to be finished before continuing so adding a column works!
-        await expect(mito.getByText('df_merge')).toBeVisible();
-    
         // Check that the correct number of rows are present
         await hasExpectedNumberOfRows(mito, 4);
 
-        const changeMergeType = async (oldMergeType: string, newMergeType: string, expectedRows: number) => {
-            // Change the merge type
-            await mito.locator('.select-text', { hasText: oldMergeType }).click();
-            await mito.locator('.mito-dropdown-item span').getByText(newMergeType, { exact: true }).click();
-            await awaitResponse(page);
-
-            // Check that the correct number of rows are present
+        const changeMergeTypeAndCheckRows = async (mergeType: string, expectedRows: number) => {
+            await changeMergeType(mito, page, mergeType);
             await hasExpectedNumberOfRows(mito, expectedRows);
         }
 
-        await changeMergeType('lookup', 'left', 5);
-        await changeMergeType('left', 'right', 5);
-        await changeMergeType('right', 'inner', 4);
-        await changeMergeType('inner', 'outer', 6);
-        await changeMergeType('outer', 'unique in left', 1);
-        await changeMergeType('unique in left', 'unique in right', 1);
+        await changeMergeTypeAndCheckRows('left', 5);
+        await changeMergeTypeAndCheckRows('right', 5);
+        await changeMergeTypeAndCheckRows('inner', 4);
+        await changeMergeTypeAndCheckRows('outer', 6);
+        await changeMergeTypeAndCheckRows('unique in left', 1);
+        await changeMergeTypeAndCheckRows('unique in right', 1);
     });
 
     test('Error handling and changing merge keys / dataframes', async ({ page }) => {
@@ -129,18 +140,13 @@ test.describe('Merge', () => {
         await expect(mito.locator('.text-color-error')).toHaveText('Column1 (object) and Column1 (int64) have different types. Either pick new keys or cast their types.');
 
         // Test changing the dataframe
-        await mito.locator('.select-text', { hasText: 'types' }).click();
-        await mito.locator('.mito-dropdown-item span').getByText('merge', { exact: true }).click();
-        await awaitResponse(page);
+        await changeDataFrame(mito, page, 'merge', 'first');
         await hasExpectedNumberOfRows(mito, 5);
 
         // Test changing the merge keys
-        await mito.locator('.select-text', { hasText: 'Column1' }).first().click();
-        await mito.getByRole('button', { name: 'Column2' }).click();
-        await awaitResponse(page);
-        await mito.locator('.select-text', { hasText: 'Column1' }).first().click();
-        await mito.getByRole('button', { name: 'Column2' }).click();
-        await awaitResponse(page);
+        await changeMergeKeys(mito, page, 'Column2', 'first');
+        await changeMergeKeys(mito, page, 'Column2', 'second');
+
         await hasExpectedNumberOfRows(mito, 5);
         await expect(mito.locator('.endo-column-header-final-text', { hasText: 'Column2' })).toHaveCount(1);
     });
@@ -183,8 +189,7 @@ test.describe('Merge', () => {
     
         await expect(mito.getByText('Merge Dataframes')).toBeVisible();
 
-        // Wait for the merge to be finished before continuing so adding a column works!
-        await expect(mito.getByText('df_merge')).toBeVisible();
+        await awaitResponse(page);
     
         // Check that Column1 exists
         const ch1 = await getColumnHeaderContainer(mito, 'Column1');
