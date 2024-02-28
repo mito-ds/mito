@@ -117,7 +117,7 @@ def get_html_and_script_from_figure(
     fig.write_html(
         buffer,
         full_html=False,
-        include_plotlyjs=True,
+        include_plotlyjs=include_plotlyjs,
         default_height=height,
         default_width=width,
     )
