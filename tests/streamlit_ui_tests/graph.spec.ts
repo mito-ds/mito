@@ -535,7 +535,9 @@ test.describe('Graph Functionality', () => {
     await openGraphEditor(mito, page);
 
     // Check that the graph has the default width
-    await expect(mito.locator('.plotly-graph-div')).toHaveCSS('width', '792px');
+    await page.setViewportSize({ width: 1200, height: 600 });
+    await awaitResponse(page);
+    await expect(mito.locator('.plotly-graph-div')).toHaveCSS('width', '712px');
 
     // Change the window size and check that the graph has been updated
     await page.setViewportSize({ width: 1000, height: 800 });
