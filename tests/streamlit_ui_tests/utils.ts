@@ -81,6 +81,32 @@ export const getColumnHeaderContainerAtIndex = async (mito: FrameLocator, index:
     return mito.locator('.endo-column-header-container').nth(index);
 }
 
+export const getColumnHeaderIndexFromColumnHeader = async (mito: FrameLocator, columnHeader: string): Promise<number> => {
+    const columnHeaders = await mito.locator('.endo-column-header-final-text').all();
+
+    let columnIndex = 0;
+
+    // Find the columnHeader that we want to set the formula for
+    for (let i = 0; i < columnHeaders.length; i++) {
+        const currentColumnHeader = (await columnHeaders[i].textContent());
+        if (currentColumnHeader === columnHeader) {
+            columnIndex = i
+        }
+    }
+    return columnIndex;
+}
+
+export const getCellAtRowIndexAndColumnName = async (mito: FrameLocator, rowIndex: number, columnHeader: string): Promise<Locator> => {
+    const columnIndex = await getColumnHeaderIndexFromColumnHeader(mito, columnHeader);
+    return getCellAtRowIndexAndColumnIndex(mito, rowIndex, columnIndex);
+}
+
+export const getCellAtRowIndexAndColumnIndex = async (mito: FrameLocator, rowIndex: number, columnIndex: number): Promise<Locator> => {
+    const rowLocator = mito.locator('.mito-grid-row').nth(rowIndex);
+    const cell = rowLocator.locator('.mito-grid-cell').nth(columnIndex);
+    return cell
+}
+
 export const renameColumnAtIndex = async (page: Page, mito: FrameLocator, index: number, newName: string): Promise<void> => {
     const newColumnHeader = await getColumnHeaderContainerAtIndex(mito, index)
     await newColumnHeader.dblclick();
@@ -100,7 +126,7 @@ export const createNewColumn = async (
     page: Page,
     mito: FrameLocator,
     index: number,
-    columnHeader: string
+    columnHeader: string,
 ): Promise<void> => {
 
     if (index === 0) {
@@ -121,3 +147,43 @@ export const createNewColumn = async (
     await renameColumnAtIndex(page, mito, index, columnHeader);
 }
   
+export const setColumnFormulaUsingCellEditor = async (
+    page: Page,
+    mito: FrameLocator,
+    columnHeader: string,
+    formula: string,
+    rowNumber = 0,
+): Promise<void> => {
+    
+    const cell = await getCellAtRowIndexAndColumnName(mito, rowNumber, columnHeader);
+    await cell.dblclick();
+    await mito.getByRole('textbox').fill(formula);
+    await page.keyboard.press('Enter');
+    await awaitResponse(page);
+}
+
+export const getValuesInColumn = async (mito: FrameLocator, columnHeader: string): Promise<string[]> => {
+
+    // Get the number of '.mito-grid-row' elements that have a 'mito-grid-cell' inside of it
+    // because we always display a full grid of rows even if the rows don't have any cells in them
+    const rowLocators = (await mito.locator('.mito-grid-row').all())
+    var numberOfRows = 0;
+    for (var i = 0; i < rowLocators.length; i++) {
+        const numberOfCells = (await rowLocators[i].locator('.mito-grid-cell').count())
+        if (numberOfCells === 0) {
+            break;
+        } else {
+            numberOfRows++;
+        }
+    }
+
+    const columnHeaderIndex = await getColumnHeaderIndexFromColumnHeader(mito, columnHeader);
+    const cellValues: string [] = [];
+    for (let i = 0; i < numberOfRows - 1; i++) {
+        const cell = await getCellAtRowIndexAndColumnIndex(mito, i, columnHeaderIndex);
+        const cellValue = await cell.innerText();
+        cellValues.push(cellValue);
+    }
+
+    return cellValues;
+}
