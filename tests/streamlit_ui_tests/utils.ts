@@ -179,7 +179,7 @@ export const getValuesInColumn = async (mito: FrameLocator, columnHeader: string
 
     const columnHeaderIndex = await getColumnHeaderIndexFromColumnHeader(mito, columnHeader);
     const cellValues: string [] = [];
-    for (let i = 0; i < numberOfRows - 1; i++) {
+    for (let i = 0; i < numberOfRows; i++) {
         const cell = await getCellAtRowIndexAndColumnIndex(mito, i, columnHeaderIndex);
         const cellValue = await cell.innerText();
         cellValues.push(cellValue);
