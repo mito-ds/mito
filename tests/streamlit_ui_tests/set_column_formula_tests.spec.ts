@@ -12,6 +12,19 @@ test('Set constant formula to new column using cell editor', async ({ page }) =>
     // Check that the value in columnHeader are '5'
     const cellValues = await getValuesInColumn(mito, columnHeader);
     expect(cellValues).toEqual(Array(cellValues.length).fill('5'));
+
+    // Test that reopening the cell editor displays the formula
+    const cell = await getCellAtRowIndexAndColumnName(mito, 0, columnHeader);
+    await cell.dblclick();
+    await expect(mito.locator('#cell-editor-input')).toHaveValue('=5');
+
+    // Check that the formula bar also displays the formula
+    expect(await (mito.locator('.formula-bar-formula')).textContent()).toEqual('=5');
+
+    // Test that using escape closes the cell editor
+    await expect(mito.locator('#cell-editor-input')).toBeVisible();
+    await mito.locator('#cell-editor-input').press('Escape');
+    await expect(mito.locator('#cell-editor-input')).not.toBeVisible();
 });
 
 test('Set constant formula to existing column using cell editor', async ({ page }) => {
@@ -130,7 +143,6 @@ test('Use arrow keys to select cell', async ({ page }) => {
     await mito.getByRole('textbox').fill('=');
 
     await page.keyboard.press('ArrowLeft');
-    await awaitResponse(page);
 
     await mito.locator('#cell-editor-input').press('Enter');
     await awaitResponse(page);
@@ -139,22 +151,44 @@ test('Use arrow keys to select cell', async ({ page }) => {
     expect(cellValues).toEqual(['3', '6', '9', '12']);
 });
 
-// test('Use arrow keys to select rolling range', async ({ page }) => {
-//     const columnHeader = 'Column4';
+test('Use arrow keys to select rolling range', async ({ page }) => {
+    const columnHeader = 'Column4';
 
-//     const mito = await getMitoFrameWithTestCSV(page);
-//     await createNewColumn(page, mito, 3, columnHeader);
+    const mito = await getMitoFrameWithTestCSV(page);
+    await createNewColumn(page, mito, 3, columnHeader);
 
-//     const cell = await getCellAtRowIndexAndColumnName(mito, 0, columnHeader);
-//     await cell.dblclick();
-//     await mito.getByRole('textbox').fill('=');
+    const cell = await getCellAtRowIndexAndColumnName(mito, 0, columnHeader);
+    await cell.dblclick();
+    await mito.getByRole('textbox').fill('=SUM(');
 
-//     await page.keyboard.press('ArrowLeft');
-//     await awaitResponse(page);
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('Shift+ArrowLeft');
+    await page.keyboard.press(')');
 
-//     await mito.locator('#cell-editor-input').press('Enter');
-//     await awaitResponse(page);
+    await mito.locator('#cell-editor-input').press('Enter');
+    await awaitResponse(page);
 
-//     const cellValues = await getValuesInColumn(mito, columnHeader);
-//     expect(cellValues).toEqual(['3', '6', '9', '12']);
-// });
+    const cellValues = await getValuesInColumn(mito, columnHeader);
+    expect(cellValues).toEqual(['5', '11', '17', '23']);
+});
+
+
+test('No formula around rolling range displays [object Object]', async ({ page }) => {
+    const columnHeader = 'Column4';
+
+    const mito = await getMitoFrameWithTestCSV(page);
+    await createNewColumn(page, mito, 3, columnHeader);
+
+    const cell = await getCellAtRowIndexAndColumnName(mito, 0, columnHeader);
+    await cell.dblclick();
+    await mito.getByRole('textbox').fill('=');
+
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('Shift+ArrowLeft');
+
+    await mito.locator('#cell-editor-input').press('Enter');
+    await awaitResponse(page);
+
+    const cellValues = await getValuesInColumn(mito, columnHeader);
+    expect(cellValues).toEqual(['[object Object]', '[object Object]', '[object Object]', '[object Object]']);
+});
