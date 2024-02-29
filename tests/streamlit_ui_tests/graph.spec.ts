@@ -164,7 +164,7 @@ test.describe('Graph Functionality', () => {
     await mito.locator('.mito-dropdown-item').getByText('Column2').click();
 
     // Check that the graph has been updated by checking the legend
-    await expect(mito.locator('.legend')).toHaveText('variableColumn1 Column2');
+    await expect(mito.locator('.legend')).toHaveText('variableColumn1Column2');
   });
 
   test('Make a histogram and change the aggregation function', async ({ page }) => {

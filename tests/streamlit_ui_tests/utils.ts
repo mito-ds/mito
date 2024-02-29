@@ -158,7 +158,7 @@ export const setColumnFormulaUsingCellEditor = async (
     const cell = await getCellAtRowIndexAndColumnName(mito, rowNumber, columnHeader);
     await cell.dblclick();
     await mito.getByRole('textbox').fill(formula);
-    await page.keyboard.press('Enter');
+    await mito.locator('#cell-editor-input').press('Enter');
     await awaitResponse(page);
 }
 
