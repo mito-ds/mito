@@ -170,6 +170,7 @@ function activateMitosheetExtension(
 
             // If the user has edited the code and they haven't chosen whether or not to overwrite the contents of the cell,
             // trigger the dialog to ask them. 
+            console.log('oldCode', oldCode)
             if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
                 triggerUserEditedCodeDialog(oldCode, codeCellText.split('\n'));
                 return;

@@ -85,6 +85,7 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
+import { MitoAPIResult } from './api/api';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -283,8 +284,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
          * We only write code after the render count has been incremented once, which
          * means that we have read in and replayed the updated analysis, etc. 
          */
-        if (analysisData.renderCount >= 1) {
-            // Finally, we can go and write the code!
+        const writeCodeToCell = async (oldCode: string[]) => {
             props.jupyterUtils?.writeGeneratedCodeToCell(
                 analysisData.analysisName, 
                 analysisData.code, 
@@ -309,9 +309,22 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         }
                     );
                 },
-                oldCodeRef?.current,
+                oldCode,
                 undefined,
             );
+        }
+        if (analysisData.renderCount === 0) {
+            void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
+                console.log(response)
+                if ('error' in response) {
+                    console.error(response.error);
+                    return;
+                }
+                writeCodeToCell(response.result);
+            });
+        } else {
+            // Finally, we can go and write the code!
+            writeCodeToCell(oldCodeRef.current);
         }
         // After using the ref to get the old code, we update it to the newest analysis.
         oldCodeRef.current = analysisData.code;
