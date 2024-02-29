@@ -76,9 +76,48 @@ export const closeTaskpane = async (mito: FrameLocator): Promise<void> => {
 export const getColumnHeaderContainer = async (mito: FrameLocator, columnName: string): Promise<Locator> => {
     return mito.locator('.endo-column-header-container').locator('div').filter({ hasText: columnName }).first();
 }
+
+export const getColumnHeaderContainerAtIndex = async (mito: FrameLocator, index: number): Promise<Locator> => {
+    return mito.locator('.endo-column-header-container').nth(index);
+}
+
+export const renameColumnAtIndex = async (page: Page, mito: FrameLocator, index: number, newName: string): Promise<void> => {
+    const newColumnHeader = await getColumnHeaderContainerAtIndex(mito, index)
+    await newColumnHeader.dblclick();
+    await mito.getByRole('textbox').fill(newName);
+    await page.keyboard.press('Enter');
+
+    await expect(mito.locator('textbox')).not.toBeVisible();
+    await expect(mito.locator('.endo-column-header-container', { hasText: newName })).toBeVisible();
+}
   
 export const clickTab = async (page: Page, mito: FrameLocator, tabName: string): Promise<void> => {
     // Button with .mito-toolbar-tabbar-tabname that has text tabName
     await mito.locator('.mito-toolbar-tabbar-tabname').filter({ hasText: tabName }).first().click();
+}
+
+export const createNewColumn = async (
+    page: Page,
+    mito: FrameLocator,
+    index: number,
+    columnHeader: string
+): Promise<void> => {
+
+    if (index === 0) {
+        // If adding a column to index 0 then we use Insert Left
+        const columnHeader = await getColumnHeaderContainerAtIndex(mito, index + 1)
+        await columnHeader.click({ button: 'right' });
+        await expect(mito.locator('.mito-dropdown')).toBeVisible();
+        await clickButtonAndAwaitResponse(page, mito, 'Insert Column Left');
+    } else {
+        // If adding a column elsewhere then we use Insert Right
+        const columnHeader = await getColumnHeaderContainerAtIndex(mito, index - 1)
+        await columnHeader.click({ button: 'right' });
+        await expect(mito.locator('.mito-dropdown')).toBeVisible();
+        await clickButtonAndAwaitResponse(page, mito, 'Insert Column Right');
+
+    }
+
+    await renameColumnAtIndex(page, mito, index, columnHeader);
 }
   
