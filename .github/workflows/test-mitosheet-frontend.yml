@@ -133,13 +133,17 @@ jobs:
         testfiles: ['context_menus', 'features', 'toolbar']
         exclude:
           - os: 'windows-latest'
-            project.test-name: webkit
+            project:
+              test-name: webkit
           - os: 'macos-latest'
-            project.test-name: 'Microsoft Edge'
+            project:
+              test-name: 'Microsoft Edge'
           - os: 'ubuntu-latest'
-            project.test-name: 'Microsoft Edge'
+            project: 
+              test-name: 'Microsoft Edge'
           - os: 'ubuntu-latest'
-            project.test-name: 'webkit'
+            project:
+              test-name: 'webkit'
       fail-fast: false
     runs-on: ${{ matrix.os }}
 
