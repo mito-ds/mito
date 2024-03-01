@@ -205,8 +205,8 @@ test.describe('Merge', () => {
 
         // Check that the merge key pairing was removed and that there are warning messages for both
         // merge keys and columns
-        await expect(mito.locator('.caution-text', { hasText: 'The merge key pairing ( Column2,  Column2) was removed because “ Column2” no longer exists in “test”.'})).toBeVisible();
-        await expect(mito.locator('.caution-text', { hasText: 'The column “ Column2” was removed because it no longer exists in “test”.'})).toBeVisible();
+        await expect(mito.locator('.caution-text', { hasText: 'The merge key pairing (Column2, Column2) was removed because “Column2” no longer exists in “test”.'})).toBeVisible();
+        await expect(mito.locator('.caution-text', { hasText: 'The column “Column2” was removed because it no longer exists in “test”.'})).toBeVisible();
         await expect(mito.locator('.select-text', { hasText: 'Column2' })).not.toBeVisible();
     });
 });

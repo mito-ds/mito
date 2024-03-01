@@ -1,5 +1,5 @@
-Column1, Column2, Column3
-10-12-1990, test-string, 1
-1-2-2000, test-$@string-^with-special-chars, 2
-12-29-1961, testing, 3
-12-10-2000,, 3
+Column1,Column2,Column3
+10-12-1990,test-string,1
+1-2-2000,test-$@string-^with-special-chars,2
+12-29-1961,testing,3
+12-10-2000,,3
