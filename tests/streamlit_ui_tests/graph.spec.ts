@@ -531,6 +531,7 @@ test.describe('Graph Functionality', () => {
     await mito.getByText('Delete Sheet and Graphs').click();
     await awaitResponse(page);
     await expect(mito.getByRole('button', { name: 'Import Files' })).toBeVisible();
+    await expect(mito.locator('.tab')).toHaveCount(0);
   });
 
   // Commented out because it doesn't work in CI
