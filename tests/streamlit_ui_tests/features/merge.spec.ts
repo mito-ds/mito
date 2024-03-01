@@ -21,6 +21,11 @@ const changeMergeKeys = async (mito: FrameLocator, page: Page, newKey: string, f
     await awaitResponse(page);
 }
 
+const toggleColumnToKeepInMerge = async (mito: FrameLocator, page: Page, columnName: string, firstOrSecond: 'first' | 'second') => {
+    await mito.locator('.multi-toggle-box-row', { hasText: columnName }).locator('input[type="checkbox"]').nth(firstOrSecond === 'first' ? 0 : 1).click();
+    await awaitResponse(page);
+}
+
 test.describe('Merge', () => {
     test('Allows Editing', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
@@ -164,12 +169,11 @@ test.describe('Merge', () => {
         await hasExpectedNumberOfRows(mito, 4);
 
         // Uncheck all of the the columns to keep
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column2' }).locator('input[type="checkbox"]').first().click();
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column3' }).locator('input[type="checkbox"]').first().click();
+        await toggleColumnToKeepInMerge(mito, page, 'Column2', 'first');
+        await toggleColumnToKeepInMerge(mito, page, 'Column3', 'first');
 
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column2' }).locator('input[type="checkbox"]').nth(1).click();
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column3' }).locator('input[type="checkbox"]').nth(1).click();
-        await awaitResponse(page);
+        await toggleColumnToKeepInMerge(mito, page, 'Column2', 'second');
+        await toggleColumnToKeepInMerge(mito, page, 'Column3', 'second');
         await expect(mito.locator('.endo-column-header-container')).toHaveCount(1);
 
         // Re-check a couple of the columns to keep

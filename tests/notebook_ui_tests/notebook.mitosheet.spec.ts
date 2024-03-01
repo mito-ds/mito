@@ -1,27 +1,17 @@
-import { IJupyterLabPageFixture, expect, test } from '@jupyterlab/galata';
+import { expect, test } from '@playwright/test';
 import { awaitResponse } from '../streamlit_ui_tests/utils';
-import path from 'path';
-
-test.describe.configure({ mode: 'parallel' });
-test.use({ appPath: '', autoGoto: false })
 
 const NOTEBOOK = 'simple.ipynb';
 
 test.describe('Mitosheet Jupyter Notebook integration', () => {
-  test.beforeEach(async ({ page, tmpPath }) => {
-    await page.contents.uploadFile(
-      path.resolve(__dirname, `../notebooks/${NOTEBOOK}`),
-      `${tmpPath}/${NOTEBOOK}`
-    );
-  });
-  
-  test('renders a mitosheet.sheet()', async ({ page, tmpPath }) => {
-    // Open the notebook (see beforeAll hook)
-    void page.goto(`notebooks/${tmpPath}/${NOTEBOOK}`);
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:8888/notebooks/notebooks/' + NOTEBOOK);
 
     // Check that the page has loaded with the correct cell contents.
     await expect(page.getByText('import mitosheet')).toBeVisible();
-
+  });
+  
+  test('renders a mitosheet.sheet()', async ({ page }) => {
     // Run the cell using shift+enter
     await page.locator('.cell').first().click();
     await page.keyboard.press('Shift+Enter');
