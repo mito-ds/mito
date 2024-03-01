@@ -188,6 +188,9 @@ test.describe('Graph Functionality', () => {
     await expect(mito.locator('.g-ytitle')).toHaveText('sum of None');
 
     // Change the bin size
+    // Plotly renders each bar as a g element with class "point" (and then in the range slider has the same number of points),
+    // so we're checking that there are initially 3 bars (and 3 bars in the range slider), then when
+    // we change the bin size to 1, there are 2 bars (and 2 bars in the range slider)
     await expect(mito.locator('g.point')).toHaveCount(6);
     await mito.locator('.mito-graph-configuration-container').locator('input[type="number"]').fill('1');
     await awaitResponse(page);
