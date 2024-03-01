@@ -200,7 +200,8 @@ export const getValuesInColumn = async (mito: FrameLocator, columnHeader: string
     for (let i = 0; i < numberOfRows; i++) {
         const cell = await getCellAtRowIndexAndColumnIndex(mito, i, columnHeaderIndex);
         const cellValue = await cell.innerText();
-        cellValues.push(cellValue);
+        // Trim the cell value to remove any leading/trailing whitespace
+        cellValues.push(cellValue.trim());
     }
 
     return cellValues;
