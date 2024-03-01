@@ -55,11 +55,11 @@ const openGraphEditor = async (mito: FrameLocator, page: Page) => {
   await expect(mito.locator('.g-gtitle')).toBeVisible();
 }
 
-const changeChartType = async (mito: FrameLocator, page: Page, chartType: string, chartSubType?: string, nth?: number) => {
+const changeChartType = async (mito: FrameLocator, page: Page, chartType: string, chartSubType?: string, orientation?: 'horizontal' | 'vertical') => {
   await mito.getByRole('button', { name: '▾ Change Chart Type' }).click();
   if (chartSubType !== undefined) {
     await mito.getByText(chartType, { exact: true }).hover();
-    await mito.locator('.mito-dropdown-item-vertical').getByText(chartSubType, { exact: true }).nth(nth ?? 0).click();
+    await mito.locator('.mito-dropdown-item-vertical').getByText(chartSubType, { exact: true }).nth(orientation === 'vertical' ? 0 : 1).click();
   } else {
     await mito.getByText(chartType).click();
   }
@@ -131,7 +131,7 @@ test.describe('Graph Functionality', () => {
 
     await openGraphEditor(mito, page);
 
-    await changeChartType(mito, page, 'Bar', 'Grouped', 0);
+    await changeChartType(mito, page, 'Bar', 'Grouped', 'vertical');
 
     await expect(mito.getByText('Column1 bar')).toBeVisible();
   });
@@ -141,7 +141,7 @@ test.describe('Graph Functionality', () => {
     const mito = await getMitoFrameWithTypeCSV(page);
 
     await openGraphEditor(mito, page);
-    await changeChartType(mito, page, 'Bar', 'Grouped', 1);
+    await changeChartType(mito, page, 'Bar', 'Grouped', 'horizontal');
 
     await expect(mito.getByText('Column1 bar')).toBeVisible();
   });
@@ -177,7 +177,7 @@ test.describe('Graph Functionality', () => {
     const mito = await getMitoFrameWithTestCSV(page);
     
     await openGraphEditor(mito, page);
-    await changeChartType(mito, page, 'Histogram', 'Grouped', 0);
+    await changeChartType(mito, page, 'Histogram', 'Grouped', 'vertical');
 
     // Change the aggregation function
     await mito.locator('.mito-graph-configuration-container').getByText('count').click();
