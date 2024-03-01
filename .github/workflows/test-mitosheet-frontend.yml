@@ -17,6 +17,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.6', '3.8', '3.10']
+      fail-fast: false
 
     steps:
     - name: Cancel Previous Runs
@@ -69,6 +70,7 @@ jobs:
         # Usually we'd test python 3.6 but there is an error showing up in the tests
         # that we're not sure about. See https://github.com/mito-ds/mito/pull/1213
         python-version: ['3.8', '3.10']
+      fail-fast: false
 
     steps:
     - name: Cancel Previous Runs
@@ -130,6 +132,7 @@ jobs:
             project: 'Microsoft Edge'
           - os: 'ubuntu-latest'
             project: 'webkit'
+      fail-fast: false
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -184,7 +187,7 @@ jobs:
         pip install -r extra-requirements.txt
 
         npm install
-        npx playwright install chromium firefox chrome msedge
+        npx playwright install ${{matrix.project}}
 
         cd ../mitosheet
         pip install -e ".[test]"
@@ -220,6 +223,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10']
+      fail-fast: false
 
     steps:
     - name: Cancel Previous Runs
