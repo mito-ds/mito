@@ -49,7 +49,7 @@ export const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator>
   
 export const awaitResponse = async (page: Page): Promise<void> => {
     // Wait at least 25 ms for the message to send
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(500);
     /*
         Then, wait for:
         1. Mito to finish processing the message -- the text "Processing" not being visible in the Mito loading indicator
@@ -59,8 +59,10 @@ export const awaitResponse = async (page: Page): Promise<void> => {
         Sometimes the loading indicator appears before the Running message, so only relying on "Running" means the 
         test will continue running before the response is received, causing tests to fail.
     */
-    await expect(page.getByText("Processing")).toHaveCount(0) 
-    await expect(page.getByText("Running")).toHaveCount(0) 
+    await Promise.all([
+        expect(page.getByText("Processing")).toHaveCount(0),
+        expect(page.getByText("Running")).toHaveCount(0)
+    ]);
 }
   
 export const clickButtonAndAwaitResponse = async (page: Page, mito: FrameLocator, nameOrOptions: string | any): Promise<void> => {
@@ -141,6 +143,7 @@ export const renameColumnAtIndex = async (page: Page, mito: FrameLocator, index:
     await newColumnHeader.dblclick();
     await mito.getByRole('textbox').fill(newName);
     await page.keyboard.press('Enter');
+    await awaitResponse(page);
 
     await expect(mito.locator('textbox')).not.toBeVisible();
     await expect(mito.locator('.endo-column-header-container', { hasText: newName })).toBeVisible();
@@ -174,7 +177,6 @@ export const createNewColumn = async (
         await columnHeader.click({ button: 'right' });
         await expect(mito.locator('.mito-dropdown')).toBeVisible();
         await clickButtonAndAwaitResponse(page, mito, 'Insert Column Right');
-
     }
 
     await renameColumnAtIndex(page, mito, index, columnHeader);
@@ -196,7 +198,9 @@ export const setFormulaUsingCellEditor = async (
     }
 
     await mito.getByRole('textbox').fill(formula);
+    await awaitResponse(page);
     await mito.locator('#cell-editor-input').press('Enter');
+    await page.waitForTimeout(1000);
     await awaitResponse(page);
 }
 
