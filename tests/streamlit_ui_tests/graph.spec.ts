@@ -52,6 +52,11 @@ const addColumnToAxis = async (mito: FrameLocator, page: Page, axis: 'X' | 'Y', 
 
 const openGraphEditor = async (mito: FrameLocator, page: Page) => {
   await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+
+  // Note: This won't work if there isn't a column selected when we open the graph editor, 
+  // because the graph will be empty and won't render anything. 
+  // Context: We are checking that the graph renders here because there isn't
+  // a loading indicator that we can wait on. 
   await expect(mito.locator('.g-gtitle')).toBeVisible();
 }
 
