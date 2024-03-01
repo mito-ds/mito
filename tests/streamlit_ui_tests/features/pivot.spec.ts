@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, checkColumnCount, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
+import { awaitResponse, checkColumnCount, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, closeTaskpane, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, getValuesInColumn } from '../utils';
 
 const AGGREGATION_FUNCTION_ANY_TYPE = [
     'count', 
@@ -57,6 +57,7 @@ const createPivotFromSelectedSheet = async (
             const filter = filters[i];
             await mito.getByText('+ Add').nth(3).click();
             await mito.getByText(filter).click();
+            await awaitResponse(page);
         }
     }
 }
@@ -74,7 +75,11 @@ const changeAggregationForValue = async (
 
 
 test.describe('Pivot Table', () => {
-    
+    /* 
+        Other tests to create:
+        - Can add multiple filter to pivot
+        - Can edit filters to pivot table
+    */
 
     test('Empty pivot creates a new empty sheet', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
@@ -144,8 +149,11 @@ test.describe('Pivot Table', () => {
             await mito.getByRole('button', { name: nextAggFunction }).click();
             await awaitResponse(page);
 
-            // std doesn't work on our standard test data, so we just skip for now
-            if (nextAggFunction !== 'std') {
+            if (nextAggFunction === 'count unique') {
+                // count unique aggregations generate a column with nunique in the name
+                await checkColumnExists(mito, `Column3 nunique`)
+            } else if (nextAggFunction !== 'std') {
+                // std doesn't work on our standard test data, so we just skip for now
                 await checkColumnExists(mito, `Column3 ${nextAggFunction}`)
             }
         }
@@ -183,21 +191,10 @@ test.describe('Pivot Table', () => {
             ['Column2']
         )
 
-        // Should only have three rows, not the normal four
-        // because we filtered one out
-        await expect(mito.locator('.index-header-container')).toHaveCount(3);
-    })
-
-    test('Can add multiple filter to pivot', async ({ page }) => {
-        const mito = await getMitoFrameWithTestCSV(page);
-
-        // TODO
-    })
-
-    test('Can edit filters to pivot table', async ({ page }) => {
-        const mito = await getMitoFrameWithTestCSV(page);
-
-        // TODO
+        // Should only have three rows, not the normal four since the NaN value
+        // in Column2 is filtered out
+        const values = await getValuesInColumn(mito, 'Column3 count');
+        expect(values).toEqual(['1', '1', '1']);
     })
 
     test('Opens the same pivot table when clicked again', async ({ page }) => {
