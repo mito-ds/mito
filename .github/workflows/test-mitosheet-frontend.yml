@@ -130,6 +130,8 @@ jobs:
             install-name: 'webkit'
           - test-name: 'Google Chrome'
             install-name: 'chrome'
+          - test-name: 'Microsoft Edge'
+            install-name: 'msedge'
         testfiles: ['context_menus', 'features', 'toolbar']
         exclude:
           - os: 'windows-latest'
@@ -146,6 +148,7 @@ jobs:
               test-name: 'webkit'
       fail-fast: false
     runs-on: ${{ matrix.os }}
+    name: Test ${{ matrix.testfiles }} on ${{ matrix.os }} ${{ matrix.project.test-name }}
 
     steps:
     - uses: actions/checkout@v2
