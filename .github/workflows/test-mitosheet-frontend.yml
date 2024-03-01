@@ -215,14 +215,14 @@ jobs:
         source venv/bin/activate
         streamlit run streamlit_test.py --server.port 8555 &
         bash check_server.sh
-        npm run test -- --project="${{ matrix.project.test-name }}" ${{matrix.testfiles}}
+        npm run test -- --project="${{ matrix.project.test-name }}" streamlit_ui_tests/${{matrix.testfiles}}
     - name: Start a server and run tests (windows)
       if: matrix.os == 'windows-latest'
       run: |
         cd tests
         .\venv\Scripts\Activate.ps1
         Start-Job { streamlit run streamlit_test.py --server.port 8555 } -WorkingDirectory (Get-Location)
-        npm run test -- --project="${{ matrix.project.test-name }}" ${{matrix.testfiles}}
+        npm run test -- --project="${{ matrix.project.test-name }}" streamlit_ui_tests/${{matrix.testfiles}}
     - name: Upload test-results
       uses: actions/upload-artifact@v3
       if: always()
