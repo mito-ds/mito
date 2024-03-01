@@ -7,7 +7,12 @@ pip install -r requirements.txt;
 
 # Install necessary node packages
 npm install
-npx playwright install chromium webkit firefox chrome
+if [ $# -eq 0 ]
+  then
+    npx playwright install chromium webkit firefox chrome
+else
+    npx playwright install $1
+fi
 
 # Install mitosheet
 cd ../mitosheet
