@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, checkColumnCount, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, hasExpectedNumberOfRows, importCSV } from '../utils';
+import { awaitResponse, checkColumnCount, checkColumnExists, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, hasExpectedNumberOfRows, importCSV } from '../utils';
 
 
 const changeMergeType = async (mito: FrameLocator, page: Page, mergeType: string) => {
