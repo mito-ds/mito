@@ -16,6 +16,7 @@ if [ $# -eq 0 ]
     npx playwright install chromium webkit firefox chrome
 else
     npx playwright install $1
+    npx playwright install
 fi
 
 # Install mitosheet
