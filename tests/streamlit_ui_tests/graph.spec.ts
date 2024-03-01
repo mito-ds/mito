@@ -2,7 +2,6 @@ import { FrameLocator, Page, expect, test } from '@playwright/test';
 import { awaitResponse, clickButtonAndAwaitResponse, clickTab, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
-test.use({ permissions: ['clipboard-read'] })
 
 const openPopupAndEditTitle = async (mito: any, selector: string, newTitle: string) => {
     await mito.locator(selector).dblclick();
