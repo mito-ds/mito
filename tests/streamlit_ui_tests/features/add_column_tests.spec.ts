@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { getMitoFrameWithTypeCSV, createNewColumn, clickButtonAndAwaitResponse } from './utils';
+import { getMitoFrameWithTypeCSV, createNewColumn, clickButtonAndAwaitResponse } from '../utils';
 
 
 test('Add new column to end using context menu', async ({ page }) => {
