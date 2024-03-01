@@ -8,7 +8,7 @@ import {
     getMitoFrameWithTestCSV, 
     awaitResponse, 
     toggleEditEntireColumn 
-} from './utils';
+} from '../utils';
 
 
 test('Set constant formula to new column using cell editor', async ({ page }) => {

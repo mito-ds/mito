@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, clickTab, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from './utils';
+import { awaitResponse, clickButtonAndAwaitResponse, clickTab, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
 
 test.describe.configure({ mode: 'parallel' });
 
