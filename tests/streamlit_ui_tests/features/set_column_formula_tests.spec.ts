@@ -11,7 +11,7 @@ import {
 } from '../utils';
 
 
-test.only('Set constant formula to new column using cell editor', async ({ page }) => {
+test('Set constant formula to new column using cell editor', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTypeCSV(page);
@@ -36,7 +36,7 @@ test.only('Set constant formula to new column using cell editor', async ({ page 
     await expect(mito.locator('#cell-editor-input')).not.toBeVisible();
 });
 
-test.only('Set constant formula to existing column using cell editor', async ({ page }) => {
+test('Set constant formula to existing column using cell editor', async ({ page }) => {
     const columnHeader = 'Column1';
 
     const mito = await getMitoFrameWithTypeCSV(page);
@@ -47,7 +47,7 @@ test.only('Set constant formula to existing column using cell editor', async ({ 
     expect(cellValues).toEqual(Array(cellValues.length).fill('5'));
 });
 
-test.only('Set formula referencing other columns (typing column headers) and then update it', async ({ page }) => {
+test('Set formula referencing other columns (typing column headers) and then update it', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -64,7 +64,7 @@ test.only('Set formula referencing other columns (typing column headers) and the
     expect(newCellValues).toEqual(['1', '4', '7', '10']);
 });
 
-test.only('Set formula with spreadsheet formula', async ({ page }) => {
+test('Set formula with spreadsheet formula', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -77,7 +77,7 @@ test.only('Set formula with spreadsheet formula', async ({ page }) => {
     expect(cellValues).toEqual(['3', '9', '15', '21']);
 });
 
-test.only('Setting formula with invalid formula displays error message', async ({ page }) => {
+test('Setting formula with invalid formula displays error message', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -87,7 +87,7 @@ test.only('Setting formula with invalid formula displays error message', async (
     await expect(mito.getByText(/Sorry, mito does not currently support the function/)).toBeVisible();
 });
 
-test.only('Reference cell by clicking on it', async ({ page }) => {
+test('Reference cell by clicking on it', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -105,7 +105,7 @@ test.only('Reference cell by clicking on it', async ({ page }) => {
     expect(cellValues).toEqual(['1', '4', '7', '10']);
 });
 
-test.only('Reference column by clicking on column header', async ({ page }) => {
+test('Reference column by clicking on column header', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -126,7 +126,7 @@ test.only('Reference column by clicking on column header', async ({ page }) => {
     expect(cellValues).toEqual(['22', '22', '22', '22']);
 });
 
-test.only('Reference cell in previous row by clicking on it', async ({ page }) => {
+test('Reference cell in previous row by clicking on it', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -144,7 +144,7 @@ test.only('Reference cell in previous row by clicking on it', async ({ page }) =
     expect(cellValues).toEqual(['0', '1', '4', '7']);
 });
 
-test.only('Use arrow keys to select cell', async ({ page }) => {
+test('Use arrow keys to select cell', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -164,7 +164,7 @@ test.only('Use arrow keys to select cell', async ({ page }) => {
     expect(cellValues).toEqual(['3', '6', '9', '12']);
 });
 
-test.only('Use arrow keys to select rolling range', async ({ page }) => {
+test('Use arrow keys to select rolling range', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -187,7 +187,7 @@ test.only('Use arrow keys to select rolling range', async ({ page }) => {
 });
 
 
-test.only('No formula around rolling range displays [object Object]', async ({ page }) => {
+test('No formula around rolling range displays [object Object]', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -208,7 +208,7 @@ test.only('No formula around rolling range displays [object Object]', async ({ p
     expect(cellValues).toEqual(['[object Object]', '[object Object]', '[object Object]', '[object Object]']);
 });
 
-test.only('Edit individual cell only applied to edited cell and preserves formula and toggle on next open of cell editor', async ({ page }) => {
+test('Edit individual cell only applied to edited cell and preserves formula and toggle on next open of cell editor', async ({ page }) => {
     const columnHeader = 'Column4';
 
     const mito = await getMitoFrameWithTestCSV(page);
@@ -228,7 +228,7 @@ test.only('Edit individual cell only applied to edited cell and preserves formul
 
 });
 
-test.only('Edit single cell can overwrite formula', async ({ page }) => {
+test('Edit single cell can overwrite formula', async ({ page }) => {
 
     const columnHeader = 'Column4';
     const mito = await getMitoFrameWithTestCSV(page);
@@ -242,7 +242,7 @@ test.only('Edit single cell can overwrite formula', async ({ page }) => {
 
 });
 
-test.only('Toggling edit entire column does not overwrite formula', async ({ page }) => {
+test('Toggling edit entire column does not overwrite formula', async ({ page }) => {
     const columnHeader = 'Column4';
     const mito = await getMitoFrameWithTestCSV(page);
     await createNewColumn(page, mito, 3, columnHeader);
@@ -276,7 +276,7 @@ test.skip('Write spreadsheet formula (referencing entire column) applied to indi
     expect(cellValues).toEqual(['1', '0', '0', '0']);
 });
 
-test.only('Write spreadsheet formula applied to individual cell', async ({ page }) => {
+test('Write spreadsheet formula applied to individual cell', async ({ page }) => {
     const columnHeader = 'Column4';
     const mito = await getMitoFrameWithTestCSV(page);
     await createNewColumn(page, mito, 3, columnHeader);
