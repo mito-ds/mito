@@ -59,7 +59,10 @@ const changeChartType = async (mito: FrameLocator, page: Page, chartType: string
   await mito.getByRole('button', { name: '▾ Change Chart Type' }).click();
   if (chartSubType !== undefined) {
     await mito.getByText(chartType, { exact: true }).hover();
-    await mito.locator('.mito-dropdown-item-vertical').getByText(chartSubType, { exact: true }).nth(orientation === 'vertical' ? 0 : 1).click();
+    await mito.locator('.mito-dropdown-item-vertical')
+              .getByText(chartSubType, { exact: true })
+              .nth((orientation === undefined || orientation === 'vertical') ? 0 : 1)
+              .click();
   } else {
     await mito.getByText(chartType).click();
   }
