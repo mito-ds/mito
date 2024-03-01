@@ -229,10 +229,10 @@ test('Edit single cell can overwrite formula', async ({ page }) => {
     await createNewColumn(page, mito, 3, columnHeader);
     await setFormulaUsingCellEditor(page, mito, columnHeader, '=Column1 + Column2');
 
-    await setFormulaUsingCellEditor(page, mito, columnHeader, '="INDIVIDUAL EDIT"', 0, 'individual cell');
+    await setFormulaUsingCellEditor(page, mito, columnHeader, '=100', 0, 'individual cell');
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
-    expect(cellValues).toEqual(['INDIVIDUAL EDIT', '9', '15', '21']);
+    expect(cellValues).toEqual(['100', '9', '15', '21']);
 
 });
 

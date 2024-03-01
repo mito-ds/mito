@@ -49,7 +49,7 @@ export const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator>
   
 export const awaitResponse = async (page: Page): Promise<void> => {
     // Wait at least 25 ms for the message to send
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
     /*
         Then, wait for:
         1. Mito to finish processing the message -- the text "Processing" not being visible in the Mito loading indicator
