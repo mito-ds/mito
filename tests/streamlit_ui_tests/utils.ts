@@ -1,6 +1,6 @@
 
 import { expect, Page, FrameLocator, Locator } from '@playwright/test';
-
+import { FormulaType } from './types';
 
 export const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
     await page.goto('http://localhost:8555/');
@@ -122,6 +122,10 @@ export const clickTab = async (page: Page, mito: FrameLocator, tabName: string):
     await mito.locator('.mito-toolbar-tabbar-tabname').filter({ hasText: tabName }).first().click();
 }
 
+export const toggleEditEntireColumn = async (mito: FrameLocator): Promise<void> => {
+    await mito.locator('label div').click();
+}
+
 export const createNewColumn = async (
     page: Page,
     mito: FrameLocator,
@@ -147,16 +151,21 @@ export const createNewColumn = async (
     await renameColumnAtIndex(page, mito, index, columnHeader);
 }
   
-export const setColumnFormulaUsingCellEditor = async (
+export const setFormulaUsingCellEditor = async (
     page: Page,
     mito: FrameLocator,
     columnHeader: string,
     formula: string,
     rowNumber = 0,
+    formulaType: FormulaType =  'entire column'
 ): Promise<void> => {
-    
     const cell = await getCellAtRowIndexAndColumnName(mito, rowNumber, columnHeader);
     await cell.dblclick();
+
+    if (formulaType === 'individual cell') {
+        await toggleEditEntireColumn(mito);
+    }
+
     await mito.getByRole('textbox').fill(formula);
     await mito.locator('#cell-editor-input').press('Enter');
     await awaitResponse(page);
