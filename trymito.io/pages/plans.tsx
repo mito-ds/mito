@@ -19,7 +19,8 @@ import FeatureSection from '../components/FeatureSection/FeatureSection'
 import GithubButton from '../components/GithubButton/GithubButton'
 import FlagIcon from '../public/icon-squares/FlagIcon.svg'
 import ContactCTACard from '../components/CTACards/ContactCTACard'
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS } from '../utils/plausible'
+import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED_PLANS_PAGE, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS } from '../utils/plausible'
+import { CALENDLY_LINK } from '../components/CTAButtons/CTAButtons'
 
 
 /* 
@@ -420,7 +421,7 @@ const Plans: NextPage = () => {
                 </div>
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
-                    text='Get Started'
+                    text='Install Now'
                     href={MITO_INSTALLATION_DOCS_LINK}
                     className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS}
                   />
@@ -502,8 +503,9 @@ const Plans: NextPage = () => {
                 
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
-                    text='Contact Us'
-                    href={"mailto:jake@sagacollab.com?cc=aaron@sagacollab.com, nate@sagacollab.com&subject=Mito Enterprise Plan"}
+                    text='Book a Demo'
+                    href={CALENDLY_LINK}
+                    className={PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED_PLANS_PAGE}
                   />
                 </div>
               </div>
