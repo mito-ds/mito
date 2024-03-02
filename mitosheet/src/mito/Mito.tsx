@@ -108,7 +108,6 @@ export type MitoProps = {
 
 export const Mito = (props: MitoProps): JSX.Element => {
     const mitoContainerRef = useRef<HTMLDivElement>(null);
-
     const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);

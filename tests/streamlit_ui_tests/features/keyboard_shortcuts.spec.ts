@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, importCSV } from "./utils";
+import { awaitResponse, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, importCSV } from "../utils";
 
 
 test.describe('Keyboard Shortcuts', () => {

@@ -87,8 +87,9 @@ export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIS
             return {
                 ...prevUIState,
                 selectedTabType: 'data',
-                selectedSheetIndex: 0,
-                currOpenTaskpane: { type: TaskpaneType.NONE }
+                selectedSheetIndex: prevUIState.selectedSheetIndex > 0 ? prevUIState.selectedSheetIndex - 1 : 0,
+                currOpenTaskpane: { type: TaskpaneType.NONE },
+                currOpenModal: { type: ModalEnum.None }
             }
         })
     }

@@ -153,11 +153,12 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('0 of 3')).toBeVisible();
 
     // Replace in selected columns shouldn't work, as Column2 isn't selected
-    await mito.locator('#mito-center-content-container').getByRole('button').first().click();
+    await mito.locator('.mito-search-bar>.mito-search-button').click();
     await mito.getByPlaceholder('Replace...').fill('13');
     await mito.getByRole('button', { name: 'Replace in Selected Columns' }).click();
     await expect(mito.getByText('Column13')).not.toBeVisible();
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).not.toBeVisible();
+    await awaitResponse(page);
 
     // Then, replace all, should work
     await mito.getByRole('button', { name: 'Replace All' }).click();
