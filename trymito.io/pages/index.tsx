@@ -18,7 +18,7 @@ import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
 import Prism from 'prismjs';
 import LogoSection from '../components/LogoSection/LogoSection';
-import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
+import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 import CaseStudies from '../components/CaseStudyCard/CaseStudies';
 
@@ -167,7 +167,7 @@ const Home: NextPage = () => {
                 </p>
                 <p className='only-on-desktop-inline-block'>
                   Get started with Mito in seconds. It&apos;s easy as: <br></br><br></br>
-                  <span className='code-background' onClick={async () => {
+                  <span className={classNames(PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET, 'code-background')} onClick={async () => {
                     // Copy to clickboard on click
                     await navigator.clipboard.writeText('pip install mitosheet');
                     setCopied(true);

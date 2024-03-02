@@ -22,3 +22,6 @@ export const PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION = 'plausible-event
 // The user clicked a book a demo CTA
 export const PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED = 'plausible-event-name=book_a_demo_cta_pressed+location_title_card'
 export const PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED_PLANS_PAGE = 'plausible-event-name=book_a_demo_cta_pressed+location_plans_page'
+
+// The user copies the pip install mitosheet command from the homepage
+export const PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET = 'plausible-event-name=copied_pip_install_mitosheet+location_homepage'
