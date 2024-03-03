@@ -12,7 +12,7 @@ const GithubButton = (props: {variant: GithubButtonVariant, text: string}): JSX.
     const href = props.variant === 'Star' ? MITO_GITHUB_LINK : MTIO_GITHUB_DISCUSSION_LINK
 
     return (
-        <a href={href} rel="noreferrer" target="_blank">
+        <a href={href} rel="noopener" target="_blank">
             <button className={stylesGithubButton.github_button}>
                 <Image src={imageSrc} height='20rem' width='20rem' alt='Github button icon' />
                 <p>

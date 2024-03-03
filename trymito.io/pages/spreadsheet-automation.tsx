@@ -110,7 +110,7 @@ const SpreadsheetAutomation: NextPage = () => {
                   Apply conditional formatting, set table colors, and format numbers using Mito. Don&apos;t waste time trying to understand the xlsxwriter API -- it&apos;s confusing even to engineers!
                 </p>
                 <p>
-                  Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noreferrer" className={pageStyles.link}>generating presentation-ready Excel files.</a>
+                  Learn more about <a href="https://docs.trymito.io/how-to/exporting-to-csv-and-excel/download-as-excel" target="_blank" rel="noopener" className={pageStyles.link}>generating presentation-ready Excel files.</a>
                 </p>
               </div>
               <div className={classNames(textImageSplitStyles.functionality_media, 'only-on-mobile-block')}>
@@ -128,7 +128,7 @@ const SpreadsheetAutomation: NextPage = () => {
               <p>
                 We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to. Keep using the tools you&apos;re most comfortable with, and automatically generate reusable Python code.
               </p>
-              <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+              <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noopener" className={pageStyles.link_with_p_tag_margins}>
                 View all 100+ transformations →
               </a>
             </div>

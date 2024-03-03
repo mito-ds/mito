@@ -26,7 +26,7 @@ const StreamlitAppCard = (props: {
                 height={132}
                 onClick={() => window.open(props.streamlitHref, '_blank')}
             />
-            <a href={props.streamlitHref} target="_blank" rel="noreferrer" className={streamlitAppCardStyles.title_text}>
+            <a href={props.streamlitHref} target="_blank" rel="noopener" className={streamlitAppCardStyles.title_text}>
                 {props.title}
             </a>
             <p className={streamlitAppCardStyles.description}>
@@ -34,7 +34,7 @@ const StreamlitAppCard = (props: {
             </p>
             
             <div className={streamlitAppCardStyles.footer}>
-                <a href={props.gitHubHref} target="_blank" rel="noreferrer" className={streamlitAppCardStyles.view_code}>
+                <a href={props.gitHubHref} target="_blank" rel="noopener" className={streamlitAppCardStyles.view_code}>
                     View Code →
                 </a>
                 <p className={streamlitAppCardStyles.hashtag}>

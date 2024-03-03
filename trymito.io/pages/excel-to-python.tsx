@@ -221,7 +221,7 @@ const ExcelToPythonHomePage = (props: {glossaryPageInfo: GlossaryPageInfo[]}) =>
                                             We&apos;ve implemented all of Excel&apos;s most powerful features in Python so you don&apos;t have to look through documentation like this!
                                             Use Excel formulas, create pivot tables, filter your data, build graphs, and more. 
                                         </p>
-                                        <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                                        <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noopener" className={pageStyles.link_with_p_tag_margins}>
                                             View all 100+ transformations →
                                         </a>
                                     </div>

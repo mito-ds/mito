@@ -71,7 +71,7 @@ const Footer = (): JSX.Element => {
                         Resources
                     </ol>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://docs.trymito.io' target="_blank" rel="noreferrer">Docs</a>
+                        <a href='https://docs.trymito.io' target="_blank" rel="noopener">Docs</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/excel-to-python/'>Excel to Python</Link>
@@ -80,16 +80,16 @@ const Footer = (): JSX.Element => {
                         <Link href='/blog'>Blog</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
+                        <a href={MITO_GITHUB_LINK} target="_blank" rel="noopener">GitHub</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Discord</a>
+                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noopener">Discord</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noopener">Slack</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">Install</a>
+                        <a href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noopener">Install</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/teams'>Teams</Link>
@@ -100,25 +100,25 @@ const Footer = (): JSX.Element => {
                         Company
                     </ol>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">Jobs</a>
+                        <a href={JOBS_BOARD_LINK} target="_blank" rel="noopener">Jobs</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <Link href='/security'>Security</Link>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://docs.trymito.io/misc/terms-of-service' target="_blank" rel="noreferrer">Terms</a>
+                        <a href='https://docs.trymito.io/misc/terms-of-service' target="_blank" rel="noopener">Terms</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://privacy.trymito.io/privacy-policy' target="_blank" rel="noreferrer">Privacy</a>
+                        <a href='https://privacy.trymito.io/privacy-policy' target="_blank" rel="noopener">Privacy</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://twitter.com/tryMito' target="_blank" rel="noreferrer">Twitter</a>
+                        <a href='https://twitter.com/tryMito' target="_blank" rel="noopener">Twitter</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://www.youtube.com/channel/UCN9o_0m1fwCjigfIpnKr0oA/videos' target="_blank" rel="noreferrer">YouTube</a>
+                        <a href='https://www.youtube.com/channel/UCN9o_0m1fwCjigfIpnKr0oA/videos' target="_blank" rel="noopener">YouTube</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Contact</a>
+                        <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noopener">Contact</a>
                     </li>
                 </div>
             </div>

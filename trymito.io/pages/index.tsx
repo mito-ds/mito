@@ -122,7 +122,7 @@ const Home: NextPage = () => {
                   Stop sitting through Python trainings or waiting for IT support. 
                   Take automation into your own hands using the tools you already know.
                 </p>
-                <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noopener" className={pageStyles.link_with_p_tag_margins}>
                   View all 100+ transformations →
                 </a>
               </div>
@@ -240,7 +240,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito open source?'>
               <div>
                 <p>
-                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">Github</a>.
+                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noopener">Github</a>.
                 </p>
                 <p>
                   Outside contributions are welcome and encouraged! 
@@ -250,7 +250,7 @@ const Home: NextPage = () => {
             <FAQCard title='Is Mito free?'>
               <div>
                 <p>
-                  Mito Open Source is free. You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  Mito Open Source is free. You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noopener">here</a>.
                 </p>
                 <p>
                   For individuals automating spreadsheet processes, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling all telemetry, and additional formatting and transformation options.
@@ -269,7 +269,7 @@ const Home: NextPage = () => {
                   Mito is a Jupyter extension that runs in JupyterLab, Jupyter notebooks, and JupyterHub.
                 </p>
                 <p>
-                  You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noopener">here</a>.
                 </p>
               </div>
             </FAQCard>

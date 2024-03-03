@@ -11,7 +11,7 @@ const InstallInstructions = (props: {}): JSX.Element => {
     return (
         <>
             <h2 style={{textAlign: 'center'}}>
-                Install <span className='text-highlight'><a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">open-source</a></span> Mito <br/>
+                Install <span className='text-highlight'><a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noopener">open-source</a></span> Mito <br/>
                 in under a minute
             </h2>
             <div className={installInstructions.install_instructions_container}>

@@ -83,7 +83,7 @@ const Security: NextPage = () => {
                                     Speeding up report generation not only lets analysts work on higher priority work, it also means that reports can be updated frequently so you&apos;re always working with the most up to date data.
                                 </p>
                                 <p>
-                                    See how the Director of Finance at Enigma saved himself 16 hours per month <a className={classNames('margin-0', pageStyles.link)} href="https://trymito.io/blog/enigma-case-study/" rel="noreferrer" target='_blank'>using Mito</a>.
+                                    See how the Director of Finance at Enigma saved himself 16 hours per month <a className={classNames('margin-0', pageStyles.link)} href="https://trymito.io/blog/enigma-case-study/" rel="noopener" target='_blank'>using Mito</a>.
                                 </p>
                             </div>
                             <div className={classNames(pageStyles.subsection_column)}>

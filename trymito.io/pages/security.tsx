@@ -65,7 +65,7 @@ const Security: NextPage = () => {
                 <p>
                   If you want to see the code that&apos;s running on your computer, you can. Mito is dedicated to building in public. 
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href={MITO_GITHUB_LINK} rel="noreferrer" target='_blank'>
+                <a className={pageStyles.link_with_p_tag_margins} href={MITO_GITHUB_LINK} rel="noopener" target='_blank'>
                   See our Github →
                 </a>
               </div>
@@ -97,7 +97,7 @@ const Security: NextPage = () => {
                 <p>
                   We don&apos;t want any data you don&apos;t want us to have. CCPA compliance means you stay in control of everything. 
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://privacy.trymito.io/privacy-policy' rel="noreferrer" target='_blank'>
+                <a className={pageStyles.link_with_p_tag_margins} href='https://privacy.trymito.io/privacy-policy' rel="noopener" target='_blank'>
                   See our Privacy Policy → 
                 </a>
               </div>
@@ -113,7 +113,7 @@ const Security: NextPage = () => {
                 <p>
                   Once you have Mito installed, you&apos;re in total control of which version you run. Upgrade when you want to.
                 </p>
-                <a className={pageStyles.link_with_p_tag_margins} href='https://docs.trymito.io/misc/release-notes' rel="noreferrer" target='_blank'>
+                <a className={pageStyles.link_with_p_tag_margins} href='https://docs.trymito.io/misc/release-notes' rel="noopener" target='_blank'>
                   See our recent updates → 
                 </a>
               </div>

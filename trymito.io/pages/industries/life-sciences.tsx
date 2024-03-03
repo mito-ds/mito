@@ -13,10 +13,10 @@ import textImageSplitStyles from '../../styles/TextImageSplit.module.css';
 
 // Import Icons & Background Grid
 import { classNames } from '../../utils/classNames';
-import CTAButtons from '../../components/CTAButtons/CTAButtons';
+import Buttons from '../../components/Buttons/Buttons';
 import FAQCard from '../../components/FAQCard/FAQCard';
-import ContactCTACard from '../../components/CTACards/ContactCTACard';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../../utils/plausible';
+import ContactCard from '../../components/Cards/ContactCard';
+import { PLAUSIBLE_INSTALL_DOCS__LOCATION_TITLE_CARD } from '../../utils/plausible';
 
 const LifeSciences: NextPage = () => {
 
@@ -40,7 +40,7 @@ const LifeSciences: NextPage = () => {
               <p className={classNames(titleStyles.subtitle)}>
                 Intuitive Python automation tools that let you focus on the science.
               </p>
-              <CTAButtons variant={'download'} align='left' textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+              <Buttons variant={'download'} align='left' textButtonClassName={PLAUSIBLE_INSTALL_DOCS__LOCATION_TITLE_CARD}/>
             </div>
             <div className={classNames(spreadsheetAutomationStyles.hero_video_container)}>
               <video autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
@@ -83,7 +83,7 @@ const LifeSciences: NextPage = () => {
                   It&apos;s nearly impossible to verify Excel models don&apos;t contain manual mistakes like typos and accidental data manipulation.
                 </p> 
                 <p>
-                  According to an <a href="https://www.nature.com/articles/d41586-021-02211-4" target="_blank" rel="noreferrer" className={pageStyles.link}>article</a> published by Nature, “Despite geneticists being warned about spreadsheet problems, 30% of published papers contain mangled gene names in supplementary data.”
+                  According to an <a href="https://www.nature.com/articles/d41586-021-02211-4" target="_blank" rel="noopener" className={pageStyles.link}>article</a> published by Nature, “Despite geneticists being warned about spreadsheet problems, 30% of published papers contain mangled gene names in supplementary data.”
                 </p>    
               </div>
               <div className={classNames(pageStyles.subsection_column)}>
@@ -136,7 +136,7 @@ const LifeSciences: NextPage = () => {
                   Bioinformatics
                 </h2>
                 <p> 
-                  Use Python libraries specifically designed for bioinformatics research, like <a href="https://biopython.org" target="_blank" rel="noreferrer" className={pageStyles.link}>BioPython</a>, to parse bioinformatics files, perform k Nearest Neighbors classifications, and common operations like translation and transcription. 
+                  Use Python libraries specifically designed for bioinformatics research, like <a href="https://biopython.org" target="_blank" rel="noopener" className={pageStyles.link}>BioPython</a>, to parse bioinformatics files, perform k Nearest Neighbors classifications, and common operations like translation and transcription. 
                 </p>
                 <p>
                   Use Mito to visualize and clean your data without bouncing back and forth between Excel and Python.
@@ -192,7 +192,7 @@ const LifeSciences: NextPage = () => {
           </section>
 
           <section className={pageStyles.background_card}>
-            <ContactCTACard />
+            <ContactCard />
           </section>
         </main>
         <Footer />

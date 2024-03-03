@@ -49,7 +49,7 @@ const DataApp: NextPage = () => {
                         <source src={'/data-app/data-verification-app.mp4'} />
                     </video>
                 </div>
-                <a href={DATA_VERIFICATION_STREAMLIT_APP_LINK} target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                <a href={DATA_VERIFICATION_STREAMLIT_APP_LINK} target="_blank" rel="noopener" className={pageStyles.link_with_p_tag_margins}>
                     Try this app now →
                 </a>
             </section>
