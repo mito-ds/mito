@@ -12,7 +12,7 @@ import random
 
 import pandas as pd
 import pytest
-from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_analysis
+from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_save_analysis_file
 from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
 from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
@@ -32,7 +32,7 @@ def test_recover_analysis(b_value, b_formula):
     mito.set_formula(b_formula, 0, 'B', add_column=True)
     # We first write out the analysis
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df = pd.DataFrame(data={'A': [1]})
     new_mito = create_mito_wrapper(df)
@@ -51,7 +51,7 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
     mito.set_formula(b_formula, 1, 'B', add_column=True)
     # We first write out the analysis
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
     df2 = pd.DataFrame(data={'A': [1]})
@@ -73,7 +73,7 @@ def test_persist_rename_column():
     mito.rename_column(0, 'A', 'NEW_COLUMN')
 
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
 
@@ -89,7 +89,7 @@ def test_persisit_delete_column():
     mito.delete_columns(0, 'A')
 
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
 
