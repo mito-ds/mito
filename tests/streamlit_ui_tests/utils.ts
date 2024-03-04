@@ -49,11 +49,14 @@ export const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator>
   
 export const awaitResponse = async (page: Page): Promise<void> => {
 
-    // Check if the message "Running" is visible, and wait if it is
+    // Check if the message "Running" is visible, and wait if it isn't
     if ((await page.locator('text=Running').count()) === 0) {
         // Wait at least 25 ms for the message to send, as there is 
         // a 25ms delay in the message sending in streamlit. We actually
         // wait 500ms to be safe -- which is a bit of a cost, but 
+        // the biggest slow down by far is flakey tests, so I would 
+        // rather wait a little bit extra each awaitResponse to avoid a 
+        // bunch of reruns due to flakey tests
         await page.waitForTimeout(500);
     }
     
