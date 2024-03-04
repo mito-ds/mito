@@ -34,4 +34,31 @@ test.describe('File Import Taskpane', () => {
     await mito.getByRole('button', { name: 'Change Imports', exact: true }).click();
     await mito.getByText('Successfully replayed analysis on new data').click();
   });
+
+  test('Import XLSX file with multiple sheets', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
+    await mito.locator('.mito-dropdown-item', { hasText: 'Import Files' }).click();
+    await mito.getByText('test.xlsx').dblclick();
+
+    await mito.getByText('Import 2 Selected Sheets').click();
+
+    await expect(mito.locator('.tab', { hasText: 'Sheet1' })).toBeVisible();
+    await expect(mito.locator('.tab', { hasText: 'Sheet2' })).toBeVisible();
+    await expect(mito.locator('.endo-column-header-text', { hasText: 'Column4' })).toBeVisible();
+  });
+
+  test('Import XLSX file with single sheet', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
+    await mito.locator('.mito-dropdown-item', { hasText: 'Import Files' }).click();
+    await mito.getByText('test.xlsx').dblclick();
+    await mito.getByText('Sheet1').click();
+
+    await mito.getByText('Import 1 Selected Sheet').click();
+
+    await expect(mito.locator('.tab', { hasText: 'Sheet1' })).not.toBeVisible();
+    await expect(mito.locator('.tab', { hasText: 'Sheet2' })).toBeVisible();
+    await expect(mito.locator('.endo-column-header-text', { hasText: 'Column4' })).toBeVisible();
+  });
 });
