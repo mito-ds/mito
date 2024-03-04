@@ -49,11 +49,14 @@ export const getMitoFrameWithTypeCSV = async (page: Page): Promise<FrameLocator>
   
 export const awaitResponse = async (page: Page): Promise<void> => {
 
-    // Check if the message "Running" is visible, and wait if it is
+    // Check if the message "Running" is visible, and wait if it isn't
     if ((await page.locator('text=Running').count()) === 0) {
         // Wait at least 25 ms for the message to send, as there is 
         // a 25ms delay in the message sending in streamlit. We actually
         // wait 500ms to be safe -- which is a bit of a cost, but 
+        // the biggest slow down by far is flakey tests, so I would 
+        // rather wait a little bit extra each awaitResponse to avoid a 
+        // bunch of reruns due to flakey tests
         await page.waitForTimeout(500);
     }
     
@@ -79,6 +82,22 @@ export const closeTaskpane = async (mito: FrameLocator): Promise<void> => {
     // Close the taskpane, by clicking default-taskpane-header-exit-button-div
     await mito.locator('.default-taskpane-header-exit-button-div').click();
 }
+
+export const checkColumnExists = async (mito: FrameLocator, columnNamesOrName: string | string[]): Promise<void> => {
+    let columnNames: string[] = [];
+    if (Array.isArray(columnNamesOrName)) {
+        columnNames = columnNamesOrName;
+    } else {
+        columnNames = [columnNamesOrName]
+    }
+
+    for (let i = 0; i < columnNames.length; i++) {
+        const columnName = columnNames[i];
+        const columnHeaderContainer = await getColumnHeaderContainer(mito, columnName);
+        await expect(columnHeaderContainer).toBeVisible();
+    }
+
+}
   
 export const getColumnHeaderContainer = async (mito: FrameLocator, columnName: string): Promise<Locator> => {
     return mito.locator('.endo-column-header-container').locator('div').filter({ hasText: columnName }).first();
@@ -86,6 +105,10 @@ export const getColumnHeaderContainer = async (mito: FrameLocator, columnName: s
 
 export const getColumnHeaderContainerAtIndex = async (mito: FrameLocator, index: number): Promise<Locator> => {
     return mito.locator('.endo-column-header-container').nth(index);
+}
+
+export const checkColumnCount = async (mito: FrameLocator, count: number): Promise<void> => {
+    await expect(mito.locator('.endo-column-header-container')).toHaveCount(count)
 }
 
 export const getColumnHeaderIndexFromColumnHeader = async (mito: FrameLocator, columnHeader: string): Promise<number> => {
@@ -119,6 +142,7 @@ export const renameColumnAtIndex = async (page: Page, mito: FrameLocator, index:
     await newColumnHeader.dblclick();
     await mito.getByRole('textbox').fill(newName);
     await page.keyboard.press('Enter');
+    await awaitResponse(page);
 
     await expect(mito.locator('textbox')).not.toBeVisible();
     await expect(mito.locator('.endo-column-header-container', { hasText: newName })).toBeVisible();
@@ -152,7 +176,6 @@ export const createNewColumn = async (
         await columnHeader.click({ button: 'right' });
         await expect(mito.locator('.mito-dropdown')).toBeVisible();
         await clickButtonAndAwaitResponse(page, mito, 'Insert Column Right');
-
     }
 
     await renameColumnAtIndex(page, mito, index, columnHeader);
@@ -174,6 +197,7 @@ export const setFormulaUsingCellEditor = async (
     }
 
     await mito.getByRole('textbox').fill(formula);
+    await awaitResponse(page);
     await mito.locator('#cell-editor-input').press('Enter');
     await awaitResponse(page);
 }

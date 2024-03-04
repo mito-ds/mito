@@ -112,7 +112,7 @@ test.describe('Graph Functionality', () => {
     await openGraphEditor(mito, page);
 
     await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(1)).toHaveText('Column1');
-    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(2)).toHaveText('Column2');
+    await expect(mito.locator('.graph-sidebar-toolbar-content .select-container').nth(2)).toHaveText('Column2');  
   })
 
   test('Change Chart type to Linear', async ({ page }) => {
