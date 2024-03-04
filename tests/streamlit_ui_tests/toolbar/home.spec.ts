@@ -85,10 +85,11 @@ test.describe('Home Tab Buttons', () => {
   test('Delete Column', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
-    await mito.getByTitle('Column1').click();
+    await mito.getByTitle('Column2').click();
+    
     await clickButtonAndAwaitResponse(page, mito, { name: 'Delete' })
 
-    await expect(mito.getByText('Column1')).not.toBeVisible();
+    await expect(mito.getByText('Column2')).not.toBeVisible();
   });
 
   test('Insert Column', async ({ page }) => {
@@ -161,6 +162,8 @@ test.describe('Home Tab Buttons', () => {
 
     // Then, replace all, should work
     await mito.getByRole('button', { name: 'Replace All' }).click();
+    await awaitResponse(page);
+
     await expect(mito.getByText('Column13')).toBeVisible();
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).toBeVisible();
   });
