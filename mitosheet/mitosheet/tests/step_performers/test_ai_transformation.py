@@ -7,6 +7,7 @@
 Contains tests for AI Transformation
 """
 
+import datetime
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import create_mito_wrapper
@@ -157,6 +158,21 @@ df1.rename(columns={'A': 'B', 'B': 'B'}, inplace=True)
 """,
         [
             pd.DataFrame({'A': [1, 2, 3], 'B': [1.0, 2.0, 3.0]})
+        ]
+    ),
+    # Split a date and time into two components
+    (
+        [
+            pd.DataFrame({'Date': pd.to_datetime(['1997-07-16T19:20'])})
+        ],
+        """
+import pandas as pd
+
+
+df1[['Date', 'Time']] = df1['Date'].apply(lambda x: pd.Series([x.date(), x.time()]))
+""",
+        [
+            pd.DataFrame({'Date': [datetime.date(1997, 7, 16)], 'Time': [datetime.time(19, 20)]})
         ]
     ),
 ]

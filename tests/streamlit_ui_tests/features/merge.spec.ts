@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, hasExpectedNumberOfRows, importCSV } from '../utils';
+import { awaitResponse, checkColumnCount, checkColumnExists, clickButtonAndAwaitResponse, closeTaskpane, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, hasExpectedNumberOfRows, importCSV } from '../utils';
 
 
 const changeMergeType = async (mito: FrameLocator, page: Page, mergeType: string) => {
@@ -21,6 +21,11 @@ const changeMergeKeys = async (mito: FrameLocator, page: Page, newKey: string, f
     await awaitResponse(page);
 }
 
+const toggleColumnToKeepInMerge = async (mito: FrameLocator, page: Page, columnName: string, firstOrSecond: 'first' | 'second') => {
+    await mito.locator('.multi-toggle-box-row', { hasText: columnName }).locator('input[type="checkbox"]').nth(firstOrSecond === 'first' ? 0 : 1).click();
+    await awaitResponse(page);
+}
+
 test.describe('Merge', () => {
     test('Allows Editing', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
@@ -32,9 +37,7 @@ test.describe('Merge', () => {
     
         await expect(mito.getByText('Merge Dataframes')).toBeVisible();
     
-        // Check that Column1 exists
-        const ch1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(ch1).toBeVisible();
+        await checkColumnExists(mito, 'Column1');
 
         // Close the taskpane
         await closeTaskpane(mito);
@@ -46,12 +49,7 @@ test.describe('Merge', () => {
         // Add a merge key
         await mito.getByRole('button', { name: '+ Add Merge Keys' }).click();
 
-        const newCh1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(newCh1).toBeVisible();
-        const newCh2 = await getColumnHeaderContainer(mito, 'Column2');
-        await expect(newCh2).toBeVisible();
-        const Column3_test_1 = await getColumnHeaderContainer(mito, 'Column3_test_1');
-        await expect(Column3_test_1).toBeVisible();
+        await checkColumnExists(mito, ['Column1', 'Column2', 'Column3_test_1']);
     });
 
 
@@ -68,9 +66,7 @@ test.describe('Merge', () => {
         // Wait for the merge to be finished before continuing so adding a column works!
         await expect(mito.getByText('df_merge')).toBeVisible();
     
-        // Check that Column1 exists
-        const ch1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(ch1).toBeVisible();
+        await checkColumnExists(mito, 'Column1');
 
         // Add a column
         await mito.locator('[id="mito-toolbar-button-add\\ column\\ to\\ the\\ right"]').getByRole('button', { name: 'Insert' }).click();
@@ -78,7 +74,7 @@ test.describe('Merge', () => {
 
         // Check that the merge table has been updated -- there should be
         // 5 columns from merge + 1 added
-        await expect(mito.locator('.endo-column-header-container')).toHaveCount(6);
+        await checkColumnCount(mito, 6);
 
         // Reopen the edit merge
         await mito.getByText('df_merge').click({button: 'right'});
@@ -87,15 +83,9 @@ test.describe('Merge', () => {
         // Add a merge key
         await mito.getByRole('button', { name: '+ Add Merge Keys' }).click();
 
-        const newCh1 = await getColumnHeaderContainer(mito, 'Column1');
-        await expect(newCh1).toBeVisible();
-        const newCh2 = await getColumnHeaderContainer(mito, 'Column2');
-        await expect(newCh2).toBeVisible();
-        const Column3_test_1 = await getColumnHeaderContainer(mito, 'Column3_test_1');
-        await expect(Column3_test_1).toBeVisible();
-
-        // Check that there are 5 columns still
-        await expect(mito.locator('.endo-column-header-container')).toHaveCount(5);
+        // Check the new columns
+        await checkColumnExists(mito, ['Column1', 'Column2', 'Column3_test_1']);
+        await checkColumnCount(mito, 5);
     });
 
     test('Change Merge Type', async ({ page }) => {
@@ -164,12 +154,11 @@ test.describe('Merge', () => {
         await hasExpectedNumberOfRows(mito, 4);
 
         // Uncheck all of the the columns to keep
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column2' }).locator('input[type="checkbox"]').first().click();
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column3' }).locator('input[type="checkbox"]').first().click();
+        await toggleColumnToKeepInMerge(mito, page, 'Column2', 'first');
+        await toggleColumnToKeepInMerge(mito, page, 'Column3', 'first');
 
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column2' }).locator('input[type="checkbox"]').nth(1).click();
-        await mito.locator('.multi-toggle-box-row', { hasText: 'Column3' }).locator('input[type="checkbox"]').nth(1).click();
-        await awaitResponse(page);
+        await toggleColumnToKeepInMerge(mito, page, 'Column2', 'second');
+        await toggleColumnToKeepInMerge(mito, page, 'Column3', 'second');
         await expect(mito.locator('.endo-column-header-container')).toHaveCount(1);
 
         // Re-check a couple of the columns to keep
@@ -220,8 +209,8 @@ test.describe('Merge', () => {
 
         // Check that the merge key pairing was removed and that there are warning messages for both
         // merge keys and columns
-        await expect(mito.locator('.caution-text', { hasText: 'The merge key pairing ( Column2,  Column2) was removed because “ Column2” no longer exists in “test”.'})).toBeVisible();
-        await expect(mito.locator('.caution-text', { hasText: 'The column “ Column2” was removed because it no longer exists in “test”.'})).toBeVisible();
+        await expect(mito.locator('.caution-text', { hasText: 'The merge key pairing (Column2, Column2) was removed because “Column2” no longer exists in “test”.'})).toBeVisible();
+        await expect(mito.locator('.caution-text', { hasText: 'The column “Column2” was removed because it no longer exists in “test”.'})).toBeVisible();
         await expect(mito.locator('.select-text', { hasText: 'Column2' })).not.toBeVisible();
     });
 });
