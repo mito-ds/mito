@@ -98,7 +98,6 @@ test('Reference cell by clicking on it', async ({ page }) => {
 
     await (mito.locator('.mito-grid-cell').first()).click();
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
@@ -119,7 +118,6 @@ test('Reference column by clicking on column header', async ({ page }) => {
     // Type the rest of the formula
     await (mito.getByRole('textbox')).press(')')
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
@@ -137,7 +135,6 @@ test('Reference cell in previous row by clicking on it', async ({ page }) => {
 
     await (mito.locator('.mito-grid-cell').first()).click();
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
@@ -157,7 +154,6 @@ test('Use arrow keys to select cell', async ({ page }) => {
     await page.keyboard.press('ArrowLeft');
 
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
@@ -179,7 +175,6 @@ test('Use arrow keys to select rolling range', async ({ page }) => {
     await page.keyboard.press(')');
 
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
@@ -201,7 +196,6 @@ test('No formula around rolling range displays [object Object]', async ({ page }
     await page.keyboard.press('Shift+ArrowLeft');
 
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
@@ -269,7 +263,6 @@ test.skip('Write spreadsheet formula (referencing entire column) applied to indi
     await (mito.getByText('Column1')).click();
     await (mito.getByRole('textbox')).press(')')
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
@@ -288,7 +281,6 @@ test('Write spreadsheet formula applied to individual cell', async ({ page }) =>
     await (mito.locator('.mito-grid-cell').first()).click();
     await (mito.getByRole('textbox')).press(')')
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
