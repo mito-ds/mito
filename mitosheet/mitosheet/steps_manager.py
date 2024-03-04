@@ -23,7 +23,7 @@ from mitosheet.step_performers.import_steps.excel_range_import import ExcelRange
 from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
-from mitosheet.saved_analyses.save_utils import get_analysis_exists, read_analysis
+from mitosheet.saved_analyses.save_utils import get_analysis_exists
 from mitosheet.state import State
 from mitosheet.step import Step
 from mitosheet.step_performers import EVENT_TYPE_TO_STEP_PERFORMER
@@ -396,7 +396,7 @@ class StepsManager:
                     'analysisName': self.analysis_to_replay,
                     'existsOnDisk': self.analysis_to_replay_exists,
                 } if self.analysis_to_replay is not None else None,
-                "code": self.code() if self.render_count > 0 else read_analysis(self.analysis_to_replay)['code'],
+                "code": self.code(),
                 "stepSummaryList": self.step_summary_list,
                 "currStepIdx": self.curr_step_idx,
                 "graphDataArray": self.curr_step.graph_data_array,
