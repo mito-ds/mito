@@ -199,7 +199,6 @@ export const setFormulaUsingCellEditor = async (
     await mito.getByRole('textbox').fill(formula);
     await awaitResponse(page);
     await mito.locator('#cell-editor-input').press('Enter');
-    await page.waitForTimeout(1000);
     await awaitResponse(page);
 }
 
