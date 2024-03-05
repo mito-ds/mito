@@ -2,7 +2,7 @@
 import { expect, test } from '@playwright/test';
 import { checkColumnCellsHaveExpectedValues, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getMitoFrame, getMitoFrameWithTestCSV } from '../utils';
 
-const openImportTaskpane = async (mito: any, file: string) => {
+const openImportTaskpaneAndSelectData = async (mito: any, file: string) => {
   await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
   await mito.locator('.mito-dropdown-item', { hasText: 'Import Files' }).click();
   await mito.getByText(file, { exact: true }).dblclick();
@@ -55,7 +55,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Import XLSX file with single sheet', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpane(mito, 'test.xlsx')
+    await openImportTaskpaneAndSelectData(mito, 'test.xlsx')
     await mito.getByText('Sheet1').click();
 
     await mito.getByText('Import 1 Selected Sheet').click();
@@ -67,7 +67,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Import XLSX file with configurations', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpane(mito, 'test.xlsx')
+    await openImportTaskpaneAndSelectData(mito, 'test.xlsx')
 
     // Update some configurations
     await mito.locator('.spacing-row', { hasText: 'Has Header Row'}).locator('.select-text').click();
@@ -89,7 +89,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Range Import with one sheet selected', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpane(mito, 'test.xlsx');
+    await openImportTaskpaneAndSelectData(mito, 'test.xlsx');
     await mito.getByText('Sheet1').click();
 
     // Click on Range Import
@@ -107,7 +107,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Import multiple ranges', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpane(mito, 'test.xlsx');
+    await openImportTaskpaneAndSelectData(mito, 'test.xlsx');
     await mito.getByText('Sheet1').click();
 
     // Click on Range Import
