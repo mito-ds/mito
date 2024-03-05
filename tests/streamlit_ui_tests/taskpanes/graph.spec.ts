@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, clickTab, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
+import { awaitResponse, clickButtonAndAwaitResponse, clickTab, fillInput, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, updateSelectedValue } from '../utils';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -44,8 +44,7 @@ const testDeleteTitleThroughContextMenu = async (page, selector) => {
 };
 
 const addColumnToAxis = async (mito: FrameLocator, page: Page, axis: 'X' | 'Y', columnName: string) => {
-  await mito.locator('.spacing-row', { hasText: `${axis} axis` }).locator('.mito-dropdown-button').click();
-  await mito.locator('.mito-dropdown-item', { hasText: columnName }).click();
+  await updateSelectedValue(mito, `${axis} Axis`, columnName);
   await awaitResponse(page);
 }
 
@@ -241,14 +240,13 @@ test.describe('Graph Functionality', () => {
     await mito.locator('.endo-column-header-final-container').first().getByTitle('Edit Filters').click();
     await mito.getByText('Add Filter').click();
     await mito.getByText('Add a Filter').click();
-    await mito.locator('.spacing-row', { hasText: 'Where' }).locator('input').fill('1');
+    await fillInput(mito, 'Where', '1');
     await expect(mito.locator('.mito-grid-cell-selected')).toHaveCount(3);
 
     // Check that the graph has been updated
     await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).not.toBeVisible();
     await mito.locator('.footer').getByText('graph0').click();
 
-    await awaitResponse(page);
     await awaitResponse(page);
     await expect(mito.locator('.g-gtitle', { hasText: 'Column1 bar chart'})).toBeVisible();
     await expect(mito.locator('g.point')).toHaveCount(6);
