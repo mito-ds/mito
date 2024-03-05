@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, clickTab, fillInput, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, updateSelectedValue } from '../utils';
+import { awaitResponse, clickButtonAndAwaitResponse, clickTab, fillInput, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -44,7 +44,8 @@ const testDeleteTitleThroughContextMenu = async (page, selector) => {
 };
 
 const addColumnToAxis = async (mito: FrameLocator, page: Page, axis: 'X' | 'Y', columnName: string) => {
-  await updateSelectedValue(mito, `${axis} axis`, columnName);
+  await mito.locator('.spacing-row', { hasText: `${axis} axis` }).locator('.mito-dropdown-button').click();
+  await mito.locator('.mito-dropdown-item', { hasText: columnName }).click();
   await awaitResponse(page);
 }
 
