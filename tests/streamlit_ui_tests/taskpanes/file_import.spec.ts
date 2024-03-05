@@ -120,7 +120,10 @@ test.describe('File Import Taskpane', () => {
     // Add the second range
     await mito.getByText('Add').click();
     await mito.locator('.spacing-row', { hasText: 'Name' }).locator('input').fill('Other Range')
-    await mito.locator('.spacing-row', { hasText: 'Excel Range' }).locator('input').fill('A1:B2');
+    await mito.locator('.spacing-row', { hasText: 'Locate By' }).locator('.select-text').click();
+    await mito.getByText('Dynamic', { exact: true }).click();
+    await mito.locator('.spacing-row', { hasText: 'Value' }).locator('input').fill('lmnop');
+    
     await mito.getByText('Import Ranges').click();
 
     // Check that the tabs appear
@@ -128,8 +131,9 @@ test.describe('File Import Taskpane', () => {
     await expect(mito.locator('.tab', { hasText: 'Other_Range' })).toBeVisible();
     
     // Check the first range (the Other_Range will automatically open)
-    await checkColumnCellsHaveExpectedValues(mito, 0, ['abcd'])
-    await checkColumnCellsHaveExpectedValues(mito, 1, ['efg'])
+    await checkColumnCellsHaveExpectedValues(mito, 0, ['wxyz'])
+    await checkColumnCellsHaveExpectedValues(mito, 1, ['123'])
+    await checkColumnCellsHaveExpectedValues(mito, 2, ['456'])
 
     // Check the second range
     await mito.getByText('Range_Test').click();
