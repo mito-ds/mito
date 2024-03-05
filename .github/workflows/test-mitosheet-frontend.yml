@@ -17,6 +17,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.10']
+      fail-fast: false
 
     steps:
     - name: Cancel Previous Runs
@@ -69,6 +70,7 @@ jobs:
         # Usually we'd test python 3.6 but there is an error showing up in the tests
         # that we're not sure about. See https://github.com/mito-ds/mito/pull/1213
         python-version: ['3.8', '3.10']
+      fail-fast: false
 
     steps:
     - name: Cancel Previous Runs
@@ -119,17 +121,34 @@ jobs:
       matrix:
         os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
         python-version: ['3.10']
-        project: ['chromium', 'firefox', 'webkit', 'Google Chrome', 'Microsoft Edge']
+        project: 
+          - test-name: 'chromium'
+            install-name: 'chromium'
+          - test-name: 'firefox'
+            install-name: 'firefox'
+          - test-name: 'webkit'
+            install-name: 'webkit'
+          - test-name: 'Google Chrome'
+            install-name: 'chrome'
+          - test-name: 'Microsoft Edge'
+            install-name: 'msedge'
+        testfiles: ['taskpanes', 'grid', 'toolbar']
         exclude:
           - os: 'windows-latest'
-            project: webkit
+            project:
+              test-name: webkit
           - os: 'macos-latest'
-            project: 'Microsoft Edge'
+            project:
+              test-name: 'Microsoft Edge'
           - os: 'ubuntu-latest'
-            project: 'Microsoft Edge'
+            project: 
+              test-name: 'Microsoft Edge'
           - os: 'ubuntu-latest'
-            project: 'webkit'
+            project:
+              test-name: 'webkit'
+      fail-fast: false
     runs-on: ${{ matrix.os }}
+    name: Test ${{ matrix.testfiles }} on ${{ matrix.os }} ${{ matrix.project.test-name }}
 
     steps:
     - uses: actions/checkout@v2
@@ -151,7 +170,7 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: |
         cd tests
-        bash mac-setup.sh
+        bash mac-setup.sh ${{ matrix.project.install-name }}
         source venv/bin/activate
         pip install -r extra-requirements.txt
     - name: Setup streamlit (ubuntu, macos)
@@ -183,7 +202,7 @@ jobs:
         pip install -r extra-requirements.txt
 
         npm install
-        npx playwright install chromium firefox chrome msedge
+        npx playwright install ${{matrix.project.install-name}}
 
         cd ../mitosheet
         pip install -e ".[test]"
@@ -197,19 +216,19 @@ jobs:
         source venv/bin/activate
         streamlit run streamlit_test.py --server.port 8555 &
         bash check_server.sh
-        npm run test:streamlit -- --project="${{ matrix.project }}"
+        npm run test -- --project="${{ matrix.project.test-name }}" streamlit_ui_tests/${{matrix.testfiles}}
     - name: Start a server and run tests (windows)
       if: matrix.os == 'windows-latest'
       run: |
         cd tests
         .\venv\Scripts\Activate.ps1
         Start-Job { streamlit run streamlit_test.py --server.port 8555 } -WorkingDirectory (Get-Location)
-        npm run test:streamlit -- --project="${{ matrix.project }}"
+        npm run test -- --project="${{ matrix.project.test-name }}" streamlit_ui_tests/${{matrix.testfiles}}
     - name: Upload test-results
       uses: actions/upload-artifact@v3
       if: failure()
       with:
-        name: streamlit-playwright-report-${{ matrix.python-version }}-${{ matrix.os }}-${{ matrix.project }}
+        name: test-results-${{matrix.testfiles}}-${{ matrix.os }}-python${{ matrix.python-version }}-${{ matrix.project.test-name }}
         path: tests/playwright-report/
         retention-days: 14
 
@@ -219,6 +238,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10']
+      fail-fast: false
 
     steps:
     - name: Cancel Previous Runs

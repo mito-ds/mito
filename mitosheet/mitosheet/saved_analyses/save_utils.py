@@ -130,7 +130,6 @@ def get_saved_analysis_string(steps_manager: StepsManagerType) -> str:
     return saved_analysis_string
 
 def _write_saved_analysis_file(analysis_path: str, steps_manager: StepsManagerType) -> None:
-    print('writing saved analysis file to', analysis_path)
     saved_analysis_string = get_saved_analysis_string(steps_manager)
     with open(analysis_path, 'w+') as f:
         f.write(saved_analysis_string)

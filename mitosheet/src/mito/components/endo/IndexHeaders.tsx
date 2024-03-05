@@ -40,6 +40,11 @@ const IndexHeaders = (props: {
                     <div style={indexHeadersStyle}>
                         {Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
                             const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
+
+                            if (rowIndex >= props.sheetData.numRows) {
+                                return null;
+                            }
+
                             const selected = getIsCellSelected(
                                 props.gridState.selections,
                                 rowIndex,

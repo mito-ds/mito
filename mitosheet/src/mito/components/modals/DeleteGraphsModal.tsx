@@ -1,13 +1,12 @@
 // Copyright (c) Mito
 
 import React from 'react';
-import { ModalEnum } from './modals';
-import DefaultModal from '../DefaultModal';
 import { MitoAPI } from '../../api/api';
-import TextButton from '../elements/TextButton';
 import { GraphData, GraphID, UIState } from '../../types';
-import { TaskpaneType } from '../taskpanes/taskpanes';
+import DefaultModal from '../DefaultModal';
+import TextButton from '../elements/TextButton';
 import { deleteGraphs } from '../taskpanes/Graph/graphUtils';
+import { ModalEnum } from './modals';
 
 
 type DeleteGraphsModalProps = {
@@ -37,17 +36,6 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
         
         // Then delete the dataframe
         await props.mitoAPI.editDataframeDelete(props.sheetIndex)
-
-        // Select the previous sheet and close the modal
-        props.setUIState(prevUIState => {
-            return {
-                ...prevUIState,
-                selectedTabType: 'data',
-                selectedSheetIndex: prevUIState.selectedSheetIndex > 0 ? prevUIState.selectedSheetIndex - 1 : 0,
-                currOpenModal: {type: ModalEnum.None},
-                currOpenTaskpane: {type: TaskpaneType.NONE}
-            }
-        })
     }
 
 

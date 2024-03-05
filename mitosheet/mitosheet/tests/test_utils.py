@@ -1691,12 +1691,14 @@ def create_mito_wrapper(
         sheet_functions: Optional[List[Callable]]=None,
         importers: Optional[List[Callable]]=None,
         editors: Optional[List[Callable]]=None,
+        mito_backend: Optional[MitoBackend]=None
     ) -> MitoWidgetTestWrapper:
     """
     Creates a MitoWidgetTestWrapper with a mito instance with the given
     data frames.
     """
-    mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers, user_defined_editors=editors)
+    if mito_backend is None:
+        mito_backend = get_mito_backend(*args, user_defined_functions=sheet_functions, user_defined_importers=importers, user_defined_editors=editors)
     test_wrapper =  MitoWidgetTestWrapper(mito_backend)
 
     if arg_names is not None:
