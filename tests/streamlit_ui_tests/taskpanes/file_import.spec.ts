@@ -125,9 +125,11 @@ test.describe('File Import Taskpane', () => {
 
     // Change the delimiter to a semicolon
     await mito.locator('.spacing-row', { hasText: 'Delimiter' }).locator('input').fill(';');
-
+    await mito.locator('.spacing-row', { hasText: 'Decimal Separator' }).locator('.select-text').click();
+    await mito.getByText('Comma').click();
+    
     // Click the import button and check that the data is correct
     await mito.locator('button', { hasText: 'Import semicolon-delimiter.csv' }).click();
-    await checkColumnCellsHaveExpectedValues(mito, 0, [1, 4, 7, 10])
+    await checkColumnCellsHaveExpectedValues(mito, 0, [1.00, 4.12, 7.46, 10.30])
   });
 });
