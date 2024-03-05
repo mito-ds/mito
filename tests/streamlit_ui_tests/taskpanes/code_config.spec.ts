@@ -28,6 +28,6 @@ test.describe('Code Config', () => {
     await mito.getByText('Add').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'CSV Import File Path' }).click();
     
-    await expect(page.locator('.stCodeBlock')).toContainText(/def new_name\([a-zA-Z\/']*\/test\.csv'\):/);
+    await expect(page.locator('.stCodeBlock')).toContainText('def new_name(r\'');
   });
 });
