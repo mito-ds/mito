@@ -36,6 +36,15 @@ export const getMitoFrameWithTestCSV = async (page: Page): Promise<FrameLocator>
     return mito;
 }
 
+export const checkColumnCellsHaveExpectedValues = async (mito: FrameLocator, columnIndex: number, values: any[]) => {
+    const cells = await mito.locator(`.mito-grid-cell[mito-col-index="${columnIndex}"]`).all()
+    await expect(mito.locator('.index-header-container')).toHaveCount(values.length);
+    for (const cellIndex in values) {
+        const cell = cells[cellIndex];
+        await expect(cell).toHaveText(values[cellIndex]);
+    }
+}
+
 export const hasExpectedNumberOfRows = async (mito: any, expectedRows: number) => {
     await expect(mito.locator('.index-header-container', { hasText: `${expectedRows - 1}` })).toBeVisible();
     await expect(mito.locator('.index-header-container', { hasText: `${expectedRows}` })).not.toBeVisible();

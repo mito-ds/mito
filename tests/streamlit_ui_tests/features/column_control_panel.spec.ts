@@ -1,33 +1,22 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, getMitoFrameWithTestCSV } from '../utils';
-
-
+import { awaitResponse, getMitoFrameWithTestCSV, checkColumnCellsHaveExpectedValues } from '../utils';
 
 const openColumnControlPanel = async (mito: any, columnName: string) => {
     const columnHeader = await mito.locator('.endo-column-header-final-container', { hasText: columnName });
-    await columnHeader.getByText('int').click();
+    await columnHeader.getByTitle('Edit filters').click();
     await expect(mito.locator('.spacing-col', { hasText: 'Dtype' })).toBeVisible();
 };
 
-const changeDtype = async (mito: FrameLocator, page: Page, dtype: string) => {
+const changeDtypeInColumnControlPanel = async (mito: FrameLocator, page: Page, dtype: string) => {
     await mito.locator('.spacing-row', { hasText: 'Dtype' }).locator('.select-text').click();
     await mito.locator('.mito-dropdown-item', { hasText: dtype }).click();
     await awaitResponse(page);
 }
 
-const changeNumType = async (mito: FrameLocator, page: Page, numType: string) => {
+const changeNumTypeInColumnControlPanel = async (mito: FrameLocator, page: Page, numType: string) => {
     await mito.locator('.spacing-row', { hasText: 'Num Type' }).locator('.select-text').click();
     await mito.locator('.mito-dropdown-item', { hasText: numType }).click();
     await awaitResponse(page);
-}
-
-const checkColumnCellsHaveExpectedValues = async (mito: FrameLocator, columnIndex: number, values: any[]) => {
-    const cells = await mito.locator(`.mito-grid-cell[mito-col-index="${columnIndex}"]`).all()
-    await expect(mito.locator('.index-header-container')).toHaveCount(values.length);
-    for (const cellIndex in values) {
-        const cell = cells[cellIndex];
-        await expect(cell).toHaveText(values[cellIndex]);
-    }
 }
 
 const checkValuesTabHasExpectedValues = async (mito: FrameLocator, expectedValues: any[]) => {
@@ -44,16 +33,16 @@ test.describe('Column Control Panel', () => {
         
         await openColumnControlPanel(mito, 'Column1');
         
-        await changeDtype(mito, page, 'bool');
+        await changeDtypeInColumnControlPanel(mito, page, 'bool');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['true', 'true', 'true', 'true']);
 
-        await changeDtype(mito, page, 'str');
+        await changeDtypeInColumnControlPanel(mito, page, 'str');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['1', '4', '7', '10']);
     
-        await changeDtype(mito, page, 'float');
+        await changeDtypeInColumnControlPanel(mito, page, 'float');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['1.00', '4.00', '7.00', '10.00']);
     
-        await changeDtype(mito, page, 'datetime');
+        await changeDtypeInColumnControlPanel(mito, page, 'datetime');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['1970-01-01 00:00:01', '1970-01-01 00:00:04', '1970-01-01 00:00:07', '1970-01-01 00:00:10']);
     })
 
@@ -90,16 +79,16 @@ test.describe('Column Control Panel', () => {
         const mito = await getMitoFrameWithTestCSV(page);
         await openColumnControlPanel(mito, 'Column1');
 
-        await changeNumType(mito, page, 'Currency');
+        await changeNumTypeInColumnControlPanel(mito, page, 'Currency');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['$1', '$4', '$7', '$10']);
 
-        await changeNumType(mito, page, 'Accounting');
+        await changeNumTypeInColumnControlPanel(mito, page, 'Accounting');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['$1', '$4', '$7', '$10']);
 
-        await changeNumType(mito, page, 'Percent');
+        await changeNumTypeInColumnControlPanel(mito, page, 'Percent');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['100%', '400%', '700%', '1,000%']);
 
-        await changeNumType(mito, page, 'Scientific Notation');
+        await changeNumTypeInColumnControlPanel(mito, page, 'Scientific Notation');
         await checkColumnCellsHaveExpectedValues(mito, 0, ['1e+0', '4e+0', '7e+0', '1e+1']);
     });
 
