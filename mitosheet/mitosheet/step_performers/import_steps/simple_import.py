@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import (
-    DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING,
+    DEFAULT_DECIMAL, DEFAULT_DELIMITER, DEFAULT_ENCODING,
     DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS, SimpleImportCodeChunk)
 from mitosheet.errors import (make_file_not_found_error,
                               make_invalid_simple_import_error,
@@ -158,7 +158,7 @@ def read_csv_get_delimiter_and_encoding(file_name: str) -> Tuple[pd.DataFrame, s
     return the df, delimeter, decimal separator, and encoding of the file
     """
     encoding = DEFAULT_ENCODING
-    delimeter = DEFAULT_DELIMETER
+    delimeter = DEFAULT_DELIMITER
 
     if is_url_to_file(file_name):
         df = pd.read_csv(file_name)
