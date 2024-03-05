@@ -140,4 +140,20 @@ test.describe('Column Control Panel', () => {
         await expect(mito.locator('.column-describe-table-row', { hasText: 'std' })).toContainText('3.87')
         await expect(mito.locator('.column-describe-table-row', { hasText: 'min' })).toContainText('1.0')
     })
+
+    test('Updates the taskpane when selected column changes', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+        await openColumnControlPanel(mito, 'Column1');
+        await expect(mito.locator('.default-taskpane-header-div', { hasText: 'Column1' })).toBeVisible();
+        
+        // Navigate to the stats tab
+        await mito.locator('.control-panel-taskpane-tab', { hasText: 'Stats'}).click();
+
+        // Click on another column
+        await mito.locator('.endo-column-header-final-container', { hasText: 'Column2' }).click();
+        
+        // Expect the tab to still be "Stats" and the header to be "Column2"
+        await expect(mito.locator('.default-taskpane-header-div', { hasText: 'Column2' })).toBeVisible();
+        await expect(mito.getByText('Column Summary Statistics', { exact: true })).toBeVisible();
+    });
 });
