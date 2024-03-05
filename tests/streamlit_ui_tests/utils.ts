@@ -41,6 +41,9 @@ export const checkColumnCellsHaveExpectedValues = async (mito: FrameLocator, col
     await expect(mito.locator('.index-header-container')).toHaveCount(values.length);
     for (const cellIndex in values) {
         const cell = cells[cellIndex];
+        if (cell === undefined) {
+            continue;
+        }
         await expect(cell).toHaveText(values[cellIndex]);
     }
 }

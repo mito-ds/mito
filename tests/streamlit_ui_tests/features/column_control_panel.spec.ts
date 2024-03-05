@@ -59,6 +59,33 @@ test.describe('Column Control Panel', () => {
         await checkColumnCellsHaveExpectedValues(mito, 0, ['7', '10']);
     });
 
+    test('Adding a group of filters', async ({ page }) => {
+        const mito = await getMitoFrameWithTestCSV(page);
+        
+        await openColumnControlPanel(mito, 'Column1');
+        
+        await mito.getByText('Add Filter').click();
+        await mito.getByText('Add a Group').click();
+        await mito.locator('.spacing-row', { hasText: 'Where' }).locator('input').fill('7');
+        await awaitResponse(page);
+
+        await checkColumnCellsHaveExpectedValues(mito, 0, ['10']);
+
+        // Add another filter to the group
+        await mito.getByText('Add a Filter').click();
+
+        // Change the "and" to an "or" for the second condition
+        await mito.locator('.filter-group .spacing-row').nth(1).locator('.select-text', { hasText: 'And' }).click();
+        await mito.getByText('Or', { exact: true }).click();
+
+        // Add a filter to the second condition
+        await mito.locator('.filter-group .spacing-row').nth(1).locator('.select-text', { hasText: '>' }).click();
+        await mito.locator('.mito-dropdown-item', { hasText: '<' }).click();
+        await mito.locator('.filter-group .spacing-row').nth(1).locator('input').fill('4');
+        await awaitResponse(page);
+        await checkColumnCellsHaveExpectedValues(mito, 0, ['1', '10']);
+    });
+
     test('Sorting', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
         
