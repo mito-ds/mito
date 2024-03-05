@@ -48,12 +48,12 @@ export const checkColumnCellsHaveExpectedValues = async (mito: FrameLocator, col
     }
 }
 
-export const fillInput = async (mito: FrameLocator, title: string, value: string): Promise<void> => {
-    await mito.locator('.spacing-row', { hasText: title }).locator('input').fill(value);
+export const fillInput = async (mito: FrameLocator, inputLabel: string, value: string): Promise<void> => {
+    await mito.locator('.spacing-row', { hasText: inputLabel }).locator('input').fill(value);
 }
 
-export const updateSelectedValue = async (mito: FrameLocator, title: string, value: string): Promise<void> => {
-    await mito.locator('.spacing-row', { hasText: title }).locator('.select-text').click();
+export const updateSelectedValue = async (mito: FrameLocator, selectLabel: string, value: string): Promise<void> => {
+    await mito.locator('.spacing-row', { hasText: selectLabel }).locator('.select-text').click();
     await mito.locator('.mito-dropdown-item', { hasText: value }).click();
 }
 
