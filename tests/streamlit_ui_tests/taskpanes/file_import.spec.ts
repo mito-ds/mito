@@ -114,4 +114,20 @@ test.describe('File Import Taskpane', () => {
     await checkColumnCellsHaveExpectedValues(mito, 0, ['qrs'])
     await checkColumnCellsHaveExpectedValues(mito, 1, ['tuv'])
   });
+
+  test('Configure CSV imports', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+
+    // Open the configure taskpane for the csv with special delimiters
+    await mito.getByText('Import Files').click();
+    await mito.getByText('semicolon-delimiter.csv').click();
+    await mito.getByText('Configure').click();
+
+    // Change the delimiter to a semicolon
+    await mito.locator('.spacing-row', { hasText: 'Delimiter' }).locator('input').fill(';');
+
+    // Click the import button and check that the data is correct
+    await mito.locator('button', { hasText: 'Import semicolon-delimiter.csv' }).click();
+    await checkColumnCellsHaveExpectedValues(mito, 0, [1, 4, 7, 10])
+  });
 });

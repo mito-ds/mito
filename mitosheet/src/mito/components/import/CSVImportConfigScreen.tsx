@@ -249,7 +249,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
     const skiprows = props.params.skiprows;
     const error_bad_lines = props.params.error_bad_lines;
 
-    const currentDelimeter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
+    const currentDelimiter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
     const currentEncoding = encodings !== undefined ? encodings[0] : DEFAULT_ENCODING;
     const currentDecimal = decimals !== undefined ? decimals[0] : DEFAULT_DECIMAL
     const currentSkiprows = skiprows !== undefined ? skiprows[0] : DEFAULT_SKIPROWS
@@ -270,19 +270,19 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
                     <Col>
                         <LabelAndTooltip tooltip={DELIMETER_TOOLTIP}>
-                            Delimeter
+                            Delimiter
                         </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Input
                             width='medium'
-                            value={currentDelimeter}
+                            value={currentDelimiter}
                             onChange={(e) => {
-                                const newDelimeter = e.target.value;
+                                const newDelimiter = e.target.value;
                                 props.setParams(prevParams => {
                                     return {
                                         ...prevParams,
-                                        delimeters: [newDelimeter]
+                                        delimeters: [newDelimiter]
                                     }
                                 })
                             }} 
