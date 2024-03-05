@@ -47,6 +47,15 @@ test.describe('Top of Toolbar', () => {
         await expect(mito.getByText('Step History')).toBeVisible();
         await expect(mito.getByText('Imported', { exact: true })).toBeVisible();
         await expect(mito.getByText('Added column', { exact: true })).toBeVisible();
+
+        // Click on a step and check that the column is removed
+        await mito.getByText('Imported', { exact: true }).click();
+        await expect(mito.locator('.endo-column-header-final-text', { hasText: /new-column/ })).not.toBeVisible();
+        await expect(mito.getByText('You are viewing a previous step, and cannot make any edits.')).toBeVisible();
+
+        // Check that you can catch up to the latest step
+        await mito.getByText('Catch up').click();
+        await expect(mito.locator('.endo-column-header-final-text', { hasText: /new-column/ })).toBeVisible();
     })
 
     test('Help button', async ({ page }) => {
