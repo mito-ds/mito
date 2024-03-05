@@ -130,13 +130,13 @@ export const decimalCharToTitle: Record<Decimal, string> = {
     [Decimal.COMMA]: 'comma'
 }
 
-export const DELIMETER_TOOLTIP = 'The seperator that seperates one column from another.'
+export const DELIMITER_TOOLTIP = 'The seperator that seperates one column from another.'
 export const ENCODING_TOOLTIP = 'The encoding used to save this file.' // I can't think of anything better lol
 export const DECIMAL_TOOLTIP = 'The character used to separate the decimal places in numbers.'
 export const SKIP_ROWS_TOOLTIP = 'The number of rows at the top of the file to skip when reading data into the dataframe.'
 export const ERROR_BAD_LINES_TOOLTIP = 'Turn on to skip any lines that error when being read in.'
 
-export const DEFAULT_DELIMETER = ",";
+export const DEFAULT_DELIMITER = ",";
 export const DEFAULT_ENCODING = "utf-8";
 export const DEFAULT_DECIMAL = Decimal.PERIOD;
 export const DEFAULT_SKIPROWS = 0;
@@ -211,7 +211,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
             props.setParams(prevParams => {
                 return {
                     ...prevParams,
-                    delimeters: loadedData?.delimeters || [DEFAULT_DELIMETER],
+                    delimeters: loadedData?.delimeters || [DEFAULT_DELIMITER],
                     encodings: loadedData?.encodings || [DEFAULT_ENCODING],
                     decimals: loadedData?.decimals || [DEFAULT_DECIMAL],
                     skiprows: loadedData?.skiprows || [DEFAULT_SKIPROWS],
@@ -226,7 +226,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
         props.setParams(prevParams => {
             return {
                 ...prevParams,
-                delimeters: fileMetadata?.delimeters || [DEFAULT_DELIMETER],
+                delimeters: fileMetadata?.delimeters || [DEFAULT_DELIMITER],
                 encodings: fileMetadata?.encodings || [DEFAULT_ENCODING],
                 decimals: fileMetadata?.decimals || [DEFAULT_DECIMAL],
                 skiprows: fileMetadata?.skiprows || [DEFAULT_SKIPROWS],
@@ -249,7 +249,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
     const skiprows = props.params.skiprows;
     const error_bad_lines = props.params.error_bad_lines;
 
-    const currentDelimeter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER;
+    const currentDelimiter = delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMITER;
     const currentEncoding = encodings !== undefined ? encodings[0] : DEFAULT_ENCODING;
     const currentDecimal = decimals !== undefined ? decimals[0] : DEFAULT_DECIMAL
     const currentSkiprows = skiprows !== undefined ? skiprows[0] : DEFAULT_SKIPROWS
@@ -267,22 +267,22 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                 {props.error !== undefined &&
                     <p className='text-color-error'> {props.error} </p>
                 }
-                <Row justify='space-between' align='center' title={DELIMETER_TOOLTIP}>
+                <Row justify='space-between' align='center' title={DELIMITER_TOOLTIP}>
                     <Col>
-                        <LabelAndTooltip tooltip={DELIMETER_TOOLTIP}>
-                            Delimeter
+                        <LabelAndTooltip tooltip={DELIMITER_TOOLTIP}>
+                            Delimiter
                         </LabelAndTooltip>
                     </Col>
                     <Col>
                         <Input
                             width='medium'
-                            value={currentDelimeter}
+                            value={currentDelimiter}
                             onChange={(e) => {
-                                const newDelimeter = e.target.value;
+                                const newDelimiter = e.target.value;
                                 props.setParams(prevParams => {
                                     return {
                                         ...prevParams,
-                                        delimeters: [newDelimeter]
+                                        delimeters: [newDelimiter]
                                     }
                                 })
                             }} 
@@ -294,7 +294,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                                         const delimeters = prevParams.delimeters;
                                         return {
                                             ...prevParams,
-                                            delimeters: [(delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMETER) + '\t']
+                                            delimeters: [(delimeters !== undefined ? delimeters[0] : DEFAULT_DELIMITER) + '\t']
                                         }
                                     })
                                 }
