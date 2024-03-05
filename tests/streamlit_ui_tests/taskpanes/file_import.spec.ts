@@ -65,6 +65,28 @@ test.describe('File Import Taskpane', () => {
     await expect(mito.locator('.endo-column-header-text', { hasText: 'Column4' })).toBeVisible();
   });
 
+  test('Import XLSX file with configurations', async ({ page }) => {
+    const mito = await getMitoFrame(page);
+    await openImportTaskpane(mito, 'test.xlsx')
+
+    // Update some configurations
+    await mito.locator('.spacing-row', { hasText: 'Has Header Row'}).locator('.select-text').click();
+    await mito.locator('.mito-dropdown-item', { hasText: 'No' }).click();
+    await mito.locator('.spacing-row', { hasText: 'Rows to Skip'}).locator('input').fill('2');
+    await mito.getByText('Import 2 Selected Sheets').click();
+
+    // Check that the configurations are applied
+    await expect(mito.locator('.tab', { hasText: 'Sheet1' })).toBeVisible();
+    await expect(mito.locator('.tab', { hasText: 'Sheet2' })).toBeVisible();
+    await checkColumnCellsHaveExpectedValues(mito, 0, ['lmnop', 'wxyz'])
+    await expect(mito.locator('.endo-column-header-text', { hasText: '0' })).toBeVisible();
+    
+    // Check that the configurations are applied to the other sheet
+    await mito.locator('.tab', { hasText: 'Sheet1'}).click();
+    await expect(mito.locator('.endo-column-header-text', { hasText: '0' })).toBeVisible();
+    await checkColumnCellsHaveExpectedValues(mito, 0, ['2', '3', '4', '5'])
+  });
+
   test('Range Import with one sheet selected', async ({ page }) => {
     const mito = await getMitoFrame(page);
     await openImportTaskpane(mito, 'test.xlsx');
