@@ -73,6 +73,7 @@ const SuggestedStyles = (props: {
                                 // Just clearing out the data sets it to the default
                                 props.updateDataframeFormatParams(suggestedStyle);
                             }}
+                            className='mito-suggested-style'
                         >
                             <SuggestedStyleIcon
                                 headerColor={headerColor}
