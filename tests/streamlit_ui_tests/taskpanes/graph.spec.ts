@@ -44,7 +44,7 @@ const testDeleteTitleThroughContextMenu = async (page, selector) => {
 };
 
 const addColumnToAxis = async (mito: FrameLocator, page: Page, axis: 'X' | 'Y', columnName: string) => {
-  await updateSelectedValue(mito, `${axis} Axis`, columnName);
+  await updateSelectedValue(mito, `${axis} axis`, columnName);
   await awaitResponse(page);
 }
 
