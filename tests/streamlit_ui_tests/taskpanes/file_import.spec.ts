@@ -69,9 +69,10 @@ test.describe('File Import Taskpane', () => {
     const mito = await getMitoFrame(page);
     await openImportTaskpaneAndSelectData(mito, 'test.xlsx')
 
-    // Update some configurations
+    // Turn 'Has Header Row' off
     await mito.locator('.spacing-row', { hasText: 'Has Header Row'}).locator('.select-text').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'No' }).click();
+    
     await mito.locator('.spacing-row', { hasText: 'Rows to Skip'}).locator('input').fill('2');
     await mito.getByText('Import 2 Selected Sheets').click();
 
