@@ -319,11 +319,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     console.error(response.error);
                     return;
                 }
-                writeCodeToCell(response.result);
+                void writeCodeToCell(response.result);
             });
         } else {
             // Finally, we can go and write the code!
-            writeCodeToCell(oldCodeRef.current);
+            void writeCodeToCell(oldCodeRef.current);
         }
         // After using the ref to get the old code, we update it to the newest analysis.
         oldCodeRef.current = analysisData.code;
