@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, clickButtonAndAwaitResponse, clickTab, fillInput, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from '../utils';
+import { awaitResponse, clickButtonAndAwaitResponse, clickTab, fillInput, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
 
