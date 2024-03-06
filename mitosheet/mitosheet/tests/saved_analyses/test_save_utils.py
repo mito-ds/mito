@@ -348,7 +348,6 @@ def test_save_and_replay_different_interface_version_works():
     saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert saved_analysis is not None
     assert len(saved_analysis['steps_data']) == 0
-    print(saved_analysis)
     assert saved_analysis['public_interface_version'] == 100
     assert saved_analysis['code'] == []
 

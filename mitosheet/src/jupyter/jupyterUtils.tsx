@@ -54,7 +54,6 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 
 export const writeGeneratedCodeToCell = async (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): Promise<void> => {
     if (isInJupyterLab()) {
-        console.log('oldCode in writeGeneratedCodeToCell', oldCode)
         await window.commands?.execute('mitosheet:write-generated-code-cell', {
             analysisName: analysisName,
             code: code,
@@ -64,7 +63,6 @@ export const writeGeneratedCodeToCell = async (analysisName: string, code: strin
             overwriteIfUserEditedCode: overwriteIfUserEditedCode,
             triggerUserEditedCodeDialog: triggerUserEditedCodeDialog,
         });
-        console.log('done writing oldCode', oldCode)
     } else if (isInJupyterNotebook()) {
         notebookWriteGeneratedCodeToCell(analysisName, code, telemetryEnabled, publicInterfaceVersion, oldCode, triggerUserEditedCodeDialog, overwriteIfUserEditedCode);
     } else {
