@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getMitoFrameWithTestCSV } from '../utils';
+import { awaitResponse, getMitoFrameWithTestCSV } from '../utils';
 
 test.describe('Formatting', () => {
     test('Add a suggested style', async ({ page }) => {
@@ -12,6 +12,7 @@ test.describe('Formatting', () => {
 
         // Update to the third suggested style
         await mito.locator('.mito-suggested-style').nth(2).click();
+        await awaitResponse(page);
         await expect(mito.locator('.endo-column-header-container:not(.endo-column-header-container-selected)').first()).toHaveCSS('background-color', 'rgb(84, 157, 58)')
         await expect(mito.locator('.mito-grid-row-even').first()).toHaveCSS('background-color', 'rgb(208, 227, 201)')
         await expect(mito.locator('.mito-grid-row-odd').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)')
