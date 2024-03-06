@@ -302,6 +302,7 @@ test('Cross-sheet formula with VLOOKUP', async ({ page }) => {
     // Click on the first cell in Column1 to reference it as the first argument
     await mito.locator('.mito-grid-cell[mito-col-index="0"]').first().click();
     // Type the comma to separate the arguments
+    await mito.locator('input#cell-editor-input').press('End');
     await mito.locator('input#cell-editor-input').press(',');
 
     // Navigate to the other sheet and select the range of columns
@@ -310,6 +311,7 @@ test('Cross-sheet formula with VLOOKUP', async ({ page }) => {
     await mito.locator('.endo-column-header-final-text', { hasText: 'Column1' }).click();
     await mito.locator('.endo-column-header-final-text', { hasText: 'Column3' }).click({ modifiers: ['Shift'] });
     // Finish the formula
+    await mito.locator('input#cell-editor-input').press('End');
     await mito.locator('input#cell-editor-input').pressSequentially(', 2)');
 
     // Navigate back to the first sheet and check that the values are correct
@@ -332,6 +334,7 @@ test('Cross-sheet formula with VLOOKUP - pressing enter from another sheet', asy
     // Click on the first cell in Column1 to reference it as the first argument
     await mito.locator('.mito-grid-cell[mito-col-index="0"]').first().click();
     // Type the comma to separate the arguments
+    await mito.locator('input#cell-editor-input').press('End');
     await mito.locator('input#cell-editor-input').press(',');
 
     // Navigate to the other sheet and select the range of columns
@@ -340,6 +343,7 @@ test('Cross-sheet formula with VLOOKUP - pressing enter from another sheet', asy
     await mito.locator('.endo-column-header-final-text', { hasText: 'Column1' }).click();
     await mito.locator('.endo-column-header-final-text', { hasText: 'Column3' }).click({ modifiers: ['Shift'] });
     // Finish the formula
+    await mito.locator('input#cell-editor-input').press('End');
     await mito.locator('input#cell-editor-input').pressSequentially(', 2)');
     await mito.locator('input#cell-editor-input').press('Enter');
 
