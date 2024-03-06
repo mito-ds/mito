@@ -1,5 +1,5 @@
 import { FrameLocator, Page, expect, test } from '@playwright/test';
-import { awaitResponse, getMitoFrameWithTestCSV, checkColumnCellsHaveExpectedValues } from '../utils';
+import { awaitResponse, getMitoFrameWithTestCSV, checkColumnCellsHaveExpectedValues, fillInput, updateSelectedValue } from '../utils';
 
 const openColumnControlPanel = async (mito: any, columnName: string) => {
     const columnHeader = await mito.locator('.endo-column-header-final-container', { hasText: columnName });
@@ -8,15 +8,11 @@ const openColumnControlPanel = async (mito: any, columnName: string) => {
 };
 
 const changeDtypeInColumnControlPanel = async (mito: FrameLocator, page: Page, dtype: string) => {
-    await mito.locator('.spacing-row', { hasText: 'Dtype' }).locator('.select-text').click();
-    await mito.locator('.mito-dropdown-item', { hasText: dtype }).click();
-    await awaitResponse(page);
+    await updateSelectedValue(mito, 'Dtype', dtype);
 }
 
 const changeNumTypeInColumnControlPanel = async (mito: FrameLocator, page: Page, numType: string) => {
-    await mito.locator('.spacing-row', { hasText: 'Num Type' }).locator('.select-text').click();
-    await mito.locator('.mito-dropdown-item', { hasText: numType }).click();
-    await awaitResponse(page);
+    await updateSelectedValue(mito, 'Num Type', numType);
 }
 
 const checkValuesTabHasExpectedValues = async (mito: FrameLocator, expectedValues: any[]) => {
@@ -53,7 +49,7 @@ test.describe('Column Control Panel', () => {
         
         await mito.getByText('Add Filter').click();
         await mito.getByText('Add a Filter').click();
-        await mito.locator('.spacing-row', { hasText: 'Where' }).locator('input').fill('4');
+        await fillInput(mito, 'Where', '4');
         await awaitResponse(page);
 
         await checkColumnCellsHaveExpectedValues(mito, 0, ['7', '10']);
@@ -66,7 +62,7 @@ test.describe('Column Control Panel', () => {
         
         await mito.getByText('Add Filter').click();
         await mito.getByText('Add a Group').click();
-        await mito.locator('.spacing-row', { hasText: 'Where' }).locator('input').fill('7');
+        await fillInput(mito, 'Where', '7');
         await awaitResponse(page);
 
         await checkColumnCellsHaveExpectedValues(mito, 0, ['10']);
