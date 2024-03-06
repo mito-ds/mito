@@ -1,0 +1,61 @@
+name: Pre-release tests
+
+on:
+    pull_request:
+        branches: 
+            - main
+
+jobs:
+    test-mitosheet-frontend-jupyterlab:
+        runs-on: ubuntu-20.04
+        timeout-minutes: 60
+        strategy:
+          matrix:
+            python-version: ['3.7', '3.8', '3.10']
+          fail-fast: false
+    
+        steps:
+        - name: Cancel Previous Runs
+          uses: styfle/cancel-workflow-action@0.7.0
+          with:
+            access_token: ${{ github.token }}
+        - uses: actions/checkout@v2
+        - name: Set up Python ${{ matrix.python-version }}
+          uses: actions/setup-python@v2
+          with:
+            python-version: ${{ matrix.python-version }}
+            cache: pip
+            cache-dependency-path: |
+              mitosheet/setup.py
+              tests/requirements.txt
+        - uses: actions/setup-node@v3
+          with:
+            node-version: 16
+            cache: 'npm'
+            cache-dependency-path: mitosheet/package-lock.json
+        - name: Install dependencies
+          run: |
+            cd tests
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install mitosheet
+            pip install --upgrade -i https://test.pypi.org/simple/ mitosheet
+        - name: Setup JupyterLab
+          run: |
+            cd tests
+            source venv/bin/activate
+            cd ../mitosheet
+            jupyter labextension develop . --overwrite
+        - name: Start a server and run tests
+          run: |
+            cd tests
+            source venv/bin/activate
+            jupyter lab --config jupyter_server_test_config.py &
+            npm run test:jupyterlab
+        - name: Upload test-results
+          uses: actions/upload-artifact@v3
+          if: failure()
+          with:
+            name: jupyterlab-playwright-report-${{ matrix.python-version }}
+            path: tests/playwright-report/
+            retention-days: 14    
