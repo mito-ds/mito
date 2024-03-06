@@ -10,7 +10,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     expect(await cellOuput?.innerHTML()).toContain('Insert');
   });
 
-  test.skip('Can run the generated code', async ({ page, tmpPath }) => {    
+  test('Can run the generated code', async ({ page, tmpPath }) => {    
     // We skip this as it is flakey on Python 3.6... how to handle
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
