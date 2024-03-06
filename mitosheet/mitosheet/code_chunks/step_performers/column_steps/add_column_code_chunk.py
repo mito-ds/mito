@@ -37,7 +37,7 @@ class AddColumnCodeChunk(CodeChunk):
         return 'Added column'
     
     def get_description_comment(self) -> str:
-        return f'7Added column {self.column_header}'
+        return f'Added column {self.column_header}'
 
     def get_code(self) -> Tuple[List[str], List[str]]:
         transpiled_column_header = get_column_header_as_transpiled_code(self.column_header)

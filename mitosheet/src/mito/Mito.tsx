@@ -278,13 +278,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // analysisData's code against the code in the cell and make sure we aren't
     // overwriting any changes the user might have made. 
     const oldCodeRef = useRef(analysisData.code);
+    const [initialWrite, setInitialWrite] = useState(false);
     useEffect(() => {
         /**
          * We only write code after the render count has been incremented once, which
          * means that we have read in and replayed the updated analysis, etc. 
          */
         const writeCodeToCell = async (oldCode: string[]) => {
-            props.jupyterUtils?.writeGeneratedCodeToCell(
+            await props.jupyterUtils?.writeGeneratedCodeToCell(
                 analysisData.analysisName, 
                 analysisData.code, 
                 userProfile.telemetryEnabled, 
@@ -312,14 +313,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 undefined,
             );
         }
-        if (analysisData.renderCount === 0) {
+        if (analysisData.renderCount === 0 && !initialWrite) {
             void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
-                console.log(response)
                 if ('error' in response) {
                     console.error(response.error);
+                    void writeCodeToCell(oldCodeRef.current).then(() => {
+                        setInitialWrite(true);
+                    });
                     return;
                 }
-                void writeCodeToCell(response.result);
+                oldCodeRef.current = response.result;
+                void writeCodeToCell(response.result).then(() => {
+                    setInitialWrite(true);
+                });
             });
         } else {
             // Finally, we can go and write the code!

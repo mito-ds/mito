@@ -133,7 +133,7 @@ function activateMitosheetExtension(
     app.commands.addCommand('mitosheet:write-generated-code-cell', {
         label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        execute: (args: any) => {
+        execute: async (args: any) => {
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
@@ -170,7 +170,8 @@ function activateMitosheetExtension(
 
             // If the user has edited the code and they haven't chosen whether or not to overwrite the contents of the cell,
             // trigger the dialog to ask them. 
-            console.log('oldCode', oldCode)
+            console.log('oldCode', oldCode.join('\n'))
+            console.log('codeCellText', codeCellText)
             if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
                 triggerUserEditedCodeDialog(oldCode, codeCellText.split('\n'));
                 return;
