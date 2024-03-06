@@ -40,6 +40,10 @@ jobs:
             source venv/bin/activate
             pip install mitosheet
             pip install --upgrade -i https://test.pypi.org/simple/ mitosheet
+            # Install necessary node packages
+            npm install
+            npx playwright install chromium webkit firefox chrome
+
         - name: Setup JupyterLab
           run: |
             cd tests
