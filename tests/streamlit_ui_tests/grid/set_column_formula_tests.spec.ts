@@ -289,23 +289,60 @@ test('Write spreadsheet formula applied to individual cell', async ({ page }) =>
     expect(cellValues).toEqual(['1', '0', '0', '0']);
 });
 
-test('Cross-sheet formula', async ({ page }) => {
+test('Cross-sheet formula with VLOOKUP', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await importCSV(page, mito, 'merge.csv');
+
+    // Add a new column to put the VLOOKUP call in 
     await mito.locator('.mito-toolbar-button', { hasText: 'Insert' }).click();
     await mito.locator('.mito-grid-cell[mito-col-index="1"]').first().dblclick();
+
+    // Start the VLOOKUP formula
     await mito.locator('input#cell-editor-input').fill('=VLOOKUP(');
+    // Click on the first cell in Column1 to reference it as the first argument
     await mito.locator('.mito-grid-cell[mito-col-index="0"]').first().click();
+    // Type the comma to separate the arguments
     await mito.locator('input#cell-editor-input').press(',');
 
+    // Navigate to the other sheet and select the range of columns
     await mito.locator('.tab', { hasText: 'test' }).click();
     await expect(mito.locator('.endo-column-header-final-text', { hasText: /new-column/ })).not.toBeVisible();
     await mito.locator('.endo-column-header-final-text', { hasText: 'Column1' }).click();
     await mito.locator('.endo-column-header-final-text', { hasText: 'Column3' }).click({ modifiers: ['Shift'] });
+    // Finish the formula
     await mito.locator('input#cell-editor-input').pressSequentially(', 2)');
 
+    // Navigate back to the first sheet and check that the values are correct
     await mito.locator('.tab', { hasText: 'merge' }).click();
     await mito.locator('input#cell-editor-input').press('Enter');
     await checkColumnCellsHaveExpectedValues(mito, 1, ['2.00', '5.00', '5.00', 'NaN', '11.00'])
+});
 
+
+test('Cross-sheet formula with VLOOKUP - pressing enter from another sheet', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'merge.csv');
+
+    // Add a new column to put the VLOOKUP call in 
+    await mito.locator('.mito-toolbar-button', { hasText: 'Insert' }).click();
+    await mito.locator('.mito-grid-cell[mito-col-index="1"]').first().dblclick();
+
+    // Start the VLOOKUP formula
+    await mito.locator('input#cell-editor-input').fill('=VLOOKUP(');
+    // Click on the first cell in Column1 to reference it as the first argument
+    await mito.locator('.mito-grid-cell[mito-col-index="0"]').first().click();
+    // Type the comma to separate the arguments
+    await mito.locator('input#cell-editor-input').press(',');
+
+    // Navigate to the other sheet and select the range of columns
+    await mito.locator('.tab', { hasText: 'test' }).click();
+    await expect(mito.locator('.endo-column-header-final-text', { hasText: /new-column/ })).not.toBeVisible();
+    await mito.locator('.endo-column-header-final-text', { hasText: 'Column1' }).click();
+    await mito.locator('.endo-column-header-final-text', { hasText: 'Column3' }).click({ modifiers: ['Shift'] });
+    // Finish the formula
+    await mito.locator('input#cell-editor-input').pressSequentially(', 2)');
+    await mito.locator('input#cell-editor-input').press('Enter');
+
+    // Expect that it navigated automatically back to the original sheet and that the values are correct
+    await checkColumnCellsHaveExpectedValues(mito, 1, ['2.00', '5.00', '5.00', 'NaN', '11.00'])
 });
