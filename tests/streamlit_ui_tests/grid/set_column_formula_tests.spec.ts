@@ -346,3 +346,15 @@ test('Cross-sheet formula with VLOOKUP - pressing enter from another sheet', asy
     // Expect that it navigated automatically back to the original sheet and that the values are correct
     await checkColumnCellsHaveExpectedValues(mito, 1, ['2.00', '5.00', '5.00', 'NaN', '11.00'])
 });
+
+test('Can\'t use cross-sheet formula for non-vlookup calls', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'merge.csv');
+
+    await mito.locator('.mito-grid-cell[mito-col-index="1"]').first().dblclick();
+    await mito.locator('input#cell-editor-input').fill('=SUM(');
+    await mito.locator('.tab', { hasText: 'test' }).click();
+    await mito.locator('.mito-grid-cell[mito-col-index="0"]').first().click();
+    await mito.locator('input#cell-editor-input').press('Enter');
+    await expect(mito.getByText('Cross-sheet references are only allowed in calls to VLOOKUP')).toBeVisible();
+});
