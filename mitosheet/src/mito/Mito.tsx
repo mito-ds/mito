@@ -277,60 +277,55 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // We're storing the last analysisData in a ref so that we can check the
     // analysisData's code against the code in the cell and make sure we aren't
     // overwriting any changes the user might have made. 
-    const oldCodeRef = useRef(analysisData.code);
-    const [initialWrite, setInitialWrite] = useState(false);
+    const oldCodeRef = useRef<string[] | undefined>();
     useEffect(() => {
-        /**
-         * We only write code after the render count has been incremented once, which
-         * means that we have read in and replayed the updated analysis, etc. 
-         */
-        const writeCodeToCell = async (oldCode: string[]) => {
-            await props.jupyterUtils?.writeGeneratedCodeToCell(
-                analysisData.analysisName, 
-                analysisData.code, 
-                userProfile.telemetryEnabled, 
-                analysisData.publicInterfaceVersion, 
-                (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
-                    setUIState(prevUIState => {
-                        return {
-                            ...prevUIState,
-                            currOpenModal: {
-                                type: ModalEnum.UserEditedCode,
-                                codeWithoutUserEdits: codeWithoutUserEdits,
-                                codeWithUserEdits: codeWithUserEdits
-                            }
-                        }
-                    })
-                    void mitoAPI.log(
-                        'user_edited_code_cell', 
-                        {
-                            length_of_code_with_user_edits: codeWithUserEdits.length,
-                            length_of_code_without_user_edits: codeWithoutUserEdits.length
-                        }
-                    );
-                },
-                oldCode,
-                undefined,
-            );
+        void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
+            if ('error' in response) {
+                console.error(response.error);
+                return;
+            }
+            oldCodeRef.current = response.result;
+        });
+    }, []);
+
+    useEffect(() => {
+        // If the oldCodeRef.current is undefined, then we haven't 
+        // loaded the code from the saved_analysis yet. We want to load
+        // this first in case Mito has been updated and the code generated
+        // by Mito has changed. If we don't do this, it's hard to differentiate
+        // between user changes and changes made by Mito to the generated code.
+        if (oldCodeRef.current === undefined) {
+            return;
         }
-        if (analysisData.renderCount === 0 && !initialWrite) {
-            void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
-                if ('error' in response) {
-                    console.error(response.error);
-                    void writeCodeToCell(oldCodeRef.current).then(() => {
-                        setInitialWrite(true);
-                    });
-                    return;
-                }
-                oldCodeRef.current = response.result;
-                void writeCodeToCell(response.result).then(() => {
-                    setInitialWrite(true);
-                });
-            });
-        } else {
-            // Finally, we can go and write the code!
-            void writeCodeToCell(oldCodeRef.current);
-        }
+    
+        void props.jupyterUtils?.writeGeneratedCodeToCell(
+            analysisData.analysisName, 
+            analysisData.code, 
+            userProfile.telemetryEnabled, 
+            analysisData.publicInterfaceVersion, 
+            (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenModal: {
+                            type: ModalEnum.UserEditedCode,
+                            codeWithoutUserEdits: codeWithoutUserEdits,
+                            codeWithUserEdits: codeWithUserEdits
+                        }
+                    }
+                })
+                void mitoAPI.log(
+                    'user_edited_code_cell', 
+                    {
+                        length_of_code_with_user_edits: codeWithUserEdits.length,
+                        length_of_code_without_user_edits: codeWithoutUserEdits.length
+                    }
+                );
+            },
+            oldCodeRef.current,
+            undefined,
+        )
+
         // After using the ref to get the old code, we update it to the newest analysis.
         oldCodeRef.current = analysisData.code;
         // TODO: we should store some data with analysis data to not make
