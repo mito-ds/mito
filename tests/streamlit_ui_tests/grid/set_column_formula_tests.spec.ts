@@ -7,7 +7,9 @@ import {
     getValuesInColumn, 
     getMitoFrameWithTestCSV, 
     awaitResponse, 
-    toggleEditEntireColumn 
+    toggleEditEntireColumn, 
+    importCSV,
+    checkColumnCellsHaveExpectedValues
 } from '../utils';
 
 
@@ -285,4 +287,25 @@ test('Write spreadsheet formula applied to individual cell', async ({ page }) =>
 
     const cellValues = await getValuesInColumn(mito, columnHeader);
     expect(cellValues).toEqual(['1', '0', '0', '0']);
+});
+
+test('Cross-sheet formula', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await importCSV(page, mito, 'merge.csv');
+    await mito.locator('.mito-toolbar-button', { hasText: 'Insert' }).click();
+    await mito.locator('.mito-grid-cell[mito-col-index="1"]').first().dblclick();
+    await mito.locator('input#cell-editor-input').fill('=VLOOKUP(');
+    await mito.locator('.mito-grid-cell[mito-col-index="0"]').first().click();
+    await mito.locator('input#cell-editor-input').press(',');
+
+    await mito.locator('.tab', { hasText: 'test' }).click();
+    await expect(mito.locator('.endo-column-header-final-text', { hasText: /new-column/ })).not.toBeVisible();
+    await mito.locator('.endo-column-header-final-text', { hasText: 'Column1' }).click();
+    await mito.locator('.endo-column-header-final-text', { hasText: 'Column3' }).click({ modifiers: ['Shift'] });
+    await mito.locator('input#cell-editor-input').pressSequentially(', 2)');
+
+    await mito.locator('.tab', { hasText: 'merge' }).click();
+    await mito.locator('input#cell-editor-input').press('Enter');
+    await checkColumnCellsHaveExpectedValues(mito, 1, ['2.00', '5.00', '5.00', 'NaN', '11.00'])
+
 });
