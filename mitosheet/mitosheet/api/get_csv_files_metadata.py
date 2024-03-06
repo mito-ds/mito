@@ -8,7 +8,7 @@ import os
 from typing import Any, Dict
 
 import pandas as pd
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_SKIPROWS
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMITER, DEFAULT_ENCODING, DEFAULT_SKIPROWS
 from mitosheet.step_performers.import_steps.simple_import import read_csv_get_delimiter_and_encoding
 from mitosheet.types import StepsManagerType
 
@@ -33,7 +33,7 @@ def get_csv_files_metadata(params: Dict[str, Any], steps_manager: StepsManagerTy
             encodings.append(encoding)
         except:
             # The default values displayed in the UI
-            delimeters.append(DEFAULT_DELIMETER)
+            delimeters.append(DEFAULT_DELIMITER)
             encodings.append(DEFAULT_ENCODING)
 
         # We don't have a good way to guess these params, so we always use the defaults

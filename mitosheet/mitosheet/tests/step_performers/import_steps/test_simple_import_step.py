@@ -9,7 +9,7 @@ Contains tests for simple import steps
 import pytest
 import pandas as pd
 import os
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_SKIPROWS
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMITER, DEFAULT_ENCODING, DEFAULT_SKIPROWS
 
 from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.utils import is_prev_version
@@ -451,11 +451,11 @@ Daniel,Sedin,VAN,LW,22,1,1980-09-26
 Henrik,Sedin,VAN,C,33,1,1980-09-26""")
 
     mito = create_mito_wrapper()
-    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [DEFAULT_SKIPROWS], [True])
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMITER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [DEFAULT_SKIPROWS], [True])
     
     assert len(mito.dfs) == 0
 
-    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [DEFAULT_SKIPROWS], [False])
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMITER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [DEFAULT_SKIPROWS], [False])
 
 
     from io import StringIO
@@ -485,7 +485,7 @@ def test_comma_decimal():
     df_comma.to_csv(TEST_FILE_PATHS[0], index=False)
 
     mito = create_mito_wrapper()
-    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [','], [DEFAULT_SKIPROWS], [True])
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMITER], [DEFAULT_ENCODING], [','], [DEFAULT_SKIPROWS], [True])
     
     assert mito.dfs[0].equals(df_result)
 
@@ -499,7 +499,7 @@ def test_can_import_with_skiprows():
     # Create with no dataframes
     mito = create_mito_wrapper()
     # And then import just a test file
-    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [1], [True])
+    mito.simple_import([TEST_FILE_PATHS[0]], [DEFAULT_DELIMITER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [1], [True])
 
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(pd.DataFrame({
@@ -517,7 +517,7 @@ def test_can_import_with_invalid_name():
     # Create with no dataframes
     mito = create_mito_wrapper()
     # And then import just a test file
-    mito.simple_import([file_path], [DEFAULT_DELIMETER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [1], [True])
+    mito.simple_import([file_path], [DEFAULT_DELIMITER], [DEFAULT_ENCODING], [DEFAULT_DECIMAL], [1], [True])
 
     assert len(mito.dfs) == 1
     assert mito.dfs[0].equals(pd.DataFrame({

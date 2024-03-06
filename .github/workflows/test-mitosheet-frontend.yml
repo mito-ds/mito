@@ -132,7 +132,7 @@ jobs:
             install-name: 'chrome'
           - test-name: 'Microsoft Edge'
             install-name: 'msedge'
-        testfiles: ['taskpanes', 'grid', 'toolbar']
+        testfiles: ['taskpanes', 'grid', 'toolbar', 'graph']
         exclude:
           - os: 'windows-latest'
             project:
