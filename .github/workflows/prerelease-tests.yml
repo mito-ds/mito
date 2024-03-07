@@ -75,6 +75,7 @@ jobs:
               project: 'Microsoft Edge'
             - os: 'ubuntu-latest'
               project: 'webkit'
+        fail-fast: false
       runs-on: ${{ matrix.os }}
   
       steps:
