@@ -152,7 +152,7 @@ jobs:
           git clone https://github.com/mito-ds/every-feature-everywhere-all-at-once.git
           cd every-feature-everywhere-all-at-once
           Start-Job { streamlit run automation-app.py --server.port 8555 } -WorkingDirectory (Get-Location)
-          npm run test:demo -- --project="${{ matrix.project }}"
+          npm run test:streamlit:demo -- --project="${{ matrix.project }}"
       - name: Upload test-results
         uses: actions/upload-artifact@v3
         if: always()
