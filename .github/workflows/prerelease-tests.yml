@@ -44,12 +44,6 @@ jobs:
             npm install
             npx playwright install chromium webkit firefox chrome
 
-        - name: Setup JupyterLab
-          run: |
-            cd tests
-            source venv/bin/activate
-            cd ../mitosheet
-            jupyter labextension develop . --overwrite
         - name: Start a server and run tests
           run: |
             cd tests
