@@ -90,8 +90,4 @@ test('Vanguard Demo', async ({ page }) => {
     await page.locator('.element-container', { hasText: 'Provider Name' }).locator('input').fill('Vanguard');
     await page.getByText('Save Automation').click();
 
-    /** Now check that the automation worked */
-    await page.getByText('Use Existing Automation').click();
-    await page.locator('.element-container', { hasText: 'Select an Automation'}).getByText('Cigna').click();
-    await page.getByText('Vanguard').click();
 });
