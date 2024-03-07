@@ -127,7 +127,7 @@ jobs:
         run: |
           cd tests
           python3 -m venv venv
-          source venv/bin/activate
+          .\venv\Scripts\Activate.ps1
           pip install mitosheet streamlit
           pip install --upgrade -i https://test.pypi.org/simple/ mitosheet
           # Install necessary node packages
