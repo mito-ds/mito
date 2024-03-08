@@ -321,6 +321,7 @@ try:
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
             return_type: str='default',
+            height: Optional[str]=None,
             key=None
         ) -> Any:
         """
@@ -405,6 +406,7 @@ try:
             key=key, 
             sheet_data_json=sheet_data_json, analysis_data_json=analysis_data_json, user_profile_json=user_profile_json, 
             responses_json=responses_json, id=id(mito_backend),
+            height=height,
             return_type=return_type
         )
 

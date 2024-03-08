@@ -61,7 +61,7 @@
 }
 
 .mito-container {
-    height: 538px;
+    height: var(--mito-height);
     display: flex;
     flex-direction: column;
 

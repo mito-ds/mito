@@ -168,6 +168,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
     public render = (): ReactNode => {
 
         const returnType = this.props.args['return_type'] as string;
+        const height = this.props.args['height'] as string | undefined;
         const sheetDataArray = getSheetDataArrayFromString(this.props.args['sheet_data_json']);
         const analysisData = getAnalysisDataFromString(this.props.args['analysis_data_json']);
         const userProfile = getUserProfileFromString(this.props.args['user_profile_json']);
@@ -195,6 +196,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
         return (
             <Mito 
                 key={this.props.args['id'] as string}
+                height={height}
                 getSendFunction={async () => this.send.bind(this)} 
                 sheetDataArray={sheetDataArray} 
                 analysisData={analysisData} 

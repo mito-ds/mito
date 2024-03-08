@@ -80,7 +80,7 @@ import { Toolbar } from './components/toolbar/Toolbar';
 import Tour from './components/tour/Tour';
 import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
-import { getCSSVariablesFromTheme } from './utils/colors';
+import { getCSSStyleVariables } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
@@ -104,6 +104,7 @@ export type MitoProps = {
         textColor?: string
     }
     onSelectionChange?: (selectedDataframeIndex: number, selections: MitoSelection[]) => void;
+    height?: string | undefined;
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
@@ -379,20 +380,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
     }, [uiState]);
 
     /**
-     * If the theme changes, we update the theme on the document. 
+     * If the styling changes, we update the syling on the document. 
      * Note we don't just do this on the Mito component styles
-     * because we want to be able to use the theme in dropdowns
+     * because we want to be able to use the styling in dropdowns
      * that are rendered outside of the Mito component.
      */
     useEffect(() => {
-        const cssVariables = getCSSVariablesFromTheme(props.theme);
+        const cssVariables = getCSSStyleVariables(props.height, props.theme);
         // For each key in the theme, set it on the document style
         Object.keys(cssVariables).forEach((key) => {
             const value = (cssVariables as Record<string, any>)[key];
             document.documentElement.style.setProperty(key, value);
         })
-
-    }, [props.theme])
+    }, [props.theme, props.height])
 
 
     // If the user passes an onSelectionChange, then, we fire off events any time the user selects
