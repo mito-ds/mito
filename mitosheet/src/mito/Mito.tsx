@@ -322,6 +322,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 );
             },
             oldCodeRef.current,
+            // If the oldCodeRef.current is null, this means we're accessing a saved analysis
+            // that has no code field defined. In this case, we want to overwrite the code
+            // in the cell, as there is no code to compare against.
             oldCodeRef.current === null ? true : undefined,
         )
 
