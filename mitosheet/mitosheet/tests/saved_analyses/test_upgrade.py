@@ -53,7 +53,6 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "add_column", 'params': { "sheet_index": 0, "column_header": "[", "column_header_index": -1}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -77,7 +76,6 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "change_column_dtype", "params": {"sheet_index": 0, "column_ids": [get_column_header_id("Median_Income")], "new_dtype": "int", "old_dtypes": {get_column_header_id("Median_Income"): "float64"}, "public_interface_version": 1}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -102,7 +100,6 @@ UPGRADE_TESTS = [
                 {'params': {"move_to_deprecated_id_algorithm": True}, 'step_type': 'bulk_old_rename', 'step_version': 1}, {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip"), "new_column_header": "Zip1"}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -126,7 +123,6 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "reorder_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("Zip1"), "new_column_index": 2}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -158,7 +154,6 @@ UPGRADE_TESTS = [
                 {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": [get_column_header_id("D")]}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -183,7 +178,6 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 2, "column_id": get_column_header_id("Number"), "sort_direction": "descending"}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -209,8 +203,6 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "sort", 'params': {"sheet_index": 0, "column_id": get_column_header_id("String"), "sort_direction": "ascending"}}
             ],
             "args": [],
-            "code": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -238,7 +230,6 @@ UPGRADE_TESTS = [
                 {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -270,7 +261,6 @@ UPGRADE_TESTS = [
                 {'params': {}, 'step_type': 'bulk_old_rename', 'step_version': 1}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -299,7 +289,6 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "add_column", 'params': {"sheet_index": 0, "column_header": 'New_Column_Header', "column_header_index": -1}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -328,7 +317,6 @@ UPGRADE_TESTS = [
                 {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -359,7 +347,6 @@ UPGRADE_TESTS = [
                 {"step_version": 3, "step_type": "delete_column", 'params': {"sheet_index": 0, "column_ids": ['New_Column_Header']}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -385,7 +372,6 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "filter_column", 'params': { "sheet_index": 0, "column_id": get_column_header_id("A"), "filters": [{"condition": "greater", "value": 1}, {"filters": [{"condition": "greater", "value": 2}, {"condition": "greater", "value": 3}], "operator": "And"}], "operator": "And"}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -411,7 +397,6 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "contains", "value": "sheet_view_creation"}], "operator": "Or"}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -437,7 +422,6 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "filter_column", 'params': {"sheet_index": 1, "column_id": get_column_header_id("event"), "filters": [{"condition": "datetime_less", "value": "2010-12-12"}], "operator": "And"}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -476,7 +460,6 @@ UPGRADE_TESTS = [
                 {"step_version": 2, "step_type": "rename_column", "params": {"sheet_index": 0, "column_id": get_column_header_id("old"), "new_column_header": "newer"}}, 
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -508,7 +491,6 @@ UPGRADE_TESTS = [
                 {'step_version': 5, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('formula'), "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=0', 'new_formula': '=new'}},
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -547,7 +529,6 @@ UPGRADE_TESTS = [
                 {'step_version': 5, 'step_type': "set_column_formula", 'params': {'sheet_index': 1,'column_id': get_column_header_id('newer'), "formula_label": 0, 'public_interface_version': 1, 'index_labels_formula_is_applied_to': {'type': FORMULA_ENTIRE_COLUMN_TYPE}, 'old_formula': '=A', 'new_formula': '=B'}},
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -579,7 +560,6 @@ UPGRADE_TESTS = [
                 {"step_version": 4, "step_type": "graph", "params": {"graph_id": "_iv911muyd", "graph_preprocessing": {"safety_filter_turned_on_by_user": True}, "graph_creation": {"graph_type": "bar", "sheet_index": 0, "x_axis_column_ids": ["Low"], "y_axis_column_ids": ["Open"], "color": "new-column-9rkm"}, "graph_styling": {"title": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT}, "xaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT, "showgrid": True, "rangeslider": {"visible": True}}, "yaxis": {"visible": True, "title_font_color": DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT, "showgrid": True}, "showlegend": True, 'legend': {'orientation': 'v'}, 'paper_bgcolor': DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT, 'plot_bgcolor': DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT}, "graph_rendering": {"height": "426px", "width": "1141.800048828125px"}}}
             ],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -600,7 +580,6 @@ UPGRADE_TESTS = [
             "public_interface_version": 1,
             "steps_data": [{"step_version": 1, "step_type": "excel_import", "params": {"file_name": "/Users/nathanrush/monorepo/mitosheet/datasets/small-datasets/small-excel.xlsx", "sheet_names": ["Sheet1"], "has_headers": True, "skiprows": 0}}, {"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["Tesla.csv"]}}],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -621,7 +600,6 @@ UPGRADE_TESTS = [
             "public_interface_version": 1,
             "steps_data": [{"step_version": 2, "step_type": "simple_import", "params": {"file_names": ["tesla stock new.csv"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Open New"]}}, {"step_version": 3, "step_type": "delete_column", "params": {"sheet_index": 0, "column_ids": ["Close"]}}, {"step_version": 2, "step_type": "set_dataframe_format", "params": {"sheet_index": 0, "df_format": {"conditional_formats": [], "columns": {}, "headers": {"color": "#FFFFFF", "backgroundColor": "#549D3A"}, "rows": {"even": {"color": "#494650", "backgroundColor": "#D0E3C9"}, "odd": {"color": "#494650"}}, "border": {}}}}],
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -669,7 +647,6 @@ UPGRADE_TESTS = [
             }],
             "args": [],
             "public_interface_version": 1,
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -690,7 +667,6 @@ UPGRADE_TESTS = [
             "steps_data": [{"step_version": 2, "step_type": "export_to_file", "params": {"type": "excel", "file_name": "Sample.xlsx", "sheet_indexes": [0], "export_formatting": False}}],
             "args": [],
             "public_interface_version": 1,
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -710,7 +686,6 @@ UPGRADE_TESTS = [
             "version": __version__, 
             "steps_data": [{"step_version": 6, "step_type": "excel_range_import", "params": {"file_path": "small-excel.xlsx", "sheet": {"type": "sheet name", "value": "Sheet1"}, "convert_csv_to_xlsx": False, "range_imports": [{"type": "dynamic", 'start_condition': {"type": "upper left corner value", "value": 1}, "df_name": "df2", "end_condition": {"type": 'first empty cell'}, 'column_end_condition': {'type': 'first empty cell'}}, {"type": "range", "df_name": "df", "value": "A1:A10"}], "public_interface_version": 2}}], "public_interface_version": 2,
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -730,7 +705,6 @@ UPGRADE_TESTS = [
             "version":  __version__, 
             "steps_data": [{"step_version": 3, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"role": None, "warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "PYTESTSCHEMA", "table_or_view": "NOROWS"}, "query_params": {"columns": ["COLUMNA"], "limit": 2}, "public_interface_version": 2}}], "public_interface_version": 2,
             "args": [],
-            "code": [],
             "code_options": {
                 'as_function': False,
                 'import_custom_python_code': False,
@@ -748,7 +722,7 @@ UPGRADE_TESTS = [
         },
         {
             "version": __version__, 
-            "steps_data": [{"step_version": 3, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES", "role": None}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code": [], "code_options": {"as_function": False, "call_function": True, "function_name": "function_rgge", "function_params": {}, 'import_custom_python_code': False}
+            "steps_data": [{"step_version": 3, "step_type": "snowflake_import", "params": {"table_loc_and_warehouse": {"warehouse": "COMPUTE_WH", "database": "PYTESTDATABASE", "schema": "INFORMATION_SCHEMA", "table_or_view": "APPLICABLE_ROLES", "role": None}, "query_params": {"columns": ["GRANTEE", "ROLE_NAME", "ROLE_OWNER", "IS_GRANTABLE"]}}}], "public_interface_version": 3, "args": [], "code_options": {"as_function": False, "call_function": True, "function_name": "function_rgge", "function_params": {}, 'import_custom_python_code': False}
         }
     )
 ]
@@ -787,8 +761,7 @@ def test_doesnt_upgrade_updated_format():
             "call_function": True,
             'function_name': 'function_ysis',
             'function_params': {}
-        },
-        "code": []
+        }
     }
     
     assert read_and_upgrade_analysis(TEST_ANALYSIS_NAME, []) == new
