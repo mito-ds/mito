@@ -1,11 +1,14 @@
 
-import { expect, test } from '@playwright/test';
-import { checkColumnCellsHaveExpectedValues, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getMitoFrame, getMitoFrameWithTestCSV } from '../utils';
+import { expect, test, Page } from '@playwright/test';
+import { awaitResponse, checkColumnCellsHaveExpectedValues, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getMitoFrame, getMitoFrameWithTestCSV } from '../utils';
 
-const openImportTaskpaneAndSelectData = async (mito: any, file: string) => {
+const openImportTaskpaneAndSelectData = async (page: Page, mito: any, file: string) => {
   await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
+  await awaitResponse(page);
   await mito.locator('.mito-dropdown-item', { hasText: 'Import Files' }).click();
+  await awaitResponse(page);
   await mito.getByText(file, { exact: true }).dblclick();
+  await awaitResponse(page);
 }
 
 test.describe('File Import Taskpane', () => {
@@ -22,6 +25,7 @@ test.describe('File Import Taskpane', () => {
     const mito = await getMitoFrame(page);
     await mito.getByRole('button', { name: 'Import Files' }).click();
     await mito.getByText('test.csv').dblclick();
+    
     await expect(mito.getByTitle('Column1')).toBeVisible();
   });
 
@@ -55,7 +59,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Import XLSX file with single sheet', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpaneAndSelectData(mito, 'test.xlsx')
+    await openImportTaskpaneAndSelectData(page, mito, 'test.xlsx')
     await mito.getByText('Sheet1').click();
 
     await mito.getByText('Import 1 Selected Sheet').click();
@@ -67,7 +71,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Import XLSX file with configurations', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpaneAndSelectData(mito, 'test.xlsx')
+    await openImportTaskpaneAndSelectData(page, mito, 'test.xlsx')
 
     // Turn 'Has Header Row' off
     await mito.locator('.spacing-row', { hasText: 'Has Header Row'}).locator('.select-text').click();
@@ -90,7 +94,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Range Import with one sheet selected', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpaneAndSelectData(mito, 'test.xlsx');
+    await openImportTaskpaneAndSelectData(page, mito, 'test.xlsx');
     await mito.getByText('Sheet1').click();
 
     // Click on Range Import
@@ -108,7 +112,8 @@ test.describe('File Import Taskpane', () => {
 
   test('Import multiple ranges', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await openImportTaskpaneAndSelectData(mito, 'test.xlsx');
+    await openImportTaskpaneAndSelectData(page, mito, 'test.xlsx');
+    await awaitResponse(page);
     await mito.getByText('Sheet1').click();
 
     // Click on Range Import
@@ -147,6 +152,7 @@ test.describe('File Import Taskpane', () => {
 
     // Open the configure taskpane for the csv with special delimiters
     await mito.getByText('Import Files').click();
+    await awaitResponse(page);
     await mito.getByText('semicolon-delimiter.csv').click();
     await mito.getByText('Configure').click();
 
