@@ -279,22 +279,21 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // overwriting any changes the user might have made. 
     const oldCodeRef = useRef<string[] | undefined>();
     useEffect(() => {
-        void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
-            if ('error' in response) {
-                console.error(response.error);
-                return;
-            }
-            oldCodeRef.current = response.result;
-        });
-    }, []);
-
-    useEffect(() => {
         // If the oldCodeRef.current is undefined, then we haven't 
         // loaded the code from the saved_analysis yet. We want to load
         // this first in case Mito has been updated and the code generated
         // by Mito has changed. If we don't do this, it's hard to differentiate
         // between user changes and changes made by Mito to the generated code.
+        // The next time we try to write code, it will use this saved analysis code
+        // to check against. 
         if (oldCodeRef.current === undefined) {
+            void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
+                if ('error' in response) {
+                        console.error(response.error);
+                        return;
+                    }
+                oldCodeRef.current = response.result;
+            });
             return;
         }
     
