@@ -85,7 +85,6 @@ import { getCSSVariablesFromTheme } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
-import { MitoAPIResult } from './api/api';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -279,59 +278,61 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // overwriting any changes the user might have made. 
     const oldCodeRef = useRef<string[] | undefined>();
     useEffect(() => {
-        // If the oldCodeRef.current is undefined, then we haven't 
-        // loaded the code from the saved_analysis yet. We want to load
-        // this first in case Mito has been updated and the code generated
-        // by Mito has changed. If we don't do this, it's hard to differentiate
-        // between user changes and changes made by Mito to the generated code.
-        // The next time we try to write code, it will use this saved analysis code
-        // to check against. 
-        if (oldCodeRef.current === undefined) {
-            void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
+        const writeCodeToCell = async () => {
+            // If the oldCodeRef.current is undefined, then we haven't 
+            // loaded the code from the saved_analysis yet. We want to load
+            // this first in case Mito has been updated and the code generated
+            // by Mito has changed. If we don't do this, it's hard to differentiate
+            // between user changes and changes made by Mito to the generated code.
+            // The next time we try to write code, it will use this saved analysis code
+            // to check against. 
+            if (oldCodeRef.current === undefined) {
+                const response = await mitoAPI.getSavedAnalysisCode()
                 if ('error' in response) {
                     console.error(response.error);
                     return;
                 }
                 oldCodeRef.current = response.result;
-            });
-            return;
-        }
-    
-        void props.jupyterUtils?.writeGeneratedCodeToCell(
-            analysisData.analysisName, 
-            analysisData.code, 
-            userProfile.telemetryEnabled, 
-            analysisData.publicInterfaceVersion, 
-            (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
-                setUIState(prevUIState => {
-                    return {
-                        ...prevUIState,
-                        currOpenModal: {
-                            type: ModalEnum.UserEditedCode,
-                            codeWithoutUserEdits: codeWithoutUserEdits,
-                            codeWithUserEdits: codeWithUserEdits
-                        }
-                    }
-                })
-                void mitoAPI.log(
-                    'user_edited_code_cell', 
-                    {
-                        length_of_code_with_user_edits: codeWithUserEdits.length,
-                        length_of_code_without_user_edits: codeWithoutUserEdits.length
-                    }
-                );
-            },
-            oldCodeRef.current,
-            // If the oldCodeRef.current is null, this means we're accessing a saved analysis
-            // that has no code field defined. In this case, we want to overwrite the code
-            // in the cell, as there is no code to compare against.
-            oldCodeRef.current === null ? true : undefined,
-        )
+            }
+            if (analysisData.renderCount >= 1) {
+                await props.jupyterUtils?.writeGeneratedCodeToCell(
+                    analysisData.analysisName, 
+                    analysisData.code, 
+                    userProfile.telemetryEnabled, 
+                    analysisData.publicInterfaceVersion, 
+                    (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenModal: {
+                                    type: ModalEnum.UserEditedCode,
+                                    codeWithoutUserEdits: codeWithoutUserEdits,
+                                    codeWithUserEdits: codeWithUserEdits
+                                }
+                            }
+                        })
+                        void mitoAPI.log(
+                            'user_edited_code_cell', 
+                            {
+                                length_of_code_with_user_edits: codeWithUserEdits.length,
+                                length_of_code_without_user_edits: codeWithoutUserEdits.length
+                            }
+                        );
+                    },
+                    oldCodeRef.current,
+                    // If the oldCodeRef.current is null, this means we're accessing a saved analysis
+                    // that has no code field defined. In this case, we want to overwrite the code
+                    // in the cell, as there is no code to compare against.
+                    oldCodeRef.current === null ? true : undefined,
+                )
 
-        // After using the ref to get the old code, we update it to the newest analysis.
-        oldCodeRef.current = analysisData.code;
-        // TODO: we should store some data with analysis data to not make
-        // this run too often?
+                // After using the ref to get the old code, we update it to the newest analysis.
+                oldCodeRef.current = analysisData.code;
+            }
+            // TODO: we should store some data with analysis data to not make
+            // this run too often?
+        };
+        void writeCodeToCell();
     }, [analysisData])
 
     // Load plotly, so we can generate graphs
