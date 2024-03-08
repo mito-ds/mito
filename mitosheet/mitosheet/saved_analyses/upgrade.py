@@ -358,13 +358,15 @@ def upgrade_saved_analysis_to_have_up_to_date_args(saved_analysis: Optional[Dict
     
     return saved_analysis
 
-def upgrade_saved_analysis_to_have_code(saved_analysis: Optional[Dict[str, Any]], code: Optional[str]) -> Optional[Dict[str, Any]]:
+def upgrade_saved_analysis_to_have_code(saved_analysis: Optional[Dict[str, Any]], code: Optional[List[str]]) -> Optional[Dict[str, Any]]:
 
     if saved_analysis is None:
         return None
     
     if code is not None:
         saved_analysis['code'] = code
+    else:
+        saved_analysis['code'] = []
     
     return saved_analysis
 
