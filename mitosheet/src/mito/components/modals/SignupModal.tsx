@@ -63,7 +63,7 @@ const StepOne = (
                     onChange={(event) => {props.setEmail(event.target.value)}}
                     type='email'
                     width='large'
-                    placeholder='jake.diamond@apple.com' 
+                    placeholder='you@company.com' 
                     required
                     autoFocus
                 />
