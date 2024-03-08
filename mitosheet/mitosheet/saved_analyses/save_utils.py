@@ -118,20 +118,24 @@ def rename_saved_analysis(old_analysis_name, new_analysis_name):
     else:
         raise Exception(f'Invalid rename, with old and new analysis are {old_analysis_name} and {new_analysis_name}')
 
+def get_saved_analysis_string(steps_manager: StepsManagerType) -> str:
+    saved_analysis_string = json.dumps({
+        'version': __version__,
+        'steps_data': get_steps_obj_for_saved_analysis(steps_manager.steps_including_skipped),
+        'public_interface_version': steps_manager.public_interface_version,
+        'args': steps_manager.original_args_raw_strings,
+        'code': steps_manager.code(),
+        'code_options': steps_manager.code_options
+    }, cls=NpEncoder)
+    return saved_analysis_string
 
-def write_saved_analysis(analysis_path: str, steps_data: List[Dict[str, Any]], public_interface_version: int, args: List[str], code_options: CodeOptions, version: str=__version__) -> None:
+def _write_saved_analysis_file(analysis_path: str, steps_manager: StepsManagerType) -> None:
+    saved_analysis_string = get_saved_analysis_string(steps_manager)
     with open(analysis_path, 'w+') as f:
-        saved_analysis = {
-            'version': version,
-            'steps_data': steps_data,
-            'public_interface_version': public_interface_version,
-            'args': args,
-            'code_options': code_options
-        }
-        f.write(json.dumps(saved_analysis, cls=NpEncoder))
+        f.write(saved_analysis_string)
 
 
-def make_steps_json_obj(
+def get_steps_obj_for_saved_analysis(
         steps: List[Step]
     ) -> List[Dict[str, Any]]:
     """
@@ -182,7 +186,7 @@ def make_steps_json_obj(
 
     return steps_json_obj
 
-def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]=None) -> None:
+def write_save_analysis_file(steps_manager: StepsManagerType, analysis_name: Optional[str]=None) -> None:
     """
     Writes the analysis saved in steps_manager to
     ~/.mito/{analysis_name}. If analysis_name is none, gets the temporary
@@ -203,7 +207,4 @@ def write_analysis(steps_manager: StepsManagerType, analysis_name: Optional[str]
         analysis_name = steps_manager.analysis_name
 
     analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json'
-    steps = make_steps_json_obj(steps_manager.steps_including_skipped)
-
-    # Actually write the file
-    write_saved_analysis(analysis_path, steps, steps_manager.public_interface_version, steps_manager.original_args_raw_strings, steps_manager.code_options)
+    _write_saved_analysis_file(analysis_path, steps_manager)

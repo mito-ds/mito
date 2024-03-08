@@ -7,7 +7,17 @@ pip install -r requirements.txt;
 
 # Install necessary node packages
 npm install
-npx playwright install chromium webkit firefox chrome
+
+# Install playwright. If the user provides a browser, install only that browser
+# Otherwise, install all browsers. This is primarily used so that the CI can
+# install only the necessary browsers.
+if [ $# -eq 0 ]
+  then
+    npx playwright install chromium webkit firefox chrome
+else
+    npx playwright install $1
+    npx playwright install
+fi
 
 # Install mitosheet
 cd ../mitosheet

@@ -66,7 +66,7 @@ const MeltTaskpane = (props: MeltTaskpaneProps): JSX.Element => {
     const sheetData = props.sheetDataArray[params.sheet_index];
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Unpivot Dataframe"
                 setUIState={props.setUIState}           

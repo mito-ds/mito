@@ -25,7 +25,7 @@ from mitosheet.api import API
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
-from mitosheet.saved_analyses import write_analysis
+from mitosheet.saved_analyses import write_save_analysis_file
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
@@ -178,7 +178,7 @@ class MitoBackend():
         self.steps_manager.handle_edit_event(event)
 
         # Also, write the analysis to a file!
-        write_analysis(self.steps_manager)
+        write_save_analysis_file(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. NOTE: in the future, we can actually send back some data
@@ -217,7 +217,7 @@ class MitoBackend():
                 raise make_execution_error(error_modal=False)
             raise
         # Also, write the analysis to a file!
-        write_analysis(self.steps_manager)
+        write_save_analysis_file(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. 
@@ -273,7 +273,7 @@ class MitoBackend():
                 print(e)
 
             # Log processing this event failed
-            log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
+            log_event_processed(event, self.steps_manager, failed=True, error=e, start_time=start_time)
 
             # Report it to the user, and then return
             self.mito_send({
@@ -405,7 +405,8 @@ def sheet(
     # We throw a custom error message if we're sure the user is in
     # vs code or google collab (these conditions are more secure than
     # the conditons for checking if we're in JLab or JNotebook).
-    # Then, check if we're in Dash or in Streamlit. If so, tell user to use the correct component
+    # Then, check if we're in Dash or in Streamlit. 
+    # If so, tell user to use the correct component
     if is_in_vs_code() or is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")

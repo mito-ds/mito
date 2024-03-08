@@ -11,6 +11,7 @@ import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER } from "../../utils/plausibl
 
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'
+export const CREATE_MITOSHEET_DOCS_LINK = 'https://docs.trymito.io/how-to/creating-a-mitosheet'
 
 
 const HeaderDropdownItem = (props: {

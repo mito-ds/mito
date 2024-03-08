@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 from typing import Any, List, Dict
-from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
+from mitosheet.code_chunks.step_performers.import_steps.simple_import_code_chunk import DEFAULT_DECIMAL, DEFAULT_DELIMITER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES, DEFAULT_SKIPROWS
 from mitosheet.enterprise.mito_config import DEFAULT_MITO_CONFIG_SUPPORT_EMAIL, MEC_VERSION_KEYS, MitoConfig
 from mitosheet.state import (
     DATAFRAME_SOURCE_DUPLICATED,
@@ -324,7 +324,7 @@ def test_pivot_column_transformation_type_defined():
 
 
 def test_update_events_default_import_decimal():
-    default_delimiter = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DELIMETER")
+    default_delimiter = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DELIMITER")
     default_encoding = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_ENCODING")
     _default_decimal = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_DECIMAL")
     default_skiprows = get_constant_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "DEFAULT_SKIPROWS")
@@ -334,7 +334,7 @@ def test_update_events_default_import_decimal():
     decimalEnum = get_enum_from_ts_file("./src/mito/components/import/CSVImportConfigScreen.tsx", "Decimal")
     default_decimal = decimalEnum[_default_decimal.split('.')[1]]
     
-    assert default_delimiter == f'"{DEFAULT_DELIMETER}"'
+    assert default_delimiter == f'"{DEFAULT_DELIMITER}"'
     assert default_encoding == f'"{DEFAULT_ENCODING}"'
     assert default_decimal == f'{DEFAULT_DECIMAL}'
     assert int(default_skiprows) == DEFAULT_SKIPROWS

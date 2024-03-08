@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { getMitoFrameWithTestCSV } from './utils';
+import { getMitoFrameWithTestCSV } from '../utils';
 
 test.describe.configure({ mode: 'parallel' });
 

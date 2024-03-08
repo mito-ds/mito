@@ -1,6 +1,6 @@
 
 import { expect, test } from '@playwright/test';
-import { awaitResponse, checkOpenTaskpane, clickButtonAndAwaitResponse, getColumnHeaderContainer, getMitoFrame, getMitoFrameWithTestCSV, importCSV } from '../utils';
+import { awaitResponse, checkColumnCount, checkColumnExists, checkOpenTaskpane, clickButtonAndAwaitResponse, getColumnHeaderContainer, getMitoFrameWithTestCSV, importCSV } from '../utils';
 
 
 test.describe('Home Tab Buttons', () => {
@@ -85,10 +85,11 @@ test.describe('Home Tab Buttons', () => {
   test('Delete Column', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
-    await mito.getByTitle('Column1').click();
+    await mito.getByTitle('Column2').click();
+    
     await clickButtonAndAwaitResponse(page, mito, { name: 'Delete' })
 
-    await expect(mito.getByText('Column1')).not.toBeVisible();
+    await expect(mito.getByText('Column2')).not.toBeVisible();
   });
 
   test('Insert Column', async ({ page }) => {
@@ -99,7 +100,7 @@ test.describe('Home Tab Buttons', () => {
     await awaitResponse(page);
 
     // Expect there to be 4 column headers
-    await expect(mito.locator('.endo-column-header-container')).toHaveCount(4);
+    await checkColumnCount(mito, 4);
 
     // Check that the column with .endo-column-header-container-selected 
     // starts with new-column
@@ -152,14 +153,17 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('0 of 3')).toBeVisible();
 
     // Replace in selected columns shouldn't work, as Column2 isn't selected
-    await mito.locator('#mito-center-content-container').getByRole('button').first().click();
+    await mito.locator('.mito-search-bar>.mito-search-button').click();
     await mito.getByPlaceholder('Replace...').fill('13');
     await mito.getByRole('button', { name: 'Replace in Selected Columns' }).click();
     await expect(mito.getByText('Column13')).not.toBeVisible();
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).not.toBeVisible();
+    await awaitResponse(page);
 
     // Then, replace all, should work
     await mito.getByRole('button', { name: 'Replace All' }).click();
+    await awaitResponse(page);
+
     await expect(mito.getByText('Column13')).toBeVisible();
     await expect(mito.locator('.mito-grid-cell').filter({ hasText: /^13$/ }).first()).toBeVisible();
   });
@@ -209,8 +213,7 @@ test.describe('Home Tab Buttons', () => {
     await expect(mito.getByText('Merge Dataframes')).toBeVisible();
 
     // Check that Column1 exists
-    const ch1 = await getColumnHeaderContainer(mito, 'Column1');
-    await expect(ch1).toBeVisible();
+    await checkColumnExists(mito, 'Column1');
   });
 
   test('Open Concat (vertical)', async ({ page }) => {

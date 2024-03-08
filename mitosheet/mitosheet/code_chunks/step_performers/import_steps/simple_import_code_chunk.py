@@ -16,7 +16,7 @@ from mitosheet.utils import is_prev_version
 
 # Note: These defaults must be the same as the pandas.read_csv defaults
 DEFAULT_ENCODING = 'utf-8'
-DEFAULT_DELIMETER = ','
+DEFAULT_DELIMITER = ','
 DEFAULT_DECIMAL = '.'
 DEFAULT_SKIPROWS = 0
 DEFAULT_ERROR_BAD_LINES = True
@@ -26,7 +26,7 @@ def get_read_csv_params(delimeter: str, encoding: str, decimal: Optional[str], s
 
     if encoding != DEFAULT_ENCODING:
         params['encoding'] = encoding
-    if delimeter != DEFAULT_DELIMETER:
+    if delimeter != DEFAULT_DELIMITER:
         params['sep'] = delimeter
     if decimal is not None and decimal != DEFAULT_DECIMAL: 
         params['decimal'] = decimal

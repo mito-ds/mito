@@ -8,22 +8,23 @@ Contains tests to make sure that the mito analytics test is
 performing correctly
 """
 
-import pprint
+import json
+import os
 import sys
 import time
+from unittest.mock import MagicMock, patch
+import requests
+
 import pandas as pd
-from mitosheet.column_headers import get_column_header_id
-from mitosheet.enterprise.mito_config import MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL, MITO_CONFIG_LOG_SERVER_URL, MITO_CONFIG_VERSION
-from mitosheet.errors import MitoError
+
+from mitosheet.enterprise.mito_config import (
+    MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL, MITO_CONFIG_LOG_SERVER_URL,
+    MITO_CONFIG_VERSION)
 from mitosheet.telemetry.telemetry_utils import PRINT_LOGS
-import pytest
-from unittest.mock import patch
-import os
-import json
-from mitosheet.tests.test_mito_config import delete_all_mito_config_environment_variables
-from mitosheet.tests.test_utils import create_mito_wrapper, create_mito_wrapper_with_data
-from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
-from mitosheet.utils import get_new_id
+from mitosheet.tests.test_mito_config import \
+    delete_all_mito_config_environment_variables
+from mitosheet.tests.test_utils import (create_mito_wrapper,
+                                        create_mito_wrapper_with_data)
 
 try:
     from pandas import __version__ as pandas_version
@@ -87,12 +88,13 @@ def test_log_uploader_multiple_edit_events():
     mito.add_column(0, 'B')
     mito.delete_columns(0, ['B'])
 
-    # wait 1 second
+    # wait 1 second, so we don't get these uploads
     time.sleep(1)
 
     with patch('requests.post') as mock_post:
 
         mito.add_column(0, 'C')
+        time.sleep(2)
 
         # Even though multiple events occured, there should be only one upload
         assert len(mock_post.call_args_list) == 1
@@ -120,7 +122,6 @@ def test_log_uploader_multiple_edit_events():
         assert add_column_log_event["event"] == "add_column_edit"
 
         delete_columns_log_event = json.loads(data)[1]
-        print(delete_columns_log_event)
         assert len(delete_columns_log_event) == 8
         assert delete_columns_log_event["params_sheet_index"] == 0
         assert len(delete_columns_log_event["params_column_ids"]) == 1
@@ -144,6 +145,7 @@ def test_log_uploader_error_events():
     with patch('requests.post') as mock_post:
 
         mito.set_formula('=INVALID_FUNCTION()', 0, 'A')
+        time.sleep(.5)
 
         assert len(mock_post.call_args_list) == 1
 
@@ -191,6 +193,7 @@ def test_log_uploader_mitosheet_rendered():
             'type': 'mitosheet_rendered', 
             'id': '_pt4wgfw0z'
         })
+        time.sleep(.5)
 
         assert len(mock_post.call_args_list) == 1
 
@@ -215,8 +218,6 @@ def test_log_uploader_mitosheet_rendered():
 
     delete_all_mito_config_environment_variables()
 
-
-
 def test_log_uploader_long_interval_does_not_trigger_upload():
     
     os.environ[MITO_CONFIG_VERSION] = "2"
@@ -232,5 +233,93 @@ def test_log_uploader_long_interval_does_not_trigger_upload():
         mito.add_column(0, 'D')
 
         assert len(mock_post.call_args_list) == 0
+
+    delete_all_mito_config_environment_variables()
+
+def test_log_uploader_logs_failure_prints():
+
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    with patch('requests.post') as mock_post:
+        mock_post.side_effect = [requests.exceptions.RequestException, None]
+
+        # Capture the logging debug output
+        with patch('builtins.print') as mock_print:
+            mito.add_column(0, 'B')
+            time.sleep(1.5)
+
+            assert len(mock_print.call_args_list) == 1
+            assert 'Log upload failed with error:' in mock_print.call_args_list[0][0][0]
+
+    delete_all_mito_config_environment_variables()
+
+def test_log_uploader_tries_failed_logs_again():
+
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    with patch('requests.post') as mock_post:
+        mock_post.side_effect = [requests.exceptions.RequestException, None]
+        mito.add_column(0, 'B')
+        time.sleep(1.5)
+
+    with patch('requests.post') as mock_post:
+        mito.add_column(0, 'C')
+        time.sleep(1.5)
+        assert len(mock_post.call_args_list) == 1
+        logs = json.loads(mock_post.call_args_list[0][1]['data'])
+        assert len(logs) == 2
+        # Check that the payload is different, indicating that the first
+        # payload was not uploaded the first time
+        assert logs[0]['params_column_header'] != logs[1]['params_column_header']
+
+    delete_all_mito_config_environment_variables()
+
+def test_mito_log_uploader_exponential_backoff():
+    
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    with patch('requests.post') as mock_post:
+        mock_post.side_effect = [requests.exceptions.RequestException, None]
+        mito.add_column(0, 'B')
+        time.sleep(1.5)
+        assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 2
+
+    with patch('requests.post') as mock_post:
+        mito.add_column(0, 'C')
+        time.sleep(2)
+        assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 1
+
+    delete_all_mito_config_environment_variables()
+
+
+def test_mito_log_uploader_prints_on_server_error():
+
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] =  f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "1"
+
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    mock_response = MagicMock(spec=requests.Response)
+    mock_response.status_code = 400
+    mock_response.raise_for_status.side_effect = requests.HTTPError
+
+    with patch('requests.post', return_value=mock_response) as mock_post:
+        mito.add_column(0, 'C')
+        time.sleep(1.5)
+
+    assert mito.mito_backend.steps_manager.mito_log_uploader is not None and mito.mito_backend.steps_manager.mito_log_uploader.current_log_interval == 2
 
     delete_all_mito_config_environment_variables()

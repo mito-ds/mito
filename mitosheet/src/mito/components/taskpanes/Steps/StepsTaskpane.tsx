@@ -28,7 +28,7 @@ function StepTaskpane(props: StepTaskpaneProps): JSX.Element {
     const [displayStepDropdown, setDisplayStepDropdown] = useState<number | undefined>(undefined)
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header='Step History'
                 setUIState={props.setUIState}

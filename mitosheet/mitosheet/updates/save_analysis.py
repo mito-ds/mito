@@ -7,7 +7,7 @@
 Saves the analysis with the passed name.
 """
 
-from mitosheet.saved_analyses import write_analysis
+from mitosheet.saved_analyses import write_save_analysis_file
 
 SAVE_ANALYSIS_UPDATE_EVENT = 'save_analysis_update'
 SAVE_ANALYSIS_UPDATE_PARAMS = ['analysis_name']
@@ -19,7 +19,7 @@ def execute_save_analysis_update(
     """
     Saves the analysis with the passed name
     """
-    write_analysis(steps_manager, analysis_name)
+    write_save_analysis_file(steps_manager, analysis_name)
 
 
 SAVE_ANALYSIS_UPDATE = {

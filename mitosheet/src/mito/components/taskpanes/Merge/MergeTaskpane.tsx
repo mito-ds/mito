@@ -220,7 +220,7 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
     const mergeKeyColumnIDsTwo = params.merge_key_column_ids.map(([, two]) => {return two});
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header="Merge Dataframes"
                 setUIState={props.setUIState}

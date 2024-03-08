@@ -97,16 +97,19 @@ const getBackgroundColors = (backgroundColor: string | undefined): React.CSSProp
 
 
 
-export const getCSSVariablesFromTheme = (theme?: MitoTheme): React.CSSProperties => {
+export const getCSSStyleVariables = (height: string | undefined, theme?: MitoTheme): React.CSSProperties => {
 
     const highlightTheme = getHighlightTheme(theme?.primaryColor);
     const textTheme = getTextColors(theme?.textColor);
     const backgroundTheme = getBackgroundColors(theme?.backgroundColor);
+    const heightTheme = height ? {'--mito-height': height} : {'--mito-height': '538px'} as React.CSSProperties;
+
 
     return {
         ...highlightTheme,
         ...textTheme,
         ...backgroundTheme,
+        ...heightTheme,
     }
 }
 

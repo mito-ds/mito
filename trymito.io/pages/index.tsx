@@ -2,25 +2,24 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import Prism from 'prismjs';
 import { useEffect, useState } from 'react';
 import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
+import CaseStudies from '../components/CaseStudyCard/CaseStudies';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Footer from '../components/Footer/Footer';
+import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
 import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
+import LogoSection from '../components/LogoSection/LogoSection';
 import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
-import TextButton from '../components/TextButton/TextButton';
 import homeStyles from '../styles/Home.module.css';
 import pageStyles from '../styles/Page.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
-import Prism from 'prismjs';
-import LogoSection from '../components/LogoSection/LogoSection';
-import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
-import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
-import CaseStudies from '../components/CaseStudyCard/CaseStudies';
+import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS } from '../utils/plausible';
 
 const Home: NextPage = () => {
 
@@ -69,7 +68,7 @@ const Home: NextPage = () => {
               
             <div className={homeStyles.cta_button_and_video_spacer}>
               <div className={homeStyles.cta_buttons_homepage_container}>
-                <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+                <CTAButtons variant='scroll-to-install' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS}/>
                 <CTAButtons variant='book a demo' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED}/>
               </div>
             </div>
@@ -89,19 +88,18 @@ const Home: NextPage = () => {
 
           <LogoSection></LogoSection>
 
-          {false && <section className={pageStyles.background_card} >
+          <section>
+            <CaseStudies />
+          </section>
+
+          <section className={pageStyles.background_card} >
             {/* So that we can scroll to the correct location on the page, and 
               because we have a fixed header taking up some space, we scroll 
               to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
             */}
             <a className="anchor" id='installation'></a>
             <InstallInstructions/>
-          </section>}
-
-          <section>
-            <CaseStudies />
           </section>
-          
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>

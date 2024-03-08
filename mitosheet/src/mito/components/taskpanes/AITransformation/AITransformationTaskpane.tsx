@@ -268,7 +268,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
     }
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Mito AI"
                 setUIState={props.setUIState}           
