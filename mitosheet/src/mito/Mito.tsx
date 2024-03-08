@@ -289,9 +289,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
         if (oldCodeRef.current === undefined) {
             void mitoAPI.getSavedAnalysisCode().then((response: MitoAPIResult<string[]>) => {
                 if ('error' in response) {
-                        console.error(response.error);
-                        return;
-                    }
+                    console.error(response.error);
+                    return;
+                }
                 oldCodeRef.current = response.result;
             });
             return;
@@ -322,7 +322,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 );
             },
             oldCodeRef.current,
-            undefined,
+            oldCodeRef.current === null ? true : undefined,
         )
 
         // After using the ref to get the old code, we update it to the newest analysis.
