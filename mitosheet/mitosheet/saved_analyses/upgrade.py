@@ -365,6 +365,8 @@ def upgrade_saved_analysis_to_have_code(saved_analysis: Optional[Dict[str, Any]]
     
     if code is not None:
         saved_analysis['code'] = code
+    else:
+        saved_analysis['code'] = None
     
     return saved_analysis
 
