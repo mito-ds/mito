@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_save_analysis_file
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ConditionalFormat, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
@@ -57,6 +57,7 @@ class MitoBackend():
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
+            partial_conditional_formats: Optional[List[Dict[str, Any]]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -92,6 +93,16 @@ class MitoBackend():
 
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
+            
+
+        conditional_formats = [{
+            'format_uuid': 'preset_conditional_format',
+            'columnIDs': partial_conditional_formats['columnHeaders'],
+            'filters': [partial_conditional_formats['filters']],
+            'invalidFilterColumnIDs': [],
+            'color': partial_conditional_formats['color'],
+            'backgroundColor': partial_conditional_formats['backgroundColor']
+        }]
         
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(
@@ -104,6 +115,7 @@ class MitoBackend():
             user_defined_importers=all_custom_importers,
             user_defined_editors=user_defined_editors,
             code_options=code_options,
+            conditional_formats=conditional_formats,
             theme=theme
         )
 

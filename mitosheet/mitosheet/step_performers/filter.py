@@ -260,5 +260,5 @@ def check_filters_contain_condition_that_needs_full_df(filters: List[Union[Filte
             filter_group: FilterGroup = filter_or_group #type: ignore
             if check_filters_contain_condition_that_needs_full_df(filter_group["filters"]):
                 return True
-        
+
     return False

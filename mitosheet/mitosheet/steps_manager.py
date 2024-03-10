@@ -17,6 +17,7 @@ from mitosheet.api.get_path_contents import get_path_parts
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 from mitosheet.experiments.experiment_utils import get_current_experiment
+from mitosheet.pro.conditional_formatting_utils import get_conditonal_formatting_result
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
@@ -35,7 +36,7 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ConditionalFormat, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
@@ -187,6 +188,7 @@ class StepsManager:
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
+            conditional_formats: Optional[List[ConditionalFormat]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -265,11 +267,22 @@ class StepsManager:
                     df_names=df_names,
                     user_defined_functions=self.user_defined_functions, 
                     user_defined_importers=self.user_defined_importers,
-                    user_defined_editors=self.user_defined_editors
+                    user_defined_editors=self.user_defined_editors,
                 ), 
                 {}
             )
         ]
+
+        df_formats = {
+            'columns': {},
+            'headers': {},
+            'rows': {'even': {}, 'odd': {}},
+            'border': {},
+            'conditional_formats': conditional_formats
+        }
+
+        self.steps_including_skipped[0].df_formats[0] = df_formats
+        self.steps_including_skipped[0].post_state.df_formats[0] = df_formats
 
         """
         To help with redo, we store a list of a list of the steps that 
