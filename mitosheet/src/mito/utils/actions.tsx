@@ -2155,13 +2155,44 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-                setUIState(prevUIState => {
-                    const sheetIndex = prevUIState.selectedSheetIndex;
-                    return {
-                        ...prevUIState,
-                        selectedSheetIndex: sheetIndex < sheetDataArray.length - 1 ? sheetIndex + 1 : 0
+                
+                const selectedSheetIndex = uiState.selectedSheetIndex;
+                const selectedGraphID = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? uiState.currOpenTaskpane.openGraph.graphID : undefined;
+                
+                if (selectedGraphID !== undefined) {
+                    const graphIndex = analysisData.graphDataArray.findIndex(graphData => graphData.graph_id === selectedGraphID);
+                    if (graphIndex === -1 || graphIndex === analysisData.graphDataArray.length - 1) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {type: TaskpaneType.NONE},
+                                selectedTabType: 'data',
+                                selectedSheetIndex: 0
+                            }
+                        });
+                    } else {
+                        void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
+                            type: 'existing_graph',
+                            graphID: analysisData.graphDataArray[graphIndex + 1].graph_id
+                        })
+                        return;
                     }
-                })
+                } else {
+                    if (selectedSheetIndex === sheetDataArray.length - 1 && analysisData.graphDataArray.length > 0) {
+                        void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
+                            type: 'existing_graph',
+                            graphID: analysisData.graphDataArray[0].graph_id
+                        })
+                        return;
+                    } else {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                selectedSheetIndex: selectedSheetIndex === sheetDataArray.length - 1 ? 0 : selectedSheetIndex + 1
+                            }
+                        });
+                    }
+                }
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['sheet', 'index', 'next', 'forward'],
@@ -2174,13 +2205,44 @@ export const getActions = (
             actionFunction: () => {
                 // We turn off editing mode, if it is on
                 setEditorState(undefined);
-                setUIState(prevUIState => {
-                    const sheetIndex = prevUIState.selectedSheetIndex;
-                    return {
-                        ...prevUIState,
-                        selectedSheetIndex: sheetIndex > 0 ? sheetIndex - 1 : sheetDataArray.length - 1
+
+                const selectedSheetIndex = uiState.selectedSheetIndex;
+                const selectedGraphID = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH ? uiState.currOpenTaskpane.openGraph.graphID : undefined;
+                
+                if (selectedGraphID !== undefined) {
+                    const graphIndex = analysisData.graphDataArray.findIndex(graphData => graphData.graph_id === selectedGraphID);
+                    if (graphIndex === -1 || graphIndex === 0) {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                currOpenTaskpane: {type: TaskpaneType.NONE},
+                                selectedTabType: 'data',
+                                selectedSheetIndex: sheetDataArray.length - 1
+                            }
+                        });
+                    } else {
+                        void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
+                            type: 'existing_graph',
+                            graphID: analysisData.graphDataArray[graphIndex - 1].graph_id
+                        })
+                        return;
                     }
-                })
+                } else {
+                    if (selectedSheetIndex === 0 && analysisData.graphDataArray.length > 0) {
+                        void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
+                            type: 'existing_graph',
+                            graphID: analysisData.graphDataArray[analysisData.graphDataArray.length - 1].graph_id
+                        })
+                        return;
+                    } else {
+                        setUIState(prevUIState => {
+                            return {
+                                ...prevUIState,
+                                selectedSheetIndex: selectedSheetIndex === 0 ? sheetDataArray.length - 1 : selectedSheetIndex - 1
+                            }
+                        });
+                    }
+                }
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['sheet', 'index', 'previous', 'last'],
