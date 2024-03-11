@@ -136,7 +136,8 @@ test.describe('File Import Taskpane', () => {
     const mito = await getMitoFrame(page);
 
     // Open the configure taskpane for the csv with special delimiters
-    await mito.getByText('Import Files').click();
+    await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
+    await mito.locator('.mito-dropdown-item', { hasText: 'Import Files' }).click();
     await mito.getByText('semicolon-delimiter.csv').click();
     await mito.getByText('Configure').click();
 
