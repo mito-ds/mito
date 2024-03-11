@@ -477,13 +477,14 @@ def get_raw_parser_matches(
 
     for other_sheet_index, sheet_name in enumerate(df_names):
         if safe_contains(formula, f'{sheet_name}!', column_headers):
-            raw_parser_matches.append({
-                'type': '{SHEET}',
-                'substring_range': (formula.index(f'{sheet_name}!'), formula.index(f'{sheet_name}!') + len(sheet_name)),
-                'unparsed': f'{sheet_name}!',
-                'parsed': sheet_name,
-                'row_offset': 0
-            })
+            for match_info in re.finditer(f'{sheet_name}!', formula):
+                raw_parser_matches.append({
+                    'type': '{SHEET}',
+                    'substring_range': (match_info.start(), match_info.end()-1),
+                    'unparsed': f'{sheet_name}!',
+                    'parsed': sheet_name,
+                    'row_offset': 0
+                })
 
             # Update to look at the column headers in the other sheet
             column_headers = deduplicate_array(column_headers + dfs[other_sheet_index].columns.to_list())
