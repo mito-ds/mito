@@ -294,6 +294,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 }
                 oldCodeRef.current = response.result;
             });
+            // After setting the oldCodeRef, we return because this is supposed to represent
+            // the code from the last time analysisData changed
             return;
         }
     
