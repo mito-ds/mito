@@ -20,7 +20,7 @@ const DefaultTaskpaneFooter = (
     }): JSX.Element => {
 
     return (    
-        <div style={props.ignoreTaskpanePadding ? {margin: ' 0px -14px -7px -10px'} : undefined}>  {/** Set a negative margin to escape the footer */}
+        <div style={props.ignoreTaskpanePadding ? {margin: ' 0px -10px -7px -14px'} : undefined}>  {/** Set a negative margin to escape the footer */}
             {props.children}
         </div>
     )
