@@ -57,7 +57,7 @@ class MitoBackend():
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
-            partial_conditional_formats: Optional[List[Dict[str, Any]]]=None,
+            column_definitions: Optional[List[Dict[str, Any]]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -94,16 +94,6 @@ class MitoBackend():
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
             
-
-        conditional_formats = [{
-            'format_uuid': 'preset_conditional_format',
-            'columnIDs': partial_conditional_formats['columnHeaders'],
-            'filters': [partial_conditional_formats['filters']],
-            'invalidFilterColumnIDs': [],
-            'color': partial_conditional_formats['color'],
-            'backgroundColor': partial_conditional_formats['backgroundColor']
-        }]
-        
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(
             args, 
@@ -115,7 +105,7 @@ class MitoBackend():
             user_defined_importers=all_custom_importers,
             user_defined_editors=user_defined_editors,
             code_options=code_options,
-            conditional_formats=conditional_formats,
+            column_definitions=column_definitions,
             theme=theme
         )
 

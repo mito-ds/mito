@@ -10,6 +10,7 @@ require no user input.
 """
 
 from typing import List, Type
+from mitosheet.preprocessing.preprocess_set_column_definitions import SetColumnDefininitionsPreprocessStepPerformer
 from mitosheet.preprocessing.preprocess_step_performer import PreprocessStepPerformer
 from mitosheet.preprocessing.preprocess_convert_to_dataframe import ConvertToDataframePreprocessStepPerformer
 from mitosheet.preprocessing.preprocess_check_args_type import CheckArgsTypePreprocessStepPerformer
@@ -25,5 +26,7 @@ PREPROCESS_STEP_PERFORMERS: List[Type[PreprocessStepPerformer]] = [
    CopyPreprocessStepPerformer,
    # Then, we read in the files
    ConvertToDataframePreprocessStepPerformer,
+   # Then, we set the dataframe formats
+   SetColumnDefininitionsPreprocessStepPerformer
 ]
 

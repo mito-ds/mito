@@ -188,7 +188,7 @@ class StepsManager:
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
-            conditional_formats: Optional[List[ConditionalFormat]]=None,
+            column_definitions: Optional[List[ConditionalFormat]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -219,15 +219,19 @@ class StepsManager:
             for arg in args
         ]
 
+        self.original_kwargs = {
+            'column_definitions': column_definitions
+        }
+
         # Then, we go through the process of actually preprocessing the args
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
         df_names = None
         for preprocess_step_performers in PREPROCESS_STEP_PERFORMERS:
-            args, df_names, execution_data = preprocess_step_performers.execute(args)
+            _, _, execution_data = preprocess_step_performers.execute(args, self.original_kwargs)
             self.preprocess_execution_data[
                 preprocess_step_performers.preprocess_step_type()
-            ] = execution_data       
+            ] = execution_data    
 
         # We set the original_args_raw_strings. If we later have an args update, then these
         # are overwritten by the args update (and are actually correct). But since we don't 
@@ -268,21 +272,11 @@ class StepsManager:
                     user_defined_functions=self.user_defined_functions, 
                     user_defined_importers=self.user_defined_importers,
                     user_defined_editors=self.user_defined_editors,
+                    df_formats=self.preprocess_execution_data['set_column_definitions']['df_formats']
                 ), 
                 {}
             )
         ]
-
-        df_formats = {
-            'columns': {},
-            'headers': {},
-            'rows': {'even': {}, 'odd': {}},
-            'border': {},
-            'conditional_formats': conditional_formats
-        }
-
-        self.steps_including_skipped[0].df_formats[0] = df_formats
-        self.steps_including_skipped[0].post_state.df_formats[0] = df_formats
 
         """
         To help with redo, we store a list of a list of the steps that 

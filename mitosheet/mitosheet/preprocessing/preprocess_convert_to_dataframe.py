@@ -127,7 +127,7 @@ class ConvertToDataframePreprocessStepPerformer(PreprocessStepPerformer):
         return 'convert_to_dataframe'
 
     @classmethod
-    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any], kwargs: Dict[str, Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
         df_args: List[pd.DataFrame] = []
         df_names: List[str] = []
 
