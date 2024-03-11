@@ -18,7 +18,7 @@ test.describe('File Import Taskpane', () => {
     await expect(mito.getByText('test.csv')).toBeVisible();
   });
 
-  test.only('Test import CSV File with double click', async ({ page }) => {
+  test('Test import CSV File with double click', async ({ page }) => {
     const mito = await getMitoFrame(page);
     await mito.locator('button', { hasText: 'Import Files' }).click();
     await mito.getByText('test.csv').dblclick();
