@@ -6,7 +6,6 @@ export const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
     await page.goto('http://localhost:8555/');
     const mito = page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]');
     await expect(mito.locator('.mito-toolbar-button-enabled', { hasText: 'Import' })).toBeVisible();
-    await awaitResponse(page);
     return mito;
 };
   
