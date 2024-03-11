@@ -1,6 +1,6 @@
 
 import { expect, test } from '@playwright/test';
-import { checkColumnCellsHaveExpectedValues, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getMitoFrame, getMitoFrameWithTestCSV } from '../utils';
+import { awaitResponse, checkColumnCellsHaveExpectedValues, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getMitoFrame, getMitoFrameWithTestCSV } from '../utils';
 
 const openImportTaskpaneAndSelectData = async (mito: any, file: string) => {
   await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
@@ -12,14 +12,15 @@ test.describe('File Import Taskpane', () => {
 
   test('Test import CSV file', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await clickTab(page, mito, 'Data');
+    await awaitResponse(page);
 
-    await clickButtonAndAwaitResponse(page, mito, 'Import Files');
+    await mito.locator('button', { hasText: 'Import Files' }).click();
     await expect(mito.getByText('test.csv')).toBeVisible();
   });
 
   test('Test import CSV File with double click', async ({ page }) => {
     const mito = await getMitoFrame(page);
+    await awaitResponse(page);
     await mito.locator('button', { hasText: 'Import Files' }).click();
     await mito.getByText('test.csv').dblclick();
     await expect(mito.getByTitle('Column1')).toBeVisible();
