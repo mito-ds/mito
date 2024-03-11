@@ -9,20 +9,9 @@ const openImportTaskpaneAndSelectData = async (mito: any, file: string) => {
 }
 
 test.describe('File Import Taskpane', () => {
-
-  test('Test import CSV file', async ({ page }) => {
-    const mito = await getMitoFrameWithTestCSV(page);
-    await awaitResponse(page);
-
-    await mito.locator('button', { hasText: 'Import Files' }).click();
-    await expect(mito.getByText('test.csv')).toBeVisible();
-  });
-
   test('Test import CSV File with double click', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await awaitResponse(page);
-    await mito.locator('button', { hasText: 'Import Files' }).click();
-    await mito.getByText('test.csv').dblclick();
+    await openImportTaskpaneAndSelectData(mito, 'test.csv')
     await expect(mito.getByTitle('Column1')).toBeVisible();
   });
 
