@@ -51,6 +51,31 @@ test.describe('Keyboard Shortcuts', () => {
       // with the text test
       await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
     });
+
+    test('Next/prev sheet with graphs', async ({ page }) => {
+      const mito = await getMitoFrameWithTestCSV(page);
+      await importCSV(page, mito, 'test.csv');
+      await mito.getByText('Graph').click();
+      await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+      await mito.locator('.tab', { hasText: 'test_1' }).click();
+      await mito.getByText('Graph', { exact: true }).click();
+      await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+      await mito.locator('.mito-container').press('Alt+ArrowRight');
+      await awaitResponse(page);
+      await expect(mito.locator('.tab-selected')).toHaveText('test');
+      await mito.locator('.mito-container').press('Alt+ArrowRight');
+      await awaitResponse(page);
+      await expect(mito.locator('.tab-selected')).toHaveText('test_1');
+
+      await mito.locator('.mito-container').press('Alt+ArrowRight');
+      await awaitResponse(page);
+      await expect(mito.locator('.tab-selected')).toHaveText('graph0');
+
+      await mito.locator('.mito-container').press('Alt+ArrowLeft');
+      await awaitResponse(page);
+      await expect(mito.locator('.tab-selected')).toHaveText('test_1');
+    });
   
     test('Previous Sheet', async ({ page }) => {
       const mito = await getMitoFrameWithTestCSV(page);
