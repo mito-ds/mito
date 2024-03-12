@@ -9,6 +9,15 @@ const openImportTaskpaneAndSelectData = async (mito: any, file: string) => {
 }
 
 test.describe('File Import Taskpane', () => {
+  
+  test('Test import CSV file', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await clickTab(page, mito, 'Data');
+
+    await clickButtonAndAwaitResponse(page, mito, 'Import Files');
+    await expect(mito.getByText('test.csv')).toBeVisible();
+  });
+
   test('Test import CSV File with double click', async ({ page }) => {
     const mito = await getMitoFrame(page);
     await openImportTaskpaneAndSelectData(mito, 'test.csv')
