@@ -18,8 +18,8 @@ interface CodeOptionsParametersProps {
     setCodeOptions: React.Dispatch<React.SetStateAction<CodeOptions>>;
 }
 
-const getParamDisplayString = (paramValue: string, fileType: boolean): string => {
-    if (fileType) {
+const getParamDisplayString = (paramValue: string, isFile: boolean): string => {
+    if (isFile) {
         return getFileNameFromParamValue(paramValue);
     } else {
         return paramValue;
