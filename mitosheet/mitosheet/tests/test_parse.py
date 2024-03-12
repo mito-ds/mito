@@ -1290,6 +1290,22 @@ def test_specific_index_labels_header_header():
             columns
         )
 
+def test_specific_index_labels_header_header_multiple_header_dependencies():
+    formula = '=SUM(A:B)'
+    column_header = 'C'
+    formula_label = 0
+    df = pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2), index=pd.RangeIndex(0, 2))
+    python_code = 'df.loc[[0], [\'C\']] = SUM(df.loc[:, \'A\':\'B\'])'
+    functions = set(['SUM'])
+    columns = set(['A', 'B'])
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_SPECIFIC_INDEX_LABELS_TYPE, 'index_labels': [0]}, [df], ['df'], 0) 
+    assert (code, funcs, cols) == \
+        (
+            python_code, 
+            functions, 
+            columns
+        )
+
 @pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", POST_PD_1_2_VLOOKUP_TESTS)
 @pandas_post_1_2_only
 def post_pandas_1_2_cross_sheet_tests(formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns):
