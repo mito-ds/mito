@@ -41,6 +41,10 @@ class SetColumnDefininitionsPreprocessStepPerformer(PreprocessStepPerformer):
 
         column_definitions: List[ColumnDefinintion] = kwargs['column_definitions'] if 'column_definitions' in kwargs else None
 
+        if column_definitions is None:
+            # If no column_definitions are provided, end early
+            return [], [], {}
+
         df_formats = []
 
         print(column_definitions)

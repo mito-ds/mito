@@ -261,7 +261,7 @@ class StepsManager:
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
-        df_formats: List[DataframeFormat] = self.preprocess_execution_data['set_column_definitions']['df_formats'] 
+        df_formats: List[DataframeFormat] = self.preprocess_execution_data['set_column_definitions']['df_formats'] if 'df_formats' in self.preprocess_execution_data['set_column_definitions'] else None
 
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [

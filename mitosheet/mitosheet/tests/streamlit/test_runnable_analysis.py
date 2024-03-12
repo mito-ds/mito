@@ -85,7 +85,7 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
         }
     ]
     
-    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_function, param_metadata)
     result = analysis.run()
     assert result is not None
     pd.testing.assert_frame_equal(result[0], expected_df)
@@ -154,7 +154,7 @@ def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_
     
     new_export_file_0 = str(tmp_path / 'new_export.csv')
     new_export_file_1 = str(tmp_path / 'new_export.xlsx')
-    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_function, param_metadata)
 
     # Test that get_param_metadata works
     assert analysis.get_param_metadata() == param_metadata
@@ -192,7 +192,7 @@ def function_ctqm(import_dataframe_0):
         }
     ]
 
-    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_function, param_metadata)
 
     assert analysis.get_param_metadata() == param_metadata
     assert analysis.get_param_metadata('import') == param_metadata
@@ -273,7 +273,7 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
     
     new_export_file_0 = str(tmp_path / 'new_export.csv')
     new_export_file_1 = str(tmp_path / 'new_export.xlsx')
-    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_function, param_metadata)
 
     # Test that get_param_metadata works
     assert analysis.get_param_metadata() == param_metadata
@@ -359,7 +359,7 @@ def function(import_dataframe_0, file_name_import_csv_0, file_name_import_excel_
     ]
     
     new_export_file_0 = str(tmp_path / 'new_export.csv')
-    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_function, param_metadata)
     with pytest.raises(TypeError):
         analysis.run(df1, import_dataframe_0=df1, file_name_export_csv_0=new_export_file_0)
     
@@ -383,7 +383,7 @@ def function(import_dataframe_0):
         },
     ]
     
-    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_function, param_metadata)
     with pytest.raises(TypeError):
         analysis.run()
     
@@ -406,14 +406,14 @@ def function(import_dataframe_0):
         }
     ]
     
-    analysis = RunnableAnalysis('', None, fully_parameterized_function, param_metadata)
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_function, param_metadata)
     with pytest.raises(TypeError):
         analysis.run(testing=1)
     
 
 @requires_streamlit
 def test_to_and_from_json():
-    analysis = RunnableAnalysis('', None, simple_fn, simple_param_metadata)
+    analysis = RunnableAnalysis('', None, None, simple_fn, simple_param_metadata)
     # Test that the to_json function 
     json = analysis.to_json()
     assert json is not None
@@ -445,7 +445,7 @@ def function(vari\abl"e_name{}):
         'name': 'vari\ abl"e_name{}'
     },
 ]
-    analysis = RunnableAnalysis('', None, special_characters_fn, special_characters_metadata)
+    analysis = RunnableAnalysis('', None, None, special_characters_fn, special_characters_metadata)
     # Test that the to_json function 
     json = analysis.to_json()
     assert json is not None
@@ -467,7 +467,7 @@ def function():
     
     return df1
 """
-    analysis = RunnableAnalysis('', None, fully_parameterized_code, [])
+    analysis = RunnableAnalysis('', None, None, fully_parameterized_code, [])
     result = analysis.run()
     pd.testing.assert_frame_equal(result, pd.DataFrame({'A': [1, 2, 3], 'B': [2, 3, 4]}))
 
@@ -477,6 +477,7 @@ def test_can_pass_dataframe_to_file_path_in_run_auto_conversion():
     analysis = RunnableAnalysis(
         '',
         None,
+        None, 
         """from mitosheet.public.v3 import *
 import pandas as pd
 
