@@ -1,15 +1,15 @@
 import React from "react";
 import { MitoAPI } from "../../../api/api";
-import { CodeOptions, ParamName, ParamSubType, ParamType, ParamValue, ParameterizableParams } from "../../../types";
+import { CodeOptions, ParamName, ParamSubType, ParamValue, ParameterizableParams } from "../../../types";
 
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
 import Input from "../../elements/Input";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
+import XIcon from "../../icons/XIcon";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
-import XIcon from "../../icons/XIcon";
 
 
 interface CodeOptionsParametersProps {
@@ -18,11 +18,11 @@ interface CodeOptionsParametersProps {
     setCodeOptions: React.Dispatch<React.SetStateAction<CodeOptions>>;
 }
 
-const getParamDisplayString = (paramValue: string, paramType: ParamType): string => {
-    if (paramType === 'import') {
-        return getFileNameFromParamValue(paramValue);
-    } else {
+const getParamDisplayString = (paramValue: string, paramSubType: ParamSubType): string => {
+    if (paramSubType === 'import_dataframe') {
         return paramValue;
+    } else {
+        return getFileNameFromParamValue(paramValue);
     }
 }
 
@@ -42,8 +42,6 @@ const getParamDescriptionString = (paramSubtype: ParamSubType): string => {
     } else {
         return paramSubtype;
     }
-
-
 }
 
 const getFileNameFromParamValue = (paramValue: string): string => {
@@ -58,14 +56,14 @@ const getFileNameFromParamValue = (paramValue: string): string => {
     return fileName;
 }
 
-const getDefaultParamName = (paramValue: string, paramType: ParamType): string => {
-    if (paramType === 'import') {
+const getDefaultParamName = (paramValue: string, paramSubType: ParamSubType): string => {
+    if (paramSubType === 'import_dataframe') {
+        return paramValue;
+    } else {
         const fileName = getFileNameFromParamValue(paramValue);
         const noExt = fileName.substring(0, fileName.indexOf('.')); // Remove the file extension
         const withUnderscores = noExt.replace(/[^a-zA-Z0-9]/g, '_'); // Replace all non-alphanumeric characters with underscores
         return withUnderscores + '_path';
-    } else {
-        return paramValue;
     }
 }
 
@@ -121,7 +119,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                             return (
                                 <DropdownItem
                                     key={index}
-                                    title={getParamDisplayString(paramValue, paramType)}
+                                    title={getParamDisplayString(paramValue, paramSubtype)}
                                     subtext={paramDescription}
                                     onClick={() => {                                        
                                         props.setCodeOptions((prevCodeOptions) => {
@@ -130,7 +128,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                                                 return prevCodeOptions;
                                             }
 
-                                            const paramName = getDefaultParamName(paramValue, paramType);
+                                            const paramName = getDefaultParamName(paramValue, paramSubtype);
                                             
                                             newCodeOptions.function_params[paramName] = paramValue;
                                             return newCodeOptions;
@@ -169,7 +167,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
                             <p title={paramValue}>
-                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'") ? 'import' : 'export')}
+                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'") ? 'all' : 'import_dataframe')}
                             </p>
                         </Col>
                         <Col span={10} offsetRight={2}>
