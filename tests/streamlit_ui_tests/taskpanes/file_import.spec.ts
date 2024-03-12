@@ -1,6 +1,6 @@
 
 import { expect, test } from '@playwright/test';
-import { checkColumnCellsHaveExpectedValues, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getMitoFrame, getMitoFrameWithTestCSV } from '../utils';
+import { awaitResponse, checkColumnCellsHaveExpectedValues, checkOpenTaskpane, clickButtonAndAwaitResponse, clickTab, getMitoFrame, getMitoFrameWithTestCSV } from '../utils';
 
 const openImportTaskpaneAndSelectData = async (mito: any, file: string) => {
   await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
@@ -9,7 +9,7 @@ const openImportTaskpaneAndSelectData = async (mito: any, file: string) => {
 }
 
 test.describe('File Import Taskpane', () => {
-
+  
   test('Test import CSV file', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await clickTab(page, mito, 'Data');
@@ -20,8 +20,7 @@ test.describe('File Import Taskpane', () => {
 
   test('Test import CSV File with double click', async ({ page }) => {
     const mito = await getMitoFrame(page);
-    await mito.getByRole('button', { name: 'Import Files' }).click();
-    await mito.getByText('test.csv').dblclick();
+    await openImportTaskpaneAndSelectData(mito, 'test.csv')
     await expect(mito.getByTitle('Column1')).toBeVisible();
   });
 
@@ -146,7 +145,8 @@ test.describe('File Import Taskpane', () => {
     const mito = await getMitoFrame(page);
 
     // Open the configure taskpane for the csv with special delimiters
-    await mito.getByText('Import Files').click();
+    await mito.locator('.mito-toolbar-button', { hasText: 'Import' }).click();
+    await mito.locator('.mito-dropdown-item', { hasText: 'Import Files' }).click();
     await mito.getByText('semicolon-delimiter.csv').click();
     await mito.getByText('Configure').click();
 
