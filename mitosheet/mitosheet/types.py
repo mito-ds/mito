@@ -450,6 +450,8 @@ else:
     MitoTheme = Any # type: ignore
     MitoFrontendSelection = Any # type: ignore
     MitoFrontendIndexAndSelections = Any # type: ignore
+    ColumnDefinitionConditionalFormats = Any # type: ignore
+    ColumnDefinintion = Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore
