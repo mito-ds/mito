@@ -117,7 +117,7 @@ def test_spreadsheet_with_column_definitions():
         column_definitions=[
             [
                 {
-                    'columns': ['A', 'B'],
+                    'columns': ['A'],
                     'conditional_formats': [{
                         'filters': [{'condition': 'greater_than_or_equal', 'value': 5}], 
                         'font_color': '#c30010', 
