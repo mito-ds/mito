@@ -69,7 +69,9 @@ interface TextButtonProps {
     /**
         * @param [disabledTooltip] -- Message to display as tooltip when button is disabled 
     */
-    disabledTooltip?: string
+    disabledTooltip?: string;
+
+    style?: React.CSSProperties;
 }
 
 /**
@@ -127,6 +129,7 @@ const TextButton = (props: TextButtonProps): JSX.Element => {
                 disabled={props.disabled}
                 autoFocus={props.autoFocus}
                 title={tooltip}
+                style={props.style}
             >
                 {props.children}
             </button>

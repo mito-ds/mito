@@ -1219,6 +1219,27 @@ VLOOKUP_TESTS = [
         'df_1[\'B\'] = SUM(df_1[\'C\'], VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2))',
         set(['VLOOKUP', 'SUM']),
         set(['A', 'B', 'C'])
+    ),
+    # Test for two calls to VLOOKUP
+    (
+        '=CONCAT(VLOOKUP(A0, df_2!C:D, 2), VLOOKUP(A0, df_2!C:E, 2))',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D', 'E'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = CONCAT(VLOOKUP(df_1[\'A\'], df_2.loc[:, \'C\':\'D\'], 2), VLOOKUP(df_1[\'A\'], df_2.loc[:, \'C\':\'E\'], 2))',
+        set(['VLOOKUP', 'CONCAT']),
+        set(['A', 'E', 'D', 'C'])
     )
 ]
 
