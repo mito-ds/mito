@@ -19,7 +19,7 @@ interface CodeOptionsParametersProps {
 }
 
 const getParamDisplayString = (paramValue: string, paramType: ParamType): string => {
-    if (paramType === 'file_name') {
+    if (paramType === 'import') {
         return getFileNameFromParamValue(paramValue);
     } else {
         return paramValue;
@@ -59,7 +59,7 @@ const getFileNameFromParamValue = (paramValue: string): string => {
 }
 
 const getDefaultParamName = (paramValue: string, paramType: ParamType): string => {
-    if (paramType === 'file_name') {
+    if (paramType === 'import') {
         const fileName = getFileNameFromParamValue(paramValue);
         const noExt = fileName.substring(0, fileName.indexOf('.')); // Remove the file extension
         const withUnderscores = noExt.replace(/[^a-zA-Z0-9]/g, '_'); // Replace all non-alphanumeric characters with underscores
@@ -169,7 +169,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
                             <p title={paramValue}>
-                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'") ? 'file_name' : 'df_name')}
+                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'") ? 'import' : 'export')}
                             </p>
                         </Col>
                         <Col span={10} offsetRight={2}>
