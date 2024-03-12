@@ -10,8 +10,8 @@ from queue import Queue
 from threading import Thread
 from time import perf_counter
 from typing import Any, Callable, Dict, NoReturn, Optional
-from mitosheet.api import get_saved_analysis_code
 
+from mitosheet.api.get_saved_analysis_code import get_saved_analysis_code
 from mitosheet.api.get_all_params_for_step_type import get_all_params_for_step_type
 from mitosheet.api.get_ai_completion import get_ai_completion
 from mitosheet.api.get_available_snowflake_options_and_defaults import \

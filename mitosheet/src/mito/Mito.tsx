@@ -300,7 +300,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             return;
         }
     
-        void props.jupyterUtils?.writeGeneratedCodeToCell(
+        props.jupyterUtils?.writeGeneratedCodeToCell(
             analysisData.analysisName, 
             analysisData.code, 
             userProfile.telemetryEnabled, 
