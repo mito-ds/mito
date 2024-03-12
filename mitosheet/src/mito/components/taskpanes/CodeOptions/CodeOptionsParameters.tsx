@@ -113,7 +113,9 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                         disabled={disabled}
                         title={!props.codeOptions.as_function ? 'Toggle Generate Function before adding parameters.' : (parameterizableParams.length === 0 ? 'There are no available options to parameterize. Import data first.' : undefined)}
                     >   
-                        {unparametizedParams.map(([paramValue, paramType, paramSubtype], index) => {
+                        {unparametizedParams.map((paramInfo, index) => {
+                            const paramValue = paramInfo[0];
+                            const paramSubtype = paramInfo[2];
                             const paramDescription = getParamDescriptionString(paramSubtype);
 
                             return (
