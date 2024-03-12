@@ -17,7 +17,6 @@ from mitosheet.api.get_path_contents import get_path_parts
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.enterprise.telemetry.mito_log_uploader import MitoLogUploader
 from mitosheet.experiments.experiment_utils import get_current_experiment
-from mitosheet.pro.conditional_formatting_utils import get_conditonal_formatting_result
 from mitosheet.step_performers.column_steps.set_column_formula import get_user_defined_sheet_function_objects
 from mitosheet.step_performers.import_steps.dataframe_import import DataframeImportStepPerformer
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
@@ -36,7 +35,7 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, ColumnDefinintion, ConditionalFormat, DataframeFormat, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_df_formats_from_column_definitions, get_new_id, is_default_df_names

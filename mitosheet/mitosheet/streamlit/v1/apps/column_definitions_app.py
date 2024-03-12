@@ -17,7 +17,7 @@ new_dfs, code = spreadsheet(
             {
                 'columns': ['A', 'B'],
                 'conditional_formats': [{
-                    'filters': [{'condition': 'greater', 'value': 5}], 
+                    'filters': [{'condition': 'abc', 'value': 5}], 
                     'font_color': '#c30010', 
                     'background_color': '#ffcbd1' 
                 }] 

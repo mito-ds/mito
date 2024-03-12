@@ -9,6 +9,7 @@ Contains helpful utility functions
 import json
 import pprint
 from random import randint
+import random
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -20,11 +21,11 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns, is_int_dtype
+from mitosheet.step_performers.filter import is_valid_filter_condition
 from mitosheet.types import (ColumnDefinintion, ColumnDefinitionConditionalFormats, ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, FrontendFormulaAndLocation, StateType)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 
 from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
-
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -288,7 +289,6 @@ def get_df_formats_from_column_definitions(column_definitions: Optional[List[Col
     df_formats = []
 
     for sheetIndex in range(len(column_definitions)):
-        print('sheetIndex: ', sheetIndex)
         column_definitions_for_sheet = column_definitions[sheetIndex]
 
         df_format: DataframeFormat = {
@@ -317,9 +317,19 @@ def get_df_formats_from_column_definitions(column_definitions: Optional[List[Col
                 # Validate a string is a hex value for a color
                 if background_color and not is_valid_hex_color(background_color):
                     raise ValueError(invalid_hex_color_error_message.format(variable="background_color", color=background_color))
+                
+                df = dfs[sheetIndex]
+                columns = column_defintion['columns']
+                non_existant_colums = [column for column in columns if column not in list(df.columns)]
+                if len(non_existant_colums) > 0:
+                    raise ValueError(f"column_definititon attempts to set conditional formatting on columns {', '.join(non_existant_colums)}, but {'it' if len(non_existant_colums) == 0 else 'they'} don't exist in the dataframe.")
+                
+                for filter in conditional_format['filters']:
+                    if not is_valid_filter_condition(filter['condition']):
+                        raise ValueError(f"column_definititon has invalid conditional_format rules. The condition {filter['condition']} is not a valid filter condition.")
 
                 new_conditional_format: ConditionalFormat = {
-                    'format_uuid': 'preset_conditional_format',
+                    'format_uuid': 'format_uuid_' + str(random.random()),
                     'columnIDs': column_defintion['columns'],
                     'filters': conditional_format['filters'],
                     'invalidFilterColumnIDs': [],

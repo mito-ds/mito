@@ -18,7 +18,6 @@ def get_conditonal_formatting_result(
     formatted_result: ConditionalFormattingCellResults = dict()
 
     for conditional_format in conditional_formatting_rules:
-        print(conditional_format)
         try:
 
             format_uuid = conditional_format["format_uuid"]
@@ -55,7 +54,6 @@ def get_conditonal_formatting_result(
                     formatted_result[column_id][json_index] = {'backgroundColor': backgroundColor, 'color': color}
 
         except Exception as e:
-            print("IN THIS EXCEPTION")
             if format_uuid not in invalid_conditional_formats:
                 invalid_conditional_formats[format_uuid] = []
             invalid_conditional_formats[format_uuid].append(column_id)

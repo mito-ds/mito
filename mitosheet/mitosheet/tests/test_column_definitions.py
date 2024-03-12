@@ -56,6 +56,9 @@ def test_create_backend_with_column_definitions_works():
     assert df_formats[0]['conditional_formats'][1]['backgroundColor'] == '#000000'
     assert df_formats[0]['conditional_formats'][1]['invalidFilterColumnIDs'] == []
 
+    # They should have different format_uuids
+    assert df_formats[0]['conditional_formats'][0]['format_uuid'] != df_formats[0]['conditional_formats'][1]['format_uuid']
+
 
 def test_create_backend_with_column_definitions_errors_on_invalid_color():
     column_definitions= [
@@ -92,3 +95,68 @@ def test_create_backend_with_column_definitions_errors_on_no_colors():
         mito_backend = get_mito_backend(df, column_definitions=column_definitions)
         
     assert "column_definititon has invalid conditional_format rules. It must set the font_color, background_color, or both." in str(e_info)
+
+def test_create_backend_with_column_definitions_errors_more_formatted_sheets_then_dataframes():
+    column_definitions= [
+        [
+            {
+                'columns': ['A'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'less_than_or_equal', 'value': 0}],
+                }] 
+            },
+        ], 
+        [
+            {
+                'columns': ['A'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'less_than_or_equal', 'value': 0}],
+                }] 
+            },
+        ], 
+    ]
+
+    with pytest.raises(ValueError) as e_info:
+        mito_backend = get_mito_backend(df, column_definitions=column_definitions)
+        
+    assert "dataframes are provided." in str(e_info)
+
+def test_create_backend_with_column_definitions_errors_if_column_doesn_not_exist():
+    column_definitions= [
+        [
+            {
+                'columns': ['D'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'less_than_or_equal', 'value': 0}],
+                }] 
+            },
+        ], 
+    ]
+
+    with pytest.raises(ValueError) as e_info:
+        mito_backend = get_mito_backend(df, column_definitions=column_definitions)
+        
+    assert "don't exist in the dataframe." in str(e_info)
+
+
+def test_create_backend_with_column_definitions_errors_if_invalid_filter_condition():
+    column_definitions= [
+        [
+            {
+                'columns': ['D'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'INVALID_FILTER', 'value': 0}],
+                }] 
+            },
+        ], 
+    ]
+
+    with pytest.raises(ValueError) as e_info:
+        mito_backend = get_mito_backend(df, column_definitions=column_definitions)
+        
+    assert "The condition INVALID_FILTER is not a valid filter condition." in str(e_info)
+
+
+
+
+
