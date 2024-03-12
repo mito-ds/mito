@@ -18,11 +18,11 @@ interface CodeOptionsParametersProps {
     setCodeOptions: React.Dispatch<React.SetStateAction<CodeOptions>>;
 }
 
-const getParamDisplayString = (paramValue: string, paramSubType: ParamSubType): string => {
-    if (paramSubType === 'import_dataframe') {
-        return paramValue;
-    } else {
+const getParamDisplayString = (paramValue: string, fileType: boolean): string => {
+    if (fileType) {
         return getFileNameFromParamValue(paramValue);
+    } else {
+        return paramValue;
     }
 }
 
@@ -119,7 +119,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                             return (
                                 <DropdownItem
                                     key={index}
-                                    title={getParamDisplayString(paramValue, paramSubtype)}
+                                    title={getParamDisplayString(paramValue, paramSubtype !== 'import_dataframe')}
                                     subtext={paramDescription}
                                     onClick={() => {                                        
                                         props.setCodeOptions((prevCodeOptions) => {
@@ -167,7 +167,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
                             <p title={paramValue}>
-                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'") ? 'all' : 'import_dataframe')}
+                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'"))}
                             </p>
                         </Col>
                         <Col span={10} offsetRight={2}>
