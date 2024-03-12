@@ -29,7 +29,7 @@ from mitosheet.types import (FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIM
         FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
         FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
         FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE, 
-        ColumnDefinintion, ColumnDefinitionConditionalFormats, ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, FrontendFormulaAndLocation, StateType)
+        ColumnDefinintion, ColumnDefinitionConditionalFormats, ColumnDefinitionsForDataframe, ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, FrontendFormulaAndLocation, StateType)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 
 from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
@@ -297,7 +297,7 @@ def is_valid_filter_condition(filter_condition: str) -> bool:
     ]
 
 
-def get_df_formats_from_column_definitions(column_definitions: Optional[List[ColumnDefinintion]], dfs: List[pd.DataFrame]) -> Optional[List[DataframeFormat]]:
+def get_df_formats_from_column_definitions(column_definitions: Optional[List[ColumnDefinitionsForDataframe]], dfs: List[pd.DataFrame]) -> Optional[List[DataframeFormat]]:
 
     if column_definitions is None:
         # If no column_definitions are provided, end early
@@ -308,8 +308,8 @@ def get_df_formats_from_column_definitions(column_definitions: Optional[List[Col
 
     df_formats = []
 
-    for sheetIndex in range(len(column_definitions)):
-        column_definitions_for_sheet = column_definitions[sheetIndex]
+    for sheet_index, column_definitions_for_sheet in enumerate(column_definitions):
+        df = dfs[sheet_index]
 
         df_format: DataframeFormat = {
             'columns': {},
@@ -327,7 +327,6 @@ def get_df_formats_from_column_definitions(column_definitions: Optional[List[Col
                 font_color = conditional_format.get('font_color', None)
                 background_color = conditional_format.get('background_color', None)
                 columns = column_defintion['columns']
-                df = dfs[sheetIndex]
 
                 # Validate the font_color and/or background_color is set
                 if font_color is None and background_color is None:
@@ -343,7 +342,7 @@ def get_df_formats_from_column_definitions(column_definitions: Optional[List[Col
                     raise ValueError(invalid_hex_color_error_message.format(variable="background_color", color=background_color))
                 
                 # Validate all of the columns exist in the dataframe
-                non_existant_colums = [column for column in columns if column not in list(df.columns)]
+                non_existant_colums = [str(column) for column in columns if column not in list(df.columns)]
                 if len(non_existant_colums) > 0:
                     raise ValueError(f"column_definititon attempts to set conditional formatting on columns {', '.join(non_existant_colums)}, but {'it' if len(non_existant_colums) == 0 else 'they'} don't exist in the dataframe.")
                 

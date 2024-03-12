@@ -35,7 +35,7 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, ColumnDefinintion, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitionsForDataframe, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_df_formats_from_column_definitions, get_new_id, is_default_df_names
@@ -187,7 +187,7 @@ class StepsManager:
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
-            column_definitions: Optional[List[ColumnDefinintion]]=None,
+            column_definitions: Optional[List[ColumnDefinitionsForDataframe]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """

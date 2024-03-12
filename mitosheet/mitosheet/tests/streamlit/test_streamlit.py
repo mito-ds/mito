@@ -62,7 +62,7 @@ SPREADSHEET_PARAMS = [
         'return type of analysis',
         [df1], {'return_type': 'analysis'},
         (
-            RunnableAnalysis('', None, '', [], [])
+            RunnableAnalysis('', None, '', [], 0)
         )
     )
 ]

@@ -382,6 +382,9 @@ if sys.version_info[:3] > (3, 8, 0):
         columns: List[ColumnHeader]
         conditional_formats: List[ColumnDefinitionConditionalFormats]
 
+    # TODO: This is a confusing name. Think of a better one.
+    ColumnDefinitionsForDataframe = List[ColumnDefinintion]
+
     UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader']
 
     class MitoTheme(TypedDict):
@@ -450,6 +453,7 @@ else:
     MitoFrontendIndexAndSelections = Any # type: ignore
     ColumnDefinitionConditionalFormats = Any # type: ignore
     ColumnDefinintion = Any # type: ignore
+    ColumnDefinitionsForDataframe: Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore
