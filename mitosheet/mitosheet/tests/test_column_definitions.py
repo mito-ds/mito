@@ -60,6 +60,62 @@ def test_create_backend_with_column_definitions_works():
     assert df_formats[0]['conditional_formats'][0]['format_uuid'] != df_formats[0]['conditional_formats'][1]['format_uuid']
 
 
+def test_create_backend_with_column_definitions_works_multiple_sheets():
+    
+    column_definitions= [
+        [
+            {
+                'columns': ['A', 'B'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'greater', 'value': 5}], 
+                    'font_color': '#c30010', 
+                    'background_color': '#ffcbd1' 
+                }] 
+            }
+        ], 
+        [
+            {
+                'columns': ['A', 'B'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'greater_than_or_equal', 'value': 10}], 
+                    'font_color': '#000000', 
+                    'background_color': '#FFFFFF' 
+                }] 
+            },
+        ]
+    ]
+
+    dfs = [df, df]
+    mito_backend = get_mito_backend(*dfs, column_definitions=column_definitions)
+
+    df_formats = mito_backend.steps_manager.curr_step.df_formats
+    
+    # Still generates valid, empty df_formats objects
+    assert df_formats[0]['columns'] == {}
+    assert df_formats[0]['headers'] == {}
+    assert df_formats[0]['rows']['even'] == {}
+    assert df_formats[0]['rows']['odd'] == {}
+    assert df_formats[0]['border'] == {}
+
+    # But now has conditional formats
+    assert len(df_formats[0]['conditional_formats']) == 1
+    assert df_formats[0]['conditional_formats'][0]['columnIDs'] == ['A', 'B']
+    assert df_formats[0]['conditional_formats'][0]['filters'] == [{'condition': 'greater', 'value': 5}]
+    assert df_formats[0]['conditional_formats'][0]['color'] == '#c30010'
+    assert df_formats[0]['conditional_formats'][0]['backgroundColor'] == '#ffcbd1'
+    assert df_formats[0]['conditional_formats'][0]['invalidFilterColumnIDs'] == []
+
+    assert len(df_formats[1]['conditional_formats']) == 1
+    assert df_formats[1]['conditional_formats'][0]['columnIDs'] == ['A', 'B']
+    assert df_formats[1]['conditional_formats'][0]['filters'] == [{'condition': 'greater_than_or_equal', 'value': 10}]
+    assert df_formats[1]['conditional_formats'][0]['color'] == '#000000'
+    assert df_formats[1]['conditional_formats'][0]['backgroundColor'] == '#FFFFFF'
+    assert df_formats[1]['conditional_formats'][0]['invalidFilterColumnIDs'] == []
+
+    # They should have different format_uuids
+    assert df_formats[0]['conditional_formats'][0]['format_uuid'] != df_formats[1]['conditional_formats'][0]['format_uuid']
+
+
 def test_create_backend_with_column_definitions_errors_on_invalid_color():
     column_definitions= [
         [

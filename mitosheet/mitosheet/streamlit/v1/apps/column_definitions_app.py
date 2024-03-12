@@ -32,7 +32,6 @@ new_dfs, code = spreadsheet(
             }
         ]
     ]
-
 )
 
 st.write(new_dfs)

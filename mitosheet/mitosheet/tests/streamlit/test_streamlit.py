@@ -110,4 +110,30 @@ def test_return_type_function_invalid_code_options():
     with pytest.raises(ValueError):
         spreadsheet(df1, code_options={'as_function': True, 'call_function': True, 'function_name': 'test', 'function_params': {}}, return_type='function')
 
-        
+@requires_streamlit   
+def test_spreadsheet_with_column_definitions():
+    f = spreadsheet(
+        df1, 
+        column_definitions=[
+            [
+                {
+                    'columns': ['A', 'B'],
+                    'conditional_formats': [{
+                        'filters': [{'condition': 'greater_than_or_equal', 'value': 5}], 
+                        'font_color': '#c30010', 
+                        'background_color': '#ffcbd1' 
+                    }] 
+                },
+                {
+                    'columns': ['A'],
+                    'conditional_formats': [{
+                        'filters': [{'condition': 'less', 'value': 2}], 
+                        'font_color': '#f30010', 
+                        'background_color': '#ddcbd1' 
+                    }] 
+                }
+            ]
+        ],
+        return_type='function'
+    )
+    assert callable(f)
