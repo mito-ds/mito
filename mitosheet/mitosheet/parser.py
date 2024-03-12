@@ -1045,12 +1045,7 @@ def parse_formula(
             if is_datetime_index(df.index) and is_prev_version(get_pandas_version(), '1.0.0'):
                 index_labels = pd.to_datetime(index_labels)
 
-            if len(column_header_dependencies) > 0:
-                final_set_code = f'({code_with_functions}).loc[{get_column_header_list_as_transpiled_code(index_labels)}]' # type: ignore
-            else:
-                final_set_code = f'{code_with_functions}'
-                
-            final_code = f'{df_name}.loc[{get_column_header_list_as_transpiled_code(index_labels)}, [{transpiled_column_header}]] = {final_set_code}' # type: ignore
+            final_code = f'{df_name}.loc[{get_column_header_list_as_transpiled_code(index_labels)}, [{transpiled_column_header}]] = {code_with_functions}' # type: ignore
 
     else:
         final_code = f'{code_with_functions}'
