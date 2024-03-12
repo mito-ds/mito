@@ -135,7 +135,7 @@ setup_args = dict(
             "setuptools==56.0.0"
         ],
         'streamlit': [
-            'streamlit>=1.24',
+            'streamlit>=1.24,<1.32',
         ],
         'optional_feature_dependencies': [
             # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),

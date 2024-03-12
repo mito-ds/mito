@@ -1,2 +1,2 @@
-streamlit
+streamlit<1.32
 dash
