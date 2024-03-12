@@ -16,7 +16,7 @@ from mitosheet.preprocessing.preprocess_step_performer import \
     PreprocessStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.transpiler.transpile_utils import get_column_header_as_transpiled_code, get_column_header_list_as_transpiled_code, get_str_param_name
-from mitosheet.types import DataframeFormat, StepsManagerType
+from mitosheet.types import ColumnDefinintion, ColumnDefinitionConditionalFormats, ConditionalFormat, DataframeFormat, StepsManagerType
 from mitosheet.utils import get_valid_dataframe_name
 
 class SetColumnDefininitionsPreprocessStepPerformer(PreprocessStepPerformer):
@@ -39,7 +39,7 @@ class SetColumnDefininitionsPreprocessStepPerformer(PreprocessStepPerformer):
     @classmethod
     def execute(cls, args: Collection[Any], kwargs: Dict[str, Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
 
-        column_definitions = kwargs['column_definitions'] if 'column_definitions' in kwargs else None
+        column_definitions: List[ColumnDefinintion] = kwargs['column_definitions'] if 'column_definitions' in kwargs else None
 
         df_formats = []
 
@@ -59,24 +59,22 @@ class SetColumnDefininitionsPreprocessStepPerformer(PreprocessStepPerformer):
 
             conditional_formats = []
             for column_defintion in column_definitions:
-                if 'conditional_formats' in column_defintion:
-                    for conditional_format in column_defintion['conditional_formats']:
-                        new_conditional_format = {
-                            'format_uuid': 'preset_conditional_format',
-                            'columnIDs': column_defintion['columns'],
-                            'filters': conditional_format['filters'],
-                            'invalidFilterColumnIDs': [],
-                            'color': conditional_format['font_color'],
-                            'backgroundColor': conditional_format['background_color']
-                        }
-                        conditional_formats.append(new_conditional_format)
+                conditional_formats_list: List[ColumnDefinitionConditionalFormats] = column_defintion['conditional_formats']
+                for conditional_format in conditional_formats_list:
+                    new_conditional_format: ConditionalFormat = {
+                        'format_uuid': 'preset_conditional_format',
+                        'columnIDs': column_defintion['columns'],
+                        'filters': conditional_format['filters'],
+                        'invalidFilterColumnIDs': [],
+                        'color': conditional_format['font_color'],
+                        'backgroundColor': conditional_format['background_color']
+                    }
+                    conditional_formats.append(new_conditional_format)
 
             df_format['conditional_formats'] = conditional_formats
             df_formats.append(df_format)
 
-        print("DF FORMATS")
-        print(df_formats)
-        return None, None, {
+        return [], [], {
             'df_formats': df_formats,
         }
 
@@ -84,8 +82,5 @@ class SetColumnDefininitionsPreprocessStepPerformer(PreprocessStepPerformer):
     def transpile(cls, steps_manager: StepsManagerType, execution_data: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
         """
         We don't transpile anything here because we let the transpile funciton handle dataframe formatting separetly
-        """
-        code = []
-        imports = []
-                
-        return code, imports
+        """     
+        return [], []

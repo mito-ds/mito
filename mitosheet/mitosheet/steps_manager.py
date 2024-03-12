@@ -36,7 +36,7 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, ConditionalFormat, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ConditionalFormat, DataframeFormat, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
@@ -188,7 +188,7 @@ class StepsManager:
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
-            column_definitions: Optional[List[ConditionalFormat]]=None,
+            column_definitions: Optional[List[ColumnDefinintion]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -261,6 +261,8 @@ class StepsManager:
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
+        df_formats: List[DataframeFormat] = self.preprocess_execution_data['set_column_definitions']['df_formats'] 
+
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
             Step(
@@ -272,7 +274,7 @@ class StepsManager:
                     user_defined_functions=self.user_defined_functions, 
                     user_defined_importers=self.user_defined_importers,
                     user_defined_editors=self.user_defined_editors,
-                    df_formats=self.preprocess_execution_data['set_column_definitions']['df_formats']
+                    df_formats=df_formats
                 ), 
                 {}
             )

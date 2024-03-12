@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selection_utils import get_selected_element
-from mitosheet.types import CodeOptions, ConditionalFormat, ParamMetadata, ParamType
+from mitosheet.types import CodeOptions, ColumnDefinintion, ConditionalFormat, ParamMetadata, ParamType
 from mitosheet.utils import get_new_id
 
 CURRENT_MITO_ANALYSIS_VERSION = 1
@@ -118,7 +118,7 @@ class RunnableAnalysis:
             self,
             code: str,
             code_options: Optional[CodeOptions],
-            column_definitions: Optional[List[Dict[str, Any]]],
+            column_definitions: Optional[List[ColumnDefinintion]],
             fully_parameterized_function: str,
             param_metadata: List[ParamMetadata],
             mito_analysis_version: int=CURRENT_MITO_ANALYSIS_VERSION
@@ -145,7 +145,7 @@ class RunnableAnalysis:
         return json.dumps({
             'code': self.__code,
             'code_options': self.__code_options,
-            'column_defintions': self.__column_definitions,
+            'column_definitions': self.__column_definitions,
             'fully_parameterized_function': self.__fully_parameterized_function,
             'param_metadata': self.__param_metadata,
             'mito_analysis_version': self.mito_analysis_version
@@ -161,7 +161,7 @@ class RunnableAnalysis:
         return RunnableAnalysis(
             json_dict['code'],
             json_dict['code_options'],
-            json_dict['column_defintions'],
+            json_dict['column_definitions'],
             json_dict['fully_parameterized_function'],
             json_dict['param_metadata'],
             mito_analysis_version=json_dict['mito_analysis_version']
@@ -273,7 +273,7 @@ try:
             _editors: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
             _code_options: Optional[CodeOptions]=None,
-            _column_defintions: Optional[Dict[str, Any]]=None,
+            _column_definitions: Optional[List[ColumnDefinintion]]=None,
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
@@ -285,7 +285,7 @@ try:
             import_folder=import_folder,
             user_defined_importers=_importers, user_defined_functions=_sheet_functions, user_defined_editors=_editors,
             code_options=_code_options,
-            column_definitions = _column_defintions,
+            column_definitions = _column_definitions,
         )
 
         # Make a send function that stores the responses in a list
@@ -326,7 +326,7 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
-            column_defintions: Optional[Dict[str, Any]]=None,
+            column_definitions: Optional[List[ColumnDefinintion]]=None,
             return_type: str='default',
             height: Optional[str]=None,
             key=None
@@ -373,7 +373,7 @@ try:
             _importers=importers, 
             _editors=editors,
             _code_options=code_options,
-            _column_defintions=column_defintions,
+            _column_definitions=column_definitions,
             import_folder=import_folder,
             session_id=session_id,
             df_names=df_names, 

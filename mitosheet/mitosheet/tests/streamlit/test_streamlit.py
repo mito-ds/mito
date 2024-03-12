@@ -109,3 +109,15 @@ def test_return_type_function_invalid_code_options():
         spreadsheet(df1, code_options={'as_function': False, 'call_function': False, 'function_name': 'test', 'function_params': {}}, return_type='function')
     with pytest.raises(ValueError):
         spreadsheet(df1, code_options={'as_function': True, 'call_function': True, 'function_name': 'test', 'function_params': {}}, return_type='function')
+
+
+def test_column_definititions():
+    df = pd.DataFrame({'A': [1,2,3], 'B': [1,2,3]})
+    spreadsheet(
+        df1, 
+        column_defintions = [
+            
+        ] 
+    )
+
+        

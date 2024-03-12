@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_save_analysis_file
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions, ConditionalFormat, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ConditionalFormat, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
@@ -57,7 +57,7 @@ class MitoBackend():
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
-            column_definitions: Optional[List[Dict[str, Any]]]=None,
+            column_definitions: Optional[List[ColumnDefinintion]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """

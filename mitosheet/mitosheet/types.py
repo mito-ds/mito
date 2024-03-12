@@ -73,6 +73,8 @@ ConditionalFormattingResult = Dict[str, Union[
     ]
 ]
 
+ColumnDefinitition = Dict[str, Any]
+
 PivotColumnTransformation = str
 
 RowOffset = int
@@ -372,6 +374,15 @@ if sys.version_info[:3] > (3, 8, 0):
 
         # The params below become optional. Typing them is hard, so use care when accessing them
         import_custom_python_code: bool
+
+    class ColumnDefinitionConditionalFormats(TypedDict):
+        filters: List[Filter]
+        background_color: str
+        font_color: str
+
+    class ColumnDefinintion(TypedDict):
+        columns: List[ColumnHeader]
+        conditional_formats: List[ColumnDefinitionConditionalFormats]
 
     UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader']
 
