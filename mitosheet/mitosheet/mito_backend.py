@@ -94,8 +94,6 @@ class MitoBackend():
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
             
-        print(column_definitions)
-            
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(
             args, 

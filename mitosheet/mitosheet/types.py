@@ -73,8 +73,6 @@ ConditionalFormattingResult = Dict[str, Union[
     ]
 ]
 
-ColumnDefinitition = Dict[str, Any]
-
 PivotColumnTransformation = str
 
 RowOffset = int

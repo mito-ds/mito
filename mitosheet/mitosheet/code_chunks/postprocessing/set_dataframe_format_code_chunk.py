@@ -178,8 +178,6 @@ def get_table_styles_code(state: State, sheet_index: int) -> Optional[str]:
 
 def get_conditional_format_code_list(state: State, sheet_index: int) -> Tuple[Optional[List[str]], Optional[bool]]:
     """Returns all the code to set the conditional formats"""
-    print('df_names: ', state.df_names)
-    print('sheet_index: ', sheet_index)
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
 
@@ -256,8 +254,6 @@ def check_conditional_filters_have_filter_condition_that_requires_whole_datafram
 
 def get_dataframe_format_code(state: State, sheet_index: int) -> Tuple[Optional[str], Optional[bool]]:
     """Returns all the code to set the df_formatting on the dataframe from the state."""
-    print(state.df_names)
-    print(sheet_index)
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
 
