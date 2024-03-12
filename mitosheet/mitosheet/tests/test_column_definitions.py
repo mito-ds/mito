@@ -103,6 +103,8 @@ def test_create_backend_with_column_definitions_errors_more_formatted_sheets_the
                 'columns': ['A'],
                 'conditional_formats': [{
                     'filters': [{'condition': 'less_than_or_equal', 'value': 0}],
+                    'font_color': '#000000', 
+                    'background_color': '#000000' 
                 }] 
             },
         ], 
@@ -111,6 +113,8 @@ def test_create_backend_with_column_definitions_errors_more_formatted_sheets_the
                 'columns': ['A'],
                 'conditional_formats': [{
                     'filters': [{'condition': 'less_than_or_equal', 'value': 0}],
+                    'font_color': '#000000', 
+                    'background_color': '#000000' 
                 }] 
             },
         ], 
@@ -128,6 +132,8 @@ def test_create_backend_with_column_definitions_errors_if_column_doesn_not_exist
                 'columns': ['D'],
                 'conditional_formats': [{
                     'filters': [{'condition': 'less_than_or_equal', 'value': 0}],
+                    'font_color': '#000000', 
+                    'background_color': '#000000' 
                 }] 
             },
         ], 
@@ -143,9 +149,11 @@ def test_create_backend_with_column_definitions_errors_if_invalid_filter_conditi
     column_definitions= [
         [
             {
-                'columns': ['D'],
+                'columns': ['A'],
                 'conditional_formats': [{
                     'filters': [{'condition': 'INVALID_FILTER', 'value': 0}],
+                    'font_color': '#000000', 
+                    'background_color': '#000000' 
                 }] 
             },
         ], 
@@ -155,6 +163,33 @@ def test_create_backend_with_column_definitions_errors_if_invalid_filter_conditi
         mito_backend = get_mito_backend(df, column_definitions=column_definitions)
         
     assert "The condition INVALID_FILTER is not a valid filter condition." in str(e_info)
+
+
+
+def test_create_backend_with_column_definitions_does_not_error_with_mismatch_condition_and_column_type():
+    column_definitions= [
+        [
+            {
+                'columns': ['A'],
+                'conditional_formats': [{
+                    'filters': [{'condition': "string_does_not_contain", 'value': 0}],
+                    'font_color': '#c30010', 
+                    'background_color': '#ffcbd1'
+                }] 
+            },
+        ], 
+    ]
+
+    mito_backend = get_mito_backend(df, column_definitions=column_definitions)
+    df_formats = mito_backend.steps_manager.curr_step.df_formats
+    assert len(df_formats[0]['conditional_formats']) == 1
+    assert df_formats[0]['conditional_formats'][0]['columnIDs'] == ['A']
+    assert df_formats[0]['conditional_formats'][0]['filters'] == [{'condition': "string_does_not_contain", 'value': 0}]
+    assert df_formats[0]['conditional_formats'][0]['color'] == '#c30010'
+    assert df_formats[0]['conditional_formats'][0]['backgroundColor'] == '#ffcbd1'
+    assert df_formats[0]['conditional_formats'][0]['invalidFilterColumnIDs'] == []
+        
+
 
 
 
