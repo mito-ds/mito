@@ -19,14 +19,16 @@ from mitosheet.preprocessing.preprocess_copy import CopyPreprocessStepPerformer
 
 # NOTE: These should be in the order you want to apply them to the arguments,
 # as they are run in a linear order
-PREPROCESS_STEP_PERFORMERS: List[Type[PreprocessStepPerformer]] = [
+DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS: List[Type[PreprocessStepPerformer]] = [
    # First, we make sure all the args are the right type
    CheckArgsTypePreprocessStepPerformer,
    # Then, we copy the args to make sure we don't change them accidently
    CopyPreprocessStepPerformer,
    # Then, we read in the files
    ConvertToDataframePreprocessStepPerformer,
-   # Then, we set the dataframe formats
-   SetColumnDefininitionsPreprocessStepPerformer
+]
+
+NON_DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS: List[Type[PreprocessStepPerformer]] = [
+   SetColumnDefininitionsPreprocessStepPerformer,
 ]
 

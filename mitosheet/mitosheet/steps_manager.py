@@ -23,7 +23,7 @@ from mitosheet.step_performers.import_steps.dataframe_import import DataframeImp
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
 from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
+from mitosheet.preprocessing import DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS, NON_DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
 from mitosheet.state import State
 from mitosheet.step import Step
@@ -227,10 +227,16 @@ class StepsManager:
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
         df_names = None
-        for preprocess_step_performers in PREPROCESS_STEP_PERFORMERS:
-            _, _, execution_data = preprocess_step_performers.execute(args, self.original_kwargs)
+        for dataframe_creation_preprocess_step_performer in DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS:
+            args, df_names, execution_data = dataframe_creation_preprocess_step_performer.execute(args, self.original_kwargs)
             self.preprocess_execution_data[
-                preprocess_step_performers.preprocess_step_type()
+                dataframe_creation_preprocess_step_performer.preprocess_step_type()
+            ] = execution_data    
+
+        for dataframe_creation_preprocess_step_performer in NON_DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS:
+            _, _, execution_data = dataframe_creation_preprocess_step_performer.execute(args, self.original_kwargs)
+            self.preprocess_execution_data[
+                dataframe_creation_preprocess_step_performer.preprocess_step_type()
             ] = execution_data    
 
         # We set the original_args_raw_strings. If we later have an args update, then these

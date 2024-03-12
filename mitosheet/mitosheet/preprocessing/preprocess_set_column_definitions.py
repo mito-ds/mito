@@ -43,7 +43,7 @@ class SetColumnDefininitionsPreprocessStepPerformer(PreprocessStepPerformer):
 
         if column_definitions is None:
             # If no column_definitions are provided, end early
-            return [], [], {}
+            return args, None, {}
 
         df_formats = []
 
@@ -78,7 +78,7 @@ class SetColumnDefininitionsPreprocessStepPerformer(PreprocessStepPerformer):
             df_format['conditional_formats'] = conditional_formats
             df_formats.append(df_format)
 
-        return [], [], {
+        return args, None, {
             'df_formats': df_formats,
         }
 
