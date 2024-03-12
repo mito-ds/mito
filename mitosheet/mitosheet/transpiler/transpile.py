@@ -13,8 +13,8 @@ from mitosheet.array_utils import deduplicate_array
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.code_chunks.code_chunk_utils import get_code_chunks
 from mitosheet.code_chunks.postprocessing import POSTPROCESSING_CODE_CHUNKS
+from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 
-from mitosheet.preprocessing import DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS
 from mitosheet.transpiler.transpile_utils import get_script_as_function, get_imports_for_custom_python_code
 from mitosheet.types import StepsManagerType, CodeOptions
 
@@ -50,7 +50,7 @@ def transpile(
         code_options = steps_manager.code_options
 
     # First, we transpile all the preprocessing steps
-    for preprocess_step_performer in DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS:
+    for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
         preprocess_code, preprocess_imports = preprocess_step_performer.transpile(
             steps_manager,
             steps_manager.preprocess_execution_data[preprocess_step_performer.preprocess_step_type()],

@@ -20,7 +20,7 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns, is_int_dtype
-from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType)
+from mitosheet.types import (ColumnDefinintion, ColumnDefinitionConditionalFormats, ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, FrontendFormulaAndLocation, StateType)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 
 from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
@@ -267,7 +267,67 @@ def write_to_excel(
                     number_formats=get_number_formats_objects_to_export_to_excel(df, format.get('columns'))
                 )
     
+def is_valid_hex_color(color: str) -> bool:
 
+    if not color.startswith('#'):
+        return False
+        
+    match = re.search(r'^#(?:[0-9a-fA-F]{3}){1,2}$', color)
+    return match is not None
+
+
+def get_df_formats_from_column_definitions(column_definitions: Optional[List[ColumnDefinintion]], dfs: List[pd.DataFrame]) -> Optional[List[DataframeFormat]]:
+
+    if column_definitions is None:
+        # If no column_definitions are provided, end early
+        return None
+
+    df_formats = []
+
+    for sheetIndex in range(len(column_definitions)):
+
+        df_format: DataframeFormat = {
+            'columns': {},
+            'headers': {},
+            'rows': {'even': {}, 'odd': {}},
+            'border': {},
+            'conditional_formats': []
+        }
+
+        conditional_formats = []
+        for column_defintion in column_definitions:
+            conditional_formats_list: List[ColumnDefinitionConditionalFormats] = column_defintion['conditional_formats']
+            for conditional_format in conditional_formats_list:
+
+                font_color = conditional_format.get('font_color', None)
+                background_color = conditional_format.get('background_color', None)
+
+                if font_color is None and background_color is None:
+                    raise ValueError(f"column_definititon has invalid conditional_format rules. It must set the font_color, background_color, or both.")
+                
+                invalid_hex_color_error_message = "The {variable} {color} set in column_definititon is not a valid hex color. It should start with '#' and be followed by the letters from a-f, A-F and/or digits from 0-9. The length of the hexadecimal color code should be either 6 or 3, excluding '#' symbol"
+                if font_color and not is_valid_hex_color(font_color):
+                    raise ValueError(invalid_hex_color_error_message.format(variable="font_color", color=font_color))
+
+                # Validate a string is a hex value for a color
+                if background_color and not is_valid_hex_color(background_color):
+                    raise ValueError(invalid_hex_color_error_message.format(variable="background_color", color=background_color))
+
+                new_conditional_format: ConditionalFormat = {
+                    'format_uuid': 'preset_conditional_format',
+                    'columnIDs': column_defintion['columns'],
+                    'filters': conditional_format['filters'],
+                    'invalidFilterColumnIDs': [],
+                    'color': font_color,
+                    'backgroundColor': conditional_format['background_color']
+                }
+
+                conditional_formats.append(new_conditional_format)
+
+        df_format['conditional_formats'] = conditional_formats
+        df_formats.append(df_format)
+
+    return df_formats
 
 def _get_column_id_from_header_safe(
     column_header: ColumnHeader,

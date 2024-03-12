@@ -28,7 +28,7 @@ class CheckArgsTypePreprocessStepPerformer(PreprocessStepPerformer):
         return 'check_args_type'
 
     @classmethod
-    def execute(cls, args: Collection[Any], kwargs: Dict[str, Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
         # We first validate all the parameters as either dataframes or strings
         # but we also allow users to pass None values, which we just ignore (this
         # makes variable number of inputs to the sheet possible).

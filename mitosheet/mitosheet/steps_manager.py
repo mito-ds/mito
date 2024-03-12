@@ -23,7 +23,7 @@ from mitosheet.step_performers.import_steps.dataframe_import import DataframeImp
 from mitosheet.step_performers.import_steps.excel_range_import import ExcelRangeImportStepPerformer
 from mitosheet.step_performers.user_defined_import import UserDefinedImportStepPerformer
 from mitosheet.telemetry.telemetry_utils import log
-from mitosheet.preprocessing import DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS, NON_DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS
+from mitosheet.preprocessing import PREPROCESS_STEP_PERFORMERS
 from mitosheet.saved_analyses.save_utils import get_analysis_exists
 from mitosheet.state import State
 from mitosheet.step import Step
@@ -39,7 +39,7 @@ from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions, ColumnDefinintion, ConditionalFormat, DataframeFormat, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_running_test
-from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
+from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_df_formats_from_column_definitions, get_new_id, is_default_df_names
 from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_importers_for_frontend, get_user_defined_editors_for_frontend
 from mitosheet.step_performers.utils.user_defined_function_utils import validate_and_wrap_sheet_functions, validate_user_defined_editors
 
@@ -219,24 +219,14 @@ class StepsManager:
             for arg in args
         ]
 
-        self.original_kwargs = {
-            'column_definitions': column_definitions
-        }
-
         # Then, we go through the process of actually preprocessing the args
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
         df_names = None
-        for dataframe_creation_preprocess_step_performer in DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS:
-            args, df_names, execution_data = dataframe_creation_preprocess_step_performer.execute(args, self.original_kwargs)
+        for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
+            args, df_names, execution_data = preprocess_step_performer.execute(args)
             self.preprocess_execution_data[
-                dataframe_creation_preprocess_step_performer.preprocess_step_type()
-            ] = execution_data    
-
-        for dataframe_creation_preprocess_step_performer in NON_DATAFRAME_CREATION_PREPROCESS_STEP_PERFORMERS:
-            _, _, execution_data = dataframe_creation_preprocess_step_performer.execute(args, self.original_kwargs)
-            self.preprocess_execution_data[
-                dataframe_creation_preprocess_step_performer.preprocess_step_type()
+                preprocess_step_performer.preprocess_step_type()
             ] = execution_data    
 
         # We set the original_args_raw_strings. If we later have an args update, then these
@@ -267,8 +257,8 @@ class StepsManager:
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
-        df_formats: List[DataframeFormat] = self.preprocess_execution_data['set_column_definitions']['df_formats'] if 'df_formats' in self.preprocess_execution_data['set_column_definitions'] else None
-
+        df_formats = get_df_formats_from_column_definitions(column_definitions, list(args))
+        
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
             Step(

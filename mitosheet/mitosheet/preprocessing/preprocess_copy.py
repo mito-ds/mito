@@ -26,7 +26,7 @@ class CopyPreprocessStepPerformer(PreprocessStepPerformer):
         return 'copy'
 
     @classmethod
-    def execute(cls, args: Collection[Any], kwargs: Dict[str, Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
+    def execute(cls, args: Collection[Any]) -> Tuple[List[Any], Optional[List[str]], Optional[Dict[str, Any]]]:
         
         new_args = []
         for arg in args:
