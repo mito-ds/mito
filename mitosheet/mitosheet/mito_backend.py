@@ -318,6 +318,7 @@ def get_mito_backend(
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
         user_defined_editors: Optional[List[Callable]]=None,
+        column_definitions: Optional[List[ColumnDefinintion]]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
@@ -326,7 +327,8 @@ def get_mito_backend(
         analysis_to_replay=analysis_to_replay, 
         user_defined_functions=user_defined_functions, 
         user_defined_importers=user_defined_importers,
-        user_defined_editors=user_defined_editors
+        user_defined_editors=user_defined_editors,
+        column_definitions=column_definitions
     ) 
 
     return mito_backend

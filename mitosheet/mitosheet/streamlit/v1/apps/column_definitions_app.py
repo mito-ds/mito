@@ -12,15 +12,25 @@ df = pd.DataFrame({
 new_dfs, code = spreadsheet(
     df, 
     height='700px',
-    column_definitions= [
-        {
-            'columns': ['A', 'B', 'C'],
-            'conditional_formats': [{
-                'filters': [{'condition': 'greater', 'value': 5}], 
-                'font_color': '#c30010', 
-                'background_color': '#ffcbd1' 
-            }] 
-        }
+    column_definitions=[
+        [
+            {
+                'columns': ['A', 'B'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'greater', 'value': 5}], 
+                    'font_color': '#c30010', 
+                    'background_color': '#ffcbd1' 
+                }] 
+            },
+            {
+                'columns': ['A'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'less', 'value': 2}], 
+                    'font_color': '#f30010', 
+                    'background_color': '#ddcbd1' 
+                }] 
+            }
+        ]
     ]
 
 )

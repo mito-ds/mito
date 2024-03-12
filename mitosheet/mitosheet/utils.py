@@ -281,10 +281,15 @@ def get_df_formats_from_column_definitions(column_definitions: Optional[List[Col
     if column_definitions is None:
         # If no column_definitions are provided, end early
         return None
+    
+    if len(column_definitions) > len(dfs):
+        raise ValueError(f"column_definitions has formatting for {len(column_definitions)} dataframes, but only {len(dfs)} dataframes are provided.")
 
     df_formats = []
 
     for sheetIndex in range(len(column_definitions)):
+        print('sheetIndex: ', sheetIndex)
+        column_definitions_for_sheet = column_definitions[sheetIndex]
 
         df_format: DataframeFormat = {
             'columns': {},
@@ -295,7 +300,7 @@ def get_df_formats_from_column_definitions(column_definitions: Optional[List[Col
         }
 
         conditional_formats = []
-        for column_defintion in column_definitions:
+        for column_defintion in column_definitions_for_sheet:
             conditional_formats_list: List[ColumnDefinitionConditionalFormats] = column_defintion['conditional_formats']
             for conditional_format in conditional_formats_list:
 
