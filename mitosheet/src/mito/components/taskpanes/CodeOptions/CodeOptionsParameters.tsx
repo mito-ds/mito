@@ -18,6 +18,12 @@ interface CodeOptionsParametersProps {
     setCodeOptions: React.Dispatch<React.SetStateAction<CodeOptions>>;
 }
 
+/**
+ * @param paramValue The value of the parameter
+ * @param isFile - Whether the param is a file or not. This is calculated in different ways
+ *                 depending on where we call it. 
+ * @returns A string to display the parameter value
+ */
 const getParamDisplayString = (paramValue: string, isFile: boolean): string => {
     if (isFile) {
         return getFileNameFromParamValue(paramValue);
