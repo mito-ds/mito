@@ -453,7 +453,7 @@ else:
     MitoFrontendIndexAndSelections = Any # type: ignore
     ColumnDefinitionConditionalFormats = Any # type: ignore
     ColumnDefinintion = Any # type: ignore
-    ColumnDefinitionsForDataframe: Any # type: ignore
+    ColumnDefinitionsForDataframe = Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore

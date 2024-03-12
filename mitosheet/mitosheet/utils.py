@@ -29,7 +29,9 @@ from mitosheet.types import (FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIM
         FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
         FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
         FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE, 
-        ColumnDefinintion, ColumnDefinitionConditionalFormats, ColumnDefinitionsForDataframe, ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, FrontendFormulaAndLocation, StateType)
+        ColumnDefinitionConditionalFormats, ColumnDefinitionsForDataframe, 
+        ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, 
+        FrontendFormulaAndLocation, StateType)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 
 from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet

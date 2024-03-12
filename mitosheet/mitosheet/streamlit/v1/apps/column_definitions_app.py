@@ -11,7 +11,6 @@ df = pd.DataFrame({
 })
 new_dfs, code = spreadsheet(
     df, 
-    height='700px',
     column_definitions=[
         [
             {
@@ -30,6 +29,9 @@ new_dfs, code = spreadsheet(
                     'background_color': '#ddcbd1' 
                 }] 
             }
+        ],
+        [
+            # Add code here to style the second dataframe
         ]
     ]
 )
