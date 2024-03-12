@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { checkOpenTaskpane, clickTab, getMitoFrameWithTestCSV } from '../utils';
+import { awaitResponse, checkOpenTaskpane, clickTab, getMitoFrameWithTestCSV } from '../utils';
 
 
 test.describe('Code Config', () => {
@@ -21,6 +21,8 @@ test.describe('Code Config', () => {
     await mito.locator('.mito-toolbar-button', { hasText: 'Export'}).click();
     await mito.locator('.mito-dropdown-item', { hasText: 'Download File when Executing Code'}).click();
     await mito.getByText('Generate Export Code').click();
+    await awaitResponse(page);
+
     await clickTab(page, mito, 'Code');
 
     await mito.getByRole('button', { name: 'Configure Code' }).click();
