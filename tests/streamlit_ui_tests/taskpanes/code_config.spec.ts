@@ -20,8 +20,8 @@ test.describe('Code Config', () => {
     const mito = await getMitoFrameWithTestCSV(page);
     await mito.locator('.mito-toolbar-button', { hasText: 'Export'}).click();
     await mito.locator('.mito-dropdown-item', { hasText: 'Download File when Executing Code'}).click();
-    await mito.getByText('Generate Export Code').click();
     await awaitResponse(page);
+    await mito.getByText('Generate Export Code').click();
 
     await clickTab(page, mito, 'Code');
 
@@ -30,8 +30,10 @@ test.describe('Code Config', () => {
 
     await mito.locator('.spacing-row', { hasText: 'Generate Function' }).locator('.toggle').click();
     await mito.getByRole('textbox').fill('new name');
+    await awaitResponse(page);
     await mito.getByText('Add').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'CSV Import File Path' }).click();
+    await awaitResponse(page);
     
     await mito.getByText('Add').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'CSV Export File Path' }).click();
