@@ -78,12 +78,13 @@ export enum UpdateType {
 
 export type ParamName = string;
 export type ParamValue = string;
-export type ParamType = 'file_name' | 'df_name'
+export type ParamType = 'import' | 'export'
 export type ParamSubType = 'import_dataframe'
 | 'file_name_export_excel'
 | 'file_name_export_csv'
 | 'file_name_import_excel'
 | 'file_name_import_csv'
+| 'all' // This represents all of the above
 export type ParameterizableParams = [ParamValue, ParamType, ParamSubType][];
 
 export type CodeOptions = {
