@@ -21,6 +21,10 @@
     outline: none;
 
     color: var(--mito-text);
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .formula-bar-vertical-line {

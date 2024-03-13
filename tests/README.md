@@ -41,7 +41,7 @@ npm run test:dash -- --project=chromium
 
 ### Jupyter Specific Tests
 
-First, you need to run:
+First, you need to run (from the mitosheet/ directory):
 ```
 jupyter labextension develop . --overwrite
 ```

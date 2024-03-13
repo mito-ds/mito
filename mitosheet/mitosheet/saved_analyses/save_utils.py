@@ -42,7 +42,6 @@ def read_analysis(analysis_name: str) -> Optional[Dict[str, Any]]:
     """
 
     analysis_path = f'{SAVED_ANALYSIS_FOLDER}/{analysis_name}.json'
-
     if not os.path.exists(analysis_path):
         return None
 

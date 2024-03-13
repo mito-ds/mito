@@ -6,6 +6,7 @@ import { SnowflakeCredentials } from "./components/taskpanes/SnowflakeImport/Sno
 import { TaskpaneInfo } from "./components/taskpanes/taskpanes";
 import { FunctionDocumentationObject } from "./data/function_documentation";
 import { TabName } from "./components/toolbar/Toolbar";
+import { MitoAPI } from ".";
 
 /**
  * The different types of data manipulation that Mito supports.
@@ -77,12 +78,13 @@ export enum UpdateType {
 
 export type ParamName = string;
 export type ParamValue = string;
-export type ParamType = 'file_name' | 'df_name'
+export type ParamType = 'import' | 'export'
 export type ParamSubType = 'import_dataframe'
 | 'file_name_export_excel'
 | 'file_name_export_csv'
 | 'file_name_import_excel'
 | 'file_name_import_csv'
+| 'all' // This represents all of the above
 export type ParameterizableParams = [ParamValue, ParamType, ParamSubType][];
 
 export type CodeOptions = {
@@ -990,6 +992,14 @@ export const enum FeedbackID {
     MITO_GOAL = 'mito_goal',
     FIRST_NAME = 'first_name',
     LAST_NAME = 'last_name',
+}
+
+export interface JupyterUtils {
+    getArgs: (analysisToReplayName: string | undefined) => Promise<string[]>,
+    writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
+    writeGeneratedCodeToCell: (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
+    writeCodeSnippetCell: (analysisName: string, code: string) => void
+    overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
 }
 
 /*

@@ -1,10 +1,11 @@
 import json
+
+from pytest_httpserver import HTTPServer
 from mitosheet.enterprise.mito_config import MITO_CONFIG_CODE_SNIPPETS_URL, MITO_CONFIG_CODE_SNIPPETS_VERSION, MITO_CONFIG_VERSION
 from mitosheet.tests.test_mito_config import delete_all_mito_config_environment_variables
 from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.api.get_code_snippets import get_code_snippets, DEFAULT_CODE_SNIPPETS
 import os
-from pytest_httpserver import HTTPServer
 
 
 TEST_CODE_SNIPPETS = [

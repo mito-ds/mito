@@ -1,15 +1,15 @@
 import React from "react";
 import { MitoAPI } from "../../../api/api";
-import { CodeOptions, ParamName, ParamSubType, ParamType, ParamValue, ParameterizableParams } from "../../../types";
+import { CodeOptions, ParamName, ParamSubType, ParamValue, ParameterizableParams } from "../../../types";
 
 import { useStateFromAPIAsync } from "../../../hooks/useStateFromAPIAsync";
 import DropdownButton from "../../elements/DropdownButton";
 import DropdownItem from "../../elements/DropdownItem";
 import Input from "../../elements/Input";
 import LabelAndTooltip from "../../elements/LabelAndTooltip";
+import XIcon from "../../icons/XIcon";
 import Col from "../../layout/Col";
 import Row from "../../layout/Row";
-import XIcon from "../../icons/XIcon";
 
 
 interface CodeOptionsParametersProps {
@@ -18,8 +18,14 @@ interface CodeOptionsParametersProps {
     setCodeOptions: React.Dispatch<React.SetStateAction<CodeOptions>>;
 }
 
-const getParamDisplayString = (paramValue: string, paramType: ParamType): string => {
-    if (paramType === 'file_name') {
+/**
+ * @param paramValue The value of the parameter
+ * @param isFile - Whether the param is a file or not. This is calculated in different ways
+ *                 depending on where we call it. 
+ * @returns A string to display the parameter value
+ */
+const getParamDisplayString = (paramValue: string, isFile: boolean): string => {
+    if (isFile) {
         return getFileNameFromParamValue(paramValue);
     } else {
         return paramValue;
@@ -42,8 +48,6 @@ const getParamDescriptionString = (paramSubtype: ParamSubType): string => {
     } else {
         return paramSubtype;
     }
-
-
 }
 
 const getFileNameFromParamValue = (paramValue: string): string => {
@@ -58,14 +62,14 @@ const getFileNameFromParamValue = (paramValue: string): string => {
     return fileName;
 }
 
-const getDefaultParamName = (paramValue: string, paramType: ParamType): string => {
-    if (paramType === 'file_name') {
+const getDefaultParamName = (paramValue: string, paramSubType: ParamSubType): string => {
+    if (paramSubType === 'import_dataframe') {
+        return paramValue;
+    } else {
         const fileName = getFileNameFromParamValue(paramValue);
         const noExt = fileName.substring(0, fileName.indexOf('.')); // Remove the file extension
         const withUnderscores = noExt.replace(/[^a-zA-Z0-9]/g, '_'); // Replace all non-alphanumeric characters with underscores
         return withUnderscores + '_path';
-    } else {
-        return paramValue;
     }
 }
 
@@ -115,13 +119,15 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                         disabled={disabled}
                         title={!props.codeOptions.as_function ? 'Toggle Generate Function before adding parameters.' : (parameterizableParams.length === 0 ? 'There are no available options to parameterize. Import data first.' : undefined)}
                     >   
-                        {unparametizedParams.map(([paramValue, paramType, paramSubtype], index) => {
+                        {unparametizedParams.map((paramInfo, index) => {
+                            const paramValue = paramInfo[0];
+                            const paramSubtype = paramInfo[2];
                             const paramDescription = getParamDescriptionString(paramSubtype);
 
                             return (
                                 <DropdownItem
                                     key={index}
-                                    title={getParamDisplayString(paramValue, paramType)}
+                                    title={getParamDisplayString(paramValue, paramSubtype !== 'import_dataframe')}
                                     subtext={paramDescription}
                                     onClick={() => {                                        
                                         props.setCodeOptions((prevCodeOptions) => {
@@ -130,7 +136,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                                                 return prevCodeOptions;
                                             }
 
-                                            const paramName = getDefaultParamName(paramValue, paramType);
+                                            const paramName = getDefaultParamName(paramValue, paramSubtype);
                                             
                                             newCodeOptions.function_params[paramName] = paramValue;
                                             return newCodeOptions;
@@ -169,7 +175,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                     <Row key={index} justify='space-between' align='center'>
                         <Col span={8} offsetRight={2}>
                             <p title={paramValue}>
-                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'") ? 'file_name' : 'df_name')}
+                                {getParamDisplayString(paramValue, paramValue.startsWith('r"') || paramValue.startsWith("r'") || paramValue.startsWith("'"))}
                             </p>
                         </Col>
                         <Col span={10} offsetRight={2}>

@@ -317,6 +317,7 @@ test('Cross-sheet formula with VLOOKUP', async ({ page }) => {
     // Navigate back to the first sheet and check that the values are correct
     await mito.locator('.tab', { hasText: 'merge' }).click();
     await mito.locator('input#cell-editor-input').press('Enter');
+    await awaitResponse(page);
     await checkColumnCellsHaveExpectedValues(mito, 1, ['2.00', '5.00', '5.00', 'NaN', '11.00'])
 });
 

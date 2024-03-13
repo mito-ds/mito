@@ -180,6 +180,7 @@ def get_conditional_format_code_list(state: State, sheet_index: int) -> Tuple[Op
     """Returns all the code to set the conditional formats"""
     df_name = state.df_names[sheet_index]
     df = state.dfs[sheet_index]
+
     conditional_formats = state.df_formats[sheet_index]['conditional_formats']
 
     # We get the conditional formatting results, and we filter out any columns that are 

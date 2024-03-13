@@ -535,6 +535,20 @@ def test_set_specific_index_labels_twice():
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [2, 0, 0]}))
 
+def test_set_specific_index_labels_to_header_header():
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+    mito.add_column(0, 'B')
+    mito.set_formula('=SUM(A:A)', 0, 'B', index_labels=[0])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [6, 0, 0]}))
+
+
+def test_set_specific_index_labels_to_header_header_multiple_header_dependencies():
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]}))
+    mito.add_column(0, 'C')
+    mito.set_formula('=SUM(A:B)', 0, 'C', index_labels=[0])
+
+    assert mito.dfs[0].equals(pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [21, 0, 0]}))
 
 CROSS_SHEET_TESTS = [
     (

@@ -14,6 +14,7 @@ export enum ModalEnum {
     DeleteGraphs = 'DeleteGraphs',
     ErrorReplayedAnalysis = 'ErrorReplayAnalysis',
     GraphTitleEditor = 'GraphTitleEditor',
+    UserEditedCode = 'UserEditedCode',
 }
 
 /* 
@@ -35,7 +36,11 @@ interface ErrorModalInfo {
         traceback?: string
     }
 }
-
+export interface UserEditedCodeModalInfo {
+    type: ModalEnum.UserEditedCode;
+    codeWithoutUserEdits: string[];
+    codeWithUserEdits: string[];
+}
 interface SignUpModalInfo {
     type: ModalEnum.SignUp;
 }
@@ -68,6 +73,7 @@ interface DeleteGraphsModalInfo {
 export type ModalInfo = 
     | NoneModalInfo 
     | ErrorModalInfo
+    | UserEditedCodeModalInfo
     | SignUpModalInfo
     | ClearAnalysisInfo
     | DeleteGraphsModalInfo
