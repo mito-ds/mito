@@ -281,6 +281,23 @@ def test_upgrades_old_analysis_before_replaying_it():
         pd.DataFrame({'A': [123], 'B_sum': [123]})
     )
 
+def test_save_analysis_has_code():
+    mito = create_mito_wrapper_with_data([1, 2, 3])
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
+
+    random_name = 'UUID-test_save' + str(random.random())
+    mito.save_analysis(random_name)
+
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
+    assert len(saved_analysis['steps_data']) == 1
+    assert saved_analysis['code'] == [
+        'from mitosheet.public.v3 import *',
+        '',
+        '# Filtered A',
+        "df1 = df1[df1['A'] == 2]",
+        ''
+    ]
+
 def test_save_analysis_saves_skipped_steps():
     mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
@@ -331,8 +348,8 @@ def test_save_and_replay_different_interface_version_works():
     saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert saved_analysis is not None
     assert len(saved_analysis['steps_data']) == 0
-    print(saved_analysis)
     assert saved_analysis['public_interface_version'] == 100
+    assert saved_analysis['code'] == []
 
     new_mito = create_mito_wrapper_with_data([1, 2, 3])
     new_mito.replay_analysis(random_name)
