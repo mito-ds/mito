@@ -57,7 +57,7 @@ export function getCellText(cell: ICellModel| undefined): string {
 */
 export function isEmptyCell(cell: ICellModel | undefined): boolean {
     if (cell === undefined) {
-        return false;
+        return true;
     }
     const currentCode = getCellText(cell);
     return currentCode.trim() === '';
