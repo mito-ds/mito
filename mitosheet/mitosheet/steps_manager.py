@@ -35,10 +35,10 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitionsForDataframe, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_running_test
-from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_df_formats_from_column_definitions, get_new_id, is_default_df_names
+from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_default_df_formats, get_new_id, is_default_df_names
 from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_importers_for_frontend, get_user_defined_editors_for_frontend
 from mitosheet.step_performers.utils.user_defined_function_utils import validate_and_wrap_sheet_functions, validate_user_defined_editors
 
@@ -187,7 +187,7 @@ class StepsManager:
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
-            column_definitions: Optional[List[ColumnDefinitionsForDataframe]]=None,
+            column_definitions: Optional[List[ColumnDefinitions]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -256,7 +256,7 @@ class StepsManager:
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
-        df_formats = get_df_formats_from_column_definitions(column_definitions, list(args))
+        df_formats = get_default_df_formats(column_definitions, list(args))
         
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [

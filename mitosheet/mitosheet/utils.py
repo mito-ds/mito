@@ -29,7 +29,7 @@ from mitosheet.types import (FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIM
         FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
         FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
         FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE, 
-        ColumnDefinitionConditionalFormats, ColumnDefinitionsForDataframe, 
+        ColumnDefinitionConditionalFormats, ColumnDefinitions, 
         ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, 
         FrontendFormulaAndLocation, StateType)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
@@ -299,7 +299,7 @@ def is_valid_filter_condition(filter_condition: str) -> bool:
     ]
 
 
-def get_df_formats_from_column_definitions(column_definitions: Optional[List[ColumnDefinitionsForDataframe]], dfs: List[pd.DataFrame]) -> Optional[List[DataframeFormat]]:
+def get_default_df_formats(column_definitions: Optional[List[ColumnDefinitions]], dfs: List[pd.DataFrame]) -> Optional[List[DataframeFormat]]:
 
     if column_definitions is None:
         # If no column_definitions are provided, end early

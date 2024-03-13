@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selection_utils import get_selected_element
-from mitosheet.types import CodeOptions, ColumnDefinitionsForDataframe, ConditionalFormat, ParamMetadata, ParamType
+from mitosheet.types import CodeOptions, ColumnDefinitions, ConditionalFormat, ParamMetadata, ParamType
 from mitosheet.utils import get_new_id
 
 CURRENT_MITO_ANALYSIS_VERSION = 1
@@ -269,7 +269,7 @@ try:
             _editors: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
             _code_options: Optional[CodeOptions]=None,
-            _column_definitions: Optional[List[ColumnDefinitionsForDataframe]]=None,
+            _column_definitions: Optional[List[ColumnDefinitions]]=None,
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
@@ -322,7 +322,7 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
-            column_definitions: Optional[List[ColumnDefinitionsForDataframe]]=None,
+            column_definitions: Optional[List[ColumnDefinitions]]=None,
             return_type: str='default',
             height: Optional[str]=None,
             key=None
