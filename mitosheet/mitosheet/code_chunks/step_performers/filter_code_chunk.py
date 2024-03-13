@@ -6,6 +6,7 @@
 
 
 from copy import copy
+from datetime import date
 from typing import List, Optional, Tuple, Union
 
 from mitosheet.code_chunks.code_chunk import CodeChunk
@@ -25,6 +26,7 @@ from mitosheet.transpiler.transpile_utils import (
     get_column_header_as_transpiled_code, get_list_as_string_without_internal_quotes)
 from mitosheet.types import (ColumnHeader, ColumnID, ColumnIDWithFilterGroup,
                              Filter, FilterGroup, OperatorType)
+import pandas as pd
 
 # Dict used when a filter condition is only used by one filter
 FILTER_FORMAT_STRING_DICT = {
@@ -180,7 +182,7 @@ FILTER_FORMAT_STRING_MULTIPLE_VALUES_DICT = {
 OPERATOR_SIGNS = {"Or": "|", "And": "&"}
 
 def get_single_filter_string(
-    df_name: str, column_header: ColumnHeader, filter_: Filter
+    df_name: str, column_header: ColumnHeader, column_dtype: str, filter_: Filter
 ) -> str:
     """
     Transpiles a specific filter to a fitler string, to be used
@@ -188,6 +190,12 @@ def get_single_filter_string(
     """
     condition = filter_["condition"]
     value = filter_["value"]
+
+    if is_datetime_dtype(column_dtype):
+        try: 
+            pd.to_datetime(value)
+        except:
+            value = pd.Timestamp.min + pd.Timedelta(seconds=1)
 
     transpiled_column_header = get_column_header_as_transpiled_code(column_header)
     value = get_column_header_as_transpiled_code(value)
@@ -289,7 +297,7 @@ def create_filter_string_for_condition(
     elif len(filters_with_condition) == 1:
         # Use the single filter condition
         return get_single_filter_string(
-            df_name, column_header, filters_with_condition[0]
+            df_name, column_header, column_dtype, filters_with_condition[0]
         )
     elif len(filters_with_condition) > 1:
         # Use the multiple filter condition

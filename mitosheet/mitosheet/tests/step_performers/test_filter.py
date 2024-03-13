@@ -327,6 +327,14 @@ FILTER_TESTS = [
             data={"A": pd.to_datetime(pd.Series(data=["12-2-2020", "12-3-2020"]))}
         ),
         FC_DATETIME_LESS_THAN_OR_EQUAL,
+        "12-2-0020",
+        pd.DataFrame(data={"A": pd.to_datetime(pd.Series(data=[], dtype='float64'))}),
+    ),
+    (
+        pd.DataFrame(
+            data={"A": pd.to_datetime(pd.Series(data=["12-2-2020", "12-3-2020"]))}
+        ),
+        FC_DATETIME_LESS_THAN_OR_EQUAL,
         "12-2-2020",
         pd.DataFrame(data={"A": pd.to_datetime(pd.Series(data=["12-2-2020"]))}),
     ),
