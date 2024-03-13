@@ -30,9 +30,6 @@ new_dfs, code = spreadsheet(
                 }] 
             }
         ],
-        [
-            # Add code here to style the second dataframe
-        ]
     ]
 )
 

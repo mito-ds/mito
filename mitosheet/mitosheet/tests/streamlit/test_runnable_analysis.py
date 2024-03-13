@@ -477,7 +477,6 @@ def test_can_pass_dataframe_to_file_path_in_run_auto_conversion():
     analysis = RunnableAnalysis(
         '',
         None,
-        None, 
         """from mitosheet.public.v3 import *
 import pandas as pd
 
