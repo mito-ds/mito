@@ -35,10 +35,10 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_running_test
-from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_new_id, is_default_df_names
+from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_default_df_formats, get_new_id, is_default_df_names
 from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_importers_for_frontend, get_user_defined_editors_for_frontend
 from mitosheet.step_performers.utils.user_defined_function_utils import validate_and_wrap_sheet_functions, validate_user_defined_editors
 
@@ -187,6 +187,7 @@ class StepsManager:
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
+            column_definitions: Optional[List[ColumnDefinitions]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -221,11 +222,11 @@ class StepsManager:
         # saving any data that we need to transpilate it later this
         self.preprocess_execution_data = {}
         df_names = None
-        for preprocess_step_performers in PREPROCESS_STEP_PERFORMERS:
-            args, df_names, execution_data = preprocess_step_performers.execute(args)
+        for preprocess_step_performer in PREPROCESS_STEP_PERFORMERS:
+            args, df_names, execution_data = preprocess_step_performer.execute(args)
             self.preprocess_execution_data[
-                preprocess_step_performers.preprocess_step_type()
-            ] = execution_data       
+                preprocess_step_performer.preprocess_step_type()
+            ] = execution_data    
 
         # We set the original_args_raw_strings. If we later have an args update, then these
         # are overwritten by the args update (and are actually correct). But since we don't 
@@ -255,6 +256,8 @@ class StepsManager:
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
+        df_formats = get_default_df_formats(column_definitions, list(args))
+        
         # Then we initialize the analysis with just a simple initialize step
         self.steps_including_skipped: List[Step] = [
             Step(
@@ -265,7 +268,8 @@ class StepsManager:
                     df_names=df_names,
                     user_defined_functions=self.user_defined_functions, 
                     user_defined_importers=self.user_defined_importers,
-                    user_defined_editors=self.user_defined_editors
+                    user_defined_editors=self.user_defined_editors,
+                    df_formats=df_formats
                 ), 
                 {}
             )

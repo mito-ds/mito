@@ -373,6 +373,18 @@ if sys.version_info[:3] > (3, 8, 0):
         # The params below become optional. Typing them is hard, so use care when accessing them
         import_custom_python_code: bool
 
+    class ColumnDefinitionConditionalFormats(TypedDict):
+        filters: List[Filter]
+        background_color: str
+        font_color: str
+
+    class ColumnDefinintion(TypedDict):
+        columns: List[ColumnHeader]
+        conditional_formats: List[ColumnDefinitionConditionalFormats]
+
+    # TODO: This is a confusing name. Think of a better one.
+    ColumnDefinitions = List[ColumnDefinintion]
+
     UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader']
 
     class MitoTheme(TypedDict):
@@ -439,6 +451,9 @@ else:
     MitoTheme = Any # type: ignore
     MitoFrontendSelection = Any # type: ignore
     MitoFrontendIndexAndSelections = Any # type: ignore
+    ColumnDefinitionConditionalFormats = Any # type: ignore
+    ColumnDefinintion = Any # type: ignore
+    ColumnDefinitions = Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore

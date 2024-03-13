@@ -47,6 +47,7 @@ VALID_DATAFRAMES = [
 ]
 @pytest.mark.parametrize("df", VALID_DATAFRAMES)
 def test_df_creates_valid_df(df):
+    print(df)
     print(type(df[0]))
     mito = create_mito_wrapper(df[0])
     assert mito.mito_backend is not None
@@ -189,3 +190,5 @@ def test_create_backend_with_code_options_works():
     code_options['call_function'] = False
     mito_backend = MitoBackend(code_options=code_options)
     assert mito_backend.steps_manager.code_options == code_options
+
+    
