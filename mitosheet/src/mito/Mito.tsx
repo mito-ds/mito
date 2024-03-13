@@ -316,13 +316,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         }
                     }
                 })
-                void mitoAPI.log(
-                    'user_edited_code_cell', 
-                    {
-                        length_of_code_with_user_edits: codeWithUserEdits.length,
-                        length_of_code_without_user_edits: codeWithoutUserEdits.length
-                    }
-                );
             },
             oldCodeRef.current,
             // If the oldCodeRef.current is null, this means we're accessing a saved analysis

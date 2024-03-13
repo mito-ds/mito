@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
 import { AnalysisData, JupyterUtils, UIState, UserProfile } from '../../types';
 import DefaultModal from '../DefaultModal';
@@ -22,6 +22,16 @@ const UserEditedCodeModal = (
         codeWithoutUserEdits: string[],
         codeWithUserEdits: string[]
     }): JSX.Element => {
+
+    useEffect(() => {
+        void props.mitoAPI.log(
+            'user_edited_code_cell', 
+            {
+                length_of_code_with_user_edits: props.codeWithUserEdits.length,
+                length_of_code_without_user_edits: props.codeWithoutUserEdits.length
+            }
+        );
+    }, []);
     
     const handleUserEditedCode = (overwriteCode: boolean) => {
         props.jupyterUtils?.writeGeneratedCodeToCell(
