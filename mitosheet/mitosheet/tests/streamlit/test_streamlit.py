@@ -133,7 +133,8 @@ def test_spreadsheet_with_column_definitions():
                     }] 
                 }
             ]
-        ],
+        ], 
+        code_options={'as_function': True, 'call_function': False, 'function_name': 'test', 'function_params': {}}, 
         return_type='function'
     )
     assert callable(f)
