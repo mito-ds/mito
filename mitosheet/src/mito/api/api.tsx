@@ -947,6 +947,14 @@ export class MitoAPI {
         })
     }
 
+    async getSavedAnalysisCode(): Promise<MitoAPIResult<string[]>> {
+        return await this.send({
+            'event': 'api_call',
+            'type': 'get_saved_analysis_code',
+            'params': {}
+        })
+    }
+
     /*
         Sets the formatting of the dataframe.
     */

@@ -10,7 +10,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     expect(await cellOuput?.innerHTML()).toContain('Insert');
   });
 
-  test.skip('Can run the generated code', async ({ page, tmpPath }) => {    
+  test('Can run the generated code', async ({ page, tmpPath }) => {    
     // We skip this as it is flakey on Python 3.6... how to handle
     await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
 
@@ -41,5 +41,83 @@ test.describe('Mitosheet JupyterLab integration', () => {
     // is a hack... so I'm pausing on these for now...
     await page.notebook.runCell(0);
     await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
+  });
+
+  const updateCellValue = async (page: any, cellValue: string, newCellValue: string) => {
+    await page.locator('.mito-grid-cell', { hasText: cellValue }).dblclick();
+    await page.locator('input#cell-editor-input').fill(newCellValue);
+    await page.keyboard.press('Enter');
+  };
+
+  const typeInNotebookCell = async (page: any, cellIndex: number, cellValue: string) => {
+    await page.locator('.jp-Cell-inputArea').nth(cellIndex).click();
+    await page.keyboard.type(cellValue);
+  }
+
+  test('Doesn\'t overwrite user edited code', async ({ page, tmpPath }) => {
+    // Create a new notebook with a dataframe and a mitosheet call
+    await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
+    
+    // Add an edit so that there is code in the cell below the mitosheet call
+    await updateCellValue(page, '1', "'new cell value'");
+
+    // Update the following cell with some code
+    await typeInNotebookCell(page, 1, 'hello world');
+
+    // Check that the modal appears to ask the user if they want to overwrite the code
+    await updateCellValue(page, 'new cell value', "'another cell value'");
+    await expect(page.getByText('Edit to Code Detected')).toBeVisible();
+
+    // Click the "Overwrite Changes" button
+    await page.click('text=Overwrite Edits');
+    await expect(page.getByText('Edit to Code Detected')).not.toBeAttached();
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('hello world');
+    // The code from the mitosheet call should still be there
+    // Don't check for the entire string because it contains a random id
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).toContainText("df['a'] = 'another cell value'");
+
+    // Update the following cell again with some code
+    await typeInNotebookCell(page, 1, 'martha rocks');
+
+    // Check that the modal appears to ask the user if they want to overwrite the code
+    await updateCellValue(page, 'another cell value', "'a third cell value'");
+    await expect(page.getByText('Edit to Code Detected')).toBeVisible();
+
+    // Click the "Insert New Cell" button
+    await page.getByText('Insert New Cell', { exact: true }).click();
+    await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
+
+    // Check that the cell below the mitosheet call has been updated and doesn't contain the edits
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText("df['a'] = 'a third cell value'");
+
+    // Check that the edited code is now in the cell below the cell that was updated
+    await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText("df['a'] = 'another cell value'");
+    await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText('martha rocks');
+
+    // Check that new user edits are generated correctly
+    await updateCellValue(page, 'a third cell value', "'a fourth cell value'");
+    await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
+    // Check that the cell below the mitosheet call has been updated and doesn't contain the edits
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText("df['a'] = 'a fourth cell value'");
+
+  });
+
+  test('Automatically inserts new cell if user deletes mitosheet code', async ({ page, tmpPath }) => {
+    // Create a new notebook with a dataframe and a mitosheet call
+    await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
+    
+    // Add an edit so that there is code in the cell below the mitosheet call
+    await updateCellValue(page, '1', "'new cell value'");
+
+    // Delete the mitosheet code
+    await page.notebook.selectCells(1);
+    await page.notebook.deleteCells();
+
+    // Make another edit and check that the modal doesn't appear, and that the cell below the mitosheet call has been updated
+    await updateCellValue(page, 'new cell value', "'another cell value'");
+    await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).toContainText("df['a'] = 'another cell value'");
   });
 });
