@@ -37,7 +37,7 @@ test.describe('Code Config', () => {
     await mito.locator('.mito-dropdown-item', { hasText: 'CSV Export File Path' }).click();
 
     await expect(page.locator('.stCodeBlock')).toContainText('def new_name(test_path, test_export_path):');
-    await expect(page.locator('.stCodeBlock')).toContainText(/test_path = r'[a-zA-Z0-9\/]*test\.csv'/);
+    await expect(page.locator('.stCodeBlock')).toContainText(/test_path = r'[a-zA-Z0-9\/\\]*test\.csv'/);
     await expect(page.locator('.stCodeBlock')).toContainText(/test_export_path = r'test_export.csv'/);
   });
 });
