@@ -13,7 +13,7 @@ import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selection_utils import get_selected_element
-from mitosheet.types import CodeOptions, ParamMetadata, ParamType
+from mitosheet.types import CodeOptions, ColumnDefinitions, ConditionalFormat, ParamMetadata, ParamType
 from mitosheet.utils import get_new_id
 
 CURRENT_MITO_ANALYSIS_VERSION = 1
@@ -269,6 +269,7 @@ try:
             _editors: Optional[List[Callable]]=None, 
             _sheet_functions: Optional[List[Callable]]=None, 
             _code_options: Optional[CodeOptions]=None,
+            _column_definitions: Optional[List[ColumnDefinitions]]=None,
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
@@ -280,6 +281,7 @@ try:
             import_folder=import_folder,
             user_defined_importers=_importers, user_defined_functions=_sheet_functions, user_defined_editors=_editors,
             code_options=_code_options,
+            column_definitions = _column_definitions,
         )
 
         # Make a send function that stores the responses in a list
@@ -320,6 +322,7 @@ try:
             df_names: Optional[List[str]]=None,
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
+            column_definitions: Optional[List[ColumnDefinitions]]=None,
             return_type: str='default',
             height: Optional[str]=None,
             key=None
@@ -366,6 +369,7 @@ try:
             _importers=importers, 
             _editors=editors,
             _code_options=code_options,
+            _column_definitions=column_definitions,
             import_folder=import_folder,
             session_id=session_id,
             df_names=df_names, 

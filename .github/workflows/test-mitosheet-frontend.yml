@@ -119,7 +119,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        os: ['ubuntu-latest-m', 'macos-latest', 'windows-latest-l']
         python-version: ['3.10']
         project: 
           - test-name: 'chromium'
@@ -134,16 +134,16 @@ jobs:
             install-name: 'msedge'
         testfiles: ['taskpanes', 'grid', 'toolbar', 'graph']
         exclude:
-          - os: 'windows-latest'
+          - os: 'windows-latest-l'
             project:
               test-name: webkit
           - os: 'macos-latest'
             project:
               test-name: 'Microsoft Edge'
-          - os: 'ubuntu-latest'
+          - os: 'ubuntu-latest-m'
             project: 
               test-name: 'Microsoft Edge'
-          - os: 'ubuntu-latest'
+          - os: 'ubuntu-latest-m'
             project:
               test-name: 'webkit'
       fail-fast: false
@@ -167,20 +167,20 @@ jobs:
         cache: 'npm'
         cache-dependency-path: mitosheet/package-lock.json
     - name: Install dependencies (ubuntu, macos)
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-latest-l'
       run: |
         cd tests
         bash mac-setup.sh ${{ matrix.project.install-name }}
         source venv/bin/activate
         pip install -r extra-requirements.txt
     - name: Setup streamlit (ubuntu, macos)
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-latest-l'
       run: |
         mkdir -p ~/.streamlit/
         echo "[general]"  > ~/.streamlit/credentials.toml
         echo "email = \"\""  >> ~/.streamlit/credentials.toml
     - name: Setup streamlit (windows)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest-l'
       run: |
         $streamlitDir = "$HOME\.streamlit"
         if (-not (Test-Path -Path $streamlitDir)) {
@@ -191,7 +191,7 @@ jobs:
         email = ""
         "@
     - name: Install dependencies (windows)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest-l'
       run: |
         cd tests
 
@@ -210,7 +210,7 @@ jobs:
         npm install
         npm run build
     - name: Start a server and run tests (ubuntu, macos)
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-latest-l'
       run: |
         cd tests
         source venv/bin/activate
@@ -218,7 +218,7 @@ jobs:
         bash check_server.sh
         npm run test -- --project="${{ matrix.project.test-name }}" streamlit_ui_tests/${{matrix.testfiles}}
     - name: Start a server and run tests (windows)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest-l'
       run: |
         cd tests
         .\venv\Scripts\Activate.ps1
