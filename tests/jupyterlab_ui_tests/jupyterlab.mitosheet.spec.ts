@@ -103,4 +103,21 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText("df['a'] = 'a fourth cell value'");
 
   });
+
+  test('Automatically inserts new cell if user deletes mitosheet code', async ({ page, tmpPath }) => {
+    // Create a new notebook with a dataframe and a mitosheet call
+    await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
+    
+    // Add an edit so that there is code in the cell below the mitosheet call
+    await updateCellValue(page, '1', "'new cell value'");
+
+    // Delete the mitosheet code
+    await page.notebook.selectCells(1);
+    await page.notebook.deleteCells();
+
+    // Make another edit and check that the modal doesn't appear, and that the cell below the mitosheet call has been updated
+    await updateCellValue(page, 'new cell value', "'another cell value'");
+    await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).toContainText("df['a'] = 'another cell value'");
+  });
 });
