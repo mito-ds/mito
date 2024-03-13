@@ -4,7 +4,9 @@ import { FormulaType } from './types';
 
 export const getMitoFrame = async (page: Page): Promise<FrameLocator> => {
     await page.goto('http://localhost:8555/');
-    return page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]');
+    const mito = page.frameLocator('iframe[title="mitosheet\\.streamlit\\.v1\\.spreadsheet\\.my_component"]');
+    await expect(mito.locator('.text-button:not(.text-button-disabled)', { hasText: 'Import Files' })).toBeVisible();
+    return mito;
 };
   
 export const importCSV = async (page: Page, mito: FrameLocator, filename: string): Promise<void> => {

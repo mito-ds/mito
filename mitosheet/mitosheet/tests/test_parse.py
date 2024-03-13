@@ -11,7 +11,7 @@ import pandas as pd
 
 from mitosheet.errors import MitoError
 from mitosheet.parser import get_backend_formula_from_frontend_formula, parse_formula, safe_contains, get_frontend_formula
-from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE
+from mitosheet.types import FORMULA_ENTIRE_COLUMN_TYPE, FORMULA_SPECIFIC_INDEX_LABELS_TYPE
 from mitosheet.tests.decorators import pandas_post_1_2_only
 
 
@@ -1219,6 +1219,27 @@ VLOOKUP_TESTS = [
         'df_1[\'B\'] = SUM(df_1[\'C\'], VLOOKUP(df_1[\'A\'], df_2.loc[:, \'B\':\'C\'], 2))',
         set(['VLOOKUP', 'SUM']),
         set(['A', 'B', 'C'])
+    ),
+    # Test for two calls to VLOOKUP
+    (
+        '=CONCAT(VLOOKUP(A0, df_2!C:D, 2), VLOOKUP(A0, df_2!C:E, 2))',
+        'B',
+        0,
+        [
+            pd.DataFrame(
+                get_number_data_for_df(['A', 'B'], 2),
+                index=pd.RangeIndex(0, 2)
+            ),
+            pd.DataFrame(
+                get_number_data_for_df(['C', 'D', 'E'], 2),
+                index=pd.RangeIndex(0, 2)
+            )
+        ],
+        ['df_1', 'df_2'],
+        0,
+        'df_1[\'B\'] = CONCAT(VLOOKUP(df_1[\'A\'], df_2.loc[:, \'C\':\'D\'], 2), VLOOKUP(df_1[\'A\'], df_2.loc[:, \'C\':\'E\'], 2))',
+        set(['VLOOKUP', 'CONCAT']),
+        set(['A', 'E', 'D', 'C'])
     )
 ]
 
@@ -1252,6 +1273,38 @@ POST_PD_1_2_VLOOKUP_TESTS = [
         set([1, 'A', 'C'])
     )
 ]
+
+def test_specific_index_labels_header_header():
+    formula = '=SUM(A:A)'
+    column_header = 'B'
+    formula_label = 0
+    df = pd.DataFrame(get_number_data_for_df(['A', 'B'], 2), index=pd.RangeIndex(0, 2))
+    python_code = 'df.loc[[0], [\'B\']] = SUM(df[[\'A\']])'
+    functions = set(['SUM'])
+    columns = set(['A'])
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_SPECIFIC_INDEX_LABELS_TYPE, 'index_labels': [0]}, [df], ['df'], 0) 
+    assert (code, funcs, cols) == \
+        (
+            python_code, 
+            functions, 
+            columns
+        )
+
+def test_specific_index_labels_header_header_multiple_header_dependencies():
+    formula = '=SUM(A:B)'
+    column_header = 'C'
+    formula_label = 0
+    df = pd.DataFrame(get_number_data_for_df(['A', 'B', 'C'], 2), index=pd.RangeIndex(0, 2))
+    python_code = 'df.loc[[0], [\'C\']] = SUM(df.loc[:, \'A\':\'B\'])'
+    functions = set(['SUM'])
+    columns = set(['A', 'B'])
+    code, funcs, cols, _ = parse_formula(formula, column_header, formula_label, {'type': FORMULA_SPECIFIC_INDEX_LABELS_TYPE, 'index_labels': [0]}, [df], ['df'], 0) 
+    assert (code, funcs, cols) == \
+        (
+            python_code, 
+            functions, 
+            columns
+        )
 
 @pytest.mark.parametrize("formula,column_header,formula_label,dfs,df_names,sheet_index,python_code,functions,columns", POST_PD_1_2_VLOOKUP_TESTS)
 @pandas_post_1_2_only

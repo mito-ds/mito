@@ -16,7 +16,7 @@ interface RowProps {
     /** 
         * @param [justify] - How to justify the Cols inside this row. Defaults to 'start'
     */
-    justify?: 'start' | 'center' | 'end' | 'space-between' | 'space-around',
+    justify?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly',
     /** 
         * @param [align] - How to verticaly align the content. Defaults to 'top'
     */

@@ -118,10 +118,7 @@ setup_args = dict(
         'plotly>=4.14.3',
         'chardet>=3.0.4',
         # For XLSX, reading - we don't fix so works on all python versions
-        'openpyxl',
-        # xlsxwriter is needed for adding formatting to exported Excel sheets. 
-        # We pin to a pretty old version because the formatting functionality hasn't changed in a long time.
-        'xlsxwriter>=0.6.9,<=3.1.3',
+        'openpyxl'
     ],
     extras_require = {
         'test': [
@@ -138,7 +135,7 @@ setup_args = dict(
             "setuptools==56.0.0"
         ],
         'streamlit': [
-            'streamlit>=1.24',
+            'streamlit>=1.24,<1.32',
         ],
         'optional_feature_dependencies': [
             # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
