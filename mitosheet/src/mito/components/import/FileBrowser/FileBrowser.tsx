@@ -137,7 +137,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
     );
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header={!props.isUpdate ? 'Import Files' : 'Update Import'}
                 setUIState={props.setUIState}
@@ -168,6 +168,7 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                             <TextButton
                                 variant='light'
                                 width='hug-contents'
+                                style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', width: 'max-content' }}
                                 onClick={() => {
                                     const openCSVImport = async () => {
                                         const filePath = await getFilePath(props.mitoAPI, props.currPathParts, selectedFile);
@@ -185,19 +186,17 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
                                 }}
                                 disabled={importButtonStatus.disabled}
                             >
-                                <Row suppressTopBottomMargin justify='space-between' align='center'>
-                                    <ConfigureIcon/>
-                                    <p className='ml-2px'>
-                                        Configure
-                                    </p>
-                                </Row>
-                                
+                                <ConfigureIcon/>
+                                <p className='ml-2px'>
+                                    Configure
+                                </p>
                             </TextButton>
                         </Col>
                     }
                     <Col style={{ width: '100%' }}>
                         <TextButton
                             variant='dark'
+                            width='block'
                             onClick={() => {
                                 if (isExcelFile(selectedFile)) {
                                     const openExcelImport = async () => {

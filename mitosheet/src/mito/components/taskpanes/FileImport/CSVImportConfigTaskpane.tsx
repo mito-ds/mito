@@ -4,7 +4,7 @@ import React from 'react';
 import useSendEditOnClick from '../../../hooks/useSendEditOnClick';
 import { MitoAPI } from '../../../api/api';
 import { AnalysisData, StepType, UIState } from '../../../types';
-import CSVImportConfigScreen, { CSVImportParams, DEFAULT_DELIMETER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES } from '../../import/CSVImportConfigScreen';
+import CSVImportConfigScreen, { CSVImportParams, DEFAULT_DELIMITER, DEFAULT_ENCODING, DEFAULT_ERROR_BAD_LINES } from '../../import/CSVImportConfigScreen';
 import { ImportState } from './FileImportTaskpane';
 
 interface CSVImportConfigTaskpaneProps {
@@ -23,7 +23,7 @@ interface CSVImportConfigTaskpaneProps {
 export const getDefaultCSVParams = (filePath: string): CSVImportParams => {
     return {
         file_names: [filePath],
-        delimeters: [DEFAULT_DELIMETER],
+        delimeters: [DEFAULT_DELIMITER],
         encodings: [DEFAULT_ENCODING],
         error_bad_lines: [DEFAULT_ERROR_BAD_LINES]
     }

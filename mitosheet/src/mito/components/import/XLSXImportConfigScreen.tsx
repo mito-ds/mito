@@ -130,7 +130,7 @@ function XLSXImportConfigScreen(props: XLSXImportConfigScreenProps): JSX.Element
     const numSelectedSheets = params.sheet_names.length;
     
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
                 header={!props.isUpdate ? `Import ${props.fileName}` : `Update to ${props.fileName}`}
                 setUIState={props.setUIState}

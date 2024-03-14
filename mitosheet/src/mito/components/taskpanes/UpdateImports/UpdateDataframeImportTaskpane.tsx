@@ -82,7 +82,7 @@ const UpdateDataframeImportScreen = (props: UpdateDataframeImportTaskpaneProps):
     }
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header={props.isUpdate ? 'Import Dataframes' : 'Update Import'}
                 setUIState={props.setUIState} 

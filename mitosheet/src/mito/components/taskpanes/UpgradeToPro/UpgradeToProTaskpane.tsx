@@ -56,7 +56,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
 
     if (!isPro && !isEnteringAccessCode) {
         return (
-            <DefaultTaskpane>
+            <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
                 <DefaultTaskpaneHeader 
                     header="Upgrade to Mito Pro"
                     setUIState={props.setUIState}            
@@ -105,7 +105,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
         )
     } else if (!isPro && isEnteringAccessCode) {
         return (
-            <DefaultTaskpane>
+            <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
                 <DefaultTaskpaneHeader 
                     header="Enter Access Code"
                     setUIState={props.setUIState}            
@@ -159,7 +159,7 @@ const UpgradeToProTaskpane = (props: UpgradeTaskpaneProps): JSX.Element => {
         )
     } else {
         return (
-            <DefaultTaskpane>
+            <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
                 <DefaultTaskpaneHeader 
                     header={`Welcome to Mito ${props.proOrEnterprise}!`}
                     setUIState={props.setUIState}            

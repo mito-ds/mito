@@ -52,12 +52,12 @@ export function getCellText(cell: ICellModel| undefined): string {
 
 
 /* 
-    Returns True if the passed cell is empty.
-    Returns False if the passed cells is either not empty or undefined 
+    Returns True if the passed cell is empty or undefined.
+    Returns False if the passed cells is not empty
 */
 export function isEmptyCell(cell: ICellModel | undefined): boolean {
     if (cell === undefined) {
-        return false;
+        return true;
     }
     const currentCode = getCellText(cell);
     return currentCode.trim() === '';

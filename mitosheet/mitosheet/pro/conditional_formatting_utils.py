@@ -52,6 +52,7 @@ def get_conditonal_formatting_result(
                     # are sent to the frontend
                     json_index = json.dumps(index, cls=NpEncoder)
                     formatted_result[column_id][json_index] = {'backgroundColor': backgroundColor, 'color': color}
+
         except Exception as e:
             if format_uuid not in invalid_conditional_formats:
                 invalid_conditional_formats[format_uuid] = []

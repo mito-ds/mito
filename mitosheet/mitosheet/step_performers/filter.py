@@ -41,6 +41,7 @@ FILTER_CONDITIONS_THAT_REQUIRE_FULL_DATAFRAME = [
     FC_NUMBER_HIGHEST,
 ]
 
+
 class FilterStepPerformer(StepPerformer):
     """
     Allows you to filter a column based on some conditions and some values.
@@ -260,5 +261,5 @@ def check_filters_contain_condition_that_needs_full_df(filters: List[Union[Filte
             filter_group: FilterGroup = filter_or_group #type: ignore
             if check_filters_contain_condition_that_needs_full_df(filter_group["filters"]):
                 return True
-        
+
     return False

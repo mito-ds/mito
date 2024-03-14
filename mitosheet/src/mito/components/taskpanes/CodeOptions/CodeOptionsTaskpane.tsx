@@ -29,19 +29,13 @@ interface CodeOptionsTaskpaneProps {
 const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
 
     const [codeOptions, setCodeOptions] = useState(() => props.analysisData.codeOptions);
-    const [firstRender, setFirstRender] = useState(true);
 
     useDebouncedEffect(() => {
-        if (firstRender) {
-            setFirstRender(false);
-            return;
-        }
-
         void props.mitoAPI.updateCodeOptions(codeOptions);
     }, [codeOptions], 500);
 
     return (
-        <DefaultTaskpane>
+        <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader 
                 header="Generated Code Options"
                 setUIState={props.setUIState} 
@@ -62,7 +56,7 @@ const CodeOptionsTaskpane = (props: CodeOptionsTaskpaneProps): JSX.Element => {
                     </Col>
                     <Col>
                         <Toggle 
-                            value={props.analysisData.codeOptions.as_function} 
+                            value={codeOptions.as_function} 
                             onChange={function (): void {
                                 const newCodeOptions = {...codeOptions};
                                 newCodeOptions.as_function = !newCodeOptions.as_function;

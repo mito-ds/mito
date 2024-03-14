@@ -25,11 +25,11 @@ from mitosheet.api import API
 from mitosheet.enterprise.mito_config import MitoConfig
 from mitosheet.errors import (MitoError, get_recent_traceback,
                               make_execution_error)
-from mitosheet.saved_analyses import write_analysis
+from mitosheet.saved_analyses import write_save_analysis_file
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, ConditionalFormat, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
@@ -57,6 +57,7 @@ class MitoBackend():
             user_defined_importers: Optional[List[Callable]]=None,
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
+            column_definitions: Optional[List[ColumnDefinitions]]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -92,7 +93,7 @@ class MitoBackend():
 
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
-        
+            
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(
             args, 
@@ -104,6 +105,7 @@ class MitoBackend():
             user_defined_importers=all_custom_importers,
             user_defined_editors=user_defined_editors,
             code_options=code_options,
+            column_definitions=column_definitions,
             theme=theme
         )
 
@@ -178,7 +180,7 @@ class MitoBackend():
         self.steps_manager.handle_edit_event(event)
 
         # Also, write the analysis to a file!
-        write_analysis(self.steps_manager)
+        write_save_analysis_file(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. NOTE: in the future, we can actually send back some data
@@ -217,7 +219,7 @@ class MitoBackend():
                 raise make_execution_error(error_modal=False)
             raise
         # Also, write the analysis to a file!
-        write_analysis(self.steps_manager)
+        write_save_analysis_file(self.steps_manager)
 
         # Tell the front-end to render the new sheet and new code with an empty
         # response. 
@@ -273,7 +275,7 @@ class MitoBackend():
                 print(e)
 
             # Log processing this event failed
-            log_event_processed(event, self.steps_manager, failed=True, mito_error=e, start_time=start_time)
+            log_event_processed(event, self.steps_manager, failed=True, error=e, start_time=start_time)
 
             # Report it to the user, and then return
             self.mito_send({
@@ -314,6 +316,7 @@ def get_mito_backend(
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
         user_defined_editors: Optional[List[Callable]]=None,
+        column_definitions: Optional[List[ColumnDefinitions]]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
@@ -322,7 +325,8 @@ def get_mito_backend(
         analysis_to_replay=analysis_to_replay, 
         user_defined_functions=user_defined_functions, 
         user_defined_importers=user_defined_importers,
-        user_defined_editors=user_defined_editors
+        user_defined_editors=user_defined_editors,
+        column_definitions=column_definitions
     ) 
 
     return mito_backend
@@ -405,7 +409,8 @@ def sheet(
     # We throw a custom error message if we're sure the user is in
     # vs code or google collab (these conditions are more secure than
     # the conditons for checking if we're in JLab or JNotebook).
-    # Then, check if we're in Dash or in Streamlit. If so, tell user to use the correct component
+    # Then, check if we're in Dash or in Streamlit. 
+    # If so, tell user to use the correct component
     if is_in_vs_code() or is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, importCSV } from "./utils";
+import { awaitResponse, getMitoFrameWithTestCSV, getMitoFrameWithTypeCSV, importCSV } from "../utils";
 
 
 test.describe('Keyboard Shortcuts', () => {
@@ -50,6 +50,41 @@ test.describe('Keyboard Shortcuts', () => {
       // Check that the tab with .tab-selected is the first tab
       // with the text test
       await expect(mito.locator('.tab-selected').locator('div').filter({ hasText: "test" }).first()).toBeVisible();
+    });
+
+    test('Next/prev sheet with graphs', async ({ page }) => {
+      const mito = await getMitoFrameWithTestCSV(page);
+
+      /* Import another csv and create 2 graphs so that we have enough tabs to navigate between */
+      await importCSV(page, mito, 'test.csv');
+      
+      // Create a graph
+      await mito.getByText('Graph').click();
+      await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+      // Create another graph off of test_1
+      await mito.locator('.tab', { hasText: 'test_1' }).click();
+      await mito.getByText('Graph', { exact: true }).click();
+      await expect(mito.getByText('Column1 bar chart')).toBeVisible();
+
+      /* Test navigation */
+      await mito.locator('.mito-container').press('Alt+ArrowRight');
+      await expect(mito.locator('.tab-selected')).toHaveText('test');
+
+      await mito.locator('.mito-container').press('Alt+ArrowRight');
+      await expect(mito.locator('.tab-selected')).toHaveText('test_1');
+
+      await mito.locator('.mito-container').press('Alt+ArrowRight');
+      await expect(mito.locator('.tab-selected')).toHaveText('graph0');
+
+      await mito.locator('.mito-container').press('Alt+ArrowLeft');
+      await expect(mito.locator('.tab-selected')).toHaveText('test_1');
+
+      await mito.locator('.mito-container').press('Alt+ArrowLeft');
+      await expect(mito.locator('.tab-selected')).toHaveText('test');
+
+      await mito.locator('.mito-container').press('Alt+ArrowLeft');
+      await expect(mito.locator('.tab-selected')).toHaveText('graph1');
     });
   
     test('Previous Sheet', async ({ page }) => {

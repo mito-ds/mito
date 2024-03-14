@@ -9,6 +9,7 @@ Contains helpful utility functions
 import json
 import pprint
 from random import randint
+import random
 import re
 import uuid
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -20,11 +21,20 @@ import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
 from mitosheet.is_type_utils import get_float_dt_td_columns, is_int_dtype
-from mitosheet.types import (ColumnHeader, ColumnID, DataframeFormat, FrontendFormulaAndLocation, StateType)
+from mitosheet.types import (FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY, FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
+        FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+        FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY, FC_NUMBER_EXACTLY,
+        FC_NUMBER_GREATER, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST,
+        FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
+        FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
+        FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
+        FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE, 
+        ColumnDefinitionConditionalFormats, ColumnDefinitions, 
+        ColumnHeader, ColumnID, ConditionalFormat, DataframeFormat, 
+        FrontendFormulaAndLocation, StateType)
 from mitosheet.excel_utils import get_df_name_as_valid_sheet_name
 
 from mitosheet.public.v3.formatting import add_formatting_to_excel_sheet
-
 
 # We only send the first 1500 rows of a dataframe; note that this
 # must match this variable defined on the front-end
@@ -267,7 +277,104 @@ def write_to_excel(
                     number_formats=get_number_formats_objects_to_export_to_excel(df, format.get('columns'))
                 )
     
+def is_valid_hex_color(color: str) -> bool:
 
+    if not color.startswith('#'):
+        return False
+        
+    match = re.search(r'^#(?:[0-9a-fA-F]{3}){1,2}$', color)
+    return match is not None
+
+def is_valid_filter_condition(filter_condition: str) -> bool:
+    return filter_condition in [
+        FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
+        FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
+        FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
+        FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY, FC_NUMBER_EXACTLY,
+        FC_NUMBER_GREATER, FC_NUMBER_GREATER_THAN_OR_EQUAL, FC_NUMBER_HIGHEST,
+        FC_NUMBER_LESS, FC_NUMBER_LESS_THAN_OR_EQUAL, FC_NUMBER_LOWEST,
+        FC_NUMBER_NOT_EXACTLY, FC_STRING_CONTAINS, FC_STRING_DOES_NOT_CONTAIN,
+        FC_STRING_ENDS_WITH, FC_STRING_EXACTLY, FC_STRING_NOT_EXACTLY,
+        FC_STRING_STARTS_WITH, FC_STRING_CONTAINS_CASE_INSENSITIVE
+    ]
+
+
+def get_default_df_formats(column_definitions: Optional[List[ColumnDefinitions]], dfs: List[pd.DataFrame]) -> Optional[List[DataframeFormat]]:
+
+    if column_definitions is None:
+        # If no column_definitions are provided, end early
+        return None
+    
+    if len(column_definitions) > len(dfs):
+        raise ValueError(f"column_definitions has formatting for {len(column_definitions)} dataframes, but only {len(dfs)} dataframes are provided.")
+
+    df_formats = []
+
+    for sheet_index, column_definitions_for_sheet in enumerate(column_definitions):
+        df = dfs[sheet_index]
+
+        df_format: DataframeFormat = {
+            'columns': {},
+            'headers': {},
+            'rows': {'even': {}, 'odd': {}},
+            'border': {},
+            'conditional_formats': []
+        }
+
+        conditional_formats = []
+        for column_defintion in column_definitions_for_sheet:
+            conditional_formats_list: List[ColumnDefinitionConditionalFormats] = column_defintion['conditional_formats']
+            for conditional_format in conditional_formats_list:
+
+                font_color = conditional_format.get('font_color', None)
+                background_color = conditional_format.get('background_color', None)
+                columns = column_defintion['columns']
+
+                # Validate the font_color and/or background_color is set
+                if font_color is None and background_color is None:
+                    raise ValueError(f"column_definititon has invalid conditional_format rules. It must set the font_color, background_color, or both.")
+                
+                # Validate the font_color is a hex value for a color
+                invalid_hex_color_error_message = "The {variable} {color} set in column_definititon is not a valid hex color. It should start with '#' and be followed by the letters from a-f, A-F and/or digits from 0-9. The length of the hexadecimal color code should be either 6 or 3, excluding '#' symbol"
+                if font_color and not is_valid_hex_color(font_color):
+                    raise ValueError(invalid_hex_color_error_message.format(variable="font_color", color=font_color))
+
+                # Validate the background_color is a hex value for a color
+                if background_color and not is_valid_hex_color(background_color):
+                    raise ValueError(invalid_hex_color_error_message.format(variable="background_color", color=background_color))
+                
+                # Validate all of the columns exist in the dataframe
+                non_existant_colums = [str(column) for column in columns if column not in list(df.columns)]
+                if len(non_existant_colums) > 0:
+                    raise ValueError(f"column_definititon attempts to set conditional formatting on columns {', '.join(non_existant_colums)}, but {'it' if len(non_existant_colums) == 0 else 'they'} don't exist in the dataframe.")
+                
+                # Validate the filter conditions are valid
+                for filter in conditional_format['filters']:
+                    if not is_valid_filter_condition(filter['condition']):
+                        raise ValueError(f"column_definititon has invalid conditional_format rules. The condition {filter['condition']} is not a valid filter condition.")
+
+                # Note: We do not verify that:
+                # 1. The filters are valid for the column type
+                # 2. The filters value is valid for the condition type
+                # because we assume that the app developer would rather the app render without the conditional formatting
+                # than to error, and the frontend handles these changes gracefully in the conditional formatting UI.
+                # Other errors, like the condition not being a valid condition supported by Mito are sheet crashing errors.
+
+                new_conditional_format: ConditionalFormat = {
+                    'format_uuid': 'format_uuid_' + str(random.random()),
+                    'columnIDs': column_defintion['columns'],
+                    'filters': conditional_format['filters'],
+                    'invalidFilterColumnIDs': [],
+                    'color': font_color,
+                    'backgroundColor': conditional_format['background_color']
+                }
+
+                conditional_formats.append(new_conditional_format)
+
+        df_format['conditional_formats'] = conditional_formats
+        df_formats.append(df_format)
+
+    return df_formats
 
 def _get_column_id_from_header_safe(
     column_header: ColumnHeader,
@@ -525,6 +632,14 @@ def is_snowflake_connector_python_installed() -> bool:
 def is_streamlit_installed() -> bool:
     try:
         import streamlit
+        return True
+    except ImportError:
+        return False
+        return False
+    
+def is_flask_installed() -> bool:
+    try:
+        import flask
         return True
     except ImportError:
         return False

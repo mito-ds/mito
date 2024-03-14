@@ -6,6 +6,8 @@ import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
 import { JOBS_BOARD_LINK, MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 import { classNames } from '../../utils/classNames';
 
+export const DISCORD_LINK = 'https://discord.gg/XdJSZyejJU';
+
 const Footer = (): JSX.Element => {
 
     return (
@@ -83,7 +85,7 @@ const Footer = (): JSX.Element => {
                         <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <a href='https://discord.gg/XdJSZyejJU' target="_blank" rel="noreferrer">Discord</a>
+                        <a href={DISCORD_LINK} target="_blank" rel="noreferrer">Discord</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>
                         <a href='https://join.slack.com/t/trymito/shared_invite/zt-1h6t163v7-xLPudO7pjQNKccXz7h7GSg' target="_blank" rel="noreferrer">Slack</a>

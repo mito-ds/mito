@@ -4,4 +4,5 @@ import streamlit as st
 st.set_page_config(layout="wide")
 
 
-spreadsheet(import_folder='data')
+dfs, code = spreadsheet(import_folder='data')
+st.code(code)

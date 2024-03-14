@@ -12,7 +12,7 @@ import random
 
 import pandas as pd
 import pytest
-from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_analysis
+from mitosheet.saved_analyses import SAVED_ANALYSIS_FOLDER, write_save_analysis_file
 from mitosheet.saved_analyses.save_utils import read_and_upgrade_analysis
 from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
 from mitosheet.tests.test_utils import (create_mito_wrapper_with_data,
@@ -32,7 +32,7 @@ def test_recover_analysis(b_value, b_formula):
     mito.set_formula(b_formula, 0, 'B', add_column=True)
     # We first write out the analysis
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df = pd.DataFrame(data={'A': [1]})
     new_mito = create_mito_wrapper(df)
@@ -51,7 +51,7 @@ def test_persist_analysis_multi_sheet(b_value, b_formula):
     mito.set_formula(b_formula, 1, 'B', add_column=True)
     # We first write out the analysis
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
     df2 = pd.DataFrame(data={'A': [1]})
@@ -73,7 +73,7 @@ def test_persist_rename_column():
     mito.rename_column(0, 'A', 'NEW_COLUMN')
 
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
 
@@ -89,7 +89,7 @@ def test_persisit_delete_column():
     mito.delete_columns(0, 'A')
 
     analysis_name = mito.mito_backend.analysis_name
-    write_analysis(mito.mito_backend.steps_manager)
+    write_save_analysis_file(mito.mito_backend.steps_manager)
 
     df1 = pd.DataFrame(data={'A': [1]})
 
@@ -281,6 +281,23 @@ def test_upgrades_old_analysis_before_replaying_it():
         pd.DataFrame({'A': [123], 'B_sum': [123]})
     )
 
+def test_save_analysis_has_code():
+    mito = create_mito_wrapper_with_data([1, 2, 3])
+    mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
+
+    random_name = 'UUID-test_save' + str(random.random())
+    mito.save_analysis(random_name)
+
+    saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
+    assert len(saved_analysis['steps_data']) == 1
+    assert saved_analysis['code'] == [
+        'from mitosheet.public.v3 import *',
+        '',
+        '# Filtered A',
+        "df1 = df1[df1['A'] == 2]",
+        ''
+    ]
+
 def test_save_analysis_saves_skipped_steps():
     mito = create_mito_wrapper_with_data([1, 2, 3])
     mito.filter(0, 'A', 'And', FC_NUMBER_EXACTLY, 2)
@@ -331,8 +348,8 @@ def test_save_and_replay_different_interface_version_works():
     saved_analysis = read_and_upgrade_analysis(random_name, ['df1'])
     assert saved_analysis is not None
     assert len(saved_analysis['steps_data']) == 0
-    print(saved_analysis)
     assert saved_analysis['public_interface_version'] == 100
+    assert saved_analysis['code'] == []
 
     new_mito = create_mito_wrapper_with_data([1, 2, 3])
     new_mito.replay_analysis(random_name)

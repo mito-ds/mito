@@ -51,19 +51,19 @@ const StepOne = (
                     Sign Up for Mito
                 </h1>
                 <p className='signup-modal-text' style={{marginTop: '10px'}}>
-                    We’ll send you periodic product updates and welcome any feedback. And no spam. Duh.
+                    We&apos;ll send you product updates, relevant documentation, and case studies. 
                 </p>
             </div>
             <form className='signup-modal-email-form' onSubmit={onSubmit}>
                 <p className='text-body-1' style={{marginTop: '10px', marginBottom: 0}}>
-                    Email
+                    Work Email
                 </p>
                 <Input
                     value={props.email}
                     onChange={(event) => {props.setEmail(event.target.value)}}
                     type='email'
                     width='large'
-                    placeholder='example@gmail.com' 
+                    placeholder='jake.diamond@apple.com' 
                     required
                     autoFocus
                 />

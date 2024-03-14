@@ -14,6 +14,11 @@ export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CT
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA = 'plausible-event-name=install_docs_cta_pressed+location_excel_to_python_glossary_in_content_cta'
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG = 'plausible-event-name=install_docs_cta_pressed+location_blog'
 
+// Copy the install instructions directly
+export const PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS = 'plausible-event-name=scrolled_to_install_instructions+location_title_card'
+export const PLAUSIBLE_COPIED_PIP_INSTALL_COMMAND = 'plausible-event-name=copied_pip_install_command+location_install_instructions'
+export const PLAUSIBLE_COPIED_MITOSHEET_HELLO_COMMAND = 'plausible-event-name=copied_mitosheet_hello_command+location_install_instructions'
+
 // The user copied the code from a code block that contains a Mito exported function, ie: SUM(df['A']) from the glossary page
 export const PLAUSIBLE_COPIED_CODE_MITO_EXPORTED_FUNCTION = 'plausible-event-name=copied_code_mito_exported_function'
 // The user copied some other code from a code block that does not contain a Mito exported function

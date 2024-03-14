@@ -41,12 +41,12 @@ npm run test:dash -- --project=chromium
 
 ### Jupyter Specific Tests
 
-First, you need to run:
+First, you need to run (from the mitosheet/ directory):
 ```
 jupyter labextension develop . --overwrite
 ```
 
-Run 
+For **JupyterLab**, run: 
 ```
 jupyter lab --config jupyter_server_test_config.py
 ```
@@ -55,6 +55,17 @@ And then in a separate terminal run
 ```
 npm run test:jupyterlab -- --project=chromium
 ```
+
+For **Jupyter notebook**, run: 
+```
+jupyter notebook --config jupyter_notebook_config.py
+```
+
+And then in a separate terminal run 
+```
+npm run test:notebook -- --project=chromium
+```
+
 
 Add a `--headed` flag to see the test run.
 
