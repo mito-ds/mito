@@ -194,6 +194,14 @@ const PRESENTATION_FEATURES: Feature[] = [
       'Enterprise': true 
     }
   },
+  {
+    feature: 'Apply Custom Styling',
+    planSupport: {
+      'Open Source': false,
+      'Pro': false,
+      'Enterprise': true 
+    }
+  },
 ]
 
 const TRANSFORMATION_FEATURES: Feature[] = [
