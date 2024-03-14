@@ -180,6 +180,19 @@ test.describe('Graph Functionality', () => {
     await expect(mito.locator('.legend')).toHaveText('variableColumn1Column2');
   });
 
+  test('Can scroll in the select data taskpane', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await openGraphEditor(mito, page);
+
+    await expect(mito.getByText('Facet row')).toBeVisible();
+
+    await addColumnToAxis(mito, page, 'Y', 'Column2');
+    await addColumnToAxis(mito, page, 'Y', 'Column3');
+    await expect(mito.getByText('Facet row')).not.toBeInViewport();
+    await mito.getByText('Facet row').scrollIntoViewIfNeeded();
+    await expect(mito.getByText('Facet row')).toBeInViewport();
+  });
+
   test('Make a histogram and change the histogram specific configurations', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     
