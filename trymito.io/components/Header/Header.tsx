@@ -141,12 +141,6 @@ const Header = (): JSX.Element => {
                 {/* About Dropdown */}
                 <HeaderDropdown dropdownButtonTitle="About">
                   <HeaderDropdownItem
-                    title='Customers'
-                    href='/customers'
-                    iconSrc='/customers.svg'
-                    altText="Customers"
-                  />
-                  <HeaderDropdownItem
                     title='Blog'
                     href='/blog'
                     iconSrc='/blog.svg'
@@ -235,12 +229,6 @@ const Header = (): JSX.Element => {
                   <Link href='/plans'>Plans</Link>
                 </li>
                 <li className='highlight-on-hover'>
-                  <Link href='/customers'>Customers</Link>
-                </li>
-                <li className='highlight-on-hover'>
-                  <Link href='/security'>Security</Link>
-                </li>
-                <li className='highlight-on-hover'>
                   <Link href='/blog'>Blog</Link>
                 </li>
                 <li className='highlight-on-hover'>
@@ -251,9 +239,6 @@ const Header = (): JSX.Element => {
                 </li>
                 <li className='highlight-on-hover'>
                   <a href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">GitHub</a>
-                </li>
-                <li className='highlight-on-hover'>
-                  <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">We&apos;re hiring!</a>
                 </li>
               </ul>
             </nav>

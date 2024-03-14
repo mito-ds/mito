@@ -68,7 +68,7 @@ Furthermore, if the final `jlpm run watch` or `npm install` command fails, you m
 If you are developing on the `mitosheet` package, you can also develop in a Jupyter Notebook. Simply run the comands:
 
 ```
-jupyter nbextension uninstall mitosheet # NOTE: not sure why this first is needed. Somehow, it gets installed in the setup.py...
+jupyter nbextension uninstall mitosheet
 jupyter nbextension install --py --symlink --sys-prefix mitosheet
 jupyter nbextension enable --py --sys-prefix mitosheet           
 ```

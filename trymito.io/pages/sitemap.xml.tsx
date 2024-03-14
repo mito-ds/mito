@@ -43,9 +43,6 @@ function generateSiteMap(glossarySlugs: string[], blogPostSlugs: string[]) {
                 <loc>https://www.trymito.io/industries/life-sciences</loc>
             </url>
             <url>
-                <loc>https://www.trymito.io/customers</loc>
-            </url>
-            <url>
                 <loc>https://www.trymito.io/security</loc>
             </url>
             <url>

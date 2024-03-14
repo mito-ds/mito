@@ -9,6 +9,10 @@
     flex-basis: 0;
 }
 
+.container:hover {
+    background-color: var(--color-light-background-accent);
+}
+
 .title_text {
     font-size: 2rem;
     color: var(--color-text-primary)

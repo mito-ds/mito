@@ -5,6 +5,7 @@ import ctaButtons from './CTAButtons.module.css'
 import { classNames } from '../../utils/classNames';
 
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
+export const CALENDLY_LINK = "https://calendly.com/jake_from_mito/30min";
 
 const CTAButtons = (props: {
     variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install' | 'book a demo',
@@ -64,7 +65,7 @@ const CTAButtons = (props: {
                     <div className='only-on-desktop'>
                         <TextButton 
                             text='Book an Enterprise Demo'
-                            href="https://calendly.com/jake_from_mito/30min"
+                            href={CALENDLY_LINK}
                             variant='secondary'
                             className={props.textButtonClassName}
                         />
@@ -72,7 +73,7 @@ const CTAButtons = (props: {
                     <div className='only-on-mobile'>
                         <TextButton 
                             text='Book a Demo'
-                            href="https://calendly.com/jake_from_mito/30min"
+                            href={CALENDLY_LINK}
                             variant='secondary'
                             className={props.textButtonClassName}
                         />

@@ -102,9 +102,6 @@ const Footer = (): JSX.Element => {
                         Company
                     </ol>
                     <li className={classNames(footerStyle.nav_item)}>
-                        <Link href='/customers'>Customers</Link>
-                    </li>
-                    <li className={classNames(footerStyle.nav_item)}>
                         <a href={JOBS_BOARD_LINK} target="_blank" rel="noreferrer">Jobs</a>
                     </li>
                     <li className={classNames(footerStyle.nav_item)}>

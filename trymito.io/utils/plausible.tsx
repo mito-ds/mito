@@ -20,7 +20,13 @@ export const PLAUSIBLE_COPIED_PIP_INSTALL_COMMAND = 'plausible-event-name=copied
 export const PLAUSIBLE_COPIED_MITOSHEET_HELLO_COMMAND = 'plausible-event-name=copied_mitosheet_hello_command+location_install_instructions'
 
 // The user copied the code from a code block that contains a Mito exported function, ie: SUM(df['A']) from the glossary page
-export const PLAUSIBLE_MITO_EXPORTED_FUNCTION_CODE_COPIED = 'plausible-event-name=mito_exported_function_code_copied'
+export const PLAUSIBLE_COPIED_CODE_MITO_EXPORTED_FUNCTION = 'plausible-event-name=copied_code_mito_exported_function'
+// The user copied some other code from a code block that does not contain a Mito exported function
+export const PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION = 'plausible-event-name=copied_code_non_mito_exported_function'
 
 // The user clicked a book a demo CTA
 export const PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED = 'plausible-event-name=book_a_demo_cta_pressed+location_title_card'
+export const PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED_PLANS_PAGE = 'plausible-event-name=book_a_demo_cta_pressed+location_plans_page'
+
+// The user copies the pip install mitosheet command from the homepage
+export const PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET = 'plausible-event-name=copied_pip_install_mitosheet+location_homepage'
