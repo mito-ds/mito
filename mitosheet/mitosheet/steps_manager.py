@@ -37,7 +37,7 @@ from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
 from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
-from mitosheet.user.utils import is_enterprise, is_running_test
+from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_default_df_formats, get_new_id, is_default_df_names
 from mitosheet.step_performers.utils.user_defined_function_utils import get_user_defined_importers_for_frontend, get_user_defined_editors_for_frontend
 from mitosheet.step_performers.utils.user_defined_function_utils import validate_and_wrap_sheet_functions, validate_user_defined_editors
@@ -253,6 +253,9 @@ class StepsManager:
         if not is_running_test() and not is_enterprise() and self.user_defined_editors is not None and len(self.user_defined_editors) > 0:
             raise ValueError("editors are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
         
+        if not is_running_test() and not is_pro() and column_definitions is not None:
+            raise ValueError("column definitions are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
+
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
 
