@@ -193,6 +193,14 @@ test.describe('Graph Functionality', () => {
     await expect(mito.getByText('Facet row')).toBeInViewport();
   });
 
+  test('Pressing undo after opening graph editor closes the graph editor', async ({ page }) => {
+    const mito = await getMitoFrameWithTestCSV(page);
+    await openGraphEditor(mito, page);
+    await mito.getByTitle('Undo the most recent edit. (Ctrl+Z)').click();
+    await expect(mito.locator('.tab-selected', { hasText: 'test' })).toBeVisible();
+    await expect(mito.locator('.endo-column-header-final-text').first()).toHaveText('Column1');
+  });
+
   test('Make a histogram and change the histogram specific configurations', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     

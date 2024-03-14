@@ -335,6 +335,23 @@ export const Mito = (props: MitoProps): JSX.Element => {
         loadPlotly()
     }, [])
 
+    /**
+     * This useEffect handles when the user creates a graph, then presses undo.
+     */
+    useEffect(() => {
+        if (uiState.currOpenTaskpane.type === TaskpaneType.GRAPH &&
+            analysisData.graphDataArray.length === 0) {
+            setUIState(prevUIState => {
+                return {
+                    ...prevUIState,
+                    currOpenTaskpane: {type: TaskpaneType.NONE},
+                    selectedTabType: 'data',
+                    selectedSheetIndex: 0
+                }
+            })
+        }
+    }, [analysisData.graphDataArray])
+
     /* 
         When the number of sheets increases, we make sure
         that the last sheet is highlighted. If it decreases,
