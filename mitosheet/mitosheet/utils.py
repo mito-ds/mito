@@ -366,7 +366,7 @@ def get_default_df_formats(column_definitions: Optional[List[ColumnDefinitions]]
                     'filters': conditional_format['filters'],
                     'invalidFilterColumnIDs': [],
                     'color': font_color,
-                    'backgroundColor': conditional_format['background_color']
+                    'backgroundColor': background_color
                 }
 
                 conditional_formats.append(new_conditional_format)

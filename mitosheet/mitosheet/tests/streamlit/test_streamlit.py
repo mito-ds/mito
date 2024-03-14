@@ -138,3 +138,30 @@ def test_spreadsheet_with_column_definitions():
         return_type='function'
     )
     assert callable(f)
+
+@requires_streamlit   
+def test_spreadsheet_with_column_definitions_only_one_color():
+    f = spreadsheet(
+        df1, 
+        column_definitions=[
+            [
+                {
+                    'columns': ['A'],
+                    'conditional_formats': [{
+                        'filters': [{'condition': 'greater_than_or_equal', 'value': 5}], 
+                        'font_color': '#c30010', 
+                    }] 
+                },
+                {
+                    'columns': ['A'],
+                    'conditional_formats': [{
+                        'filters': [{'condition': 'less', 'value': 2}], 
+                        'background_color': '#ddcbd1' 
+                    }] 
+                }
+            ]
+        ], 
+        code_options={'as_function': True, 'call_function': False, 'function_name': 'test', 'function_params': {}}, 
+        return_type='function'
+    )
+    assert callable(f)
