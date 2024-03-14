@@ -11,9 +11,8 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 import pytest
 from mitosheet.state import NUMBER_FORMAT_PLAIN_TEXT, NUMBER_FORMAT_CURRENCY, get_default_dataframe_format
-from mitosheet.step_performers.filter import FC_NUMBER_GREATER
 from mitosheet.tests.test_utils import create_mito_wrapper
-from mitosheet.types import ConditionalFormat, DataframeFormat
+from mitosheet.types import ConditionalFormat, DataframeFormat, FC_NUMBER_GREATER
 
 
 

@@ -8,7 +8,7 @@ Contains tests for undo edit events.
 """
 import pandas as pd
 
-from mitosheet.step_performers.filter import FC_NUMBER_EXACTLY
+from mitosheet.types import FC_NUMBER_EXACTLY
 from mitosheet.tests.test_utils import create_mito_wrapper_with_data, create_mito_wrapper
 
 
