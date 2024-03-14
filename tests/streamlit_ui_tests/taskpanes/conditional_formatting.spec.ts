@@ -26,11 +26,10 @@ test.describe('Conditional Formatting', () => {
         await mito.getByText('Generate Export Code').click();
         awaitResponse(page)
 
-        // Make sure the code doesn't have mito css variables in it
-        await expect(mito.locator('.stCodeBlock').first()).not.toHaveText('var(--mito-text)');
-        await expect(mito.locator('.stCodeBlock').first()).not.toHaveText('var(--mito-background-off')
-
-        // There should be no styler, since no style is set
-        await expect(mito.locator('.stCodeBlock').first()).not.toHaveText('styler')
+        // Make sure the code doesn't have mito css variables in it and there should be no styler since 
+        // no style is actually applied!
+        await expect(mito.getByText('var(--mito-text)')).not.toBeVisible();
+        await expect(mito.getByText('var(--mito-background-off')).not.toBeVisible();
+        await expect(mito.getByText('styler')).not.toBeVisible();
     });
 })
