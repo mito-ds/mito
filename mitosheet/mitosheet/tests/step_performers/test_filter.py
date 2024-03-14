@@ -322,6 +322,8 @@ FILTER_TESTS = [
             data={"A": pd.to_datetime(pd.Series(data=["12-2-2020", "12-3-2020"]))}
         ),
     ),
+    # Test for when the year is not fully inputted yet so the date is invalid. 
+    # We don't throw an error for this so that the user can continue inputting the date.
     (
         pd.DataFrame(
             data={"A": pd.to_datetime(pd.Series(data=["12-2-2020", "12-3-2020"]))}

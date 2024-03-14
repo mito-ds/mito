@@ -191,6 +191,8 @@ def get_single_filter_string(
     condition = filter_["condition"]
     value = filter_["value"]
 
+    # When users are mid-way through typing a date in the UI, it might not be valid yet.
+    # To prevent throwing errors, we set it to the minimum date
     if is_datetime_dtype(column_dtype):
         try: 
             pd.to_datetime(value)
