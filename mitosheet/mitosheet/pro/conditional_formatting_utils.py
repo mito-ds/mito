@@ -49,8 +49,11 @@ def get_conditonal_formatting_result(
 
                 for index in applied_indexes:
                     # We need to make this index valid json, and do so in a way that is consistent with how indexes
-                    # are sent to the frontend
-                    json_index = json.dumps(index, cls=NpEncoder)
+                    # are sent to the frontend. However, if the index is a string, we don't want to add quotes around it
+                    if isinstance(index, str):
+                        json_index = index
+                    else:
+                        json_index = json.dumps(index, cls=NpEncoder)
                     formatted_result[column_id][json_index] = {'backgroundColor': backgroundColor, 'color': color}
 
         except Exception as e:
