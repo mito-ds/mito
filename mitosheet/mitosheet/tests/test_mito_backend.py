@@ -191,4 +191,12 @@ def test_create_backend_with_code_options_works():
     mito_backend = MitoBackend(code_options=code_options)
     assert mito_backend.steps_manager.code_options == code_options
 
+def test_create_backend_default_apply_formula_to_column_false():
+    mito_backend = MitoBackend(default_apply_formula_to_column=False)
+    assert mito_backend.steps_manager.default_apply_formula_to_column == False
+
+    mito_backend = MitoBackend(default_apply_formula_to_column=True)
+    assert mito_backend.steps_manager.default_apply_formula_to_column == True
+
+
     

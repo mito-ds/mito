@@ -9,6 +9,7 @@ Contains tests for Export To File
 
 import glob
 import os
+import openpyxl
 import pandas as pd
 import pytest
 from mitosheet.tests.test_utils import check_dataframes_equal, create_mito_wrapper, get_dataframe_generation_code

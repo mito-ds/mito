@@ -130,7 +130,7 @@ const CellEditor = (props: {
                 return prevEditingState;
             } 
             
-            const startingColumnFormula = getStartingFormula(sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex).startingColumnFormula
+            const startingColumnFormula = getStartingFormula(sheetData, prevEditingState, props.editorState.rowIndex, props.editorState.columnIndex, props.analysisData.defaultApplyFormulaToColumn).startingColumnFormula
             return {
                 ...prevEditingState,
                 formula: startingColumnFormula

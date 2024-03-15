@@ -58,6 +58,7 @@ class MitoBackend():
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
+            default_apply_formula_to_column: Optional[bool]=True,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -106,7 +107,8 @@ class MitoBackend():
             user_defined_editors=user_defined_editors,
             code_options=code_options,
             column_definitions=column_definitions,
-            theme=theme
+            theme=theme,
+            default_apply_formula_to_column=default_apply_formula_to_column
         )
 
         # And the api

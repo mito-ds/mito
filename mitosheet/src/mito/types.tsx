@@ -802,6 +802,7 @@ export interface AnalysisData {
         pathParts: string[],
     } | null;
     theme: MitoTheme | null; 
+    defaultApplyFormulaToColumn: boolean;
 }
 
 export interface MitoConfig {
