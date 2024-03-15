@@ -17,6 +17,6 @@
 
 export const focusGrid = (containerDiv: HTMLDivElement | null | undefined): void => {
     if (containerDiv) {
-        containerDiv.focus()
+        containerDiv.focus({preventScroll: true})
     }
 } 
