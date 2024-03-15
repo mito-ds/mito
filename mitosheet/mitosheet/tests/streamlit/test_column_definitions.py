@@ -1,3 +1,4 @@
+import json
 import pytest
 from mitosheet.mito_backend import MitoBackend, get_mito_backend
 import pandas as pd
@@ -233,7 +234,28 @@ def test_create_backend_with_column_definitions_does_not_error_with_mismatch_con
     assert df_formats[0]['conditional_formats'][0]['invalidFilterColumnIDs'] == []
         
 
+def test_column_definitions_with_string_indexes_conditional_format_works():
+    column_definitions= [
+        [
+            {
+                'columns': ['A'],
+                'conditional_formats': [{
+                    'filters': [{'condition': 'number_exactly', 'value': 2}], 
+                    'font_color': '#c30010', 
+                    'background_color': '#ffcbd1' 
+                }] 
+            }
+        ]
+    ]
 
+
+    mito_backend = get_mito_backend(pd.DataFrame({'A': [1, 2, 3]}, index=['S1', 'S2', 'S3']), column_definitions=column_definitions)
+    sheet_json = mito_backend.get_shared_state_variables()['sheet_data_json']
+    sheet_data = json.loads(sheet_json)[0]
+    conditional_formatting_result = sheet_data['conditionalFormattingResult']
+    assert len(conditional_formatting_result['results']) == 1
+    assert len(conditional_formatting_result['results']['A']) == 1
+    assert 'S2' in conditional_formatting_result['results']['A']
 
 
 
