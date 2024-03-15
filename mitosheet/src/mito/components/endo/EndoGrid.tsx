@@ -544,6 +544,9 @@ function EndoGrid(props: {
 
     // On double click, open the cell editor on this cell
     const onDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (editorState !== undefined) {
+            return;
+        }
         const {rowIndex, columnIndex} = getIndexesFromMouseEvent(e);
         // Don't open for headers
         if ((rowIndex === undefined || columnIndex === undefined) || getIsHeader(rowIndex, columnIndex)) {

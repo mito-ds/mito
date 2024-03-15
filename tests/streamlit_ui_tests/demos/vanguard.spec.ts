@@ -72,6 +72,7 @@ test('Vanguard Demo', async ({ page }) => {
     await awaitResponse(page);
     await mito.locator('.spacing-row', { hasText: 'Rows' }).getByText('Add').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'Fund' }).click();
+    await awaitResponse(page);
 
     await mito.locator('.spacing-row', { hasText: 'Columns' }).getByText('Add').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'Date' }).click();
@@ -85,7 +86,9 @@ test('Vanguard Demo', async ({ page }) => {
     await awaitResponse(page);
 
     await mito.locator('.select-text', { hasText: 'count' }).click();
+    await awaitResponse(page);
     await mito.locator('.mito-dropdown-item', { hasText: 'sum' }).click();
+    await awaitResponse(page);
 
     await page.locator('.element-container', { hasText: 'Provider Name' }).locator('input').fill('Vanguard');
     await page.getByText('Save Automation').click();

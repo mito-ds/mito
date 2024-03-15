@@ -204,6 +204,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     class ColumnHeaderWithFilter(TypedDict):
         column_header: ColumnHeader
+        column_dtype: str
         filter: Filter
 
     class ColumnIDWithPivotTransform(TypedDict):

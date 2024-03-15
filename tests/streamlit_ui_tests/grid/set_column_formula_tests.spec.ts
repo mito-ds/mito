@@ -143,6 +143,21 @@ test('Reference cell in previous row by clicking on it', async ({ page }) => {
     expect(cellValues).toEqual(['0', '1', '4', '7']);
 });
 
+test('Double clicking on cell while cell editor is open does not close cell editor', async ({ page }) => {
+    const columnHeader = 'Column4';
+
+    const mito = await getMitoFrameWithTestCSV(page);
+    await createNewColumn(page, mito, 3, columnHeader);
+
+    const cell = await getCellAtRowIndexAndColumnName(mito, 0, columnHeader);
+    await cell.dblclick();
+    await mito.getByRole('textbox').fill('=');
+
+    const otherCell = await getCellAtRowIndexAndColumnName(mito, 0, 'Column1');
+    await otherCell.dblclick();
+    await expect(mito.locator('#cell-editor-input')).toHaveValue('=Column10');
+});
+
 test('Use arrow keys to select cell', async ({ page }) => {
     const columnHeader = 'Column4';
 

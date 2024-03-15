@@ -15,7 +15,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from mitosheet.saved_analyses import read_and_upgrade_analysis
-from mitosheet.step_performers.filter import (FC_BOOLEAN_IS_TRUE,
+from mitosheet.types import (FC_BOOLEAN_IS_TRUE,
                                               FC_DATETIME_EXACTLY,
                                               FC_NUMBER_EXACTLY,
                                               FC_NUMBER_GREATER,
@@ -34,7 +34,6 @@ from mitosheet.step_performers.sort import SORT_DIRECTION_ASCENDING
 from mitosheet.tests.decorators import pandas_post_1_only, pandas_pre_1_only
 from mitosheet.tests.test_utils import (create_mito_wrapper,
                                         get_dataframe_generation_code)
-from mitosheet.types import ColumnHeaderWithPivotTransform
 
 
 def test_simple_pivot():
