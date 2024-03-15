@@ -7,7 +7,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from pandas import DataFrame, ExcelWriter
 
 from mitosheet.excel_utils import get_column_from_column_index
-from mitosheet.is_type_utils import is_float_dtype
+from mitosheet.is_type_utils import is_float_dtype, is_int_dtype
 from mitosheet.types import (
     FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY,
     FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
@@ -152,13 +152,15 @@ def add_number_formatting(
     for column_index in default_number_format_column_indexes:
         column_header = column_headers[column_index]
         dtype = str(df[column_header].dtype)
-        if not is_float_dtype(dtype):
-            continue
-
         column = get_column_from_column_index(column_index)
         cell_range = f'{column}2:{column}{sheet.max_row}'
-        for cell in sheet[cell_range]:
-            cell[0].number_format = '#,##0.00'
+
+        if is_float_dtype(dtype):
+            for cell in sheet[cell_range]:
+                cell[0].number_format = '#,##0.00'
+        if is_int_dtype(dtype):
+            for cell in sheet[cell_range]:
+                cell[0].number_format = '#,##0'
 
 def add_header_formatting_to_excel_sheet(
     writer: ExcelWriter,

@@ -253,7 +253,7 @@ def write_to_excel(
             sheet_name = get_df_name_as_valid_sheet_name(df_name)
 
             # Write the dataframe to the sheet
-            df.to_excel(writer, sheet_name, index=False)
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
 
             # Add formatting to the sheet for pro users
             format = state.df_formats[sheet_index]
