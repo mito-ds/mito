@@ -7,13 +7,13 @@ import json
 import os
 import pickle
 import re
-from typing import Any, Dict, List, Callable, Literal, Optional, Tuple, Union
+from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.selection_utils import get_selected_element
-from mitosheet.types import CodeOptions, ColumnDefinitions, ConditionalFormat, ParamMetadata, ParamType
+from mitosheet.types import CodeOptions, ColumnDefinitions, ConditionalFormat, DefaultEditingMode, ParamMetadata, ParamType
 from mitosheet.user.utils import is_pro
 from mitosheet.utils import get_new_id
 
@@ -271,7 +271,7 @@ try:
             _sheet_functions: Optional[List[Callable]]=None, 
             _code_options: Optional[CodeOptions]=None,
             _column_definitions: Optional[List[ColumnDefinitions]]=None,
-            _default_editing_mode: Optional[Literal['cell', 'column']]=None,
+            _default_editing_mode: Optional[DefaultEditingMode]=None,
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
@@ -326,7 +326,7 @@ try:
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
-            default_editing_mode: Optional[Literal['cell', 'column']]=None,
+            default_editing_mode: Optional[DefaultEditingMode]=None,
             return_type: str='default',
             height: Optional[str]=None,
             key=None

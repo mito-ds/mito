@@ -12,7 +12,7 @@ import os
 import re
 import time
 from sysconfig import get_python_version
-from typing import Any, Dict, List, Literal, Optional, Union, Callable
+from typing import Any, Dict, List, Optional, Union, Callable
 
 import numpy as np
 import pandas as pd
@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_save_analysis_file
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, ConditionalFormat, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, ConditionalFormat, DefaultEditingMode, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
@@ -58,7 +58,7 @@ class MitoBackend():
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
-            default_editing_mode: Optional[Literal['cell', 'column']]=None,
+            default_editing_mode: Optional[DefaultEditingMode]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
