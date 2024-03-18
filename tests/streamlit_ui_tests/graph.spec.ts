@@ -196,7 +196,7 @@ test.describe('Graph Functionality', () => {
   test('Pressing undo after opening graph editor closes the graph editor', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await openGraphEditor(mito, page);
-    await mito.getByTitle('Undo the most recent edit. (Ctrl+Z)').click();
+    await mito.getByTitle(/Undo the most recent edit/).click();
     await expect(mito.locator('.tab-selected', { hasText: 'test' })).toBeVisible();
     await expect(mito.locator('.endo-column-header-final-text').first()).toHaveText('Column1');
   });
