@@ -7,9 +7,8 @@ import json
 import os
 import pickle
 import re
-from typing import Any, Dict, List, Callable, Optional, Tuple, Union
+from typing import Any, Dict, List, Callable, Literal, Optional, Tuple, Union
 
-from altair import Literal
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend

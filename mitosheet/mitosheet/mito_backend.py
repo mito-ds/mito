@@ -12,9 +12,8 @@ import os
 import re
 import time
 from sysconfig import get_python_version
-from typing import Any, Dict, List, Optional, Union, Callable
+from typing import Any, Dict, List, Literal, Optional, Union, Callable
 
-from altair import Literal
 import numpy as np
 import pandas as pd
 from IPython import get_ipython
