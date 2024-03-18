@@ -350,7 +350,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 }
             })
         }
-    }, [analysisData.graphDataArray])
+    }, [analysisData.graphDataArray.length])
 
     /* 
         When the number of sheets increases, we make sure
