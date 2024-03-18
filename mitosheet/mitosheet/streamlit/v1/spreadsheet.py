@@ -9,6 +9,7 @@ import pickle
 import re
 from typing import Any, Dict, List, Callable, Optional, Tuple, Union
 
+from altair import Literal
 import pandas as pd
 
 from mitosheet.mito_backend import MitoBackend
@@ -271,7 +272,7 @@ try:
             _sheet_functions: Optional[List[Callable]]=None, 
             _code_options: Optional[CodeOptions]=None,
             _column_definitions: Optional[List[ColumnDefinitions]]=None,
-            _default_apply_formula_to_column: Optional[bool],
+            _default_editing_mode: Optional[Literal['cell', 'column']]=None,
             import_folder: Optional[str]=None,
             df_names: Optional[List[str]]=None,
             session_id: Optional[str]=None,
@@ -284,7 +285,7 @@ try:
             user_defined_importers=_importers, user_defined_functions=_sheet_functions, user_defined_editors=_editors,
             code_options=_code_options,
             column_definitions = _column_definitions,
-            default_apply_formula_to_column=_default_apply_formula_to_column,
+            default_editing_mode=_default_editing_mode,
         )
 
         # Make a send function that stores the responses in a list
@@ -326,7 +327,7 @@ try:
             import_folder: Optional[str]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
-            default_apply_formula_to_column: Optional[bool]=None,
+            default_editing_mode: Optional[Literal['cell', 'column']]=None,
             return_type: str='default',
             height: Optional[str]=None,
             key=None
@@ -374,7 +375,7 @@ try:
             _editors=editors,
             _code_options=code_options,
             _column_definitions=column_definitions,
-            _default_apply_formula_to_column=default_apply_formula_to_column,
+            _default_editing_mode=default_editing_mode,
             import_folder=import_folder,
             session_id=session_id,
             df_names=df_names, 

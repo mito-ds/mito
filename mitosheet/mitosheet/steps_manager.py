@@ -258,7 +258,7 @@ class StepsManager:
             raise ValueError("column definitions are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
         
         if not is_running_test() and not is_pro() and default_apply_formula_to_column is not None:
-            raise ValueError(f'Setting default_apply_formula_to_column is only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans')
+            raise ValueError(f'Setting default_editing_mode is only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans')
 
         # The version of the public interface used by this analysis
         self.public_interface_version = 3

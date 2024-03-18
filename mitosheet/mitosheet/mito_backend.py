@@ -14,6 +14,7 @@ import time
 from sysconfig import get_python_version
 from typing import Any, Dict, List, Optional, Union, Callable
 
+from altair import Literal
 import numpy as np
 import pandas as pd
 from IPython import get_ipython
@@ -58,7 +59,7 @@ class MitoBackend():
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
-            default_apply_formula_to_column: Optional[bool]=True,
+            default_editing_mode: Optional[Literal['cell', 'column']]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -94,6 +95,8 @@ class MitoBackend():
 
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
+            
+        default_apply_formula_to_column = False if default_editing_mode == 'cell' else True
             
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(

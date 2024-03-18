@@ -170,7 +170,7 @@ def test_spreadsheet_with_column_definitions_only_one_color():
 def test_spreadsheet_with_default_apply_formula_to_column():
     f = spreadsheet(
         df1, 
-        default_apply_formula_to_column=False,
+        default_editing_mode='cell',
         code_options={'as_function': True, 'call_function': False, 'function_name': 'test', 'function_params': {}}, 
         return_type='function'
     )
