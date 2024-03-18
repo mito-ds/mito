@@ -86,6 +86,13 @@ export const getCellEditorInputCurrentSelection = (containerDiv: HTMLDivElement 
     }
 }
 
+/**
+ * Gets the editing mode that the cell editor should start in, based on the default.
+ */
+export const getDefaultEditingMode = (defaultApplyFormulaToColumn: boolean): 'entire_column' | 'specific_index_labels' => {
+    return defaultApplyFormulaToColumn ? 'entire_column' : 'specific_index_labels';
+}
+
 
 /**
  * Keys that don't get appended to the cell editing mode when you
@@ -118,9 +125,6 @@ export const getStartingFormula = (
     e?: KeyboardEvent
 ): {startingColumnFormula: string, arrowKeysScrollInFormula: boolean, editingMode: 'entire_column' | 'specific_index_labels'} => {
 
-    const getDefaultEditingMode = (defaultApplyFormulaToColumn: boolean): 'entire_column' | 'specific_index_labels' => {
-        return defaultApplyFormulaToColumn ? 'entire_column' : 'specific_index_labels';
-    }
     // Preserve the formula if setting the same column's formula and you're just switching cell editors.
     // ie: from the floating cell editor to the formula bar.
     if (editorState !== undefined && editorState.columnIndex === columnIndex) {

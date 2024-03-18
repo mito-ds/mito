@@ -12,6 +12,7 @@ df = pd.DataFrame({
 new_dfs, code = spreadsheet(
     df, 
     height='1200px',
+    default_editing_mode='cell',
     column_definitions=[
         [
             {
