@@ -149,7 +149,7 @@ setup_args = dict(
     zip_safe                = False,
     python_requires         = ">=3.6",
     platforms               = "Linux, Mac OS X, Windows",
-    keywords                = ["Jupyter", "JupyterLab", "JupyterLab3"],
+    keywords                = [], # Remove keywords as they are causing issues with PyPI
     classifiers             = [
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python",
