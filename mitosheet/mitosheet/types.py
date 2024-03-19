@@ -383,8 +383,9 @@ if sys.version_info[:3] > (3, 8, 0):
         columns: List[ColumnHeader]
         conditional_formats: List[ColumnDefinitionConditionalFormats]
 
-    # TODO: This is a confusing name. Think of a better one.
     ColumnDefinitions = List[ColumnDefinintion]
+
+    DefaultEditingMode = Literal['cell', 'column']
 
     UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader']
 
@@ -455,6 +456,7 @@ else:
     ColumnDefinitionConditionalFormats = Any # type: ignore
     ColumnDefinintion = Any # type: ignore
     ColumnDefinitions = Any # type: ignore
+    DefaultEditingMode = Any # type: ignore
 
     ParamName = str # type: ignore
     ParamType = str # type: ignore

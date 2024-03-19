@@ -29,7 +29,7 @@ from mitosheet.saved_analyses import write_save_analysis_file
 from mitosheet.steps_manager import StepsManager
 from mitosheet.telemetry.telemetry_utils import (log, log_event_processed,
                                                  telemetry_turned_on)
-from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, ConditionalFormat, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, ConditionalFormat, DefaultEditingMode, MitoTheme, ParamMetadata
 from mitosheet.updates.replay_analysis import REPLAY_ANALYSIS_UPDATE
 from mitosheet.user.create import try_create_user_json_file
 from mitosheet.user.db import USER_JSON_PATH, get_user_field
@@ -58,6 +58,7 @@ class MitoBackend():
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
+            default_editing_mode: Optional[DefaultEditingMode]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -94,6 +95,8 @@ class MitoBackend():
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
             
+        default_apply_formula_to_column = False if default_editing_mode == 'cell' else True
+            
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(
             args, 
@@ -106,7 +109,8 @@ class MitoBackend():
             user_defined_editors=user_defined_editors,
             code_options=code_options,
             column_definitions=column_definitions,
-            theme=theme
+            theme=theme,
+            default_apply_formula_to_column=default_apply_formula_to_column
         )
 
         # And the api

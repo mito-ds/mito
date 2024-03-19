@@ -8,9 +8,11 @@ st.title('Tesla Stock Volume Analysis')
 df = pd.DataFrame({
     'A': [1, 2, 3, 4, 5, 6, 7, 8, 9],
     'B': [1, 2, 3, 4, 5, 6, 7, 8, 9]
-})
+}, index=['a', 'b', 'c', 'd', 'e', 'b', 'g', 'h', 'i'])
 new_dfs, code = spreadsheet(
     df, 
+    height='1200px',
+    default_editing_mode='cell',
     column_definitions=[
         [
             {

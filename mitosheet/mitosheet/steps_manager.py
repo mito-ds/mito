@@ -188,6 +188,7 @@ class StepsManager:
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
+            default_apply_formula_to_column: Optional[bool]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -255,6 +256,9 @@ class StepsManager:
         
         if not is_running_test() and not is_pro() and column_definitions is not None:
             raise ValueError("column definitions are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
+        
+        if not is_running_test() and not is_pro() and default_apply_formula_to_column is not None:
+            raise ValueError(f'Setting default_editing_mode is only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans')
 
         # The version of the public interface used by this analysis
         self.public_interface_version = 3
@@ -348,6 +352,7 @@ class StepsManager:
         self.code_options: CodeOptions = get_default_code_options(self.analysis_name) if code_options is None else code_options
 
         self.theme = theme
+        self.default_apply_formula_to_column = default_apply_formula_to_column if default_apply_formula_to_column is not None else True
 
     @property
     def curr_step(self) -> Step:
@@ -421,7 +426,8 @@ class StepsManager:
                     'path': self.import_folder,
                     'pathParts': get_path_parts(self.import_folder)
                 } if self.import_folder is not None else None,
-                "theme": self.theme
+                "theme": self.theme,
+                "defaultApplyFormulaToColumn": self.default_apply_formula_to_column
             },
             cls=NpEncoder
         )

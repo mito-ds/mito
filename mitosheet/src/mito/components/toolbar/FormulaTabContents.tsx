@@ -65,7 +65,7 @@ export const FormulaTabContents = (
                         } else {
                             const rowIndex = props.gridState.selections[0].startingRowIndex;
                             const columnIndex = props.gridState.selections[0].startingColumnIndex;
-                            const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, props.editorState, rowIndex, columnIndex);
+                            const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, props.editorState, rowIndex, columnIndex, false);
                             const newFormula = `=${functionObject.function}(${startingColumnFormula.startsWith('=') ? startingColumnFormula.substring(1) : startingColumnFormula}`;
 
                             props.setEditorState({
