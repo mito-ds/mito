@@ -35,7 +35,7 @@ from mitosheet.step_performers.import_steps.snowflake_import import \
     SnowflakeImportStepPerformer
 from mitosheet.transpiler.transpile import transpile
 from mitosheet.transpiler.transpile_utils import get_default_code_options
-from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, MitoTheme, ParamMetadata
+from mitosheet.types import CodeOptions, ColumnDefinintion, ColumnDefinitions, DefaultEditingMode, MitoTheme, ParamMetadata
 from mitosheet.updates import UPDATES
 from mitosheet.user.utils import is_enterprise, is_pro, is_running_test
 from mitosheet.utils import NpEncoder, dfs_to_array_for_json, get_default_df_formats, get_new_id, is_default_df_names
@@ -188,7 +188,7 @@ class StepsManager:
             user_defined_editors: Optional[List[Callable]]=None,
             code_options: Optional[CodeOptions]=None,
             column_definitions: Optional[List[ColumnDefinitions]]=None,
-            default_apply_formula_to_column: Optional[bool]=None,
+            default_editing_mode: Optional[DefaultEditingMode]=None,
             theme: Optional[MitoTheme]=None,
         ):
         """
@@ -256,7 +256,8 @@ class StepsManager:
         
         if not is_running_test() and not is_pro() and column_definitions is not None:
             raise ValueError("column definitions are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
-        
+    
+        default_apply_formula_to_column = False if default_editing_mode == 'cell' else True
         if not is_running_test() and not is_pro() and default_apply_formula_to_column is not None:
             raise ValueError(f'Setting default_editing_mode is only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans')
 

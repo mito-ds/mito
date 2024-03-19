@@ -94,9 +94,7 @@ class MitoBackend():
 
             if not os.path.exists(import_folder):
                 raise ValueError(f"Import folder {import_folder} does not exist. Please change the file path or create the folder.")
-            
-        default_apply_formula_to_column = False if default_editing_mode == 'cell' else True
-            
+                        
         # Set up the state container to hold private widget state
         self.steps_manager = StepsManager(
             args, 
@@ -110,7 +108,7 @@ class MitoBackend():
             code_options=code_options,
             column_definitions=column_definitions,
             theme=theme,
-            default_apply_formula_to_column=default_apply_formula_to_column
+            default_editing_mode=default_editing_mode
         )
 
         # And the api
