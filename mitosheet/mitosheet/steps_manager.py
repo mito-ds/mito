@@ -257,8 +257,7 @@ class StepsManager:
         if not is_running_test() and not is_pro() and column_definitions is not None:
             raise ValueError("column definitions are only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans")
     
-        default_apply_formula_to_column = False if default_editing_mode == 'cell' else True
-        if not is_running_test() and not is_pro() and default_apply_formula_to_column is not None:
+        if not is_running_test() and not is_pro() and default_editing_mode is not None:
             raise ValueError(f'Setting default_editing_mode is only supported in the enterprise version of Mito. See Mito plans https://www.trymito.io/plans')
 
         # The version of the public interface used by this analysis
@@ -353,7 +352,7 @@ class StepsManager:
         self.code_options: CodeOptions = get_default_code_options(self.analysis_name) if code_options is None else code_options
 
         self.theme = theme
-        self.default_apply_formula_to_column = default_apply_formula_to_column if default_apply_formula_to_column is not None else True
+        self.default_apply_formula_to_column = False if default_editing_mode == 'cell' else True
 
     @property
     def curr_step(self) -> Step:
