@@ -85,12 +85,11 @@ data_files = get_data_files_from_data_files_spec(data_files_spec)
 setup_args = dict(
     name                    = 'mitosheet',
     version                 = package_json["version"],
-    url                     = package_json["homepage"],
+    project_url             = package_json["homepage"],
     author                  = package_json["author"]["name"],
     author_email            = package_json["author"]["email"],
-    description             = package_json["description"],
     license                 = "GNU Affero General Public License v3",
-    long_description="""
+    description="""
     To learn more about Mito, checkout out our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
     Before installing Mito \n\n
     1. Check that you have Python 3.6 or above. To check your version of Python, open a new terminal, and type python3 --version. If you need to install or update Python, restart your terminal after doing so.\n\n
@@ -103,7 +102,7 @@ setup_args = dict(
     import mitosheet\n\n
     mitosheet.sheet()\n\n
     """,
-    long_description_content_type = "text/markdown",
+    description_content_type = "text/markdown",
     packages                 = find_packages(exclude=['deployment']),
     include_package_data     = True,
     package_data             = {'': ['*.js', '*.css', '*.html']},
@@ -132,7 +131,7 @@ setup_args = dict(
         'deploy': [
             'wheel', 
             'twine',
-            "setuptools"
+            "setuptools==56.0.0"
         ],
         'streamlit': [
             'streamlit>=1.24,<1.32',
