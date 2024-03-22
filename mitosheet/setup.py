@@ -15,10 +15,12 @@ from glob import glob
 from pathlib import Path
 from typing import List, Tuple
 from setuptools import find_packages, setup
+
 HERE = Path(__file__).parent.resolve()
 package_json = json.loads(open('package.json').read())
 lab_path = Path(HERE, 'mitosheet', 'labextension')
 notebook_path = Path(HERE, 'mitosheet', 'nbextension')
+
 data_files_spec = [
     # Notebook extension data files
     ('share/jupyter/nbextensions/mitosheet', notebook_path, '**'),
@@ -27,6 +29,7 @@ data_files_spec = [
     ("share/jupyter/labextensions/mitosheet", str(lab_path), "**"),
     ("share/jupyter/labextensions/mitosheet", str(HERE), "install.json"),
 ]
+
 def get_data_files_from_data_files_spec(
     data_specs: List[Tuple[str, str, str]],
 ):
@@ -59,7 +62,9 @@ def get_data_files_from_data_files_spec(
     data_files = sorted(file_data.items(), key=lambda x: len(x[0]))
     
     return data_files
+
 data_files = get_data_files_from_data_files_spec(data_files_spec)   
+
 setup_args = dict(
     name                    = 'mitosheet',
     version                 = package_json["version"],
@@ -124,12 +129,12 @@ setup_args = dict(
             "flask"
         ]
     },
-     zip_safe                = False,
-     python_requires         = ">=3.6",
-     platforms               = "Linux, Mac OS X, Windows",
-     classifiers             = [
-         "License :: OSI Approved :: GNU Affero General Public License v3",
-         "Programming Language :: Python",
+    zip_safe                = False,
+    python_requires         = ">=3.6",
+    platforms               = "Linux, Mac OS X, Windows",
+    classifiers             = [
+        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -140,5 +145,6 @@ setup_args = dict(
         "Framework :: Jupyter",
     ],
 )
+
 if __name__ == '__main__':
     setup(**setup_args)
