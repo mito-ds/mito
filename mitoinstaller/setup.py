@@ -13,5 +13,4 @@ setup(
     license             = 'AGPL-3.0-only',
     url                 = 'https://github.com/mito-ds/monorepo',
     long_description    = 'The mitoinstaller package allows you to install the mitosheet package in your local JupyterLab instance. It logs anonymous data about installation, including if it is successful or why it failed.',
-    keywords            = ['Jupyter', 'Widgets', 'IPython'],
 )
