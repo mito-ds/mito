@@ -18,7 +18,7 @@ def deploy_current_mito_version_to_pypi(on_dev: bool) -> None:
     """
     cmd = []
     if on_dev:
-        cmd = ["python3", "setup.py", "sdist", "bdist_wheel", "upload", "--repository", "testpypi"]
+        cmd = ["python3", "setup.py", "sdist", "bdist_wheel", "upload", "--repository", "https://test.pypi.org/simple/"]
     else:
         cmd = ["python3", "setup.py", "sdist", "bdist_wheel", "upload"]
 
