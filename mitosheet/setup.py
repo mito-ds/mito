@@ -113,8 +113,8 @@ setup_args = dict(
             'pytest_httpserver',
         ],
         'deploy': [
-            'wheel', 
-            'twine',
+            'wheel==0.42.0', 
+            'twine==4.0.2',
             "setuptools==56.0.0"
         ],
         'streamlit': [
