@@ -34,7 +34,7 @@ jobs:
           echo -e "    pypi" >> ~/.pypirc
           echo -e "    testpypi" >> ~/.pypirc
           echo -e "[pypi]" >> ~/.pypirc
-          echo -e "repository = https://pypi.python.org/pypi" >> ~/.pypirc
+          echo -e "repository = https://upload.pypi.org/legacy/" >> ~/.pypirc
           echo -e "username = __token__" >> ~/.pypirc
           echo -e "password = ${{ secrets.PYPI_API_TOKEN }}" >> ~/.pypirc
           echo -e "" >> ~/.pypirc
