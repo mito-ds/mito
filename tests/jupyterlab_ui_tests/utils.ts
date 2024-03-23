@@ -5,8 +5,8 @@ df = pd.DataFrame({'a': [1], 'b': [4]})\n`;
 
 export const TURN_OFF_TOURS = `
 import os
-os.config['MITO_CONFIG_VERSION'] = '2'
-os.config['MITO_CONFIG_DISABLE_TOURS'] = 'True'
+os.environ['MITO_CONFIG_VERSION'] = '2'
+os.environ['MITO_CONFIG_DISABLE_TOURS'] = 'True'
 `
 
 type ToolbarButton = 'Insert' | 'Delete'
