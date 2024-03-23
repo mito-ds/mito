@@ -1,5 +1,6 @@
-import { expect, test } from '@jupyterlab/galata';
+import { IJupyterLabPageFixture, expect, test } from '@jupyterlab/galata';
 import { TURN_OFF_TOURS, clickToolbarButton, createNewNotebook, dfCreationCode, getNumberOfColumns, waitForCodeToBeWritten, waitForIdle } from './utils';
+import { Page } from '@playwright/test';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -43,13 +44,14 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await getNumberOfColumns(page, 0).then((num) => expect(num).toBe(3));
   });
 
-  const updateCellValue = async (page: any, cellValue: string, newCellValue: string) => {
+  const updateCellValue = async (page: IJupyterLabPageFixture, cellValue: string, newCellValue: string) => {
     await page.locator('.mito-grid-cell', { hasText: cellValue }).dblclick();
     await page.locator('input#cell-editor-input').fill(newCellValue);
     await page.keyboard.press('Enter');
+    await waitForIdle(page);
   };
 
-  const typeInNotebookCell = async (page: any, cellIndex: number, cellValue: string) => {
+  const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string) => {
     await page.locator('.jp-Cell-inputArea').nth(cellIndex).click();
     await page.keyboard.type(cellValue);
   }
@@ -57,6 +59,9 @@ test.describe('Mitosheet JupyterLab integration', () => {
   test('Doesn\'t overwrite user edited code', async ({ page, tmpPath }) => {
     // Create a new notebook with a dataframe and a mitosheet call
     await createNewNotebook(page, `${dfCreationCode}${TURN_OFF_TOURS}import mitosheet\nmitosheet.sheet(df)`);
+
+    // Wait for Jupyter to finish rendering the notebook
+    await waitForIdle(page);
     
     // Add an edit so that there is code in the cell below the mitosheet call
     await updateCellValue(page, '1', "'new cell value'");
