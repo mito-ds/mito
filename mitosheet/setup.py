@@ -1,28 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-
 """
 The mitosheet package is distributed under the mitosheet and mitosheet3
 package names on pip. The package.json will tell you all you need to 
 know about which one we are in currently using.
-
 As such, this setup.py script reads in the package.json and sets up
 the proper package.
 """
-
 import json
 import os
 from glob import glob
 from pathlib import Path
 from typing import List, Tuple
-
 from setuptools import find_packages, setup
 
 HERE = Path(__file__).parent.resolve()
-
 package_json = json.loads(open('package.json').read())
 lab_path = Path(HERE, 'mitosheet', 'labextension')
 notebook_path = Path(HERE, 'mitosheet', 'nbextension')
@@ -31,12 +25,10 @@ data_files_spec = [
     # Notebook extension data files
     ('share/jupyter/nbextensions/mitosheet', notebook_path, '**'),
     ('etc/jupyter/nbconfig/notebook.d', str(HERE), 'mitosheet.json'),
-
     # Lab extension data files
     ("share/jupyter/labextensions/mitosheet", str(lab_path), "**"),
     ("share/jupyter/labextensions/mitosheet", str(HERE), "install.json"),
 ]
-
 
 def get_data_files_from_data_files_spec(
     data_specs: List[Tuple[str, str, str]],
@@ -46,16 +38,12 @@ def get_data_files_from_data_files_spec(
     this function will return a list of tuples of (data_file_path, [files])
     in the format that setuptools expects.
     """
-
     file_data = {}
-
     for (data_file_path, directory_to_search, pattern_to_find) in data_specs or []:
-
         # Get the directory to search ready
         if os.path.isabs(directory_to_search):
             directory_to_search = os.path.relpath(directory_to_search)
         directory_to_search = directory_to_search.rstrip("/")
-
         # Get all non-directory files that match the pattern, searching recursively
         files = [
             f for f in glob(
@@ -63,18 +51,13 @@ def get_data_files_from_data_files_spec(
                 recursive=True
             ) if not os.path.isdir(f)
         ]
-
         offset = len(directory_to_search) + 1
-
         for file_name in files:
             relative_path = str(Path(file_name).parent)[offset:]
             full_data_file_path = Path().joinpath(data_file_path, relative_path).as_posix()
-
             if full_data_file_path not in file_data:
                 file_data[full_data_file_path] = []
-
             file_data[full_data_file_path].append(file_name)
-
     # Turn to list and sort by length, to be consistent (and maybe cuz we need to for folder creation?)
     data_files = sorted(file_data.items(), key=lambda x: len(x[0]))
     
@@ -130,8 +113,8 @@ setup_args = dict(
             'pytest_httpserver',
         ],
         'deploy': [
-            'wheel', 
-            'twine',
+            'wheel==0.42.0', 
+            'twine==4.0.2',
             "setuptools==56.0.0"
         ],
         'streamlit': [
@@ -149,7 +132,6 @@ setup_args = dict(
     zip_safe                = False,
     python_requires         = ">=3.6",
     platforms               = "Linux, Mac OS X, Windows",
-    keywords                = ["Jupyter", "JupyterLab", "JupyterLab3"],
     classifiers             = [
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python",

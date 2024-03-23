@@ -12,7 +12,7 @@ import Col from '../layout/Col';
 import Row from '../layout/Row';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import CellEditor from './celleditor/CellEditor';
-import { getFullFormula } from './celleditor/cellEditorUtils';
+import { getDefaultEditingMode, getFullFormula } from './celleditor/cellEditorUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import { getCellDataFromCellIndexes } from './utils';
 
@@ -100,7 +100,7 @@ const FormulaBar = (props: {
                                     formula: formulaBarValue,
                                     arrowKeysScrollInFormula: true,
                                     editorLocation: 'formula bar',
-                                    editingMode: columnFormulaLocation || 'entire_column',
+                                    editingMode: columnFormulaLocation || getDefaultEditingMode(props.analysisData.defaultApplyFormulaToColumn),
                                     sheetIndex: props.sheetIndex,
                                 })
                             // If we're opening the formula cell editor while the cell editor is currently open,

@@ -3,6 +3,12 @@ import { IJupyterLabPageFixture } from "@jupyterlab/galata";
 export const dfCreationCode = `import pandas as pd
 df = pd.DataFrame({'a': [1], 'b': [4]})\n`;
 
+export const TURN_OFF_TOURS = `
+import os
+os.environ['MITO_CONFIG_VERSION'] = '2'
+os.environ['MITO_CONFIG_DISABLE_TOURS'] = 'True'
+`
+
 type ToolbarButton = 'Insert' | 'Delete'
 
 export const createNewNotebook = async (page: IJupyterLabPageFixture, firstCellCode?: string) => {

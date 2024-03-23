@@ -102,7 +102,7 @@ jobs:
         run: |
           cd mitoinstaller
           source venv/bin/activate
-          python setup.py sdist upload --repository testpypi
+          python setup.py sdist upload --repository https://test.pypi.org/legacy/
       - name: Deploy mitoinstaller on testpypi
         if: github.ref == 'refs/heads/main'
         run: |
