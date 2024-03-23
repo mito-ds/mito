@@ -1,5 +1,5 @@
 import { expect, test } from '@jupyterlab/galata';
-import { clickToolbarButton, createNewNotebook, dfCreationCode, getNumberOfColumns, waitForCodeToBeWritten, waitForIdle } from './utils';
+import { TURN_OFF_TOURS, clickToolbarButton, createNewNotebook, dfCreationCode, getNumberOfColumns, waitForCodeToBeWritten, waitForIdle } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -56,7 +56,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
 
   test('Doesn\'t overwrite user edited code', async ({ page, tmpPath }) => {
     // Create a new notebook with a dataframe and a mitosheet call
-    await createNewNotebook(page, `${dfCreationCode}import mitosheet\nmitosheet.sheet(df)`);
+    await createNewNotebook(page, `${dfCreationCode}${TURN_OFF_TOURS}import mitosheet\nmitosheet.sheet(df)`);
     
     // Add an edit so that there is code in the cell below the mitosheet call
     await updateCellValue(page, '1', "'new cell value'");
