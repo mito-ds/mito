@@ -121,7 +121,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await updateCellValue(page, '1', "'new cell value'");
 
     // Delete the mitosheet code
-    await page.notebook.selectCells(1);
+    await page.notebook.selectCells(1, 1);
     await page.notebook.deleteCells();
 
     // Make another edit and check that the modal doesn't appear, and that the cell below the mitosheet call has been updated
