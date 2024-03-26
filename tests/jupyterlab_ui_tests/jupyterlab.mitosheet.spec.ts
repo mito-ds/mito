@@ -45,6 +45,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
   });
 
   const updateCellValue = async (page: IJupyterLabPageFixture, cellValue: string, newCellValue: string) => {
+    await page.locator('.mito-grid-cell', { hasText: cellValue }).scrollIntoViewIfNeeded();
     await page.locator('.mito-grid-cell', { hasText: cellValue }).dblclick();
     await page.locator('input#cell-editor-input').fill(newCellValue);
     await page.keyboard.press('Enter');
@@ -52,6 +53,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
   };
 
   const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string) => {
+    await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
     await page.locator('.jp-Cell-inputArea').nth(cellIndex).click();
     await page.keyboard.type(cellValue);
   }
