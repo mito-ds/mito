@@ -54,8 +54,8 @@ test.describe('Mitosheet JupyterLab integration', () => {
 
   const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string) => {
     await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
-    await page.locator('.jp-Cell-inputArea').nth(cellIndex).click();
-    await page.keyboard.type(cellValue);
+    await page.notebook.enterCellEditingMode(cellIndex);
+    await page.notebook.setCell(cellIndex, 'code', cellValue);
   }
 
   test('Does not overwrite user edited code', async ({ page, tmpPath }) => {
