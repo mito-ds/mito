@@ -98,10 +98,12 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
 
     // Check that the cell below the mitosheet call has been updated and doesn't contain the edits
+    await page.locator('.jp-Cell-inputArea').nth(1).scrollIntoViewIfNeeded();
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText("df['a'] = 'a third cell value'");
 
     // Check that the edited code is now in the cell below the cell that was updated
+    await page.locator('.jp-Cell-inputArea').nth(2).scrollIntoViewIfNeeded();
     await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText("df['a'] = 'another cell value'");
     await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText('martha rocks');
 
