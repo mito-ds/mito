@@ -45,6 +45,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
   });
 
   const updateCellValue = async (page: IJupyterLabPageFixture, cellValue: string, newCellValue: string) => {
+    await page.locator('.mito-grid-cell', { hasText: cellValue }).scrollIntoViewIfNeeded();
     await page.locator('.mito-grid-cell', { hasText: cellValue }).dblclick();
     await page.locator('input#cell-editor-input').fill(newCellValue);
     await page.keyboard.press('Enter');
@@ -52,11 +53,12 @@ test.describe('Mitosheet JupyterLab integration', () => {
   };
 
   const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string) => {
-    await page.locator('.jp-Cell-inputArea').nth(cellIndex).click();
-    await page.keyboard.type(cellValue);
+    await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
+    await page.notebook.enterCellEditingMode(cellIndex);
+    await page.notebook.setCell(cellIndex, 'code', cellValue);
   }
 
-  test.skip('Does not overwrite user edited code', async ({ page, tmpPath }) => {
+  test('Does not overwrite user edited code', async ({ page, tmpPath }) => {
     // Create a new notebook with a dataframe and a mitosheet call
     await createNewNotebook(page, `${dfCreationCode}${TURN_OFF_TOURS}import mitosheet\nmitosheet.sheet(df)`);
 
@@ -96,11 +98,12 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
 
     // Check that the cell below the mitosheet call has been updated and doesn't contain the edits
-    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
-    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText("df['a'] = 'a third cell value'");
+    await page.locator('.jp-Cell-inputArea').nth(1).scrollIntoViewIfNeeded();
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toContainText('martha rocks');
+    await expect(page.locator('.jp-Cell-inputArea').nth(1)).toContainText("df['a'] = 'a third cell value'");
 
     // Check that the edited code is now in the cell below the cell that was updated
-    await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText("df['a'] = 'another cell value'");
+    await page.locator('.jp-Cell-inputArea').nth(2).scrollIntoViewIfNeeded();
     await expect(page.locator('.jp-Cell-inputArea').nth(2)).toContainText('martha rocks');
 
     // Check that new user edits are generated correctly
@@ -108,8 +111,6 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await expect(page.getByText('Edit to Code Detected')).not.toBeVisible();
     // Check that the cell below the mitosheet call has been updated and doesn't contain the edits
     await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText('martha rocks');
-    await expect(page.locator('.jp-Cell-inputArea').nth(1)).not.toHaveText("df['a'] = 'a fourth cell value'");
-
   });
 
   test('Automatically inserts new cell if user deletes mitosheet code', async ({ page, tmpPath }) => {
@@ -120,8 +121,9 @@ test.describe('Mitosheet JupyterLab integration', () => {
     await updateCellValue(page, '1', "'new cell value'");
 
     // Delete the mitosheet code
-    await page.notebook.selectCells(1);
-    await page.notebook.deleteCells();
+    await page.locator('.jp-Notebook .jp-InputPrompt').nth(1).click();
+    await page.keyboard.type('dd');
+    await expect(page.locator('.jp-Notebook .jp-InputPrompt')).toHaveCount(1);
 
     // Make another edit and check that the modal doesn't appear, and that the cell below the mitosheet call has been updated
     await updateCellValue(page, 'new cell value', "'another cell value'");

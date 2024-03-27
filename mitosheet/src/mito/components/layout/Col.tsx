@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import React from 'react';
 
-import '../../../../css/layout/Col.css'
+import '../../../../css/layout/Col.css';
 import { classNames } from '../../utils/classNames';
 
 interface ColProps {
