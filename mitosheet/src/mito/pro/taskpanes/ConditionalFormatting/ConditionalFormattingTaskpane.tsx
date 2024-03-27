@@ -125,6 +125,19 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
     )
 
     const updateDataframeFormatParams = (newParams: RecursivePartial<DataframeFormat>): void => {
+        // If the user does not change the color or background color, we want to treat them as undefined
+        // so it doesn't change the data in the Mito Spreadsheet or the created Styler or Excel file
+        newParams.conditional_formats = newParams?.conditional_formats?.map(conditionalFormat => {
+            const newConditionalFormat = {...conditionalFormat};
+            if (newConditionalFormat.color === "var(--mito-text)") {
+                newConditionalFormat.color = undefined;
+            }
+            if (newConditionalFormat.backgroundColor === "var(--mito-background-off)") {
+                newConditionalFormat.backgroundColor = undefined;
+            }
+            return newConditionalFormat;
+        })
+
         setParams(prevParams => {
             return updateObjectWithPartialObject(prevParams, {df_format: newParams})
         })
