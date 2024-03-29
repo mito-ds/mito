@@ -84,9 +84,8 @@ const PostPage = (props: {post: PostOrPage}) => {
         <meta
           name="description"
           content={props.post.meta_description || props.post.excerpt?.slice(0, 99)}
-          
-          og-image={props.post.feature_image}
         />
+        <meta name="image" property="og:image" content={props.post.feature_image || undefined}></meta>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
