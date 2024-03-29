@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Link from 'next/link';
 import CodeBlock from '../CodeBlock/CodeBlock';
 import ctaButtons from '../CTAButtons/CTAButtons.module.css'
@@ -9,8 +10,23 @@ import { PLAUSIBLE_COPIED_MITOSHEET_HELLO_COMMAND, PLAUSIBLE_COPIED_PIP_INSTALL_
 import { classNames } from '../../utils/classNames';
 import { DISCORD_LINK } from '../Footer/Footer';
 
+// Import Prism to apply syntax highlighting to the code block
+import Prism from 'prismjs';
+import 'prism-themes/themes/prism-coldark-dark.css'
 
 const InstallInstructions = (props: {}): JSX.Element => {
+
+    useEffect(() => {
+        /* 
+            Apply prism styling to all of elements that have the class "language-XXXX" 
+            (ie: language-python in the CodeBlocks component)
+
+            TODO: Figure out if there is a better place to put this. 
+            When it was in the _app.tsx file, the formatting wasn't applied if I navigated to another page and then back to this one.
+        */
+        Prism.highlightAll();
+    }, []);
+
     return (
         <>
             <h2 style={{textAlign: 'center'}}>
