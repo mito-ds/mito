@@ -93,7 +93,8 @@ const Home: NextPage = () => {
           </section>
 
           <section className={pageStyles.background_card} >
-            {/* So that we can scroll to the correct location on the page, and 
+            {/* 
+              So that we can scroll to the correct location on the page, and 
               because we have a fixed header taking up some space, we scroll 
               to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
             */}
