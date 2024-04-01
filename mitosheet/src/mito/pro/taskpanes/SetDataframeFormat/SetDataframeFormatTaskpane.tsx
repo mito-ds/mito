@@ -80,7 +80,6 @@ const SetDataframeFormatTaskpane = (props: SetDataframeFormatTaskpaneProps): JSX
     }
 
     const updateDataframeFormatParams = (newParams: RecursivePartial<DataframeFormat>): void => {
-        console.log(newParams)
         setParams(prevParams => {
             return updateObjectWithPartialObject(prevParams, {df_format: newParams})
         })

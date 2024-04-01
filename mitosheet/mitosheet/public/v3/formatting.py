@@ -100,12 +100,15 @@ def add_conditional_formats(
     for conditional_format in conditional_formats:
         for filter in conditional_format.get('filters', []):
             # Create the conditional formatting color objects
+            background_color = conditional_format.get('font_color')
+            font_color = conditional_format.get('font_color')
             cond_fill = None
             cond_font = None
-            if conditional_format.get('background_color') is not None:
+            if background_color is not None and background_color != 'var(--mito-background-off)': # Only if it's not default
                 cond_fill = PatternFill(start_color=conditional_format['background_color'][1:], end_color=conditional_format['background_color'][1:], fill_type='solid')
-            if conditional_format.get('font_color') is not None:
+            if font_color is not None and font_color != 'var(--mito-text)':
                 cond_font = Font(color=conditional_format['font_color'][1:])
+
             if cond_fill is None and cond_font is None:
                 continue
             
