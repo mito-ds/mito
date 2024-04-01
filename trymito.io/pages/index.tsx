@@ -88,10 +88,6 @@ const Home: NextPage = () => {
 
           <LogoSection></LogoSection>
 
-          <section>
-            <CaseStudies />
-          </section>
-
           <section className={pageStyles.background_card} >
             {/* So that we can scroll to the correct location on the page, and 
               because we have a fixed header taking up some space, we scroll 
@@ -99,6 +95,10 @@ const Home: NextPage = () => {
             */}
             <a className="anchor" id='installation'></a>
             <InstallInstructions/>
+          </section>
+
+          <section>
+            <CaseStudies />
           </section>
 
           <section>
