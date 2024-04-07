@@ -32,7 +32,7 @@ from mitosheet.public.v3.sheet_functions.utils import (
 from mitosheet.public.v3.types.decorators import (
     cast_values_in_all_args_to_type, cast_values_in_arg_to_type)
 from mitosheet.public.v3.types.sheet_function_types import (
-    DatetimeFunctionReturnType, DatetimeRestrictedInputType,
+    AnyPrimitiveOrSeriesInputType, DatetimeFunctionReturnType, DatetimeRestrictedInputType,
     FloatFunctonReturnType, IntFunctionReturnType, IntRestrictedInputType,
     NumberFunctionReturnType, NumberInputType, NumberRestrictedInputType)
 
@@ -628,6 +628,121 @@ def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
         lambda previous_series, new_series: previous_series + new_series
     )
 
+@cast_values_in_arg_to_type('sum_range', 'number')
+@handle_sheet_function_errors
+def SUMIF(range: pd.DataFrame, criteria: AnyPrimitiveOrSeriesInputType, sum_range: pd.DataFrame) -> NumberFunctionReturnType:
+    """
+    {
+        "function": "SUMIF",
+        "description": "Returns the sum of the given numbers and series that meet a certain condition.",
+        "search_terms": ["add", "if", "conditional", "sum"],
+        "category": "MATH",
+        "examples": [
+            "SUMIF(A, '>10')",
+            "SUMIF(A, '>=10', B)"
+        ],
+        "syntax": "SUMIF(range, criteria, [sum_range])",
+        "syntax_elements": [{
+                "element": "range",
+                "description": "The range to evaluate the criteria against."
+            },
+            {
+                "element": "criteria",
+                "description": "The criteria to evaluate the range against."
+            },
+            {
+                "element": "sum_range [OPTIONAL]",
+                "description": "The range to sum if the criteria is met. Defaults to range."
+            }
+        ]
+    }
+    """
+
+    """
+    We do not support the full range of Excel's SUMIF function. There are at least three ways to use the SUMIF 
+    function in Excel. We only support the first case below because we have the infrastructure to do so and 
+    it is the only case that I have seen our users need in practice. 
+
+    1. Sum when the criteria matches a string values
+    =SUMIF(Sheet2!A:A, A1, Sheet2!B:B) or =SUMIF(Sheet2!A:A, "Constant Key", Sheet2!B:B)
+
+    2. Sum when the criteria matches a constant conditional expression
+    =SUMIF(Sheet2!A:A, ">10", Sheet2!C:C)
+
+    3. Sum when the criteria matches a conditional expression with cell reference
+    =SUMIF(Sheet2!A:A, ">" & A1, Sheet2!B:B)
+
+    
+    We strive to support the SUMIF implementation as closely as possible, including:
+    1. Does not support summing across multiple columns directly in the [sum_range]. When you specify Sheet2!B:D 
+    as the sum range, Excel implicitly only considers the first column of this range (Sheet2!B:B) for summing the values.
+    2. If the range and criteria are strings, Excel treats them case insensitive. 
+    """
+
+    # Save info for easy reference later
+    range_series_name = range.columns[0]
+    range_dtype = range[range_series_name].dtype
+    sum_range_series_name = sum_range.columns[0]
+
+    # Combine the range and sumrange into a single dataframe
+    source_data = pd.concat([range, sum_range], axis=1)
+
+    if range_dtype == 'object':
+        # Convert to lower case to match Excel's behavior
+        source_data[range_series_name] = source_data[range_series_name].str.lower()
+
+    # Calculate the sums 
+    summed_table = source_data.pivot_table(index=[range_series_name], aggfunc={sum_range_series_name: 'sum'})
+    summed_table.reset_index(inplace=True)
+
+    # If the criteria is a series, then we know the index of the series we need to create
+    if isinstance(criteria, pd.Series):
+
+        # Check if the criteria series is the same type as the first column of the range
+        criteria_dtype = criteria.dtype
+        range_dtype = range[range_series_name].dtype
+        if criteria_dtype != range_dtype:
+            raise MitoError(
+                'invalid_args_error',
+                'SUMIF',
+                f'SUMIF requires the criteria and the first column of the range to be the same type. The criteria is of type {criteria_dtype} and the first column of the range is of type {range_dtype}.'
+            )
+
+        # Turn it into a dataframe
+        criteria_df = pd.DataFrame(criteria)
+        criteria_series_name = criteria_df.columns[0] 
+        safe_criteria_series_name = str(criteria_series_name) + "_MITO_UNIQUE_COLUMN_IDENTIFIER"
+        criteria_df.columns = [safe_criteria_series_name]
+
+        # Convert to lower case to match Excel's behavior
+        if criteria_dtype == 'object':
+            criteria_df[safe_criteria_series_name] = criteria_df[safe_criteria_series_name].str.lower()
+
+        # Merge the criteria with the summed table to get the results in the correct order 
+        merged = pd.merge(criteria_df, summed_table, left_on=safe_criteria_series_name, right_on=range_series_name, how='left')
+
+        # Keep the indexes from the criteria_df
+        merged.index = criteria_df.index
+
+        # Fill NaN with 0 to match Excel 
+        merged[sum_range_series_name] = merged[sum_range_series_name].fillna(0)
+        return merged[sum_range_series_name]
+    
+    else: 
+        # If the criteria is a string, make it lowercase
+        if isinstance(criteria, str):
+            criteria = criteria.lower()
+
+        # Filter the summed table
+        summed_table = summed_table[summed_table[range_series_name] == criteria]
+
+        # If we don't find any matches, we return 0
+        if summed_table.empty:
+            return 0
+
+        return summed_table[sum_range_series_name].iloc[0]
+
+
 @cast_values_in_all_args_to_type('number')
 @handle_sheet_function_errors
 def SUMPRODUCT(*argv: Union[pd.Series, pd.DataFrame]) -> NumberFunctionReturnType:
@@ -759,6 +874,7 @@ NUMBER_FUNCTIONS = {
     'ROUND': ROUND,
     'SKEW': SKEW,
     'SUM': SUM,
+    'SUMIF': SUMIF,
     'SUMPRODUCT': SUMPRODUCT,
     'STDEV': STDEV,
     'VALUE': VALUE,
