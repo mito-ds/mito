@@ -4,6 +4,7 @@ from mitosheet.tests.test_utils import create_mito_wrapper
 from mitosheet.types import FC_NUMBER_EXACTLY
 import pytest
 from mitosheet.public.v3.sheet_functions.number_functions import SUMIF
+from mitosheet.tests.decorators import pro_only
 
 calling_df = pd.DataFrame({'Key One': ['A', 'A', 'B', 'C', 'D']})
 data_df = pd.DataFrame({'Key': ['A', 'A', 'B', 'C', 'C'], 'Value': [1, 2, 3, 4, 5]})
@@ -120,6 +121,7 @@ SUMIF_VALID_TESTS = [
     )
 ]
 
+@pro_only
 @pytest.mark.parametrize("_argv, expected", SUMIF_VALID_TESTS)
 def test_sumif_direct(_argv, expected):
     result = SUMIF(*_argv)
@@ -141,6 +143,7 @@ SUMIF_INVALID_TESTS = [
         'SUMIF requires the  value and the first column of the where range to be the same type. The lookup value is of type int64 and the first column of the where range is of type string.'
     )
 ]
+@pro_only
 @pytest.mark.parametrize("_argv, expected", SUMIF_INVALID_TESTS)
 def test_invalid_args_error(_argv, expected):
     with pytest.raises(MitoError) as e_info:
@@ -149,7 +152,7 @@ def test_invalid_args_error(_argv, expected):
         assert e_info.value.error_dict['function_name'] == 'SUMIF'
         assert e_info.value.error_dict['error_message'] == expected
 
-
+@pro_only
 def test_filter_data_table_then_sumif():
     df1 = pd.DataFrame({
         'A': [1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
@@ -170,7 +173,7 @@ def test_filter_data_table_then_sumif():
 
     assert result == list(expected)
 
-
+@pro_only
 def test_filter_source_table_then_sumif():
     df1 = pd.DataFrame({
         'A': [1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
@@ -191,6 +194,7 @@ def test_filter_source_table_then_sumif():
 
     assert result == list(expected)
 
+@pro_only
 def test_only_first_sum_range_column_is_used():
     df1 = pd.DataFrame({
         'A': [1, 2, 3],

@@ -99,3 +99,22 @@ def handle_sheet_function_errors(sheet_function: Callable) -> Callable:
             raise make_function_error(sheet_function.__name__, error_modal=False)
     
     return wrapped_sheet_function
+
+
+def pro_sheet_function(sheet_function: Callable) -> Callable:
+    """
+    Throw an error if attempting to use a sheet function that is a pro features while using the open source version
+    """    
+    @wraps(sheet_function)
+    def wrapped_sheet_function(*args):   
+        from mitosheet.user.utils import is_pro 
+
+        if not is_pro():
+            raise MitoError(
+                'pro_feature_error',
+                'Pro Feature Error',
+                f'The function {sheet_function.__name__} is a pro feature. Please upgrade to the pro version of Mito.',
+                error_modal=False
+            )
+
+    return wrapped_sheet_function

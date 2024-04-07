@@ -24,7 +24,7 @@ import pandas as pd
 
 from mitosheet.errors import MitoError
 from mitosheet.is_type_utils import is_datetime_dtype
-from mitosheet.public.v3.errors import handle_sheet_function_errors
+from mitosheet.public.v3.errors import handle_sheet_function_errors, pro_sheet_function
 from mitosheet.public.v3.rolling_range import RollingRange
 from mitosheet.public.v3.sheet_functions.utils import (
     get_final_result_series_or_primitive, get_index_from_series,
@@ -630,6 +630,7 @@ def SUM(*argv: Optional[NumberInputType]) -> NumberFunctionReturnType:
 
 @cast_values_in_arg_to_type('sum_range', 'number')
 @handle_sheet_function_errors
+@pro_sheet_function
 def SUMIF(range: pd.DataFrame, criteria: AnyPrimitiveOrSeriesInputType, sum_range: pd.DataFrame) -> NumberFunctionReturnType:
     """
     {
