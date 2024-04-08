@@ -116,5 +116,7 @@ def pro_sheet_function(sheet_function: Callable) -> Callable:
                 f'The function {sheet_function.__name__} is a pro feature. Please upgrade to the pro version of Mito.',
                 error_modal=False
             )
-
+    
+        return sheet_function(*args)
+    
     return wrapped_sheet_function
