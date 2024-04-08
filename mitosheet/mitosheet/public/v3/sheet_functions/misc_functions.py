@@ -206,7 +206,6 @@ def VLOOKUP(lookup_value: AnyPrimitiveOrSeriesInputType, where: pd.DataFrame, in
         if matching_row.empty:
             return None
         else:
-            print(matching_row.iloc[0, index-1])
             return matching_row.iloc[0, index-1]
 
 

@@ -659,25 +659,26 @@ def SUMIF(range: pd.DataFrame, criteria: AnyPrimitiveOrSeriesInputType, sum_rang
     }
     """
 
+    """
+    We do not support the full range of Excel's SUMIF function. There are at least three ways to use the SUMIF 
+    function in Excel. We only support the first case below because we have the infrastructure to do so and 
+    it is the only case that I have seen our users need in practice. 
+
+    1. Sum when the criteria matches a string values
+    =SUMIF(Sheet2!A:A, A1, Sheet2!B:B) or =SUMIF(Sheet2!A:A, "Constant Key", Sheet2!B:B)
+
+    2. Sum when the criteria matches a constant conditional expression
+    =SUMIF(Sheet2!A:A, ">10", Sheet2!C:C)
+
+    3. Sum when the criteria matches a conditional expression with cell reference
+    =SUMIF(Sheet2!A:A, ">" & A1, Sheet2!B:B)
+
     
-    # We do not support the full range of Excel's SUMIF function. There are at least three ways to use the SUMIF 
-    # function in Excel. We only support the first case below because we have the infrastructure to do so and 
-    # it is the only case that I have seen our users need in practice. 
-
-    # 1. Sum when the criteria matches a string values
-    # =SUMIF(Sheet2!A:A, A1, Sheet2!B:B) or =SUMIF(Sheet2!A:A, "Constant Key", Sheet2!B:B)
-
-    # 2. Sum when the criteria matches a constant conditional expression
-    # =SUMIF(Sheet2!A:A, ">10", Sheet2!C:C)
-
-    # 3. Sum when the criteria matches a conditional expression with cell reference
-    # =SUMIF(Sheet2!A:A, ">" & A1, Sheet2!B:B)
-
-    
-    # We strive to support the SUMIF implementation as closely as possible, including:
-    # 1. Does not support summing across multiple columns directly in the [sum_range]. When you specify Sheet2!B:D 
-    # as the sum range, Excel implicitly only considers the first column of this range (Sheet2!B:B) for summing the values.
-    # 2. If the range and criteria are strings, Excel treats them case insensitive. 
+    We strive to support the SUMIF implementation as closely as possible, including:
+    1. Does not support summing across multiple columns directly in the [sum_range]. When you specify Sheet2!B:D 
+    as the sum range, Excel implicitly only considers the first column of this range (Sheet2!B:B) for summing the values.
+    2. If the range and criteria are strings, Excel treats them case insensitive. 
+    """
 
     # Save info for easy reference later
     range_series_name = range.columns[0]
@@ -694,8 +695,6 @@ def SUMIF(range: pd.DataFrame, criteria: AnyPrimitiveOrSeriesInputType, sum_rang
     # Calculate the sums 
     summed_table = source_data.pivot_table(index=[range_series_name], aggfunc={sum_range_series_name: 'sum'})
     summed_table.reset_index(inplace=True)
-
-    print("HERE!!!")
 
     # If the criteria is a series, then we know the index of the series we need to create
     if isinstance(criteria, pd.Series):
@@ -728,8 +727,6 @@ def SUMIF(range: pd.DataFrame, criteria: AnyPrimitiveOrSeriesInputType, sum_rang
 
         # Fill NaN with 0 to match Excel 
         merged[sum_range_series_name] = merged[sum_range_series_name].fillna(0)
-        print("HERE")
-        print(merged)
         return merged[sum_range_series_name]
     
     else: 
