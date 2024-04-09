@@ -126,7 +126,7 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
         A popup typeform that asks the user if they want to download a Pandas Cheat Sheet.
         To configure this typeform, ask Aaron for typeform access.
       */}
-      <div data-tf-live="01HV27JPE2P9SQVJAPTXGNETA9" data-tf-redirect-target='_blank'></div><script src="//embed.typeform.com/next/embed.js"></script>
+      <div data-tf-live="01HV27JPE2P9SQVJAPTXGNETA9" data-tf-redirect-target='_blank'></div><script src="//embed.typeform.com/next/embed.js" defer></script>
 
       <div className={pageStyles.container}>
         <main className={classNames(pageStyles.main, excelToPythonStyles.main)}>
