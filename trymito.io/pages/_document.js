@@ -41,6 +41,9 @@ class MyDocument extends Document {
                 crossOrigin=""
             />
             <script defer data-domain="trymito.io" src="https://plausible.io/js/script.tagged-events.js"></script>
+
+            <script id="warmly-script-loader" src="https://opps-widget.getwarmly.com/warmly.js?clientId=e4336c1da59e3e0cfb4027b910ee505a" defer></script>
+
             {/* Import Prism.js and css*/}
             <link rel="stylesheet" href="/prism.css" />
             <script defer src="/prism.js"></script>
