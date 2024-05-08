@@ -1,8 +1,4 @@
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
     padding: 2rem 4rem;
     background-color: var(--color-background);
   
@@ -14,7 +10,13 @@
     z-index: 1; /* Make sure everything scrolls behind the nav bar */
 }
 
-.header li {
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar li {
     list-style: none;
     color: var(--color-text-secondary);
     margin-top: 2rem;
@@ -72,10 +74,17 @@
     display: none;
 }
 
+.promotion_banner {
+    width: 100%;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+    text-align: center;
+}
+
 @media only screen and (min-width: 50em) {
 
     .header {
-        padding-top: 1.5rem;
+        padding-top: .5rem;
         padding-bottom: 2rem; 
     }
 
