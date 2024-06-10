@@ -329,6 +329,7 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
         # this allows us to easily aggregate across different types of events
         # and track general trends (at the cost of making the logs look a bit
         # messier to human eyes)
+        params_for_final_log['params']['log_event'] = log_event
         log(
             event['event'], 
             **params_for_final_log

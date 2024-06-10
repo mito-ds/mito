@@ -174,7 +174,7 @@ def test_log_uploader_error_events():
         assert log_event["version_mito"] is not None
         assert log_event["timestamp_gmt"] is not None
         assert log_event["event"] == "error"
-        assert log_event["params_failed_log_event"] == "set_column_formula_failed"
+        assert log_event["params_failed_log_event"] == "set_column_formula_edit_failed"
 
     delete_all_mito_config_environment_variables()
     
@@ -228,11 +228,13 @@ def test_log_uploaded_frontend_render_failed():
 
     with patch('requests.post') as mock_post:
         mito.mito_backend.receive_message({
-            'params': {}, 
+            'params': {'error_stack': 'TEST ERROR STATCK', 'error_message': 'TEST ERROR MESSAGE'}, 
             'event': 'log_event', 
             'type': 'frontend_render_failed', 
             'id': '_pt4wgfw0z'
         })
+
+        time.sleep(.5)
 
         assert len(mock_post.call_args_list) == 1
 
