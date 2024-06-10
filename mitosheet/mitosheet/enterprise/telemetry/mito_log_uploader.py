@@ -28,7 +28,8 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
     whitelisted_log_events = [
         'edit_event',
         'error', 
-        'mitosheet_rendered'
+        'mitosheet_rendered',
+        'frontend_render_failed'
     ]
 
     whitelisted_log_params = [
