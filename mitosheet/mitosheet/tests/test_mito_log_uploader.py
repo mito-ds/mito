@@ -160,7 +160,7 @@ def test_log_uploader_error_events():
         data = log_call[1]['data']
         log_event = json.loads(data)[0]
 
-        assert len(log_event) == 13
+        assert len(log_event) == 14
         assert log_event["error_traceback"] is not None
         assert log_event["error_traceback_last_line"] is not None
         assert log_event["params_sheet_index"] == 0
@@ -174,6 +174,7 @@ def test_log_uploader_error_events():
         assert log_event["version_mito"] is not None
         assert log_event["timestamp_gmt"] is not None
         assert log_event["event"] == "error"
+        assert log_event["params_failed_log_event"] == "set_column_formula_edit_failed"
 
     delete_all_mito_config_environment_variables()
     
@@ -217,6 +218,43 @@ def test_log_uploader_mitosheet_rendered():
         assert log_event["event"] == "mitosheet_rendered"
 
     delete_all_mito_config_environment_variables()
+
+def test_log_uploaded_frontend_render_failed():
+    os.environ[MITO_CONFIG_VERSION] = "2"
+    os.environ[MITO_CONFIG_LOG_SERVER_URL] = f"{URL}"
+    os.environ[MITO_CONFIG_LOG_SERVER_BATCH_INTERVAL] = "0"
+    
+    mito = create_mito_wrapper(pd.DataFrame({'A': [1, 2, 3]}))
+
+    with patch('requests.post') as mock_post:
+        mito.mito_backend.receive_message({
+            'params': {'error_stack': 'TEST ERROR STATCK', 'error_message': 'TEST ERROR MESSAGE'}, 
+            'event': 'log_event', 
+            'type': 'frontend_render_failed', 
+            'id': '_pt4wgfw0z'
+        })
+
+        time.sleep(.5)
+
+        assert len(mock_post.call_args_list) == 1
+
+        log_call = mock_post.call_args_list[0]
+
+        # Get the URL from the log call
+        actual_url = log_call[0][0]
+        assert actual_url == URL
+
+        # From the call object, get the payload 
+        # that was passed to requests.post
+        data = log_call[1]['data']
+        log_event = json.loads(data)[0]
+
+        assert log_event['params_error_stack'] is not None
+        assert log_event['params_error_message'] is not None
+        assert log_event['event'] == 'frontend_render_failed'
+
+    delete_all_mito_config_environment_variables()
+
 
 def test_log_uploader_long_interval_does_not_trigger_upload():
     

@@ -297,10 +297,14 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
     # We choose to log the event type, as it is the best high-level item for our logs
     # and we append a _failed if the event failed in doing this.
     log_event: str = event['type'] + ('_failed' if failed else '')
+    params_copy = copy(event['params'])
+    if failed: 
+        params_copy['failed_log_event'] = log_event
+
     params_for_final_log = {
         # NOTE: We make a copy here so we don't modify the actual params
         # dict, which we don't want to do as it's used elsewhere!
-        'params': copy(event['params']),
+        'params': params_copy,
         'steps_manager': steps_manager,
         'failed': failed,
         'error': error,
@@ -317,7 +321,7 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
         # us to easily track the number of users who are getting errors
         log(
             'error', 
-            **params_for_final_log
+            **params_for_final_log,
         )
     else:
         # We also generate a single aggregate log for each of the different
@@ -330,7 +334,6 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
             event['event'], 
             **params_for_final_log
         )
-
 
 
 def identify() -> None:
