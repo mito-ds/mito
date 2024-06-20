@@ -110,8 +110,8 @@ def test_pivot_transpiles_pivot_mulitple_columns_and_rows():
     assert mito.dfs[1].equals(
         pd.DataFrame(data={
             'Height': [4, 5],
-            'Height sum Nate Jack': [np.NaN, 5],
-            'Height sum Nate Rush': [4, np.NaN]
+            'Height sum Nate Jack': [np.nan, 5],
+            'Height sum Nate Rush': [4, np.nan]
         })
     )
 
@@ -812,7 +812,7 @@ PIVOT_TRANSFORM_TESTS: List[Any] = [
     (
         pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'date new': pd.to_datetime(['1-1-2004', '1-2-2005', '2-1-2006', '2-2-2007']), 'value': [1, 2, 3, 4]}),
         [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}], [{'column_header': 'date new', 'transformation': PCT_DATE_YEAR}], {'value': ['sum']}, 
-        pd.DataFrame({'date (year)': [2000, 2001], 'value sum 2004': [1.0, np.NaN], 'value sum 2005': [2.0, np.NaN], 'value sum 2006': [np.NaN, 3.0], 'value sum 2007': [np.NaN, 4.0]})
+        pd.DataFrame({'date (year)': [2000, 2001], 'value sum 2004': [1.0, np.nan], 'value sum 2005': [2.0, np.nan], 'value sum 2006': [np.nan, 3.0], 'value sum 2007': [np.nan, 4.0]})
     ),
     # Multiple of different types of transforms in same section
     (
@@ -824,7 +824,7 @@ PIVOT_TRANSFORM_TESTS: List[Any] = [
     (
         pd.DataFrame(data={'date': pd.to_datetime(['1-1-2000', '1-2-2000', '2-1-2001', '2-2-2001']), 'date new': pd.to_datetime(['1-1-2004', '1-2-2005', '2-1-2006', '2-2-2007']), 'value': [1, 2, 3, 4]}),
         [{'column_header': 'date', 'transformation': PCT_DATE_YEAR}], [{'column_header': 'date new', 'transformation': PCT_DATE_MONTH}], {'value': ['sum']}, 
-        pd.DataFrame({'date (year)': [2000, 2001], 'value sum 1': [3.0, np.NaN], 'value sum 2': [np.NaN, 7.0]})
+        pd.DataFrame({'date (year)': [2000, 2001], 'value sum 1': [3.0, np.nan], 'value sum 2': [np.nan, 7.0]})
     ),
 ]
 @pytest.mark.parametrize("original_df, pivot_rows, pivot_columns, values, pivoted_df", PIVOT_TRANSFORM_TESTS)

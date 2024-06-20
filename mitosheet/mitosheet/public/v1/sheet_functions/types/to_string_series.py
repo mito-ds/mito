@@ -16,7 +16,7 @@ from mitosheet.is_type_utils import is_bool_dtype, is_datetime_dtype, is_number_
 
 def to_string_series(
         unknown_object: Any,
-        on_uncastable_arg_element: Any=('default', np.NaN), #Union[Literal['error'], Tuple[Literal['default'], any]]
+        on_uncastable_arg_element: Any=('default', np.nan), #Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
     """
     Converts the given object to a string series. Note that on_uncastable_arg_element

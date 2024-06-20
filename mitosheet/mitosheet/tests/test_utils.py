@@ -1751,7 +1751,7 @@ def get_dataframe_generation_code(df: pd.DataFrame) -> str:
     1         2001             NaN
 
     Will return the string:
-    pd.DataFrame({'date (year)': [2000, 2001], 'value sum: [1.0, np.NaN]})
+    pd.DataFrame({'date (year)': [2000, 2001], 'value sum: [1.0, np.nan]})
 
     This is useful when you have a dataframe you want to create at runtime and then put into a test.
     """

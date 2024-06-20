@@ -22,7 +22,7 @@ TYPE_TESTS = [
     ([1, 'test', 3.3], ['number', 'string', 'number']),
     ([1, 'test', 3.3], ['number', 'string', 'number']),
     ([datetime.datetime.now(), 1, 'test', 3.3], ['datetime', 'number', 'string', 'number']),
-    ([datetime.datetime.now(), 1, 'test', 3.3, np.NaN, True], ['datetime', 'number', 'string', 'number', 'NaN', 'bool']),
+    ([datetime.datetime.now(), 1, 'test', 3.3, np.nan, True], ['datetime', 'number', 'string', 'number', 'NaN', 'bool']),
 ]
 @pytest.mark.parametrize("input, type_series", TYPE_TESTS)
 def test_TYPE_works_on_inputs(input, type_series):
@@ -30,7 +30,7 @@ def test_TYPE_works_on_inputs(input, type_series):
     assert TYPE(series).tolist() == type_series
 
 def test_TYPE_works_on_the_sheet():
-    mito = create_mito_wrapper(pd.DataFrame(data={'A': [datetime.datetime.now(), 1, 'test', 3.3, np.NaN, True]}, dtype='object'))
+    mito = create_mito_wrapper(pd.DataFrame(data={'A': [datetime.datetime.now(), 1, 'test', 3.3, np.nan, True]}, dtype='object'))
     mito.set_formula(f'=TYPE(A)', 0, 'B', add_column=True)
     assert mito.get_column(0, 'B', as_list=False).equals(pd.Series(['datetime', 'number', 'string', 'number', 'NaN', 'bool']))
 

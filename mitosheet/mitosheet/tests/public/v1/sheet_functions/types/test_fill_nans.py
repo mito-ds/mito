@@ -19,22 +19,22 @@ FILL_NAN_TESTS = [
         pd.Series([1, 2, 3])
     ),
     (
-        [pd.Series([1, 2, 3, np.NaN])], 
+        [pd.Series([1, 2, 3, np.nan])], 
         1,
         pd.Series([1.0, 2.0, 3.0, 1.0])
     ),
     (
-        [pd.Series([1, 2, 3, np.NaN])], 
+        [pd.Series([1, 2, 3, np.nan])], 
         "Hi",
         pd.Series([1.0, 2.0, 3.0, "Hi"])
     ),
     (
-        [pd.Series([np.NaN, np.NaN, np.NaN])], 
+        [pd.Series([np.nan, np.nan, np.nan])], 
         "Hi",
         pd.Series(["Hi", "Hi", "Hi"])
     ),
     (
-        [pd.Series([np.NaN, "Hi", np.NaN])], 
+        [pd.Series([np.nan, "Hi", np.nan])], 
         "Hi",
         pd.Series(["Hi", "Hi", "Hi"])
     ),
@@ -58,4 +58,4 @@ def test_fill_nan_multiple_arg():
         assert one.equals(pd.Series([1, 'Hi']))
         assert two.equals(pd.Series([2, 'No']))
 
-    fill_function(pd.Series([1, np.NaN]), pd.Series([2, np.NaN]))
+    fill_function(pd.Series([1, np.nan]), pd.Series([2, np.nan]))

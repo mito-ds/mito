@@ -75,8 +75,8 @@ def test_FLOAT_invalid_input_direct(data):
 
 # Raw function tests
 FLOAT_NAN_TESTS = [
-    ([np.NaN], [True]),
-    (['1', np.NaN], [False, True]),
+    ([np.nan], [True]),
+    (['1', np.nan], [False, True]),
     # Booleans get converted, alright
     (['1.1', 'A'], [False, True]),
     ([1, '1.1', 'ABC'], [False, False, True]),

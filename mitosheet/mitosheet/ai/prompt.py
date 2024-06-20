@@ -26,7 +26,7 @@ def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, flo
 
     Will return a string that looks something like
     ```
-    pd.DataFrame({'date (year)': [2000, 2001], 'value sum: [1.0, np.NaN]})
+    pd.DataFrame({'date (year)': [2000, 2001], 'value sum: [1.0, np.nan]})
     ```
 
     This notably will only include max_characters in the string it returns.

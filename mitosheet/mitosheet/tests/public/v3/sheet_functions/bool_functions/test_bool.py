@@ -22,9 +22,9 @@ BOOL_VALID_TESTS = [
     ([pd.Series([1])], pd.Series([True])),
     ([pd.Series([0])], pd.Series([False])),
     ([pd.Series([0, 1, 0, 2])], pd.Series([False, True, False, True])),
-    ([pd.Series([0, 1, 0, np.NaN])], pd.Series([False, True, False, False])),
+    ([pd.Series([0, 1, 0, np.nan])], pd.Series([False, True, False, False])),
     ([pd.Series(['Hi', 'Hello', 'Nah', 'Doh'])], pd.Series([False, False, False, False])),
-    ([pd.Series([np.NaN, 'Hi', 'Hello', 'Nah', 'Doh'])], pd.Series([False, False, False, False, False])),
+    ([pd.Series([np.nan, 'Hi', 'Hello', 'Nah', 'Doh'])], pd.Series([False, False, False, False, False])),
     ([pd.Series(['True', 'T', 0, 'Doh'])], pd.Series([True, True, False, False])),
 ]
 @pytest.mark.parametrize("_argv, expected", BOOL_VALID_TESTS)
