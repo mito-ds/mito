@@ -47,7 +47,7 @@ To get support, join our [Discord](https://discord.com/invite/XdJSZyejJU) or [Sl
 
 ## Docker Quick Start
 
-Coming soon!
+Docker coming soon!
 
 ## MyBinder
 

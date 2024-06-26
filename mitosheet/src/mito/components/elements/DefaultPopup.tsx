@@ -2,7 +2,7 @@
 import React, { ReactNode } from 'react';
 
 import '../../../../css/elements/BottomLeftPopup.css';
-import '../../../../css/popups/popups.css'
+import '../../../../css/popups/popups.css';
 import { PopupLocation } from '../../types';
 import { classNames } from '../../utils/classNames';
 

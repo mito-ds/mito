@@ -3,11 +3,11 @@
 import React, { useEffect } from 'react';
 import { MitoAPI } from '../../api/api';
 import { ActionEnum, EditorState, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { deleteGraphs, getParamsForExistingGraph, openGraphSidebar } from '../taskpanes/Graph/graphUtils';
-import { Actions } from '../../utils/actions';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 
 

@@ -4,13 +4,13 @@ import React from 'react';
 import SheetTab from './SheetTab';
 
 // import css
-import "../../../../css/footer.css"
+import "../../../../css/footer.css";
 import { MitoAPI } from '../../api/api';
-import { TaskpaneType } from '../taskpanes/taskpanes';
-import PlusIcon from '../icons/PlusIcon';
 import { EditorState, GraphDataArray, GridState, SheetData, UIState } from '../../types';
-import { classNames } from '../../utils/classNames';
 import { Actions } from '../../utils/actions';
+import { classNames } from '../../utils/classNames';
+import PlusIcon from '../icons/PlusIcon';
+import { TaskpaneType } from '../taskpanes/taskpanes';
 
 type FooterProps = {
     sheetDataArray: SheetData[];

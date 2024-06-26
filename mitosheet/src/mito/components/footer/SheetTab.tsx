@@ -2,20 +2,20 @@
 
 import React, { useEffect, useState } from 'react';
 import { MitoAPI } from '../../api/api';
+import { EditorState, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import Input from '../elements/Input';
-import { EditorState, GraphDataArray, GraphID, SheetData, UIState } from '../../types';
 import { focusGrid } from '../endo/focusUtils';
 
 // import icons
+import { Actions } from '../../utils/actions';
+import GraphIcon from '../icons/GraphIcon';
 import SelectedSheetTabDropdownIcon from '../icons/SelectedSheetTabDropdownIcon';
 import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownIcon';
-import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
-import GraphIcon from '../icons/GraphIcon';
-import SheetTabContextMenu from './SheetTabContextMenu';
-import GraphTabContextMenu from './GraphTabContextMenu';
 import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
-import { Actions } from '../../utils/actions';
+import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
+import GraphTabContextMenu from './GraphTabContextMenu';
+import SheetTabContextMenu from './SheetTabContextMenu';
 
 type SheetTabProps = {
     tabName: string;

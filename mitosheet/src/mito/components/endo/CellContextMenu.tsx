@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { ActionEnum, UIState } from '../../types';
+import { Actions } from '../../utils/actions';
 import Dropdown from '../elements/Dropdown';
 import DropdownItem from '../elements/DropdownItem';
 import DropdownSectionSeperator from '../elements/DropdownSectionSeperator';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { getPropsForContextMenuDropdownItem } from './utils';
-import { Actions } from '../../utils/actions';
 import { isCurrOpenDropdownForCell } from './visibilityUtils';
 
 /*

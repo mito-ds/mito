@@ -2,9 +2,9 @@
 import React from 'react';
 
 // import css
-import '../../../../css/elements/ColorInput.css'
-import ColorIcon from '../icons/GraphToolbar/ColorIcon';
+import '../../../../css/elements/ColorInput.css';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
+import ColorIcon from '../icons/GraphToolbar/ColorIcon';
 
 interface ColorInputProps {
     /** 
