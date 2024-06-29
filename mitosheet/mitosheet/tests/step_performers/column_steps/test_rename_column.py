@@ -45,10 +45,10 @@ def test_rename_with_none_column_header():
 @pandas_post_1_only
 @pandas_pre_2_only
 def test_rename_column_with_nat_and_nan():
-    mito = create_mito_wrapper(pd.DataFrame({pd.NA: [1], pd.NaT: [1], np.NaN: [1]}))
+    mito = create_mito_wrapper(pd.DataFrame({pd.NA: [1], pd.NaT: [1], np.nan: [1]}))
     mito.rename_column(0, pd.NA, 'A')
     mito.rename_column(0, pd.NaT, 'B')
-    mito.rename_column(0, np.NaN, 'C')
+    mito.rename_column(0, np.nan, 'C')
 
     assert mito.dfs[0].equals(pd.DataFrame({'A': [1], 'B': [1], 'C': [1]}))
 

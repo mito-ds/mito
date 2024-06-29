@@ -65,8 +65,10 @@ test('Vanguard Demo', async ({ page }) => {
         * Values: sum of MoM Return
     */
     await mito.locator('.mito-toolbar-button', { hasText: 'Pivot' }).click();
+    await awaitResponse(page);
     await mito.locator('.spacing-row', { hasText: 'Rows' }).getByText('Add').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'Portfolio Manager' }).click();
+    await awaitResponse(page);
     await mito.locator('.spacing-row', { hasText: 'Rows' }).getByText('Add').click();
     await mito.locator('.mito-dropdown-item', { hasText: 'Email' }).click();
     await awaitResponse(page);

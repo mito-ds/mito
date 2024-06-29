@@ -123,7 +123,7 @@ def to_float_series_from_boolean_series(boolean_series: pd.Series) -> pd.Series:
 
 def to_float_series(
         unknown_object: Any,
-        on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
+        on_uncastable_arg_element: Any=('default', np.nan), # Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
 
     # If it is not a series, we put it in a series, and get the type again

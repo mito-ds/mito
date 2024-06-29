@@ -18,23 +18,23 @@ FILTER_NAN_TESTS = [
         [pd.Series([1, 2, 3])]
     ),
     (
-        [pd.Series([1.0, 2.0, 3.0]), pd.Series([1.0, 2.0, np.NaN])], 
+        [pd.Series([1.0, 2.0, 3.0]), pd.Series([1.0, 2.0, np.nan])], 
         [pd.Series([1.0, 2.0]), pd.Series([1.0, 2.0])]
     ),
     (
-        [pd.Series([1.0, np.NaN, 3.0]), pd.Series([1.0, 2.0, np.NaN])], 
+        [pd.Series([1.0, np.nan, 3.0]), pd.Series([1.0, 2.0, np.nan])], 
         [pd.Series([1.0]), pd.Series([1.0])]
     ),
     (
-        [pd.Series([1.0, np.NaN, 3.0]), pd.Series([1.0, 2.0, np.NaN]), 'ABC', 2], 
+        [pd.Series([1.0, np.nan, 3.0]), pd.Series([1.0, 2.0, np.nan]), 'ABC', 2], 
         [pd.Series([1.0]), pd.Series([1.0]), 'ABC', 2]
     ),
     (
-        [pd.Series([np.NaN, 1.0, 3.0]), pd.Series([1.0, 2.0, np.NaN])], 
+        [pd.Series([np.nan, 1.0, 3.0]), pd.Series([1.0, 2.0, np.nan])], 
         [pd.Series([1.0], index=[1]), pd.Series([2.0], index=[1])]
     ),
     (
-        [pd.Series([np.NaN, 3.0]), pd.Series([1.0, np.NaN])], 
+        [pd.Series([np.nan, 3.0]), pd.Series([1.0, np.nan])], 
         [pd.Series([], dtype='float64'), pd.Series([], dtype='float64')]
     ),
 ]

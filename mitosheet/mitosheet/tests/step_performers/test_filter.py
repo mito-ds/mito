@@ -162,7 +162,7 @@ FILTER_TESTS = [
         pd.DataFrame(data={"A": [None, 2, 3, 4, 5, 6]}),
         FC_EMPTY,
         None,
-        pd.DataFrame(data={"A": [np.NaN]}),
+        pd.DataFrame(data={"A": [np.nan]}),
     ),
     (
         pd.DataFrame(data={"A": [1, 2, 3, 4, 5, 6]}),

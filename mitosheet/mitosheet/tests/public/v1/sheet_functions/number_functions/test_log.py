@@ -43,7 +43,7 @@ def test_LOG_valid_input_direct(series1, base, output):
     assert np.isclose(output, log).all()
 
 def test_log_with_nan():
-    log = LOG(pd.Series([np.NaN, 10, 100]), 10).tolist()
+    log = LOG(pd.Series([np.nan, 10, 100]), 10).tolist()
     assert np.isnan(log[0])
     assert log[1] == 1.0
     assert log[2] == 2.0

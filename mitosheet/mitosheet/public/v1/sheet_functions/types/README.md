@@ -16,7 +16,7 @@ Moreover, this function should have the following interface
 ```
 def to_<series_type>(
         unknown_object,
-        on_uncastable_arg_element # Union[Literal['error'], Tuple[Literal['default'], any]]=('default', np.NaN)
+        on_uncastable_arg_element # Union[Literal['error'], Tuple[Literal['default'], any]]=('default', np.nan)
     ):
 ```
 Which will clarify how to handle uncastable elements. Finially, this function should be added to `conversion_function.py`, so that sheet functions can use it (through their decorators).

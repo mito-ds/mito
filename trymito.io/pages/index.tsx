@@ -40,7 +40,6 @@ const Home: NextPage = () => {
         <title>Best Python Spreadsheet Automation & Code Generation | Mito </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      
       <Header/>
     
       <div className={pageStyles.container}>
@@ -88,10 +87,6 @@ const Home: NextPage = () => {
 
           <LogoSection></LogoSection>
 
-          <section>
-            <CaseStudies />
-          </section>
-
           <section className={pageStyles.background_card} >
             {/* So that we can scroll to the correct location on the page, and 
               because we have a fixed header taking up some space, we scroll 
@@ -99,6 +94,10 @@ const Home: NextPage = () => {
             */}
             <a className="anchor" id='installation'></a>
             <InstallInstructions/>
+          </section>
+
+          <section>
+            <CaseStudies />
           </section>
 
           <section>

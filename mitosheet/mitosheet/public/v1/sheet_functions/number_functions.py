@@ -31,7 +31,7 @@ from mitosheet.public.v1.sheet_functions.types.decorators import (
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 def ABS(series: pd.Series) -> pd.Series:
     """
@@ -56,7 +56,7 @@ def ABS(series: pd.Series) -> pd.Series:
 
 @handle_sheet_function_errors
 @filter_nans
-@convert_args_to_series_type('float', 'skip', ('default', np.NaN))
+@convert_args_to_series_type('float', 'skip', ('default', np.nan))
 def AVG(*argv: pd.Series) -> pd.Series:
     """
     {
@@ -92,13 +92,13 @@ def AVG(*argv: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 @convert_arg_to_series_type(
     1,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 def CORR(s1: pd.Series, s2: pd.Series) -> pd.Series:
     """
@@ -133,7 +133,7 @@ def CORR(s1: pd.Series, s2: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 def FLOAT(series: pd.Series) -> pd.Series:
     """
@@ -189,7 +189,7 @@ def INT(series: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 # We don't use the @filter_nans decorator because kurtosis ignores NaN values
 def KURT(series: pd.Series) -> pd.Series:
@@ -224,7 +224,7 @@ def KURT(series: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 def LOG(series: pd.Series, base: Optional[Union[int, float]]=None) -> pd.Series:
     """
@@ -354,7 +354,7 @@ def MULTIPLY(*argv: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 @convert_arg_to_series_type(
     1,
@@ -394,7 +394,7 @@ def POWER(series, power):
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 @convert_arg_to_series_type(
     1,
@@ -443,7 +443,7 @@ def ROUND(series, decimals=None):
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 # We don't use the @filter_nans decorator because skew ignores NaN values
 def SKEW(series: pd.Series) -> pd.Series:
@@ -508,7 +508,7 @@ def SUM(*argv: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 # We don't use the @filter_nans decorator because std ignores NaN values
 def STDEV(series: pd.Series) -> pd.Series:
@@ -543,7 +543,7 @@ def STDEV(series: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 def VALUE(series: pd.Series) -> pd.Series:
     """
@@ -572,7 +572,7 @@ def VALUE(series: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 def EXP(series: pd.Series) -> pd.Series:
     """
@@ -600,7 +600,7 @@ def EXP(series: pd.Series) -> pd.Series:
     0,
     'float',
     'error',
-    ('default', np.NaN)
+    ('default', np.nan)
 )
 # We don't use the @filter_nans decorator because var ignores NaN values
 def VAR(series: pd.Series) -> pd.Series:

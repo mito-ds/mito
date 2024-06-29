@@ -145,8 +145,8 @@ def is_null_column_header_in_column_headers(column_header: ColumnHeader, column_
         return any(c is pd.NaT for c in column_headers)
     
     # Then, check for NaN
-    if column_header is np.NaN:
-        return any(c is np.NaN for c in column_headers)
+    if column_header is np.nan:
+        return any(c is np.nan for c in column_headers)
     
     # Then, check None
     if column_header is None and None in column_headers:

@@ -75,8 +75,8 @@ def test_INT_invalid_input_direct(data):
 
 # Raw function tests
 INT_NAN_TESTS = [
-    ([1, np.NaN], [1, 0]),
-    (['1', np.NaN], [1, 0]),
+    ([1, np.nan], [1, 0]),
+    (['1', np.nan], [1, 0]),
     # Booleans get converted, alright
     (['1.1', 'A'], [1, 0]),
     ([1, '1.1', 'ABC'], [1, 1, 0]),

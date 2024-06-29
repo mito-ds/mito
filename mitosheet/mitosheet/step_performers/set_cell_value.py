@@ -119,7 +119,7 @@ def cast_value_to_type(value: Union[str, None], column_dtype: str) -> Optional[A
 
     try:
         conversion_function = get_function_to_convert_to_series(column_dtype)
-        casted_value_series = conversion_function(value, on_uncastable_arg_element=np.NaN)
+        casted_value_series = conversion_function(value, on_uncastable_arg_element=np.nan)
 
         type_corrected_new_value = casted_value_series.iat[0]
 
