@@ -90,7 +90,7 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
         'edit_event',
         'error', 
         'mitosheet_rendered',
-        'frontend_render'
+        'frontend_render_failed',
     ]
 
     whitelisted_log_params = [
@@ -102,7 +102,6 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
     ]
 
     # Remove non-whitelisted events
-    print(log_params)
     if log_event not in whitelisted_log_events:
         return None
 
@@ -120,10 +119,11 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
     else:
         filtered_log_params['event'] = log_event
 
-    # If it is an error, add the severity code to the log and default to -1 if not found
-
+    # Add the severity code to the log and default to -1 if not found
     if log_event == 'error':
         filtered_log_params['error_severity_code'] = error_severity_codes.get(filtered_log_params['params_failed_log_event'], '-1')
+    if log_event == 'frontend_render_failed':
+        filtered_log_params['error_severity_code'] = error_severity_codes.get(log_event, '-1')
 
     return filtered_log_params
 
