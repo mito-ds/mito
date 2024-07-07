@@ -6,6 +6,66 @@ import threading
 
 import requests
 
+"""
+Error Severity Codes are used to help enterprise admins triage errors. 
+When managing the Python environment of 1000's of users, error severity codes 
+are useful for understanding the impact of errors and prioritizing fixes.
+
+The error severity codes use the following schema:
+
+Likely just a warning		        0
+Likely user error		            10
+Likely inconsequential error		11
+Likely Mito Bug		                20
+Unable to import data		        21
+Unable to replay analysis		    22	
+Mito Crashed		                50	
+Misc.		                        -1
+"""
+
+error_severity_codes = {
+    'ai_transformation_edit_failed': '10',
+    'append_user_field_update_failed': '11',
+    'args_update_failed': '20',
+    'args_update_remains_failed': '20',
+    'change_column_dtype_edit_failed': '10',
+    'check_dependencies_failed': '-1',
+    'dataframe_delete_edit_failed': '11',
+    'dataframe_import_edit_failed': '21',
+    'dataframe_rename_edit_failed': '11',
+    'delete_column_edit_failed': '11',
+    'delete_row_edit_failed': '11',
+    'excel_import_edit_failed': '21',
+    'filter_column_edit_failed': '10',
+    'frontend_render_failed': '50',
+    'get_column_summary_graph_failed': '11',
+    'get_dataframe_as_excel_failed': '21',
+    'get_defined_df_names_failed': '21',
+    'get_excel_file_metadata_failed': '21',
+    'get_unique_value_counts_failed': '20',
+    'graph_edit_failed': '10',
+    'graph_rename_edit_failed': '11',
+    'install_failed': '-1',
+    'install_mitosheet_failed': '-1',
+    'melt_edit_failed': '11',
+    'merge_edi_failed':' 0',
+    'mitosheet_sheet_call_failed': '50',
+    'mitosheet_sheet_call_location_failed': '10',
+    'one_hot_encoding_edit_failed': '11',
+    'overwrite_analysis_to_replay_to_mitosheet_call_failed': '22',
+    'pivot_edit_failed': '20',
+    'plotly_define_failed': '20',
+    'rename_column_edit_failed': '10',
+    'render_count_update_failed': '11',
+    'replace_edit_failed': '10',
+    'replay_analysis_update_failed': '22',
+    'replayed_nonexistant_analysis_failed': '22',
+    'set_column_formula_edit_failed': '10',
+    'simple_import_edit_failed': '21',
+    'sort_edit_failed': '20',
+    'write_analysis_to_replay_to_mitosheet_call_failed': '20'
+}
+
 
 def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
@@ -15,13 +75,14 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
 	    'timestamp': '2023-10-25T15:30:00Z',
 	    'event': 'set_column_formula',
 	    'params': {
-		'sheet_index': 1,
-		'column_id': 'column id',
-		'new_formula': '=10 + 11'
-	     },
-	     'version_python': '3.9',
-	     'version_pandas': '2.0',
-	     'version_mitosheet': '0.1.522',
+            'sheet_index': 1,
+            'column_id': 'column id',
+            'new_formula': '=10 + 11'
+	    },
+        'version_python': '3.9',
+        'version_pandas': '2.0',
+        'version_mitosheet': '0.1.522',
+        'error_severity_code': '10'
 	}
     """
     
@@ -29,7 +90,7 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
         'edit_event',
         'error', 
         'mitosheet_rendered',
-        'frontend_render_failed'
+        'frontend_render'
     ]
 
     whitelisted_log_params = [
@@ -41,6 +102,7 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
     ]
 
     # Remove non-whitelisted events
+    print(log_params)
     if log_event not in whitelisted_log_events:
         return None
 
@@ -57,6 +119,11 @@ def preprocess_log_for_upload(log_event: str, log_params: Dict[str, Any]) -> Opt
         del filtered_log_params['params_log_event']
     else:
         filtered_log_params['event'] = log_event
+
+    # If it is an error, add the severity code to the log and default to -1 if not found
+
+    if log_event == 'error':
+        filtered_log_params['error_severity_code'] = error_severity_codes.get(filtered_log_params['params_failed_log_event'], '-1')
 
     return filtered_log_params
 
