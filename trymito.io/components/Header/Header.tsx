@@ -68,11 +68,6 @@ const Header = (): JSX.Element => {
 
     return (
       <header className={headerStyles.header}>
-        <div className={headerStyles.promotion_banner}>
-          <a href="https://naterush1997.typeform.com/to/SIKccZHc?utm_source=trymito_promo_banner" target="_blank" rel="noreferrer">
-            🎁 <span className='text-primary'>Sign up for the new </span><span className='text-highlight'>AI-powered Excel to Python converter → </span>
-          </a>
-        </div>
         <div className={headerStyles.navbar}>
           <div className={headerStyles.desktop_left_nav_bar}>
             <Link href='/'>

@@ -160,7 +160,7 @@ def test_log_uploader_error_events():
         data = log_call[1]['data']
         log_event = json.loads(data)[0]
 
-        assert len(log_event) == 14
+        assert len(log_event) == 15
         assert log_event["error_traceback"] is not None
         assert log_event["error_traceback_last_line"] is not None
         assert log_event["params_sheet_index"] == 0
@@ -175,6 +175,8 @@ def test_log_uploader_error_events():
         assert log_event["timestamp_gmt"] is not None
         assert log_event["event"] == "error"
         assert log_event["params_failed_log_event"] == "set_column_formula_edit_failed"
+        assert log_event["error_severity_code"] == "10"
+
 
     delete_all_mito_config_environment_variables()
     
@@ -234,7 +236,7 @@ def test_log_uploaded_frontend_render_failed():
             'id': '_pt4wgfw0z'
         })
 
-        time.sleep(.5)
+        time.sleep(1)
 
         assert len(mock_post.call_args_list) == 1
 
@@ -252,6 +254,7 @@ def test_log_uploaded_frontend_render_failed():
         assert log_event['params_error_stack'] is not None
         assert log_event['params_error_message'] is not None
         assert log_event['event'] == 'frontend_render_failed'
+        assert log_event['error_severity_code'] == '50'
 
     delete_all_mito_config_environment_variables()
 
