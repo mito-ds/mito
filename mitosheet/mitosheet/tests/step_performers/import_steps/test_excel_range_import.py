@@ -318,7 +318,7 @@ EXCEL_RANGE_IMPORT_TESTS = [
         ['A1:B2', 'A4:B5'],
         [TEST_DF_1, TEST_DF_1],
         [{'type': 'dynamic', 'start_condition': {'type': 'upper left corner value', 'value': 'header 1'}, 'end_condition': {'type': 'consecutive number of empty rows', 'value': 2}, 'column_end_condition': {'type': 'num columns', 'value': 2}, 'df_name': 'dataframe_1'}],
-        [pd.DataFrame({'header 1': [1, np.NaN, 'header 1', 1], 'header 2': [2, np.NaN, 'header 2', 2]})],
+        [pd.DataFrame({'header 1': [1, np.nan, 'header 1', 1], 'header 2': [2, np.nan, 'header 2', 2]})],
     ), 
     # Test number of consecutive empty rows, with partially filled row
     (

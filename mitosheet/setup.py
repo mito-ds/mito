@@ -114,7 +114,7 @@ setup_args = dict(
         ],
         'deploy': [
             'wheel==0.42.0', 
-            'twine==4.0.2',
+            'twine==5.1.1',
             "setuptools==56.0.0"
         ],
         'streamlit': [

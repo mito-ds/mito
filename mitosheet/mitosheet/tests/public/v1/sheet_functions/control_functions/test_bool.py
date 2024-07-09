@@ -21,11 +21,11 @@ BOOL_TESTS = [
     (pd.Series(data=[1]), pd.Series(data=[True])),
     (pd.Series(data=[0]), pd.Series(data=[False])),
     (pd.Series(data=[0, 1, 0, 2]), pd.Series(data=[False, True, False, True])),
-    (pd.Series(data=[0, 1, 0, np.NaN]), pd.Series(data=[False, True, False, False])),
+    (pd.Series(data=[0, 1, 0, np.nan]), pd.Series(data=[False, True, False, False])),
     (pd.Series(data=['Hi', 'Hello', 'Nah', 'Doh']), pd.Series(data=[False, False, False, False])),
-    (pd.Series(data=[np.NaN, 'Hi', 'Hello', 'Nah', 'Doh']), pd.Series(data=[False, False, False, False, False])),
+    (pd.Series(data=[np.nan, 'Hi', 'Hello', 'Nah', 'Doh']), pd.Series(data=[False, False, False, False, False])),
     (pd.Series(data=['Hi', 'Hello', 0, 'Doh']), pd.Series(data=[False, False, False, False])),
-    (pd.Series(data=['Hi', 'Hello', 0, np.NaN]), pd.Series(data=[False, False, False, False])),
+    (pd.Series(data=['Hi', 'Hello', 0, np.nan]), pd.Series(data=[False, False, False, False])),
 ]
 @pytest.mark.parametrize("series_one,result", BOOL_TESTS)
 def test_bool_direct(series_one, result):

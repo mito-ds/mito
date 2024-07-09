@@ -15,7 +15,7 @@ import pandas as pd
 
 def to_int_series(
         unknown_object: Any,
-        on_uncastable_arg_element: Any=('default', np.NaN), # Union[Literal['error'], Tuple[Literal['default'], any]]
+        on_uncastable_arg_element: Any=('default', np.nan), # Union[Literal['error'], Tuple[Literal['default'], any]]
     ) -> pd.Series:
 
     float_series = to_float_series(unknown_object, on_uncastable_arg_element=on_uncastable_arg_element)

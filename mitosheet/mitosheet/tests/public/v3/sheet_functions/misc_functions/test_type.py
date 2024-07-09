@@ -20,7 +20,7 @@ TYPE_VALID_TESTS = [
     ([pd.Series([1, 'test', 3.3])], pd.Series(['number', 'string', 'number'])),
     ([pd.Series([1, 'test', 3.3])], pd.Series(['number', 'string', 'number'])),
     ([pd.Series([datetime.datetime.now(), 1, 'test', 3.3])], pd.Series(['datetime', 'number', 'string', 'number'])),
-    ([pd.Series([datetime.timedelta(days=1), datetime.datetime.now(), 1, 'test', 3.3, np.NaN, True])], pd.Series(['timedelta', 'datetime', 'number', 'string', 'number', 'NaN', 'bool']),),
+    ([pd.Series([datetime.timedelta(days=1), datetime.datetime.now(), 1, 'test', 3.3, np.nan, True])], pd.Series(['timedelta', 'datetime', 'number', 'string', 'number', 'NaN', 'bool']),),
     ([pd.Series(['ABC', None])], pd.Series(['string', 'NaN'])),
     ([pd.Series([datetime.datetime.now(), None])], pd.Series(['datetime', 'NaN'])),
 ]

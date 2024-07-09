@@ -202,7 +202,7 @@ jobs:
         pip install -r extra-requirements.txt
 
         npm install
-        npx playwright install ${{matrix.project.install-name}}
+        npx playwright install
 
         cd ../mitosheet
         pip install -e ".[test]"
