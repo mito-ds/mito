@@ -1,4 +1,4 @@
 [build-system]
 requires = ["jupyterlab~=3.0", "setuptools>=40.8.0,<61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
-license= "GNU Affero General Public License v3"
+license = "GNU Affero General Public License v3"
