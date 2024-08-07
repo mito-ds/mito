@@ -1,49 +1,121 @@
-
-# Basic Python ignore
-*.pyc
-.pytest_cache/
-venv/
-
-# Basic ignore for a TypeScript Project
+*.bundle.*
+lib/
 node_modules/
-
-# Ignore files bundled with Mito
-docs/source/_static
-mitosheet/nbextension
+*.log
+.eslintcache
+.stylelintcache
+*.egg-info/
+.ipynb_checkpoints
+*.tsbuildinfo
 mitosheet/labextension
-mitosheet/mito_frontend.js
-mitosheet/mito_frontend.css
-lib
-mitovenv
-*deployment/tutorial/.ipynb_checkpoints/
-*mitosheet/tests/.ipynb_checkpoints/
+# Version file is handled by hatchling
+mitosheet/_version.py
 
-# Ignore generated config files for deployment
-staging-config.yaml
-config.yaml
+# Created by https://www.gitignore.io/api/python
+# Edit at https://www.gitignore.io/?templates=python
 
-# Ignore egg-info Python packing files
-*.egg-info
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Build cache info
-tsconfig.tsbuildinfo
+# C extensions
+*.so
 
-# Ignore environment variable file
-.env
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Ignore build JS files as they always cause conflicts
-# and when developing you have to rebuild anyways. Note that
-# this makes it so installing from source of the development
-# repo may not work in all cases
-mitosheet/mito_frontend.js
-mitosheet/mito_frontend.css
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
 
-mitosheet/streamlit/v1/mitoBuild/*.js
-mitosheet/streamlit/v1/mitoBuild/*.css
-mitosheet/streamlit/v1/messagingBuild/*.js
-mitosheet/mito_dash/v1/mitoBuild/*.js
-mitosheet/mito_dash/v1/mitoBuild/*.css
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
 
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage/
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
 
-.streamlit/
+# Translations
+*.mo
+*.pot
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# mkdocs documentation
+/site
+
+# mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# End of https://www.gitignore.io/api/python
+
+# OSX files
+.DS_Store
+
+# Yarn cache
+.yarn/

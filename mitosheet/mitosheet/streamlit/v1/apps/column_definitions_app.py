@@ -32,7 +32,13 @@ new_dfs, code = spreadsheet(
                 }] 
             }
         ],
-    ]
+    ],
+    theme={
+        'primaryColor': '#ff0000',
+        'backgroundColor': '#0000ff',
+        'secondaryBackgroundColor': '#00ff00',
+        'textColor': '#ffffff'
+    }
 )
 
 st.write(new_dfs)
