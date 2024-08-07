@@ -3,8 +3,7 @@
     "lib/**/*.js",
     "fonts/**/*",
     "dist/*.js",
-    "css/**/*.css",
-    "style/index.js"
+    "css/**/*.css"
   ],
   "jupyterlab": {
     "outputDir": "mitosheet/labextension",
@@ -220,6 +219,5 @@
       "selector-no-vendor-prefix": null,
       "value-no-vendor-prefix": null
     }
-  },
-  "styleModule": "style/index.js"
+  }
 }
