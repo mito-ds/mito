@@ -24,14 +24,19 @@ export function getCellAtIndex(cells: CellList | undefined, index: number): ICel
         return undefined;
     }
 
-    return cells.get(index);
+    const cell = cells.get(index)
+
+    // TODO: Handle the case where there is no cell at the index
+
+    return cell
 }
 
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
-    const value = cell.getMetadata('value');
-    return value
+
+    return cell.sharedModel.source
 }
+
 
 /* 
     Returns True if the passed cell is empty or undefined.
@@ -57,10 +62,17 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
         return undefined;
     }
 
-    for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
-        const cell = cells.get(cellIndex);
+    for (let i = 0; i < cells.length; i++) {
+        const cell = getCellAtIndex(cells, i)
+
+        if (cell == undefined) {
+            continue;
+        }
+
+
+        
         if (containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), analysisName)) {
-            return [cell, cellIndex];
+            return [cell, i];
         }
     }
 
@@ -131,7 +143,8 @@ export function writeToCell(cell: ICellModel | undefined, code: string): void {
     if (cell == undefined) {
         return;
     }
-    cell.setMetadata('text', code);
+    console.log('Writing to cell: ', cell.sharedModel.source)
+    cell.sharedModel.source = code
 }
 
 

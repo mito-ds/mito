@@ -220,7 +220,7 @@ function activateMitosheetExtension(
 
             const notebook = tracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
-
+            
             if (notebook === undefined || cells === undefined) {
                 return;
             }
