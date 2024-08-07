@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.3.5
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: naterush1997@gmail.com
+author_name: Mito Sheet
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: mitosheet
+project_short_description: The Mito Spreadsheet
+python_name: mitosheet
+repository: https://github.com/mito-ds/monorepo
+test: false
+

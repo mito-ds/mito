@@ -25,50 +25,62 @@
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyterlab/application": "^3.5.0",
-    "@jupyterlab/notebook": "^3.0.6",
+    "@jupyterlab/application": "^4.2.4",
+    "@jupyterlab/notebook": "^4.2.4",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^17.0.2",
     "fscreen": "^1.1.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "streamlit-component-lib": "^2.0.0"
   },
   "scripts": {
-    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "clean:nbextension": "rimraf mitosheet/nbextension",
-    "clean:labextension": "rimraf mitosheet/labextension",
-    "clean:mito_frontend": "rimraf mitosheet/mito_frontend.js mitosheet/mito_frontend.css",
-    "clean:dash": "cd mitosheet && rimraf mitodashwrapper.css && rimraf mitodashwrapper.js",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension && jlpm run clean:mito_frontend && npm run clean:dash",
-    "clean": "npm run clean:all",
-    "build:nbextension:dev": "webpack --mode=development",
-    "build:labextension:dev": "jupyter labextension build --development True .",
-    "build:mito_frontend:dev": "node esbuild.js",
-    "build:streamlit:dev": "node esbuild.streamlit.js",
-    "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev && build:mito_frontend:dev && build:streamlit:dev",
-    "build:dev": "npm run build:all:dev",
-    "build:lib": "tsc",
-    "build:nbextension": "webpack --mode=production",
-    "build:labextension": "jupyter labextension build .",
-    "build:mito_frontend": "node esbuild.js",
-    "build:streamlit": "node esbuild.streamlit.js",
-    "build:dash": "node esbuild.dash.js",
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
     "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension && npm run build:mito_frontend && npm run build:streamlit && npm run build:dash",
-    "build": "npm run build:all",
-    "watch:lib": "tsc -w",
-    "watch:nbextension": "webpack --watch --mode=development",
-    "watch:labextension": "jupyter labextension watch .",
-    "watch:mito_frontend": "node esbuild.js --watch",
-    "watch:streamlit": "node esbuild.streamlit.js --watch",
-    "watch:dash": "node esbuild.dash.js --watch",
-    "watch:all": "run-p watch:lib watch:labextension watch:nbextension watch:mito_frontend watch:streamlit watch:dash",
-    "watch": "npm run watch:all",
-    "lint:check": "eslint src/ --ext .ts,.tsx",
-    "lint": "eslint src/ --ext .ts,.tsx --fix",
-    "prepack": "npm run build:all",
+    "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev && build:mito_frontend:dev && build:streamlit:dev",
+    "build:dash": "node esbuild.dash.js",
+    "build:dev": "npm run build:all:dev",
+    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown",
     "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
-    "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown"
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc --sourceMap",
+    "build:lib:prod": "tsc",
+    "build:mito_frontend": "node esbuild.js",
+    "build:mito_frontend:dev": "node esbuild.js",
+    "build:nbextension": "webpack --mode=production",
+    "build:nbextension:dev": "webpack --mode=development",
+    "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
+    "build:streamlit": "node esbuild.streamlit.js",
+    "build:streamlit:dev": "node esbuild.streamlit.js",
+    "clean": "jlpm clean:lib",
+    "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
+    "clean:dash": "cd mitosheet && rimraf mitodashwrapper.css && rimraf mitodashwrapper.js",
+    "clean:labextension": "rimraf mitosheet/labextension mitosheet/_version.py",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "clean:lintcache": "rimraf .eslintcache .stylelintcache",
+    "clean:mito_frontend": "rimraf mitosheet/mito_frontend.js mitosheet/mito_frontend.css",
+    "clean:nbextension": "rimraf mitosheet/nbextension",
+    "eslint": "jlpm eslint:check --fix",
+    "eslint:check": "eslint . --cache --ext .ts,.tsx",
+    "install:extension": "jlpm build",
+    "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+    "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
+    "prepack": "npm run build:all",
+    "prettier": "jlpm prettier:base --write --list-different",
+    "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+    "prettier:check": "jlpm prettier:base --check",
+    "stylelint": "jlpm stylelint:check --fix",
+    "stylelint:check": "stylelint --cache \"style/**/*.css\"",
+    "watch": "run-p watch:src watch:labextension",
+    "watch:all": "run-p watch:lib watch:labextension watch:nbextension watch:mito_frontend watch:streamlit watch:dash",
+    "watch:dash": "node esbuild.dash.js --watch",
+    "watch:labextension": "jupyter labextension watch .",
+    "watch:lib": "tsc -w",
+    "watch:mito_frontend": "node esbuild.js --watch",
+    "watch:nbextension": "webpack --watch --mode=development",
+    "watch:src": "tsc -w --sourceMap",
+    "watch:streamlit": "node esbuild.streamlit.js --watch"
   },
   "keywords": [
     "jupyter",
@@ -79,26 +91,37 @@
     "ipywidgets"
   ],
   "devDependencies": {
-    "@jupyterlab/builder": "^3.0.0",
+    "@jupyterlab/builder": "^4.0.0",
     "@types/expect.js": "^0.3.29",
+    "@types/json-schema": "^7.0.11",
     "@types/node": "^18.11.18",
-    "@types/react": "^17.0.26",
-    "@typescript-eslint/eslint-plugin": "^4.8.1",
-    "@typescript-eslint/parser": "^4.8.1",
+    "@types/react": "^18.0.26",
+    "@types/react-addons-linked-state-mixin": "^0.14.22",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "css-loader": "^6.7.1",
     "esbuild": "^0.15.16",
-    "eslint": "^7.14.0",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-office-addins": "^1.0.3",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.21.3",
     "expect.js": "^0.3.1",
     "fs-extra": "^10.0.0",
     "mkdirp": "^1.0.4",
     "mocha": "^9.1.2",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.1.1",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.4.3"
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.1",
+    "source-map-loader": "^1.0.2",
+    "style-loader": "^3.3.1",
+    "stylelint": "^15.10.1",
+    "stylelint-config-recommended": "^13.0.0",
+    "stylelint-config-standard": "^34.0.0",
+    "stylelint-csstree-validator": "^3.0.0",
+    "stylelint-prettier": "^4.0.0",
+    "typescript": "~5.0.2",
+    "yjs": "^13.5.40"
   },
   "main": "lib/index.js",
   "homepage": "https://trymito.io",
@@ -106,5 +129,97 @@
   "description": "The Mito Spreadsheet",
   "resolutions": {
     "@types/react": "^17.0.2"
-  }
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "project": "tsconfig.json",
+      "sourceType": "module"
+    },
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "rules": {
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          "selector": "interface",
+          "format": [
+            "PascalCase"
+          ],
+          "custom": {
+            "regex": "^I[A-Z]",
+            "match": true
+          }
+        }
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "args": "none"
+        }
+      ],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-namespace": "off",
+      "@typescript-eslint/no-use-before-define": "off",
+      "@typescript-eslint/quotes": [
+        "error",
+        "single",
+        {
+          "avoidEscape": true,
+          "allowTemplateLiterals": false
+        }
+      ],
+      "curly": [
+        "error",
+        "all"
+      ],
+      "eqeqeq": "error",
+      "prefer-arrow-callback": "error"
+    }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "**/*.d.ts"
+  ],
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "none",
+    "arrowParens": "avoid",
+    "endOfLine": "auto",
+    "overrides": [
+      {
+        "files": "package.json",
+        "options": {
+          "tabWidth": 4
+        }
+      }
+    ]
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-recommended",
+      "stylelint-config-standard",
+      "stylelint-prettier/recommended"
+    ],
+    "plugins": [
+      "stylelint-csstree-validator"
+    ],
+    "rules": {
+      "csstree/validator": true,
+      "property-no-vendor-prefix": null,
+      "selector-class-pattern": "^([a-z][A-z\\d]*)(-[A-z\\d]+)*$",
+      "selector-no-vendor-prefix": null,
+      "value-no-vendor-prefix": null
+    }
+  },
+  "styleModule": "style/index.js"
 }

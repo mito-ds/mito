@@ -1,10 +1,6 @@
 // Copyright (c) Mito
 import { ICellModel } from "@jupyterlab/cells";
-import { INotebookTracker } from '@jupyterlab/notebook';
-import {
-    IObservableString,
-    IObservableUndoableList
-} from '@jupyterlab/observables';
+import { CellList, INotebookTracker } from '@jupyterlab/notebook';
 import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 
@@ -23,33 +19,19 @@ export function getParentMitoContainer(): Element | null {
 }
 
 
-export function getCellAtIndex(cells: IObservableUndoableList<ICellModel> | undefined, index: number): ICellModel | undefined {
+export function getCellAtIndex(cells: CellList | undefined, index: number): ICellModel | undefined {
     if (cells == undefined) {
         return undefined;
     }
 
-    const cellsIterator = cells.iter();
-    let cell = cellsIterator.next();
-    let i = 0;
-    while (cell) {
-        if (i == index) {
-            return cell;
-        }
-
-        i++;
-        cell = cellsIterator.next();
-    }
-
-  
-    return undefined;
+    return cells.get(index);
 }
 
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
-    const value = cell.modelDB.get('value') as IObservableString;
-    return value.text;
+    const value = cell.getMetadata('value');
+    return value
 }
-
 
 /* 
     Returns True if the passed cell is empty or undefined.
@@ -75,16 +57,11 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
         return undefined;
     }
 
-    const cellsIterator = cells.iter();
-    let cell = cellsIterator.next();
-    let cellIndex = 0;
-    while (cell) {
+    for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+        const cell = cells.get(cellIndex);
         if (containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), analysisName)) {
             return [cell, cellIndex];
         }
-
-        cellIndex++;
-        cell = cellsIterator.next();
     }
 
     return undefined;
@@ -154,8 +131,7 @@ export function writeToCell(cell: ICellModel | undefined, code: string): void {
     if (cell == undefined) {
         return;
     }
-    const value = cell.modelDB.get('value') as IObservableString;
-    value.text = code;
+    cell.setMetadata('text', code);
 }
 
 
