@@ -43,15 +43,15 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
         <DefaultModal
             header={`Delete Sheet and Dependant Graphs`}
             modalType={ModalEnum.ClearAnalysis}
-            viewComponent= {
+            viewComponent={[
                 <>
                     <p className='body-text-1'>
                         Deleting {props.dfName} will delete the following graphs that rely on it:&nbsp;
                         <span className='text-color-mito-highlight-important'>{graphTabNames.join(', ')}</span>
                     </p>
                 </>
-            }
-            buttons = {
+            ]}
+            buttons = {[
                 <>
                     <TextButton
                         variant='light'
@@ -75,7 +75,7 @@ const DeleteGraphsModal = (props: DeleteGraphsModalProps): JSX.Element => {
                         Delete Sheet and Graphs
                     </TextButton>
                 </>
-            }
+            ]}
         />
     )
 } 

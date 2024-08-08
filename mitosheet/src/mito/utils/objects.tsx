@@ -33,7 +33,7 @@ function recurseObjectAssign(target: Record<string, any>, source: Record<string,
  * Given an object an a partial object, will update the object with the partial object.
  * Works with nested objects.
  */
-export function updateObjectWithPartialObject<T>(obj: T, update: RecursivePartial<T>): T {
+export function updateObjectWithPartialObject<T extends Record<string, any>>(obj: T, update: RecursivePartial<T>): T {
     const newParams: T = window.structuredClone(obj);
     recurseObjectAssign(newParams, update);
     return newParams;

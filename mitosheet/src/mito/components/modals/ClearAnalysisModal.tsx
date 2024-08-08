@@ -44,14 +44,14 @@ const ClearAnalysisModal = (props: ResetAnalysisProps): JSX.Element => {
         <DefaultModal
             header={`Clear your current analysis?`}
             modalType={ModalEnum.ClearAnalysis}
-            viewComponent= {
+            viewComponent= {[
                 <>
                     <p className='body-text-1'>
                         This will undo all transformations and you&apos;ve made to imported dataframes and delete all of the graphs you&apos;ve created.
                     </p>
                 </>
-            }
-            buttons = {
+            ]}
+            buttons = {[
                 <>
                     <TextButton
                         variant='light'
@@ -75,7 +75,7 @@ const ClearAnalysisModal = (props: ResetAnalysisProps): JSX.Element => {
                         Clear
                     </TextButton>
                 </>
-            }
+            ]}
         />
     )
 } 

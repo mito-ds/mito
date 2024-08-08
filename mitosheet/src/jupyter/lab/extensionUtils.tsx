@@ -1,10 +1,6 @@
 // Copyright (c) Mito
 import { ICellModel } from "@jupyterlab/cells";
-import { INotebookTracker } from '@jupyterlab/notebook';
-import {
-    IObservableString,
-    IObservableUndoableList
-} from '@jupyterlab/observables';
+import { CellList, INotebookTracker } from '@jupyterlab/notebook';
 import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
 
 
@@ -23,31 +19,22 @@ export function getParentMitoContainer(): Element | null {
 }
 
 
-export function getCellAtIndex(cells: IObservableUndoableList<ICellModel> | undefined, index: number): ICellModel | undefined {
+export function getCellAtIndex(cells: CellList | undefined, index: number): ICellModel | undefined {
     if (cells == undefined) {
         return undefined;
     }
 
-    const cellsIterator = cells.iter();
-    let cell = cellsIterator.next();
-    let i = 0;
-    while (cell) {
-        if (i == index) {
-            return cell;
-        }
+    const cell = cells.get(index)
 
-        i++;
-        cell = cellsIterator.next();
-    }
+    // TODO: Handle the case where there is no cell at the index
 
-  
-    return undefined;
+    return cell
 }
 
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
-    const value = cell.modelDB.get('value') as IObservableString;
-    return value.text;
+
+    return cell.sharedModel.source
 }
 
 
@@ -75,16 +62,18 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
         return undefined;
     }
 
-    const cellsIterator = cells.iter();
-    let cell = cellsIterator.next();
-    let cellIndex = 0;
-    while (cell) {
-        if (containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), analysisName)) {
-            return [cell, cellIndex];
+    for (let i = 0; i < cells.length; i++) {
+        const cell = getCellAtIndex(cells, i)
+
+        if (cell == undefined) {
+            continue;
         }
 
-        cellIndex++;
-        cell = cellsIterator.next();
+
+        
+        if (containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), analysisName)) {
+            return [cell, i];
+        }
     }
 
     return undefined;
@@ -154,8 +143,8 @@ export function writeToCell(cell: ICellModel | undefined, code: string): void {
     if (cell == undefined) {
         return;
     }
-    const value = cell.modelDB.get('value') as IObservableString;
-    value.text = code;
+    console.log('Writing to cell: ', cell.sharedModel.source)
+    cell.sharedModel.source = code
 }
 
 

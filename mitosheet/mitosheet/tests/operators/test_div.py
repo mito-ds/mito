@@ -30,7 +30,7 @@ DIV_TESTS_VALID = [
     ('=A / 0', np.inf),
     ('=A / B / 0', np.inf),
     ('=A / 0 * 10', np.inf),
-    ('=-1 * A / 0', np.NINF),
+    ('=-1 * A / 0', -np.inf),
     ('=A / B / 0 * 10', np.inf),
 ]
 @pytest.mark.parametrize("formula,mulitple", DIV_TESTS_VALID)

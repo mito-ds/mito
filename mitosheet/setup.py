@@ -92,7 +92,7 @@ setup_args = dict(
     package_data             = {'': ['*.js', '*.css', '*.html']},
     data_files               = data_files,
     install_requires=[        
-        "jupyterlab~=3.0",
+        "jupyterlab~=4.0",
         # We allow users to have many versions of pandas installed. All functionality should
         # work, with the exception of Excel import, which might require additonal dependencies
         'pandas>=0.24.2',
@@ -136,8 +136,6 @@ setup_args = dict(
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
