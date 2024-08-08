@@ -13,11 +13,8 @@ jobs:
   test-mitoinstaller:
     strategy:
       matrix:
-        python-version: [3.6, 3.8]
+        python-version: [3.8, 3.10]
         os: [ubuntu-20.04, windows-latest, macos-latest]
-        exclude:
-          - python-version: 3.6
-            os: 'windows-latest'
     runs-on: ${{ matrix.os }}
     steps:
     - name: Cancel Previous Runs
