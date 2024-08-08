@@ -13,7 +13,7 @@ npm install
 # install only the necessary browsers.
 if [ $# -eq 0 ]
   then
-    npx playwright install chromium webkit firefox chrome
+    npx playwright install chromium webkit firefox # chrome
 else
     npx playwright install $1
     npx playwright install
@@ -26,5 +26,5 @@ cd ../mitosheet
 pip install -e ".[test]"
 
 # Install the npm dependences for Mitosheet, and build JS
-npm install
-npm run build
+yarn install
+yarn run build
