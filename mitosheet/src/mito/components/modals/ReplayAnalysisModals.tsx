@@ -38,7 +38,7 @@ const ErrorReplayedAnalysisModal = (
             header={props.header}
             modalType={ModalEnum.Error}
             wide
-            viewComponent={
+            viewComponent={[
                 <Fragment>
                     <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
                         {props.message} {' '}
@@ -54,8 +54,8 @@ const ErrorReplayedAnalysisModal = (
                         </div>
                     }
                 </Fragment>
-            }
-            buttons={
+            ]}
+            buttons={[
                 <>
                     <GetSupportButton 
                         userProfile={props.userProfile} 
@@ -85,7 +85,7 @@ const ErrorReplayedAnalysisModal = (
                         Start New Analysis
                     </TextButton>
                 </> 
-            }
+            ]}
         />
     )    
 };

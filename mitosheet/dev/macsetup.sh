@@ -21,9 +21,9 @@ source venv/bin/activate
 # Install Python dependencies
 pip install -e ".[test, deploy]"
 
-# Install the npm dependences, and build the JS 
-npm install
-npm run build
+# Install the node modules, and build the JS 
+yarn install
+yarn run build
 
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
@@ -34,4 +34,4 @@ jupyter nbextension install --py --symlink --sys-prefix mitosheet
 jupyter nbextension enable --py --sys-prefix mitosheet   
 
 # Finially, start watching the javascript
-jlpm run watch
+yarn run watch
