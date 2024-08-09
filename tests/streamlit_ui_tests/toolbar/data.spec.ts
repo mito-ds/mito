@@ -31,7 +31,8 @@ test.describe('Data Tab Buttons', () => {
     const mito = await getMitoFrameWithTestCSV(page);
     await clickTab(page, mito, 'Data');
 
-    await mito.getByRole('button', { name: 'Sort a column in descending order.' }).click();
+    await clickButtonAndAwaitResponse(page, mito, 'Sort');
+    await mito.getByRole('button', { name: 'Descending' }).click();
 
     // Check that the first .mito-grid-cell has text 10
     await expect(mito.locator('.mito-grid-cell').first()).toHaveText('10');
@@ -41,8 +42,8 @@ test.describe('Data Tab Buttons', () => {
     const mito = await getMitoFrameWithTestCSV(page);
     await clickTab(page, mito, 'Data');
 
-    await mito.getByRole('button', { name: 'Sort a column in descending order.' }).click();
-    await mito.getByRole('button', { name: 'Sort a column in ascending order.' }).click();
+    await clickButtonAndAwaitResponse(page, mito, 'Sort');
+    await mito.getByRole('button', { name: 'Ascending' }).click();
 
     // Check that the first .mito-grid-cell has text 1
     await expect(mito.locator('.mito-grid-cell').first()).toHaveText('1');
@@ -67,8 +68,9 @@ test.describe('Data Tab Buttons', () => {
     await mito.getByRole('button', { name: 'Text to Columns' }).click();
     await mito.locator('input[name="Dash"]').check();
     await mito.getByRole('button', { name: 'Split on delimiter' }).click();
+    await awaitResponse(page);
 
-    // Check that there are 4 columsn
+    // Check that there are 4 columns
     await checkColumnCount(mito, 4);
   });
 
@@ -148,7 +150,7 @@ test.describe('Data Tab Buttons', () => {
       await clickTab(page, mito, 'Data');
 
       // Sort descending
-      await mito.getByRole('button', { name: 'Sort a column in descending order.' }).click();
+      await mito.getByTitle('Sort a column in descending order.').click();
       await awaitResponse(page);
 
       // Reset and Drop Index
