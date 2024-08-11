@@ -1,7 +1,7 @@
 // Copyright (c) Mito
 import { ICellModel } from "@jupyterlab/cells";
 import { CellList, INotebookTracker } from '@jupyterlab/notebook';
-import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
+import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "./code";
 
 
 export function getParentMitoContainer(): Element | null {

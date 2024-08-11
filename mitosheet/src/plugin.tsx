@@ -10,10 +10,10 @@ import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCodeCellBeenEditedByUser } from './jupyter/code';
-import { LabComm } from './jupyter/comm';
+import { JupyterComm } from './jupyter/comm';
 import {
     getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
-} from './jupyter/lab/extensionUtils';
+} from './jupyter/extensionUtils';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
@@ -57,7 +57,7 @@ function activateMitosheetExtension(
      */
     app.commands.addCommand('mitosheet:create-mitosheet-comm', {
         label: 'Create Comm',
-        execute: async (args: any): Promise<LabComm | 'no_backend_comm_registered_error' | undefined> => {
+        execute: async (args: any): Promise<JupyterComm | 'no_backend_comm_registered_error' | undefined> => {
 
             console.log('HERE Creating mitosheet comm')
             const kernelID = args.kernelID;
@@ -87,7 +87,7 @@ function activateMitosheetExtension(
             }
                         
             const comm = currentKernel.createComm(commTargetID);
-            return (comm as unknown) as LabComm | undefined;
+            return (comm as unknown) as JupyterComm | undefined;
         }
     })
 

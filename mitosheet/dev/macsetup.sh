@@ -28,10 +28,5 @@ yarn run build
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
 
-# Setup Jupyter Notebook development
-jupyter nbextension uninstall mitosheet # NOTE: not sure why this first is needed. Somehow, it gets installed in the setup.py...
-jupyter nbextension install --py --symlink --sys-prefix mitosheet
-jupyter nbextension enable --py --sys-prefix mitosheet   
-
 # Finially, start watching the javascript
 yarn run watch
