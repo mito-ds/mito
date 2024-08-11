@@ -15,8 +15,12 @@ export const isInJupyterLab = (): boolean => {
         (window as any)._JUPYTERLAB !== undefined
 }
 export const isInJupyterNotebook = (): boolean => {
-    return window.location.pathname.startsWith('/notebooks') ||
-        (window as any).Jupyter !== undefined
+    console.log('HERE Checking if in jupyter notebook', window.location.pathname.startsWith('/notebooks'), (window as any).Jupyter)
+
+    return window.location.pathname.startsWith('/notebooks')
+        // Notebooks 7 does not add .Jupyter to the window object, so this check does not work,
+        // at least when running a notebook locally. Maybe this check is used for something else too?
+        // (window as any).Jupyter !== undefined
 }
 
 export const isInStreamlit = (): boolean => {

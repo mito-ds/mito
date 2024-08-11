@@ -298,9 +298,6 @@ export const notebookWriteCodeSnippetCell = (analysisName: string, code: string)
 }
 
 
-
-
-
 export const writeEmptyMitosheetCell = (): void => {
     // Create a new cell below the active code cell
     (window as any).Jupyter?.notebook?.insert_cell_below();

@@ -110,18 +110,26 @@ export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Pro
 
 export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | SendFunctionError> => {
 
+    console.log(`Getting notebook comm for commTargetID: ${commTargetID}`)
+    console.log((window as any).Jupyter)
     let potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
     await waitUntilConditionReturnsTrueOrTimeout(async () => {
         potentialComm = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
+        console.log(`Potential comm: ${potentialComm}`)
         return potentialComm !== undefined;
     }, MAX_WAIT_FOR_SEND_CREATION)
+    console.log(`Potential comm: ${potentialComm}`)
 
     if (potentialComm === undefined) {
+        console.log('Potential comm is undefined')
         return 'non_working_extension_error';
     } else {
         if (!(await getNotebookCommConnectedToBackend(potentialComm))) {
+            console.log('Potential comm is not connected to backend')
             return 'no_backend_comm_registered_error'
+        
         } 
+        console.log('Potential comm is connected to backend')
         return {
             'type': 'notebook',
             'comm': potentialComm
@@ -164,6 +172,8 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
     // Potentially returns undefined if the command is not yet started
     let potentialComm: LabComm | 'no_backend_comm_registered_error' | undefined = undefined;
 
+    console.log('HERE Getting lab comm')
+
     await waitUntilConditionReturnsTrueOrTimeout(async () => {
         try {
             potentialComm = await window.commands?.execute('mitosheet:create-mitosheet-comm', {kernelID: kernelID, commTargetID: commTargetID});
@@ -203,7 +213,10 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
 export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionError> => {
+    console.log('HERE Getting comm container')
     if (isInJupyterNotebook()) {
+        console.log('Getting notebook comm', kernelID, commTargetID)
+        return getLabComm(kernelID, commTargetID);
         return getNotebookComm(commTargetID);
     } else if (isInJupyterLab()) {
         return getLabComm(kernelID, commTargetID);
@@ -217,7 +230,7 @@ export const getCommContainer = async (kernelID: string, commTargetID: string): 
 export async function getCommSend(kernelID: string, commTargetID: string): Promise<SendFunction | SendFunctionError> {
     let commContainer: CommContainer | SendFunctionError = 'non_valid_location_error';
     if (isInJupyterNotebook()) {
-        commContainer = await getNotebookComm(commTargetID);
+        commContainer = await getLabComm(kernelID, commTargetID);
     } else if (isInJupyterLab()) {
         commContainer = await getLabComm(kernelID, commTargetID);
     }

@@ -47,6 +47,8 @@ function activateMitosheetExtension(
     tracker: INotebookTracker,
 ): void {
 
+    console.log('HERE Activating mitosheet extension')
+
     // Add the Create New Mitosheet button
     registerMitosheetToolbarButtonAdder(tracker);
 
@@ -56,6 +58,8 @@ function activateMitosheetExtension(
     app.commands.addCommand('mitosheet:create-mitosheet-comm', {
         label: 'Create Comm',
         execute: async (args: any): Promise<LabComm | 'no_backend_comm_registered_error' | undefined> => {
+
+            console.log('HERE Creating mitosheet comm')
             const kernelID = args.kernelID;
             const commTargetID = args.commTargetID;
 
