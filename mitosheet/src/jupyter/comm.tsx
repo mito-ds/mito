@@ -121,7 +121,7 @@ export const getJupyterComm = async (kernelID: string, commTargetID: string): Pr
     } else {
         /**
          * If we have successfully made a comm, we need to manually open this comm before we 
-         * use it. This is required on lab, but not on notebook.
+         * use it.
          */
         (potentialComm as JupyterComm).open() // TODO: why do I have to do this cast? Seems like a complier issue
         

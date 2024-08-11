@@ -79,6 +79,8 @@ def get_location() -> str:
     elif is_jupyterlite():
         return 'location_jupyterlite'
     elif notebook and (lab_running and not notebook_running):
+        # NOTE: Since Notebook 7 runs on jlab, we end up in this case
+        # even when using the notebook interface... 
         return 'location_jupyter_lab'
     elif notebook and (not lab_running and notebook_running):
         return 'location_jupyter_notebook'

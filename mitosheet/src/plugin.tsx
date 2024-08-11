@@ -1,10 +1,5 @@
 // Copyright (c) Mito
 
-// NOTE: we give these npm packages special names in our package.json,
-// as they are different packages between jlab2 and jlab3. Thus, by switching
-// only our package.json, we can change what packages we import, without 
-// having to change what we import in code. This allows us to support 
-// jlab2 and jlab3
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
@@ -47,8 +42,6 @@ function activateMitosheetExtension(
     tracker: INotebookTracker,
 ): void {
 
-    console.log('HERE Activating mitosheet extension')
-
     // Add the Create New Mitosheet button
     registerMitosheetToolbarButtonAdder(tracker);
 
@@ -59,7 +52,6 @@ function activateMitosheetExtension(
         label: 'Create Comm',
         execute: async (args: any): Promise<JupyterComm | 'no_backend_comm_registered_error' | undefined> => {
 
-            console.log('HERE Creating mitosheet comm')
             const kernelID = args.kernelID;
             const commTargetID = args.commTargetID;
 

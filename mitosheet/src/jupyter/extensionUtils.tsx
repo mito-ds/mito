@@ -69,8 +69,6 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
             continue;
         }
 
-
-        
         if (containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), analysisName)) {
             return [cell, i];
         }
