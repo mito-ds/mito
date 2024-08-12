@@ -171,7 +171,7 @@ def LEFT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInp
 
     return pd.Series(
         [left_helper(s, nc) for s, nc in zip(string_series, num_chars_series)],
-        index=string.index
+        index=string_series.index
     )
 
 
@@ -347,7 +347,7 @@ def RIGHT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedIn
 
     return pd.Series(
         [right_helper(s, nc) for s, nc in zip(string_series, num_chars_series)],
-        index=string.index
+        index=string_series.index
     )
 
 
