@@ -46,22 +46,22 @@ First, you need to run (from the mitosheet/ directory):
 jupyter labextension develop . --overwrite
 ```
 
-For **JupyterLab**, run: 
+For **JupyterLab**, run from the tests/ directory: 
 ```
 jupyter lab --config jupyter_server_test_config.py
 ```
 
-And then in a separate terminal run 
+And then in a separate terminal run from the tests/ directory: 
 ```
 npm run test:jupyterlab -- --project=chromium
 ```
 
-For **Jupyter notebook**, run: 
+For **Jupyter notebook**, run from the tests/ directory: : 
 ```
 jupyter notebook --config jupyter_notebook_config.py
 ```
 
-And then in a separate terminal run 
+And then in a separate terminal run from the tests/ directory: 
 ```
 npm run test:notebook -- --project=chromium
 ```
