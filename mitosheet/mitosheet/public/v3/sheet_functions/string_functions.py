@@ -166,11 +166,11 @@ def LEFT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedInp
 
     # otherwise, turn them into series for simplicity
     index = get_index_from_series(string, num_chars)
-    string = get_series_from_primitive_or_series(string, index).fillna('')
+    string_series = get_series_from_primitive_or_series(string, index).fillna('')
     num_chars_series = get_series_from_primitive_or_series(num_chars, index).fillna(0)
 
     return pd.Series(
-        [left_helper(s, nc) for s, nc in zip(string, num_chars_series)],
+        [left_helper(s, nc) for s, nc in zip(string_series, num_chars_series)],
         index=string.index
     )
 
@@ -342,11 +342,11 @@ def RIGHT(string: StringRestrictedInputType, num_chars: Optional[IntRestrictedIn
         return right_helper(string, num_chars)
     
     index = get_index_from_series(string, num_chars)
-    string = get_series_from_primitive_or_series(string, index).fillna('')
+    string_series = get_series_from_primitive_or_series(string, index).fillna('')
     num_chars_series = get_series_from_primitive_or_series(num_chars, index).fillna(0)
 
     return pd.Series(
-        [right_helper(s, nc) for s, nc in zip(string, num_chars_series)],
+        [right_helper(s, nc) for s, nc in zip(string_series, num_chars_series)],
         index=string.index
     )
 

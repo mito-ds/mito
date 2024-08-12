@@ -6,6 +6,11 @@ venv/
 
 # Basic ignore for a TypeScript Project
 node_modules/
+.yarn
+.pnp.cjs
+.pnp.loader.mjs
+yarn.lock
+package-lock.json
 
 # Ignore files bundled with Mito
 docs/source/_static
@@ -43,7 +48,6 @@ mitosheet/streamlit/v1/mitoBuild/*.css
 mitosheet/streamlit/v1/messagingBuild/*.js
 mitosheet/mito_dash/v1/mitoBuild/*.js
 mitosheet/mito_dash/v1/mitoBuild/*.css
-
 
 .streamlit/
 .mypy_cache/

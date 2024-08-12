@@ -12,8 +12,6 @@ test.describe('Mitosheet Jupyter Notebook integration', () => {
     await page.getByRole('menu').getByText('Python 3 (ipykernel)').click();
     const popup = await popupPromise;
 
-    // await page.getByRole('textbox').locator('div').click();
-    // await page.getByRole('textbox').fill('import pandas as pd\ndf = pd.DataFrame([\'A\':');
     await popup.getByRole('textbox').fill(`
 import pandas as pd
 df = pd.DataFrame({ 'a': [1, 2, 3], 'b': [4, 5, 6], 'c': [7, 8, 9] })

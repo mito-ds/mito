@@ -141,7 +141,6 @@ export function writeToCell(cell: ICellModel | undefined, code: string): void {
     if (cell == undefined) {
         return;
     }
-    console.log('Writing to cell: ', cell.sharedModel.source)
     cell.sharedModel.source = code
 }
 
