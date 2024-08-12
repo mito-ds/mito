@@ -39,7 +39,7 @@ const ErrorReplayedAnalysisModal = (
             modalType={ModalEnum.Error}
             wide
             viewComponent={[
-                <Fragment>
+                <Fragment key={'error-modal-view'}>
                     <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
                         {props.message} {' '}
                         {props.error?.traceback && 

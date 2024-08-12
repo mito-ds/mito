@@ -31,7 +31,7 @@ const ErrorModal = (
             modalType={ModalEnum.Error}
             wide
             viewComponent={[
-                <Fragment>
+                <Fragment key={props.error.errorShort}>
                     {props.error.error &&
                         <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
                             {props.error.error} {' '}
@@ -50,7 +50,7 @@ const ErrorModal = (
                 </Fragment>
             ]}
             buttons={[
-                <Fragment>
+                <Fragment key={'error-modal-buttons'}>
                     <TextButton
                         variant='light'
                         width='small'
