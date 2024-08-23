@@ -9,6 +9,7 @@ export function buildChatSidebar() {
     chatWidget.title.label = 'AI Chat';
     // chatWidget.title.icon = chatIcon; TODO: Add an Icon
     chatWidget.title.caption = 'AI Chat for your JupyterLab';
+    chatWidget.addClass('chat-widget');
     return chatWidget;
 }
 

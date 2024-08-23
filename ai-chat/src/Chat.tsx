@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from './secrets'
 import '../style/Chat.css';
+import { classNames } from './utils/classNames';
 
 const Chat: React.FC = () => {
     const [messages, setMessages] = useState<OpenAI.Chat.ChatCompletionMessageParam[]>([{ role: 'system', content: 'You are an expert Python programmer.' }]);
@@ -23,7 +24,7 @@ const Chat: React.FC = () => {
             console.log("getting ai response")
 
             const response = await openai.chat.completions.create({
-                model: 'gpt-4-0125-preview', // Update this to a valid model
+                model: 'gpt-4o-mini',
                 messages: [...messages, userMessage],
             });
 
@@ -36,29 +37,35 @@ const Chat: React.FC = () => {
         }
     };
 
+    console.log("messages", messages)
+
     return (
-        <div className="chat-widget">
+        <div className="chat-widget-container">
             <div className="chat-messages">
                 {messages.map((message, index) => {
                     if (message.role === 'user') {
                         const text = message.content as string;
-                        return <div key={index} className="message user">{text}</div>;
+                        return <div key={index} className={classNames("message", "message-user")}>{text}</div>;
                     } else if (message.role === 'assistant') {
                         const text = message.content as string;
-                        return <div key={index} className="message assistant">{text}</div>;
+                        return <div key={index} className={classNames("message", "message-assistant")}>{text}</div>;
                     }
                     return null; // Handle system messages or other roles
                 }).filter(message => message !== null)}
             </div>
-            <div className="chat-input">
-                <input
+            <input
+                className={classNames("message", "message-user", 'chat-input')}
                 type="text"
+                placeholder={messages.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                />
-                <button onClick={sendMessage}>Send</button>
-            </div>
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                }}
+            />
         </div>
     );
 };

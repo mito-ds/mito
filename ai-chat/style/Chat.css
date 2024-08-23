@@ -2,5 +2,33 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    width: 500px;
+    background-color: var(--chat-background-color) !important;
+    --jp-sidebar-min-width: 350px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px; 
+}
+
+.message {
+    height: min-content;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    padding: 10px;
+    width: 100%;
+    font-size: 14px;
+}
+
+.message-user {
+    background-color: var(--chat-user-message-background-color); 
+    color: var(--chat-user-message-font-color);
+    border-radius: 5px;
+}
+
+.message-assistant {
+    color: var(--chat-assistant-message-font-color);
+}
+
+.chat-input{
+    outline: none;
+    border: none;
 }
