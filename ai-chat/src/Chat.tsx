@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import OpenAI from 'openai';
+import { OPENAI_API_KEY } from './secrets'
 import '../style/Chat.css';
-
-// Load the OpenAI API key from .env file
-const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
-console.log('OPENAI_API_KEY', OPENAI_API_KEY)
 
 const Chat: React.FC = () => {
     const [messages, setMessages] = useState<OpenAI.Chat.ChatCompletionMessageParam[]>([{ role: 'system', content: 'You are an expert Python programmer.' }]);
@@ -12,7 +9,7 @@ const Chat: React.FC = () => {
 
     const openai = new OpenAI({
         apiKey: OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true // Add this line
+        dangerouslyAllowBrowser: true // TODO
     });
 
     const sendMessage = async () => {

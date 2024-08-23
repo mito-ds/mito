@@ -126,3 +126,4 @@ dmypy.json
 
 # Secrets
 .env
+secrets.tsx

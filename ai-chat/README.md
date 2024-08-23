@@ -28,11 +28,12 @@ pip uninstall ai_chat
 
 ### Development install
 
+To ensure consistent package management, please use `jlpm` instead of `npm` for this project.
+
 Note: You will need NodeJS to build the extension package.
 
 The `jlpm` command is JupyterLab's pinned version of
-[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
-`yarn` or `npm` in lieu of `jlpm` below.
+[yarn](https://yarnpkg.com/) that is installed with JupyterLab. 
 
 ```bash
 # Clone the repo to your local environment
