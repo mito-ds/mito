@@ -1,10 +1,11 @@
 import {
   ILayoutRestorer,
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
 
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
 
 
@@ -15,9 +16,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'ai-chat:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
-  requires: [ICommandPalette],
+  requires: [INotebookTracker, ICommandPalette],
   optional: [ILayoutRestorer],
-  activate: (app: JupyterFrontEnd, palette: ICommandPalette, restorer: ILayoutRestorer | null) => {
+  activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker, palette: ICommandPalette, restorer: ILayoutRestorer | null) => {
 
     console.log('JupyterLab extension ai-chat is activated!');
     console.log("ICommandPalette", palette)
@@ -26,7 +27,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // then call it to make a new widget
     const newWidget = () => {
       // Create a blank content widget inside of a MainAreaWidget
-      const chatWidget = buildChatSidebar()
+      const chatWidget = buildChatSidebar(notebookTracker)
       return chatWidget
     }
 
@@ -57,7 +58,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.shell.add(widget, 'left', { rank: 2000 });
 
     // Add the command to the palette.
-    palette.addItem({ command, category: 'Tutorial' });
+    palette.addItem({ command, category: 'AI Chat' });
 
     // Track and restore the widget state
     let tracker = new WidgetTracker({
