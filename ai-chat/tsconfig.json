@@ -17,7 +17,12 @@
     "rootDir": "src",
     "strict": true,
     "strictNullChecks": true,
-    "target": "ES2018"
+    "target": "ES2018",
+    "types": ["node"]
   },
-  "include": ["src/*"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "style/**/*.css"
+  ]
 }
