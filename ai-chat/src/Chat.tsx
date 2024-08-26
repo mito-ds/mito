@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from './secrets'
 import '../style/Chat.css';
@@ -7,6 +7,11 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode } from './utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
+
+const openai = new OpenAI({
+    apiKey: OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true // TODO
+});
 
 interface IChatProps {
     notebookTracker: INotebookTracker
@@ -132,13 +137,24 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 }
 
 const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
 
-    const openai = new OpenAI({
-        apiKey: OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true // TODO
-    });
+    // TextAreas cannot automatically adjust their height based on the content that they contain, 
+    // so instead we re-adjust the height as the content changes here. 
+    const adjustHeight = () => {
+        const textarea = textareaRef.current;
+        if (!textarea) {
+            return
+        }
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    };
+
+    useEffect(() => {
+        adjustHeight();
+    }, [input]);
 
     const sendMessage = async () => {
         if (!input.trim()) return;
@@ -181,10 +197,10 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
                             languageRegistry={languageRegistry}
                         />
                     )
-                    
                 }).filter(message => message !== null)}
             </div>
-            <input
+            <textarea
+                ref={textareaRef}
                 className={classNames("message", "message-user", 'chat-input')}
                 placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
                 value={input}
