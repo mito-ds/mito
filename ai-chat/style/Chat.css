@@ -29,7 +29,12 @@
     color: var(--chat-assistant-message-font-color);
 }
 
-.chat-input{
+.chat-input {
+    flex-grow: 1;
     outline: none;
     border: none;
+    resize: none;
+    min-height: 20px;
+    width: 100%;
+    height: auto;
 }

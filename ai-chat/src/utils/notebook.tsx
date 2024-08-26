@@ -16,7 +16,7 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
 
 export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: string): void =>  {
     const activeCell = getActiveCell(notebookTracker)
-    if (activeCell?.model.sharedModel.source) {
+    if (activeCell !== undefined) {
         activeCell.model.sharedModel.source = code 
     }
 }

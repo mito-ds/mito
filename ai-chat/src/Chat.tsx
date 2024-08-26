@@ -49,8 +49,6 @@ class ChatHistoryManager {
 
     addUserMessage(input: string, activeCellCode?: string): void {
 
-        console.log("adding user message", input)
-
         const displayMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
             content: `\`\`\`python${activeCellCode}\`\`\`
@@ -104,7 +102,7 @@ Do not include multiple approaches in your response. If you need more context, a
 // cached conversation as a starting point. Before deploying the ai-chat, we must 
 // set USE_DEV_AI_CONVERSATION = false
 // TODO: Write a test to ensure USE_DEV_AI_CONVERSATION is false
-const USE_DEV_AI_CONVERSATION = false
+const USE_DEV_AI_CONVERSATION = true
 
 const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 
@@ -154,7 +152,6 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
         setInput('');
 
         try {
-            console.log("getting ai response")
 
             const response = await openai.chat.completions.create({
                 model: 'gpt-4o-mini',
@@ -189,7 +186,6 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
             </div>
             <input
                 className={classNames("message", "message-user", 'chat-input')}
-                type="text"
                 placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

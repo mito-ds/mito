@@ -27,9 +27,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     restorer: ILayoutRestorer | null
   ) => {
 
-    console.log('JupyterLab extension ai-chat is activated!');
-    console.log("ICommandPalette", palette)
-
     // Define a widget creator function,
     // then call it to make a new widget
     const newWidget = () => {
@@ -43,7 +40,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Add an application command
     const command: string = 'ai-chat:open';
     app.commands.addCommand(command, {
-      label: 'Random Astronomy Picture',
+      label: 'Your friendly Python Expert chat bot',
       execute: () => {
         // Regenerate the widget if disposed
         if (!widget ||widget.isDisposed) {
@@ -72,12 +69,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       namespace: widget.id
     });
 
-    // Restore the widget state
     if (restorer) {
-      restorer.restore(tracker, {
-        command,
-        name: () => widget.id
-      });
+      restorer.add(widget, 'ai-chat');
     }
   }
 };
