@@ -1,17 +1,23 @@
 import React from 'react';
 import OpenAI from 'openai';
 import { classNames } from '../utils/classNames';
-import Code from './Code';
 import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
-
+import CodeMessagePart from './CodeMessagePart';
+import { INotebookTracker } from '@jupyterlab/notebook';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
     messageIndex: number
+    notebookTracker: INotebookTracker
     languageRegistry: IEditorLanguageRegistry
 }
 
-const ChatMessage: React.FC<IChatMessageProps> = ({message, messageIndex, languageRegistry}): JSX.Element | null => {
+const ChatMessage: React.FC<IChatMessageProps> = ({
+    message, 
+    messageIndex, 
+    notebookTracker,
+    languageRegistry
+}): JSX.Element | null => {
     console.log(messageIndex)
     if (message.role !== 'user' && message.role !== 'assistant') {
         // Filter out other types of messages, like system messages
@@ -32,11 +38,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({message, messageIndex, langua
         >
             {messageContentParts.map(messagePart => {
                 if (messagePart.startsWith('python')) {
-                    console.log("PYTHON:", messagePart)
                     return (
-                        <Code 
-                            code={messagePart.split('python')[1]}
+                        <CodeMessagePart 
+                            code={messagePart.split('python')[1].trim()}
+                            role={message.role}
                             languageRegistry={languageRegistry}
+                            notebookTracker={notebookTracker}
                         />
                     )
                 } else {

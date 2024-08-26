@@ -20,3 +20,8 @@ export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: s
         activeCell.model.sharedModel.source = code 
     }
 }
+
+export const getNotebookName = (notebookTracker: INotebookTracker): string => {
+    const notebook = notebookTracker.currentWidget?.content;
+    return notebook?.title.label || 'Untitled'
+}

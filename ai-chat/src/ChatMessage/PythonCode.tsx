@@ -7,18 +7,14 @@ import { CodeEditor } from '@jupyterlab/codeeditor';
 // However, I am unable to get the syntax highliting to work. So for now, 
 // we are just using an unstyled codemirror editor.
 
-interface ICodeProps {
+interface IPythonCodeProps {
   code: string;
   languageRegistry: IEditorLanguageRegistry;
 }
 
-const Code: React.FC<ICodeProps> = ({ code, languageRegistry }) => {
+const PythonCode: React.FC<IPythonCodeProps> = ({ code, languageRegistry }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const editorInstanceRef = useRef<CodeMirrorEditor | null>(null);
-
-  code = code.trim();
-
-
 
   useEffect(() => {
     if (editorRef.current) {
@@ -27,7 +23,7 @@ const Code: React.FC<ICodeProps> = ({ code, languageRegistry }) => {
                 mimeType: 'text/x-python'
             })
 
-            console.log("model", model)
+            model.sharedModel.setSource(code);
 
             editorInstanceRef.current = new CodeMirrorEditor({
                 host: editorRef.current,
@@ -54,4 +50,4 @@ const Code: React.FC<ICodeProps> = ({ code, languageRegistry }) => {
   );
 };
 
-export default Code;
+export default PythonCode;
