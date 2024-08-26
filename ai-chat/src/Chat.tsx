@@ -6,9 +6,11 @@ import { classNames } from './utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode } from './utils/cell';
 import ChatMessage from './ChatMessage/ChatMessage';
+import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
 
 interface IChatProps {
     notebookTracker: INotebookTracker
+    languageRegistry: IEditorLanguageRegistry
 }
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
@@ -36,7 +38,8 @@ const getDefaultAIConversation = (): OpenAI.Chat.ChatCompletionMessageParam[] =>
     }
 }
 
-const Chat: React.FC<IChatProps> = ({notebookTracker}) => {
+const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
+    console.log("Chat")
     const [messages, setMessages] = useState<OpenAI.Chat.ChatCompletionMessageParam[]>(() => getDefaultAIConversation());
     const [input, setInput] = useState('');
 
@@ -80,6 +83,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker}) => {
                         <ChatMessage 
                             message={message}
                             messageIndex={index}
+                            languageRegistry={languageRegistry}
                         />
                     )
                     

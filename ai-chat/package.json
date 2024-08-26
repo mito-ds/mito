@@ -66,7 +66,11 @@
         "react-dom": "^18.0.0"
     },
     "devDependencies": {
+        "@codemirror/lang-python": "^6.1.4",
+        "@codemirror/language": "^6.10.1",
+        "@codemirror/state": "^6.4.1",
         "@jupyterlab/builder": "^4.0.0",
+        "@jupyterlab/codemirror": "^4.0.0",
         "@jupyterlab/testutils": "^4.0.0",
         "@types/jest": "^29.2.0",
         "@types/json-schema": "^7.0.11",
@@ -91,6 +95,12 @@
         "stylelint-prettier": "^4.0.0",
         "typescript": "~5.0.2",
         "yjs": "^13.5.0"
+    },
+    "peerDependencies": {
+        "@codemirror/lang-python": "^6.1.4",
+        "@codemirror/language": "^6.10.1",
+        "@codemirror/state": "^6.4.1",
+        "@jupyterlab/codemirror": "^4.0.0"
     },
     "sideEffects": [
         "style/*.css",

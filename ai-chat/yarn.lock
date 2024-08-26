@@ -1608,13 +1608,13 @@ __metadata:
   linkType: hard
 
 "@codemirror/view@npm:^6.0.0, @codemirror/view@npm:^6.17.0, @codemirror/view@npm:^6.23.0, @codemirror/view@npm:^6.26.0, @codemirror/view@npm:^6.27.0":
-  version: 6.32.0
-  resolution: "@codemirror/view@npm:6.32.0"
+  version: 6.33.0
+  resolution: "@codemirror/view@npm:6.33.0"
   dependencies:
     "@codemirror/state": ^6.4.0
     style-mod: ^4.1.0
     w3c-keyname: ^2.2.4
-  checksum: 74a68694c1a7142f6b404de2ffe3a9af327065af8451a890e4e6bdc18e0eb1d4b34afd9aa917ca8eef280827fc361b5cbae5b6d79775b91dd68d5526553aedc5
+  checksum: e28896a7fb40df8e7221fbebfc2cd92c10c6963948e20f3a4300e99c897fbddd091f4fc90cc30eeaf90d07c61dcf6170cd3c164810606fa07337ffb970ffdac2
   languageName: node
   linkType: hard
 
@@ -2259,7 +2259,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/codemirror@npm:^4.2.4":
+"@jupyterlab/codemirror@npm:^4.0.0, @jupyterlab/codemirror@npm:^4.2.4":
   version: 4.2.4
   resolution: "@jupyterlab/codemirror@npm:4.2.4"
   dependencies:
@@ -3888,9 +3888,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ai-chat@workspace:."
   dependencies:
+    "@codemirror/lang-python": ^6.1.4
+    "@codemirror/language": ^6.10.1
+    "@codemirror/state": ^6.4.1
     "@jupyterlab/application": ^4.2.4
     "@jupyterlab/apputils": ^4.3.4
     "@jupyterlab/builder": ^4.0.0
+    "@jupyterlab/codemirror": ^4.0.0
     "@jupyterlab/testutils": ^4.0.0
     "@lumino/widgets": ^2.5.0
     "@types/jest": ^29.2.0
@@ -3920,6 +3924,11 @@ __metadata:
     stylelint-prettier: ^4.0.0
     typescript: ~5.0.2
     yjs: ^13.5.0
+  peerDependencies:
+    "@codemirror/lang-python": ^6.1.4
+    "@codemirror/language": ^6.10.1
+    "@codemirror/state": ^6.4.1
+    "@jupyterlab/codemirror": ^4.0.0
   languageName: unknown
   linkType: soft
 
@@ -4402,9 +4411,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001646":
-  version: 1.0.30001651
-  resolution: "caniuse-lite@npm:1.0.30001651"
-  checksum: c31a5a01288e70cdbbfb5cd94af3df02f295791673173b8ce6d6a16db4394a6999197d44190be5a6ff06b8c2c7d2047e94dfd5e5eb4c103ab000fca2d370afc7
+  version: 1.0.30001653
+  resolution: "caniuse-lite@npm:1.0.30001653"
+  checksum: 289cf06c26a46f3e6460ccd5feffa788ab0ab35d306898c48120c65cfb11959bfa560e9f739393769b4fd01150c69b0747ad3ad5ec3abf3dfafd66df3c59254e
   languageName: node
   linkType: hard
 
@@ -4458,9 +4467,9 @@ __metadata:
   linkType: hard
 
 "cjs-module-lexer@npm:^1.0.0":
-  version: 1.3.1
-  resolution: "cjs-module-lexer@npm:1.3.1"
-  checksum: 75f20ac264a397ea5c63f9c2343a51ab878043666468f275e94862f7180ec1d764a400ec0c09085dcf0db3193c74a8b571519abd2bf4be0d2be510d1377c8d4b
+  version: 1.4.0
+  resolution: "cjs-module-lexer@npm:1.4.0"
+  checksum: 3dda638a7f31dfee3879a71eff7fe02eb53d887a983ae25918dcc3d804b9fa1fe23acc4d6b4b1d3e1aa1c2cacfa168524db8dfb28e2859cf9be2e4b7f7450d89
   languageName: node
   linkType: hard
 
@@ -9902,9 +9911,9 @@ __metadata:
   linkType: hard
 
 "tslib@npm:^2.6.2":
-  version: 2.6.3
-  resolution: "tslib@npm:2.6.3"
-  checksum: 74fce0e100f1ebd95b8995fbbd0e6c91bdd8f4c35c00d4da62e285a3363aaa534de40a80db30ecfd388ed7c313c42d930ee0eaf108e8114214b180eec3dbe6f5
+  version: 2.7.0
+  resolution: "tslib@npm:2.7.0"
+  checksum: 1606d5c89f88d466889def78653f3aab0f88692e80bb2066d090ca6112ae250ec1cfa9dbfaab0d17b60da15a4186e8ec4d893801c67896b277c17374e36e1d28
   languageName: node
   linkType: hard
 

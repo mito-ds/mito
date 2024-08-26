@@ -7,6 +7,7 @@ import {
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
+import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
 
 
 /**
@@ -16,9 +17,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'ai-chat:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette],
+  requires: [INotebookTracker, ICommandPalette, IEditorLanguageRegistry],
   optional: [ILayoutRestorer],
-  activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker, palette: ICommandPalette, restorer: ILayoutRestorer | null) => {
+  activate: (
+    app: JupyterFrontEnd, 
+    notebookTracker: INotebookTracker, 
+    palette: ICommandPalette, 
+    languageRegistry: IEditorLanguageRegistry,
+    restorer: ILayoutRestorer | null
+  ) => {
 
     console.log('JupyterLab extension ai-chat is activated!');
     console.log("ICommandPalette", palette)
@@ -27,7 +34,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // then call it to make a new widget
     const newWidget = () => {
       // Create a blank content widget inside of a MainAreaWidget
-      const chatWidget = buildChatSidebar(notebookTracker)
+      const chatWidget = buildChatSidebar(notebookTracker, languageRegistry)
       return chatWidget
     }
 
