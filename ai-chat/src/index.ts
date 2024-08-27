@@ -68,6 +68,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
         // Now that the widget is potentially accessible, activating the 
         // widget opens the taskpane
         app.shell.activateById(widget.id);
+        
+        // Set focus on the chat input and scroll it to 3/4 of the way down the screen
+        const chatInput: HTMLTextAreaElement | null = widget.node.querySelector('.chat-input');
+        chatInput?.focus();
       }
     });
 

@@ -133,8 +133,9 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
         chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
         return chatHistoryManager
     }
-
 }
+
+
 
 const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);

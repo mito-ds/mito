@@ -34,8 +34,8 @@
     outline: none;
     border: none;
     resize: none;
-    min-height: 16px;
+    min-height: 14px;
     width: 100%;
-    height: auto;
     overflow-y: hidden;
+    box-sizing: border-box;
 }
