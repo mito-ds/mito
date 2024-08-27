@@ -1,6 +1,7 @@
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Cell } from '@jupyterlab/cells';
+import { formatCodeForCodeCell } from './strings';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
 
@@ -15,9 +16,10 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
 }
 
 export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: string): void =>  {
+    const codeMirrorValidCode = formatCodeForCodeCell(code)
     const activeCell = getActiveCell(notebookTracker)
     if (activeCell !== undefined) {
-        activeCell.model.sharedModel.source = code 
+        activeCell.model.sharedModel.source = codeMirrorValidCode 
     }
 }
 

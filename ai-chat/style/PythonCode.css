@@ -1,3 +1,20 @@
-@import url('~@jupyterlab/codemirror/style/index.css');
+.code-message-part-python-code pre {
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    font-size: 12px;
+    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+    white-space: nowrap;
+    overflow-x: auto;
+}
 
-
+.code-message-part-python-code .jp-RenderedHTMLCommon > *:last-child {
+    /* 
+        Remove the default Jupyter ending margin 
+        so that the rendered code is flush with the bottom
+        of the CodeMessagePart
+    */
+    margin-bottom: 0px;
+}

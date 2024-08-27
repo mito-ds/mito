@@ -4,21 +4,8 @@ import { classNames } from '../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import CodeMessagePart from './CodeMessagePart';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { splitStringWithCodeBlocks } from '../utils/strings';
 
-const splitStringWithCodeBlocks = (str: string) => {
-    // This regex matches code blocks and non-code block text
-    const regex = /(```python[\s\S]*?```)|([^`]+)/g;
-    
-    // Use match to find all occurrences
-    const matches = str.match(regex);
-
-    if (!matches) {
-        return [str]
-    }
-    
-    // Trim whitespace from non-code block parts
-    return matches.map(part => part.startsWith('```') ? part : part.trim()).filter(Boolean);
-  }
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -47,8 +34,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             "message", 
             {"message-user" : message.role === 'user'},
             {'message-assistant' : message.role === 'assistant'}
-        )}
-        >
+        )}>
             {messageContentParts.map(messagePart => {
                 if (messagePart.startsWith('```python')) {
                     // Make sure that there is actually code in the message. 

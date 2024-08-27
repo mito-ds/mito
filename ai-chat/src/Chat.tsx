@@ -7,6 +7,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode } from './utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
 
 const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
@@ -18,96 +19,11 @@ interface IChatProps {
     rendermime: IRenderMimeRegistry
 }
 
-interface IChatHistory {
-    // The AI optimized chat history is what we actually send to the AI. It includes
-    // things like: instructions on how to respond, the code context, etc. 
-    // Much of this, we don't want to display to the user because its extra clutter. 
-    aiOptimizedChatHistory: OpenAI.Chat.ChatCompletionMessageParam[]
-
-    // The display optimized chat history is what we display to the user. Each message
-    // is a subset of the corresponding message in aiOptimizedChatHistory. 
-    displayOptimizedChatHistory: OpenAI.Chat.ChatCompletionMessageParam[]
-}
-
-
-class ChatHistoryManager {
-    private history: IChatHistory;
-
-    constructor(initialHistory?: IChatHistory) {
-        this.history = initialHistory || {
-            aiOptimizedChatHistory: [],
-            displayOptimizedChatHistory: []
-        };
-    }
-
-    getHistory(): IChatHistory {
-        return { ...this.history };
-    }
-
-    getAIOptimizedHistory(): OpenAI.Chat.ChatCompletionMessageParam[] {
-        return this.history.aiOptimizedChatHistory;
-    }
-
-    getDisplayOptimizedHistory(): OpenAI.Chat.ChatCompletionMessageParam[] {
-        return this.history.displayOptimizedChatHistory;
-    }
-
-    addUserMessage(input: string, activeCellCode?: string): void {
-
-        const displayMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'user',
-            content: `\`\`\`python${activeCellCode}\`\`\`
-${input}`
-        };
-
-        const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'user',
-            content: `Your code:
-
-\`\`\`python
-${activeCellCode}
-\`\`\`
-
-Your task: ${input}
-
-Update the code to complete the task and respond with the updated code. Decide the approach you want to take to complete the task and respond with just that code and a concise explanation of the code. Do not use the word "I".
-
-Do not include multiple approaches in your response. If you need more context, ask for more context.
-`
-        };
-
-        this.history.displayOptimizedChatHistory.push(displayMessage);
-        this.history.aiOptimizedChatHistory.push(aiMessage);
-    }
-
-    addAIMessage(message: OpenAI.Chat.Completions.ChatCompletionMessage): void {
-        if (message.content === null) {
-            return
-        }
-
-        const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'assistant',
-            content: message.content
-        }
-        this.history.displayOptimizedChatHistory.push(aiMessage);
-        this.history.aiOptimizedChatHistory.push(aiMessage);
-    }
-
-    addSystemMessage(message: string): void {
-        const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'system',
-            content: message
-        }
-        this.history.displayOptimizedChatHistory.push(systemMessage);
-        this.history.aiOptimizedChatHistory.push(systemMessage);
-    }
-}
-
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
 // cached conversation as a starting point. Before deploying the ai-chat, we must 
 // set USE_DEV_AI_CONVERSATION = false
 // TODO: Write a test to ensure USE_DEV_AI_CONVERSATION is false
-const USE_DEV_AI_CONVERSATION = true
+const USE_DEV_AI_CONVERSATION = false
 
 const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 
@@ -121,12 +37,11 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
         ]
 
         const chatHistory: IChatHistory = {
-            aiOptimizedChatHistory: messages,
-            displayOptimizedChatHistory: messages
+            aiOptimizedChatHistory: [...messages],
+            displayOptimizedChatHistory: [...messages]
         }
 
         return new ChatHistoryManager(chatHistory)
-
 
     } else {
         const chatHistoryManager = new ChatHistoryManager()
@@ -158,6 +73,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
     }, [input]);
 
     const sendMessage = async () => {
+        console.log("sendMessage")
         if (!input.trim()) return;
 
         const activeCellCode = getActiveCellCode(notebookTracker)
@@ -176,6 +92,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
             });
 
             const aiMessage = response.choices[0].message;
+
             updatedManager.addAIMessage(aiMessage)
             setChatHistoryManager(updatedManager);
 
