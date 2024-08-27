@@ -1,53 +1,51 @@
 import React, { useEffect, useRef } from 'react';
-import { CodeMirrorEditor, IEditorLanguageRegistry } from '@jupyterlab/codemirror';
-import { CodeEditor } from '@jupyterlab/codeeditor';
-
-// TODO: We want to display the code using the CodeMirrorEditor 
-// so that it is identical to the code in the Jupyter Notebook cells. 
-// However, I am unable to get the syntax highliting to work. So for now, 
-// we are just using an unstyled codemirror editor.
+import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 
 interface IPythonCodeProps {
   code: string;
-  languageRegistry: IEditorLanguageRegistry;
+  rendermime: IRenderMimeRegistry;
 }
 
-const PythonCode: React.FC<IPythonCodeProps> = ({ code, languageRegistry }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const editorInstanceRef = useRef<CodeMirrorEditor | null>(null);
+const formatCode = (code: string) => {
+  /* 
+    To display code in markdown, we need to take input values like this:
+
+    ```python x + 1```
+
+    And turn them into this:
+
+    ```python
+    x + 1
+    ```
+  */
+
+  const codeWithoutBackticks = code.split('```python')[1].split('```')[0].trim()
+
+  // Note: We add a space after the code because for some unknown reason, the markdown 
+  // renderer is cutting off the last character in the code block.
+  return "```python\n" + codeWithoutBackticks + " " + "\n```"
+}
+
+const PythonCode: React.FC<IPythonCodeProps> = ({ code, rendermime }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  
+  console.log(formatCode(code))
 
   useEffect(() => {
-    if (editorRef.current) {
-        if (!editorInstanceRef.current) {
-            const model = new CodeEditor.Model({
-                mimeType: 'text/x-python'
-            })
+    if (containerRef.current) {
+      const model =  new MimeModel({
+        data: { ['text/markdown']: formatCode(code) },
+      });
 
-            model.sharedModel.setSource(code);
-
-            editorInstanceRef.current = new CodeMirrorEditor({
-                host: editorRef.current,
-                model: model,
-                config: {
-                    readOnly: true,
-                    lineNumbers: false,
-                    mode: 'python',
-                },  
-                languages: languageRegistry
-            });
-        }
+      const renderer = rendermime.createRenderer('text/markdown');
+      
+      renderer.renderModel(model)
+      containerRef.current?.appendChild(renderer.node);
     }
+  }, [code, rendermime]);
 
-    return () => {
-      if (editorInstanceRef.current) {
-        editorInstanceRef.current.dispose();
-      }
-    };
-  }, [code]);
-
-  return (
-    <div ref={editorRef} style={{ height: 'auto' }} />
-  );
+  return <div ref={containerRef}/>;
 };
 
 export default PythonCode;

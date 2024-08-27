@@ -2,16 +2,16 @@ import React from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import Chat from './Chat';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 export function buildChatSidebar(
     notebookTracker: INotebookTracker,
-    languageRegistry: IEditorLanguageRegistry
+    rendermime: IRenderMimeRegistry
 ) {
     const chatWidget = ReactWidget.create(
         <Chat 
             notebookTracker={notebookTracker}
-            languageRegistry={languageRegistry}
+            rendermime={rendermime}
         />
     ) 
     chatWidget.id = 'ai-chat';

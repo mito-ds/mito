@@ -1,19 +1,20 @@
 import React from 'react';
 import PythonCode from './PythonCode';
-import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getNotebookName, writeCodeToActiveCell } from '../utils/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+
 import '../../style/CodeMessagePart.css'
 
 
 interface ICodeMessagePartProps {
     code: string
     role: 'user' | 'assistant'
-    languageRegistry: IEditorLanguageRegistry
+    rendermime: IRenderMimeRegistry
     notebookTracker: INotebookTracker
 }
 
-const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, languageRegistry, notebookTracker}): JSX.Element => {
+const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermime, notebookTracker}): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
 
@@ -26,7 +27,7 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, languageR
             <div className='code-message-part-container'>
                 <PythonCode
                     code={code}
-                    languageRegistry={languageRegistry}
+                    rendermime={rendermime}
                 />
             </div>
         )
@@ -44,7 +45,7 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, languageR
                 </div>
                 <PythonCode
                     code={code}
-                    languageRegistry={languageRegistry}
+                    rendermime={rendermime}
                 />
             </div>
         )

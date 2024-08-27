@@ -7,7 +7,7 @@ import {
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
-import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 
 /**
@@ -17,13 +17,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'ai-chat:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette, IEditorLanguageRegistry],
+  requires: [INotebookTracker, ICommandPalette, IRenderMimeRegistry],
   optional: [ILayoutRestorer],
   activate: (
     app: JupyterFrontEnd, 
     notebookTracker: INotebookTracker, 
     palette: ICommandPalette, 
-    languageRegistry: IEditorLanguageRegistry,
+    rendermime: IRenderMimeRegistry,
     restorer: ILayoutRestorer | null
   ) => {
 
@@ -31,7 +31,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // then call it to make a new widget
     const newWidget = () => {
       // Create a blank content widget inside of a MainAreaWidget
-      const chatWidget = buildChatSidebar(notebookTracker, languageRegistry)
+      const chatWidget = buildChatSidebar(notebookTracker, rendermime)
       return chatWidget
     }
 

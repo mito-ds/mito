@@ -6,7 +6,7 @@ import { classNames } from './utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode } from './utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 const openai = new OpenAI({
     apiKey: OPENAI_API_KEY,
@@ -15,7 +15,7 @@ const openai = new OpenAI({
 
 interface IChatProps {
     notebookTracker: INotebookTracker
-    languageRegistry: IEditorLanguageRegistry
+    rendermime: IRenderMimeRegistry
 }
 
 interface IChatHistory {
@@ -137,7 +137,7 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 
 
 
-const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
+const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
@@ -195,7 +195,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, languageRegistry}) => {
                             message={message}
                             messageIndex={index}
                             notebookTracker={notebookTracker}
-                            languageRegistry={languageRegistry}
+                            rendermime={rendermime}
                         />
                     )
                 }).filter(message => message !== null)}
