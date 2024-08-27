@@ -42,21 +42,39 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand(command, {
       label: 'Your friendly Python Expert chat bot',
       execute: () => {
-        // Regenerate the widget if disposed
-        if (!widget ||widget.isDisposed) {
+        
+        // In order for the widget to be accessible, the widget must be:
+        // 1. Created
+        // 2. Added to the widget tracker
+        // 3. Attatched to the frontend 
+
+        // Step 1: Create the widget if its not already created
+        if (!widget || widget.isDisposed) {
           widget = newWidget();
-          widget
         }
+
+        // Step 2: Add the widget to the widget tracker if 
+        // its not already there
         if (!tracker.has(widget)) {
           tracker.add(widget);
         }
+
+        // Step 3: Attatch the widget to the app if its not 
+        // already there
         if (!widget.isAttached) {
-          // Attach the widget to the main work area if it's not there
-          app.shell.add(widget, 'main');
+          app.shell.add(widget, 'left', { rank: 2000 });
         }
-        // Activate the widget
+         
+        // Now that the widget is potentially accessible, activating the 
+        // widget opens the taskpane
         app.shell.activateById(widget.id);
       }
+    });
+
+    app.commands.addKeyBinding({
+      command: command,
+      keys: ['Accel E'],
+      selector: 'body'
     });
 
     app.shell.add(widget, 'left', { rank: 2000 });
