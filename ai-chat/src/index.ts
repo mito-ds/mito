@@ -4,16 +4,19 @@ import {
   JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
 
+
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 
+import errorPlugin from './ErrorMimeRenderPlugin';
+
 /**
  * Initialization data for the ai-chat extension.
  */
-const plugin: JupyterFrontEndPlugin<void> = {
+const aiChatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'ai-chat:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
@@ -97,4 +100,4 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default plugin;
+export default [aiChatPlugin, errorPlugin];
