@@ -78,7 +78,18 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
 
         if (chatInput && args?.error) {
           const error = args.error;
-          chatInput.value = error.toString();
+          const prompt = `My code generated this error
+          
+\`\`\`
+${error.toString()}
+\`\`\`
+
+Please suggest a concise solution`;
+          chatInput.value = prompt
+
+          // Then expand the chat input to show the full prompt
+          chatInput.style.height = 'auto';
+          chatInput.style.height = `${chatInput.scrollHeight}px`;
         }
       }
     });
@@ -86,7 +97,7 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
     app.commands.addKeyBinding({
       command: command,
       keys: ['Accel E'],
-      selector: 'body'
+      selector: 'body',
     });
 
     app.shell.add(widget, 'left', { rank: 2000 });

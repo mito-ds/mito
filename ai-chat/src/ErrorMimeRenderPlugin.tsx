@@ -1,15 +1,27 @@
-import {
-    JupyterFrontEnd, JupyterFrontEndPlugin
-  } from '@jupyterlab/application';
-  import {
-    IRenderMimeRegistry
-  } from '@jupyterlab/rendermime';
-  import {
-    IRenderMime
-  } from '@jupyterlab/rendermime-interfaces';
-  import {
-    Widget
-  } from '@lumino/widgets';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
+import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
+import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
+import { Widget } from '@lumino/widgets';
+
+import MagicWandIcon from './icons/MagicWand';
+import '../style/ErrorMimeRendererPlugin.css'
+
+interface ErrorMessageProps {
+    onDebugClick: () => void;
+}
+
+const ErrorMessage: React.FC<ErrorMessageProps> = ({ onDebugClick }) => {
+    return (
+        <div className="error-mime-renderer-container">
+            <button onClick={onDebugClick} className='error-mime-renderer-button'>
+                <MagicWandIcon />
+                <p>Fix Error in AI Chat</p>
+            </button>
+        </div>
+    )
+};
   
 /**
  * A mime renderer plugin for the mimetype application/vnd.jupyter.stderr
@@ -25,12 +37,12 @@ const errorPlugin: JupyterFrontEndPlugin<void> = {
         
         if (factory) {
             rendermime.addFactory({
-            safe: true,
-            mimeTypes: ['application/vnd.jupyter.stderr'],
-            createRenderer: (options: IRenderMime.IRendererOptions) => {
-                const originalRenderer = factory.createRenderer(options);
-                return new AugmentedStderrRenderer(app, originalRenderer);
-            }
+                safe: true,
+                mimeTypes: ['application/vnd.jupyter.stderr'],
+                createRenderer: (options: IRenderMime.IRendererOptions) => {
+                    const originalRenderer = factory.createRenderer(options);
+                    return new AugmentedStderrRenderer(app, originalRenderer);
+                }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
     }
@@ -44,43 +56,45 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     private app: JupyterFrontEnd;
   
     constructor(app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer) {
-      super();
-      this.app = app;
-      this.originalRenderer = originalRenderer;
+        super();
+        this.app = app;
+        this.originalRenderer = originalRenderer;
     }
   
     /**
      * Render the original error message and append the custom prompt.
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-      // Get the original renderer and append it to the output
-      await this.originalRenderer.renderModel(model);
-      this.node.appendChild(this.originalRenderer.node);
-  
-      // Augment the standard error output
-      const resolveInChatDiv = document.createElement('div');
-      resolveInChatDiv.onclick = () => {
-        // Open the chat interface and put this error in the chat
-        // Execute the command ai-chat:open
-        console.log('passing this to the chat:', model.data)
+        console.log("Rendering New Model")
+    
+
+        const resolveInChatDiv = document.createElement('div');
+        ReactDOM.render(<ErrorMessage onDebugClick={() => this.openChatInterfaceWithError(model)} />, resolveInChatDiv);
+        this.node.appendChild(resolveInChatDiv);
+
+        // Get the original renderer and append it to the output
+        await this.originalRenderer.renderModel(model);
+        this.node.appendChild(this.originalRenderer.node);
+    }
+
+    /* 
+        Open the chat interface and preload the error message into 
+        the user input.
+    */
+    openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
+        const conciseErrorMessage = this.getErrorString(model);
+        this.app.commands.execute('ai-chat:open', { error: conciseErrorMessage });
+    }
+
+    /* 
+        Get the error string from the model.
+    */
+    getErrorString(model: IRenderMime.IMimeModel): string {
         const error = model.data['application/vnd.jupyter.error']
         if (error && typeof error === 'object' && 'ename' in error && 'evalue' in error) {
-            const errorName = (error as { ename: string; evalue: string }).ename;
-            const errorValue = (error as { ename: string; evalue: string }).evalue;
-
-            const conciseErrorMessage = `${errorName}: ${errorValue}`
-            this.app.commands.execute('ai-chat:open', { error: conciseErrorMessage });
-        
-        } else {
-            this.app.commands.execute('ai-chat:open');
+            return `${error.ename}: ${error.evalue}`
         }
-      };
-
-      resolveInChatDiv.textContent = "Do you want to debug this error in the chat interface?";
-      resolveInChatDiv.style.fontWeight = "bold";
-      resolveInChatDiv.style.color = "red";
-      resolveInChatDiv.style.marginTop = "10px";
-      this.node.appendChild(resolveInChatDiv);
+        return ''
     }
 }
   
