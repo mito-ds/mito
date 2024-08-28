@@ -29,7 +29,7 @@ const errorPlugin: JupyterFrontEndPlugin<void> = {
             mimeTypes: ['application/vnd.jupyter.stderr'],
             createRenderer: (options: IRenderMime.IRendererOptions) => {
                 const originalRenderer = factory.createRenderer(options);
-                return new AugmentedStderrRenderer(originalRenderer);
+                return new AugmentedStderrRenderer(app, originalRenderer);
             }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
@@ -41,9 +41,11 @@ const errorPlugin: JupyterFrontEndPlugin<void> = {
 */
 class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     private originalRenderer: IRenderMime.IRenderer;
+    private app: JupyterFrontEnd;
   
-    constructor(originalRenderer: IRenderMime.IRenderer) {
+    constructor(app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer) {
       super();
+      this.app = app;
       this.originalRenderer = originalRenderer;
     }
   
@@ -56,13 +58,30 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
       this.node.appendChild(this.originalRenderer.node);
   
       // Augment the standard error output
-      const prompt = document.createElement('div');
-      prompt.textContent = "Do you want to debug this error in the chat interface?";
-      prompt.style.fontWeight = "bold";
-      prompt.style.color = "red";
-      prompt.style.marginTop = "10px";
-      this.node.appendChild(prompt);
+      const resolveInChatDiv = document.createElement('div');
+      resolveInChatDiv.onclick = () => {
+        // Open the chat interface and put this error in the chat
+        // Execute the command ai-chat:open
+        console.log('passing this to the chat:', model.data)
+        const error = model.data['application/vnd.jupyter.error']
+        if (error && typeof error === 'object' && 'ename' in error && 'evalue' in error) {
+            const errorName = (error as { ename: string; evalue: string }).ename;
+            const errorValue = (error as { ename: string; evalue: string }).evalue;
+
+            const conciseErrorMessage = `${errorName}: ${errorValue}`
+            this.app.commands.execute('ai-chat:open', { error: conciseErrorMessage });
+        
+        } else {
+            this.app.commands.execute('ai-chat:open');
+        }
+      };
+
+      resolveInChatDiv.textContent = "Do you want to debug this error in the chat interface?";
+      resolveInChatDiv.style.fontWeight = "bold";
+      resolveInChatDiv.style.color = "red";
+      resolveInChatDiv.style.marginTop = "10px";
+      this.node.appendChild(resolveInChatDiv);
     }
-  }
+}
   
-  export default errorPlugin;
+export default errorPlugin;

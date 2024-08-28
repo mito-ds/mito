@@ -4,7 +4,7 @@ import {
   JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
 
-
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
@@ -44,7 +44,7 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
     const command: string = 'ai-chat:open';
     app.commands.addCommand(command, {
       label: 'Your friendly Python Expert chat bot',
-      execute: () => {
+      execute: (args?: ReadonlyPartialJSONObject) => {
         
         // In order for the widget to be accessible, the widget must be:
         // 1. Created
@@ -75,6 +75,11 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
         // Set focus on the chat input and scroll it to 3/4 of the way down the screen
         const chatInput: HTMLTextAreaElement | null = widget.node.querySelector('.chat-input');
         chatInput?.focus();
+
+        if (chatInput && args?.error) {
+          const error = args.error;
+          chatInput.value = error.toString();
+        }
       }
     });
 

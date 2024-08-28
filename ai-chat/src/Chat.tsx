@@ -73,14 +73,23 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
     }, [input]);
 
     const sendMessage = async () => {
-        console.log("sendMessage")
-        if (!input.trim()) return;
+        
+        // Make sure we have the latest input value
+        // because when the taskpane is opened via the error 
+        // mimerender plugin, we add text to the textarea 
+        // via the document and it does not get registered in the 
+        // input state unless the user makes additional changes.
+        const finalInput = textareaRef.current?.value || ''
+
+        if (!finalInput.trim()) {
+            return;
+        }
 
         const activeCellCode = getActiveCellCode(notebookTracker)
 
         // Create a new chat history manager so we can trigger a re-render of the chat
         const updatedManager = new ChatHistoryManager(chatHistoryManager.getHistory());
-        updatedManager.addUserMessage(input, activeCellCode)
+        updatedManager.addUserMessage(finalInput, activeCellCode)
 
         setInput('');
 
@@ -122,7 +131,10 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                 className={classNames("message", "message-user", 'chat-input')}
                 placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                    console.log('e',e)
+                    setInput(e.target.value)
+                }}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
