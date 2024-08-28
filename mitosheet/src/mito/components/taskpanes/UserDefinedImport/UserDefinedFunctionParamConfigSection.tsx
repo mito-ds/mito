@@ -171,7 +171,62 @@ const UserDefinedFunctionParamConfigSection = (props: {
                             }}
                             variant="dark"
                         >
-                            Add another int
+                            Add new int
+                        </TextButton>
+                    </React.Fragment>
+                )
+            } else if (paramType === 'Dict[str, str]') {
+                const paramValues = paramValue.split(',');
+                if (paramValues.length === 0) {
+                    paramValues.push(":")
+                }
+                inputElement = (
+                    <React.Fragment>
+                        {paramValues.map((keyAndValue, index) => {
+                            const [dictKey, dictValue] = keyAndValue.split(':');
+                            return (
+                                <Row>
+                                    <Input
+                                        key={index}
+                                        value={dictKey}
+                                        onChange={(e) => {
+                                            const newValues = [...paramValues];
+                                            const newDictKey = e.target.value;
+                                            newValues[index] = `${newDictKey || ''}:${dictValue || ''}`;
+                                            const newParams = window.structuredClone(params);
+                                            newParams[paramName] = newValues.join(',');
+                                            props.setParams(newParams);
+                                        }}
+                                        style={{marginBottom: '8px', marginRight: '2px'}}
+                                        placeholder="Add key"
+                                    />
+                                    <Input
+                                        key={index}
+                                        value={dictValue}
+                                        onChange={(e) => {
+                                            const newValues = [...paramValues];
+                                            const newDictValue = e.target.value;
+                                            newValues[index] = `${dictKey || ''}:${newDictValue || ''}`;
+                                            const newParams = window.structuredClone(params);
+                                            newParams[paramName] = newValues.join(',');
+                                            props.setParams(newParams);
+                                        }}
+                                        style={{marginBottom: '8px'}}
+                                        placeholder="Add value"
+                                    />
+                                </Row> 
+                            )
+                        })}
+                        <TextButton
+                            onClick={() => {
+                                const newValues = [...paramValues, ":"];
+                                const newParams = window.structuredClone(params);
+                                newParams[paramName] = newValues.join(',');
+                                props.setParams(newParams);
+                            }}
+                            variant="dark"
+                        >
+                            Add entry
                         </TextButton>
                     </React.Fragment>
                 )
