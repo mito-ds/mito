@@ -387,7 +387,7 @@ if sys.version_info[:3] > (3, 8, 0):
 
     DefaultEditingMode = Literal['cell', 'column']
 
-    UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader']
+    UserDefinedFunctionParamType = Literal['any', 'str', 'int', 'float', 'bool', 'DataFrame', 'ColumnHeader', 'List[int]']
 
     class MitoTheme(TypedDict):
         primaryColor: str

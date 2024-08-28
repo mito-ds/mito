@@ -132,6 +132,8 @@ def get_user_defined_function_param_type(f: Callable, param_name: str) -> UserDe
         return 'DataFrame'
     elif param_type == ColumnHeader:
         return 'ColumnHeader'
+    elif param_type == List[int]:
+        return 'List[int]'
     else:
         return 'any'
 
@@ -264,6 +266,12 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
             elif param_type == 'bool':
                 execute_value = 'true' in param_value.lower()
                 user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
+            elif param_type == 'List[int]':
+                print('original: ', param_type)
+                execute_value = [int(value) for value in param_value.split(',')]
+                print('parsed: ', execute_value)
+                user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
+                print('fully parsed: ', user_defined_function_params[param_name])
             else:
                 try:
                     # If we don't know the type (it's untyped), we try and convert the value to a python object -- using an eval. If that fails, 
@@ -286,5 +294,6 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
 def get_transpiled_user_defined_function_params(user_defined_function_param_types_and_values: Dict[str, Tuple[UserDefinedFunctionParamType, Any, Any]]) -> str:
     param_strings = []
     for param_name, (_, _, transpiled_value) in user_defined_function_param_types_and_values.items():
+        print(f'{param_name}={transpiled_value}')
         param_strings.append(f'{param_name}={transpiled_value}')
     return ", ".join(param_strings)
