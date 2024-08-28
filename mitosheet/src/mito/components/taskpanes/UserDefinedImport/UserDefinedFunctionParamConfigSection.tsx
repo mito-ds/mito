@@ -31,9 +31,6 @@ const UserDefinedFunctionParamConfigSection = (props: {
     sheetDataArray: SheetData[];
 }): JSX.Element => {
 
-    // Create a UseEffect that is triggered when the paramNameToType is updated 
-    // so that we can rerender the screen with new input fields
-
     const {paramNameToType, params} = props;
     if (paramNameToType === undefined || params === undefined) {
         return <></>
@@ -185,9 +182,9 @@ const UserDefinedFunctionParamConfigSection = (props: {
                         {paramValues.map((keyAndValue, index) => {
                             const [dictKey, dictValue] = keyAndValue.split(':');
                             return (
-                                <Row>
+                                <Row key={index}>
                                     <Input
-                                        key={index}
+                                        key={'key' + index}
                                         value={dictKey}
                                         onChange={(e) => {
                                             const newValues = [...paramValues];
@@ -201,7 +198,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
                                         placeholder="Add key"
                                     />
                                     <Input
-                                        key={index}
+                                        key={'value' + index}
                                         value={dictValue}
                                         onChange={(e) => {
                                             const newValues = [...paramValues];

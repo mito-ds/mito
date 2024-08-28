@@ -296,6 +296,5 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
 def get_transpiled_user_defined_function_params(user_defined_function_param_types_and_values: Dict[str, Tuple[UserDefinedFunctionParamType, Any, Any]]) -> str:
     param_strings = []
     for param_name, (_, _, transpiled_value) in user_defined_function_param_types_and_values.items():
-        print(f'{param_name}={transpiled_value}')
         param_strings.append(f'{param_name}={transpiled_value}')
     return ", ".join(param_strings)
