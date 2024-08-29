@@ -132,6 +132,10 @@ def get_user_defined_function_param_type(f: Callable, param_name: str) -> UserDe
         return 'DataFrame'
     elif param_type == ColumnHeader:
         return 'ColumnHeader'
+    elif param_type == List[int]:
+        return 'List[int]'
+    elif param_type == Dict[str, str]:
+        return 'Dict[str, str]'
     else:
         return 'any'
 
@@ -263,6 +267,12 @@ def get_user_defined_function_param_type_and_execute_value_and_transpile_value(
                 user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
             elif param_type == 'bool':
                 execute_value = 'true' in param_value.lower()
+                user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
+            elif param_type == 'List[int]':
+                execute_value = [int(value) for value in param_value.split(',')]
+                user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
+            elif param_type == 'Dict[str, str]':
+                execute_value = {key: value for key, value in (item.split(':') for item in param_value.split(','))}
                 user_defined_function_params[param_name] = (param_type, execute_value, get_column_header_as_transpiled_code(execute_value))
             else:
                 try:

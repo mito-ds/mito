@@ -579,11 +579,7 @@ def test_transpile_fully_parameterized_function_string_no_df_names(tmp_path, df_
         "",
         f"txt = pd.read_csv(r'{tmp_file1}')",
         "",
-        f"sheet_df_dictonary = "
-        f"pd.read_excel(r'{tmp_file2}', "
-        "engine='openpyxl', sheet_name=[\n"
-        f"{TAB}'Sheet1'{NEWLINE}"
-        '], skiprows=0)',
+        f"sheet_df_dictonary = pd.read_excel(r'{tmp_file2}', engine='openpyxl', sheet_name=['Sheet1'], skiprows=0)",
         "Sheet1 = sheet_df_dictonary['Sheet1']",
         "",
         f"{expected_in_transpile}.to_csv(r'{tmp_exportfile1}', "
@@ -602,9 +598,7 @@ import pandas as pd
 def function({expected_in_function}, file_name_import_csv_0, file_name_import_excel_0, file_name_export_csv_0, file_name_export_excel_0):
     txt = pd.read_csv(file_name_import_csv_0)
     
-    sheet_df_dictonary = pd.read_excel(file_name_import_excel_0, engine='openpyxl', sheet_name=[
-        'Sheet1'
-    ], skiprows=0)
+    sheet_df_dictonary = pd.read_excel(file_name_import_excel_0, engine='openpyxl', sheet_name=['Sheet1'], skiprows=0)
     Sheet1 = sheet_df_dictonary['Sheet1']
     
     {expected_in_function}.to_csv(file_name_export_csv_0, index=False)
@@ -682,9 +676,7 @@ def test_transpile_fully_parameterized_function_string_no_df_name_param(tmp_path
         "",
         f"sheet_df_dictonary = "
         f"pd.read_excel(r'{tmp_file2}', "
-        "engine='openpyxl', sheet_name=[\n"
-        f"{TAB}'Sheet1'{NEWLINE}"
-        '], skiprows=0)',
+        "engine='openpyxl', sheet_name=['Sheet1'], skiprows=0)",
         "Sheet1 = sheet_df_dictonary['Sheet1']",
         "",
         f"txt.to_csv(r'{tmp_exportfile1}', "
@@ -703,9 +695,7 @@ import pandas as pd
 def function(file_name_import_csv_0, file_name_import_excel_0, file_name_export_csv_0, file_name_export_excel_0):
     txt = pd.read_csv(file_name_import_csv_0)
     
-    sheet_df_dictonary = pd.read_excel(file_name_import_excel_0, engine='openpyxl', sheet_name=[
-        'Sheet1'
-    ], skiprows=0)
+    sheet_df_dictonary = pd.read_excel(file_name_import_excel_0, engine='openpyxl', sheet_name=['Sheet1'], skiprows=0)
     Sheet1 = sheet_df_dictonary['Sheet1']
     
     txt.to_csv(file_name_export_csv_0, index=False)
@@ -818,9 +808,7 @@ def test_transpile_parameterize_excel_imports(tmp_path):
         "import pandas as pd",
         "",
         "def function(var_name):",
-        f"{TAB}sheet_df_dictonary = pd.read_excel(var_name, engine='openpyxl', sheet_name=[\n"
-        f"{TAB*2}'Sheet1'\n"
-        f"{TAB}], skiprows=0)",
+        f"{TAB}sheet_df_dictonary = pd.read_excel(var_name, engine='openpyxl', sheet_name=['Sheet1'], skiprows=0)",
         f"{TAB}Sheet1 = sheet_df_dictonary['Sheet1']",
         f'{TAB}',
         f"{TAB}dataframe_1 = pd.read_excel(var_name, sheet_name='Sheet1', skiprows=0, nrows=1, usecols='A:B')",
