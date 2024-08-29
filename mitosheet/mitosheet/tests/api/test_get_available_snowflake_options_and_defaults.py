@@ -49,7 +49,7 @@ def test_integration_success():
         'type': 'success',    
         'config_options': {
                 'roles': ['NO_PYTEST_TABLE_ACCESS', 'READONLY'],
-                'warehouses': ['COMPUTE_WH'],    
+                'warehouses': ['COMPUTE_WH', 'SYSTEM$STREAMLIT_NOTEBOOK_WH'],
                 'databases': ['PYTESTDATABASE', 'SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
                 'schemas': ['INFORMATION_SCHEMA', 'PYTESTSCHEMA'],
                 'tables_and_views': ['COLUMNHEADER_TEST', 'NOROWS', 'SIMPLE_PYTEST_TABLE', 'TYPETEST', 'TYPETEST_SIMPLE', 'YOUR_TABLE_NAME', 'SIMPLE_PYTEST_TABLE_VIEW'],
@@ -114,7 +114,7 @@ def test_switch_roles_updates_defaults():
         'type': 'success',    
         'config_options': {
                 'roles': ['NO_PYTEST_TABLE_ACCESS', 'READONLY'],
-                'warehouses': [],    
+                'warehouses': ['COMPUTE_WH', 'SYSTEM$STREAMLIT_NOTEBOOK_WH'],
                 'databases': ['SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
                 'schemas': ['ALERT', 'CORE', 'CORTEX', 'IMAGES', 'INFORMATION_SCHEMA', 'ML', 'NOTIFICATION'],
                 'tables_and_views': [],
@@ -122,7 +122,7 @@ def test_switch_roles_updates_defaults():
         },
         'default_values': {
             'role': 'NO_PYTEST_TABLE_ACCESS', 
-            'warehouse': None,
+            'warehouse': 'SYSTEM$STREAMLIT_NOTEBOOK_WH',
             'database': 'SNOWFLAKE',
             'schema': 'ALERT',
             'table_or_view': None,
