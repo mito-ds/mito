@@ -430,7 +430,7 @@ def sheet(
         try_create_user_json_file()
 
     try:
-
+        
         # Every Mitosheet has a different comm target, so they each create
         # a different channel to communicate over
         comm_target_id = get_new_id()

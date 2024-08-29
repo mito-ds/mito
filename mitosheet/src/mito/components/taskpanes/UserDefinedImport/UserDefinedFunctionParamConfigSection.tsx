@@ -10,6 +10,7 @@ import Toggle from "../../elements/Toggle";
 import Tooltip from "../../elements/Tooltip";
 import Col from '../../layout/Col';
 import Row from '../../layout/Row';
+import TextButton from "../../elements/TextButton";
 
 
 /**
@@ -119,6 +120,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
                             newParams[paramName] = newValue;
                             props.setParams(newParams);
                         }}
+                        placeholder={paramType === 'str' ? 'Add string' : paramType === 'int' ? 'Add an int' : paramType === 'float' ? 'Add a float' : undefined}
                     />
                 )
             } else if (paramType === 'bool') {
@@ -133,6 +135,98 @@ const UserDefinedFunctionParamConfigSection = (props: {
                         }}
                     />
                 )
+            } else if (paramType === 'List[int]') {
+                const paramValues = paramValue.split(',').map(value => value.trim());
+                if (paramValues.length === 0) {
+                    paramValues.push('')
+                }
+                inputElement = (
+                    <React.Fragment>
+                        {paramValues.map((value, index) => {
+                            return (
+                                <Input
+                                    key={index}
+                                    value={value}
+                                    onChange={(e) => {
+                                        const newValues = [...paramValues];
+                                        newValues[index] = e.target.value;
+                                        const newParams = window.structuredClone(params);
+                                        newParams[paramName] = newValues.join(',');
+                                        props.setParams(newParams);
+                                    }}
+                                    style={{marginBottom: '8px'}}
+                                    placeholder="Add int to list"
+                                />
+                            )
+                        })}
+                        <TextButton
+                            onClick={() => {
+                                const newValues = [...paramValues, ''];
+                                const newParams = window.structuredClone(params);
+                                newParams[paramName] = newValues.join(',');
+                                props.setParams(newParams);
+                            }}
+                            variant="dark"
+                        >
+                            Add new int
+                        </TextButton>
+                    </React.Fragment>
+                )
+            } else if (paramType === 'Dict[str, str]') {
+                const paramValues = paramValue.split(',');
+                if (paramValues.length === 0) {
+                    paramValues.push(":")
+                }
+                inputElement = (
+                    <React.Fragment>
+                        {paramValues.map((keyAndValue, index) => {
+                            const [dictKey, dictValue] = keyAndValue.split(':');
+                            return (
+                                <Row key={index}>
+                                    <Input
+                                        key={'key' + index}
+                                        value={dictKey}
+                                        onChange={(e) => {
+                                            const newValues = [...paramValues];
+                                            const newDictKey = e.target.value;
+                                            newValues[index] = `${newDictKey || ''}:${dictValue || ''}`;
+                                            const newParams = window.structuredClone(params);
+                                            newParams[paramName] = newValues.join(',');
+                                            props.setParams(newParams);
+                                        }}
+                                        style={{marginBottom: '8px', marginRight: '2px'}}
+                                        placeholder="Add key"
+                                    />
+                                    <Input
+                                        key={'value' + index}
+                                        value={dictValue}
+                                        onChange={(e) => {
+                                            const newValues = [...paramValues];
+                                            const newDictValue = e.target.value;
+                                            newValues[index] = `${dictKey || ''}:${newDictValue || ''}`;
+                                            const newParams = window.structuredClone(params);
+                                            newParams[paramName] = newValues.join(',');
+                                            props.setParams(newParams);
+                                        }}
+                                        style={{marginBottom: '8px'}}
+                                        placeholder="Add value"
+                                    />
+                                </Row> 
+                            )
+                        })}
+                        <TextButton
+                            onClick={() => {
+                                const newValues = [...paramValues, ":"];
+                                const newParams = window.structuredClone(params);
+                                newParams[paramName] = newValues.join(',');
+                                props.setParams(newParams);
+                            }}
+                            variant="dark"
+                        >
+                            Add entry
+                        </TextButton>
+                    </React.Fragment>
+                )
             }
 
             const paramTypeDisplay = getParamTypeDisplay(paramType) !== undefined 
@@ -142,7 +236,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
             const tooltip = `${paramName}${paramTypeDisplay}`;
 
             paramRowElements.push(
-                <Row key={paramName} justify='space-between' align='center' title={tooltip}>
+                <Row key={paramName} justify='space-between' title={tooltip}>
                     <Col span={14}>
                         <Row justify="start" align="center" suppressTopBottomMargin>
                             <Col>
