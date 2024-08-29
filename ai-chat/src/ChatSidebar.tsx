@@ -3,6 +3,13 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import Chat from './Chat';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { LabIcon } from '@jupyterlab/ui-components';
+import chatIconSvg from '../src/icons/ChatIcon.svg';
+
+export const chatIcon = new LabIcon({
+    name: 'ai-chat',
+    svgstr: chatIconSvg
+});
 
 export function buildChatSidebar(
     notebookTracker: INotebookTracker,
@@ -15,11 +22,9 @@ export function buildChatSidebar(
         />
     ) 
     chatWidget.id = 'ai-chat';
-    chatWidget.title.label = 'AI Chat';
-    // chatWidget.title.icon = chatIcon; TODO: Add an Icon
+    chatWidget.title.icon = chatIcon;
     chatWidget.title.caption = 'AI Chat for your JupyterLab';
     chatWidget.addClass('chat-widget');
 
     return chatWidget;
 }
-
