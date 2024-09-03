@@ -24,9 +24,15 @@ classifiers = [
 ]
 dependencies = [
     "setuptools",
-    "jupyterlab>=4.0.0,<5"
+    "jupyterlab>=4.0.0,<5",
+    "openai"
 ]
-dynamic = ["version", "description", "authors", "urls", "keywords"]
+dynamic = ["version", "description", "urls"]
+authors = [{name = "Aaron Diamond-Reivich", email = "aaron@sagacollab.com"}]
+keywords = ["AI", "Jupyter", "Mito"]
+
+[project.entry-points."jupyter_serverproxy_servers"]
+ai_chat = "ai_chat:load_jupyter_server_extension"
 
 [tool.hatch.version]
 source = "nodejs"
@@ -77,3 +83,6 @@ before-build-python = ["jlpm clean:all"]
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
+
+[tool.setuptools.dynamic]
+description = {file = "README.md"} 

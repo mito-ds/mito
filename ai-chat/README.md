@@ -40,8 +40,16 @@ The `jlpm` command is JupyterLab's pinned version of
 # Change directory to the ai_chat directory
 # Install package in development mode
 pip install -e "."
+
+# Install the node modules
+jlpm install
+
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
+
+# Start the jupyter server extension for development
+jupyter server extension enable --py ai_chat
+
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
