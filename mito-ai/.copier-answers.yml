@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.3.5
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: aaron@sagacollab.com
+author_name: AI-Chat
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: ai-chat
+project_short_description: AI chat for JupyterLab
+python_name: ai_chat
+repository: ''
+test: true
+

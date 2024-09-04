@@ -1,0 +1,34 @@
+.error-mime-renderer-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: start;
+    background-color: var(--jp-rendermime-error-background);
+    width: 100%;
+}
+
+.error-mime-renderer-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+
+    background-color: var(--jp-error-color3);
+    border: var(--jp-error-color0) 1px solid;
+    color: var(--jp-error-color0);
+
+    margin: 10px;
+    box-sizing: border-box;
+
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.error-mime-renderer-button svg {
+    margin-right: 5px;
+}
+
+.error-mime-renderer-button p {
+    margin: 0;
+}
+
