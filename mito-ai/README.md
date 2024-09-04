@@ -15,7 +15,7 @@ AI chat for JupyterLab. This codebase contains two main components:
 To install the extension, execute:
 
 ```bash
-pip install mito_ai
+pip install mito-ai
 ```
 
 ## Uninstall
@@ -23,7 +23,7 @@ pip install mito_ai
 To remove the extension, execute:
 
 ```bash
-pip uninstall mito_ai
+pip uninstall mito-ai
 ```
 
 ## Contributing
@@ -76,7 +76,7 @@ jupyter lab build --minimize=False
 ### Development uninstall
 
 ```bash
-pip uninstall mito_ai
+pip uninstall mito-ai
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
