@@ -13,9 +13,6 @@ export async function requestAPI<T>(
     init: RequestInit = {}
 ): Promise<T> {
 
-    console.log("Requesting API", endPoint)
-    console.log("Init", init.body)
-
     // Get the server settings
     const serverSettings = ServerConnection.makeSettings();
 
@@ -48,7 +45,6 @@ export async function requestAPI<T>(
 
     // Handle the response
     let data: any = await response.text();
-    console.log('Aaron10', data)
 
     if (data.length > 0) {
         try {

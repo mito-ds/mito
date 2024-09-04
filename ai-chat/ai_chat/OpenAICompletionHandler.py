@@ -7,14 +7,16 @@ from openai import OpenAI
 
 client = OpenAI()
 
+# This handler is responsible for the ai_chat/completion endpoint. 
+# It takes a message from the user, sends it to the OpenAI API, and returns the response.
+# Important: Because this is a server extension, print statements are sent to the 
+# jupyter server terminal by default (ie: the terminal you ran `jupyter lab`)
 class OpenAICompletionHandler(APIHandler):
     @web.authenticated
     def post(self):
-
-        print('Aaron5')
         # Retrieve the message from the request
         data = self.get_json_body()
-        user_message = data.get('message', '')
+        messages = data.get('messages', '')
 
         # Get the OpenAI API key from environment variables
         openai_api_key = os.getenv('OPENAI_API_KEY')
@@ -30,21 +32,16 @@ class OpenAICompletionHandler(APIHandler):
             # Query OpenAI API
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": user_message}
-                ]
+                messages=messages
             )
-
-            print('Aaron6!', response)
 
             response_dict = response.to_dict()
 
-            print('Aaron7', response_dict)
-
             # Send the response back to the frontend
+            # TODO: In the future, instead of returning the raw response, 
+            # return a cleaned up version of the response so we can support
+            # multiple models 
             self.finish(json.dumps(response_dict))
         except Exception as e:
-            print('Aaron6', e)
             self.set_status(500)
             self.finish(json.dumps({"response": f"Error: {str(e)}"}))

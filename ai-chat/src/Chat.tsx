@@ -128,10 +128,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                 className={classNames("message", "message-user", 'chat-input')}
                 placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
                 value={input}
-                onChange={(e) => {
-                    console.log('e',e)
-                    setInput(e.target.value)
-                }}
+                onChange={(e) => {setInput(e.target.value)}}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();

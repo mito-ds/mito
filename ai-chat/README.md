@@ -2,7 +2,9 @@
 
 [![Github Actions Status](/workflows/Build/badge.svg)](/actions/workflows/build.yml)
 
-AI chat for JupyterLab
+AI chat for JupyterLab. This codebase contains two main components:
+1. A Jupyter server extension that handles the backend logic for the chat.
+2. Several JupyterLab extensions that handle the frontend logic for interacting with the AI, including the chat sidebar and the error message rendermime.
 
 ## Requirements
 
