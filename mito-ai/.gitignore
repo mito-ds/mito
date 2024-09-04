@@ -8,8 +8,6 @@ node_modules/
 .ipynb_checkpoints
 *.tsbuildinfo
 mito-ai/labextension
-# Version file is handled by hatchling
-mito-ai/_version.py
 
 # Integration tests
 ui-tests/test-results/
