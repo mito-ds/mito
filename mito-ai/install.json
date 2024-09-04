@@ -1,5 +1,0 @@
-{
-  "packageManager": "python",
-  "packageName": "mito_ai",
-  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package mito_ai"
-}
