@@ -23,7 +23,7 @@ with (HERE / "labextension" / "package.json").open() as fid:
 def _jupyter_labextension_paths():
     return [{
         "src": "labextension",
-        "dest": "mito_ai"
+        "dest": "mito-ai"
     }]
 
 def _jupyter_server_extension_points():
@@ -31,7 +31,7 @@ def _jupyter_server_extension_points():
     Returns a list of dictionaries with metadata describing
     where to find the `_load_jupyter_server_extension` function.
     """
-    return [{"module": "mito_ai"}]
+    return [{"module": "mito-ai"}]
 
 # Jupyter Server is the backend used by JupyterLab. A sever extension lets 
 # us add new API's to the backend, so we can do some processing that we don't

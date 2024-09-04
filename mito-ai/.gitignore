@@ -7,9 +7,9 @@ node_modules/
 *.egg-info/
 .ipynb_checkpoints
 *.tsbuildinfo
-mito_ai/labextension
+mito-ai/labextension
 # Version file is handled by hatchling
-mito_ai/_version.py
+mito-ai/_version.py
 
 # Integration tests
 ui-tests/test-results/

@@ -39,7 +39,7 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the mito_ai directory
+# Change directory to the mito-ai directory
 # Install package in development mode
 pip install -e "."
 
@@ -50,7 +50,7 @@ jlpm install
 jupyter labextension develop . --overwrite
 
 # Start the jupyter server extension for development
-jupyter server extension enable --py mito_ai
+jupyter server extension enable --py mito-ai
 
 # Rebuild extension Typescript source after making changes
 jlpm build

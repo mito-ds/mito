@@ -1,7 +1,7 @@
 {
     "ServerApp": {
         "jpserver_extensions": {
-            "mito_ai": true
+            "mito-ai": true
         }
     }
 }

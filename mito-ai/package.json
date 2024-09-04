@@ -38,7 +38,7 @@
         "clean": "jlpm clean:lib",
         "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
         "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-        "clean:labextension": "rimraf mito_ai/labextension mito_ai/_version.py",
+        "clean:labextension": "rimraf mito-ai/labextension mito-ai/_version.py",
         "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
         "eslint": "jlpm eslint:check --fix",
         "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -112,7 +112,7 @@
     },
     "jupyterlab": {
         "extension": true,
-        "outputDir": "mito_ai/labextension"
+        "outputDir": "mito-ai/labextension"
     },
     "eslintIgnore": [
         "node_modules",
