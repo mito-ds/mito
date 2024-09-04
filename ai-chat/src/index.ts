@@ -17,7 +17,7 @@ import errorPlugin from './ErrorMimeRenderPlugin';
  * Initialization data for the ai-chat extension.
  */
 const aiChatPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'ai-chat:plugin',
+  id: 'ai_chat:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
   requires: [INotebookTracker, ICommandPalette, IRenderMimeRegistry],
@@ -41,7 +41,7 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
     let widget = newWidget();
 
     // Add an application command
-    const command: string = 'ai-chat:open';
+    const command: string = 'ai_chat:open';
     app.commands.addCommand(command, {
       label: 'Your friendly Python Expert chat bot',
       execute: (args?: ReadonlyPartialJSONObject) => {
@@ -111,7 +111,7 @@ Please suggest a concise solution`;
     });
 
     if (restorer) {
-      restorer.add(widget, 'ai-chat');
+      restorer.add(widget, 'ai_chat');
     }
   }
 };

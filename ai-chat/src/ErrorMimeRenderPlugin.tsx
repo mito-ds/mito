@@ -64,10 +64,7 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     /**
      * Render the original error message and append the custom prompt.
      */
-    async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        console.log("Rendering New Model")
-    
-
+    async renderModel(model: IRenderMime.IMimeModel): Promise<void> {    
         const resolveInChatDiv = document.createElement('div');
         ReactDOM.render(<ErrorMessage onDebugClick={() => this.openChatInterfaceWithError(model)} />, resolveInChatDiv);
         this.node.appendChild(resolveInChatDiv);
@@ -83,7 +80,7 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     */
     openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
         const conciseErrorMessage = this.getErrorString(model);
-        this.app.commands.execute('ai-chat:open', { error: conciseErrorMessage });
+        this.app.commands.execute('ai_chat:open', { error: conciseErrorMessage });
     }
 
     /* 

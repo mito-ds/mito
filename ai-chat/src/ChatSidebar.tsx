@@ -7,7 +7,7 @@ import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../src/icons/ChatIcon.svg';
 
 export const chatIcon = new LabIcon({
-    name: 'ai-chat',
+    name: 'ai_chat',
     svgstr: chatIconSvg
 });
 
@@ -21,7 +21,7 @@ export function buildChatSidebar(
             rendermime={rendermime}
         />
     ) 
-    chatWidget.id = 'ai-chat';
+    chatWidget.id = 'ai_chat';
     chatWidget.title.icon = chatIcon;
     chatWidget.title.caption = 'AI Chat for your JupyterLab';
     chatWidget.addClass('chat-widget');

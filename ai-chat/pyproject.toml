@@ -32,7 +32,7 @@ authors = [{name = "Aaron Diamond-Reivich", email = "aaron@sagacollab.com"}]
 keywords = ["AI", "Jupyter", "Mito"]
 
 [project.entry-points."jupyter_serverproxy_servers"]
-ai_chat = "ai_chat:load_jupyter_server_extension"
+ai_chat = "ai_chat:_load_jupyter_server_extension"
 
 [tool.hatch.version]
 source = "nodejs"

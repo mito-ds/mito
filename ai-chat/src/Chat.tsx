@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import OpenAI from 'openai';
-import { OPENAI_API_KEY } from './secrets'
 import '../style/Chat.css';
 import { classNames } from './utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
@@ -8,11 +7,8 @@ import { getActiveCellCode } from './utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
+import { requestAPI } from './handler';
 
-const openai = new OpenAI({
-    apiKey: OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true // TODO
-});
 
 interface IChatProps {
     notebookTracker: INotebookTracker
@@ -94,10 +90,11 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
         setInput('');
 
         try {
-
-            const response = await openai.chat.completions.create({
-                model: 'gpt-4o-mini',
-                messages: updatedManager.getAIOptimizedHistory(),
+            const response = await requestAPI<OpenAI.Chat.ChatCompletion>('completion', {
+                method: 'POST',
+                body: JSON.stringify({
+                    messages: updatedManager.getAIOptimizedHistory()
+                })
             });
 
             const aiMessage = response.choices[0].message;
