@@ -1,22 +1,10 @@
-import { Extension, Facet, RangeSetBuilder } from '@codemirror/state';
+import { Extension, Facet, RangeSetBuilder, StateEffect } from '@codemirror/state';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
+import { ICommandPalette } from '@jupyterlab/apputils';
+import { CodeMirrorEditor, IEditorExtensionRegistry } from '@jupyterlab/codemirror';
+import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view';
 
-import {
-  Decoration,
-  DecorationSet,
-  EditorView,
-  ViewPlugin,
-  ViewUpdate
-} from '@codemirror/view';
-
-import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-
-import {
-  EditorExtensionRegistry,
-  IEditorExtensionRegistry
-} from '@jupyterlab/codemirror';
 
 // Defines new styles for this extension
 const baseTheme = EditorView.baseTheme({
@@ -80,43 +68,91 @@ const showStripes = ViewPlugin.fromClass(
 );
 
 // Full extension composed of elemental extensions
-export function zebraStripes(options: { step?: number } = {}): Extension {
-  return [
-    baseTheme,
-    typeof options.step !== 'number' ? [] : stepSize.of(options.step),
-    showStripes
-  ];
+export function zebraStripes(options: { step?: number, on?: boolean } = {}): Extension {
+    // If the extension is turned on, add the stripes
+    if (options.on) {
+        return [
+            baseTheme,
+            typeof options.step !== 'number' ? [] : stepSize.of(options.step),
+            showStripes
+        ];
+    } else {
+        // Otherwise, just return the basic themes
+        return [baseTheme]
+    }
 }
 
 /**
  * Initialization data for the @jupyterlab-examples/codemirror-extension extension.
  */
+
 const codeDiffPlugin: JupyterFrontEndPlugin<void> = {
   id: '@jupyterlab-examples/codemirror-extension:plugin',
   description: 'A minimal JupyterLab extension adding a CodeMirror extension.',
   autoStart: true,
-  requires: [IEditorExtensionRegistry],
-  activate: (app: JupyterFrontEnd, extensions: IEditorExtensionRegistry) => {
-    // Register a new editor configurable extension
-    extensions.addExtension(
-      Object.freeze({
-        name: '@jupyterlab-examples/codemirror:zebra-stripes',
-        // Default CodeMirror extension parameters
-        default: 2,
-        factory: () =>
-          // The factory will be called for every new CodeMirror editor
-          EditorExtensionRegistry.createConfigurableExtension((step: number) =>
-            zebraStripes({ step })
-          ),
-        // JSON schema defining the CodeMirror extension parameters
-        schema: {
-          type: 'number',
-          title: 'Show stripes',
-          description:
-            'Display zebra stripes every "step" in CodeMirror editors.'
-        }
-      })
-    );
+  requires: [IEditorExtensionRegistry, ICommandPalette, INotebookTracker],
+  activate: (app: JupyterFrontEnd, extensions: IEditorExtensionRegistry, palette: ICommandPalette, notebookTracker: INotebookTracker) => {
+    
+    // Helper function to update all notebook cells with zebra stripes
+    // Helper function to update all notebook cells with zebra stripes
+    function updateNotebookZebraStripes(enabled: boolean) {
+        notebookTracker.forEach(notebookPanel => {
+            console.log('Updating notebook:', notebookPanel);
+            // Get all cells in the notebook
+            const activeCell = notebookPanel.content.activeCell;
+            if (activeCell) {
+                console.log('Updating cell:', activeCell);
+    
+                // Check if the editor is a CodeMirror editor
+                const editor = activeCell.editor;
+                if (editor instanceof CodeMirrorEditor) {
+                    const cmEditorView = editor.editor; // Access the underlying CodeMirror editor view
+    
+                    if (cmEditorView instanceof EditorView) {
+                        console.log('Updating editor:', cmEditorView);
+    
+                        const options = {
+                            step: cmEditorView.state.facet(stepSize), // Retain the existing step size
+                            on: enabled
+                        };
+                        console.log('Updating options:', options);
+    
+                        const newState = cmEditorView.state.update({
+                            effects: StateEffect.reconfigure.of(zebraStripes(options))
+                        });
+                        console.log('New state:', newState);
+    
+                        cmEditorView.dispatch(newState);
+                    } else {
+                        console.error('EditorView is not available in the CodeMirror editor.');
+                    }
+                } else {
+                    console.error('Active cell does not have a CodeMirror editor.');
+                }
+            }
+        });
+    }
+
+    // Add commands to toggle stripes on and off
+    app.commands.addCommand('code-diff:on', {
+      label: 'Enable Zebra Stripes',
+      execute: () => {
+        console.log('Enabling zebra stripes');
+        updateNotebookZebraStripes(true);
+      }
+    });
+
+    app.commands.addCommand('code-diff:off', {
+      label: 'Disable Zebra Stripes',
+      execute: () => {
+        console.log('Disabling zebra stripes');
+        updateNotebookZebraStripes(false);
+      }
+    });
+
+    // Add commands to the command palette
+    palette.addItem({ command: 'code-diff:on', category: 'Code Diff' });
+    palette.addItem({ command: 'code-diff:off', category: 'Code Diff' });
   }
 };
 

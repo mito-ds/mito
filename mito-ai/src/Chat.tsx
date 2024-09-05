@@ -8,9 +8,11 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
 import { requestAPI } from './handler';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 
 interface IChatProps {
+    app: JupyterFrontEnd
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
 }
@@ -48,7 +50,7 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 
 
 
-const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
+const Chat: React.FC<IChatProps> = ({app,notebookTracker, rendermime}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
@@ -117,6 +119,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                         <ChatMessage 
                             message={message}
                             messageIndex={index}
+                            app={app}
                             notebookTracker={notebookTracker}
                             rendermime={rendermime}
                         />

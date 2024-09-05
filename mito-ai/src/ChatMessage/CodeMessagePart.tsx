@@ -1,20 +1,33 @@
 import React from 'react';
 import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getNotebookName, writeCodeToActiveCell } from '../utils/notebook';
+import { getActiveCellEditor, getNotebookName, writeCodeToActiveCell } from '../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 import '../../style/CodeMessagePart.css'
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 
 interface ICodeMessagePartProps {
     code: string
     role: 'user' | 'assistant'
+    app: JupyterFrontEnd
     rendermime: IRenderMimeRegistry
     notebookTracker: INotebookTracker
 }
 
-const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermime, notebookTracker}): JSX.Element => {
+const toggleDataDiff = (app: JupyterFrontEnd, notebookTracker: INotebookTracker, code: string) => {
+    const activeCellEditor = getActiveCellEditor(notebookTracker)
+    
+    if (activeCellEditor) {
+        app.commands.execute('code-diff:on', {
+            activeCellEditor: activeCellEditor as any, // Cast to any to bypass type issue
+            code: code
+        });
+    }
+}
+
+const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, app, rendermime, notebookTracker}): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
 
@@ -42,6 +55,7 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
                     </div>
                     <button onClick={() => writeCodeToActiveCell(notebookTracker, code)}>Apply to cell</button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
+                    <button onClick={() => toggleDataDiff(app, notebookTracker, code)}>Toggle Data Diff</button>
                 </div>
                 <PythonCode
                     code={code}

@@ -35,7 +35,7 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
     // then call it to make a new widget
     const newWidget = () => {
       // Create a blank content widget inside of a MainAreaWidget
-      const chatWidget = buildChatSidebar(notebookTracker, rendermime)
+      const chatWidget = buildChatSidebar(app, notebookTracker, rendermime)
       return chatWidget
     }
 

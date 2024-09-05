@@ -5,11 +5,13 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import CodeMessagePart from './CodeMessagePart';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { splitStringWithCodeBlocks } from '../utils/strings';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
     messageIndex: number
+    app: JupyterFrontEnd
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
 }
@@ -17,6 +19,7 @@ interface IChatMessageProps {
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message, 
     messageIndex, 
+    app,
     notebookTracker,
     rendermime
 }): JSX.Element | null => {
@@ -46,6 +49,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 role={message.role}
                                 rendermime={rendermime}
                                 notebookTracker={notebookTracker}
+                                app={app}
                             />
                         )
                     }
