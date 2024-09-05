@@ -12,6 +12,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 
 import errorPlugin from './ErrorMimeRenderPlugin';
+import codeDiffPlugin from './CodeDiffPlugin';
 
 /**
  * Initialization data for the mito-ai extension.
@@ -116,4 +117,4 @@ Please suggest a concise solution`;
   }
 };
 
-export default [aiChatPlugin, errorPlugin];
+export default [aiChatPlugin, errorPlugin, codeDiffPlugin];
