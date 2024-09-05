@@ -8,6 +8,7 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
 import { requestAPI } from './handler';
+import LoadingDots from './components/LoadingDots';
 
 
 interface IChatProps {
@@ -52,6 +53,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
+    const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
@@ -88,6 +90,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
         updatedManager.addUserMessage(finalInput, activeCellCode)
 
         setInput('');
+        setLoadingAIResponse(true)
 
         try {
             const response = await requestAPI<OpenAI.Chat.ChatCompletion>('completion', {
@@ -105,6 +108,8 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
         } catch (error) {
             console.error('Error calling OpenAI API:', error);
         }
+
+        setLoadingAIResponse(false)
     };
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
@@ -136,6 +141,11 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                     }
                 }}
             />
+            {loadingAIResponse && 
+                <div>
+                    Loading AI Response <LoadingDots />
+                </div>
+            }
         </div>
     );
 };
