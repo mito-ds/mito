@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
-import { formatCodeForMarkdown } from '../utils/strings';
+import { addMarkdownCodeFormatting } from '../utils/strings';
 
 import '../../style/PythonCode.css';
 
@@ -15,7 +15,7 @@ const PythonCode: React.FC<IPythonCodeProps> = ({ code, rendermime }) => {
 
   useEffect(() => {
     const model =  new MimeModel({
-      data: { ['text/markdown']: formatCodeForMarkdown(code) },
+      data: { ['text/markdown']: addMarkdownCodeFormatting(code) },
     });
   
     const renderer = rendermime.createRenderer('text/markdown');
