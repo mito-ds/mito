@@ -35,7 +35,7 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 
         const chatHistory: IChatHistory = {
             aiOptimizedChatHistory: [...messages],
-            displayOptimizedChatHistory: [...messages]
+            displayOptimizedChatHistory: [...messages].map(message => ({message: message, error: false}))
         }
 
         return new ChatHistoryManager(chatHistory)
@@ -93,23 +93,31 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
         setLoadingAIResponse(true)
 
         try {
-            const response = await requestAPI<OpenAI.Chat.ChatCompletion>('completion', {
+            const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
                     messages: updatedManager.getAIOptimizedHistory()
                 })
             });
 
-            const aiMessage = response.choices[0].message;
+            if (apiResponse.type === 'success') {
+                const response = apiResponse.response;
+                const aiMessage = response.choices[0].message;
+                updatedManager.addAIMessageFromResponse(aiMessage);
+                setChatHistoryManager(updatedManager);
+            } else {
+                console.error('Error calling OpenAI API:', apiResponse.errorMessage);
+                updatedManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
+                setChatHistoryManager(updatedManager);
+            }
 
-            updatedManager.addAIMessage(aiMessage)
-            setChatHistoryManager(updatedManager);
-
+            setLoadingAIResponse(false)
         } catch (error) {
+
+            // Display the error message 
             console.error('Error calling OpenAI API:', error);
         }
 
-        setLoadingAIResponse(false)
     };
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
@@ -117,10 +125,11 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
     return (
         <div className="chat-widget-container">
             <div className="chat-messages">
-                {displayOptimizedChatHistory.map((message, index) => {
+                {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     return (
                         <ChatMessage 
-                            message={message}
+                            message={displayOptimizedChat.message}
+                            error={displayOptimizedChat.error || false}
                             messageIndex={index}
                             notebookTracker={notebookTracker}
                             rendermime={rendermime}

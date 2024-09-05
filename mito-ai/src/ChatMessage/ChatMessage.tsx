@@ -10,6 +10,7 @@ import { splitStringWithCodeBlocks } from '../utils/strings';
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
     messageIndex: number
+    error: boolean
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
 }
@@ -17,6 +18,7 @@ interface IChatMessageProps {
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message, 
     messageIndex, 
+    error,
     notebookTracker,
     rendermime
 }): JSX.Element | null => {
@@ -33,7 +35,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         <div className={classNames(
             "message", 
             {"message-user" : message.role === 'user'},
-            {'message-assistant' : message.role === 'assistant'}
+            {'message-assistant' : message.role === 'assistant'},
+            {'message-error': error}
         )}>
             {messageContentParts.map(messagePart => {
                 if (messagePart.startsWith('```python')) {
