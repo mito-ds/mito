@@ -137,6 +137,11 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                     )
                 }).filter(message => message !== null)}
             </div>
+            {loadingAIResponse && 
+                <div>
+                    Loading AI Response <LoadingDots />
+                </div>
+            }
             <textarea
                 ref={textareaRef}
                 className={classNames("message", "message-user", 'chat-input')}
@@ -150,11 +155,6 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                     }
                 }}
             />
-            {loadingAIResponse && 
-                <div>
-                    Loading AI Response <LoadingDots />
-                </div>
-            }
         </div>
     );
 };
