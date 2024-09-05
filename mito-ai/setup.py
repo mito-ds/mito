@@ -49,7 +49,10 @@ def get_data_files_from_data_files_spec(
     
     return data_files
 
-data_files = get_data_files_from_data_files_spec(data_files_spec)   
+data_files = get_data_files_from_data_files_spec(data_files_spec) 
+
+# Add the jupyter server config file so that the extension is automatically loaded
+data_files.append(("etc/jupyter/jupyter_server_config.d", ["jupyter-config/jupyter_server_config.d/mito-ai.json"]))
 
 # Read the content of README.md for the long description
 with open("README.md", "r", encoding="utf-8") as fh:
