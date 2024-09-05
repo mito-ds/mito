@@ -49,7 +49,10 @@ def get_data_files_from_data_files_spec(
     
     return data_files
 
-data_files = get_data_files_from_data_files_spec(data_files_spec)   
+data_files = get_data_files_from_data_files_spec(data_files_spec) 
+
+# Add the jupyter server config file so that the extension is automatically loaded
+data_files.append(("etc/jupyter/jupyter_server_config.d", ["jupyter-config/jupyter_server_config.d/mito-ai.json"]))
 
 # Read the content of README.md for the long description
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -82,7 +85,6 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
-        "setuptools",
         "jupyterlab>=4.0.0,<5",
         "openai",
     ],
@@ -99,6 +101,7 @@ setup(
             "mito-ai = mito_ai:_load_jupyter_server_extension",
         ],
     },
+    jupyter_server_extension="mito_ai", # Automatically enable the server extension 
     include_package_data=True,  # Ensures labextension files are included
     package_data={
         "": ["labextension/**/*"],

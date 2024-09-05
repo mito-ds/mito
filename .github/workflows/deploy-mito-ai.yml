@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: [3.11]
     steps:
       - name: Extract branch name
         shell: bash
@@ -48,10 +48,12 @@ jobs:
           rm -rf venv
           python3 -m venv venv
           source venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
           python ../deployment/bump_version.py mito-ai ${{ steps.extract_branch.outputs.branch }}
-          python -m pip install -e ".[deploy]"    
+          python -m pip install -e ".[deploy]" --verbose
+          python -m pip check
           jlpm install
-          jlpm run build      
+          jlpm run build
       - name: Deploy mito-ai
         run: |
           cd mito-ai
