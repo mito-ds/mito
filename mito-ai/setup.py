@@ -99,6 +99,7 @@ setup(
             "mito-ai = mito_ai:_load_jupyter_server_extension",
         ],
     },
+    jupyter_server_extension="mito_ai", # Automatically enable the server extension 
     include_package_data=True,  # Ensures labextension files are included
     package_data={
         "": ["labextension/**/*"],
