@@ -85,7 +85,6 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
-        "setuptools",
         "jupyterlab>=4.0.0,<5",
         "openai",
     ],
