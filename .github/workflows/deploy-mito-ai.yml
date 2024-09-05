@@ -47,7 +47,7 @@ jobs:
           cd mito-ai
           rm -rf venv
           python3 -m venv venv
-          sourcevenv/bin/activate
+          source venv/bin/activate
           python -m pip install --upgrade pip setuptools wheel
           python ../deployment/bump_version.py mito-ai ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[deploy]" --verbose
