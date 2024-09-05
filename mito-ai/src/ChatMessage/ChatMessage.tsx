@@ -41,8 +41,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             {messageContentParts.map(messagePart => {
                 if (messagePart.startsWith('```python')) {
                     // Make sure that there is actually code in the message. 
-                    // An empty code will look like this '```python```'
-                    if (messagePart.length > 12) {
+                    // An empty code will look like this '```python  ```'
+                    // TODO: Add a test for this since its broke a few times now.
+                    if (messagePart.length > 14) {
                         return (
                             <CodeMessagePart 
                                 code={messagePart}
