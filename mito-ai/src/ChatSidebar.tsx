@@ -5,6 +5,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../src/icons/ChatIcon.svg';
+import { IVariableManager } from './VariableManager/VariableManager';
 
 export const chatIcon = new LabIcon({
     name: 'mito_ai',
@@ -13,12 +14,15 @@ export const chatIcon = new LabIcon({
 
 export function buildChatSidebar(
     notebookTracker: INotebookTracker,
-    rendermime: IRenderMimeRegistry
+    rendermime: IRenderMimeRegistry,
+    variableManager: IVariableManager
 ) {
+    
     const chatWidget = ReactWidget.create(
         <Chat 
             notebookTracker={notebookTracker}
             rendermime={rendermime}
+            variableManager={variableManager}
         />
     ) 
     chatWidget.id = 'mito_ai';

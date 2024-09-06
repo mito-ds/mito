@@ -9,10 +9,8 @@ import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-
-
+import { IVariableManager, VariableManagerExtension } from './VariableManager/VariableManager';
 import errorPlugin from './ErrorMimeRenderPlugin';
-import { setupKernelListener } from './VariableManager/VariableInspector';
 
 /**
  * Initialization data for the mito-ai extension.
@@ -21,13 +19,14 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito_ai:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette, IRenderMimeRegistry],
+  requires: [INotebookTracker, ICommandPalette, IRenderMimeRegistry, IVariableManager],
   optional: [ILayoutRestorer],
   activate: (
     app: JupyterFrontEnd, 
     notebookTracker: INotebookTracker, 
     palette: ICommandPalette, 
     rendermime: IRenderMimeRegistry,
+    variableManager: IVariableManager,
     restorer: ILayoutRestorer | null
   ) => {
 
@@ -35,14 +34,11 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
     // then call it to make a new widget
     const newWidget = () => {
       // Create a blank content widget inside of a MainAreaWidget
-      const chatWidget = buildChatSidebar(notebookTracker, rendermime)
+      const chatWidget = buildChatSidebar(notebookTracker, rendermime, variableManager)
       return chatWidget
     }
 
     let widget = newWidget();
-
-    // Set up the variable manager
-    setupKernelListener(notebookTracker);
 
     // Add an application command
     const command: string = 'mito_ai:open';
@@ -120,6 +116,6 @@ Please suggest a concise solution`;
   }
 };
 
-export default [aiChatPlugin, errorPlugin];
+export default [aiChatPlugin, errorPlugin, VariableManagerExtension];
 
 

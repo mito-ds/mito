@@ -1,8 +1,10 @@
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { KernelMessage } from '@jupyterlab/services';
 
+export type Variables = Record<string, any>
+
 // Function to fetch variables and sync with the frontend
-async function fetchVariables(notebookPanel: NotebookPanel) {
+async function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variables) => void) {
     const kernel = notebookPanel.context.sessionContext.session?.kernel;
     if (kernel) {
         // Request the kernel to execute a command to fetch global variables
@@ -22,7 +24,7 @@ async function fetchVariables(notebookPanel: NotebookPanel) {
             if (KernelMessage.isStreamMsg(msg)) {
                 console.log("Found a stream message")
                 if (msg.content.name === 'stdout') {
-                    return JSON.parse(msg.content.text)
+                    setVariables(JSON.parse(msg.content.text))
                 }
             }
         };
@@ -30,21 +32,14 @@ async function fetchVariables(notebookPanel: NotebookPanel) {
 }
 
 // Setup kernel execution listener
-export function setupKernelListener(notebookTracker: INotebookTracker) {
-    console.log('Setting up kernel listener');
+export function setupKernelListener(notebookTracker: INotebookTracker, setVariables: (variables: Variables) => void) {
     notebookTracker.currentChanged.connect((tracker, notebookPanel) => {
-        console.log('Current notebook panel changed');
         if (!notebookPanel) {
             return;
         }
 
-        // Get the session context
-        const sessionContext = notebookPanel.context.sessionContext;
-
-        console.log('Session context:', sessionContext);
-
         // Listen to kernel messages
-        sessionContext.iopubMessage.connect(async (sender, msg: KernelMessage.IMessage) => {
+        notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
 
             console.log(msg.header)
 
@@ -54,14 +49,7 @@ export function setupKernelListener(notebookTracker: INotebookTracker) {
             // TODO: Check if there is a race condition where we might end up fetching variables before the 
             // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
             if (msg.header.msg_type === 'execute_input') {
-                console.log('Execution completed, fetching variables');
-
-                // Fetch variables after code cell execution
-                const variables = await fetchVariables(notebookPanel);
-
-                if (variables !== null) {
-                    console.log(variables)
-                }
+                fetchVariablesAndUpdateState(notebookPanel, setVariables);
             }
         });
     });

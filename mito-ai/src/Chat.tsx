@@ -8,12 +8,8 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
 import { requestAPI } from './handler';
+import { IVariableManager } from './VariableManager/VariableManager';
 
-
-interface IChatProps {
-    notebookTracker: INotebookTracker
-    rendermime: IRenderMimeRegistry
-}
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
 // cached conversation as a starting point. Before deploying the mito-ai, we must 
@@ -46,9 +42,13 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
     }
 }
 
+interface IChatProps {
+    notebookTracker: INotebookTracker
+    rendermime: IRenderMimeRegistry
+    variableManager: IVariableManager
+}
 
-
-const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
+const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManager}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
