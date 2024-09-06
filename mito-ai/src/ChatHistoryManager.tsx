@@ -1,5 +1,10 @@
 import OpenAI from "openai";
 
+export interface IDisplayOptimizedChatHistory {
+    message: OpenAI.Chat.ChatCompletionMessageParam
+    error: boolean
+}
+
 export interface IChatHistory {
     // The AI optimized chat history is what we actually send to the AI. It includes
     // things like: instructions on how to respond, the code context, etc. 
@@ -8,7 +13,7 @@ export interface IChatHistory {
 
     // The display optimized chat history is what we display to the user. Each message
     // is a subset of the corresponding message in aiOptimizedChatHistory. 
-    displayOptimizedChatHistory: OpenAI.Chat.ChatCompletionMessageParam[]
+    displayOptimizedChatHistory: IDisplayOptimizedChatHistory[]
 }
 
 
@@ -30,7 +35,7 @@ export class ChatHistoryManager {
         return this.history.aiOptimizedChatHistory;
     }
 
-    getDisplayOptimizedHistory(): OpenAI.Chat.ChatCompletionMessageParam[] {
+    getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
         return this.history.displayOptimizedChatHistory;
     }
 
@@ -58,11 +63,11 @@ Update the code to complete the task and respond with the updated code. Decide t
 
 Do not include multiple approaches in your response. If you need more context, ask for more context.`};
 
-        this.history.displayOptimizedChatHistory.push(displayMessage);
+        this.history.displayOptimizedChatHistory.push({message: displayMessage, error: false});
         this.history.aiOptimizedChatHistory.push(aiMessage);
     }
 
-    addAIMessage(message: OpenAI.Chat.Completions.ChatCompletionMessage): void {
+    addAIMessageFromResponse(message: OpenAI.Chat.Completions.ChatCompletionMessage, error: boolean=false): void {
         if (message.content === null) {
             return
         }
@@ -71,7 +76,19 @@ Do not include multiple approaches in your response. If you need more context, a
             role: 'assistant',
             content: message.content
         }
-        this.history.displayOptimizedChatHistory.push(aiMessage);
+        this._addAIMessage(aiMessage, error)
+    }
+
+    addAIMessageFromMessageContent(message: string, error: boolean=false): void {
+        const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+            role: 'assistant',
+            content: message
+        }
+        this._addAIMessage(aiMessage, error)
+    }
+
+    _addAIMessage(aiMessage: OpenAI.Chat.ChatCompletionMessageParam, error: boolean=false): void {
+        this.history.displayOptimizedChatHistory.push({message: aiMessage, error: error});
         this.history.aiOptimizedChatHistory.push(aiMessage);
     }
 
@@ -80,7 +97,7 @@ Do not include multiple approaches in your response. If you need more context, a
             role: 'system',
             content: message
         }
-        this.history.displayOptimizedChatHistory.push(systemMessage);
+        this.history.displayOptimizedChatHistory.push({message: systemMessage, error: false});
         this.history.aiOptimizedChatHistory.push(systemMessage);
     }
 }

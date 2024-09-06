@@ -20,7 +20,8 @@ class OpenAICompletionHandler(APIHandler):
         # Get the OpenAI API key from environment variables
         openai_api_key = os.getenv('OPENAI_API_KEY')
         if not openai_api_key:
-            self.set_status(500)
+            # If the API key is not set, return a 401 unauthorized error
+            self.set_status(401)
             self.finish(json.dumps({"response": "OPENAI_API_KEY not set"}))
             return
 

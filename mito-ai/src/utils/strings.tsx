@@ -27,7 +27,7 @@ export const splitStringWithCodeBlocks = (messageContent: string) => {
     x + 1
     ```
 */
-export const formatCodeForMarkdown = (code: string) => {
+export const addMarkdownCodeFormatting = (code: string) => {
     
     const codeWithoutBackticks = code.split('```python')[1].split('```')[0].trim()
   
@@ -49,6 +49,6 @@ export const formatCodeForMarkdown = (code: string) => {
 
     Jupyter does not need the backticks. 
 */
-export const formatCodeForCodeCell = (code: string) => {
+export const removeMarkdownCodeFormatting = (code: string) => {
     return code.split('```python')[1].split('```')[0].trim()
 }

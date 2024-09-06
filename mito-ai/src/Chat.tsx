@@ -8,6 +8,7 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
 import { requestAPI } from './handler';
+import LoadingDots from './components/LoadingDots';
 
 
 interface IChatProps {
@@ -34,7 +35,7 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 
         const chatHistory: IChatHistory = {
             aiOptimizedChatHistory: [...messages],
-            displayOptimizedChatHistory: [...messages]
+            displayOptimizedChatHistory: [...messages].map(message => ({message: message, error: false}))
         }
 
         return new ChatHistoryManager(chatHistory)
@@ -52,6 +53,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
+    const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
@@ -88,23 +90,32 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
         updatedManager.addUserMessage(finalInput, activeCellCode)
 
         setInput('');
+        setLoadingAIResponse(true)
 
         try {
-            const response = await requestAPI<OpenAI.Chat.ChatCompletion>('completion', {
+            const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
                     messages: updatedManager.getAIOptimizedHistory()
                 })
             });
 
-            const aiMessage = response.choices[0].message;
+            if (apiResponse.type === 'success') {
+                const response = apiResponse.response;
+                const aiMessage = response.choices[0].message;
+                updatedManager.addAIMessageFromResponse(aiMessage);
+                setChatHistoryManager(updatedManager);
+            } else {
+                console.error('Error calling OpenAI API:', apiResponse.errorMessage);
+                updatedManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
+                setChatHistoryManager(updatedManager);
+            }
 
-            updatedManager.addAIMessage(aiMessage)
-            setChatHistoryManager(updatedManager);
-
+            setLoadingAIResponse(false)
         } catch (error) {
             console.error('Error calling OpenAI API:', error);
         }
+
     };
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
@@ -112,10 +123,11 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
     return (
         <div className="chat-widget-container">
             <div className="chat-messages">
-                {displayOptimizedChatHistory.map((message, index) => {
+                {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     return (
                         <ChatMessage 
-                            message={message}
+                            message={displayOptimizedChat.message}
+                            error={displayOptimizedChat.error || false}
                             messageIndex={index}
                             notebookTracker={notebookTracker}
                             rendermime={rendermime}
@@ -123,6 +135,11 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                     )
                 }).filter(message => message !== null)}
             </div>
+            {loadingAIResponse && 
+                <div className="chat-loading-message">
+                    Loading AI Response <LoadingDots />
+                </div>
+            }
             <textarea
                 ref={textareaRef}
                 className={classNames("message", "message-user", 'chat-input')}

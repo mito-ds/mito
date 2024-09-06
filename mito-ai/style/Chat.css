@@ -39,3 +39,12 @@
     overflow-y: hidden;
     box-sizing: border-box;
 }
+
+.chat-loading-message {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.message-text {
+    align-items: center;
+}
