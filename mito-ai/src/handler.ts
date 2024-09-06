@@ -56,18 +56,22 @@ export async function requestAPI(
     }
 
     if (response.status === 401) {
+        // This 401 error is set by the OpenAICompletionHandler class in the mito-ai python package.
         return {
             type: 'error',
             errorMessage: "You're missing the OPENAI_API_KEY environment variable. Run the following code in your terminal to set the environment variable and then relaunch the jupyter server ```python\nexport OPENAI_API_KEY=<your-api-key>\n```",
         }
     }
     if (response.status === 404 ) {
+        // This 404 error is set by Jupyter when sending a request to the mito-ai endpoint that does not exist.
         return {
             type: 'error',
             errorMessage: "The Mito AI server is not enabled. You can enable it by running ```python\n!jupyter server extension enable mito-ai\n```",
         }
     }
     if (response.status === 500) {
+        // This 500 error is set by the OpenAICompletionHandler class in the mito-ai python package. It is a 
+        // generic error that is set when we haven't handled the error specifically.
         return {
             type: 'error',
             errorMessage: "There was an error communicating with OpenAI. This might be due to an incorrect API key, a temporary OpenAI outage, or a problem with your internet connection. Please try again.",

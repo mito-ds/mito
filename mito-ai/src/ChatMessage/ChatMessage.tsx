@@ -5,6 +5,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import CodeMessagePart from './CodeMessagePart';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { splitStringWithCodeBlocks } from '../utils/strings';
+import ErrorIcon from '../icons/ErrorIcon';
 
 
 interface IChatMessageProps {
@@ -55,7 +56,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <p>{messagePart}</p>
+                        <p>{error && <span style={{marginRight: '4px'}}margin-right><ErrorIcon /></span>}{messagePart}</p>
                     )
                 }
             })}

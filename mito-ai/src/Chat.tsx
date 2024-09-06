@@ -113,8 +113,6 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
 
             setLoadingAIResponse(false)
         } catch (error) {
-
-            // Display the error message 
             console.error('Error calling OpenAI API:', error);
         }
 
@@ -138,7 +136,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                 }).filter(message => message !== null)}
             </div>
             {loadingAIResponse && 
-                <div>
+                <div className="chat-loading-message">
                     Loading AI Response <LoadingDots />
                 </div>
             }
