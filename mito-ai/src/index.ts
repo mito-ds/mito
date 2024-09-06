@@ -12,6 +12,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 
 import errorPlugin from './ErrorMimeRenderPlugin';
+import { setupKernelListener } from './VariableManager/VariableInspector';
 
 /**
  * Initialization data for the mito-ai extension.
@@ -39,6 +40,9 @@ const aiChatPlugin: JupyterFrontEndPlugin<void> = {
     }
 
     let widget = newWidget();
+
+    // Set up the variable manager
+    setupKernelListener(notebookTracker);
 
     // Add an application command
     const command: string = 'mito_ai:open';
@@ -117,3 +121,5 @@ Please suggest a concise solution`;
 };
 
 export default [aiChatPlugin, errorPlugin];
+
+
