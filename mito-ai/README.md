@@ -40,8 +40,12 @@ The `jlpm` command is JupyterLab's pinned version of
 ```bash
 # Clone the repo to your local environment
 # Change directory to the mito-ai directory
+
+# Required to deal with Yarn 3 workspace rules
+touch yarn.lock
+
 # Install package in development mode
-pip install -e "."
+pip install -e ".[test, deploy]"
 
 # Install the node modules
 jlpm install
@@ -53,6 +57,9 @@ jupyter labextension develop . --overwrite
 jupyter server extension enable --py mito-ai
 
 # Rebuild extension Typescript source after making changes
+# In case of Error: If this command fails because the lib directory was not created (the error will say something like
+# unable to find main entry point) then run `jlpm run clean:lib` first to get rid of the old buildcache 
+# that might be preventing a new lib directory from getting created. 
 jlpm build
 ```
 
