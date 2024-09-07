@@ -50,9 +50,6 @@ pip install -e ".[test, deploy]"
 # Install the node modules
 jlpm install
 
-# Build the extension source so that it can be linked to JupyterLab
-jlpm build
-
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 
@@ -60,8 +57,9 @@ jupyter labextension develop . --overwrite
 jupyter server extension enable --py mito-ai
 
 # Rebuild extension Typescript source after making changes
-# If this command fails, then running deleting `tsconfig.tsbuildinfo` first to make sure that 
-# a new lib file is created is necessary!
+# In case of Error: If this command fails because the lib directory was not created (the error will say something like
+# unable to find main entry point) then run `jlpm run clean:lib` first to get rid of the old buildcache 
+# that might be preventing a new lib directory from getting created. 
 jlpm build
 ```
 
