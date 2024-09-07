@@ -56,17 +56,25 @@ ${input}`};
 
 ${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
             
-Your code:
+Code in the active code cell:
 
 \`\`\`python
 ${activeCellCode}
 \`\`\`
 
-Your task: ${input}
+Complete the task below. Decide what variables to use and what changes you need to make to the active code cell. Only return the full new active code cell and a concise explanation of the changes you made.
 
-Update the code to complete the task and respond with the updated code. You can use the variables that you have access to. Decide the approach you want to take to complete the task and respond with just that code and a concise explanation of the code. Do not use the word "I".
+Do not: 
+- Use the word "I"
+- Include multiple approaches in your response
+- Recreate variables that already exist
 
-Do not include multiple approaches in your response. If you need more context, ask for more context.`};
+Do: 
+- Use the variables that you have access to
+- Keep as much of the original code as possible
+- Ask for more context if you need it. 
+
+Your task: ${input}`};
 
         this.history.displayOptimizedChatHistory.push({message: displayMessage, error: false});
         this.history.aiOptimizedChatHistory.push(aiMessage);
