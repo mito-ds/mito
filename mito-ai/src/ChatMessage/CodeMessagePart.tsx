@@ -5,6 +5,7 @@ import { getNotebookName, writeCodeToActiveCell } from '../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 import '../../style/CodeMessagePart.css'
+import { removeMarkdownCodeFormatting } from '../utils/strings';
 
 
 interface ICodeMessagePartProps {
@@ -19,7 +20,8 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
     const notebookName = getNotebookName(notebookTracker)
 
     const copyCodeToClipboard = () => {
-        navigator.clipboard.writeText(code)
+        const codeWithoutMarkdown = removeMarkdownCodeFormatting(code)
+        navigator.clipboard.writeText(codeWithoutMarkdown)
     }
     
     if (role === 'user') {
