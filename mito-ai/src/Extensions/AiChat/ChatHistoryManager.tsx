@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { Variable } from "../VariableManager/VariableInspector";
 
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -39,7 +40,7 @@ export class ChatHistoryManager {
         return this.history.displayOptimizedChatHistory;
     }
 
-    addUserMessage(input: string, activeCellCode?: string): void {
+    addUserMessage(input: string, activeCellCode?: string, variables?: Variable[]): void {
 
         const displayMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
@@ -51,7 +52,11 @@ ${input}`};
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
-            content: `Your code:
+            content: `You have access to the following variables:
+
+${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
+            
+Your code:
 
 \`\`\`python
 ${activeCellCode}
@@ -59,7 +64,7 @@ ${activeCellCode}
 
 Your task: ${input}
 
-Update the code to complete the task and respond with the updated code. Decide the approach you want to take to complete the task and respond with just that code and a concise explanation of the code. Do not use the word "I".
+Update the code to complete the task and respond with the updated code. You can use the variables that you have access to. Decide the approach you want to take to complete the task and respond with just that code and a concise explanation of the code. Do not use the word "I".
 
 Do not include multiple approaches in your response. If you need more context, ask for more context.`};
 

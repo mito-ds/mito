@@ -2,7 +2,7 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Token } from '@lumino/coreutils';
-import { setupKernelListener, Variables } from './VariableInspector';
+import { setupKernelListener, Variable } from './VariableInspector';
 
 // The provides field in JupyterLab’s JupyterFrontEndPlugin expects a token 
 // that can be used to look up the service in the dependency injection system,
@@ -12,22 +12,22 @@ import { setupKernelListener, Variables } from './VariableInspector';
 export const IVariableManager = new Token<IVariableManager>('mito-ai:IVariableManager');
 
 export interface IVariableManager {
-    variables: Variables;
-    setVariables: (newVars: Variables) => void;
+    variables: Variable[];
+    setVariables: (newVars: Variable[]) => void;
 }
 
 export class VariableManager implements IVariableManager {
-    private _variables: Variables = {};
+    private _variables: Variable[] = [];
 
     constructor(notebookTracker: INotebookTracker) {
         setupKernelListener(notebookTracker, this.setVariables.bind(this));
     }
 
-    get variables(): Variables {
+    get variables(): Variable[] {
         return this._variables;
     }
 
-    setVariables(newVars: Variables) {
+    setVariables(newVars: Variable[]) {
         this._variables = newVars;
         console.log("Variables updated", this._variables)
     }

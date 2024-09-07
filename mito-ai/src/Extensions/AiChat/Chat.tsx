@@ -83,16 +83,19 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
             return;
         }
 
+        const variables = variableManager.variables
         const activeCellCode = getActiveCellCode(notebookTracker)
 
         // Create a new chat history manager so we can trigger a re-render of the chat
         const updatedManager = new ChatHistoryManager(chatHistoryManager.getHistory());
-        updatedManager.addUserMessage(finalInput, activeCellCode)
+        updatedManager.addUserMessage(finalInput, activeCellCode, variables)
 
         setInput('');
         setLoadingAIResponse(true)
 
         try {
+
+            console.log(updatedManager.getAIOptimizedHistory()[updatedManager.getAIOptimizedHistory().length - 1])
             const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
