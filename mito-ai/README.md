@@ -40,11 +40,18 @@ The `jlpm` command is JupyterLab's pinned version of
 ```bash
 # Clone the repo to your local environment
 # Change directory to the mito-ai directory
+
+# Required to deal with Yarn 3 workspace rules
+touch yarn.lock
+
 # Install package in development mode
-pip install -e "."
+pip install -e ".[test, deploy]"
 
 # Install the node modules
 jlpm install
+
+# Build the extension source so that it can be linked to JupyterLab
+jlpm build
 
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
@@ -53,6 +60,8 @@ jupyter labextension develop . --overwrite
 jupyter server extension enable --py mito-ai
 
 # Rebuild extension Typescript source after making changes
+# If this command fails, then running deleting `tsconfig.tsbuildinfo` first to make sure that 
+# a new lib file is created is necessary!
 jlpm build
 ```
 
