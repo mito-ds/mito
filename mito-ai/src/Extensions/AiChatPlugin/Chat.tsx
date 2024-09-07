@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import OpenAI from 'openai';
-import '../style/Chat.css';
-import { classNames } from './utils/classNames';
+import '../../../style/Chat.css';
+import { classNames } from '../../utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode } from './utils/notebook';
+import { getActiveCellCode } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
-import { requestAPI } from './handler';
-import { IVariableManager } from './VariableManager/VariableManager';
-import LoadingDots from './components/LoadingDots';
+import { requestAPI } from '../../handler';
+import { IVariableManager } from '../../VariableManager/VariableManager';
+import LoadingDots from '../../components/LoadingDots';
 
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 

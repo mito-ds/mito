@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
-import { addMarkdownCodeFormatting } from '../utils/strings';
+import { addMarkdownCodeFormatting } from '../../../utils/strings';
 
-import '../../style/PythonCode.css';
+import '../../../../style/PythonCode.css';
 
 interface IPythonCodeProps {
   code: string;

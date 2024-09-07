@@ -1,11 +1,11 @@
 import React from 'react';
 import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getNotebookName, writeCodeToActiveCell } from '../utils/notebook';
+import { getNotebookName, writeCodeToActiveCell } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
-import '../../style/CodeMessagePart.css'
-import { removeMarkdownCodeFormatting } from '../utils/strings';
+import '../../../../style/CodeMessagePart.css'
+import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 
 
 interface ICodeMessagePartProps {

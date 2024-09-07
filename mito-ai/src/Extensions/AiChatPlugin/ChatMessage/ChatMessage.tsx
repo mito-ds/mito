@@ -1,11 +1,11 @@
 import React from 'react';
 import OpenAI from 'openai';
-import { classNames } from '../utils/classNames';
+import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import CodeMessagePart from './CodeMessagePart';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { splitStringWithCodeBlocks } from '../utils/strings';
-import ErrorIcon from '../icons/ErrorIcon';
+import { splitStringWithCodeBlocks } from '../../../utils/strings';
+import ErrorIcon from '../../../icons/ErrorIcon';
 
 
 interface IChatMessageProps {
