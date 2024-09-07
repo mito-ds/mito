@@ -5,7 +5,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg'
-import { IVariableManager } from '../../VariableManager/VariableManager';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 
 export const chatIcon = new LabIcon({
     name: 'mito_ai',

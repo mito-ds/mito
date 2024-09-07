@@ -33,7 +33,7 @@ export class VariableManager implements IVariableManager {
     }
 }
 
-export const VariableManagerExtension: JupyterFrontEndPlugin<IVariableManager> = {
+export const VariableManagerPlugin: JupyterFrontEndPlugin<IVariableManager> = {
     id: 'mito-ai:variable-manager',
     autoStart: true,
     requires: [INotebookTracker],
@@ -42,3 +42,5 @@ export const VariableManagerExtension: JupyterFrontEndPlugin<IVariableManager> =
         return new VariableManager(notebookTracker);
     }
 };
+
+export default VariableManagerPlugin

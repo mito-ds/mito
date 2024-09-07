@@ -1,10 +1,10 @@
 
-import aiChatPlugin from './Extensions/AiChatPlugin/AiChatPlugin';
-import { VariableManagerExtension } from './VariableManager/VariableManager';
-import errorPlugin from './ErrorMimeRenderPlugin';
+import AiChatPlugin from './Extensions/AiChat/AiChatPlugin';
+import VariableManagerPlugin from './Extensions/VariableManager/VariableManagerPlugin';
+import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRendererPlugin';
 
-
-
-export default [aiChatPlugin, errorPlugin, VariableManagerExtension];
+// This is the main entry point to the mito-ai extension. It must export all of the top level 
+// extensions that we want to load.
+export default [AiChatPlugin, ErrorMimeRendererPlugin, VariableManagerPlugin];
 
 

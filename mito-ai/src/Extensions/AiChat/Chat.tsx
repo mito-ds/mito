@@ -7,8 +7,8 @@ import { getActiveCellCode } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
-import { requestAPI } from '../../handler';
-import { IVariableManager } from '../../VariableManager/VariableManager';
+import { requestAPI } from '../../utils/handler';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 
 

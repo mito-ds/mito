@@ -9,13 +9,13 @@ import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { IVariableManager } from '../../VariableManager/VariableManager';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 
 
 /**
  * Initialization data for the mito-ai extension.
  */
-const aiChatPlugin: JupyterFrontEndPlugin<void> = {
+const AiChatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito_ai:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
@@ -116,6 +116,6 @@ Please suggest a concise solution`;
   }
 };
 
-export default aiChatPlugin;
+export default AiChatPlugin;
 
 
