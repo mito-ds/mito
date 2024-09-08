@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { Variable } from "../VariableManager/VariableInspector";
 
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -39,7 +40,7 @@ export class ChatHistoryManager {
         return this.history.displayOptimizedChatHistory;
     }
 
-    addUserMessage(input: string, activeCellCode?: string): void {
+    addUserMessage(input: string, activeCellCode?: string, variables?: Variable[]): void {
 
         const displayMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
@@ -51,17 +52,29 @@ ${input}`};
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
-            content: `Your code:
+            content: `You have access to the following variables:
+
+${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
+            
+Code in the active code cell:
 
 \`\`\`python
 ${activeCellCode}
 \`\`\`
 
-Your task: ${input}
+Complete the task below. Decide what variables to use and what changes you need to make to the active code cell. Only return the full new active code cell and a concise explanation of the changes you made.
 
-Update the code to complete the task and respond with the updated code. Decide the approach you want to take to complete the task and respond with just that code and a concise explanation of the code. Do not use the word "I".
+Do not: 
+- Use the word "I"
+- Include multiple approaches in your response
+- Recreate variables that already exist
 
-Do not include multiple approaches in your response. If you need more context, ask for more context.`};
+Do: 
+- Use the variables that you have access to
+- Keep as much of the original code as possible
+- Ask for more context if you need it. 
+
+Your task: ${input}`};
 
         this.history.displayOptimizedChatHistory.push({message: displayMessage, error: false});
         this.history.aiOptimizedChatHistory.push(aiMessage);

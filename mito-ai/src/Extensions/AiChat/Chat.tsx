@@ -1,20 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import OpenAI from 'openai';
-import '../style/Chat.css';
-import { classNames } from './utils/classNames';
+import '../../../style/Chat.css';
+import { classNames } from '../../utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode } from './utils/notebook';
+import { getActiveCellCode } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
-import { requestAPI } from './handler';
-import LoadingDots from './components/LoadingDots';
+import { requestAPI } from '../../utils/handler';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import LoadingDots from '../../components/LoadingDots';
 
-
-interface IChatProps {
-    notebookTracker: INotebookTracker
-    rendermime: IRenderMimeRegistry
-}
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
 // cached conversation as a starting point. Before deploying the mito-ai, we must 
@@ -47,9 +43,13 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
     }
 }
 
+interface IChatProps {
+    notebookTracker: INotebookTracker
+    rendermime: IRenderMimeRegistry
+    variableManager: IVariableManager
+}
 
-
-const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
+const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManager}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
@@ -83,11 +83,12 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
             return;
         }
 
+        const variables = variableManager.variables
         const activeCellCode = getActiveCellCode(notebookTracker)
 
         // Create a new chat history manager so we can trigger a re-render of the chat
         const updatedManager = new ChatHistoryManager(chatHistoryManager.getHistory());
-        updatedManager.addUserMessage(finalInput, activeCellCode)
+        updatedManager.addUserMessage(finalInput, activeCellCode, variables)
 
         setInput('');
         setLoadingAIResponse(true)
@@ -106,7 +107,6 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime}) => {
                 updatedManager.addAIMessageFromResponse(aiMessage);
                 setChatHistoryManager(updatedManager);
             } else {
-                console.error('Error calling OpenAI API:', apiResponse.errorMessage);
                 updatedManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
                 setChatHistoryManager(updatedManager);
             }

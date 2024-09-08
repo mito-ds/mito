@@ -5,8 +5,8 @@ import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 
-import MagicWandIcon from './icons/MagicWand';
-import '../style/ErrorMimeRendererPlugin.css'
+import MagicWandIcon from '../../icons/MagicWand';
+import '../../../style/ErrorMimeRendererPlugin.css'
 
 interface ErrorMessageProps {
     onDebugClick: () => void;
@@ -28,7 +28,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ onDebugClick }) => {
  * 
  * This plugin augments the standard error output with a prompt to debug the error in the chat interface.
 */
-const errorPlugin: JupyterFrontEndPlugin<void> = {
+const ErrorMimeRendererPlugin: JupyterFrontEndPlugin<void> = {
     id: 'jupyterlab-debug-prompt',
     autoStart: true,
     requires: [IRenderMimeRegistry],
@@ -95,4 +95,4 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     }
 }
   
-export default errorPlugin;
+export default ErrorMimeRendererPlugin;
