@@ -11,6 +11,7 @@ export type Variable = {
 // to make it easier to modify the script without creating syntax errors.
 const pythonVariableInspectionScript = `import json
 
+
 # We need to check if pandas is imported so we know if its safe
 # to check for pandas dataframes 
 _is_pandas_imported = False

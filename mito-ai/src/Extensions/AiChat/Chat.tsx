@@ -94,8 +94,6 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
         setLoadingAIResponse(true)
 
         try {
-
-            console.log(updatedManager.getAIOptimizedHistory()[updatedManager.getAIOptimizedHistory().length - 1])
             const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -109,7 +107,6 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
                 updatedManager.addAIMessageFromResponse(aiMessage);
                 setChatHistoryManager(updatedManager);
             } else {
-                console.error('Error calling OpenAI API:', apiResponse.errorMessage);
                 updatedManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
                 setChatHistoryManager(updatedManager);
             }
