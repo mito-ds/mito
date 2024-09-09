@@ -38,6 +38,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({code, role, rendermime, notebookT
         )
     }
 
+    // TODO: Case on windows and mac to apply the correct keyboard shortcut prompt below!
     if (role === 'assistant') {
 
         return (

@@ -1,4 +1,4 @@
-.chat-widget {
+.chat-taskpane {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -8,6 +8,21 @@
     box-sizing: border-box;
     padding: 10px; 
     overflow-y: scroll;
+}
+
+.chat-taskpane-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.chat-taskpane-header-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
 }
 
 .message {
@@ -30,7 +45,6 @@
 }
 
 .chat-input {
-    flex-grow: 1;
     outline: none;
     border: none;
     resize: none;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
-import Chat from './Chat';
+import ChatTaskpane from './ChatTaskpane';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { LabIcon } from '@jupyterlab/ui-components';
@@ -13,7 +13,7 @@ export const chatIcon = new LabIcon({
     svgstr: chatIconSvg
 });
 
-export function buildChatSidebar(
+export function buildChatWidget(
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     rendermime: IRenderMimeRegistry,
@@ -21,7 +21,7 @@ export function buildChatSidebar(
 ) {
     
     const chatWidget = ReactWidget.create(
-        <Chat 
+        <ChatTaskpane 
             app={app}
             notebookTracker={notebookTracker}
             rendermime={rendermime}
@@ -31,7 +31,5 @@ export function buildChatSidebar(
     chatWidget.id = 'mito_ai';
     chatWidget.title.icon = chatIcon;
     chatWidget.title.caption = 'AI Chat for your JupyterLab';
-    chatWidget.addClass('chat-widget');
-
     return chatWidget;
 }

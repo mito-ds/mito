@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import OpenAI from 'openai';
-import '../../../style/Chat.css';
+import '../../../style/ChatTaskpane.css';
 import { classNames } from '../../utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, writeCodeToActiveCell } from '../../utils/notebook';
@@ -14,6 +14,8 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getCodeBlockFromMessage } from '../../utils/strings';
 import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+import ResetIcon from '../../icons/ResetIcon';
+import IconButton from '../../components/IconButton';
 
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
@@ -47,14 +49,14 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
     }
 }
 
-interface IChatProps {
+interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
     variableManager: IVariableManager
     app: JupyterFrontEnd
 }
 
-const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManager, app}) => {
+const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({notebookTracker, rendermime, variableManager, app}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
@@ -190,7 +192,17 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
     const lastAIMessagesIndex = getLastAIMessageIndex()
 
     return (
-        <div className="chat-widget-container">
+        <div className="chat-taskpane">
+            <div className="chat-taskpane-header">
+                <p className="chat-taskpane-header-title"></p>
+                <IconButton 
+                    icon={<ResetIcon />}
+                    title="Clear the chat history"
+                    onClick={() => {
+                        setChatHistoryManager(getDefaultChatHistoryManager())
+                    }}
+                />
+            </div>
             <div className="chat-messages">
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     return (
@@ -228,4 +240,4 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
     );
 };
 
-export default Chat;
+export default ChatTaskpane;
