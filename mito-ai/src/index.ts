@@ -6,5 +6,3 @@ import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRen
 // This is the main entry point to the mito-ai extension. It must export all of the top level 
 // extensions that we want to load.
 export default [AiChatPlugin, ErrorMimeRendererPlugin, VariableManagerPlugin];
-
-

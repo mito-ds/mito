@@ -12,6 +12,8 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getCodeBlockFromMessage } from '../../utils/strings';
+import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
@@ -73,25 +75,30 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
         adjustHeight();
     }, [input]);
 
-    const sendMessage = async () => {
-        
-        // Make sure we have the latest input value
-        // because when the taskpane is opened via the error 
-        // mimerender plugin, we add text to the textarea 
-        // via the document and it does not get registered in the 
-        // input state unless the user makes additional changes.
-        const finalInput = textareaRef.current?.value || ''
+    /* 
+        Send a message with a specific input, clearing what is currently in the chat input.
+        This is useful when we want to send the error message from the MIME renderer directly
+        to the AI chat.
+    */
+    const sendMessageWithInput = async (input: string) => {
+        _sendMessage(input)
+    }
 
-        if (!finalInput.trim()) {
-            return;
-        }
+    /* 
+        Send a message with the text currently in the chat input.
+    */
+    const sendMessageFromChat = async () => {
+        _sendMessage(input)
+    }
+
+    const _sendMessage = async (input: string) => {
 
         const variables = variableManager.variables
         const activeCellCode = getActiveCellCode(notebookTracker)
 
         // Create a new chat history manager so we can trigger a re-render of the chat
         const updatedManager = new ChatHistoryManager(chatHistoryManager.getHistory());
-        updatedManager.addUserMessage(finalInput, activeCellCode, variables)
+        updatedManager.addUserMessage(input, activeCellCode, variables)
 
         setInput('');
         setLoadingAIResponse(true)
@@ -154,8 +161,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
             the first time we create the chat. Registering the command when it is already created causes
             errors.
         */
-        const command = 'mito_ai:apply-latest-code'
-        app.commands.addCommand(command, {
+        app.commands.addCommand(COMMAND_MITO_AI_APPLY_LATEST_CODE, {
             execute: () => {
                 console.log('Applying latest code!')
                 applyLatestCode()
@@ -163,10 +169,22 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
         })
 
         app.commands.addKeyBinding({
-            command: command,
+            command: COMMAND_MITO_AI_APPLY_LATEST_CODE,
             keys: ['Accel Y'],
             selector: 'body',
         });
+
+        /* 
+            Add a new command to the JupyterLab command registry that sends the current chat message.
+            We use this to automatically send the message when the user adds an error to the chat. 
+        */
+        app.commands.addCommand(COMMAND_MITO_AI_SEND_MESSAGE, {
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (args?.input) {
+                    sendMessageWithInput(args.input.toString())
+                }
+            }
+        })
     }, [])
 
     const lastAIMessagesIndex = getLastAIMessageIndex()
@@ -202,7 +220,7 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        sendMessage();
+                        sendMessageFromChat();
                     }
                 }}
             />

@@ -4,12 +4,12 @@ import {
   JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
 
-import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatSidebar } from './ChatSidebar';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 
 
 /**
@@ -41,10 +41,9 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
     let widget = newWidget();
 
     // Add an application command
-    const command: string = 'mito_ai:open';
-    app.commands.addCommand(command, {
+    app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHAT, {
       label: 'Your friendly Python Expert chat bot',
-      execute: (args?: ReadonlyPartialJSONObject) => {
+      execute: () => {
         
         // In order for the widget to be accessible, the widget must be:
         // 1. Created
@@ -75,27 +74,11 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
         // Set focus on the chat input
         const chatInput: HTMLTextAreaElement | null = widget.node.querySelector('.chat-input');
         chatInput?.focus();
-
-        if (chatInput && args?.error) {
-          const error = args.error;
-          const prompt = `My code generated this error
-          
-\`\`\`
-${error.toString()}
-\`\`\`
-
-Please suggest a concise solution`;
-          chatInput.value = prompt
-
-          // Then expand the chat input to show the full prompt
-          chatInput.style.height = 'auto';
-          chatInput.style.height = `${chatInput.scrollHeight}px`;
-        }
       }
     });
 
     app.commands.addKeyBinding({
-      command: command,
+      command: COMMAND_MITO_AI_OPEN_CHAT,
       keys: ['Accel E'],
       selector: 'body',
     });
@@ -103,7 +86,7 @@ Please suggest a concise solution`;
     app.shell.add(widget, 'left', { rank: 2000 });
 
     // Add the command to the palette.
-    palette.addItem({ command, category: 'AI Chat' });
+    palette.addItem({ command: COMMAND_MITO_AI_OPEN_CHAT, category: 'AI Chat' });
 
     // Track and restore the widget state
     let tracker = new WidgetTracker({
