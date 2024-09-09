@@ -3,11 +3,10 @@ import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getNotebookName, writeCodeToActiveCell } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-
-import '../../../../style/CodeMessagePart.css'
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
+import '../../../../style/CodeMessagePart.css'
 
 
 interface ICodeBlockProps {
