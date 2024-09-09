@@ -15,7 +15,14 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
     return activeCell?.model.sharedModel.source
 }
 
-export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: string): void =>  {
+/* 
+    Writes code to the active cell in the notebook. If the code is undefined, it does nothing.
+*/
+export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: string | undefined): void =>  {
+    if (code === undefined) {
+        return
+    }
+    
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code)
     const activeCell = getActiveCell(notebookTracker)
     if (activeCell !== undefined) {

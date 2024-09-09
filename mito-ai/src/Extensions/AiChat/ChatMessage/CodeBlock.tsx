@@ -6,16 +6,19 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 import '../../../../style/CodeMessagePart.css'
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 
-interface ICodeMessagePartProps {
+interface ICodeBlockProps {
     code: string
     role: 'user' | 'assistant'
     rendermime: IRenderMimeRegistry
-    notebookTracker: INotebookTracker
+    notebookTracker: INotebookTracker,
+    app: JupyterFrontEnd,
+    isLastAiMessage: boolean
 }
 
-const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermime, notebookTracker}): JSX.Element => {
+const CodeBlock: React.FC<ICodeBlockProps> = ({code, role, rendermime, notebookTracker, app, isLastAiMessage}): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
 
@@ -23,7 +26,7 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
         const codeWithoutMarkdown = removeMarkdownCodeFormatting(code)
         navigator.clipboard.writeText(codeWithoutMarkdown)
     }
-    
+
     if (role === 'user') {
         return (
             <div className='code-message-part-container'>
@@ -36,13 +39,14 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
     }
 
     if (role === 'assistant') {
+
         return (
             <div className='code-message-part-container'>
                 <div className='code-message-part-toolbar'>
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code)}>Apply to cell</button>
+                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code)}>Apply to cell {isLastAiMessage ? 'CMD+Y' : ''}</button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>
                 <PythonCode
@@ -56,4 +60,4 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
     return <></>
 }
 
-export default CodeMessagePart
+export default CodeBlock

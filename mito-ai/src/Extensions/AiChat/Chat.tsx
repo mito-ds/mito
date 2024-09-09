@@ -3,13 +3,15 @@ import OpenAI from 'openai';
 import '../../../style/Chat.css';
 import { classNames } from '../../utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode } from '../../utils/notebook';
+import { getActiveCellCode, writeCodeToActiveCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager, IChatHistory } from './ChatHistoryManager';
 import { requestAPI } from '../../utils/handler';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { getCodeBlockFromMessage } from '../../utils/strings';
 
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
@@ -47,9 +49,10 @@ interface IChatProps {
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
     variableManager: IVariableManager
+    app: JupyterFrontEnd
 }
 
-const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManager}) => {
+const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManager, app}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
@@ -120,6 +123,54 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
+    const getLastAIMessageIndex = (): number | undefined => {
+        const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
+            if (chatEntry.message.role === 'assistant') {
+                return index
+            }
+            return undefined
+        }).filter(index => index !== undefined)
+        
+        return aiMessageIndexes[aiMessageIndexes.length - 1]
+    }
+
+    
+    const applyLatestCode = () => {
+        const lastAIMessagesIndex = getLastAIMessageIndex()
+
+        if (!lastAIMessagesIndex) {
+            return
+        }
+
+        const lastAIMessage = displayOptimizedChatHistory[lastAIMessagesIndex]
+        const code = getCodeBlockFromMessage(lastAIMessage.message)
+        writeCodeToActiveCell(notebookTracker, code)
+    }
+
+    useEffect(() => {   
+        /* 
+            Add a new command to the JupyterLab command registry that applies the latest AI generated code
+            to the active code cell. Do this inside of the useEffect so that we only register the command
+            the first time we create the chat. Registering the command when it is already created causes
+            errors.
+        */
+        const command = 'mito_ai:apply-latest-code'
+        app.commands.addCommand(command, {
+            execute: () => {
+                console.log('Applying latest code!')
+                applyLatestCode()
+            }
+        })
+
+        app.commands.addKeyBinding({
+            command: command,
+            keys: ['Accel Y'],
+            selector: 'body',
+        });
+    }, [])
+
+    const lastAIMessagesIndex = getLastAIMessageIndex()
+
     return (
         <div className="chat-widget-container">
             <div className="chat-messages">
@@ -131,6 +182,8 @@ const Chat: React.FC<IChatProps> = ({notebookTracker, rendermime, variableManage
                             messageIndex={index}
                             notebookTracker={notebookTracker}
                             rendermime={rendermime}
+                            app={app}
+                            isLastAiMessage={index === lastAIMessagesIndex}
                         />
                     )
                 }).filter(message => message !== null)}

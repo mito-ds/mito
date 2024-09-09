@@ -34,7 +34,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
     // then call it to make a new widget
     const newWidget = () => {
       // Create a blank content widget inside of a MainAreaWidget
-      const chatWidget = buildChatSidebar(notebookTracker, rendermime, variableManager)
+      const chatWidget = buildChatSidebar(app, notebookTracker, rendermime, variableManager)
       return chatWidget
     }
 
@@ -72,7 +72,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
         // widget opens the taskpane
         app.shell.activateById(widget.id);
         
-        // Set focus on the chat input and scroll it to 3/4 of the way down the screen
+        // Set focus on the chat input
         const chatInput: HTMLTextAreaElement | null = widget.node.querySelector('.chat-input');
         chatInput?.focus();
 
