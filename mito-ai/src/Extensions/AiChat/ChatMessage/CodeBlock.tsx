@@ -7,6 +7,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '../../../../style/CodeMessagePart.css'
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { OperatingSystem } from '../../../utils/user';
 
 
 interface ICodeBlockProps {
@@ -15,10 +16,19 @@ interface ICodeBlockProps {
     rendermime: IRenderMimeRegistry
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
-    isLastAiMessage: boolean
+    isLastAiMessage: boolean,
+    operatingSystem: OperatingSystem
 }
 
-const CodeBlock: React.FC<ICodeBlockProps> = ({code, role, rendermime, notebookTracker, app, isLastAiMessage}): JSX.Element => {
+const CodeBlock: React.FC<ICodeBlockProps> = ({
+    code, 
+    role, 
+    rendermime, 
+    notebookTracker, 
+    app, 
+    isLastAiMessage,
+    operatingSystem
+}): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
 
@@ -38,7 +48,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({code, role, rendermime, notebookT
         )
     }
 
-    // TODO: Case on windows and mac to apply the correct keyboard shortcut prompt below!
     if (role === 'assistant') {
 
         return (
@@ -47,7 +56,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({code, role, rendermime, notebookT
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code)}>Apply to cell {isLastAiMessage ? 'CMD+Y' : ''}</button>
+                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code)}>Apply to cell {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}</button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>
                 <PythonCode

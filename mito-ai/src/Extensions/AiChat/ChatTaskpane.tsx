@@ -16,6 +16,7 @@ import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from 
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
+import { OperatingSystem } from '../../utils/user';
 
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
@@ -54,9 +55,16 @@ interface IChatTaskpaneProps {
     rendermime: IRenderMimeRegistry
     variableManager: IVariableManager
     app: JupyterFrontEnd
+    operatingSystem: OperatingSystem
 }
 
-const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({notebookTracker, rendermime, variableManager, app}) => {
+const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
+    notebookTracker, 
+    rendermime, 
+    variableManager, 
+    app,
+    operatingSystem
+}) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
@@ -151,6 +159,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({notebookTracker, rendermime
             return
         }
 
+        // TODO: Fix bug where this always uses the original AI chat instead of the current one
+        // if the user has reset the chat!
+        // Write a test for this.
         const lastAIMessage = displayOptimizedChatHistory[lastAIMessagesIndex]
         const code = getCodeBlockFromMessage(lastAIMessage.message)
         writeCodeToActiveCell(notebookTracker, code)
@@ -165,7 +176,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({notebookTracker, rendermime
         */
         app.commands.addCommand(COMMAND_MITO_AI_APPLY_LATEST_CODE, {
             execute: () => {
-                console.log('Applying latest code!')
                 applyLatestCode()
             }
         })
@@ -214,6 +224,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({notebookTracker, rendermime
                             rendermime={rendermime}
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
+                            operatingSystem={operatingSystem}
                         />
                     )
                 }).filter(message => message !== null)}

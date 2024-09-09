@@ -7,6 +7,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { splitStringWithCodeBlocks } from '../../../utils/strings';
 import ErrorIcon from '../../../icons/ErrorIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { OperatingSystem } from '../../../utils/user';
 
 
 interface IChatMessageProps {
@@ -17,6 +18,7 @@ interface IChatMessageProps {
     rendermime: IRenderMimeRegistry
     app: JupyterFrontEnd
     isLastAiMessage: boolean
+    operatingSystem: OperatingSystem
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -26,7 +28,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     notebookTracker,
     rendermime,
     app,
-    isLastAiMessage
+    isLastAiMessage,
+    operatingSystem
 }): JSX.Element | null => {
     if (message.role !== 'user' && message.role !== 'assistant') {
         // Filter out other types of messages, like system messages
@@ -56,6 +59,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 notebookTracker={notebookTracker}
                                 app={app}
                                 isLastAiMessage={isLastAiMessage}
+                                operatingSystem={operatingSystem}
                             />
                         )
                     }
