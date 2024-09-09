@@ -1,0 +1,83 @@
+.chat-taskpane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--chat-background-color) !important;
+    --jp-sidebar-min-width: 350px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: scroll;
+
+    /* 
+        Don't set padding on top from the taskpane so we can instead
+        set the padding on the chat-taskpane-header instead to make 
+        sure the sticky header covers all of the content behind it. 
+    */
+    padding-top: 0px; 
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+
+.chat-taskpane-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    position: sticky; /* Make the header sticky */
+    top: 0; /* Stick to the top of the container */
+    background-color: var(--chat-background-color); /* Ensure background color covers content behind */
+    z-index: 1; /* Ensure it stays above other content */
+}
+
+.chat-taskpane-header-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.message {
+    height: min-content;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    padding: 10px;
+    width: 100%;
+    font-size: 14px;
+}
+
+.message-user {
+    background-color: var(--chat-user-message-background-color); 
+    color: var(--chat-user-message-font-color);
+    border-radius: 5px;
+}
+
+.message-assistant {
+    color: var(--chat-assistant-message-font-color);
+}
+
+.chat-input {
+    outline: none;
+    border: none;
+    resize: none;
+    width: 100%;
+    padding: 10px;
+    overflow-y: hidden;
+    box-sizing: border-box;
+
+    /* 
+        The height of the chat input is set in the ChatTaskpane.tsx file. 
+        See the adjustHeight function for more detail.
+    */
+    flex-shrink: 0 !important; 
+}
+
+.chat-loading-message {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.message-text {
+    align-items: center;
+}
