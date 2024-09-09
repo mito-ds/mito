@@ -3,19 +3,31 @@ import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getNotebookName, writeCodeToActiveCell } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-
-import '../../../../style/CodeMessagePart.css'
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { OperatingSystem } from '../../../utils/user';
+import '../../../../style/CodeMessagePart.css'
 
 
-interface ICodeMessagePartProps {
+interface ICodeBlockProps {
     code: string
     role: 'user' | 'assistant'
     rendermime: IRenderMimeRegistry
-    notebookTracker: INotebookTracker
+    notebookTracker: INotebookTracker,
+    app: JupyterFrontEnd,
+    isLastAiMessage: boolean,
+    operatingSystem: OperatingSystem
 }
 
-const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermime, notebookTracker}): JSX.Element => {
+const CodeBlock: React.FC<ICodeBlockProps> = ({
+    code, 
+    role, 
+    rendermime, 
+    notebookTracker, 
+    app, 
+    isLastAiMessage,
+    operatingSystem
+}): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
 
@@ -23,7 +35,7 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
         const codeWithoutMarkdown = removeMarkdownCodeFormatting(code)
         navigator.clipboard.writeText(codeWithoutMarkdown)
     }
-    
+
     if (role === 'user') {
         return (
             <div className='code-message-part-container'>
@@ -42,7 +54,7 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code)}>Apply to cell</button>
+                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code, true)}>Apply to cell {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}</button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>
                 <PythonCode
@@ -56,4 +68,4 @@ const CodeMessagePart: React.FC<ICodeMessagePartProps> = ({code, role, rendermim
     return <></>
 }
 
-export default CodeMessagePart
+export default CodeBlock

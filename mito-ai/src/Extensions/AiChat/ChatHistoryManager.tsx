@@ -113,4 +113,26 @@ Your task: ${input}`};
         this.history.displayOptimizedChatHistory.push({message: systemMessage, error: false});
         this.history.aiOptimizedChatHistory.push(systemMessage);
     }
+
+    getLastAIMessageIndex = (): number | undefined => {
+        const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
+        const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
+            if (chatEntry.message.role === 'assistant') {
+                return index
+            }
+            return undefined
+        }).filter(index => index !== undefined)
+        
+        return aiMessageIndexes[aiMessageIndexes.length - 1]
+    }
+
+    getLastAIMessage = (): IDisplayOptimizedChatHistory | undefined=> {
+        const lastAIMessagesIndex = this.getLastAIMessageIndex()
+        if (!lastAIMessagesIndex) {
+            return
+        }
+
+        const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
+        return displayOptimizedChatHistory[lastAIMessagesIndex]
+    }
 }

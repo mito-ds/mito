@@ -1,3 +1,19 @@
+import OpenAI from "openai";
+
+/* 
+    Given a message from the OpenAI API, returns the content as a string. 
+    If the content is not a string, returns undefined.
+*/
+const getContentStringFromMessage = (message: OpenAI.Chat.ChatCompletionMessageParam): string | undefined => {
+    
+    // TODO: We can't assume this is a string. We need to handle the other
+    // return options
+    if (message.role === 'user' ||  message.role === 'assistant') {
+        return message.content as string
+    }
+
+    return undefined
+}
 
 
 /* 
@@ -7,12 +23,26 @@
     This is useful for taking an AI generated message and displaying the code in 
     code blocks and the rest of the message in plain text.
 */
-export const splitStringWithCodeBlocks = (messageContent: string) => {
+export const splitStringWithCodeBlocks = (message: OpenAI.Chat.ChatCompletionMessageParam) => {
+    const messageContent = getContentStringFromMessage(message)
+
+    if (!messageContent) {
+        return []
+    }
 
     const parts = messageContent.split(/(```[\s\S]*?```)/);
     
     // Remove empty strings caused by consecutive delimiters, if any
     return parts.filter(part => part.trim() !== "");
+}
+
+/* 
+    Given a string like "Hello ```python print('Hello, world!')```",
+    returns "```python print('Hello, world!')```"
+*/
+export const getCodeBlockFromMessage = (message: OpenAI.Chat.ChatCompletionMessageParam) => {
+    const parts = splitStringWithCodeBlocks(message)
+    return parts.find(part => part.startsWith('```'))
 }
 
 
