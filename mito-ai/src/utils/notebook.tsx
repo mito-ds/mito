@@ -29,7 +29,6 @@ export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: s
         activeCell.model.sharedModel.source = codeMirrorValidCode 
 
         if (focus) {
-            console.log('focusing on active cell')
             activeCell.node.focus()
         }
     }

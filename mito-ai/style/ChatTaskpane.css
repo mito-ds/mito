@@ -65,13 +65,12 @@
     padding: 10px;
     overflow-y: hidden;
     box-sizing: border-box;
+
     /* 
-        After restarting the widget, sometimes the input has a height:0 applied in the style tag.
-        I don't know why that happens, but adding !important here makes this class take priority.
+        The height of the chat input is set in the ChatTaskpane.tsx file. 
+        See the adjustHeight function for more detail.
     */
-    height: auto !important;
     flex-shrink: 0 !important; 
-    min-height: 20px; /* Ensure this is not overridden */
 }
 
 .chat-loading-message {

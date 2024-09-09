@@ -103,7 +103,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
         textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
+
+        // The height should be 20 at minimum to support the placeholder
+        const height = textarea.scrollHeight < 20 ? 20 : textarea.scrollHeight
+        textarea.style.height = `${height}px`;
     };
 
     useEffect(() => {
