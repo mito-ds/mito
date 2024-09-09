@@ -174,7 +174,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         const code = getCodeBlockFromMessage(lastAIMessage.message);
-        writeCodeToActiveCell(notebookTracker, code)
+        writeCodeToActiveCell(notebookTracker, code, true)
     }
 
     useEffect(() => {   

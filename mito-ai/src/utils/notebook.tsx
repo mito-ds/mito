@@ -18,7 +18,7 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
 /* 
     Writes code to the active cell in the notebook. If the code is undefined, it does nothing.
 */
-export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: string | undefined): void =>  {
+export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: string | undefined, focus?: boolean): void =>  {
     if (code === undefined) {
         return
     }
@@ -27,6 +27,11 @@ export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: s
     const activeCell = getActiveCell(notebookTracker)
     if (activeCell !== undefined) {
         activeCell.model.sharedModel.source = codeMirrorValidCode 
+
+        if (focus) {
+            console.log('focusing on active cell')
+            activeCell.node.focus()
+        }
     }
 }
 
@@ -34,3 +39,4 @@ export const getNotebookName = (notebookTracker: INotebookTracker): string => {
     const notebook = notebookTracker.currentWidget?.content;
     return notebook?.title.label || 'Untitled'
 }
+
