@@ -52,6 +52,12 @@
     width: 100%;
     overflow-y: hidden;
     box-sizing: border-box;
+
+    /* 
+        After restarting the widget, sometimes the input has a height:0 applied in the style tag.
+        I don't know why that happens, but adding !important here makes this class take priority.
+    */
+    height: min-content !important;
 }
 
 .chat-loading-message {
