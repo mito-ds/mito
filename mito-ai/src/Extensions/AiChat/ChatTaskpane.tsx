@@ -251,10 +251,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 value={input}
                 onChange={(e) => {setInput(e.target.value)}}
                 onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    // Enter key sends the message, but we still want to allow 
+                    // shift + enter to add a new line.
+                    if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         sendMessageFromChat();
-                    }
+                    } 
                 }}
             />
         </div>
