@@ -69,6 +69,31 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
+    const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
+
+    useEffect(() => {
+        /* 
+            Why we use a ref (chatHistoryManagerRef) instead of directly accessing the state (chatHistoryManager):
+
+            The reason we use a ref here is because the function `applyLatestCode` is registered once 
+            when the component mounts via `app.commands.addCommand`. If we directly used `chatHistoryManager`
+            in the command's execute function, it would "freeze" the state at the time of the registration 
+            and wouldn't update as the state changes over time.
+
+            React's state (`useState`) is asynchronous, and the registered command won't automatically pick up the 
+            updated state unless the command is re-registered every time the state changes, which would require 
+            unregistering and re-registering the command, causing unnecessary complexity.
+
+            By using a ref (`chatHistoryManagerRef`), we are able to keep a persistent reference to the 
+            latest version of `chatHistoryManager`, which is updated in this effect whenever the state 
+            changes. This allows us to always access the most recent state of `chatHistoryManager` in the 
+            `applyLatestCode` function, without needing to re-register the command or cause unnecessary re-renders.
+
+            We still use `useState` for `chatHistoryManager` so that we can trigger a re-render of the chat
+            when the state changes.
+        */
+        chatHistoryManagerRef.current = chatHistoryManager;
+    }, [chatHistoryManager]);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
@@ -140,30 +165,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const getLastAIMessageIndex = (): number | undefined => {
-        const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
-            if (chatEntry.message.role === 'assistant') {
-                return index
-            }
-            return undefined
-        }).filter(index => index !== undefined)
-        
-        return aiMessageIndexes[aiMessageIndexes.length - 1]
-    }
-
-    
     const applyLatestCode = () => {
-        const lastAIMessagesIndex = getLastAIMessageIndex()
-
-        if (!lastAIMessagesIndex) {
+        const latestChatHistoryManager = chatHistoryManagerRef.current;
+        const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
+        
+        if (!lastAIMessage) {
             return
         }
 
-        // TODO: Fix bug where this always uses the original AI chat instead of the current one
-        // if the user has reset the chat!
-        // Write a test for this.
-        const lastAIMessage = displayOptimizedChatHistory[lastAIMessagesIndex]
-        const code = getCodeBlockFromMessage(lastAIMessage.message)
+        const code = getCodeBlockFromMessage(lastAIMessage.message);
         writeCodeToActiveCell(notebookTracker, code)
     }
 
@@ -199,7 +209,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         })
     }, [])
 
-    const lastAIMessagesIndex = getLastAIMessageIndex()
+    const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
     return (
         <div className="chat-taskpane">
