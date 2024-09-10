@@ -30,10 +30,10 @@ jobs:
       - name: Install Node.js dependencies
         run: | 
           cd mitosheet
-          npm install eslint
+          jlpm install eslint
       - name: Run Linters
         run: |
           cd mitosheet
-          npm run lint:check
+          jlpm run lint:check
 
 

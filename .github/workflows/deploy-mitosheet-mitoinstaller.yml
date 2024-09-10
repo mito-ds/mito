@@ -50,8 +50,8 @@ jobs:
           source venv/bin/activate
           python ../deployment/bump_version.py mitosheet ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[deploy]"    
-          npm install
-          npm run build      
+          jlpm install
+          jlpm run build      
       - name: Deploy mitosheet
         run: |
           cd mitosheet

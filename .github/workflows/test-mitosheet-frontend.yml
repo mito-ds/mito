@@ -199,14 +199,14 @@ jobs:
         pip install -r requirements.txt
         pip install -r extra-requirements.txt
 
-        npm install
+        jlpm install
         npx playwright install
 
         cd ../mitosheet
         pip install -e ".[test]"
 
-        npm install
-        npm run build
+        jlpm install
+        jlpm run build
     - name: Start a server and run tests (ubuntu, macos)
       if: matrix.os != 'windows-latest-l'
       run: |
