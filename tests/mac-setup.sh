@@ -13,7 +13,7 @@ npm install
 # install only the necessary browsers.
 if [ $# -eq 0 ]
   then
-    npx playwright install chromium webkit firefox # chrome
+    npx playwright install chromium webkit firefox chrome
 else
     npx playwright install $1
     npx playwright install
