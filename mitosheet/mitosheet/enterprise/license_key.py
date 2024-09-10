@@ -2,6 +2,15 @@
 import base64
 import datetime
 
+"""
+To generate a temporary enterprise license key, 
+encode the expiration date into a lisence key string using 
+the encode_date_to_license function.
+
+Then, set the license key in the enviornment variable 
+'MITO_CONFIG_ENTERPRISE_TEMP_LICENSE' using MITO CONFIG.
+"""
+
 
 def encode_date_to_license(date: datetime.date) -> str:
     date_str = date.strftime("%Y-%m-%d")

@@ -395,13 +395,13 @@ def SUBSTITUTE(string: StringRestrictedInputType, old_text: StringRestrictedInpu
         return string.replace(old_text, new_text, count)
 
     index = get_index_from_series(string, old_text, new_text, count)
-    string = get_series_from_primitive_or_series(string, index).fillna('')
+    string_series = get_series_from_primitive_or_series(string, index).fillna('')
     old_text_series = get_series_from_primitive_or_series(old_text, index).fillna('')
     new_text_series = get_series_from_primitive_or_series(new_text, index).fillna('')
     count_series = get_series_from_primitive_or_series(count, index).fillna(0)
 
     return pd.Series(
-        [s.replace(ot, nt, c) for s, ot, nt, c in zip(string, old_text_series, new_text_series, count_series)],
+        [s.replace(ot, nt, c) for s, ot, nt, c in zip(string_series, old_text_series, new_text_series, count_series)],
         index=index
     )
 

@@ -54,8 +54,15 @@ def get_column_header_as_transpiled_code(column_header: ColumnHeader, tab_level:
         return f'({column_header_parts_joined})'
     if isinstance(column_header, list):
         column_header_parts = [get_column_header_as_transpiled_code(column_header_part, tab_level=tab_level+1) for column_header_part in column_header]
-        column_header_parts_joined = f',\n{TAB*(tab_level + 1)}'.join(column_header_parts)
-        return f'[\n{TAB*(tab_level + 1)}{column_header_parts_joined}\n{TAB*tab_level}]'
+
+        # Only add new lines in between entries if the full list would be too long
+        total_length_of_column_headers = sum([len(column_header_part) for column_header_part in column_header_parts])
+        if total_length_of_column_headers > 50:
+            column_header_parts_joined = f',\n{TAB*(tab_level + 1)}'.join(column_header_parts)
+            return f'[\n{TAB*(tab_level + 1)}{column_header_parts_joined}\n{TAB*tab_level}]'
+        else:
+            column_header_parts_joined = f','.join(column_header_parts)
+            return f'[{column_header_parts_joined}]'
 
     # We must handle np.nan first because isinstance(np.nan, float) evaluates to True
     if not is_prev_version(pd.__version__, '1.0.0') and column_header is np.nan:
