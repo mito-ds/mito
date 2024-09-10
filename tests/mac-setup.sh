@@ -26,5 +26,5 @@ cd ../mitosheet
 pip install -e ".[test]"
 
 # Install the npm dependences for Mitosheet, and build JS
-yarn install
-yarn run build
+jlpm install
+jlpm run build

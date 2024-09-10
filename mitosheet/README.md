@@ -53,15 +53,15 @@ jupyter lab
 ```
 If the `pip install -e ".test, deploy]"` fails and the folder `pip-wheel-metadata` exists in your Mito folder, delete it. 
 
-In a seperate terminal, to recompile the front-end, run the following commands (`npm install` only needs to be run the first time).
+In a seperate terminal, to recompile the front-end, run the following commands (`jlpm install` only needs to be run the first time).
 ```
-npm install
+jlpm install
 jlpm run watch
 ```
 
 NOTE: On Windows, this seperate terminal _must_ be a Adminstrator terminal. To launch an admin terminal, search for Command Prompt, and then right click on the app and click Run as adminstrator. Then navigate to the virtual environment, start it, and then run `jlpm run watch`. 
 
-Furthermore, if the final `jlpm run watch` or `npm install` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
+Furthermore, if the final `jlpm run watch` or `jlpm install` command fails, you may need to run `export NODE_OPTIONS=--openssl-legacy-provider`. 
 
 ### One Liner Command for Mac
 ```bash

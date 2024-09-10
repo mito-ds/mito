@@ -22,11 +22,11 @@ source venv/bin/activate
 pip install -e ".[test, deploy]"
 
 # Install the node modules, and build the JS 
-yarn install
-yarn run build
+jlpm install
+jlpm run build
 
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
 
-# Finially, start watching the javascript
-yarn run watch
+# Finally, start watching the javascript
+jlpm run watch

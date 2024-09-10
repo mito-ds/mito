@@ -13,7 +13,7 @@ jobs:
   test-mitoinstaller:
     strategy:
       matrix:
-        python-version: [3.8, 3.10]
+        python-version: [3.8, 3.10, 3.11]
         os: [ubuntu-20.04, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:

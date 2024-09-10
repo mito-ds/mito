@@ -14,7 +14,7 @@ unset NODE_OPTIONS # https://github.com/microsoft/vscode/issues/136599
 export NODE_OPTIONS=--openssl-legacy-provider
 
 # Install the npm dependences
-npm install
+jlpm install
 
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
