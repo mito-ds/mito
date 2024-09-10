@@ -24,10 +24,8 @@ export function getCellAtIndex(cells: CellList | undefined, index: number): ICel
         return undefined;
     }
 
+    // If the index is out of bounds, it will return undefined
     const cell = cells.get(index)
-
-    // TODO: Handle the case where there is no cell at the index
-
     return cell
 }
 
