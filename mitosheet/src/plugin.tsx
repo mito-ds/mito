@@ -12,6 +12,9 @@ import {
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
+import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
+import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
+import AugmentedStderrRenderer from './AugmentedStderrRenderer';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -40,7 +43,10 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 function activateMitosheetExtension(
     app: JupyterFrontEnd,
     tracker: INotebookTracker,
+    rendermime: IRenderMimeRegistry,
 ): void {
+
+    console.log('Mitosheet extension activated');
 
     // Add the Create New Mitosheet button
     registerMitosheetToolbarButtonAdder(tracker);
@@ -411,12 +417,27 @@ function activateMitosheetExtension(
         }
     });
 
+    // Add a custom renderer for the stderr output
+
+    const factory = rendermime.getFactory('application/vnd.jupyter.stderr');
+
+    if (factory) {
+        rendermime.addFactory({
+            safe: true,
+            mimeTypes: ['application/vnd.jupyter.stderr'],
+            createRenderer: (options: IRenderMime.IRendererOptions) => {
+                const originalRenderer = factory.createRenderer(options);
+                return new AugmentedStderrRenderer(originalRenderer);
+            }
+        }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
+    }
+
     window.commands = app.commands; // So we can write to it elsewhere
 }
 
 const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {
-    id: 'mitosheet:plugin',
-    requires: [INotebookTracker],
+    id: 'mitosheet:plugin-new',
+    requires: [INotebookTracker, IRenderMimeRegistry],
     activate: activateMitosheetExtension,
     autoStart: true,
 };
