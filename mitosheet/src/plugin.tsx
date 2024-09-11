@@ -14,7 +14,7 @@ import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
-import AugmentedStderrRenderer from './AugmentedStderrRenderer';
+import  DataFrameMimeRenderer from './DataFrameMimeRenderer';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -263,6 +263,8 @@ function activateMitosheetExtension(
         label: 'creates a new mitosheet from the dataframe that is printed',
         execute: async (): Promise<void> => {
 
+            console.log("creating mitosheet from dataframe ouput")
+
             // We get the current notebook (currentWidget)
             const notebook = tracker.currentWidget?.content;
             const context = tracker.currentWidget?.context;
@@ -276,24 +278,29 @@ function activateMitosheetExtension(
                 Note: clicking the button in the output to call this function first makes
                 the cell active, then calls this function. 
             */
-            const activeCell = notebook.activeCell?.model;
-            let dataframeVariableName = getLastNonEmptyLine(getCellText(activeCell))
+
+
+            const cells = notebook?.model?.cells;
+            const activeCellIndex = notebook.activeCellIndex
+            const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
+
+            console.log("previous cell ")
+            let dataframeVariableName = getLastNonEmptyLine(getCellText(previousCell))
 
             // If the dataframeVariableName has a .head at the end of it, we strip this,
             // and display the entire dataframe
             if (dataframeVariableName?.endsWith('.head()')) {
                 dataframeVariableName = dataframeVariableName.split('.head()')[0];
             }
+
+            console.log('here')
+            console.log(previousCell)
+
+            if (previousCell !== undefined) {
+                const newCode = previousCell.sharedModel.source + `\nmitosheet.sheet(${dataframeVariableName})`
+                previousCell.sharedModel.source = newCode
+            }
             
-            // Clear the output of the active cell
-            NotebookActions.clearOutputs(notebook)
-
-            // Create a new code cell that creates a blank mitosheet
-            NotebookActions.insertBelow(notebook);
-            const newActiveCell = notebook.activeCell;
-
-            writeToCell(newActiveCell?.model, `import mitosheet\nmitosheet.sheet(${dataframeVariableName})`);
-
             // Execute the new code cell
             void NotebookActions.run(notebook, context.sessionContext);
         }
@@ -419,18 +426,19 @@ function activateMitosheetExtension(
 
     // Add a custom renderer for the stderr output
 
-    const factory = rendermime.getFactory('application/vnd.jupyter.stderr');
+    const dataframeMimeType = 'text/html'
+    const factory = rendermime.getFactory(dataframeMimeType);
 
     if (factory) {
         rendermime.addFactory({
             safe: true,
-            mimeTypes: ['application/vnd.jupyter.stderr'],
+            mimeTypes: [dataframeMimeType],  // Include both MIME types as needed
             createRenderer: (options: IRenderMime.IRendererOptions) => {
-                const originalRenderer = factory.createRenderer(options);
-                return new AugmentedStderrRenderer(originalRenderer);
+                tracker
+                return new DataFrameMimeRenderer(app, options, tracker); // Pass dataframe to your renderer
             }
-        }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
-    }
+    }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
+}
 
     window.commands = app.commands; // So we can write to it elsewhere
 }
