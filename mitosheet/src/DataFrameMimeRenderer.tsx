@@ -4,6 +4,8 @@ import { Widget } from '@lumino/widgets';
 import { ReactWidget } from '@jupyterlab/apputils';
 import * as React from 'react';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { getLastNonEmptyLine } from './jupyter/code';
+import { getCellAtIndex, getCellText } from './jupyter/extensionUtils';
 
 const CLASS_NAME = 'jp-DataFrameViewer';
 
@@ -29,7 +31,6 @@ const SheetOutputComponent = (props: { htmlContent: string, jsCode?: string }) =
     return (
         <div
             dangerouslySetInnerHTML={{ __html: props.htmlContent }}
-            style={{ padding: '10px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
         ></div>
     );
 };
@@ -50,18 +51,23 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         const originalRawData = model.data['text/html']?.toString();
         const isDataframeOutput = originalRawData?.includes('class="dataframe"');
 
+
+        const notebook = this._notebookTracker.currentWidget?.content;
+        const cells = notebook?.model?.cells;
+        const activeCellIndex = notebook?.activeCellIndex
+
+        let dataframeVariableName = undefined;
+        if (activeCellIndex) {
+            const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
+            dataframeVariableName = getLastNonEmptyLine(getCellText(previousCell))
+        }
+
+
         if (isDataframeOutput) {
             console.log('Dataframe detected!!!!');
 
             // Define the Python code to run
-            const pythonCode = `
-from IPython.display import display, HTML
-
-def sheet():
-    display(mitosheet.sheet())
-
-sheet()
-`;
+            const pythonCode = `mitosheet.sheet(${dataframeVariableName || ''} )`;
 
             try {
                 const notebookPanel = this._notebookTracker.currentWidget;
@@ -83,6 +89,8 @@ sheet()
                         const htmlOutput = msg.content.data['text/html'];
                         if (htmlOutput) {
                             console.log('Received HTML output:', htmlOutput);
+                            // Extract the javascript code so we can execute it when we render the output.
+                            // Remember, that the javascript code is actually what creates the sheet interface!
                             const scriptMatch = htmlOutput.match(/<script[^>]*>([\s\S]*?)<\/script>/);
                             const jsCode = scriptMatch ? scriptMatch[1] : '';
 
