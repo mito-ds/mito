@@ -7,7 +7,9 @@ import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCodeCellBeenEditedByUser } from './jupyter/code';
 import { JupyterComm } from './jupyter/comm';
 import {
-    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
+    createCodeCellAtIndex,
+    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell,
+    writeToCodeCellAtIndex
 } from './jupyter/extensionUtils';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
@@ -208,7 +210,6 @@ function activateMitosheetExtension(
         label: 'Writes the generated code for a deafult dataframe output mitosheet. Writes the code to the code cell below the specified code cell',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
-            console.log("FUCk yeahWRITE GENERATED CODE CELL BY ID")
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
@@ -218,23 +219,16 @@ function activateMitosheetExtension(
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
             const oldCode = args.oldCode as string[];
-            const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
+            const newCode = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
             const notebook = tracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
 
             if (cellID === undefined || notebook === undefined || cells === undefined) {
-                console.log("NO NOTEBOOK OR CELLS")
                 return;
             }
 
             const mimeRenderInputCellIndex = cells ? Array.from(cells).findIndex(cell => cell.id === cellID) : -1;
-            console.log("MIME RENDER INDEX", mimeRenderInputCellIndex)
-            console.log("CELLS")
-            console.log(cells)
-            console.log(cellID)
-            console.log(mimeRenderInputCellIndex)
             if (mimeRenderInputCellIndex === -1) {
-                console.log("NO MIME RENDER INPUT CELL INDEX")
                 // If the code cell that created the mitosheet mime render does not exist, 
                 // just return. I don't think this should ever happen because you can't 
                 // have a mimerender for a code cell that does not exist anymore.
@@ -242,50 +236,42 @@ function activateMitosheetExtension(
             }
 
             let codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
-            console.log("CODE CELL", codeCell?.sharedModel.source)
-
-            // If there is no cell below the mitosheet, create one. 
-            if (codeCell === undefined) {
-                console.log("NO CODE CELL")
-                // Move the active cell to the mimeRenderInputCellIndex
-                notebook.activeCellIndex = mimeRenderInputCellIndex;
-                console.log("ACTIVE CELL INDEX 1", notebook.activeCellIndex)
-
-                // Then insert a code cell below it 
-                NotebookActions.insertBelow(notebook);
-
-                // Update the codeCell to the new cell
-                codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1);
-            }
-
-
-            // If the code cell is not the old code, then create a new code cell below the mitosheet to write to. 
-            // This could occur in three cases:
-            // 1. We haven't yet written code from this mitosheet and there is a code cell below the mitosheet already
-            // 2. The user has edited the generated code below the mitosheet. 
             const codeCellText = getCellText(codeCell);
-            if (codeCellText !== '' && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
-                console.log("CODE CELL HAS BEEN EDITED BY USER")
-                // Move the active cell to the mimeRenderInputCellIndex
-                notebook.activeCellIndex = mimeRenderInputCellIndex;
-                console.log("ACTIVE CELL INDEX 2", notebook.activeCellIndex)
 
-                // Then insert a code cell below it 
-                NotebookActions.insertBelow(notebook);
+            if (codeCell === undefined) {
+                // If there is no cell below the mitosheet, create one. 
 
-                // Update the codeCell to the new cell
-                codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1);
-            }
-
-
-            // Then finally write the code to the code cell
-            if (codeCell !== undefined) {
-                console.log("WRITING CODE TO CODE CELL", codeCell.sharedModel.source)
-                writeToCell(codeCell, code)
+                console.log(1)
+                createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            } else if (codeCellText === '') {
+                // If the code cell is empty, then we can write to it. 
+                console.log(2)
+                writeToCell(codeCell, newCode)
+            } else if ((oldCode === null || oldCode.length === 0) && newCode === '') {
+                console.log(3)
+                // If the old code is null and the new code is empty, we do nothing.
+                // We don't want to create a new cell if there is nothing to write to it.
+                return;
+            } else if ((oldCode === null || oldCode.length === 0) || hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
+                console.log(4, oldCode === null, hasCodeCellBeenEditedByUser(oldCode, codeCellText))
+                // Otherwise, if 
+                // 1. its the first time we are writing code, or
+                // 2. the code cell below mito is not the Mito generated code 
+                // then we create a new code cell and write to it. 
+                // Case 2 is occurs when: 
+                // 1. The user has edited the generated code 
+                // 2. There is some other code right below the mitosheet (this will be common in the mimerender case)
+                createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            } else {
+                console.log(5, 'writing to mimeRenderInputCellIndex', mimeRenderInputCellIndex + 1)
+                // Otherwise, we overwrite the current cell with the new code
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
                 return;
             }
-
-            console.log("CODE CELL IS UNDEFINED")
         }
     })
 

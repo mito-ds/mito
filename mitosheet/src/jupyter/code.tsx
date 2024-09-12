@@ -136,6 +136,7 @@ export function containsMitosheetCallWithAnyAnalysisToReplay(codeText: string): 
  * @returns boolean indicating if the code cell has been changed
  */
 export function hasCodeCellBeenEditedByUser(oldCode: string[], codeCellText?: string): boolean {
+
     // We're removing the first line of the old code and the cell code because
     // the cell code contains the analysis id and the old code does not
     const oldCodeWithoutFirstLine = oldCode?.slice(1).join('\n');

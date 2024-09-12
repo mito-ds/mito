@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import { ICellModel } from "@jupyterlab/cells";
-import { CellList, INotebookTracker } from '@jupyterlab/notebook';
+import { CellList, INotebookTracker, Notebook, NotebookActions } from '@jupyterlab/notebook';
 import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "./code";
 
 
@@ -33,6 +33,30 @@ export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
 
     return cell.sharedModel.source
+}
+
+export function createCodeCellAtIndex(index: number, notebook: Notebook | undefined): ICellModel | undefined {
+
+    if (notebook === undefined) {
+        return undefined;
+    }
+
+    notebook.activeCellIndex = index - 1;
+    NotebookActions.insertBelow(notebook);
+    return getCellAtIndex(notebook.model?.cells, index);
+}
+
+export function writeToCodeCellAtIndex(index: number, notebook: Notebook | undefined, code: string): void {
+
+    if (notebook === undefined) {
+        return undefined;
+    }
+
+    const cells = notebook.model?.cells;
+    const codeCell = getCellAtIndex(cells, index);
+    if (codeCell) {
+        writeToCell(codeCell, code);
+    }
 }
 
 
