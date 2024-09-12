@@ -107,6 +107,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
 
+    console.log("HERERE")
+
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({

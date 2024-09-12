@@ -47,6 +47,7 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
 
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
         const originalRawData = model.data['text/html']?.toString();
+        console.log('originalRawData', originalRawData);
         const isDataframeOutput = originalRawData?.includes('class="dataframe"');
         const notebook = this._notebookTracker.currentWidget?.content;
         const cells = notebook?.model?.cells;
@@ -60,10 +61,8 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
             cellID = previousCell?.id
         }
         if (isDataframeOutput) {
-            console.log('Dataframe detected!!!!');
-
             // Define the Python code to run
-            const pythonCode = `mitosheet.sheet(${dataframeVariableName || ''}, cell_id='${cellID}')`;
+            const pythonCode = `import mitosheet; mitosheet.sheet(${dataframeVariableName || ''}, cell_id='${cellID}')`;
 
             try {
                 const notebookPanel = this._notebookTracker.currentWidget;
@@ -97,26 +96,19 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
                         }
                     }
                 };
-
-                future.done.then(() => {
-                    console.log('Python code executed successfully.');
-                })
-
             } catch (error) {
                 console.error('Error executing Python code:', error);
-                this.node.innerHTML = `<div style="color: red;">Error rendering sheet</div>`;
+                // If something goes wrong, just display the default dataframe output
+                await this._defaultRenderer.renderModel(model);
+                this.node.appendChild(this._defaultRenderer.node);
             }
-
         } else {
+            // If the output is not a dataframe, just use the default renderer
             await this._defaultRenderer.renderModel(model);
             this.node.appendChild(this._defaultRenderer.node);
         }
 
         return Promise.resolve();
-    }
-
-    dispose(): void {
-        super.dispose();
     }
 }
 
