@@ -1,4 +1,3 @@
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 import { ReactWidget } from '@jupyterlab/apputils';
@@ -36,21 +35,19 @@ const SpreadsheetDataframeComponent = (props: { htmlContent: string, jsCode?: st
 };
 
 export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRenderer {
-    private _app: JupyterFrontEnd;
     private _notebookTracker: INotebookTracker;
+    private _defaultRenderer: IRenderMime.IRenderer;
 
-    constructor(app: JupyterFrontEnd, options: IRenderMime.IRendererOptions, notebookTracker: INotebookTracker) {
+    constructor(options: IRenderMime.IRendererOptions, notebookTracker: INotebookTracker, defaultRenderer: IRenderMime.IRenderer) {
         super();
-        this._app = app;
         this.addClass(CLASS_NAME);
         this._notebookTracker = notebookTracker;
+        this._defaultRenderer = defaultRenderer;
     }
 
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
         const originalRawData = model.data['text/html']?.toString();
         const isDataframeOutput = originalRawData?.includes('class="dataframe"');
-
-
         const notebook = this._notebookTracker.currentWidget?.content;
         const cells = notebook?.model?.cells;
         const activeCellIndex = notebook?.activeCellIndex
@@ -71,7 +68,6 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
             try {
                 const notebookPanel = this._notebookTracker.currentWidget;
                 const kernel = notebookPanel?.context.sessionContext.session?.kernel;
-
 
                 if (!kernel) {
                     console.error('No active kernel found.');
@@ -112,8 +108,8 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
             }
 
         } else {
-            console.log("Non-dataframe content !");
-            console.log(this._app);
+            await this._defaultRenderer.renderModel(model);
+            this.node.appendChild(this._defaultRenderer.node);
         }
 
         return Promise.resolve();

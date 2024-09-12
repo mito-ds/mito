@@ -507,8 +507,8 @@ function activateMitosheetExtension(
             safe: true,
             mimeTypes: [dataframeMimeType],  // Include both MIME types as needed
             createRenderer: (options: IRenderMime.IRendererOptions) => {
-                tracker
-                return new DataFrameMimeRenderer(app, options, tracker); // Pass dataframe to your renderer
+                const defaultRenderer = factory.createRenderer(options);
+                return new DataFrameMimeRenderer(options, tracker, defaultRenderer); // Pass dataframe to your renderer
             }
     }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
 }
