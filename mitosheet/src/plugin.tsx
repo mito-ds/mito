@@ -208,6 +208,7 @@ function activateMitosheetExtension(
         label: 'Writes the generated code for a deafult dataframe output mitosheet. Writes the code to the code cell below the specified code cell',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
+            console.log("FUCk yeahWRITE GENERATED CODE CELL BY ID")
             const analysisName = args.analysisName as string;
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
@@ -227,6 +228,7 @@ function activateMitosheetExtension(
             }
 
             const mimeRenderInputCellIndex = cells ? Array.from(cells).findIndex(cell => cell.id === cellID) : -1;
+            console.log("MIME RENDER INDEX", mimeRenderInputCellIndex)
             console.log("CELLS")
             console.log(cells)
             console.log(cellID)
@@ -239,16 +241,21 @@ function activateMitosheetExtension(
                 return;
             }
 
-            const codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
+            let codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
+            console.log("CODE CELL", codeCell?.sharedModel.source)
 
             // If there is no cell below the mitosheet, create one. 
             if (codeCell === undefined) {
                 console.log("NO CODE CELL")
                 // Move the active cell to the mimeRenderInputCellIndex
                 notebook.activeCellIndex = mimeRenderInputCellIndex;
+                console.log("ACTIVE CELL INDEX 1", notebook.activeCellIndex)
 
                 // Then insert a code cell below it 
                 NotebookActions.insertBelow(notebook);
+
+                // Update the codeCell to the new cell
+                codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1);
             }
 
 
@@ -257,19 +264,23 @@ function activateMitosheetExtension(
             // 1. We haven't yet written code from this mitosheet and there is a code cell below the mitosheet already
             // 2. The user has edited the generated code below the mitosheet. 
             const codeCellText = getCellText(codeCell);
-            if (hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
+            if (codeCellText !== '' && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
                 console.log("CODE CELL HAS BEEN EDITED BY USER")
                 // Move the active cell to the mimeRenderInputCellIndex
                 notebook.activeCellIndex = mimeRenderInputCellIndex;
+                console.log("ACTIVE CELL INDEX 2", notebook.activeCellIndex)
 
                 // Then insert a code cell below it 
                 NotebookActions.insertBelow(notebook);
+
+                // Update the codeCell to the new cell
+                codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1);
             }
 
 
             // Then finally write the code to the code cell
             if (codeCell !== undefined) {
-                console.log("WRITING CODE TO CODE CELL")
+                console.log("WRITING CODE TO CODE CELL", codeCell.sharedModel.source)
                 writeToCell(codeCell, code)
                 return;
             }
