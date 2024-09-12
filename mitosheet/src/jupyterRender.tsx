@@ -9,7 +9,6 @@ import {
     writeAnalysisToReplayToMitosheetCall, 
     writeCodeSnippetCell, 
     writeGeneratedCodeToCell, 
-    writeGeneratedCodeToCellByID 
 } from './jupyter/jupyterUtils';
 import { getCommSend } from './jupyter/comm';
 
@@ -63,7 +62,7 @@ ReactDOM.render(
         jupyterUtils={{
             getArgs: getArgs,
             writeAnalysisToReplayToMitosheetCall: writeAnalysisToReplayToMitosheetCall,
-            writeGeneratedCodeToCell: analysisData.cellID ? writeGeneratedCodeToCellByID : writeGeneratedCodeToCell,
+            writeGeneratedCodeToCell: writeGeneratedCodeToCell,
             writeCodeSnippetCell: writeCodeSnippetCell,
             overwriteAnalysisToReplayToMitosheetCall: overwriteAnalysisToReplayToMitosheetCall,
         }}

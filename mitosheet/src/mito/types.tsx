@@ -997,7 +997,7 @@ export const enum FeedbackID {
 }
 
 export interface JupyterUtils {
-    getArgs: (analysisToReplayName: string | undefined) => Promise<string[]>,
+    getArgs: (analysisToReplayName: string | undefined, cellID: string | undefined) => Promise<string[]>,
     writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
     writeGeneratedCodeToCell: (analysisName: string, cellID: string | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
     writeCodeSnippetCell: (analysisName: string, code: string) => void

@@ -182,7 +182,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         const updateMitosheetCallCellOnFirstRender = async () => {
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
-            const args = await props.jupyterUtils?.getArgs(analysisData.analysisToReplay?.analysisName) ?? [];
+            const args = await props.jupyterUtils?.getArgs(analysisData.analysisToReplay?.analysisName, analysisData.cellID) ?? [];
 
             // Then, after we have the args, we replay an analysis if there is an analysis to replay
             // Note that this has to happen after so that we have the the argument names loaded in at

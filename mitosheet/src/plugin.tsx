@@ -8,7 +8,7 @@ import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCo
 import { JupyterComm } from './jupyter/comm';
 import {
     createCodeCellAtIndex,
-    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell,
+    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellIndexByID, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell,
     writeToCodeCellAtIndex
 } from './jupyter/extensionUtils';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
@@ -227,8 +227,8 @@ function activateMitosheetExtension(
                 return;
             }
 
-            const mimeRenderInputCellIndex = cells ? Array.from(cells).findIndex(cell => cell.id === cellID) : -1;
-            if (mimeRenderInputCellIndex === -1) {
+            const mimeRenderInputCellIndex = getCellIndexByID(cells, cellID);
+            if (mimeRenderInputCellIndex === undefined) {
                 // If the code cell that created the mitosheet mime render does not exist, 
                 // just return. I don't think this should ever happen because you can't 
                 // have a mimerender for a code cell that does not exist anymore.
@@ -323,6 +323,38 @@ function activateMitosheetExtension(
             if (cellAndIndex) {
                 const [cell, ] = cellAndIndex;
                 return getArgsFromMitosheetCallCode(getCellText(cell));
+            } else {
+                return [];
+            }
+        }
+    });
+
+    app.commands.addCommand('mitosheet:get-args-by-id', {
+        label: 'Reads the arguments on the last line of a code cell.',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any): string[] => {
+            const notebook = tracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+            const cellID = args.cellID as string | undefined;
+            const cellIndex = getCellIndexByID(cells, cellID);
+
+            if (cellID === undefined || notebook === undefined || cells === undefined || cellIndex === undefined) {
+                return [];
+            }
+
+            const cell = getCellAtIndex(cells, cellIndex);
+            if (cell) {
+
+                // We assume that we're using this to parse the dataframe name at the end of a code cell
+                // that created a dataframe rendermine mitosheet. If there were other variables on the last line 
+                // besides the dataframe, we would not have gotten the dataframe renderer.
+                const dfName = getLastNonEmptyLine(getCellText(cell));
+
+                if (dfName === undefined) {
+                    return [];
+                }
+
+                return [dfName.trim()]
             } else {
                 return [];
             }

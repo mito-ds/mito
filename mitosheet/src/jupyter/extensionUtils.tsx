@@ -29,6 +29,15 @@ export function getCellAtIndex(cells: CellList | undefined, index: number): ICel
     return cell
 }
 
+export function getCellIndexByID(cells: CellList | undefined, cellID: string | undefined): number | undefined {
+    if (cells == undefined || cellID == undefined) {
+        return undefined
+    }
+
+    const cellIndex = Array.from(cells).findIndex(cell => cell.id === cellID)
+    return cellIndex === -1 ? undefined : cellIndex;
+}
+
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
 
