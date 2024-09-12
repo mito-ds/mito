@@ -19,6 +19,7 @@ export function getCodeString(
         return '';
     }
 
+    console.log("code", code)
     const finalCode = code.join('\n');
 
     // If telemetry not enabled, we want to be clear about this by
@@ -47,12 +48,6 @@ export const getArgsFromMitosheetCallCode = (codeText: string): string[] => {
     // If there is a (new) analysis name parameter passed, we ignore it
     if (nameString.includes('analysis_to_replay')) {
         nameString = nameString.split('analysis_to_replay')[0].trim();
-    }
-
-    // If there is a view_df name parameter, we ignore it
-    // TODO: remove this on Jan 1, 2023 (since we no longer need it)
-    if (nameString.includes('view_df')) {
-        nameString = nameString.split('view_df')[0].trim();
     }
 
     if (nameString.includes('sheet_functions')) {

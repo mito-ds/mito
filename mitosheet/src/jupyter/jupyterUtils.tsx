@@ -47,10 +47,11 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 }
 
 
-export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
+export const writeGeneratedCodeToCell = (analysisName: string, cellID: string | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
     if (isInJupyterLabOrNotebook()) {
         window.commands?.execute('mitosheet:write-generated-code-cell', {
             analysisName: analysisName,
+            cellID: cellID,
             code: code,
             telemetryEnabled: telemetryEnabled,
             publicInterfaceVersion: publicInterfaceVersion,
@@ -63,7 +64,21 @@ export const writeGeneratedCodeToCell = (analysisName: string, code: string[], t
     }
 }
 
-
+export const writeGeneratedCodeToCellByID = (analysisName: string, cellID: string | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
+    if (isInJupyterLabOrNotebook()) {
+        window.commands?.execute('mitosheet:write-generated-code-cell-by-id', {
+            cellID: cellID,
+            code: code,
+            telemetryEnabled: telemetryEnabled,
+            publicInterfaceVersion: publicInterfaceVersion,
+            oldCode: oldCode,
+            overwriteIfUserEditedCode: overwriteIfUserEditedCode,
+            triggerUserEditedCodeDialog: triggerUserEditedCodeDialog,
+        });
+    } else {
+        console.error("Not detected as in Jupyter Notebook or JupyterLab")
+    }
+}
 
 export const writeCodeSnippetCell = (analysisName: string, code: string): void => {
     if (isInJupyterLabOrNotebook()) {

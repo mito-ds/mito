@@ -1,7 +1,16 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom';
 import { Mito } from './mito';
-import { getAnalysisDataFromString, getArgs, getSheetDataArrayFromString, getUserProfileFromString, overwriteAnalysisToReplayToMitosheetCall, writeAnalysisToReplayToMitosheetCall, writeCodeSnippetCell, writeGeneratedCodeToCell } from './jupyter/jupyterUtils';
+import { 
+    getAnalysisDataFromString, 
+    getArgs, getSheetDataArrayFromString, 
+    getUserProfileFromString, 
+    overwriteAnalysisToReplayToMitosheetCall,
+    writeAnalysisToReplayToMitosheetCall, 
+    writeCodeSnippetCell, 
+    writeGeneratedCodeToCell, 
+    writeGeneratedCodeToCellByID 
+} from './jupyter/jupyterUtils';
 import { getCommSend } from './jupyter/comm';
 
 // We replace the following byte arrays with the real byte arrays of the utf8 encoded
@@ -54,7 +63,7 @@ ReactDOM.render(
         jupyterUtils={{
             getArgs: getArgs,
             writeAnalysisToReplayToMitosheetCall: writeAnalysisToReplayToMitosheetCall,
-            writeGeneratedCodeToCell: writeGeneratedCodeToCell,
+            writeGeneratedCodeToCell: analysisData.cellID ? writeGeneratedCodeToCellByID : writeGeneratedCodeToCell,
             writeCodeSnippetCell: writeCodeSnippetCell,
             overwriteAnalysisToReplayToMitosheetCall: overwriteAnalysisToReplayToMitosheetCall,
         }}

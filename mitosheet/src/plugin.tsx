@@ -204,6 +204,80 @@ function activateMitosheetExtension(
         }
     })
 
+    app.commands.addCommand('mitosheet:write-generated-code-cell-by-id', {
+        label: 'Writes the generated code for a deafult dataframe output mitosheet. Writes the code to the code cell below the specified code cell',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            const analysisName = args.analysisName as string;
+            const codeLines = args.code as string[];
+            const telemetryEnabled = args.telemetryEnabled as boolean;
+            const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
+            const cellID = args.cellID as string | undefined; 
+
+            // This is the last saved analysis' code, which we use to check if the user has changed
+            // the code in the cell. If they have, we don't want to overwrite their changes automatically.
+            const oldCode = args.oldCode as string[];
+            const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
+            const notebook = tracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+
+            if (cellID === undefined || notebook === undefined || cells === undefined) {
+                console.log("NO NOTEBOOK OR CELLS")
+                return;
+            }
+
+            const mimeRenderInputCellIndex = cells ? Array.from(cells).findIndex(cell => cell.id === cellID) : -1;
+            console.log("CELLS")
+            console.log(cells)
+            console.log(cellID)
+            console.log(mimeRenderInputCellIndex)
+            if (mimeRenderInputCellIndex === -1) {
+                console.log("NO MIME RENDER INPUT CELL INDEX")
+                // If the code cell that created the mitosheet mime render does not exist, 
+                // just return. I don't think this should ever happen because you can't 
+                // have a mimerender for a code cell that does not exist anymore.
+                return;
+            }
+
+            const codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
+
+            // If there is no cell below the mitosheet, create one. 
+            if (codeCell === undefined) {
+                console.log("NO CODE CELL")
+                // Move the active cell to the mimeRenderInputCellIndex
+                notebook.activeCellIndex = mimeRenderInputCellIndex;
+
+                // Then insert a code cell below it 
+                NotebookActions.insertBelow(notebook);
+            }
+
+
+            // If the code cell is not the old code, then create a new code cell below the mitosheet to write to. 
+            // This could occur in three cases:
+            // 1. We haven't yet written code from this mitosheet and there is a code cell below the mitosheet already
+            // 2. The user has edited the generated code below the mitosheet. 
+            const codeCellText = getCellText(codeCell);
+            if (hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
+                console.log("CODE CELL HAS BEEN EDITED BY USER")
+                // Move the active cell to the mimeRenderInputCellIndex
+                notebook.activeCellIndex = mimeRenderInputCellIndex;
+
+                // Then insert a code cell below it 
+                NotebookActions.insertBelow(notebook);
+            }
+
+
+            // Then finally write the code to the code cell
+            if (codeCell !== undefined) {
+                console.log("WRITING CODE TO CODE CELL")
+                writeToCell(codeCell, code)
+                return;
+            }
+
+            console.log("CODE CELL IS UNDEFINED")
+        }
+    })
+
 
     app.commands.addCommand('mitosheet:write-code-snippet-cell', {
         label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',

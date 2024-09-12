@@ -10,7 +10,7 @@ import { getCellAtIndex, getCellText } from './jupyter/extensionUtils';
 const CLASS_NAME = 'jp-DataFrameViewer';
 
 // React component to display the output from Python
-const SheetOutputComponent = (props: { htmlContent: string, jsCode?: string }) => {
+const SpreadsheetDataframeComponent = (props: { htmlContent: string, jsCode?: string }) => {
     // Hook to run the JavaScript code after the component is mounted
     React.useEffect(() => {
         if (props.jsCode) {
@@ -47,7 +47,6 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
     }
 
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        this.node.innerHTML = '';  // Clear previous content
         const originalRawData = model.data['text/html']?.toString();
         const isDataframeOutput = originalRawData?.includes('class="dataframe"');
 
@@ -57,17 +56,17 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         const activeCellIndex = notebook?.activeCellIndex
 
         let dataframeVariableName = undefined;
+        let cellID = undefined
         if (activeCellIndex) {
             const previousCell = getCellAtIndex(cells, activeCellIndex - 1)
             dataframeVariableName = getLastNonEmptyLine(getCellText(previousCell))
+            cellID = previousCell?.id
         }
-
-
         if (isDataframeOutput) {
             console.log('Dataframe detected!!!!');
 
             // Define the Python code to run
-            const pythonCode = `mitosheet.sheet(${dataframeVariableName || ''} )`;
+            const pythonCode = `mitosheet.sheet(${dataframeVariableName || ''}, cell_id='${cellID}')`;
 
             try {
                 const notebookPanel = this._notebookTracker.currentWidget;
@@ -79,8 +78,6 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
                     return;
                 }
 
-                console.log("GOT A KERNEL")
-
                 // Execute the Python code
                 const future = kernel.requestExecute({ code: pythonCode });
 
@@ -88,7 +85,6 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
                     if (msg.header.msg_type === 'execute_result' || msg.header.msg_type === 'display_data') {
                         const htmlOutput = msg.content.data['text/html'];
                         if (htmlOutput) {
-                            console.log('Received HTML output:', htmlOutput);
                             // Extract the javascript code so we can execute it when we render the output.
                             // Remember, that the javascript code is actually what creates the sheet interface!
                             const scriptMatch = htmlOutput.match(/<script[^>]*>([\s\S]*?)<\/script>/);
@@ -96,10 +92,10 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
 
                             // Create a React widget to display the HTML output
                             const reactWidget = ReactWidget.create(
-                                <SheetOutputComponent htmlContent={htmlOutput} jsCode={jsCode} />
+                                <SpreadsheetDataframeComponent htmlContent={htmlOutput} jsCode={jsCode} />
                             );
 
-                            // Clear previous content and append the React widget
+                            // Attatch the Mito widget to the node
                             this.node.innerHTML = '';
                             Widget.attach(reactWidget, this.node);
                         }
@@ -116,9 +112,8 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
             }
 
         } else {
-            console.log("Non-dataframe content detected");
+            console.log("Non-dataframe content !");
             console.log(this._app);
-            this.node.appendChild(document.createTextNode("Non-dataframe content"));
         }
 
         return Promise.resolve();
