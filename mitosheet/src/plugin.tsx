@@ -45,7 +45,7 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 function activateMitosheetExtension(
     app: JupyterFrontEnd,
     tracker: INotebookTracker,
-    rendermime: IRenderMimeRegistry,
+    rendermimeRegistry: IRenderMimeRegistry,
 ): void {
 
     console.log('Mitosheet extension activated');
@@ -529,10 +529,10 @@ function activateMitosheetExtension(
     // Add a custom renderer for the stderr output
 
     const dataframeMimeType = 'text/html'
-    const factory = rendermime.getFactory(dataframeMimeType);
+    const factory = rendermimeRegistry.getFactory(dataframeMimeType);
 
     if (factory) {
-        rendermime.addFactory({
+        rendermimeRegistry.addFactory({
             safe: true,
             mimeTypes: [dataframeMimeType],  // Include both MIME types as needed
             createRenderer: (options: IRenderMime.IRendererOptions) => {

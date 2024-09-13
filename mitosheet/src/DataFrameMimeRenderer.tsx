@@ -69,7 +69,8 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
                 const kernel = notebookPanel?.context.sessionContext.session?.kernel;
 
                 if (!kernel) {
-                    console.error('No active kernel found.');
+                    // TODO: Instead of not returning anything, we could return the default renderer or something else
+                    console.error('No active kernel found while trying to render dataframe');
                     return;
                 }
 
@@ -99,11 +100,15 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
             } catch (error) {
                 console.error('Error executing Python code:', error);
                 // If something goes wrong, just display the default dataframe output
+                // TODO: Instead of appending the default renderer, just return the default renderer
+                // so that we are not adding extra divs and potentially effecting the styling.
                 await this._defaultRenderer.renderModel(model);
                 this.node.appendChild(this._defaultRenderer.node);
             }
         } else {
             // If the output is not a dataframe, just use the default renderer
+            // TODO: Instead of appending the default renderer, just return the default renderer
+            // so that we are not adding extra divs and potentially effecting the styling.
             await this._defaultRenderer.renderModel(model);
             this.node.appendChild(this._defaultRenderer.node);
         }
