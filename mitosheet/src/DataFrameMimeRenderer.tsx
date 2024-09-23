@@ -5,7 +5,6 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getCellAtIndex, getCellIndexByID, getCellText } from './jupyter/extensionUtils';
 import { getLastNonEmptyLine } from './jupyter/code';
-import { OutputArea } from '@jupyterlab/outputarea';
 import { CodeCell } from '@jupyterlab/cells';
 
 
@@ -87,115 +86,98 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         
         */
 
-        const isDataframeOutput = model.data['text/html']?.toString()?.includes('class="dataframe"');
-        const notebook = this._notebookTracker.currentWidget?.content;
-        const cells = notebook?.model?.cells;
-        let inputCellID = undefined
+        try {
 
-        // TODO: Document this. I think we need to first render the default renderer so that 
-        // the this widget is created. Otherwise, the this.node will not be set and when we 
-        // cannot use it traverse up to find the Output area.
-        await this._defaultRenderer.renderModel(model);
+            const isDataframeOutput = model.data['text/html']?.toString()?.includes('class="dataframe"');
 
-        let widget: Widget | null = this as unknown as Widget;
-
-        // Traverse up to find the OutputArea
-
-        // TODO. Can we combine this with the following while loop?
-        while (widget && !(widget instanceof OutputArea)) {
-            widget = widget.parent;
-        }
-
-        if (widget instanceof OutputArea) {
-            const outputArea = widget as OutputArea;
-
-            // Access the parent CodeCell
-            let parentWidget = outputArea.parent;
-            while (parentWidget && !(parentWidget instanceof CodeCell)) {
-                parentWidget = parentWidget.parent;
-            }
-
-            if (parentWidget instanceof CodeCell) {
-                inputCellID = parentWidget.model.sharedModel.getId()
-            } 
-        }
-
-        if (!cells) {
-            throw new Error('No cells found in notebook')
-        }
-
-        // If we were not able to find the input cell by execution count, 
-        // we fallback to relying on the active cell index. We get the active 
-        // cell index as easrly as posibble to try to win race conditions.
-        let inputCell = undefined
-        if (inputCellID) {
-            const inputCellIndex = getCellIndexByID(cells, inputCellID)
-            if (inputCellIndex === undefined) {
-                throw new Error('No input cell found')
-            }
-            inputCell = getCellAtIndex(cells, inputCellIndex)
-        }
-
-        if (!inputCell) {
-            throw new Error('No input cell found')
-        }
-
-        let dataframeVariableName = getLastNonEmptyLine(getCellText(inputCell));
-        console.log('dataframeVariableName', dataframeVariableName)
-
-        if (isDataframeOutput ) {
-            // Define the Python code to run
-            const pythonCode = `import mitosheet; mitosheet.sheet(${dataframeVariableName || ''}, cell_id='${inputCellID}')`;
-
-            try {
-                const notebookPanel = this._notebookTracker.currentWidget;
-                const kernel = notebookPanel?.context.sessionContext.session?.kernel;
-
-                if (!kernel) {
-                    // TODO: Instead of not returning anything, we could return the default renderer or something else
-                    console.error('No active kernel found while trying to render dataframe');
-                    return;
-                }
-
-                // Execute the Python code
-                const future = kernel.requestExecute({ code: pythonCode });
-
-                future.onIOPub = (msg: any) => {
-
-                    // The display_data message type is returned from the mitosheet.sheet call
-                    if (msg.header.msg_type === 'display_data') {
-                        const htmlOutput = msg.content.data['text/html'];
-                        if (htmlOutput) {
-                            // Extract the javascript code so we can execute it when we render the output.
-                            // Remember, that the javascript code is actually what creates the sheet interface!
-                            const scriptMatch = htmlOutput.match(/<script[^>]*>([\s\S]*?)<\/script>/);
-                            const jsCode = scriptMatch ? scriptMatch[1] : '';
-
-                            // Create a React widget to display the HTML output
-                            const reactWidget = ReactWidget.create(
-                                <SpreadsheetDataframeComponent htmlContent={htmlOutput} jsCode={jsCode} />
-                            );
-
-                            // Attatch the Mito widget to the node
-                            this.node.innerHTML = '';
-                            Widget.attach(reactWidget, this.node);
-                        }
-                    }
-                };
-            } catch (error) {
-                console.error('Error executing Python code:', error);
-                // If something goes wrong, just display the default dataframe output
-                // TODO: Instead of appending the default renderer, just return the default renderer
-                // so that we are not adding extra divs and potentially effecting the styling.
+            if (!isDataframeOutput) {
+                // If we're not rendering a dataframe, just use the default renderer
                 await this._defaultRenderer.renderModel(model);
                 this.node.appendChild(this._defaultRenderer.node);
+                return Promise.resolve();
             }
-        } else {
-            // If the output is not a dataframe, just use the default renderer
-            // TODO: Instead of appending the default renderer, just return the default renderer
-            // so that we are not adding extra divs and potentially effecting the styling.
+
+            const notebookPanel = this._notebookTracker.currentWidget;
+            const cells = notebookPanel?.model?.cells;
+            let inputCellID = undefined
+
+        
+            /* 
+                Create the starting dom element and then traverse up to find 
+                the input code cell. 
+            */
+
             await this._defaultRenderer.renderModel(model);
-            this.node.appendChild(this._defaultRenderer.node);
+
+            let widget: Widget | null = this as unknown as Widget;
+            while (widget && !(widget instanceof CodeCell)) {
+                widget = widget.parent;
+            }
+
+            if (widget instanceof CodeCell) {
+                inputCellID = widget.model.sharedModel.getId()
+            } 
+
+            /* 
+                Get the dataframe variable name from the input cell. 
+            */
+
+            let dataframeVariableName = undefined
+            if (inputCellID) {
+                const inputCellIndex = getCellIndexByID(cells, inputCellID)
+                if (inputCellIndex === undefined) {
+                    throw new Error('No input cell found')
+                }
+                const inputCell = getCellAtIndex(cells, inputCellIndex)
+                dataframeVariableName = getLastNonEmptyLine(getCellText(inputCell));
+            }
+
+            if (!dataframeVariableName) {
+                throw new Error('No dataframe variable name found')
+            }
+
+            /* 
+                To display the dataframe in Mito, we execute the mitosheet.sheet() function call, passing to it:
+                1. the dataframe so it knows what data to display
+                2. the cell ID so it knows where to write the generated code to.
+            */
+            const kernel = notebookPanel?.context.sessionContext.session?.kernel;
+            if (!kernel) {
+                throw new Error('No kernel found');
+            }
+
+            const pythonCode = `import mitosheet; mitosheet.sheet(${dataframeVariableName || ''}, cell_id='${inputCellID}')`;
+            const future = kernel.requestExecute({ code: pythonCode });
+
+            /* 
+                Listen to the juptyer messages to find the response to the mitosheet.sheet() call. Once we get back the 
+                mitosheet.sheet() html, display it!  
+            */
+            future.onIOPub = (msg: any) => {
+
+                // The display_data message type is returned from the mitosheet.sheet call
+                if (msg.header.msg_type === 'display_data') {
+                    const htmlOutput = msg.content.data['text/html'];
+                    
+                    // Extract the javascript code so we can execute it when we render the output.
+                    // Remember, that the javascript code is actually what creates the sheet interface!
+                    const scriptMatch = htmlOutput.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+                    const jsCode = scriptMatch ? scriptMatch[1] : '';
+
+                    const reactWidget = ReactWidget.create(
+                        <SpreadsheetDataframeComponent htmlContent={htmlOutput} jsCode={jsCode} />
+                    );
+
+                    // Attatch the Mito widget to the node
+                    this.node.innerHTML = '';
+                    Widget.attach(reactWidget, this.node);
+                }
+            };
+        } catch (error) {
+            console.error('Dataframe Mime Renderer:', error);
+
+            // If something goes wrong, just display the default dataframe output
+            this.node.replaceWith(this._defaultRenderer.node);
         }
 
         return Promise.resolve();
