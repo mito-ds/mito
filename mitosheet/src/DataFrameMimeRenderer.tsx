@@ -58,9 +58,36 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
     }
 
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        console.log('model', model)
-        const originalRawData = model.data['text/html']?.toString();
-        const isDataframeOutput = originalRawData?.includes('class="dataframe"');
+
+        /* 
+
+        This code is esponsible for creating a mitosheet to display the dataframe when Jupyter 
+        is rendering a dataframe to the output cell. 
+
+        The challenging part is figuring out which dataframe to display in the mitosheet. To figure this out,
+        we need to find the code cell that triggered this dataframe render and get the dataframe on its last line. 
+
+        Finding the code cell is challenging however. Below describes a few options we tried and why they don't work. 
+
+        1. Using the activeCellIndex: We cannot use the activeCellIndex to identify the cell ID because when running 
+        a bunch of cells in a row (for example, using run all cells) or when the code cell takes a few seconds to execute,
+        the active cell in the notebook tracker updates before we're able to save it. As a result, we end up thinking the 
+        code cell that triggered the dataframe render is at the bottom of the notebook. 
+
+        2. Using the execution count: We cannot use the execution count because the execution count will not update
+        until the mime render is created. When we run the code cell `df`, that cell is responsible for creating the mime renderer. 
+        As a result, when we search the cells for the execution count, of ie: 3, the closest execution count that we get is 2. 
+        
+        Instead of using those approaches, we instead use the dom to find the corresponding code cell ID. This works as follows: 
+
+        1. Render the default renderer so that the we have a DOM element to start with. 
+        2. Traverse up to find the Code Cell that triggered the dataframe render (the first code cell we find)
+        3. Get the code cell ID from the code cell's model. 
+        4. Use the cell ID to find the input cell and read the dataframe name from it. 
+        
+        */
+
+        const isDataframeOutput = model.data['text/html']?.toString()?.includes('class="dataframe"');
         const notebook = this._notebookTracker.currentWidget?.content;
         const cells = notebook?.model?.cells;
         let inputCellID = undefined
@@ -73,6 +100,8 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         let widget: Widget | null = this as unknown as Widget;
 
         // Traverse up to find the OutputArea
+
+        // TODO. Can we combine this with the following while loop?
         while (widget && !(widget instanceof OutputArea)) {
             widget = widget.parent;
         }
@@ -90,17 +119,6 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
                 inputCellID = parentWidget.model.sharedModel.getId()
             } 
         }
-        // We cannot use the activeCellIndex to identify the cell ID because when running 
-        // a bunch of cells in a row (for example, using run all cells), the active cell 
-        // updates too quickly. Instead, we use the execution number of the cell to get 
-        // the cell id. This also happens if the code cell that renders the dataframe takes ie: 1 second
-        // to render and the user has run a few different cells. While the cell is waiting to execute, 
-        // the active cell is updated! 
-
-        // Using the execution count does not work either because the execution will not update
-        // until the mime render is created. When we run the code `df`, that cell is responsible for
-        // create the mime renderer. As a result, when we search the cells for the execution count, 
-        // of ie: 3, the closest execution count that we get is 2. 
 
         if (!cells) {
             throw new Error('No cells found in notebook')
