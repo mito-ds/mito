@@ -219,7 +219,7 @@ function activateMitosheetExtension(
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
             const oldCode = args.oldCode as string[];
-            const newCode = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
+            const newCode = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion, true);
             const notebook = tracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
 
@@ -519,12 +519,6 @@ function activateMitosheetExtension(
         keys: ['Shift Enter'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('mitosheet:do-nothing', {
-        label: 'Does nothing',
-        execute: async (): Promise<void> => {
-            // Do nothing, doh
-        }
-    });
 
     // Add a custom renderer for the stderr output
 
@@ -536,8 +530,9 @@ function activateMitosheetExtension(
             safe: true,
             mimeTypes: [dataframeMimeType],  // Include both MIME types as needed
             createRenderer: (options: IRenderMime.IRendererOptions) => {
+                const activeCellIndex = tracker.currentWidget?.content.activeCellIndex
                 const defaultRenderer = factory.createRenderer(options);
-                return new DataFrameMimeRenderer(options, tracker, defaultRenderer); // Pass dataframe to your renderer
+                return new DataFrameMimeRenderer(options, activeCellIndex, tracker, defaultRenderer); // Pass dataframe to your renderer
             }
     }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
 }
