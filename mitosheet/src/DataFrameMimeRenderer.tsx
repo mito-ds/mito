@@ -3,8 +3,11 @@ import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getCellAtIndex, getCellText } from './jupyter/extensionUtils';
+import { getCellAtIndex, getCellIndexByID, getCellText } from './jupyter/extensionUtils';
 import { getLastNonEmptyLine } from './jupyter/code';
+import { OutputArea } from '@jupyterlab/outputarea';
+import { CodeCell } from '@jupyterlab/cells';
+
 
 const CLASS_NAME = 'jp-DataFrameViewer';
 
@@ -42,19 +45,16 @@ const SpreadsheetDataframeComponent = (props: { htmlContent: string, jsCode?: st
 export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRenderer {
     private _notebookTracker: INotebookTracker;
     private _defaultRenderer: IRenderMime.IRenderer;
-    private _activeCellIndex: number;
 
     constructor(
         options: IRenderMime.IRendererOptions, 
-        activeCellIndex: number | undefined,
         notebookTracker: INotebookTracker, 
         defaultRenderer: IRenderMime.IRenderer
     ) {
         super();
         this.addClass(CLASS_NAME);
         this._notebookTracker = notebookTracker;
-        this._defaultRenderer = defaultRenderer;
-        this._activeCellIndex = activeCellIndex || 0;
+        this._defaultRenderer = defaultRenderer;;
     }
 
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
@@ -63,10 +63,33 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         const isDataframeOutput = originalRawData?.includes('class="dataframe"');
         const notebook = this._notebookTracker.currentWidget?.content;
         const cells = notebook?.model?.cells;
-        const activeCellIndex = this._activeCellIndex
-        let inputCell = undefined
         let inputCellID = undefined
 
+        // TODO: Document this. I think we need to first render the default renderer so that 
+        // the this widget is created. Otherwise, the this.node will not be set and when we 
+        // cannot use it traverse up to find the Output area.
+        await this._defaultRenderer.renderModel(model);
+
+        let widget: Widget | null = this as unknown as Widget;
+
+        // Traverse up to find the OutputArea
+        while (widget && !(widget instanceof OutputArea)) {
+            widget = widget.parent;
+        }
+
+        if (widget instanceof OutputArea) {
+            const outputArea = widget as OutputArea;
+
+            // Access the parent CodeCell
+            let parentWidget = outputArea.parent;
+            while (parentWidget && !(parentWidget instanceof CodeCell)) {
+                parentWidget = parentWidget.parent;
+            }
+
+            if (parentWidget instanceof CodeCell) {
+                inputCellID = parentWidget.model.sharedModel.getId()
+            } 
+        }
         // We cannot use the activeCellIndex to identify the cell ID because when running 
         // a bunch of cells in a row (for example, using run all cells), the active cell 
         // updates too quickly. Instead, we use the execution number of the cell to get 
@@ -79,61 +102,30 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         // create the mime renderer. As a result, when we search the cells for the execution count, 
         // of ie: 3, the closest execution count that we get is 2. 
 
-        const modelExecutionNumber = (model as any)?.executionCount;
-        console.log('modelExecutionNumber', modelExecutionNumber)
-
         if (!cells) {
             throw new Error('No cells found in notebook')
-        }
-
-        for (let i = 0; i < cells.length; i++) {
-            const cell = cells.get(i) as any;
-            console.log('cell', i, cell)
-    
-            // Check if the cell is a code cell
-            if (cell.type === 'code') {
-                const executionCountEntry = cell.sharedModel.ymodel._map.get('execution_count');
-                const executionCountContent = executionCountEntry.content; // Access 'content' directly as it's an object
-                const arr = executionCountContent.arr; // Access 'arr' as an array
-                const executionCount = arr[0];
-                //console.log('cell.sharedModel.ymodel._map[execution_count][content]', cell.sharedModel.ymodel._map['execution_count']['content'])
-                //console.log('cell.sharedModel.ymodel._map[execution_count][content][arr][0]', cell.sharedModel.ymodel._map['execution_count']['content']['arr'][0])
-                // console.log(cell)
-                console.log('executionCount', executionCount)
-                
-                // // If executionCount matches, this is the target cell
-                if (executionCount === modelExecutionNumber) {
-                    // Get the cell id 
-                    console.log("FOUND", cell)
-                    const idEntry = cell.sharedModel.ymodel._map.get('id');
-                    const idContent = idEntry.content; // Access 'content' directly as it's an object
-                    const arr = idContent.arr; // Access 'arr' as an array
-                    inputCell = cell
-                    inputCellID = arr[0];
-                    break;
-                }
-            }
         }
 
         // If we were not able to find the input cell by execution count, 
         // we fallback to relying on the active cell index. We get the active 
         // cell index as easrly as posibble to try to win race conditions.
-        if (!inputCell || !inputCellID) {
-            console.log('FALLING BACK ON ACTIVE CELL INDEX')
-            console.log('activeCellIndex!!!!', activeCellIndex)
-            inputCell = getCellAtIndex(cells, activeCellIndex - 1)
-            console.log('inputCell', inputCell)
-            inputCellID = inputCell?.id
-            console.log('inputCellID', inputCellID)
-        } else {
-            console.log("USING EXECUTION COUNT")
+        let inputCell = undefined
+        if (inputCellID) {
+            const inputCellIndex = getCellIndexByID(cells, inputCellID)
+            if (inputCellIndex === undefined) {
+                throw new Error('No input cell found')
+            }
+            inputCell = getCellAtIndex(cells, inputCellIndex)
+        }
 
+        if (!inputCell) {
+            throw new Error('No input cell found')
         }
 
         let dataframeVariableName = getLastNonEmptyLine(getCellText(inputCell));
         console.log('dataframeVariableName', dataframeVariableName)
 
-        if (isDataframeOutput) {
+        if (isDataframeOutput ) {
             // Define the Python code to run
             const pythonCode = `import mitosheet; mitosheet.sheet(${dataframeVariableName || ''}, cell_id='${inputCellID}')`;
 

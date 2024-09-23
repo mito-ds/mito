@@ -17,6 +17,8 @@ import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShor
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import  DataFrameMimeRenderer from './DataFrameMimeRenderer';
+import { CodeCell } from '@jupyterlab/cells';
+
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -520,6 +522,29 @@ function activateMitosheetExtension(
         selector: '.mito-container'
     });
 
+    console.log('originalExecute', CodeCell.prototype)
+
+    const originalExecute = CodeCell.execute;
+    CodeCell.execute = async function (
+        cell: CodeCell,
+        sessionContext: any,
+        metadata: Record<any, any> = {}
+    ) {
+        // Ensure metadata exists
+        metadata = { ...metadata };
+
+        // Add cell ID to transient metadata
+        metadata.transient = {
+            ...(metadata.transient || {}),
+            cellId: cell.model.id
+        };
+
+        // Call the original execute method with updated metadata
+        const result = await originalExecute.call(this, cell, sessionContext, metadata);
+
+        return result;
+    };
+
     // Add a custom renderer for the stderr output
 
     const dataframeMimeType = 'text/html'
@@ -530,9 +555,8 @@ function activateMitosheetExtension(
             safe: true,
             mimeTypes: [dataframeMimeType],  // Include both MIME types as needed
             createRenderer: (options: IRenderMime.IRendererOptions) => {
-                const activeCellIndex = tracker.currentWidget?.content.activeCellIndex
                 const defaultRenderer = factory.createRenderer(options);
-                return new DataFrameMimeRenderer(options, activeCellIndex, tracker, defaultRenderer); // Pass dataframe to your renderer
+                return new DataFrameMimeRenderer(options, tracker, defaultRenderer); // Pass dataframe to your renderer
             }
     }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
 }
