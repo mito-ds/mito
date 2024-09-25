@@ -47,12 +47,12 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 }
 
 
-export const writeGeneratedCodeToCell = (analysisName: string, cellID: string | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
+export const writeGeneratedCodeToCell = (analysisName: string, inputCellExecutionCount: number | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
     if (isInJupyterLabOrNotebook()) {
-        if (cellID) {
+        if (inputCellExecutionCount) {
             window.commands?.execute('mitosheet:write-generated-code-cell-by-id', {
                 analysisName: analysisName,
-                cellID: cellID,
+                inputCellExecutionCount: inputCellExecutionCount,
                 code: code,
                 telemetryEnabled: telemetryEnabled,
                 publicInterfaceVersion: publicInterfaceVersion,
@@ -86,11 +86,11 @@ export const writeCodeSnippetCell = (analysisName: string, code: string): void =
 }
 
 
-export const getArgs = (analysisToReplayName: string | undefined, cellID: string | undefined): Promise<string[]> => {
+export const getArgs = (analysisToReplayName: string | undefined, inputCellExecutionCount: number | undefined): Promise<string[]> => {
     return new Promise((resolve) => {
         if (isInJupyterLabOrNotebook()) {
-            if (cellID) {
-                window.commands?.execute('mitosheet:get-args-by-id', {cellID: cellID}).then(async (args: string[]) => {
+            if (inputCellExecutionCount) {
+                window.commands?.execute('mitosheet:get-args-by-id', {inputCellExecutionCount: inputCellExecutionCount}).then(async (args: string[]) => {
                     return resolve(args);
                 })
             } else {

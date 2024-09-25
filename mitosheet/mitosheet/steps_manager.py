@@ -190,7 +190,7 @@ class StepsManager:
             column_definitions: Optional[List[ColumnDefinitions]]=None,
             default_editing_mode: Optional[DefaultEditingMode]=None,
             theme: Optional[MitoTheme]=None,
-            cell_id: Optional[str]=None,
+            input_cell_execution_count: Optional[int]=None,
         ):
         """
         When initalizing the StepsManager, we also do preprocessing
@@ -207,7 +207,7 @@ class StepsManager:
         # is such an analysis
         self.analysis_to_replay = analysis_to_replay
         self.analysis_to_replay_exists = get_analysis_exists(analysis_to_replay)
-        self.cell_id = cell_id
+        self.input_cell_execution_count = input_cell_execution_count
 
         # The import folder is the folder that users have the right to import files from. 
         # If this is set, then we should never let users view or access files that are not
@@ -405,7 +405,7 @@ class StepsManager:
         return json.dumps(
             {
                 "analysisName": self.analysis_name,
-                "cellID": self.cell_id,
+                "inputCellExecutionCount": self.input_cell_execution_count,
                 "publicInterfaceVersion": self.public_interface_version,
                 "analysisToReplay": {
                     'analysisName': self.analysis_to_replay,

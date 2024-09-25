@@ -103,3 +103,43 @@ _js_dist = [
 _css_dist = [
     {'relative_package_path': 'mito_dash/v1/mitoBuild/component.css', 'namespace': 'mitosheet'}, 
 ]
+
+
+def activate():
+    from IPython import get_ipython
+    import pandas as pd
+    import mitosheet
+
+    # Updated formatter functions with correct signatures
+    def mitosheet_display_formatter(obj, include=None, exclude=None):
+        
+        # We do not have access to the cell ID here because the cell ID exists only in the frontend 
+        # and does not get shared with the kernel. However, we do get access to the execution count, 
+        # which is also a unique identifier for each cell within the lifecycle of each kernel. 
+        ip = get_ipython()
+        print('ip', ip.execution_count)
+
+
+        if isinstance(obj, pd.DataFrame):
+            return mitosheet.sheet(obj, input_cell_execution_count = ip.execution_count)  # Return HTML string
+        return None  # Let other types use the default formatter
+
+    def mitosheet_plain_formatter(obj, p, cycle):
+        if isinstance(obj, pd.DataFrame):
+            return ''  # Prevent default text representation
+        return None  # Let other types use the default formatter
+
+    ip = get_ipython()
+    html_formatter = ip.display_formatter.formatters['text/html']
+    plain_formatter = ip.display_formatter.formatters['text/plain']
+
+    # Save the original formatters
+    activate.original_html_formatter = html_formatter.for_type(pd.DataFrame)
+    activate.original_plain_formatter = plain_formatter.for_type(pd.DataFrame)
+
+    # Register the custom formatters
+    html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)
+    plain_formatter.for_type(pd.DataFrame, mitosheet_plain_formatter)
+
+
+activate()

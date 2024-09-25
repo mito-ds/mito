@@ -38,6 +38,49 @@ export function getCellIndexByID(cells: CellList | undefined, cellID: string | u
     return cellIndex === -1 ? undefined : cellIndex;
 }
 
+export function getCellIndexByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number | undefined {
+    console.log("starting function")
+    if (cells == undefined || executionCount == undefined) {
+        return undefined;
+    }
+
+    console.log("finding cell index by execution count", executionCount)
+
+    // In order to get the cell index, we need to iterate over the cells and call the `get` method
+    // to see the cells in order. Otherwise, the cells are returned in a random order.
+    for (let i = 0; i < cells.length; i++) {
+        const cell = cells.get(i)
+        console.log('cell', cell)
+        if (cell.type === 'code') {
+            const nonTypeSafeCell = cell as any
+            const executionCountEntry = nonTypeSafeCell.sharedModel.ymodel._map.get('execution_count')['content']['arr'][0];
+            console.log('executionCountEntry', executionCountEntry)
+            if (executionCountEntry === executionCount) {
+                console.log("returning", i)
+                return i
+            }
+        }
+    }
+
+    return undefined
+}
+
+export function getCellByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): ICellModel | undefined {
+    if (cells == undefined || executionCount == undefined) {
+        return undefined;
+    }
+
+    return Array.from(cells).find((cell: ICellModel) => {
+        if (cell.type === 'code') {
+            const nonTypeSafeCell = cell as any
+            const executionCountEntry = nonTypeSafeCell.sharedModel.ymodel._map.get('execution_count');
+            if (executionCountEntry == executionCount) {
+                return cell
+            }
+        }
+    })
+}
+
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
 

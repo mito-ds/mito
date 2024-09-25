@@ -60,7 +60,7 @@ class MitoBackend():
             column_definitions: Optional[List[ColumnDefinitions]]=None,
             default_editing_mode: Optional[DefaultEditingMode]=None,
             theme: Optional[MitoTheme]=None,
-            cell_id: Optional[str]=None,
+            input_cell_execution_count: Optional[int]=None,
         ):
         """
         Takes a list of dataframes and strings that are paths to CSV files
@@ -110,7 +110,7 @@ class MitoBackend():
             column_definitions=column_definitions,
             theme=theme,
             default_editing_mode=default_editing_mode,
-            cell_id=cell_id
+            input_cell_execution_count=input_cell_execution_count
         )
 
         # And the api
@@ -321,7 +321,7 @@ def get_mito_backend(
         user_defined_importers: Optional[List[Callable]]=None,
         user_defined_editors: Optional[List[Callable]]=None,
         column_definitions: Optional[List[ColumnDefinitions]]=None,
-        cell_id: Optional[str]=None,
+        input_cell_execution_count: Optional[int]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
@@ -332,7 +332,7 @@ def get_mito_backend(
         user_defined_importers=user_defined_importers,
         user_defined_editors=user_defined_editors,
         column_definitions=column_definitions,
-        cell_id=cell_id
+        input_cell_execution_count=input_cell_execution_count
     ) 
 
     return mito_backend
@@ -393,7 +393,7 @@ def sheet(
         sheet_functions: Optional[List[Callable]]=None,
         importers: Optional[List[Callable]]=None,
         editors: Optional[List[Callable]]=None,
-        cell_id: Optional[str]=None # If the sheet is a dataframe mime renderer, we pass the cell_id so we know where to generate the code. 
+        input_cell_execution_count: Optional[int]=None # If the sheet is a dataframe mime renderer, we pass the cell_id so we know where to generate the code. 
     ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -446,7 +446,7 @@ def sheet(
             user_defined_functions=sheet_functions,
             user_defined_importers=importers,
             user_defined_editors=editors,
-            cell_id=cell_id
+            input_cell_execution_count=input_cell_execution_count
         )
 
         # Setup the comm target on this
@@ -483,3 +483,5 @@ def sheet(
             {js_code}
         </script>
     </div>""")) # type: ignore
+
+

@@ -8,8 +8,6 @@ import { getLastNonEmptyLine } from './jupyter/code';
 import { CodeCell } from '@jupyterlab/cells';
 
 
-const CLASS_NAME = 'jp-DataFrameViewer';
-
 const SpreadsheetDataframeComponent = (props: { htmlContent: string, jsCode?: string }) => {
     /**
      * The `useEffect` hook is used here to ensure that the JavaScript code is executed 
@@ -51,7 +49,6 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         defaultRenderer: IRenderMime.IRenderer
     ) {
         super();
-        this.addClass(CLASS_NAME);
         this._notebookTracker = notebookTracker;
         this._defaultRenderer = defaultRenderer;;
     }
@@ -84,10 +81,18 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
         3. Get the code cell ID from the code cell's model. 
         4. Use the cell ID to find the input cell and read the dataframe name from it. 
         
+
+        TODO: There is still a race condition bug where if code cell 1 creates a dataframe renderer, and code cell 2 
+        edits the dataframe, the mitosheet output will show the dataframe state after code cell 2 has run, instead of the
+        state of the dataframe at code cell 1. :/
+
+        One idea, compare the dataframe we render and the dataframe in the default mime renderer. If they are different, 
+        default to showing the default dataframe output and add a message that says "rerun the code cell above to see 
+        the current dataframe in mito"
+        
         */
 
         try {
-
             const isDataframeOutput = model.data['text/html']?.toString()?.includes('class="dataframe"');
 
             if (!isDataframeOutput) {
@@ -146,8 +151,14 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
                 throw new Error('No kernel found');
             }
 
-            const pythonCode = `import mitosheet; mitosheet.sheet(${dataframeVariableName || ''}, cell_id='${inputCellID}')`;
-            const future = kernel.requestExecute({ code: pythonCode });
+
+            const newDataframeName = `${dataframeVariableName}_mito`
+
+            const pythonCode = `import mitosheet; ${newDataframeName} = ${dataframeVariableName}.copy(deep=True);mitosheet.sheet(${newDataframeName}, cell_id='${inputCellID}')`;
+            const future = kernel.requestExecute({ code: pythonCode, silent: true });
+
+
+            console.log('has pending input', kernel.hasPendingInput)
 
             /* 
                 Listen to the juptyer messages to find the response to the mitosheet.sheet() call. Once we get back the 
@@ -171,6 +182,9 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
                     // Attatch the Mito widget to the node
                     this.node.innerHTML = '';
                     Widget.attach(reactWidget, this.node);
+                    console.log('attatched!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                } else {
+                    console.log('msg', msg)
                 }
             };
         } catch (error) {
@@ -180,6 +194,7 @@ export class DataFrameMimeRenderer extends Widget implements IRenderMime.IRender
             this.node.replaceWith(this._defaultRenderer.node);
         }
 
+        console.log('after!!!!!!!!!!!!!!!!!!!!!!!!!')
         return Promise.resolve();
     }
 }

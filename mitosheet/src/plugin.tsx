@@ -8,16 +8,23 @@ import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCo
 import { JupyterComm } from './jupyter/comm';
 import {
     createCodeCellAtIndex,
-    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellIndexByID, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell,
+    getCellAtIndex,
+    getCellCallingMitoshetWithAnalysis,
+    getCellIndexByExecutionCount,
+    getCellIndexByID,
+    getCellText,
+    getMostLikelyMitosheetCallingCell,
+    getParentMitoContainer,
+    isEmptyCell,
+    tryOverwriteAnalysisToReplayParameter,
+    tryWriteAnalysisToReplayParameter,
+    writeToCell,
     writeToCodeCellAtIndex
 } from './jupyter/extensionUtils';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
-import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
-import  DataFrameMimeRenderer from './DataFrameMimeRenderer';
-import { CodeCell } from '@jupyterlab/cells';
 
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
@@ -216,7 +223,7 @@ function activateMitosheetExtension(
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
             const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
-            const cellID = args.cellID as string | undefined; 
+            const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined; 
 
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
@@ -225,11 +232,12 @@ function activateMitosheetExtension(
             const notebook = tracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
 
-            if (cellID === undefined || notebook === undefined || cells === undefined) {
+            if (inputCellExecutionCount === undefined || notebook === undefined || cells === undefined) {
                 return;
             }
 
-            const mimeRenderInputCellIndex = getCellIndexByID(cells, cellID);
+            const mimeRenderInputCellIndex = getCellIndexByExecutionCount(cells, inputCellExecutionCount);
+            console.log('mimeRenderInputCellIndex', mimeRenderInputCellIndex)
             if (mimeRenderInputCellIndex === undefined) {
                 // If the code cell that created the mitosheet mime render does not exist, 
                 // just return. I don't think this should ever happen because you can't 
@@ -337,7 +345,7 @@ function activateMitosheetExtension(
         execute: (args: any): string[] => {
             const notebook = tracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
-            const cellID = args.cellID as string | undefined;
+            const cellID = '123' // TODO fix me!
             const cellIndex = getCellIndexByID(cells, cellID);
 
             if (cellID === undefined || notebook === undefined || cells === undefined || cellIndex === undefined) {
@@ -522,44 +530,24 @@ function activateMitosheetExtension(
         selector: '.mito-container'
     });
 
-    console.log('originalExecute', CodeCell.prototype)
 
-    const originalExecute = CodeCell.execute;
-    CodeCell.execute = async function (
-        cell: CodeCell,
-        sessionContext: any,
-        metadata: Record<any, any> = {}
-    ) {
-        // Ensure metadata exists
-        metadata = { ...metadata };
+    /* 
+        Add a custom mime renderer to handle dataframe outputs.
+    */
 
-        // Add cell ID to transient metadata
-        metadata.transient = {
-            ...(metadata.transient || {}),
-            cellId: cell.model.id
-        };
+    // const dataframeMimeType = 'text/html'
+    // const factory = rendermimeRegistry.getFactory(dataframeMimeType);
 
-        // Call the original execute method with updated metadata
-        const result = await originalExecute.call(this, cell, sessionContext, metadata);
-
-        return result;
-    };
-
-    // Add a custom renderer for the stderr output
-
-    const dataframeMimeType = 'text/html'
-    const factory = rendermimeRegistry.getFactory(dataframeMimeType);
-
-    if (factory) {
-        rendermimeRegistry.addFactory({
-            safe: true,
-            mimeTypes: [dataframeMimeType],  // Include both MIME types as needed
-            createRenderer: (options: IRenderMime.IRendererOptions) => {
-                const defaultRenderer = factory.createRenderer(options);
-                return new DataFrameMimeRenderer(options, tracker, defaultRenderer); // Pass dataframe to your renderer
-            }
-    }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
-}
+    // if (factory) {
+    //     rendermimeRegistry.addFactory({
+    //         safe: true,
+    //         mimeTypes: [dataframeMimeType],
+    //         createRenderer: (options: IRenderMime.IRendererOptions) => {
+    //             const defaultRenderer = factory.createRenderer(options);
+    //             return new DataFrameMimeRenderer(options, tracker, defaultRenderer); 
+    //         }
+    //     }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority 
+    // }
 
     window.commands = app.commands; // So we can write to it elsewhere
 }
