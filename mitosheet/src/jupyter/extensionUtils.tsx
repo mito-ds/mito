@@ -29,15 +29,6 @@ export function getCellAtIndex(cells: CellList | undefined, index: number): ICel
     return cell
 }
 
-export function getCellIndexByID(cells: CellList | undefined, cellID: string | undefined): number | undefined {
-    if (cells == undefined || cellID == undefined) {
-        return undefined
-    }
-
-    const cellIndex = Array.from(cells).findIndex(cell => cell.id === cellID)
-    return cellIndex === -1 ? undefined : cellIndex;
-}
-
 export function getCellIndexByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number | undefined {
     if (cells == undefined || executionCount == undefined) {
         return undefined;
@@ -47,9 +38,9 @@ export function getCellIndexByExecutionCount(cells: CellList | undefined, execut
     // to see the cells in order. Otherwise, the cells are returned in a random order.
     for (let i = 0; i < cells.length; i++) {
         const cell = cells.get(i)
-        if (cell.type === 'code') {
-            const nonTypeSafeCell = cell as any
-            const executionCountEntry = nonTypeSafeCell.sharedModel.ymodel._map.get('execution_count')['content']['arr'][0];
+        // TODO: This doesn't work with SharedCells. 
+        if (cell.type === 'code' && 'execution_count' in cell.sharedModel) {
+            const executionCountEntry = cell.sharedModel.execution_count
             if (executionCountEntry === executionCount) {
                 return i
             }
@@ -57,22 +48,6 @@ export function getCellIndexByExecutionCount(cells: CellList | undefined, execut
     }
 
     return undefined
-}
-
-export function getCellByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): ICellModel | undefined {
-    if (cells == undefined || executionCount == undefined) {
-        return undefined;
-    }
-
-    return Array.from(cells).find((cell: ICellModel) => {
-        if (cell.type === 'code') {
-            const nonTypeSafeCell = cell as any
-            const executionCountEntry = nonTypeSafeCell.sharedModel.ymodel._map.get('execution_count');
-            if (executionCountEntry == executionCount) {
-                return cell
-            }
-        }
-    })
 }
 
 export function getCellText(cell: ICellModel| undefined): string {

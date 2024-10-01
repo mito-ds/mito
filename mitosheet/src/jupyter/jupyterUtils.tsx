@@ -50,7 +50,7 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 export const writeGeneratedCodeToCell = (analysisName: string, inputCellExecutionCount: number | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
     if (isInJupyterLabOrNotebook()) {
         if (inputCellExecutionCount) {
-            window.commands?.execute('mitosheet:write-generated-code-cell-by-id', {
+            window.commands?.execute('mitosheet:write-generated-code-cell-by-execution-count', {
                 analysisName: analysisName,
                 inputCellExecutionCount: inputCellExecutionCount,
                 code: code,
@@ -90,7 +90,7 @@ export const getArgs = (analysisToReplayName: string | undefined, inputCellExecu
     return new Promise((resolve) => {
         if (isInJupyterLabOrNotebook()) {
             if (inputCellExecutionCount) {
-                window.commands?.execute('mitosheet:get-args-by-id', {inputCellExecutionCount: inputCellExecutionCount}).then(async (args: string[]) => {
+                window.commands?.execute('mitosheet:get-args-by-execution-count', {inputCellExecutionCount: inputCellExecutionCount}).then(async (args: string[]) => {
                     return resolve(args);
                 })
             } else {
