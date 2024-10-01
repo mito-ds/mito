@@ -33,29 +33,36 @@
     """
 
 def set_dataframe_display_formatters():
-    from IPython import get_ipython
-    import pandas as pd
-    import mitosheet
+    try: 
+        # Since Mito is used in Streamlit which is not a iPython enviornment, 
+        # we just wrap this entire thing in a try, except statement 
 
-    # Updated formatter functions with correct signatures
-    def mitosheet_display_formatter(obj, include=None, exclude=None):
-        if isinstance(obj, pd.DataFrame):
-            return mitosheet.sheet(obj, input_cell_execution_count = ip.execution_count)
-        return None  # Let other types use the default formatter
+        from IPython import get_ipython
+        import pandas as pd
+        import mitosheet
 
-    def mitosheet_plain_formatter(obj, p, cycle):
-        if isinstance(obj, pd.DataFrame):
-            return ''  # Prevent default text representation
-        return None  # Let other types use the default formatter
+        # Updated formatter functions with correct signatures
+        def mitosheet_display_formatter(obj, include=None, exclude=None):
+            if isinstance(obj, pd.DataFrame):
+                return mitosheet.sheet(obj, input_cell_execution_count = ip.execution_count)
+            return None  # Let other types use the default formatter
 
-    ip = get_ipython()
-    html_formatter = ip.display_formatter.formatters['text/html']
-    plain_formatter = ip.display_formatter.formatters['text/plain']
+        def mitosheet_plain_formatter(obj, p, cycle):
+            if isinstance(obj, pd.DataFrame):
+                return ''  # Prevent default text representation
+            return None  # Let other types use the default formatter
 
-    # Save the original formatters
-    set_dataframe_display_formatters.original_html_formatter = html_formatter.for_type(pd.DataFrame)
-    set_dataframe_display_formatters.original_plain_formatter = plain_formatter.for_type(pd.DataFrame)
+        ip = get_ipython()
+        html_formatter = ip.display_formatter.formatters['text/html']
+        plain_formatter = ip.display_formatter.formatters['text/plain']
 
-    # Register the custom formatters
-    html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)
-    plain_formatter.for_type(pd.DataFrame, mitosheet_plain_formatter)
+        # Save the original formatters
+        set_dataframe_display_formatters.original_html_formatter = html_formatter.for_type(pd.DataFrame)
+        set_dataframe_display_formatters.original_plain_formatter = plain_formatter.for_type(pd.DataFrame)
+
+        # Register the custom formatters
+        html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)
+        plain_formatter.for_type(pd.DataFrame, mitosheet_plain_formatter)
+    
+    except:
+        pass

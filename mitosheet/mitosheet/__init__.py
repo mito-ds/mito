@@ -11,21 +11,10 @@ To generate a new sheet, simply run:
 import mitosheet
 mitosheet.sheet()
 
-If running mitosheet.sheet() just prints text that looks like `MitoWidget(...`, then you need to 
-install the JupyterLab extension manager by running:
+If running the mitosheet.sheet() call does not work, try restarting your JupyterLab instance, refreshing your browser, and trying again. 
 
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@2;
-
-Run this command in the terminal where you installed Mito. It should take 5-10 minutes to complete.
-
-Then, restart your JupyterLab instance, and refresh your browser. Mito should now render.
-
-NOTE: if you have any issues with installation, please email jake@sagacollab.com
+If it still does not work, please email jake@sagacollab.com
 """
-
-import os
-import pandas as pd
-from IPython import get_ipython
 
 # Public interface we want users to rely on
 from mitosheet.dataframe_display_formatters import set_dataframe_display_formatters
