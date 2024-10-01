@@ -57,6 +57,12 @@ def get_data_files_from_data_files_spec(
     return data_files
 
 data_files = get_data_files_from_data_files_spec(data_files_spec)   
+# Add the jupyter server config file so that the extension is automatically loaded
+data_files.append(("etc/jupyter/jupyter_server_config.d", ["jupyter-config/jupyter_server_config.d/mitosheet.json"]))
+
+print("DATA FILES!")
+print(data_files)
+
 
 setup_args = dict(
     name                    = 'mitosheet',
@@ -84,6 +90,12 @@ setup_args = dict(
     include_package_data     = True,
     package_data             = {'': ['*.js', '*.css', '*.html']},
     data_files               = data_files,
+    entry_points={
+        "jupyter_serverproxy_servers": [
+            "mitosheet = mitosheet:_load_jupyter_server_extension",
+        ],
+    },
+    jupyter_server_extension="mitosheet", # Automatically enable the server extension 
     install_requires=[        
         "jupyterlab~=4.0",
         # We allow users to have many versions of pandas installed. All functionality should

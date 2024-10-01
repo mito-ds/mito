@@ -28,5 +28,8 @@ jlpm run build
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
 
+# Enable the server extension
+jupyter server extension enable --py mitosheet
+
 # Finally, start watching the javascript
 jlpm run watch

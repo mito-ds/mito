@@ -25,6 +25,7 @@ NOTE: if you have any issues with installation, please email jake@sagacollab.com
 
 import os
 import pandas as pd
+from IPython import get_ipython
 
 # Public interface we want users to rely on
 from mitosheet.mito_backend import sheet
@@ -83,6 +84,24 @@ def _jupyter_nbextension_paths():
     }]
 
 
+def _jupyter_server_extension_points():
+    """
+    Returns a list of dictionaries with metadata describing
+    where to find the `_load_jupyter_server_extension` function.
+    """
+    return [{"module": "mitosheet"}]
+
+def _load_jupyter_server_extension(server_app):
+    """Registers the custom DataFrame formatter when the server extension is loaded."""
+    import pandas as pd
+    import mitosheet
+
+    print("LOADING!!!!!!!!!!!")
+
+    # Log a message to confirm the extension is loaded
+    server_app.log.info("Mitosheet server extension loaded.")
+
+
 """
 Dash Integration below. 
 
@@ -112,16 +131,8 @@ def activate():
 
     # Updated formatter functions with correct signatures
     def mitosheet_display_formatter(obj, include=None, exclude=None):
-        
-        # We do not have access to the cell ID here because the cell ID exists only in the frontend 
-        # and does not get shared with the kernel. However, we do get access to the execution count, 
-        # which is also a unique identifier for each cell within the lifecycle of each kernel. 
-        ip = get_ipython()
-        print('ip', ip.execution_count)
-
-
         if isinstance(obj, pd.DataFrame):
-            return mitosheet.sheet(obj, input_cell_execution_count = ip.execution_count)  # Return HTML string
+            return mitosheet.sheet(obj)  # Return HTML string
         return None  # Let other types use the default formatter
 
     def mitosheet_plain_formatter(obj, p, cycle):
@@ -140,6 +151,5 @@ def activate():
     # Register the custom formatters
     html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)
     plain_formatter.for_type(pd.DataFrame, mitosheet_plain_formatter)
-
 
 activate()
