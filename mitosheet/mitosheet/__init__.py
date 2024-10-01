@@ -28,6 +28,7 @@ import pandas as pd
 from IPython import get_ipython
 
 # Public interface we want users to rely on
+from mitosheet.dataframe_display_formatters import set_dataframe_display_formatters
 from mitosheet.mito_backend import sheet
 from mitosheet._version import __version__
 
@@ -50,6 +51,10 @@ from mitosheet.step_performers.bulk_old_rename.deprecated_utils import (
 # Make sure the user is initalized
 from mitosheet.user import initialize_user
 initialize_user()
+
+# Make the Mitosheet the default dataframe display
+set_dataframe_display_formatters()
+
 
 # This function is only necessary for mitosheet3, as it is used
 # in jlab3 to find the extension. It is not used in jlab2
@@ -83,25 +88,6 @@ def _jupyter_nbextension_paths():
         'require': 'mitosheet/extension'
     }]
 
-
-def _jupyter_server_extension_points():
-    """
-    Returns a list of dictionaries with metadata describing
-    where to find the `_load_jupyter_server_extension` function.
-    """
-    return [{"module": "mitosheet"}]
-
-def _load_jupyter_server_extension(server_app):
-    """Registers the custom DataFrame formatter when the server extension is loaded."""
-    import pandas as pd
-    import mitosheet
-
-    print("LOADING!!!!!!!!!!!")
-
-    # Log a message to confirm the extension is loaded
-    server_app.log.info("Mitosheet server extension loaded.")
-
-
 """
 Dash Integration below. 
 
@@ -122,34 +108,3 @@ _js_dist = [
 _css_dist = [
     {'relative_package_path': 'mito_dash/v1/mitoBuild/component.css', 'namespace': 'mitosheet'}, 
 ]
-
-
-def activate():
-    from IPython import get_ipython
-    import pandas as pd
-    import mitosheet
-
-    # Updated formatter functions with correct signatures
-    def mitosheet_display_formatter(obj, include=None, exclude=None):
-        if isinstance(obj, pd.DataFrame):
-            return mitosheet.sheet(obj)  # Return HTML string
-        return None  # Let other types use the default formatter
-
-    def mitosheet_plain_formatter(obj, p, cycle):
-        if isinstance(obj, pd.DataFrame):
-            return ''  # Prevent default text representation
-        return None  # Let other types use the default formatter
-
-    ip = get_ipython()
-    html_formatter = ip.display_formatter.formatters['text/html']
-    plain_formatter = ip.display_formatter.formatters['text/plain']
-
-    # Save the original formatters
-    activate.original_html_formatter = html_formatter.for_type(pd.DataFrame)
-    activate.original_plain_formatter = plain_formatter.for_type(pd.DataFrame)
-
-    # Register the custom formatters
-    html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)
-    plain_formatter.for_type(pd.DataFrame, mitosheet_plain_formatter)
-
-activate()

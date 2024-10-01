@@ -533,6 +533,14 @@ function activateMitosheetExtension(
         The section below is responsible for importing the mitosheet package into each 
         kernel by default. This allows us to render a mitosheet as the default dataframe
         renderer even if the user has not yet ran `import mitosheet`
+
+        See the file dataframe_display_formatters.py for full documentation.
+
+        TODO: This approach still fails the race condition caused when the user clicks
+        "Restart Kernel and run all cells". When doing so, the `import mitosheet` code triggered
+        below does not get executed until after all of the code cells have been executed. Which means
+        that the mitosheet package is not imported when rendering any dataframes in the notebook. In
+        this case, we just default to the pandas dataframe renderer. That is okay.
     */
 
     const importMitosheetPackage = (kernel: KernelConnection | null | undefined) => {
