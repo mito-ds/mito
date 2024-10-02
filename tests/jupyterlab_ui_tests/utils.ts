@@ -11,13 +11,13 @@ os.environ['MITO_CONFIG_DISABLE_TOURS'] = 'True'
 
 type ToolbarButton = 'Insert' | 'Delete'
 
-export const createNewNotebook = async (page: IJupyterLabPageFixture, firstCellCode?: string) => {
+export const createNewNotebookWithCellContents = async (page: IJupyterLabPageFixture, cellContents: string[]) => {
   const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
   await page.notebook.createNew(randomFileName);
 
-  if (firstCellCode) {
-    await page.notebook.setCell(0, 'code', firstCellCode);
-    await page.notebook.runCell(0);
+  for (let i = 0; i < cellContents.length; i++) {
+    await page.notebook.setCell(i, 'code', cellContents[i]);
+    await page.notebook.runCell(i);
   }
 }
 
@@ -61,4 +61,18 @@ export const waitForCodeToBeWritten = async (page: IJupyterLabPageFixture, cellI
     const cellInput = await page.notebook.getCellInput(cellIndex);
     cellCode = (await cellInput?.innerText())?.trim();
   }
+}
+
+export const updateCellValue = async (page: IJupyterLabPageFixture, cellValue: string, newCellValue: string) => {
+  await page.locator('.mito-grid-cell', { hasText: cellValue }).scrollIntoViewIfNeeded();
+  await page.locator('.mito-grid-cell', { hasText: cellValue }).dblclick();
+  await page.locator('input#cell-editor-input').fill(newCellValue);
+  await page.keyboard.press('Enter');
+  await waitForIdle(page);
+};
+
+export const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string) => {
+  await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
+  await page.notebook.enterCellEditingMode(cellIndex);
+  await page.notebook.setCell(cellIndex, 'code', cellValue);
 }
