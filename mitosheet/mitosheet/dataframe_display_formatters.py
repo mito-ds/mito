@@ -32,7 +32,7 @@
     For a more thorough explanation of attempted solutions, see the comment here: https://github.com/mito-ds/mito/pull/1330#issuecomment-2386428760
     """
 
-def set_dataframe_display_formatters():
+def set_dataframe_display_formatters() -> None:
     try: 
         # Since Mito is used in Streamlit which is not a iPython enviornment, 
         # we just wrap this entire thing in a try, except statement 
@@ -52,13 +52,13 @@ def set_dataframe_display_formatters():
                 return ''  # Prevent default text representation
             return None  # Let other types use the default formatter
 
-        ip = get_ipython()
+        ip = get_ipython() # type: ignore
         html_formatter = ip.display_formatter.formatters['text/html']
         plain_formatter = ip.display_formatter.formatters['text/plain']
 
         # Save the original formatters
-        set_dataframe_display_formatters.original_html_formatter = html_formatter.for_type(pd.DataFrame)
-        set_dataframe_display_formatters.original_plain_formatter = plain_formatter.for_type(pd.DataFrame)
+        set_dataframe_display_formatters.original_html_formatter = html_formatter.for_type(pd.DataFrame) # type: ignore
+        set_dataframe_display_formatters.original_plain_formatter = plain_formatter.for_type(pd.DataFrame) # type: ignore
 
         # Register the custom formatters
         html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)

@@ -241,7 +241,7 @@ function activateMitosheetExtension(
                 return;
             }
 
-            let codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
+            const codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
             const codeCellText = getCellText(codeCell);
 
             if (codeCell === undefined) {
