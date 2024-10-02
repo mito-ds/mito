@@ -11,7 +11,7 @@ os.environ['MITO_CONFIG_DISABLE_TOURS'] = 'True'
 
 type ToolbarButton = 'Insert' | 'Delete'
 
-export const createNewNotebookWithCellContents = async (page: IJupyterLabPageFixture, cellContents: string[]) => {
+export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture, cellContents: string[]) => {
   const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
   await page.notebook.createNew(randomFileName);
 
