@@ -8,6 +8,7 @@ test.describe('Mitosheet JupyterLab integration', () => {
   test('renders a mitosheet.sheet()', async ({ page, tmpPath }) => {
     await createAndRunNotebookWithCells(page, ['import mitosheet\nmitosheet.sheet()']);
     const cellOuput = await page.notebook.getCellOutput(0)
+    await waitForIdle(page)
     expect(await cellOuput?.innerHTML()).toContain('Insert');
   });
 

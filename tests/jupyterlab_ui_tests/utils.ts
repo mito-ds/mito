@@ -19,6 +19,7 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
     await page.notebook.setCell(i, 'code', cellContents[i]);
     await page.notebook.runCell(i);
   }
+  await waitForIdle(page)
 }
 
 // If the test just interacts with the mitosheet, and not JupyterLab
