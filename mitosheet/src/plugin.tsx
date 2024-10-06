@@ -492,6 +492,7 @@ function activateMitosheetExtension(
             // Although I don't think necessary, wrap in a try, except statement for extra safety
             kernel.requestExecute({ code: `try: 
     import mitosheet
+    mitosheet.set_dataframe_display_formatters()
 except:
     pass` });
         }

@@ -33,6 +33,7 @@
     """
 
 def set_dataframe_display_formatters() -> None:
+
     try: 
         # Since Mito is used in Streamlit which is not a iPython enviornment, 
         # we just wrap this entire thing in a try, except statement 
