@@ -252,7 +252,7 @@ def _get_environment_params(steps_manager: Optional[StepsManagerType]=None) -> D
         'version_mito': __version__,
         'package_name': package_name,
         'location': __location,
-        'jupyter_location': 'called_mitosheet' if  steps_manager.execution_data.get('jupyter_location', None) is not None else 'dataframe_renderer',
+        'jupyter_location': 'dataframe_renderer' if steps_manager is not None and steps_manager.input_cell_execution_count is not None else 'called_mitosheet',
         'is_docker': is_docker()
     }
 
