@@ -42,24 +42,31 @@ def set_dataframe_display_formatters() -> None:
         import pandas as pd
         import mitosheet
 
-        # Updated formatter functions with correct signatures
+        # Custom HTML formatter for DataFrames using Mitosheet
         def mitosheet_display_formatter(obj, include=None, exclude=None):
             if isinstance(obj, pd.DataFrame):
-                return mitosheet.sheet(obj, input_cell_execution_count = ip.execution_count)
-            return None  # Let other types use the default formatter
+                # Render the DataFrame using Mitosheet
+                return mitosheet.sheet(obj, input_cell_execution_count=ip.execution_count)
+            # Returning None tells Jupyter that this formatter (the text/html one) didn’t produce any output for the given object.
+            # This causes Jupyter to “fall back” to lower-priority formatters (like text/plain).
+            return None
 
+        # Custom plain text formatter to suppress plain text for DataFrames
         def mitosheet_plain_formatter(obj, p, cycle):
+            # TODO: I'm not 100% confident that this is correct, but if I don't overwrite the plain text formatter
+            # for dataframes, then I end up getting the mitosheet followed by a printed version of the dataframe.
             if isinstance(obj, pd.DataFrame):
-                return ''  # Prevent default text representation
-            return None  # Let other types use the default formatter
+                # Returning None here tells Jupyter not to render anything in the text/plain format 
+                # for DataFrames. In this case, Jupyter has already rendered the text/html output, 
+                # so returning None for text/plain means “suppress this output,” 
+                # preventing Jupyter from rendering the plain text fallback.
+                return None
+            # For other objects, use the default plain text formatter
+            return p.text(obj)
 
         ip = get_ipython() # type: ignore
         html_formatter = ip.display_formatter.formatters['text/html']
         plain_formatter = ip.display_formatter.formatters['text/plain']
-
-        # Save the original formatters
-        set_dataframe_display_formatters.original_html_formatter = html_formatter.for_type(pd.DataFrame) # type: ignore
-        set_dataframe_display_formatters.original_plain_formatter = plain_formatter.for_type(pd.DataFrame) # type: ignore
 
         # Register the custom formatters
         html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)
