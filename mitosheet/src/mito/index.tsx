@@ -10,6 +10,3 @@ export { MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFuncti
 export { waitUntilConditionReturnsTrueOrTimeout } from "../mito/utils/time";
 
 export { convertBackendtoFrontendGraphParams } from "../mito/components/taskpanes/Graph/graphUtils"
-
-
-export { isInJupyterLab, isInJupyterNotebook } from './utils/location';

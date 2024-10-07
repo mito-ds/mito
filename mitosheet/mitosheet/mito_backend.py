@@ -60,6 +60,7 @@ class MitoBackend():
             column_definitions: Optional[List[ColumnDefinitions]]=None,
             default_editing_mode: Optional[DefaultEditingMode]=None,
             theme: Optional[MitoTheme]=None,
+            input_cell_execution_count: Optional[int]=None,
         ):
         """
         Takes a list of dataframes and strings that are paths to CSV files
@@ -108,7 +109,8 @@ class MitoBackend():
             code_options=code_options,
             column_definitions=column_definitions,
             theme=theme,
-            default_editing_mode=default_editing_mode
+            default_editing_mode=default_editing_mode,
+            input_cell_execution_count=input_cell_execution_count
         )
 
         # And the api
@@ -319,6 +321,7 @@ def get_mito_backend(
         user_defined_importers: Optional[List[Callable]]=None,
         user_defined_editors: Optional[List[Callable]]=None,
         column_definitions: Optional[List[ColumnDefinitions]]=None,
+        input_cell_execution_count: Optional[int]=None,
     ) -> MitoBackend:
 
     # We pass in the dataframes directly to the widget
@@ -328,7 +331,8 @@ def get_mito_backend(
         user_defined_functions=user_defined_functions, 
         user_defined_importers=user_defined_importers,
         user_defined_editors=user_defined_editors,
-        column_definitions=column_definitions
+        column_definitions=column_definitions,
+        input_cell_execution_count=input_cell_execution_count
     ) 
 
     return mito_backend
@@ -384,12 +388,12 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
 def sheet(
         *args: Any,
         analysis_to_replay: Optional[str]=None, # This is the parameter that tracks the analysis that you want to replay (NOTE: requires a frontend to be replayed!)
-        view_df: bool=False, # We use this param to log if the mitosheet.sheet call is created from the df output button,
         # NOTE: if you add named variables to this function, make sure argument parsing on the front-end still
         # works by updating the getArgsFromCellContent function.
         sheet_functions: Optional[List[Callable]]=None,
         importers: Optional[List[Callable]]=None,
-        editors: Optional[List[Callable]]=None, 
+        editors: Optional[List[Callable]]=None,
+        input_cell_execution_count: Optional[int]=None # If the sheet is a dataframe mime renderer, we pass the cell_id so we know where to generate the code. 
     ) -> None:
     """
     Renders a Mito sheet. If no arguments are passed, renders an empty sheet. Otherwise, renders
@@ -442,6 +446,7 @@ def sheet(
             user_defined_functions=sheet_functions,
             user_defined_importers=importers,
             user_defined_editors=editors,
+            input_cell_execution_count=input_cell_execution_count
         )
 
         # Setup the comm target on this
@@ -465,7 +470,6 @@ def sheet(
             'num_str_args': len([arg for arg in args if isinstance(arg, str)]),
             'num_df_args': len([arg for arg in args if isinstance(arg, pd.DataFrame)]),
             'df_index_type': [str(type(arg.index)) for arg in args if isinstance(arg, pd.DataFrame)],
-            'view_df': view_df
         }
     )
 
@@ -479,3 +483,5 @@ def sheet(
             {js_code}
         </script>
     </div>""")) # type: ignore
+
+

@@ -40,38 +40,21 @@ import {
     MitoResponse,
     MAX_WAIT_FOR_SEND_CREATION, SendFunction, SendFunctionError, SendFunctionReturnType,
     waitUntilConditionReturnsTrueOrTimeout,
-    isInJupyterLab, isInJupyterNotebook
 } from "../mito";
+import { isInJupyterLabOrNotebook } from "../mito/utils/location";
 import { getAnalysisDataFromString, getSheetDataArrayFromString, getUserProfileFromString } from "./jupyterUtils";
 
 /**
- * Note the difference between the Lab and Notebook comm interfaces. 
+ * Since Nobtebook 7 is based on Lab, we no longer need to handle the difference between the 
+ * Lab and Notebook comm interfaces. 
  * 
- * To work, Lab needs to have .open() called on it before sending any messages,
+ * Lab (and Notebook 7) needs to have .open() called on it before sending any messages,
  * and you set the onMsg handler directly. 
- * 
- * Notebook does not need any .open() to be called, and also requires 
- * the message handler to be passed to as on_msg((msg) => handle it).
- * 
- * We need to take special care to ensure we treat any new comms interface how it 
- * expects to be treated, as they are all likely slighly different.
  */
-export interface LabComm {
+export interface JupyterComm {
     send: (msg: Record<string, unknown>) => void,
     onMsg: (msg: {content: {data: Record<string, unknown>}}) => void,
     open: () => void;
-}
-interface NotebookComm {
-    send: (msg: Record<string, unknown>) => void,
-    on_msg: (handler: (msg: {content: {data: Record<string, unknown>}}) => void) => void,
-}
-
-export type CommContainer = {
-    'type': 'lab',
-    'comm': LabComm
-} | {
-    'type': 'notebook',
-    'comm': NotebookComm
 }
 
 
@@ -84,53 +67,7 @@ export const RETRY_DELAY = 25;
 export const MAX_RETRIES = MAX_DELAY / RETRY_DELAY;
 
 
-export const getNotebookCommConnectedToBackend = async (comm: NotebookComm): Promise<boolean> => {
-
-    return new Promise((resolve) => {
-        const checkForEcho = async () => {
-            let echoReceived = false;
-
-            comm.on_msg((msg) => {
-                // Wait for the first echo message, and then we know this comm is actually connected
-                if (msg.content.data.echo) {
-                    echoReceived = true;
-                }
-            })
-
-            // Give the onMsg a while to run
-            await waitUntilConditionReturnsTrueOrTimeout(() => {return echoReceived}, MAX_WAIT_FOR_SEND_CREATION);
-
-            return resolve(echoReceived);
-        }
-
-        void checkForEcho();
-    })
-}
-
-
-export const getNotebookComm = async (commTargetID: string): Promise<CommContainer | SendFunctionError> => {
-
-    let potentialComm: NotebookComm | undefined = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
-    await waitUntilConditionReturnsTrueOrTimeout(async () => {
-        potentialComm = (window as any).Jupyter?.notebook?.kernel?.comm_manager?.new_comm(commTargetID);
-        return potentialComm !== undefined;
-    }, MAX_WAIT_FOR_SEND_CREATION)
-
-    if (potentialComm === undefined) {
-        return 'non_working_extension_error';
-    } else {
-        if (!(await getNotebookCommConnectedToBackend(potentialComm))) {
-            return 'no_backend_comm_registered_error'
-        } 
-        return {
-            'type': 'notebook',
-            'comm': potentialComm
-        };
-    }
-    
-}
-
-export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boolean> => {
+export const getJupyterCommConnectedToBackend = async (comm: JupyterComm): Promise<boolean> => {
 
     return new Promise((resolve) => {
         const checkForEcho = async () => {
@@ -160,9 +97,9 @@ export const getLabCommConnectedToBackend = async (comm: LabComm): Promise<boole
 }
 
 
-export const getLabComm = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionError> => {
+export const getJupyterComm = async (kernelID: string, commTargetID: string): Promise<JupyterComm | SendFunctionError> => {
     // Potentially returns undefined if the command is not yet started
-    let potentialComm: LabComm | 'no_backend_comm_registered_error' | undefined = undefined;
+    let potentialComm: JupyterComm | 'no_backend_comm_registered_error' | undefined = undefined;
 
     await waitUntilConditionReturnsTrueOrTimeout(async () => {
         try {
@@ -184,17 +121,14 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
     } else {
         /**
          * If we have successfully made a comm, we need to manually open this comm before we 
-         * use it. This is required on lab, but not on notebook.
+         * use it.
          */
-        (potentialComm as LabComm).open() // TODO: why do I have to do this cast? Seems like a complier issue
+        (potentialComm as JupyterComm).open() // TODO: why do I have to do this cast? Seems like a complier issue
         
-        if (!(await getLabCommConnectedToBackend(potentialComm))) {
+        if (!(await getJupyterCommConnectedToBackend(potentialComm))) {
             return 'no_backend_comm_registered_error'
         } else {
-            return {
-                'type': 'lab',
-                'comm': potentialComm
-            };
+            return potentialComm
         }
     }
 }
@@ -202,11 +136,9 @@ export const getLabComm = async (kernelID: string, commTargetID: string): Promis
 
 // Creates a comm that is open and ready to send messages on, and
 // returns it with a label so we know what sort of comm it is
-export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<CommContainer | SendFunctionError> => {
-    if (isInJupyterNotebook()) {
-        return getNotebookComm(commTargetID);
-    } else if (isInJupyterLab()) {
-        return getLabComm(kernelID, commTargetID);
+export const getCommContainer = async (kernelID: string, commTargetID: string): Promise<JupyterComm | SendFunctionError> => {
+    if (isInJupyterLabOrNotebook()) {
+        return getJupyterComm(kernelID, commTargetID);
     }
 
     return 'non_valid_location_error'
@@ -215,26 +147,19 @@ export const getCommContainer = async (kernelID: string, commTargetID: string): 
 
 
 export async function getCommSend(kernelID: string, commTargetID: string): Promise<SendFunction | SendFunctionError> {
-    let commContainer: CommContainer | SendFunctionError = 'non_valid_location_error';
-    if (isInJupyterNotebook()) {
-        commContainer = await getNotebookComm(commTargetID);
-    } else if (isInJupyterLab()) {
-        commContainer = await getLabComm(kernelID, commTargetID);
+    let jupyterComm: JupyterComm | SendFunctionError = 'non_valid_location_error';
+    if (isInJupyterLabOrNotebook()) {
+        jupyterComm = await getJupyterComm(kernelID, commTargetID);
     }
 
     // If it's an error, return the error
-    if (typeof commContainer === 'string') {
-        return commContainer;
+    if (typeof jupyterComm === 'string') {
+        return jupyterComm;
     }
 
-    const comm = commContainer.comm;
-    const _send = comm.send;
+    const _send = jupyterComm.send;
 
-    if (commContainer.type === 'notebook') {
-        commContainer.comm.on_msg((msg) => receiveResponse(msg));
-    } else {
-        commContainer.comm.onMsg = (msg) => receiveResponse(msg);
-    }
+    jupyterComm.onMsg = (msg) => receiveResponse(msg);
 
     // We save the unconsumed responses on the getCommSend function
     const unconsumedResponses = getCommSend.unconsumedResponses || (getCommSend.unconsumedResponses = []);
@@ -301,10 +226,10 @@ export async function getCommSend(kernelID: string, commTargetID: string): Promi
         // NOTE: we keep this here on purpose, so we can always monitor outgoing messages
         console.log(`Sending: {type: ${msg['type']}, id: ${msg.id}}`)
 
-        // We notably need to .call so that we can actually bind the comm.send function
+        // We notably need to .call so that we can actually bind the jupyterComm.send function
         // to the correct `this`. We don't want `this` to be the MitoAPI object running 
         // this code, so we bind the comm object
-        _send.call(comm, msg);
+        _send.call(jupyterComm, msg);
 
         // Wait for the response, if we should
         const response = await getResponseData<ResultType>(msg.id as string, MAX_RETRIES);

@@ -103,15 +103,19 @@ test.describe('Column Control Panel', () => {
         await openColumnControlPanel(mito, 'Column1');
 
         await changeNumTypeInColumnControlPanel(mito, page, 'Currency');
+        await awaitResponse(page);
         await checkColumnCellsHaveExpectedValues(mito, 0, ['$1', '$4', '$7', '$10']);
 
         await changeNumTypeInColumnControlPanel(mito, page, 'Accounting');
+        await awaitResponse(page);
         await checkColumnCellsHaveExpectedValues(mito, 0, ['$1', '$4', '$7', '$10']);
 
         await changeNumTypeInColumnControlPanel(mito, page, 'Percent');
+        await awaitResponse(page);
         await checkColumnCellsHaveExpectedValues(mito, 0, ['100%', '400%', '700%', '1,000%']);
 
         await changeNumTypeInColumnControlPanel(mito, page, 'Scientific Notation');
+        await awaitResponse(page);
         await checkColumnCellsHaveExpectedValues(mito, 0, ['1e+0', '4e+0', '7e+0', '1e+1']);
     });
 

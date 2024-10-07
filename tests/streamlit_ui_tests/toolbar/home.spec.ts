@@ -28,13 +28,13 @@ test.describe('Home Tab Buttons', () => {
   test('Formatting Buttons', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
 
-    await clickButtonAndAwaitResponse(page, mito, 'Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.')
+    await mito.getByTitle('Format all of the selected columns as currency. This only changes the display of the data, and does not effect the underlying dataframe.').click();
     await expect(mito.getByText('$1', {exact: true})).toBeVisible();
-    await clickButtonAndAwaitResponse(page, mito, 'Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.')
+    await mito.getByTitle('Format all of the selected columns as percentage. This only changes the display of the data, and does not effect the underlying dataframe.').click();
     await expect(mito.getByText('100%')).toBeVisible();
-    await clickButtonAndAwaitResponse(page, mito, 'Increase the number of decimal places that are displayed in the selected number columns.')
+    await mito.getByTitle('Increase the number of decimal places that are displayed in the selected number columns.').click();
     await expect(mito.getByText('100.0%')).toBeVisible();
-    await clickButtonAndAwaitResponse(page, mito, 'Decrease the number of decimal places that are displayed in the selected number columns.')
+    await mito.getByTitle('Decrease the number of decimal places that are displayed in the selected number columns.').click();
     await expect(mito.getByText('100%')).toBeVisible();
   });
 

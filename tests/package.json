@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@jupyterlab/galata": "^4.3.8",
+    "@jupyterlab/galata": "^5.2.4",
     "@playwright/test": "^1.39.0",
     "@types/node": "^20.8.7"
   }

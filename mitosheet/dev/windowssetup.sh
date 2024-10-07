@@ -14,15 +14,10 @@ unset NODE_OPTIONS # https://github.com/microsoft/vscode/issues/136599
 export NODE_OPTIONS=--openssl-legacy-provider
 
 # Install the npm dependences
-npm install
+jlpm install
 
 # Setup JupyterLab development
 jupyter labextension develop . --overwrite
-
-# Setup Jupyter Notebook development
-jupyter nbextension uninstall mitosheet # NOTE: not sure why this first is needed. Somehow, it gets installed in the setup.py...
-jupyter nbextension install --py --symlink --sys-prefix mitosheet
-jupyter nbextension enable --py --sys-prefix mitosheet   
 
 # Finially, start watching the javascript
 jlpm run watch

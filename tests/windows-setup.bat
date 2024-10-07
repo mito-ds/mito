@@ -8,7 +8,7 @@ REM Install Python dependencies
 pip install -r requirements.txt
 
 REM Install Node.js dependencies and Playwright browsers
-npm install
+jlpm install
 
 REM Install playwright. If the user provides a browser, install only that browser
 REM Otherwise, install all browsers. This is primarily used so that the CI can
@@ -21,5 +21,5 @@ cd ../mitosheet
 pip install -e ".[test]"
 
 REM Install and build npm packages
-npm install
-npm run build
+jlpm install
+jlpm run build

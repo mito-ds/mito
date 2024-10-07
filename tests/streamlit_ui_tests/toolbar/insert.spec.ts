@@ -91,17 +91,19 @@ test.describe('Insert Tab Buttons', () => {
       const mito = await getMitoFrameWithTestCSV(page);
       await clickTab(page, mito, 'Insert');
   
-      await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' });
-  
+      await mito.getByTitle('Create an interactive scatter plot.').click();
+      await awaitResponse(page);
+
       await expect(mito.locator('#mito-center-content-container', { hasText: 'Select Data' })).toBeVisible();
     });
   
     test('Test Graph (line)', async ({ page }) => {
       const mito = await getMitoFrameWithTestCSV(page);
       await clickTab(page, mito, 'Insert');
-  
-      await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive line graph.' });
-  
+
+      await mito.getByTitle('Create an interactive line graph.').click();
+      await awaitResponse(page);
+
       await expect(mito.locator('#mito-center-content-container', { hasText: 'Select Data' })).toBeVisible();
     });
 })
