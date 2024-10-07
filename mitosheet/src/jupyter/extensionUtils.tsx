@@ -1,6 +1,6 @@
 // Copyright (c) Mito
 import { ICellModel } from "@jupyterlab/cells";
-import { CellList, INotebookTracker } from '@jupyterlab/notebook';
+import { CellList, INotebookTracker, Notebook, NotebookActions } from '@jupyterlab/notebook';
 import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "./code";
 
 
@@ -29,10 +29,55 @@ export function getCellAtIndex(cells: CellList | undefined, index: number): ICel
     return cell
 }
 
+export function getCellIndexByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number | undefined {
+    if (cells == undefined || executionCount == undefined) {
+        return undefined;
+    }
+
+    // In order to get the cell index, we need to iterate over the cells and call the `get` method
+    // to see the cells in order. Otherwise, the cells are returned in a random order.
+    for (let i = 0; i < cells.length; i++) {
+        const cell = cells.get(i)
+        // TODO: This doesn't work with SharedCells. 
+        if (cell.type === 'code' && 'execution_count' in cell.sharedModel) {
+            const executionCountEntry = cell.sharedModel.execution_count
+            if (executionCountEntry === executionCount) {
+                return i
+            }
+        }
+    }
+
+    return undefined
+}
+
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
 
     return cell.sharedModel.source
+}
+
+export function createCodeCellAtIndex(index: number, notebook: Notebook | undefined): ICellModel | undefined {
+
+    if (notebook === undefined) {
+        return undefined;
+    }
+
+    notebook.activeCellIndex = index - 1;
+    NotebookActions.insertBelow(notebook);
+    return getCellAtIndex(notebook.model?.cells, index);
+}
+
+export function writeToCodeCellAtIndex(index: number, notebook: Notebook | undefined, code: string): void {
+
+    if (notebook === undefined) {
+        return undefined;
+    }
+
+    const cells = notebook.model?.cells;
+    const codeCell = getCellAtIndex(cells, index);
+    if (codeCell) {
+        writeToCell(codeCell, code);
+    }
 }
 
 

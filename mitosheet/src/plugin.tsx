@@ -7,11 +7,23 @@ import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCodeCellBeenEditedByUser } from './jupyter/code';
 import { JupyterComm } from './jupyter/comm';
 import {
-    getCellAtIndex, getCellCallingMitoshetWithAnalysis, getCellText, getMostLikelyMitosheetCallingCell, getParentMitoContainer, isEmptyCell, tryOverwriteAnalysisToReplayParameter, tryWriteAnalysisToReplayParameter, writeToCell
+    createCodeCellAtIndex,
+    getCellAtIndex,
+    getCellCallingMitoshetWithAnalysis,
+    getCellIndexByExecutionCount,
+    getCellText,
+    getMostLikelyMitosheetCallingCell,
+    getParentMitoContainer,
+    isEmptyCell,
+    tryOverwriteAnalysisToReplayParameter,
+    tryWriteAnalysisToReplayParameter,
+    writeToCell,
+    writeToCodeCellAtIndex
 } from './jupyter/extensionUtils';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
+import { Kernel } from '@jupyterlab/services';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -39,11 +51,13 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
  */
 function activateMitosheetExtension(
     app: JupyterFrontEnd,
-    tracker: INotebookTracker,
+    notebookTracker: INotebookTracker,
 ): void {
 
+    console.log('Mitosheet extension activated');
+
     // Add the Create New Mitosheet button
-    registerMitosheetToolbarButtonAdder(tracker);
+    registerMitosheetToolbarButtonAdder(notebookTracker);
 
     /**
      * This command creates a new comm for the mitosheet to talk to the mito backend. 
@@ -61,10 +75,10 @@ function activateMitosheetExtension(
                 // If we get a dummy kernel ID, we are in a jupyterlite instance, so we 
                 // just get the current kernel as this is our best guess as to what the
                 // kernel is
-                currentKernel = tracker.currentWidget?.context.sessionContext.session?.kernel;
+                currentKernel = notebookTracker.currentWidget?.context.sessionContext.session?.kernel;
             } else {
                 // If we have a kernel ID, get the kernel with the correct kernel id
-                const currentNotebook = tracker.find((nb) => {
+                const currentNotebook = notebookTracker.find((nb) => {
                     return nb.sessionContext.session?.kernel?.id === kernelID
                 });
                 currentKernel = currentNotebook?.sessionContext?.session?.kernel;
@@ -89,7 +103,7 @@ function activateMitosheetExtension(
         execute: (args: any) => {
             const analysisName = args.analysisName as string;
             const mitoAPI = args.mitoAPI as MitoAPI;
-            const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisName);
+            const cellAndIndex = getMostLikelyMitosheetCallingCell(notebookTracker, analysisName);
 
             if (cellAndIndex) {
                 const [cell, ] = cellAndIndex;
@@ -112,7 +126,7 @@ function activateMitosheetExtension(
             const newAnalysisName = args.newAnalysisName as string;
             const mitoAPI = args.mitoAPI as MitoAPI;
 
-            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, oldAnalysisName);
+            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(notebookTracker, oldAnalysisName);
             if (mitosheetCallCellAndIndex === undefined) {
                 return;
             }
@@ -144,14 +158,14 @@ function activateMitosheetExtension(
             const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
             // up immediately
-            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(notebookTracker, analysisName);
             if (mitosheetCallCellAndIndex === undefined) {
                 return;
             }
 
             const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
 
-            const notebook = tracker.currentWidget?.content;
+            const notebook = notebookTracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
 
             if (notebook === undefined || cells === undefined) {
@@ -198,6 +212,69 @@ function activateMitosheetExtension(
         }
     })
 
+    app.commands.addCommand('mitosheet:write-generated-code-cell-by-execution-count', {
+        label: 'Writes the generated code for a deafult dataframe output mitosheet. Writes the code to the code cell below the specified code cell',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any) => {
+            const analysisName = args.analysisName as string;
+            const codeLines = args.code as string[];
+            const telemetryEnabled = args.telemetryEnabled as boolean;
+            const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
+            const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined; 
+
+            // This is the last saved analysis' code, which we use to check if the user has changed
+            // the code in the cell. If they have, we don't want to overwrite their changes automatically.
+            const oldCode = args.oldCode as string[];
+            const newCode = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion, true);
+            const notebook = notebookTracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+
+            if (inputCellExecutionCount === undefined || notebook === undefined || cells === undefined) {
+                return;
+            }
+
+            const mimeRenderInputCellIndex = getCellIndexByExecutionCount(cells, inputCellExecutionCount);
+            if (mimeRenderInputCellIndex === undefined) {
+                // If the code cell that created the mitosheet mime render does not exist, 
+                // just return. I don't think this should ever happen because you can't 
+                // have a mimerender for a code cell that does not exist anymore.
+                return;
+            }
+
+            const codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
+            const codeCellText = getCellText(codeCell);
+
+            if (codeCell === undefined) {
+                // If there is no cell below the mitosheet, create one. 
+                createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            } else if (codeCellText === '') {
+                // If the code cell is empty, then we can write to it. 
+                writeToCell(codeCell, newCode)
+            } else if ((oldCode === null || oldCode.length === 0) && newCode === '') {
+                // If the old code is null and the new code is empty, we do nothing.
+                // We don't want to create a new cell if there is nothing to write to it.
+                return;
+            } else if ((oldCode === null || oldCode.length === 0) || hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
+                // Otherwise, if 
+                // 1. its the first time we are writing code, or
+                // 2. the code cell below mito is not the Mito generated code 
+                // then we create a new code cell and write to it. 
+                // Case 2 is occurs when: 
+                // 1. The user has edited the generated code 
+                // 2. There is some other code right below the mitosheet (this will be common in the mimerender case)
+                createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            } else {
+                // Otherwise, we overwrite the current cell with the new code
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            }
+        }
+    })
+
 
     app.commands.addCommand('mitosheet:write-code-snippet-cell', {
         label: 'Writes the generated code for a mito analysis to the cell below the mitosheet.sheet() call that generated this analysis. NOTE: this should only be called after the analysis_to_replay has been written in the mitosheet.sheet() call, so this cell can be found correctly.',
@@ -207,14 +284,14 @@ function activateMitosheetExtension(
             const code = args.code as string;
             
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give up immediately
-            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(tracker, analysisName);
+            const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(notebookTracker, analysisName);
             if (mitosheetCallCellAndIndex === undefined) {
                 return;
             }
 
             const [, mitosheetCallIndex] = mitosheetCallCellAndIndex;
 
-            const notebook = tracker.currentWidget?.content;
+            const notebook = notebookTracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
 
             if (notebook === undefined || cells === undefined) {
@@ -242,7 +319,7 @@ function activateMitosheetExtension(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any): string[] => {
             const analysisToReplayName = args.analysisToReplayName as string | undefined;
-            const cellAndIndex = getMostLikelyMitosheetCallingCell(tracker, analysisToReplayName);
+            const cellAndIndex = getMostLikelyMitosheetCallingCell(notebookTracker, analysisToReplayName);
             if (cellAndIndex) {
                 const [cell, ] = cellAndIndex;
                 return getArgsFromMitosheetCallCode(getCellText(cell));
@@ -251,45 +328,36 @@ function activateMitosheetExtension(
             }
         }
     });
-    
 
-    app.commands.addCommand('mitosheet:create-mitosheet-from-dataframe-output', {
-        label: 'creates a new mitosheet from the dataframe that is printed',
-        execute: async (): Promise<void> => {
+    app.commands.addCommand('mitosheet:get-args-by-execution-count', {
+        label: 'Reads the arguments on the last line of a code cell.',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (args: any): string[] => {
+            const notebook = notebookTracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
+            const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined;
+            const cellIndex = getCellIndexByExecutionCount(cells, inputCellExecutionCount);
 
-            // We get the current notebook (currentWidget)
-            const notebook = tracker.currentWidget?.content;
-            const context = tracker.currentWidget?.context;
-            if (!notebook || !context) return;
-
-            /* 
-                In order for this function to be called, it must be that the last line of 
-                the active cell is a dataframe. So we just parse the active cell's text
-                in order to get the dataframe name.
-
-                Note: clicking the button in the output to call this function first makes
-                the cell active, then calls this function. 
-            */
-            const activeCell = notebook.activeCell?.model;
-            let dataframeVariableName = getLastNonEmptyLine(getCellText(activeCell))
-
-            // If the dataframeVariableName has a .head at the end of it, we strip this,
-            // and display the entire dataframe
-            if (dataframeVariableName?.endsWith('.head()')) {
-                dataframeVariableName = dataframeVariableName.split('.head()')[0];
+            if (notebook === undefined || cells === undefined || cellIndex === undefined) {
+                return [];
             }
-            
-            // Clear the output of the active cell
-            NotebookActions.clearOutputs(notebook)
 
-            // Create a new code cell that creates a blank mitosheet
-            NotebookActions.insertBelow(notebook);
-            const newActiveCell = notebook.activeCell;
+            const cell = getCellAtIndex(cells, cellIndex);
+            if (cell) {
 
-            writeToCell(newActiveCell?.model, `import mitosheet\nmitosheet.sheet(${dataframeVariableName})`);
+                // We assume that we're using this to parse the dataframe name at the end of a code cell
+                // that created a dataframe rendermine mitosheet. If there were other variables on the last line 
+                // besides the dataframe, we would not have gotten the dataframe renderer.
+                const dfName = getLastNonEmptyLine(getCellText(cell));
 
-            // Execute the new code cell
-            void NotebookActions.run(notebook, context.sessionContext);
+                if (dfName === undefined) {
+                    return [];
+                }
+
+                return [dfName.trim()]
+            } else {
+                return [];
+            }
         }
     });
 
@@ -298,8 +366,8 @@ function activateMitosheetExtension(
         execute: async (): Promise<void> => {
 
             // We get the current notebook (currentWidget)
-            const notebook = tracker.currentWidget?.content;
-            const context = tracker.currentWidget?.context;
+            const notebook = notebookTracker.currentWidget?.content;
+            const context = notebookTracker.currentWidget?.context;
             if (!notebook || !context) return;
 
             // Create a new code cell that creates a blank mitosheet
@@ -404,14 +472,62 @@ function activateMitosheetExtension(
         keys: ['Shift Enter'],
         selector: '.mito-container'
     });
-    app.commands.addCommand('mitosheet:do-nothing', {
-        label: 'Does nothing',
-        execute: async (): Promise<void> => {
-            // Do nothing, doh
+
+    /* 
+        The section below is responsible for importing the mitosheet package into each 
+        kernel by default. This allows us to render a mitosheet as the default dataframe
+        renderer even if the user has not yet ran `import mitosheet`
+
+        See the file dataframe_display_formatters.py for full documentation.
+
+        TODO: This approach still fails the race condition caused when the user clicks
+        "Restart Kernel and run all cells". When doing so, the `import mitosheet` code triggered
+        below does not get executed until after all of the code cells have been executed. Which means
+        that the mitosheet package is not imported when rendering any dataframes in the notebook. In
+        this case, we just default to the pandas dataframe renderer. That is okay.
+    */
+
+    const importMitosheetPackage = (kernel: Kernel.IKernelConnection | null | undefined) => {
+        if (kernel) {
+            // Although I don't think necessary, wrap in a try, except statement for extra safety
+            kernel.requestExecute({ code: `try: 
+    import mitosheet
+    mitosheet.set_dataframe_display_formatters()
+except:
+    pass` });
         }
+    }
+  
+    // Listen for new notebooks
+    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
+        
+        // When the session changes we need to re-import the package. For example, if the user 
+        // restarts a kernel. Also, becuase the extension is loaded before the kernel is created
+        // this sessionChange approach is required to import mitosheet when first opening a notebook.
+        notebookPanel.sessionContext.sessionChanged.connect((sessionContext, ) => {
+            const kernel = sessionContext.session?.kernel
+            importMitosheetPackage(kernel);
+        });
+
+        // Inject code into the current kernel
+        const kernel = notebookPanel.sessionContext?.session?.kernel
+        importMitosheetPackage(kernel);
     });
 
-    window.commands = app.commands; // So we can write to it elsewhere
+    // When activating the Mito extension, import the mitosheet package so we can 
+    // render mitosheets as the default dataframe renderer. TODO: Check if this code
+    // is ever successful. It might be at this stage in the extension activation process
+    // the kernel is never defined and so we rely on the above checks instead. 
+    const notebookPanel = notebookTracker.currentWidget
+    const kernel = notebookPanel?.sessionContext?.session?.kernel
+    importMitosheetPackage(kernel)
+
+
+    /* 
+        Finally, add the app commands to the window 
+        so we can write to it elsewhere
+    */
+    window.commands = app.commands;
 }
 
 const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {

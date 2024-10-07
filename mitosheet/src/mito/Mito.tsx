@@ -106,8 +106,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [sheetDataArray, setSheetDataArray] = useState<SheetData[]>(props.sheetDataArray);
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
-
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
+    
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
@@ -182,7 +182,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         const updateMitosheetCallCellOnFirstRender = async () => {
             // Then, we go and read the arguments to the mitosheet.sheet() call. If there
             // is an analysis to replay, we use this to help lookup the call
-            const args = await props.jupyterUtils?.getArgs(analysisData.analysisToReplay?.analysisName) ?? [];
+            const args = await props.jupyterUtils?.getArgs(analysisData.analysisToReplay?.analysisName, analysisData.inputCellExecutionCount) ?? [];
 
             // Then, after we have the args, we replay an analysis if there is an analysis to replay
             // Note that this has to happen after so that we have the the argument names loaded in at
@@ -300,6 +300,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     
         props.jupyterUtils?.writeGeneratedCodeToCell(
             analysisData.analysisName, 
+            analysisData.inputCellExecutionCount, 
             analysisData.code, 
             userProfile.telemetryEnabled, 
             analysisData.publicInterfaceVersion, 

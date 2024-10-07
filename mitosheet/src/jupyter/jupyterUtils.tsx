@@ -47,23 +47,32 @@ export const overwriteAnalysisToReplayToMitosheetCall = (oldAnalysisName: string
 }
 
 
-export const writeGeneratedCodeToCell = (analysisName: string, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
+export const writeGeneratedCodeToCell = (analysisName: string, inputCellExecutionCount: number | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean): void => {
     if (isInJupyterLabOrNotebook()) {
-        window.commands?.execute('mitosheet:write-generated-code-cell', {
-            analysisName: analysisName,
-            code: code,
-            telemetryEnabled: telemetryEnabled,
-            publicInterfaceVersion: publicInterfaceVersion,
-            oldCode: oldCode,
-            overwriteIfUserEditedCode: overwriteIfUserEditedCode,
-            triggerUserEditedCodeDialog: triggerUserEditedCodeDialog,
-        });
+        if (inputCellExecutionCount) {
+            window.commands?.execute('mitosheet:write-generated-code-cell-by-execution-count', {
+                analysisName: analysisName,
+                inputCellExecutionCount: inputCellExecutionCount,
+                code: code,
+                telemetryEnabled: telemetryEnabled,
+                publicInterfaceVersion: publicInterfaceVersion,
+                oldCode: oldCode,
+            });
+        } else {
+            window.commands?.execute('mitosheet:write-generated-code-cell', {
+                analysisName: analysisName,
+                code: code,
+                telemetryEnabled: telemetryEnabled,
+                publicInterfaceVersion: publicInterfaceVersion,
+                oldCode: oldCode,
+                overwriteIfUserEditedCode: overwriteIfUserEditedCode,
+                triggerUserEditedCodeDialog: triggerUserEditedCodeDialog,
+            });
+        }
     } else {
         console.error("Not detected as in Jupyter Notebook or JupyterLab")
     }
 }
-
-
 
 export const writeCodeSnippetCell = (analysisName: string, code: string): void => {
     if (isInJupyterLabOrNotebook()) {
@@ -77,12 +86,18 @@ export const writeCodeSnippetCell = (analysisName: string, code: string): void =
 }
 
 
-export const getArgs = (analysisToReplayName: string | undefined): Promise<string[]> => {
+export const getArgs = (analysisToReplayName: string | undefined, inputCellExecutionCount: number | undefined): Promise<string[]> => {
     return new Promise((resolve) => {
         if (isInJupyterLabOrNotebook()) {
-            window.commands?.execute('mitosheet:get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {
-                return resolve(args);
-            })
+            if (inputCellExecutionCount) {
+                window.commands?.execute('mitosheet:get-args-by-execution-count', {inputCellExecutionCount: inputCellExecutionCount}).then(async (args: string[]) => {
+                    return resolve(args);
+                })
+            } else {
+                window.commands?.execute('mitosheet:get-args', {analysisToReplayName: analysisToReplayName}).then(async (args: string[]) => {
+                    return resolve(args);
+                })
+            }
             return;
         } else {
             console.error("Not detected as in Jupyter Notebook or JupyterLab")

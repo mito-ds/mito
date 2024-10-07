@@ -35,7 +35,8 @@ const UserEditedCodeModal = (
     
     const handleUserEditedCode = (overwriteCode: boolean) => {
         props.jupyterUtils?.writeGeneratedCodeToCell(
-            props.analysisData.analysisName, 
+            props.analysisData.analysisName,
+            props.analysisData.inputCellExecutionCount,
             props.analysisData.code, 
             props.userProfile.telemetryEnabled, 
             props.analysisData.publicInterfaceVersion, 
