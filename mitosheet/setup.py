@@ -62,7 +62,6 @@ data_files = get_data_files_from_data_files_spec(data_files_spec)
 # Read the content of README.md for the long description
 with open(HERE / "README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-    print(long_description)
 
 setup_args = dict(
     name                    = 'mitosheet',
