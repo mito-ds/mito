@@ -10,7 +10,10 @@ test.describe('Dataframe renders as mitosheet', () => {
 
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})\ndf']);
     const cellOuput = await page.notebook.getCellOutput(0)
-    expect(await cellOuput?.innerHTML()).toContain('Insert');
+    expect(await cellOuput?.innerHTML()).toContain('Home');
+
+    // The toolbar should be collapsed by default, so the Insert button should not be visible
+    expect(await cellOuput?.innerHTML()).not.toContain('Insert');
   });
 
   test('Do not create a new code cell until code is generated', async ({ page, tmpPath }) => {
