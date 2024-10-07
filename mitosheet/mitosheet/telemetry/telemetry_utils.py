@@ -233,7 +233,7 @@ except:
 
 __location = None
 
-def _get_environment_params() -> Dict[str, Any]:
+def _get_environment_params(steps_manager: Optional[StepsManagerType]=None) -> Dict[str, Any]:
     """
     Get data relevant for tracking the environment, so we can 
     ensure Mitosheet compatibility with any system
@@ -252,6 +252,7 @@ def _get_environment_params() -> Dict[str, Any]:
         'version_mito': __version__,
         'package_name': package_name,
         'location': __location,
+        'jupyter_location': 'called_mitosheet' if  steps_manager.execution_data.get('jupyter_location', None) is not None else 'dataframe_renderer',
         'is_docker': is_docker()
     }
 
@@ -421,7 +422,7 @@ def log(
     final_params = {**final_params, **_get_processing_time_log_params(steps_manager=steps_manager, start_time=start_time)}
 
     # Then, get the params for the environment 
-    final_params = {**final_params, **_get_environment_params()}
+    final_params = {**final_params, **_get_environment_params(steps_manager=steps_manager)}
 
     # Then, get the params for the all experiments
     final_params = {**final_params, **_get_experiment_params()}
