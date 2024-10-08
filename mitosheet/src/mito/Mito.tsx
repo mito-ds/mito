@@ -107,7 +107,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [analysisData, setAnalysisData] = useState<AnalysisData>(props.analysisData);
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
-    
+
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
@@ -120,7 +120,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
-        currentToolbarTab: 'Home',
+        currentToolbarTab: props.analysisData.inputCellExecutionCount === null ? 'Home' : undefined, // If dataframe render, default to collapsed toolbar tabs
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },

@@ -58,6 +58,11 @@ def get_data_files_from_data_files_spec(
 
 data_files = get_data_files_from_data_files_spec(data_files_spec)   
 
+
+# Read the content of README.md for the long description
+with open(HERE / "README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup_args = dict(
     name                    = 'mitosheet',
     version                 = package_json["version"],
@@ -66,19 +71,7 @@ setup_args = dict(
     author_email            = package_json["author"]["email"],
     description             = package_json["description"],
     license                 = "GNU Affero General Public License v3",
-    long_description="""
-    To learn more about Mito, checkout out our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
-    Before installing Mito \n\n
-    1. Check that you have Python 3.8 or above. To check your version of Python, open a new terminal, and type python3 --version. If you need to install or update Python, restart your terminal after doing so.\n\n
-    2. Checkout our terms of service and privacy policy. By installing Mito, you're agreeing to both of them. Please contact us at aaron [@] sagacollab [dot] com with any questions.\n\n
-    Installation Instructions \n\n
-    For more detailed installation instructions, see our documentation: https://docs.trymito.io/getting-started/installing-mito\n\n
-    1. pip install mitosheet\n\n
-    2. Launch JupyterLab 4.0 and open a new notebook\n\n
-    3. In the notebook, run the following code:\n\n
-    import mitosheet\n\n
-    mitosheet.sheet()\n\n
-    """,
+    long_description        = long_description,
     long_description_content_type = "text/markdown",
     packages                 = find_packages(exclude=['deployment']),
     include_package_data     = True,
@@ -134,7 +127,7 @@ setup_args = dict(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Framework :: Jupyter",
-        "Framework :: Jupyter :: JupyterLab"
+        "Framework :: Jupyter :: JupyterLab",
         "Framework :: Jupyter :: JupyterLab :: 4",
         "Framework :: Jupyter :: JupyterLab :: Extensions",
         "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt"

@@ -778,7 +778,7 @@ export type UserDefinedFunction = {
  */
 export interface AnalysisData {
     analysisName: string,
-    inputCellExecutionCount: number | undefined,
+    inputCellExecutionCount: number | null,
     publicInterfaceVersion: PublicInterfaceVersion,
     analysisToReplay: {
         analysisName: string,
@@ -997,9 +997,9 @@ export const enum FeedbackID {
 }
 
 export interface JupyterUtils {
-    getArgs: (analysisToReplayName: string | undefined, inputCellExecutionCount: number | undefined) => Promise<string[]>,
+    getArgs: (analysisToReplayName: string | undefined, inputCellExecutionCount: number | null) => Promise<string[]>,
     writeAnalysisToReplayToMitosheetCall: (analysisName: string, mitoAPI: MitoAPI) => void
-    writeGeneratedCodeToCell: (analysisName: string, inputCellExecutionCount: number | undefined, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
+    writeGeneratedCodeToCell: (analysisName: string, inputCellExecutionCount: number | null, code: string[], telemetryEnabled: boolean, publicInterfaceVersion: PublicInterfaceVersion, triggerUserEditedCodeDialog: (codeWithoutUserEdits: string[], codeWithUserEdits: string[]) => void, oldCode: string[], overwriteIfUserEditedCode?: boolean) => void
     writeCodeSnippetCell: (analysisName: string, code: string) => void
     overwriteAnalysisToReplayToMitosheetCall: (oldAnalysisName: string, newAnalysisName: string, mitoAPI: MitoAPI) => void
 }

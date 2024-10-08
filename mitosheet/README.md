@@ -1,5 +1,25 @@
 # The Mito Spreadsheet
 
+The Mito spreadsheet is desgined to help folks automate their repeititive reporting with Python. Every edit you make to the Mito spreadsheet is automatically converted to production-ready Python code. Use spreadsheet formulas like VLOOKUP, pivot tables, and all of your favorite Excel functionality.
+
+## Installing the Mito Spreadsheet
+
+It is important to install the correct version of mitosheet for your version of JupyterLab. 
+
+**JupyterLab 4.x**: To intall mitosheet for JupyterLab 4.x, run the following command:
+
+```bash
+pip install mitosheet
+```
+
+**JupyterLab 3.x**: To install mitosheet for JupyterLab 3.x, use the latest release of the mitosheet 0.1.x series. Run the following command:
+
+```bash
+pip install mitosheet~=0.1
+```
+
+## Codebase structure
+
 This folder contains a variety of packages and utilities for the `mitosheet` Python package. The primary folders of interest:
 - `mitosheet` contains the Python code for the `mitosheet` Python package. 
 - `src` contains the TypeScript, React code for the `mitosheet` JupyterLab extension front-end.
