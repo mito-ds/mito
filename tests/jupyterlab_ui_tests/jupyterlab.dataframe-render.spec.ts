@@ -9,12 +9,12 @@ test.describe('Dataframe renders as mitosheet', () => {
   test('renders a mitosheet when hanging dataframe', async ({ page, tmpPath }) => {
 
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})\ndf']);
-    const cellOuput = await page.notebook.getCellOutput(0)
     await waitForIdle(page);
-    expect(await cellOuput?.innerHTML()).toContain('Home');
+    const cellOutput = await page.notebook.getCellOutput(0);
+    expect(await cellOutput?.innerHTML()).toContain('Home');
 
-    // The toolbar should be collapsed by default, so the Insert button should not be visible
-    expect(await cellOuput?.innerHTML()).not.toContain('Insert');
+    // The toolbar should be collapsed by default, so the Delete button should not be visible
+    expect(await cellOutput?.innerHTML()).not.toContain('Delete');
   });
 
   test('Do not create a new code cell until code is generated', async ({ page, tmpPath }) => {
@@ -32,10 +32,12 @@ test.describe('Dataframe renders as mitosheet', () => {
 
     // Check that the second cell now contains code
     const newSecondCell = await page.locator('.jp-Cell-inputArea').nth(1);
+    await newSecondCell.scrollIntoViewIfNeeded();
     expect(await newSecondCell.textContent()).toContain("from mitosheet.public");
     
     // Check that the third cell now contains placeholder text
     const thirdCell = await page.locator('.jp-Cell-inputArea').nth(2);
+    await thirdCell.scrollIntoViewIfNeeded();
     expect(await thirdCell.textContent()).toContain(placeholderCellText);
 
   });
