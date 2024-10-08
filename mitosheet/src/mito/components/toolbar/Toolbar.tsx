@@ -46,8 +46,6 @@ export const Toolbar = (
         mitoAPI: MitoAPI
         currStepIdx: number;
         lastStepIndex: number;
-        highlightPivotTableButton: boolean;
-        highlightAddColButton: boolean;
         actions: Actions;
         mitoContainerRef: React.RefObject<HTMLDivElement>;
         gridState: GridState;

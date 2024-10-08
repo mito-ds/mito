@@ -77,8 +77,6 @@ import UpgradeTaskpane from './components/taskpanes/UpgradeToPro/UpgradeToProTas
 import UserDefinedEditTaskpane from './components/taskpanes/UserDefinedEdit/UserDefinedEditTaskpane';
 import { EDITING_TASKPANES, TASKPANE_WIDTH_MAX, TASKPANE_WIDTH_MIN, TaskpaneType, getDefaultTaskpaneWidth } from './components/taskpanes/taskpanes';
 import { Toolbar } from './components/toolbar/Toolbar';
-import Tour from './components/tour/Tour';
-import { TourName } from './components/tour/Tours';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSStyleVariables } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
@@ -108,10 +106,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const [userProfile, setUserProfile] = useState<UserProfile>(props.userProfile);
     const [gridState, setGridState] = useState<GridState>(() => getDefaultGridState(sheetDataArray, 0))
 
+    // True: If the Mito spreadsheet is created by a dataframe render
+    // False: If the Mitosheet is created by calling mitosheet.sheet() from a code cell
+    const isDataframeRenderMitosheet = props.analysisData.inputCellExecutionCount !== null; 
+
     // Set reasonable default values for the UI state
     const [uiState, setUIState] = useState<UIState>({
         loading: [],
-        currOpenModal: userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDashboard() // no signup if no logs, or if on dash
+        // Don't show the signup if either:
+        // 1. telemetry is turned off
+        // 2. In a dashboard (streamlit or dash)
+        // 3. The mitosheet is a dataframe renderer
+        currOpenModal: !isDataframeRenderMitosheet &&userProfile.userEmail == '' && userProfile.telemetryEnabled && !isInDashboard()
             ? {type: ModalEnum.SignUp}   
             : {type: ModalEnum.None},
         currOpenTaskpane: {type: TaskpaneType.NONE}, 
@@ -120,7 +126,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
-        currentToolbarTab: props.analysisData.inputCellExecutionCount === null ? 'Home' : undefined, // If dataframe render, default to collapsed toolbar tabs
+        currentToolbarTab: isDataframeRenderMitosheet? undefined : 'Home', // If dataframe render, default to collapsed toolbar tabs
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },
@@ -133,9 +139,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         taskpaneWidth: getDefaultTaskpaneWidth()
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
-
-    const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
-    const [highlightAddColButton, setHighlightAddColButton] = useState(false);
 
     // We store the path that the user last uses when they are using the import
     // in Mito so that we can open to the same place next time they use it
@@ -946,59 +949,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
         sendFunctionStatus
     )
 
-
-    /* 
-        Send all users through the intro tour unless:
-        1. They disabled tours
-        2. They are in streamlit
-
-        This returns the tour JSX to display, which might be nothing
-        if the user should not go through the tour for some reason.
-    */
-    const getCurrTour = (): JSX.Element => {
-
-        // If the user has either no or tutorial data in the tool, don't display the tour
-        if (sheetDataArray.length == 0) {
-            return <></>;
-        }
-
-        // If the user has turned off tours via the enviornment variable, don't display the tour
-        if (userProfile.mitoConfig.MITO_CONFIG_DISABLE_TOURS) {
-            return <></>;
-        }
-
-        // If the user is in streamlit or dash, don't display the tour
-        if (isInDashboard()) {
-            return <></>;
-        }
-
-        const toursToDisplay: TourName[] = []
-
-        // We display the INTRO to users if they have not received it
-        if (!userProfile.receivedTours.includes(TourName.INTRO)) {
-            toursToDisplay.push(TourName.INTRO);
-        }
-
-        // If we open the cell editor for the first time, we give the user this tour
-        if (editorState !== undefined && editorState.rowIndex >= 0 && !userProfile.receivedTours.includes(TourName.COLUMN_FORMULAS)) {
-            toursToDisplay.push(TourName.COLUMN_FORMULAS)
-        }
-
-        return (
-            <>
-                {toursToDisplay.length !== 0 && uiState.currOpenModal.type !== ModalEnum.SignUp &&
-                    <Tour 
-                        sheetData={sheetDataArray[uiState.selectedSheetIndex]}
-                        setHighlightPivotTableButton={setHighlightPivotTableButton}
-                        setHighlightAddColButton={setHighlightAddColButton}
-                        tourNames={toursToDisplay}
-                        mitoAPI={mitoAPI}
-                    />
-                }
-            </>
-        )
-    }
-
     // Check which taskpanes are open
     const taskpaneOpen = uiState.currOpenTaskpane.type !== TaskpaneType.NONE;
     const wideTaskpaneOpen = uiState.currOpenTaskpane.type === TaskpaneType.GRAPH && uiState.selectedTabType === 'graph';
@@ -1113,8 +1063,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
                     lastStepIndex={lastStepSummary.step_idx}
-                    highlightPivotTableButton={highlightPivotTableButton}
-                    highlightAddColButton={highlightAddColButton}
                     actions={actions}
                     mitoContainerRef={mitoContainerRef}
                     gridState={gridState}
@@ -1183,8 +1131,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         </>
                     }
                 </div>
-                {/* Display the tour if there is one */}
-                {getCurrTour()}
                 <Footer
                     sheetDataArray={sheetDataArray}
                     graphDataArray={analysisData.graphDataArray}
