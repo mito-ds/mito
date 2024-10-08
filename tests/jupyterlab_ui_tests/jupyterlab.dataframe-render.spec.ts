@@ -1,5 +1,5 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, updateCellValue } from './utils';
+import { createAndRunNotebookWithCells, updateCellValue, waitForIdle } from './utils';
 
 const placeholderCellText = '# Empty code cell';
 
@@ -10,6 +10,7 @@ test.describe('Dataframe renders as mitosheet', () => {
 
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})\ndf']);
     const cellOuput = await page.notebook.getCellOutput(0)
+    await waitForIdle(page);
     expect(await cellOuput?.innerHTML()).toContain('Home');
 
     // The toolbar should be collapsed by default, so the Insert button should not be visible
