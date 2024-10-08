@@ -140,9 +140,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
-    const [highlightPivotTableButton, setHighlightPivotTableButton] = useState(false);
-    const [highlightAddColButton, setHighlightAddColButton] = useState(false);
-
     // We store the path that the user last uses when they are using the import
     // in Mito so that we can open to the same place next time they use it
     const [currPathParts, setCurrPathParts] = useState<string[]>(props.analysisData.importFolderData ? props.analysisData.importFolderData.pathParts : ['.']);
@@ -1066,8 +1063,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
                     lastStepIndex={lastStepSummary.step_idx}
-                    highlightPivotTableButton={highlightPivotTableButton}
-                    highlightAddColButton={highlightAddColButton}
                     actions={actions}
                     mitoContainerRef={mitoContainerRef}
                     gridState={gridState}
