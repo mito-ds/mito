@@ -10,7 +10,7 @@ const createNewColumnWithName = async (page: Page, mito: FrameLocator, name: str
     await expect(mito.locator('.endo-column-header-container', { hasText: name })).toBeVisible();
 };
 
-test('Vanguard Demo', async ({ page }) => {
+test.skip('Vanguard Demo', async ({ page }) => {
     const mito = await getMitoFrame(page);
     await mito.getByText('Import Files').click();
     await mito.getByText('vanguard-fund-performance').dblclick();

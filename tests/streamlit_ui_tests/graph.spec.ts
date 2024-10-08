@@ -293,7 +293,8 @@ test.describe('Graph Functionality', () => {
     await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
     
     await clickTab(page, mito, 'Insert');
-    await clickButtonAndAwaitResponse(page, mito, { name: 'Create an interactive scatter plot.' })
+    await mito.getByTitle('Create an interactive scatter plot.').click();
+    await awaitResponse(page);
 
     await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
     await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();

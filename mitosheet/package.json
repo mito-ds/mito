@@ -14,7 +14,7 @@
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Mito Sheet",
-    "email": "naterush1997@gmail.com"
+    "email": "aaron@sagacollab.com"
   },
   "bugs": {
     "url": "https://github.com/mito-ds/monorepo/issues"
@@ -25,48 +25,46 @@
   },
   "version": "0.3.131",
   "dependencies": {
-    "@jupyterlab/application": "^3.5.0",
-    "@jupyterlab/notebook": "^3.0.6",
+    "@jupyterlab/application": "^4.0.0",
+    "@jupyterlab/notebook": "^4.2.4",
     "@types/fscreen": "^1.0.1",
-    "@types/react-dom": "^17.0.2",
+    "@types/react-dom": "^18.3.0",
     "fscreen": "^1.1.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "streamlit-component-lib": "^2.0.0"
   },
   "scripts": {
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "clean:nbextension": "rimraf mitosheet/nbextension",
     "clean:labextension": "rimraf mitosheet/labextension",
     "clean:mito_frontend": "rimraf mitosheet/mito_frontend.js mitosheet/mito_frontend.css",
     "clean:dash": "cd mitosheet && rimraf mitodashwrapper.css && rimraf mitodashwrapper.js",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension && jlpm run clean:mito_frontend && npm run clean:dash",
-    "clean": "npm run clean:all",
-    "build:nbextension:dev": "webpack --mode=development",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension && jlpm run clean:mito_frontend && jlpm run clean:dash",
+    "clean": "jlpm run clean:all",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:mito_frontend:dev": "node esbuild.js",
     "build:streamlit:dev": "node esbuild.streamlit.js",
-    "build:all:dev": "npm run build:nbextension:dev && build:labextension:dev && build:mito_frontend:dev && build:streamlit:dev",
-    "build:dev": "npm run build:all:dev",
-    "build:lib": "tsc",
-    "build:nbextension": "webpack --mode=production",
+    "build:all:dev": "jlpm run build:labextension:dev && jlpm run build:mito_frontend:dev && jlpm run build:streamlit:dev",
+    "build:dev": "jlpm run build:all:dev",
+    "build:lib": "tsc --sourceMap",
     "build:labextension": "jupyter labextension build .",
     "build:mito_frontend": "node esbuild.js",
     "build:streamlit": "node esbuild.streamlit.js",
     "build:dash": "node esbuild.dash.js",
-    "build:all": "npm run build:lib && npm run build:labextension && npm run build:nbextension && npm run build:mito_frontend && npm run build:streamlit && npm run build:dash",
-    "build": "npm run build:all",
+    "build:all": "jlpm run build:lib && jlpm run build:labextension && jlpm run build:mito_frontend && jlpm run build:streamlit && jlpm run build:dash",
+    "build": "jlpm run build:all",
     "watch:lib": "tsc -w",
-    "watch:nbextension": "webpack --watch --mode=development",
     "watch:labextension": "jupyter labextension watch .",
     "watch:mito_frontend": "node esbuild.js --watch",
     "watch:streamlit": "node esbuild.streamlit.js --watch",
     "watch:dash": "node esbuild.dash.js --watch",
-    "watch:all": "run-p watch:lib watch:labextension watch:nbextension watch:mito_frontend watch:streamlit watch:dash",
-    "watch": "npm run watch:all",
+    "watch:all": "jlpm run watch:lib & jlpm run watch:labextension & jlpm run watch:mito_frontend & jlpm run watch:streamlit & jlpm run watch:dash",
+    "watch:jupyter": "run-p jlpm run watch:lib & jlpm run watch:labextension & jlpm run watch:mito_frontend",
+    "watch:src": "npx tsc -w",
+    "watch": "jlpm run watch:all",
     "lint:check": "eslint src/ --ext .ts,.tsx",
     "lint": "eslint src/ --ext .ts,.tsx --fix",
-    "prepack": "npm run build:all",
+    "prepack": "jlpm run build:all",
     "build:docs:update_frontend": "python docs/make_function_docs.py update_frontend",
     "build:docs:generate_markdown": "python docs/make_function_docs.py generate_markdown"
   },
@@ -79,10 +77,10 @@
     "ipywidgets"
   ],
   "devDependencies": {
-    "@jupyterlab/builder": "^3.0.0",
+    "@jupyterlab/builder": "^4.0.0",
     "@types/expect.js": "^0.3.29",
-    "@types/node": "^18.11.18",
-    "@types/react": "^17.0.26",
+    "@types/node": "^18.19.43",
+    "@types/react": "^18.3.3",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "esbuild": "^0.15.16",
@@ -92,19 +90,20 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.21.3",
     "expect.js": "^0.3.1",
+    "file-loader": "^6.2.0",
     "fs-extra": "^10.0.0",
     "mkdirp": "^1.0.4",
     "mocha": "^9.1.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
-    "typescript": "^4.4.3"
+    "typescript": "^5.5.4"
   },
   "main": "lib/index.js",
   "homepage": "https://trymito.io",
   "types": "./lib/index.d.ts",
   "description": "The Mito Spreadsheet",
   "resolutions": {
-    "@types/react": "^17.0.2"
+    "@types/react": "^18.3.3"
   }
 }

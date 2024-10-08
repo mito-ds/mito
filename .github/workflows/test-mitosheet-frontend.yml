@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.10']
+        python-version: ['3.8', '3.10', '3.11']
       fail-fast: false
 
     steps:
@@ -35,7 +35,7 @@ jobs:
           tests/requirements.txt
     - uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 18
         cache: 'npm'
         cache-dependency-path: mitosheet/package-lock.json
     - name: Install dependencies
@@ -67,9 +67,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        # Usually we'd test python 3.6 but there is an error showing up in the tests
-        # that we're not sure about. See https://github.com/mito-ds/mito/pull/1213
-        python-version: ['3.8', '3.10']
+        python-version: ['3.8', '3.10', '3.11']
       fail-fast: false
 
     steps:
@@ -88,7 +86,7 @@ jobs:
           tests/requirements.txt
     - uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 18
         cache: 'npm'
         cache-dependency-path: mitosheet/package-lock.json
     - name: Install dependencies
@@ -163,7 +161,7 @@ jobs:
           tests/extra-requirements.txt
     - uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 18
         cache: 'npm'
         cache-dependency-path: mitosheet/package-lock.json
     - name: Install dependencies (ubuntu, macos)
@@ -201,14 +199,14 @@ jobs:
         pip install -r requirements.txt
         pip install -r extra-requirements.txt
 
-        npm install
+        jlpm install
         npx playwright install
 
         cd ../mitosheet
         pip install -e ".[test]"
 
-        npm install
-        npm run build
+        jlpm install
+        jlpm run build
     - name: Start a server and run tests (ubuntu, macos)
       if: matrix.os != 'windows-latest-l'
       run: |
@@ -257,7 +255,7 @@ jobs:
           tests/extra-requirements.txt
     - uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 18
         cache: 'npm'
         cache-dependency-path: mitosheet/package-lock.json
     - name: Install dependencies

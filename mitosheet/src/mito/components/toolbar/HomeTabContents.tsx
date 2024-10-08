@@ -19,8 +19,8 @@ import { FilterIcon } from '../icons/FilterIcons';
 export const HomeTabContents = (
     props: {
         mitoAPI: MitoAPI
-        highlightPivotTableButton: boolean;
-        highlightAddColButton: boolean;
+        highlightPivotTableButton?: boolean;
+        highlightAddColButton?: boolean;
         actions: Actions;
         gridState: GridState;
         uiState: UIState;

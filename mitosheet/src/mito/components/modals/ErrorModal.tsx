@@ -30,8 +30,8 @@ const ErrorModal = (
             header={props.error.errorShort}
             modalType={ModalEnum.Error}
             wide
-            viewComponent={
-                <Fragment>
+            viewComponent={[
+                <Fragment key={props.error.errorShort}>
                     {props.error.error &&
                         <div className='text-align-left text-body-1' onClick={() => setViewTraceback((viewTraceback) => !viewTraceback)}>
                             {props.error.error} {' '}
@@ -48,9 +48,9 @@ const ErrorModal = (
                         </div>
                     }
                 </Fragment>
-            }
-            buttons={
-                <Fragment>
+            ]}
+            buttons={[
+                <Fragment key={'error-modal-buttons'}>
                     <TextButton
                         variant='light'
                         width='small'
@@ -69,7 +69,7 @@ const ErrorModal = (
                         mitoAPI={props.mitoAPI}                 
                     />
                 </Fragment> 
-            }
+            ]}
         />
     )    
 };

@@ -6,7 +6,7 @@ source venv/bin/activate;
 pip install -r requirements.txt;
 
 # Install necessary node packages
-npm install
+jlpm install
 
 # Install playwright. If the user provides a browser, install only that browser
 # Otherwise, install all browsers. This is primarily used so that the CI can
@@ -26,5 +26,5 @@ cd ../mitosheet
 pip install -e ".[test]"
 
 # Install the npm dependences for Mitosheet, and build JS
-npm install
-npm run build
+jlpm install
+jlpm run build

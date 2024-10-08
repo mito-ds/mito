@@ -70,7 +70,7 @@ test.describe('Top of Toolbar', () => {
     test('Search button', async ({ page }) => {
         const mito = await getMitoFrameWithTestCSV(page);
 
-        await mito.getByRole('button', { name: /Search for a value in your data./ }).click();
+        await mito.locator('.mito-toolbar-top').getByTitle(/Search for a value in your data./).click();
         await expect(mito.getByPlaceholder('Find...')).toBeVisible();
     });
 });

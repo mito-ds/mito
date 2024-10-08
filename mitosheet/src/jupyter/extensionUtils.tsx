@@ -1,11 +1,7 @@
 // Copyright (c) Mito
 import { ICellModel } from "@jupyterlab/cells";
-import { INotebookTracker } from '@jupyterlab/notebook';
-import {
-    IObservableString,
-    IObservableUndoableList
-} from '@jupyterlab/observables';
-import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "../code";
+import { CellList, INotebookTracker, Notebook, NotebookActions } from '@jupyterlab/notebook';
+import { containsMitosheetCallWithAnyAnalysisToReplay, containsMitosheetCallWithSpecificAnalysisToReplay, isMitosheetCallCode, removeWhitespaceInPythonCode } from "./code";
 
 
 export function getParentMitoContainer(): Element | null {
@@ -23,31 +19,65 @@ export function getParentMitoContainer(): Element | null {
 }
 
 
-export function getCellAtIndex(cells: IObservableUndoableList<ICellModel> | undefined, index: number): ICellModel | undefined {
+export function getCellAtIndex(cells: CellList | undefined, index: number): ICellModel | undefined {
     if (cells == undefined) {
         return undefined;
     }
 
-    const cellsIterator = cells.iter();
-    let cell = cellsIterator.next();
-    let i = 0;
-    while (cell) {
-        if (i == index) {
-            return cell;
-        }
+    // If the index is out of bounds, it will return undefined
+    const cell = cells.get(index)
+    return cell
+}
 
-        i++;
-        cell = cellsIterator.next();
+export function getCellIndexByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number | undefined {
+    if (cells == undefined || executionCount == undefined) {
+        return undefined;
     }
 
-  
-    return undefined;
+    // In order to get the cell index, we need to iterate over the cells and call the `get` method
+    // to see the cells in order. Otherwise, the cells are returned in a random order.
+    for (let i = 0; i < cells.length; i++) {
+        const cell = cells.get(i)
+        // TODO: This doesn't work with SharedCells. 
+        if (cell.type === 'code' && 'execution_count' in cell.sharedModel) {
+            const executionCountEntry = cell.sharedModel.execution_count
+            if (executionCountEntry === executionCount) {
+                return i
+            }
+        }
+    }
+
+    return undefined
 }
 
 export function getCellText(cell: ICellModel| undefined): string {
     if (cell == undefined) return ''; 
-    const value = cell.modelDB.get('value') as IObservableString;
-    return value.text;
+
+    return cell.sharedModel.source
+}
+
+export function createCodeCellAtIndex(index: number, notebook: Notebook | undefined): ICellModel | undefined {
+
+    if (notebook === undefined) {
+        return undefined;
+    }
+
+    notebook.activeCellIndex = index - 1;
+    NotebookActions.insertBelow(notebook);
+    return getCellAtIndex(notebook.model?.cells, index);
+}
+
+export function writeToCodeCellAtIndex(index: number, notebook: Notebook | undefined, code: string): void {
+
+    if (notebook === undefined) {
+        return undefined;
+    }
+
+    const cells = notebook.model?.cells;
+    const codeCell = getCellAtIndex(cells, index);
+    if (codeCell) {
+        writeToCell(codeCell, code);
+    }
 }
 
 
@@ -75,16 +105,16 @@ export function getCellCallingMitoshetWithAnalysis(tracker: INotebookTracker, an
         return undefined;
     }
 
-    const cellsIterator = cells.iter();
-    let cell = cellsIterator.next();
-    let cellIndex = 0;
-    while (cell) {
-        if (containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), analysisName)) {
-            return [cell, cellIndex];
+    for (let i = 0; i < cells.length; i++) {
+        const cell = getCellAtIndex(cells, i)
+
+        if (cell == undefined) {
+            continue;
         }
 
-        cellIndex++;
-        cell = cellsIterator.next();
+        if (containsMitosheetCallWithSpecificAnalysisToReplay(getCellText(cell), analysisName)) {
+            return [cell, i];
+        }
     }
 
     return undefined;
@@ -154,8 +184,7 @@ export function writeToCell(cell: ICellModel | undefined, code: string): void {
     if (cell == undefined) {
         return;
     }
-    const value = cell.modelDB.get('value') as IObservableString;
-    value.text = code;
+    cell.sharedModel.source = code
 }
 
 

@@ -11,7 +11,7 @@ jobs:
         timeout-minutes: 60
         strategy:
           matrix:
-            python-version: ['3.7', '3.8', '3.10']
+            python-version: ['3.8', '3.10', '3.11']
           fail-fast: false
     
         steps:
@@ -41,7 +41,7 @@ jobs:
             pip install mitosheet
             pip install --upgrade -i https://test.pypi.org/simple/ mitosheet
             # Install necessary node packages
-            npm install
+            jlpm install
             npx playwright install chromium webkit firefox chrome
 
         - name: Start a server and run tests
@@ -103,7 +103,7 @@ jobs:
           pip install mitosheet streamlit
           pip install --upgrade -i https://test.pypi.org/simple/ mitosheet
           # Install necessary node packages
-          npm install
+          jlpm install
           npx playwright install chromium webkit firefox chrome
       - name: Setup streamlit (ubuntu, macos)
         if: matrix.os != 'windows-latest-l'
@@ -131,7 +131,7 @@ jobs:
           pip install mitosheet streamlit
           pip install --upgrade -i https://test.pypi.org/simple/ mitosheet
           # Install necessary node packages
-          npm install
+          jlpm install
           npx playwright install chromium webkit firefox chrome
       - name: Start a server and run tests (ubuntu, macos)
         if: matrix.os != 'windows-latest-l'
