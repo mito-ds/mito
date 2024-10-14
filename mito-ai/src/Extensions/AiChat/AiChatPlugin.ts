@@ -10,7 +10,13 @@ import { buildChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
+import { Token } from '@lumino/coreutils';
 
+export const IMitoSelectionManager = new Token<IMitoSelectionManager>('mitosheet:mito-selection-manager');
+
+export interface IMitoSelectionManager {
+  value: string;
+}
 
 /**
  * Initialization data for the mito-ai extension.
@@ -20,15 +26,20 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
   description: 'AI chat for JupyterLab',
   autoStart: true,
   requires: [INotebookTracker, ICommandPalette, IRenderMimeRegistry, IVariableManager],
-  optional: [ILayoutRestorer],
+  optional: [ILayoutRestorer, IMitoSelectionManager],
   activate: (
     app: JupyterFrontEnd, 
     notebookTracker: INotebookTracker, 
     palette: ICommandPalette, 
     rendermime: IRenderMimeRegistry,
     variableManager: IVariableManager,
-    restorer: ILayoutRestorer | null
+    restorer: ILayoutRestorer | null,
+    mitoSelectionManager: IMitoSelectionManager | null
   ) => {
+
+
+    console.log("HERE")
+    console.log("mitoSelectionManager", mitoSelectionManager);
 
     // Define a widget creator function,
     // then call it to make a new widget
