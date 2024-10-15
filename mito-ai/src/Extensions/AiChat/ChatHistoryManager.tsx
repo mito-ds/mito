@@ -40,7 +40,7 @@ export class ChatHistoryManager {
         return this.history.displayOptimizedChatHistory;
     }
 
-    addUserMessage(input: string, activeCellCode?: string, variables?: Variable[], error: boolean = false): void {
+    addUserMessage(input: string, activeCellCode?: string, variables?: Variable[]): void {
 
         const displayMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
