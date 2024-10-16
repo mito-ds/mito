@@ -60,6 +60,12 @@ def put_nan_indexes_back(series: pd.Series, original_index: pd.Index) -> pd.Seri
 
 def get_to_datetime_params(string_series: pd.Series) -> Dict[str, Any]:
 
+    # If the series is already full of datetime objects, then we don't need to 
+    # guess a datetime format. 
+    if is_series_full_of_datetimes(string_series):
+        return {}
+
+
     detected_format = get_datetime_format(string_series)
 
     # If we detect a format, we return that. This works for all pandas versions
@@ -80,6 +86,9 @@ def get_to_datetime_params(string_series: pd.Series) -> Dict[str, Any]:
         'format': 'mixed'
     }
 
+def is_series_full_of_datetimes(string_series: pd.Series) -> bool:
+    return all(isinstance(x, datetime.datetime) for x in string_series)
+
 
 def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     """
@@ -87,7 +96,7 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     """
     # Import log function here to avoid circular import
     from mitosheet.telemetry.telemetry_utils import log
-
+    
     # Filter to only the strings since that is all we're convertin
     string_series = string_series[string_series.apply(lambda x: isinstance(x, str))]
 
@@ -102,7 +111,6 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
 
     # TODO: Add the most popular formats to here and check them first before 
     # trying all of the formats below for performance.
-
     sample_string_datetime = string_series[string_series.first_valid_index()]
     FORMATS = [
         '%m{s}%d{s}%Y', 
