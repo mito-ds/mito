@@ -29,7 +29,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ onDebugClick }) => {
  * This plugin augments the standard error output with a prompt to debug the error in the chat interface.
 */
 const ErrorMimeRendererPlugin: JupyterFrontEndPlugin<void> = {
-    id: 'jupyterlab-debug-prompt',
+    id: 'mito-ai:debug-error-with-ai',
     autoStart: true,
     requires: [IRenderMimeRegistry],
     activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry) => {
