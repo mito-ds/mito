@@ -8,12 +8,8 @@
     "jupyter.lab.toolbars": {
       "Cell": [
         {
-          "name": "run-code-cell",
-          "command": "toolbar-button:run-code-cell"
-        },
-        {
-          "name": "render-markdows-cell",
-          "command": "toolbar-button:render-markdown-cell"
+          "name": "explain-code",
+          "command": "toolbar-button:explain-code"
         }
       ]
     }
