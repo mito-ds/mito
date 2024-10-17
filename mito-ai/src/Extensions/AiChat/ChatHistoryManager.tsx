@@ -17,7 +17,20 @@ export interface IChatHistory {
     displayOptimizedChatHistory: IDisplayOptimizedChatHistory[]
 }
 
+/* 
+    The ChatHistoryManager is responsible for managing the AI chat history.
 
+    It keeps track of two types of messages:
+    1. aiOptimizedChatHistory: Messages sent to the AI that include things like: instructions on how to respond, the code context, etc. 
+    2. displayOptimizedChatHistory: Messages displayed in the chat interface that only display info the user wants to see, 
+    like their original input.
+
+    TODO: In the future, we should make this its own extension that provides an interface for adding new messages to the chat history,
+    creating new chats, etc. Doing so would allow us to easily append new messages from other extensions without having to do so 
+    by calling commands with untyped arguments.
+
+    Whenever, the chatHistoryManager is updated, it should automatically send a message to the AI. 
+*/
 export class ChatHistoryManager {
     private history: IChatHistory;
 

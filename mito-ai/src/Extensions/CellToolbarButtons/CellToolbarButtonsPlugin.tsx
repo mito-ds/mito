@@ -8,7 +8,7 @@ import { LabIcon } from '@jupyterlab/ui-components';
 import LightbulbIcon from '../../../src/icons/LightbulbIcon.svg'
 
 export const lightBulbIcon = new LabIcon({
-    name: 'mito_ai',
+    name: 'lightbulb-icon',
     svgstr: LightbulbIcon
 });
 
@@ -17,7 +17,7 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // The id here must be mito-ai:plugin otherwise the buttons are not successfull added. My understanding is that
     // the id must match the name of the package and `plugin` must be used when working with the schema/plugin.json file.
     id: 'mito-ai:plugin',
-    description: 'A JupyterLab extension to add cell toolbar buttons.',
+    description: 'Adds an "explain code cell with AI" button to the cell toolbar',
     autoStart: true,
     requires: [INotebookTracker],
     activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
@@ -27,13 +27,19 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
         // and the command must match the command in the schema/plugin.json file.
         commands.addCommand('toolbar-button:explain-code', {
             icon: lightBulbIcon,
-            caption: 'Explain code',
+            caption: 'Explain code in AI Chat',
             execute: () => {
-                // In order to click on the cell toolbar button, that cell must be the active cell, 
-                // so the Ai Chat taskpane will take care of providing the cell context.
+                /* 
+                    In order to click on the cell toolbar button, that cell must be the active cell, 
+                    so the Ai Chat taskpane will take care of providing the cell context.
+
+                    TODO: In the future, instead of directly calling COMMAND_MITO_AI_SEND_MESSAGE, we should
+                    update the AI Chat History Manager so that we can generate an AI optimzied message and a 
+                    display optimized message.
+                */
                 app.commands.execute(COMMAND_MITO_AI_SEND_MESSAGE, { input: `Explain this code` });
             },
-            isVisible: () => notebookTracker.activeCell?.model.type === 'code'
+            isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_MESSAGE)
         });
     }
 };
