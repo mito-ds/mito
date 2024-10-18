@@ -44,7 +44,6 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
         return new ChatHistoryManager(chatHistory)
 
     } else {
-        console.log("HERE")
         const chatHistoryManager = new ChatHistoryManager()
         chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
         return chatHistoryManager
