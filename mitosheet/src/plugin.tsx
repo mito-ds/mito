@@ -24,6 +24,9 @@ import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 import { Kernel } from '@jupyterlab/services';
+import { Token } from '@lumino/coreutils';
+import { AnalysisData } from './mito';
+
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -52,7 +55,7 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 function activateMitosheetExtension(
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-): void {
+): IMitoSelectionManager {
 
     console.log('Mitosheet extension activated');
 
@@ -528,11 +531,24 @@ except:
         so we can write to it elsewhere
     */
     window.commands = app.commands;
+
+    const selectionManger: IMitoSelectionManager = {
+        value: AnalysisData
+    }
+
+    return selectionManger
 }
 
-const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {
+export const IMitoSelectionManager = new Token<IMitoSelectionManager>('mitosheet:mito-selection-manager');
+
+export interface IMitoSelectionManager {
+    value: string;
+}
+
+const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<IMitoSelectionManager> = {
     id: 'mitosheet:plugin',
     requires: [INotebookTracker],
+    provides: IMitoSelectionManager,  
     activate: activateMitosheetExtension,
     autoStart: true,
 };
