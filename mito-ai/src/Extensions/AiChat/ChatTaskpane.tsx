@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import OpenAI from 'openai';
 import '../../../style/ChatTaskpane.css';
 import { classNames } from '../../utils/classNames';
@@ -18,6 +18,13 @@ import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
 import { getCodeWithDiffsMarked } from '../../utils/codeDiff';
+import { IEditorExtensionRegistry } from '@jupyterlab/codemirror';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { CodeCell } from '@jupyterlab/cells';
+import { StateEffect, Compartment } from '@codemirror/state';
+import { zebraStripes } from './CodeDiffDisplay';
+
+
 
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
@@ -30,16 +37,16 @@ const getDefaultChatHistoryManager = (): ChatHistoryManager => {
 
     if (USE_DEV_AI_CONVERSATION) {
         const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-            {role: 'system', content: 'You are an expert Python programmer.'},
-            {role: 'user', content: "```python x = 5\ny=10\nx+y``` update x to 10"},
-            {role: 'assistant', content: "```python x = 10\ny=10\nx+y```"},
-            {role: 'user', content: "```python x = 5\ny=10\nx+y``` Explain what this code does to me"},
-            {role: 'assistant', content: "This code defines two variables, x and y. Variables are named buckets that store a value. ```python x = 5\ny=10``` It then adds them together ```python x+y``` Let me know if you want me to further explain any of those concepts"}
+            { role: 'system', content: 'You are an expert Python programmer.' },
+            { role: 'user', content: "```python x = 5\ny=10\nx+y``` update x to 10" },
+            { role: 'assistant', content: "```python x = 10\ny=10\nx+y```" },
+            { role: 'user', content: "```python x = 5\ny=10\nx+y``` Explain what this code does to me" },
+            { role: 'assistant', content: "This code defines two variables, x and y. Variables are named buckets that store a value. ```python x = 5\ny=10``` It then adds them together ```python x+y``` Let me know if you want me to further explain any of those concepts" }
         ]
 
         const chatHistory: IChatHistory = {
             aiOptimizedChatHistory: [...messages],
-            displayOptimizedChatHistory: [...messages].map(message => ({message: message, error: false}))
+            displayOptimizedChatHistory: [...messages].map(message => ({ message: message, error: false }))
         }
 
         return new ChatHistoryManager(chatHistory)
@@ -55,14 +62,16 @@ interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
     variableManager: IVariableManager
+    editorExtensionRegistry: IEditorExtensionRegistry
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
 }
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
-    notebookTracker, 
-    rendermime, 
-    variableManager, 
+    notebookTracker,
+    rendermime,
+    variableManager,
+    editorExtensionRegistry,
     app,
     operatingSystem
 }) => {
@@ -70,6 +79,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
+    const [displayCodeDiff, setDisplayCodeDiff] = useState<boolean>(false)
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     useEffect(() => {
@@ -179,7 +189,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const applyLatestCode = () => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
-        
+
         if (!lastAIMessage) {
             return
         }
@@ -188,7 +198,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         writeCodeToActiveCell(notebookTracker, code, true)
     }
 
-    useEffect(() => {   
+    useEffect(() => {
         /* 
             Add a new command to the JupyterLab command registry that applies the latest AI generated code
             to the active code cell. Do this inside of the useEffect so that we only register the command
@@ -218,7 +228,82 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         })
+
+        // editorExtensionRegistry.addExtension(
+        //     Object.freeze({
+        //         name: '@jupyterlab-examples/codemirror:zebra-stripes',
+        //         // Default CodeMirror extension parameters
+        //         default: 2,
+        //         factory: () => {
+
+        //             return EditorExtensionRegistry.createConfigurableExtension((step: number) =>
+        //                 zebraStripes({ step })
+        //             )
+        //         },
+        //         // JSON schema defining the CodeMirror extension parameters
+        //         schema: {
+        //             type: 'number',
+        //             title: 'Show stripes',
+        //             description: 'Display zebra stripes every "step" in CodeMirror editors.',
+
+        //         }
+        //     })
+        // );
     }, [])
+
+    // Create a WeakMap to store compartments per code cell
+    const zebraStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
+
+    // Function to update the extensions of code cells
+    const updateCodeCellsExtensions = useCallback(() => {
+        const notebook = notebookTracker.currentWidget?.content;
+        if (!notebook) {
+            return;
+        }
+
+        console.log(1)
+        notebook.widgets.forEach(cell => {
+            if (cell.model.type === 'code') {
+                console.log(2)
+                const codeCell = cell as CodeCell;
+                const cmEditor = codeCell.editor as CodeMirrorEditor;
+                const editorView = cmEditor?.editor;
+
+                if (editorView) {
+                    let compartment = zebraStripesCompartments.current.get(codeCell);
+
+                    if (!compartment) {
+                        // Create a new compartment and store it
+                        compartment = new Compartment();
+                        zebraStripesCompartments.current.set(codeCell, compartment);
+
+                        // Apply the initial configuration
+                        editorView.dispatch({
+                            effects: StateEffect.appendConfig.of(
+                                compartment.of(displayCodeDiff ? zebraStripes() : [])
+                            ),
+                        });
+                    } else {
+                        // Reconfigure the compartment
+                        editorView.dispatch({
+                            effects: compartment.reconfigure(
+                                displayCodeDiff ? zebraStripes() : []
+                            ),
+                        });
+                    }
+                } else {
+                    console.log('editor view not found')
+                }
+            }
+        });
+    }, [displayCodeDiff, notebookTracker]);
+
+    // Update code cells when displayCodeDiff changes
+    useEffect(() => {
+        console.log("Calling updateCodeCellsExtensions")
+        updateCodeCellsExtensions();
+    }, [displayCodeDiff, updateCodeCellsExtensions]);
+
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
@@ -226,7 +311,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
                 <p className="chat-taskpane-header-title"></p>
-                <IconButton 
+                <IconButton
                     icon={<ResetIcon />}
                     title="Clear the chat history"
                     onClick={() => {
@@ -237,7 +322,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages">
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     return (
-                        <ChatMessage 
+                        <ChatMessage
                             message={displayOptimizedChat.message}
                             error={displayOptimizedChat.error || false}
                             messageIndex={index}
@@ -246,11 +331,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
+                            setDisplayCodeDiff={setDisplayCodeDiff}
                         />
                     )
                 }).filter(message => message !== null)}
             </div>
-            {loadingAIResponse && 
+            {loadingAIResponse &&
                 <div className="chat-loading-message">
                     Loading AI Response <LoadingDots />
                 </div>
@@ -260,14 +346,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 className={classNames("message", "message-user", 'chat-input')}
                 placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
                 value={input}
-                onChange={(e) => {setInput(e.target.value)}}
+                onChange={(e) => { setInput(e.target.value) }}
                 onKeyDown={(e) => {
                     // Enter key sends the message, but we still want to allow 
                     // shift + enter to add a new line.
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         sendMessageFromChat();
-                    } 
+                    }
                 }}
             />
         </div>

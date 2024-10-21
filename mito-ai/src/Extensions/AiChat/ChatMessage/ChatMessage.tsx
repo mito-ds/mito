@@ -19,6 +19,7 @@ interface IChatMessageProps {
     app: JupyterFrontEnd
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -29,7 +30,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     rendermime,
     app,
     isLastAiMessage,
-    operatingSystem
+    operatingSystem,
+    setDisplayCodeDiff
 }): JSX.Element | null => {
     if (message.role !== 'user' && message.role !== 'assistant') {
         // Filter out other types of messages, like system messages
@@ -60,6 +62,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 app={app}
                                 isLastAiMessage={isLastAiMessage}
                                 operatingSystem={operatingSystem}
+                                setDisplayCodeDiff={setDisplayCodeDiff}
                             />
                         )
                     }

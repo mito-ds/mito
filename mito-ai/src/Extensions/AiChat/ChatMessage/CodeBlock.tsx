@@ -16,7 +16,8 @@ interface ICodeBlockProps {
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     isLastAiMessage: boolean,
-    operatingSystem: OperatingSystem
+    operatingSystem: OperatingSystem,
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -26,7 +27,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     notebookTracker, 
     app, 
     isLastAiMessage,
-    operatingSystem
+    operatingSystem,
+    setDisplayCodeDiff
 }): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
@@ -47,6 +49,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
         )
     }
 
+    
+
     if (role === 'assistant') {
         return (
             <div className='code-message-part-container'>
@@ -55,6 +59,9 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                         {notebookName}
                     </div>
                     <button onClick={() => writeCodeToActiveCell(notebookTracker, code, true)}>Apply to cell {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}</button>
+                    <button onClick={() => setDisplayCodeDiff(displayCodeDiff => !displayCodeDiff)}>
+                        Display Diff
+                    </button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>
                 <PythonCode
