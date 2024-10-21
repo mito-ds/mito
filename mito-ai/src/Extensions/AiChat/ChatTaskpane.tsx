@@ -129,13 +129,29 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         _sendMessage(input)
     }
 
+    const getChatHistoryManager = () => {
+        return chatHistoryManagerRef.current
+    }
+
     const _sendMessage = async (input: string) => {
 
         const variables = variableManager.variables
         const activeCellCode = getActiveCellCode(notebookTracker)
 
-        // Create a new chat history manager so we can trigger a re-render of the chat
-        const updatedManager = new ChatHistoryManager(chatHistoryManager.getHistory());
+         /*
+            1. Access ChatHistoryManager via a function:
+            We use getChatHistoryManager() instead of directly accessing the state variable because 
+            the COMMAND_MITO_AI_SEND_MESSAGE is registered in a useEffect on initial render, which
+            would otherwise always use the initial state values. By using a function, we ensure we always
+            get the most recent chat history, even when the command is executed later.
+
+            2. Create a new ChatHistoryManager instance:
+            We create a copy of the current chat history and use it to initialize a new ChatHistoryManager to 
+            trigger a re-render in React, as simply appending to the existing ChatHistoryManager
+            (an immutable object) wouldn't be detected as a state change.            
+        */
+        const currentChatHistory = getChatHistoryManager().getHistory()
+        const updatedManager = new ChatHistoryManager(currentChatHistory);
         updatedManager.addUserMessage(input, activeCellCode, variables)
 
         setInput('');
