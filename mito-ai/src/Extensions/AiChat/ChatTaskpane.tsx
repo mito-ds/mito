@@ -11,12 +11,13 @@ import { requestAPI } from '../../utils/handler';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getCodeBlockFromMessage } from '../../utils/strings';
+import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
+import { getCodeWithDiffsMarked } from '../../utils/codeDiff';
 
 
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
@@ -152,6 +153,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (apiResponse.type === 'success') {
                 const response = apiResponse.response;
                 const aiMessage = response.choices[0].message;
+
+
+                const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
+                const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
+                const aiGeneratedCodeWithDiffs = getCodeWithDiffsMarked(activeCellCode, aiGeneratedCodeCleaned)
+                aiMessage.content = aiGeneratedCodeWithDiffs
+
                 updatedManager.addAIMessageFromResponse(aiMessage);
                 setChatHistoryManager(updatedManager);
             } else {
