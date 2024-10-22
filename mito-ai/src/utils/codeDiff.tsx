@@ -31,12 +31,22 @@ export const getCodeDiffLineRanges = (originalLines: string | undefined | null, 
 
 export const getCodeWithDiffsMarked = (originalLines: string | undefined | null, modifiedLines: string | undefined | null): string => {
 
-    let originalLinesTest: string = "hello\noriginal\nworld";
-    let modifiedLinesTest: string = "hello\nnew\nworld\nfoobar";
-    
-    const lineChanges = getCodeDiffLineRanges(originalLinesTest, modifiedLinesTest);
+    /* 
+        originalCodeLines: string
+        newCodeLines: string
+        allCodeLines: string
+            - Ordered by line number with: 
+                - Original code lines 
+                - New Code Lines
+        deletedLineIndexes: List[int]
+        modifiedLineIndexes: List[int]
+    */
 
-    const diffedLines = originalLinesTest.split('\n')
+
+    
+    const lineChanges = getCodeDiffLineRanges(originalLines, modifiedLines);
+
+    const diffedLines = originalLines?.split('\n') || []
 
     let numNewLinesAdded = 0
     for (const lineChange of lineChanges) {
@@ -44,7 +54,158 @@ export const getCodeWithDiffsMarked = (originalLines: string | undefined | null,
         numNewLinesAdded = numNewLinesAdded + 1
     }
 
-    console.log("diffedLines", diffedLines)
-
     return "```python\n" + diffedLines.join('\n') + "\n```"
+}
+
+interface UnifiedDiffLine {
+    content: string;                   // The content of the line
+    type: 'unchanged' | 'added' | 'removed'; // The type of change
+    originalLineNumber: number | null; // Line number in the original code
+    modifiedLineNumber: number | null; // Line number in the modified code
+}
+
+export const createUnifiedDiff = (
+    originalCode: string | undefined | null,
+    modifiedCode: string | undefined | null,
+    lineChanges: ILineChange[]
+): UnifiedDiffLine[] => {
+    if (originalCode === undefined || originalCode === null) {
+        originalCode = ''
+    }
+
+    if (modifiedCode === undefined || modifiedCode === null) {
+        modifiedCode = ''
+    }
+
+    const originalLines = originalCode.split('\n')
+    const modifiedLines = modifiedCode.split('\n')
+
+    const result: UnifiedDiffLine[] = [];
+    let originalLineNum = 1;
+    let modifiedLineNum = 1;
+    let changeIndex = 0;
+
+    while (
+        originalLineNum <= originalLines.length ||
+        modifiedLineNum <= modifiedLines.length
+    ) {
+        if (changeIndex < lineChanges.length) {
+            const change = lineChanges[changeIndex];
+
+            // Process unchanged lines before the next change
+            while (
+                (originalLineNum < change.originalStartLineNumber ||
+                    modifiedLineNum < change.modifiedStartLineNumber) &&
+                originalLineNum <= originalLines.length &&
+                modifiedLineNum <= modifiedLines.length
+            ) {
+                result.push({
+                    content: originalLines[originalLineNum - 1],
+                    type: 'unchanged',
+                    originalLineNumber: originalLineNum,
+                    modifiedLineNumber: modifiedLineNum,
+                });
+                originalLineNum++;
+                modifiedLineNum++;
+            }
+
+            // Process the change
+            if (
+                change.originalEndLineNumber > 0 &&
+                change.modifiedEndLineNumber > 0
+            ) {
+                // Modification
+                for (
+                    ;
+                    originalLineNum <= change.originalEndLineNumber;
+                    originalLineNum++
+                ) {
+                    result.push({
+                        content: originalLines[originalLineNum - 1],
+                        type: 'removed',
+                        originalLineNumber: originalLineNum,
+                        modifiedLineNumber: null,
+                    });
+                }
+                for (
+                    ;
+                    modifiedLineNum <= change.modifiedEndLineNumber;
+                    modifiedLineNum++
+                ) {
+                    result.push({
+                        content: modifiedLines[modifiedLineNum - 1],
+                        type: 'added',
+                        originalLineNumber: null,
+                        modifiedLineNumber: modifiedLineNum,
+                    });
+                }
+            } else if (change.originalEndLineNumber === 0) {
+                // Addition
+                for (
+                    ;
+                    modifiedLineNum <= change.modifiedEndLineNumber;
+                    modifiedLineNum++
+                ) {
+                    result.push({
+                        content: modifiedLines[modifiedLineNum - 1],
+                        type: 'added',
+                        originalLineNumber: null,
+                        modifiedLineNumber: modifiedLineNum,
+                    });
+                }
+            } else if (change.modifiedEndLineNumber === 0) {
+                // Deletion
+                for (
+                    ;
+                    originalLineNum <= change.originalEndLineNumber;
+                    originalLineNum++
+                ) {
+                    result.push({
+                        content: originalLines[originalLineNum - 1],
+                        type: 'removed',
+                        originalLineNumber: originalLineNum,
+                        modifiedLineNumber: null,
+                    });
+                }
+            }
+            changeIndex++;
+        } else {
+            // Process any remaining unchanged lines
+            if (
+                originalLineNum <= originalLines.length &&
+                modifiedLineNum <= modifiedLines.length
+            ) {
+                result.push({
+                    content: originalLines[originalLineNum - 1],
+                    type: 'unchanged',
+                    originalLineNumber: originalLineNum,
+                    modifiedLineNumber: modifiedLineNum,
+                });
+                originalLineNum++;
+                modifiedLineNum++;
+            } else if (originalLineNum <= originalLines.length) {
+                // Remaining lines were removed
+                result.push({
+                    content: originalLines[originalLineNum - 1],
+                    type: 'removed',
+                    originalLineNumber: originalLineNum,
+                    modifiedLineNumber: null,
+                });
+                originalLineNum++;
+            } else if (modifiedLineNum <= modifiedLines.length) {
+                // Remaining lines were added
+                result.push({
+                    content: modifiedLines[modifiedLineNum - 1],
+                    type: 'added',
+                    originalLineNumber: null,
+                    modifiedLineNumber: modifiedLineNum,
+                });
+                modifiedLineNum++;
+            } else {
+                break;
+            }
+        }
+    }
+
+    return result;
 }

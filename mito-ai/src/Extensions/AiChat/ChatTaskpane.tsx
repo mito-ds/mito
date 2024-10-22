@@ -17,7 +17,7 @@ import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
-import { getCodeWithDiffsMarked } from '../../utils/codeDiff';
+import { createUnifiedDiff, getCodeDiffLineRanges } from '../../utils/codeDiff';
 import { IEditorExtensionRegistry } from '@jupyterlab/codemirror';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { CodeCell } from '@jupyterlab/cells';
@@ -66,6 +66,11 @@ interface IChatTaskpaneProps {
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
 }
+
+// interface IDisplayCodeDiffInfo {
+//     // In order to display the code diff, I need to merge the old code with the new code 
+//     // then keep track of which lines are deleted and which lines are added/modified
+// }
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
@@ -161,14 +166,38 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             });
 
             if (apiResponse.type === 'success') {
+
+                let originalLinesTest: string = "hello\noriginal\nworld";
+                let modifiedLinesTest: string = "hello\nmodified\nworld\nfoobar";
+
                 const response = apiResponse.response;
                 const aiMessage = response.choices[0].message;
 
 
                 const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
                 const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-                const aiGeneratedCodeWithDiffs = getCodeWithDiffsMarked(activeCellCode, aiGeneratedCodeCleaned)
-                aiMessage.content = aiGeneratedCodeWithDiffs
+                //const aiGeneratedCodeWithDiffs = getCodeWithDiffsMarked(activeCellCode, aiGeneratedCodeCleaned)
+
+                const lineChanges = getCodeDiffLineRanges(activeCellCode, aiGeneratedCodeCleaned)
+
+                const unifiedDiffs = createUnifiedDiff(originalLinesTest, modifiedLinesTest, lineChanges)
+
+                // Display the unified diff
+                unifiedDiffs.forEach(line => {
+                    let prefix = '';
+                    if (line.type === 'added') {
+                        prefix = '+ ';
+                    } else if (line.type === 'removed') {
+                        prefix = '- ';
+                    } else {
+                        prefix = '  ';
+                    }
+                    console.log(`${prefix}${line.content}`);
+                });
+
+
+                console.log("unifiedDiffs", unifiedDiffs)
+                aiMessage.content = aiGeneratedCode || ''
 
                 updatedManager.addAIMessageFromResponse(aiMessage);
                 setChatHistoryManager(updatedManager);
@@ -228,27 +257,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         })
-
-        // editorExtensionRegistry.addExtension(
-        //     Object.freeze({
-        //         name: '@jupyterlab-examples/codemirror:zebra-stripes',
-        //         // Default CodeMirror extension parameters
-        //         default: 2,
-        //         factory: () => {
-
-        //             return EditorExtensionRegistry.createConfigurableExtension((step: number) =>
-        //                 zebraStripes({ step })
-        //             )
-        //         },
-        //         // JSON schema defining the CodeMirror extension parameters
-        //         schema: {
-        //             type: 'number',
-        //             title: 'Show stripes',
-        //             description: 'Display zebra stripes every "step" in CodeMirror editors.',
-
-        //         }
-        //     })
-        // );
     }, [])
 
     // Create a WeakMap to store compartments per code cell
