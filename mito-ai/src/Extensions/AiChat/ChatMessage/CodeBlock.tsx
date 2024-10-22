@@ -59,9 +59,14 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code, true)}>Apply to cell {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}</button>
+                    <button onClick={() => {
+                        writeCodeToActiveCell(notebookTracker, code, true)
+                        setDisplayCodeDiff(undefined)
+                    }}>
+                        Apply {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}
+                    </button>
                     <button onClick={() => setDisplayCodeDiff(undefined)}>
-                        Hide Diff
+                        Reject
                     </button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>

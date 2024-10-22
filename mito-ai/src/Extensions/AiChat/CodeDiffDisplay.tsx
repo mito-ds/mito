@@ -16,10 +16,8 @@ const baseTheme = EditorView.baseTheme({
     '&light .cm-codeDiffRemovedStripe': { backgroundColor: '#fad4d4aa' },
     '&dark .cm-codeDiffRemovedStripe': { backgroundColor: '#3b0101aa' },
 
-    '&light .cm-codeDiffInsertedStripe': { backgroundColor: '#009e08aa' },
+    '&light .cm-codeDiffInsertedStripe': { backgroundColor: 'rgba(79, 255, 105, 0.38)' },
     '&dark .cm-codeDiffInsertedStripe': { backgroundColor: '#013b12aa' }
-
-
   });
   
   // Resolve step to use in the editor
@@ -45,7 +43,6 @@ const baseTheme = EditorView.baseTheme({
     for (const { from, to } of view.visibleRanges) {
       for (let pos = from; pos <= to; ) {
         const line = view.state.doc.lineAt(pos);
-        console.log('LINE NUMBER', line.number, unifiedDiffLinesFacet[line.number])
         // The code mirror line numbers are 1-indexed, but our diff lines are 0-indexed
         if (unifiedDiffLinesFacet[line.number - 1].type === 'removed') {
           builder.add(line.from, line.from, removedStripe);

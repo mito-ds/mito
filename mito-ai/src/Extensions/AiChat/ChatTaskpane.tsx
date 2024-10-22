@@ -167,43 +167,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (apiResponse.type === 'success') {
 
-                let originalLinesTest: string = "hello\noriginal\nworld";
-                let modifiedLinesTest: string = "hello\nmodified\nworld\nfoobar";
-
                 const response = apiResponse.response;
                 const aiMessage = response.choices[0].message;
 
-
                 const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
                 const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-                //const aiGeneratedCodeWithDiffs = getCodeWithDiffsMarked(activeCellCode, aiGeneratedCodeCleaned)
 
                 const lineChanges = getCodeDiffLineRanges(activeCellCode, aiGeneratedCodeCleaned)
 
-                const unifiedDiffs = createUnifiedDiff(originalLinesTest, modifiedLinesTest, lineChanges)
+                const unifiedDiffs = createUnifiedDiff(activeCellCode, aiGeneratedCodeCleaned, lineChanges)
+
                 const unifiedCodeString = addMarkdownCodeFormatting(unifiedDiffs.map(line => {
                     return line.content !== undefined ? line.content : ''
                 }).join('\n'))
 
-                console.log("unified code string", unifiedCodeString)
                 writeCodeToActiveCell(notebookTracker, unifiedCodeString)
                 setDisplayCodeDiff(unifiedDiffs)
 
-                // Display the unified diff
-                unifiedDiffs.forEach(line => {
-                    let prefix = '';
-                    if (line.type === 'added') {
-                        prefix = '+ ';
-                    } else if (line.type === 'removed') {
-                        prefix = '- ';
-                    } else {
-                        prefix = '  ';
-                    }
-                    console.log(`${prefix}${line.content}`);
-                });
-
-
-                console.log("unifiedDiffs", unifiedDiffs)
                 aiMessage.content = aiGeneratedCode || ''
 
                 updatedManager.addAIMessageFromResponse(aiMessage);
@@ -244,6 +224,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_APPLY_LATEST_CODE, {
             execute: () => {
                 applyLatestCode()
+                setDisplayCodeDiff(undefined)
             }
         })
 
@@ -271,6 +252,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Function to update the extensions of code cells
     const updateCodeCellsExtensions = useCallback(() => {
+        console.log("Calling update")
         const notebook = notebookTracker.currentWidget?.content;
         if (!notebook) {
             return;
@@ -297,14 +279,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // Apply the initial configuration
                         editorView.dispatch({
                             effects: StateEffect.appendConfig.of(
-                                compartment.of(displayCodeDiff && isActiveCodeCell? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : [])
+                                compartment.of(displayCodeDiff !== undefined && isActiveCodeCell? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : [])
                             ),
                         });
                     } else {
                         // Reconfigure the compartment
                         editorView.dispatch({
                             effects: compartment.reconfigure(
-                                displayCodeDiff && isActiveCodeCell? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : []
+                                displayCodeDiff !== undefined && isActiveCodeCell ? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : []
                             ),
                         });
                     }

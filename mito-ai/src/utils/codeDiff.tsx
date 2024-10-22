@@ -85,6 +85,10 @@ export const createUnifiedDiff = (
     let modifiedLineNum = 1;
     let changeIndex = 0;
 
+    // Create unified lines 
+    // Loop through the lineChages
+    // If unmodified 
+
     while (
         originalLineNum <= originalLines.length ||
         modifiedLineNum <= modifiedLines.length
