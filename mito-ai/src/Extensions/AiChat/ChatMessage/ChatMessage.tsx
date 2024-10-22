@@ -8,6 +8,7 @@ import { splitStringWithCodeBlocks } from '../../../utils/strings';
 import ErrorIcon from '../../../icons/ErrorIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
+import { UnifiedDiffLine } from '../../../utils/codeDiff';
 
 
 interface IChatMessageProps {
@@ -19,7 +20,7 @@ interface IChatMessageProps {
     app: JupyterFrontEnd
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
-    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<boolean>>;
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined >>;
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({

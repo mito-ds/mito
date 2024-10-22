@@ -7,6 +7,7 @@ import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import '../../../../style/CodeMessagePart.css'
+import { UnifiedDiffLine } from '../../../utils/codeDiff';
 
 
 interface ICodeBlockProps {
@@ -17,7 +18,7 @@ interface ICodeBlockProps {
     app: JupyterFrontEnd,
     isLastAiMessage: boolean,
     operatingSystem: OperatingSystem,
-    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<boolean>>;
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -59,8 +60,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                         {notebookName}
                     </div>
                     <button onClick={() => writeCodeToActiveCell(notebookTracker, code, true)}>Apply to cell {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}</button>
-                    <button onClick={() => setDisplayCodeDiff(displayCodeDiff => !displayCodeDiff)}>
-                        Display Diff
+                    <button onClick={() => setDisplayCodeDiff(undefined)}>
+                        Hide Diff
                     </button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>

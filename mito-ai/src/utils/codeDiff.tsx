@@ -1,5 +1,12 @@
 import { DiffComputer, IDiffComputerOpts, ILineChange } from "vscode-diff";
 
+export interface UnifiedDiffLine {
+    content: string;                   // The content of the line
+    type: 'unchanged' | 'added' | 'removed'; // The type of change
+    originalLineNumber: number | null; // Line number in the original code
+    modifiedLineNumber: number | null; // Line number in the modified code
+}
+
 export const getCodeDiffLineRanges = (originalLines: string | undefined | null, modifiedLines: string | undefined | null): ILineChange[] => {
     if (originalLines === undefined || originalLines === null) {
         originalLines = ''
@@ -55,13 +62,6 @@ export const getCodeWithDiffsMarked = (originalLines: string | undefined | null,
     }
 
     return "```python\n" + diffedLines.join('\n') + "\n```"
-}
-
-interface UnifiedDiffLine {
-    content: string;                   // The content of the line
-    type: 'unchanged' | 'added' | 'removed'; // The type of change
-    originalLineNumber: number | null; // Line number in the original code
-    modifiedLineNumber: number | null; // Line number in the modified code
 }
 
 export const createUnifiedDiff = (

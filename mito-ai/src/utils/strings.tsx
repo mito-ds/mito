@@ -59,7 +59,15 @@ export const getCodeBlockFromMessage = (message: OpenAI.Chat.ChatCompletionMessa
 */
 export const addMarkdownCodeFormatting = (code: string) => {
     
-    const codeWithoutBackticks = code.split('```python')[1].split('```')[0].trim()
+    let codeWithoutBackticks = code
+    
+    // If the code already has the code formatting backticks, remove them 
+    // so we can add them back in the correct format
+    if (code.split('```python').length > 1) {
+        codeWithoutBackticks = code.split('```python')[1].split('```')[0].trim()
+    } else {
+        codeWithoutBackticks = code.trim()
+    }
   
     // Note: We add a space after the code because for some unknown reason, the markdown 
     // renderer is cutting off the last character in the code block.

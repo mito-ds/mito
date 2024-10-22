@@ -11,13 +11,13 @@ import { requestAPI } from '../../utils/handler';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { addMarkdownCodeFormatting, getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
-import { createUnifiedDiff, getCodeDiffLineRanges } from '../../utils/codeDiff';
+import { createUnifiedDiff, getCodeDiffLineRanges, UnifiedDiffLine } from '../../utils/codeDiff';
 import { IEditorExtensionRegistry } from '@jupyterlab/codemirror';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { CodeCell } from '@jupyterlab/cells';
@@ -84,7 +84,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
     const [input, setInput] = useState('');
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
-    const [displayCodeDiff, setDisplayCodeDiff] = useState<boolean>(false)
+    const [displayCodeDiff, setDisplayCodeDiff] = useState<UnifiedDiffLine[] | undefined>(undefined)
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     useEffect(() => {
@@ -181,6 +181,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const lineChanges = getCodeDiffLineRanges(activeCellCode, aiGeneratedCodeCleaned)
 
                 const unifiedDiffs = createUnifiedDiff(originalLinesTest, modifiedLinesTest, lineChanges)
+                const unifiedCodeString = addMarkdownCodeFormatting(unifiedDiffs.map(line => {
+                    return line.content !== undefined ? line.content : ''
+                }).join('\n'))
+
+                console.log("unified code string", unifiedCodeString)
+                writeCodeToActiveCell(notebookTracker, unifiedCodeString)
+                setDisplayCodeDiff(unifiedDiffs)
 
                 // Display the unified diff
                 unifiedDiffs.forEach(line => {
@@ -288,14 +295,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // Apply the initial configuration
                         editorView.dispatch({
                             effects: StateEffect.appendConfig.of(
-                                compartment.of(displayCodeDiff ? zebraStripes() : [])
+                                compartment.of(displayCodeDiff ? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : [])
                             ),
                         });
                     } else {
                         // Reconfigure the compartment
                         editorView.dispatch({
                             effects: compartment.reconfigure(
-                                displayCodeDiff ? zebraStripes() : []
+                                displayCodeDiff ? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : []
                             ),
                         });
                     }
