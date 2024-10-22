@@ -39,6 +39,7 @@ const baseTheme = EditorView.baseTheme({
   // Create the range of lines requiring decorations
   function stripeDeco(view: EditorView) {
     console.log(view.state.facet(unifiedDiffLines))
+    console.log(view)
     const unifiedDiffLinesFacet = view.state.facet(unifiedDiffLines)[0];
     const builder = new RangeSetBuilder<Decoration>();
     for (const { from, to } of view.visibleRanges) {

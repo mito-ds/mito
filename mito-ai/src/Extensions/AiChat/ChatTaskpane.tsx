@@ -276,10 +276,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return;
         }
 
+        const activeCellIndex = notebook.activeCellIndex
+
         console.log(1)
-        notebook.widgets.forEach(cell => {
+        notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
-                console.log(2)
+                const isActiveCodeCell = activeCellIndex === index
                 const codeCell = cell as CodeCell;
                 const cmEditor = codeCell.editor as CodeMirrorEditor;
                 const editorView = cmEditor?.editor;
@@ -295,14 +297,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // Apply the initial configuration
                         editorView.dispatch({
                             effects: StateEffect.appendConfig.of(
-                                compartment.of(displayCodeDiff ? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : [])
+                                compartment.of(displayCodeDiff && isActiveCodeCell? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : [])
                             ),
                         });
                     } else {
                         // Reconfigure the compartment
                         editorView.dispatch({
                             effects: compartment.reconfigure(
-                                displayCodeDiff ? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : []
+                                displayCodeDiff && isActiveCodeCell? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : []
                             ),
                         });
                     }
