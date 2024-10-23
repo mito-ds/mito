@@ -36,33 +36,6 @@ export const getCodeDiffLineRanges = (originalLines: string | undefined | null, 
     return lineChanges || []
 }
 
-export const getCodeWithDiffsMarked = (originalLines: string | undefined | null, modifiedLines: string | undefined | null): string => {
-
-    /* 
-        originalCodeLines: string
-        newCodeLines: string
-        allCodeLines: string
-            - Ordered by line number with: 
-                - Original code lines 
-                - New Code Lines
-        deletedLineIndexes: List[int]
-        modifiedLineIndexes: List[int]
-    */
-
-
-    
-    const lineChanges = getCodeDiffLineRanges(originalLines, modifiedLines);
-
-    const diffedLines = originalLines?.split('\n') || []
-
-    let numNewLinesAdded = 0
-    for (const lineChange of lineChanges) {
-        diffedLines[lineChange.originalStartLineNumber] = '<span style="background-color: red;">' + diffedLines[lineChange.originalStartLineNumber] + '</span>'
-        numNewLinesAdded = numNewLinesAdded + 1
-    }
-
-    return "```python\n" + diffedLines.join('\n') + "\n```"
-}
 
 export const createUnifiedDiff = (
     originalCode: string | undefined | null,
@@ -85,9 +58,10 @@ export const createUnifiedDiff = (
     let modifiedLineNum = 1;
     let changeIndex = 0;
 
-    // Create unified lines 
-    // Loop through the lineChages
-    // If unmodified 
+    console.log("originalLines")
+    console.log(originalLines)
+    console.log(modifiedLines)
+    console.log(lineChanges)
 
     while (
         originalLineNum <= originalLines.length ||

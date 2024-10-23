@@ -11,7 +11,7 @@ import { requestAPI } from '../../utils/handler';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { addMarkdownCodeFormatting, getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
@@ -177,9 +177,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 const unifiedDiffs = createUnifiedDiff(activeCellCode, aiGeneratedCodeCleaned, lineChanges)
 
-                const unifiedCodeString = addMarkdownCodeFormatting(unifiedDiffs.map(line => {
+                console.log("unifiedDiffs")
+                console.log(unifiedDiffs)
+
+                const unifiedCodeString = (unifiedDiffs.map(line => {
                     return line.content !== undefined ? line.content : ''
                 }).join('\n'))
+
+                console.log("unifiedCodeString1")
+                console.log(unifiedCodeString)
 
                 writeCodeToActiveCell(notebookTracker, unifiedCodeString)
                 setDisplayCodeDiff(unifiedDiffs)

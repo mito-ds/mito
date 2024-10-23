@@ -1,5 +1,11 @@
 import OpenAI from "openai";
 
+export const PYTHON_CODE_BLOCK_START_WITH_NEW_LINE = '```python\n'
+export const PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE = '```python'
+export const PYTHON_CODE_BLOCK_END_WITH_NEW_LINE = '\n```'
+export const PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE = '```'
+
+
 /* 
     Given a message from the OpenAI API, returns the content as a string. 
     If the content is not a string, returns undefined.
@@ -56,22 +62,32 @@ export const getCodeBlockFromMessage = (message: OpenAI.Chat.ChatCompletionMessa
     ```python
     x + 1
     ```
+
+    Sometimes, we also want to trim the code to remove any leading or trailing whitespace. For example, 
+    when we're displaying the code in the chat history this is useful. Othertimes we don't want to trim.
+    For example, when we're displaying the code in the active cell, we want to keep the users's whitespace.
+    This is important for showing diffs. If the code cell contains no code, the first line will be marked as 
+    removed in the code diff. To ensure the diff lines up with the code, we need to leave this whitespace line.
 */
-export const addMarkdownCodeFormatting = (code: string) => {
+export const addMarkdownCodeFormatting = (code: string, trim?: boolean) => {
     
     let codeWithoutBackticks = code
     
     // If the code already has the code formatting backticks, remove them 
     // so we can add them back in the correct format
-    if (code.split('```python').length > 1) {
-        codeWithoutBackticks = code.split('```python')[1].split('```')[0].trim()
+    if (code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE).length > 1) {
+        codeWithoutBackticks = code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)[1].split(PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE)[0]
     } else {
-        codeWithoutBackticks = code.trim()
+        codeWithoutBackticks = code
+    }
+
+    if (trim) {
+        codeWithoutBackticks = codeWithoutBackticks.trim()
     }
   
     // Note: We add a space after the code because for some unknown reason, the markdown 
     // renderer is cutting off the last character in the code block.
-    return "```python\n" + codeWithoutBackticks + " " + "\n```"
+    return `${PYTHON_CODE_BLOCK_START_WITH_NEW_LINE}${codeWithoutBackticks} ${PYTHON_CODE_BLOCK_END_WITH_NEW_LINE}`
 }
 
 /* 
@@ -88,5 +104,10 @@ export const addMarkdownCodeFormatting = (code: string) => {
     Jupyter does not need the backticks. 
 */
 export const removeMarkdownCodeFormatting = (code: string) => {
-    return code.split('```python')[1].split('```')[0].trim()
+
+    if (code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE).length > 1) {
+        return code.split(PYTHON_CODE_BLOCK_START_WITH_NEW_LINE)[1].split(PYTHON_CODE_BLOCK_END_WITH_NEW_LINE)[0]
+    }
+
+    return code
 }

@@ -15,7 +15,7 @@ const PythonCode: React.FC<IPythonCodeProps> = ({ code, rendermime }) => {
   useEffect(() => {
 
     const model = new MimeModel({
-      data: { ['text/markdown']: addMarkdownCodeFormatting(code) },
+      data: { ['text/markdown']: addMarkdownCodeFormatting(code, true) },
     });
 
     const renderer = rendermime.createRenderer('text/markdown');
