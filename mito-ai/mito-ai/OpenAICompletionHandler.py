@@ -43,8 +43,6 @@ class OpenAICompletionHandler(APIHandler):
             # return a cleaned up version of the response so we can support
             # multiple models 
 
-            print(response_dict)
-
             self.finish(json.dumps(response_dict))
         except Exception as e:
             self.set_status(500)

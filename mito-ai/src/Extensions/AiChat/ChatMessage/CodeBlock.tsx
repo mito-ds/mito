@@ -66,7 +66,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                         Apply {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}
                     </button>
                     <button onClick={() => setDisplayCodeDiff(undefined)}>
-                        Reject
+                        Deny {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D') : ''}
                     </button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>

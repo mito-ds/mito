@@ -40,14 +40,3 @@
     background-color: var(--chat-background-color);
     color: var(--chat-assistant-message-font-color);
 }
-
-
-  .deleted-line .jp-RenderedMarkdown {
-    background-color: rgba(255, 0, 0, 0.2) !important;
-  }
-  
-  .deleted-line .jp-RenderedMarkdown pre {
-    background-color: transparent !important;
-    margin: 0;
-    padding: 0;
-  }

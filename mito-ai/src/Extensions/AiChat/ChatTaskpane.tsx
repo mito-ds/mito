@@ -12,17 +12,17 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
-import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_REJECT_LATEST_CODE, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
-import { createUnifiedDiff, getCodeDiffLineRanges, UnifiedDiffLine } from '../../utils/codeDiff';
+import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
 import { IEditorExtensionRegistry } from '@jupyterlab/codemirror';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { CodeCell } from '@jupyterlab/cells';
 import { StateEffect, Compartment } from '@codemirror/state';
-import { zebraStripes } from './CodeDiffDisplay';
+import { codeDiffStripesExtension } from './CodeDiffDisplay';
 
 
 
@@ -170,27 +170,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const response = apiResponse.response;
                 const aiMessage = response.choices[0].message;
 
+                // Extract the code from the AI's message and then calculate the code diffs
                 const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
                 const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
+                const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
 
-                const lineChanges = getCodeDiffLineRanges(activeCellCode, aiGeneratedCodeCleaned)
-
-                const unifiedDiffs = createUnifiedDiff(activeCellCode, aiGeneratedCodeCleaned, lineChanges)
-
-                console.log("unifiedDiffs")
-                console.log(unifiedDiffs)
-
-                const unifiedCodeString = (unifiedDiffs.map(line => {
-                    return line.content !== undefined ? line.content : ''
-                }).join('\n'))
-
-                console.log("unifiedCodeString1")
-                console.log(unifiedCodeString)
-
+                // Temporarily write the unified code string to the active cell so we can display
+                // the code diffs to the user. Once the user accepts or rejects the code, we'll 
+                // apply the correct version of the code.
                 writeCodeToActiveCell(notebookTracker, unifiedCodeString)
                 setDisplayCodeDiff(unifiedDiffs)
-
-                aiMessage.content = aiGeneratedCode || ''
 
                 updatedManager.addAIMessageFromResponse(aiMessage);
                 setChatHistoryManager(updatedManager);
@@ -234,9 +223,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         })
 
+        app.commands.addCommand(COMMAND_MITO_AI_REJECT_LATEST_CODE, {
+            execute: () => {
+                setDisplayCodeDiff(undefined)
+            }
+        })
+
         app.commands.addKeyBinding({
             command: COMMAND_MITO_AI_APPLY_LATEST_CODE,
             keys: ['Accel Y'],
+            selector: 'body',
+        });
+
+        app.commands.addKeyBinding({
+            command: COMMAND_MITO_AI_REJECT_LATEST_CODE,
+            keys: ['Accel D'],
             selector: 'body',
         });
 
@@ -254,11 +255,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [])
 
     // Create a WeakMap to store compartments per code cell
-    const zebraStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
+    const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
 
     // Function to update the extensions of code cells
     const updateCodeCellsExtensions = useCallback(() => {
-        console.log("Calling update")
         const notebook = notebookTracker.currentWidget?.content;
         if (!notebook) {
             return;
@@ -266,7 +266,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const activeCellIndex = notebook.activeCellIndex
 
-        console.log(1)
         notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
                 const isActiveCodeCell = activeCellIndex === index
@@ -275,37 +274,36 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const editorView = cmEditor?.editor;
 
                 if (editorView) {
-                    let compartment = zebraStripesCompartments.current.get(codeCell);
+                    let compartment = codeDiffStripesCompartments.current.get(codeCell);
 
                     if (!compartment) {
                         // Create a new compartment and store it
                         compartment = new Compartment();
-                        zebraStripesCompartments.current.set(codeCell, compartment);
+                        codeDiffStripesCompartments.current.set(codeCell, compartment);
 
                         // Apply the initial configuration
                         editorView.dispatch({
                             effects: StateEffect.appendConfig.of(
-                                compartment.of(displayCodeDiff !== undefined && isActiveCodeCell? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : [])
+                                compartment.of(displayCodeDiff !== undefined && isActiveCodeCell? codeDiffStripesExtension({ unifiedDiffLines: displayCodeDiff }) : [])
                             ),
                         });
                     } else {
                         // Reconfigure the compartment
                         editorView.dispatch({
                             effects: compartment.reconfigure(
-                                displayCodeDiff !== undefined && isActiveCodeCell ? zebraStripes({ unifiedDiffLines: displayCodeDiff }) : []
+                                displayCodeDiff !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: displayCodeDiff }) : []
                             ),
                         });
                     }
                 } else {
-                    console.log('editor view not found')
+                    console.log('Mito AI: editor view not found when applying code diff stripes')
                 }
             }
         });
     }, [displayCodeDiff, notebookTracker]);
 
-    // Update code cells when displayCodeDiff changes
+
     useEffect(() => {
-        console.log("Calling updateCodeCellsExtensions")
         updateCodeCellsExtensions();
     }, [displayCodeDiff, updateCodeCellsExtensions]);
 
