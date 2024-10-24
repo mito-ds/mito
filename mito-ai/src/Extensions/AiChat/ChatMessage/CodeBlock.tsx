@@ -7,6 +7,7 @@ import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import '../../../../style/CodeMessagePart.css'
+import { UnifiedDiffLine } from '../../../utils/codeDiff';
 
 
 interface ICodeBlockProps {
@@ -16,7 +17,8 @@ interface ICodeBlockProps {
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     isLastAiMessage: boolean,
-    operatingSystem: OperatingSystem
+    operatingSystem: OperatingSystem,
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -26,7 +28,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     notebookTracker, 
     app, 
     isLastAiMessage,
-    operatingSystem
+    operatingSystem,
+    setDisplayCodeDiff
 }): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
@@ -54,7 +57,15 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    <button onClick={() => writeCodeToActiveCell(notebookTracker, code, true)}>Apply to cell {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}</button>
+                    <button onClick={() => {
+                        writeCodeToActiveCell(notebookTracker, code, true)
+                        setDisplayCodeDiff(undefined)
+                    }}>
+                        Apply {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}
+                    </button>
+                    <button onClick={() => setDisplayCodeDiff(undefined)}>
+                        Deny {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D') : ''}
+                    </button>
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>
                 <PythonCode

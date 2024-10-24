@@ -4,10 +4,11 @@ import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import CodeBlock from './CodeBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { splitStringWithCodeBlocks } from '../../../utils/strings';
+import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
 import ErrorIcon from '../../../icons/ErrorIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
+import { UnifiedDiffLine } from '../../../utils/codeDiff';
 
 
 interface IChatMessageProps {
@@ -19,6 +20,7 @@ interface IChatMessageProps {
     app: JupyterFrontEnd
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined >>;
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -29,7 +31,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     rendermime,
     app,
     isLastAiMessage,
-    operatingSystem
+    operatingSystem,
+    setDisplayCodeDiff
 }): JSX.Element | null => {
     if (message.role !== 'user' && message.role !== 'assistant') {
         // Filter out other types of messages, like system messages
@@ -46,7 +49,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             {'message-error': error}
         )}>
             {messageContentParts.map(messagePart => {
-                if (messagePart.startsWith('```python')) {
+                if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
                     // Make sure that there is actually code in the message. 
                     // An empty code will look like this '```python  ```'
                     // TODO: Add a test for this since its broke a few times now.
@@ -60,6 +63,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 app={app}
                                 isLastAiMessage={isLastAiMessage}
                                 operatingSystem={operatingSystem}
+                                setDisplayCodeDiff={setDisplayCodeDiff}
                             />
                         )
                     }

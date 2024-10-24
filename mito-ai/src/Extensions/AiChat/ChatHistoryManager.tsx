@@ -68,15 +68,10 @@ ${input}`};
             content: `You have access to the following variables:
 
 ${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
-            
-Code in the active code cell:
-
-\`\`\`python
-${activeCellCode}
-\`\`\`
 
 Complete the task below. Decide what variables to use and what changes you need to make to the active code cell. Only return the full new active code cell and a concise explanation of the changes you made.
 
+<Reminders>
 Do not: 
 - Use the word "I"
 - Include multiple approaches in your response
@@ -87,13 +82,47 @@ Do:
 - Keep as much of the original code as possible
 - Ask for more context if you need it. 
 
-Important: Remember that you are executing code inside a Jupyter notebook. That means you will have persistent state issues where variables from previous cells or previous code executions might still affect current code. When those errors occur, here are a few possible solutions:
+</Reminders>
+
+<Example>
+
+Code in the active code cell:
+
+\`\`\`python
+import pandas as pd
+loans_df = pd.read_csv('./loans.csv')
+\`\`\`
+
+Your task: convert the issue_date column to datetime.
+
+Output:
+
+\`\`\`python
+import pandas as pd
+loans_df = pd.read_csv('./loans.csv')
+loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'])
+\`\`\`
+
+Use the pd.to_datetime function to convert the issue_date column to datetime.
+
+</Example>
+
+<Important Jupyter Context for Error Handling>
+Remember that you are executing code inside a Jupyter notebook. That means you will have persistent state issues where variables from previous cells or previous code executions might still affect current code. When those errors occur, here are a few possible solutions:
 1. Restarting the kernel to reset the environment if a function or variable has been unintentionally overwritten.
 2. Identify which cell might need to be rerun to properly initialize the function or variable that is causing the issue.
 
 For example, if an error occurs because the built-in function 'print' is overwritten by an integer, you should return the code cell with the modification to the print function removed and also return an explanation that tell the user to restart their kernel. Do not add new comments to the code cell, just return the code cell with the modification removed.
 
 When a user hits an error because of a persistent state issue, tell them how to resolve it.
+
+</Important Jupyter Context for Error Handling>
+
+Code in the active code cell:
+
+\`\`\`python
+${activeCellCode}
+\`\`\`
 
 Your task: ${input}`};
 

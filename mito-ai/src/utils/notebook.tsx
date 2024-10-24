@@ -26,7 +26,7 @@ export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: s
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code)
     const activeCell = getActiveCell(notebookTracker)
     if (activeCell !== undefined) {
-        activeCell.model.sharedModel.source = codeMirrorValidCode 
+        activeCell.model.sharedModel.source = codeMirrorValidCode
 
         if (focus) {
             activeCell.node.focus()
