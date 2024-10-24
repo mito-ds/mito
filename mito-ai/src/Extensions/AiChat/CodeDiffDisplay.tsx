@@ -7,6 +7,7 @@ import {
   ViewUpdate
 } from '@codemirror/view';
 import { UnifiedDiffLine } from '../../utils/codeDiff';
+import { deepEqualArrays } from '../../utils/arrays';
 
 
 // Defines new styles for this extension
@@ -18,6 +19,10 @@ const baseTheme = EditorView.baseTheme({
 
 // Resolve step to use in the editor
 const unifiedDiffLines = Facet.define<UnifiedDiffLine[]>({
+  combine: (unifiedDiffLines) => {
+    console.log('combining unified diff lines')
+    return unifiedDiffLines
+  }
   // TODO: Do I need to provide a combine step?
 });
 
@@ -37,7 +42,21 @@ const getCodeDiffStripesDecoration = (view: EditorView): DecorationSet => {
   for (const { from, to } of view.visibleRanges) {
     for (let pos = from; pos <= to;) {
       const line = view.state.doc.lineAt(pos);
+      // console.log('unifiedDiffLinesFacet[line.number - 1]', unifiedDiffLinesFacet[line.number - 1])
+      // console.log('line', line.number)
       // The code mirror line numbers are 1-indexed, but our diff lines are 0-indexed
+      if (line.number - 1 >= unifiedDiffLinesFacet.length) {
+        /* 
+          Because we need to rerender the decorations each time the doc changes or viewport updates
+          (maybe we don't need to, but the code mirror examples does this so we will to for now) there
+          is a race condition where sometimes the content of the code cell updates before the unified diff lines
+          are updated. As a result, we need to break out of the loop before we get a null pointer error.
+
+          This isn't a problem because right afterwards, the code mirror updates again due to the unified diff lines
+          being updated. In that render, we get the correct results. 
+        */ 
+        break
+      }
       if (unifiedDiffLinesFacet[line.number - 1].type === 'removed') {
         builder.add(line.from, line.from, removedStripe);
       }
@@ -61,10 +80,12 @@ const showStripes = ViewPlugin.fromClass(
 
     update(update: ViewUpdate) {
       const oldUnifiedDiffLines = update.startState.facet(unifiedDiffLines);
+      const newUnifiedDiffLines = update.view.state.facet(unifiedDiffLines);
+
       if (
         update.docChanged ||
         update.viewportChanged ||
-        oldUnifiedDiffLines !== update.view.state.facet(unifiedDiffLines)
+        !deepEqualArrays(oldUnifiedDiffLines[0], newUnifiedDiffLines[0])
       ) {
         this.decorations = getCodeDiffStripesDecoration(update.view);
       }
