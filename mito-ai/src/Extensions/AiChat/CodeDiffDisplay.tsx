@@ -20,10 +20,8 @@ const baseTheme = EditorView.baseTheme({
 // Resolve step to use in the editor
 const unifiedDiffLines = Facet.define<UnifiedDiffLine[]>({
   combine: (unifiedDiffLines) => {
-    console.log('combining unified diff lines')
     return unifiedDiffLines
   }
-  // TODO: Do I need to provide a combine step?
 });
 
 // Add decoration to editor lines
