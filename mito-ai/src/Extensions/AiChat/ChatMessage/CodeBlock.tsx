@@ -50,8 +50,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
         )
     }
 
-    
-
     if (role === 'assistant') {
         return (
             <div className='code-message-part-container'>

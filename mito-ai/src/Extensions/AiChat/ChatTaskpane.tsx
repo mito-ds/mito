@@ -170,6 +170,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const response = apiResponse.response;
                 const aiMessage = response.choices[0].message;
 
+                updatedManager.addAIMessageFromResponse(aiMessage);
+                setChatHistoryManager(updatedManager);
+
                 // Extract the code from the AI's message and then calculate the code diffs
                 const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
                 const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
@@ -180,9 +183,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // apply the correct version of the code.
                 writeCodeToActiveCell(notebookTracker, unifiedCodeString)
                 setDisplayCodeDiff(unifiedDiffs)
-
-                updatedManager.addAIMessageFromResponse(aiMessage);
-                setChatHistoryManager(updatedManager);
             } else {
                 updatedManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
                 setChatHistoryManager(updatedManager);
@@ -191,8 +191,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             setLoadingAIResponse(false)
         } catch (error) {
             console.error('Error calling OpenAI API:', error);
+        } finally {
+            setLoadingAIResponse(false)
         }
-
     };
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
