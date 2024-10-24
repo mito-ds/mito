@@ -64,7 +64,8 @@
     "@types/react-dom": "^18.0.10",
     "openai": "^4.1.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "vscode-diff": "^2.1.1"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^4.0.0",
