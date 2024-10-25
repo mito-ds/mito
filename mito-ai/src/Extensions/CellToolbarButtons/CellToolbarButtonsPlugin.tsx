@@ -3,7 +3,7 @@ import {
     JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
 import { LabIcon } from '@jupyterlab/ui-components';
 import LightbulbIcon from '../../../src/icons/LightbulbIcon.svg'
 
@@ -37,6 +37,7 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                     update the AI Chat History Manager so that we can generate an AI optimzied message and a 
                     display optimized message.
                 */
+                app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT)
                 app.commands.execute(COMMAND_MITO_AI_SEND_MESSAGE, { input: `Explain this code` });
             },
             isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_MESSAGE)

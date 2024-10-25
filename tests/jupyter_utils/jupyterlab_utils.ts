@@ -42,3 +42,8 @@ export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: n
     const cellInput = await page.notebook.getCellInput(cellIndex);
     return await cellInput?.innerText();
 }
+
+export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+    const cell = await page.notebook.getCell(cellIndex);
+    await cell?.click();
+}
