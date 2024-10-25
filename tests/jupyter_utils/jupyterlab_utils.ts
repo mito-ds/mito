@@ -37,3 +37,8 @@ export const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex
     await page.notebook.enterCellEditingMode(cellIndex);
     await page.notebook.setCell(cellIndex, 'code', cellValue);
 }
+
+export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+    const cellInput = await page.notebook.getCellInput(cellIndex);
+    return await cellInput?.innerText();
+}

@@ -1,19 +1,46 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
+import { createAndRunNotebookWithCells, getCodeFromCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe('Dataframe renders as mitosheet', () => {
-  test('renders a mitosheet when hanging dataframe', async ({ page, tmpPath }) => {
+test.describe('Mito AI Chat', () => {
 
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})\ndf']);
+  test('Apply AI Generated Code', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
-    const cellOutput = await page.notebook.getCellOutput(0);
-    expect(await cellOutput?.innerHTML()).toContain('Home');
 
-    // The toolbar should be collapsed by default, so the Delete button should not be visible
-    expect(await cellOutput?.innerHTML()).not.toContain('Delete');
+    await page.getByRole('tab', { name: 'AI Chat for your JupyterLab' }).getByRole('img').click();
+    expect (page.getByPlaceholder('Ask your personal Python')).toBeVisible();
+
+    await page.getByPlaceholder('Ask your personal Python').fill('Write the code df["C"] = [7, 8, 9]');
+    await page.keyboard.press('Enter');
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    const code = await getCodeFromCell(page, 1);
+    expect(code).toContain('df["C"] = [7, 8, 9]');
+  });
+
+  test('Reject AI Generated Code', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await page.getByRole('tab', { name: 'AI Chat for your JupyterLab' }).getByRole('img').click();
+    expect (page.getByPlaceholder('Ask your personal Python')).toBeVisible();
+
+    await page.getByPlaceholder('Ask your personal Python').fill('Write the code df["C"] = [7, 8, 9]');
+    await page.keyboard.press('Enter');
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Deny' }).click();
+    await waitForIdle(page);
+
+    const code = await getCodeFromCell(page, 1);
+    expect(code).not.toContain('df["C"] = [7, 8, 9]');
   });
 });
+
