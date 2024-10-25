@@ -25,8 +25,6 @@ import { StateEffect, Compartment } from '@codemirror/state';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 
 
-
-
 // IMPORTANT: In order to improve the development experience, we allow you dispaly a 
 // cached conversation as a starting point. Before deploying the mito-ai, we must 
 // set USE_DEV_AI_CONVERSATION = false
@@ -67,11 +65,6 @@ interface IChatTaskpaneProps {
     operatingSystem: OperatingSystem
 }
 
-// interface IDisplayCodeDiffInfo {
-//     // In order to display the code diff, I need to merge the old code with the new code 
-//     // then keep track of which lines are deleted and which lines are added/modified
-// }
-
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     rendermime,
@@ -82,10 +75,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager());
+    const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
+
     const [input, setInput] = useState('');
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
-    const [displayCodeDiff, setDisplayCodeDiff] = useState<UnifiedDiffLine[] | undefined>(undefined)
-    const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
+
+    const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
+    const originalDiffedCodeRef = useRef<string | undefined>(undefined)
 
     useEffect(() => {
         /* 
@@ -194,11 +190,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
                 const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
 
+                // Store the original code so that we can revert to it if the user rejects the AI's code
+                originalDiffedCodeRef.current = activeCellCode
+
                 // Temporarily write the unified code string to the active cell so we can display
                 // the code diffs to the user. Once the user accepts or rejects the code, we'll 
                 // apply the correct version of the code.
                 writeCodeToActiveCell(notebookTracker, unifiedCodeString)
-                setDisplayCodeDiff(unifiedDiffs)
+                setUnifiedDiffLines(unifiedDiffs)
             } else {
                 updatedManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
                 setChatHistoryManager(updatedManager);
@@ -214,16 +213,34 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const applyLatestCode = () => {
+    const acceptAICode = () => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
-
+        
         if (!lastAIMessage) {
             return
         }
 
-        const code = getCodeBlockFromMessage(lastAIMessage.message);
+        const aiGeneratedCode = getCodeBlockFromMessage(lastAIMessage.message);
+        if (!aiGeneratedCode) {
+            return
+        }
+
+        _applyCode(aiGeneratedCode)
+    }
+
+    const rejectAICode = () => {
+        const originalDiffedCode = originalDiffedCodeRef.current
+        if (!originalDiffedCode) {
+            return
+        }
+        _applyCode(originalDiffedCode)
+    }
+
+    const _applyCode = (code: string) => {
         writeCodeToActiveCell(notebookTracker, code, true)
+        setUnifiedDiffLines(undefined)
+        originalDiffedCodeRef.current = undefined
     }
 
     useEffect(() => {
@@ -235,14 +252,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_APPLY_LATEST_CODE, {
             execute: () => {
-                applyLatestCode()
-                setDisplayCodeDiff(undefined)
+                acceptAICode()
             }
         })
 
         app.commands.addCommand(COMMAND_MITO_AI_REJECT_LATEST_CODE, {
             execute: () => {
-                setDisplayCodeDiff(undefined)
+                rejectAICode()
             }
         })
 
@@ -301,14 +317,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // Apply the initial configuration
                         editorView.dispatch({
                             effects: StateEffect.appendConfig.of(
-                                compartment.of(displayCodeDiff !== undefined && isActiveCodeCell? codeDiffStripesExtension({ unifiedDiffLines: displayCodeDiff }) : [])
+                                compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
                             ),
                         });
                     } else {
                         // Reconfigure the compartment
                         editorView.dispatch({
                             effects: compartment.reconfigure(
-                                displayCodeDiff !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: displayCodeDiff }) : []
+                                unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : []
                             ),
                         });
                     }
@@ -317,12 +333,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         });
-    }, [displayCodeDiff, notebookTracker]);
+    }, [unifiedDiffLines, notebookTracker]);
 
 
     useEffect(() => {
         updateCodeCellsExtensions();
-    }, [displayCodeDiff, updateCodeCellsExtensions]);
+    }, [unifiedDiffLines, updateCodeCellsExtensions]);
 
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
@@ -351,7 +367,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
-                            setDisplayCodeDiff={setDisplayCodeDiff}
+                            setDisplayCodeDiff={setUnifiedDiffLines}
+                            acceptAICode={acceptAICode}
+                            rejectAICode={rejectAICode}
                         />
                     )
                 }).filter(message => message !== null)}

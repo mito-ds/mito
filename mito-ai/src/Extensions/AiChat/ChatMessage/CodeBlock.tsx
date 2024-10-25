@@ -1,7 +1,7 @@
 import React from 'react';
 import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getNotebookName, writeCodeToActiveCell } from '../../../utils/notebook';
+import { getNotebookName } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -19,6 +19,8 @@ interface ICodeBlockProps {
     isLastAiMessage: boolean,
     operatingSystem: OperatingSystem,
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
+    acceptAICode: () => void,
+    rejectAICode: () => void
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -29,7 +31,9 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     app, 
     isLastAiMessage,
     operatingSystem,
-    setDisplayCodeDiff
+    setDisplayCodeDiff,
+    acceptAICode,
+    rejectAICode
 }): JSX.Element => {
     
     const notebookName = getNotebookName(notebookTracker)
@@ -57,13 +61,10 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    <button onClick={() => {
-                        writeCodeToActiveCell(notebookTracker, code, true)
-                        setDisplayCodeDiff(undefined)
-                    }}>
+                    <button onClick={() => {acceptAICode()}}>
                         Apply {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}
                     </button>
-                    <button onClick={() => setDisplayCodeDiff(undefined)}>
+                    <button onClick={() => {rejectAICode()}}>
                         Deny {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D') : ''}
                     </button>
                     <button onClick={copyCodeToClipboard}>Copy</button>

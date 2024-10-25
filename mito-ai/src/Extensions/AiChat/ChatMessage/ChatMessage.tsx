@@ -21,6 +21,8 @@ interface IChatMessageProps {
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined >>;
+    acceptAICode: () => void
+    rejectAICode: () => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -32,7 +34,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     app,
     isLastAiMessage,
     operatingSystem,
-    setDisplayCodeDiff
+    setDisplayCodeDiff,
+    acceptAICode,
+    rejectAICode
 }): JSX.Element | null => {
     if (message.role !== 'user' && message.role !== 'assistant') {
         // Filter out other types of messages, like system messages
@@ -64,6 +68,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 isLastAiMessage={isLastAiMessage}
                                 operatingSystem={operatingSystem}
                                 setDisplayCodeDiff={setDisplayCodeDiff}
+                                acceptAICode={acceptAICode}
+                                rejectAICode={rejectAICode}
                             />
                         )
                     }
