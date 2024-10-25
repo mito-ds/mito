@@ -3,7 +3,7 @@ import {
     JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { LabIcon } from '@jupyterlab/ui-components';
 import LightbulbIcon from '../../../src/icons/LightbulbIcon.svg'
 
@@ -31,16 +31,12 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             execute: () => {
                 /* 
                     In order to click on the cell toolbar button, that cell must be the active cell, 
-                    so the Ai Chat taskpane will take care of providing the cell context.
-
-                    TODO: In the future, instead of directly calling COMMAND_MITO_AI_SEND_MESSAGE, we should
-                    update the AI Chat History Manager so that we can generate an AI optimzied message and a 
-                    display optimized message.
+                    so the ChatHistoryManager will take care of providing the cell context.
                 */
                 app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT)
-                app.commands.execute(COMMAND_MITO_AI_SEND_MESSAGE, { input: `Explain this code` });
+                app.commands.execute(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE);
             },
-            isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_MESSAGE)
+            isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE)
         });
     }
 };

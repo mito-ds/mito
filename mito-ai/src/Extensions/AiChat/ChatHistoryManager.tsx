@@ -1,9 +1,11 @@
 import OpenAI from "openai";
-import { Variable } from "../VariableManager/VariableInspector";
+import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { getActiveCellCode } from "../../utils/notebook";
 
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    error: boolean
+    type: 'openai message' | 'connection error'
 }
 
 export interface IChatHistory {
@@ -33,12 +35,25 @@ export interface IChatHistory {
 */
 export class ChatHistoryManager {
     private history: IChatHistory;
+    private variableManager: IVariableManager;
+    private notebookTracker: INotebookTracker;
 
-    constructor(initialHistory?: IChatHistory) {
+    constructor(variableManager: IVariableManager, notebookTracker: INotebookTracker, initialHistory?: IChatHistory) {
+        // Initialize the history
         this.history = initialHistory || {
             aiOptimizedChatHistory: [],
             displayOptimizedChatHistory: []
         };
+
+        // Save the variable manager
+        this.variableManager = variableManager;
+
+        // Save the notebook tracker
+        this.notebookTracker = notebookTracker;
+    }
+
+    createDuplicateChatHistoryManager(): ChatHistoryManager {
+        return new ChatHistoryManager(this.variableManager, this.notebookTracker, this.history);
     }
 
     getHistory(): IChatHistory {
@@ -53,17 +68,13 @@ export class ChatHistoryManager {
         return this.history.displayOptimizedChatHistory;
     }
 
-    addUserMessage(input: string, activeCellCode?: string, variables?: Variable[]): void {
+    addGenericUserPromptedMessage(input: string): void {
 
-        const displayMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'user',
-            content: `\`\`\`python
-${activeCellCode}
-\`\`\`
 
-${input}`};
+        const variables = this.variableManager.variables
+        const activeCellCode = getActiveCellCode(this.notebookTracker)
 
-        const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+        const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
             content: `You have access to the following variables:
 
@@ -107,17 +118,6 @@ Use the pd.to_datetime function to convert the issue_date column to datetime.
 
 </Example>
 
-<Important Jupyter Context for Error Handling>
-Remember that you are executing code inside a Jupyter notebook. That means you will have persistent state issues where variables from previous cells or previous code executions might still affect current code. When those errors occur, here are a few possible solutions:
-1. Restarting the kernel to reset the environment if a function or variable has been unintentionally overwritten.
-2. Identify which cell might need to be rerun to properly initialize the function or variable that is causing the issue.
-
-For example, if an error occurs because the built-in function 'print' is overwritten by an integer, you should return the code cell with the modification to the print function removed and also return an explanation that tell the user to restart their kernel. Do not add new comments to the code cell, just return the code cell with the modification removed.
-
-When a user hits an error because of a persistent state issue, tell them how to resolve it.
-
-</Important Jupyter Context for Error Handling>
-
 Code in the active code cell:
 
 \`\`\`python
@@ -126,11 +126,98 @@ ${activeCellCode}
 
 Your task: ${input}`};
 
-        this.history.displayOptimizedChatHistory.push({message: displayMessage, error: false});
-        this.history.aiOptimizedChatHistory.push(aiMessage);
+        this.history.displayOptimizedChatHistory.push({message: getDisplayedOptimizedUserMessage(input, activeCellCode), type: 'openai message'});
+        this.history.aiOptimizedChatHistory.push(aiOptimizedMessage);
     }
 
-    addAIMessageFromResponse(message: OpenAI.Chat.Completions.ChatCompletionMessage, error: boolean=false): void {
+    addDebugErrorMessage(errorMessage: string): void {
+    
+        const activeCellCode = getActiveCellCode(this.notebookTracker)
+
+        const aiOptimizedPrompt = `You just ran the active code cell and received an error. Return the full code cell with the error corrected and a short explanation of the error.
+        
+Remember that you are executing code inside a Jupyter notebook. That means you will have persistent state issues where variables from previous cells or previous code executions might still affect current code. When those errors occur, here are a few possible solutions:
+1. Restarting the kernel to reset the environment if a function or variable has been unintentionally overwritten.
+2. Identify which cell might need to be rerun to properly initialize the function or variable that is causing the issue.
+        
+For example, if an error occurs because the built-in function 'print' is overwritten by an integer, you should return the code cell with the modification to the print function removed and also return an explanation that tell the user to restart their kernel. Do not add new comments to the code cell, just return the code cell with the modification removed.
+        
+When a user hits an error because of a persistent state issue, tell them how to resolve it.
+
+<Example>
+
+Code in the active code cell:
+
+\`\`\`python
+print(y)
+\`\`\`
+
+Error Message: 
+NameError: name 'y' is not defined
+
+Output:
+
+\`\`\`python
+y = 10
+print(y)
+\`\`\`
+
+The variable y has not yet been created.Define the variable y before printing it.
+</Example>
+        
+Code in the active code cell:
+
+\`\`\`python
+${activeCellCode}
+\`\`\`
+
+Error Message: 
+
+${errorMessage}
+
+Output:
+`
+
+        this.history.displayOptimizedChatHistory.push({message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), type: 'openai message'});
+        this.history.aiOptimizedChatHistory.push({role: 'user', content: aiOptimizedPrompt});
+    }
+
+    addExplainCodeMessage(): void {
+        const activeCellCode = getActiveCellCode(this.notebookTracker)
+
+        const aiOptimizedPrompt = `Explain the code in the active code cell to me like I have a basic understanding of Python. Don't explain each line, but instead explain the overall logic of the code.
+
+<Example>
+
+Code in the active code cell:
+
+\`\`\`python
+def multiply(x, y):
+    return x * y
+\`\`\`
+
+Output:
+
+This code creates a function called \`multiply\` that takes two arguments \`x\` and \`y\`, and returns the product of \`x\` and \`y\`.
+
+</Example>
+
+Code in the active code cell:
+
+\`\`\`python
+${activeCellCode}
+\`\`\`
+
+Output: 
+`
+
+        this.history.displayOptimizedChatHistory.push({message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), type: 'openai message'});
+        this.history.aiOptimizedChatHistory.push({role: 'user', content: aiOptimizedPrompt});
+    }
+
+
+
+    addAIMessageFromResponse(message: OpenAI.Chat.Completions.ChatCompletionMessage, mitoAIConnectionError: boolean=false): void {
         if (message.content === null) {
             return
         }
@@ -139,19 +226,19 @@ Your task: ${input}`};
             role: 'assistant',
             content: message.content
         }
-        this._addAIMessage(aiMessage, error)
+        this._addAIMessage(aiMessage, mitoAIConnectionError)
     }
 
-    addAIMessageFromMessageContent(message: string, error: boolean=false): void {
+    addAIMessageFromMessageContent(message: string, mitoAIConnectionError: boolean=false): void {
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
             content: message
         }
-        this._addAIMessage(aiMessage, error)
+        this._addAIMessage(aiMessage, mitoAIConnectionError)
     }
 
-    _addAIMessage(aiMessage: OpenAI.Chat.ChatCompletionMessageParam, error: boolean=false): void {
-        this.history.displayOptimizedChatHistory.push({message: aiMessage, error: error});
+    _addAIMessage(aiMessage: OpenAI.Chat.ChatCompletionMessageParam, mitoAIConnectionError: boolean=false): void {
+        this.history.displayOptimizedChatHistory.push({message: aiMessage, type: mitoAIConnectionError ? 'connection error' : 'openai message'});
         this.history.aiOptimizedChatHistory.push(aiMessage);
     }
 
@@ -160,7 +247,7 @@ Your task: ${input}`};
             role: 'system',
             content: message
         }
-        this.history.displayOptimizedChatHistory.push({message: systemMessage, error: false});
+        this.history.displayOptimizedChatHistory.push({message: systemMessage, type: 'openai message'});
         this.history.aiOptimizedChatHistory.push(systemMessage);
     }
 
@@ -185,4 +272,15 @@ Your task: ${input}`};
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         return displayOptimizedChatHistory[lastAIMessagesIndex]
     }
+}
+
+
+const getDisplayedOptimizedUserMessage = (input: string, activeCellCode?: string): OpenAI.Chat.ChatCompletionMessageParam => {
+    return {
+        role: 'user',
+        content: `\`\`\`python
+${activeCellCode}
+\`\`\`
+
+${input}`};
 }
