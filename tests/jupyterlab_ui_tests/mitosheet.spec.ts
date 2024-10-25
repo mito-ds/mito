@@ -1,5 +1,5 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createNewMitosheetOnlyTest, dfCreationCode, getNumberOfColumns } from './utils';
+import { createNewMitosheetOnlyTest, dfCreationCode, getNumberOfColumns } from '../jupyter_utils/mitosheet_utils';
 
 test.describe.configure({ mode: 'parallel' });
 

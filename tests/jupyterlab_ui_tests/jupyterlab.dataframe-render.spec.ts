@@ -1,6 +1,6 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, updateCellValue, waitForIdle } from './utils';
-
+import { createAndRunNotebookWithCells, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
+import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });

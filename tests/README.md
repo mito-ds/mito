@@ -27,18 +27,6 @@ And then run
 npm run test:streamlit -- --project=chromium
 ```
 
-### Dash Specific Tests
-
-Run
-```
-python dash-test.py
-```
-
-Then, run the tests with
-```
-npm run test:dash -- --project=chromium
-```
-
 ### Jupyter Specific Tests
 
 First, you need to run (from the mitosheet/ directory) in this same virtual environment::
@@ -64,6 +52,42 @@ jupyter notebook --config jupyter_notebook_config.py
 And then in a separate terminal run from the tests/ directory: 
 ```
 npm run test:notebook -- --project=chromium
+```
+
+### Mito AI Specific Tests
+
+First, you need to run (from the mito-ai/ directory) in this same virtual environment:
+
+```
+jupyter labextension develop . --overwrite
+jupyter server extension enable --py mito-ai
+```
+
+Then, from the tests/directory, set your OPENAI_API_KEY environment variable:
+```
+export OPENAI_API_KEY=<your-openai-api-key>
+```
+
+From the same terminal, run:
+```
+jupyter lab --config jupyter_server_test_config.py
+```
+
+And then in a separate terminal run from the tests/ directory: 
+```
+npm run test:mitoai -- --project=chromium
+```
+
+### Dash Specific Tests
+
+Run
+```
+python dash-test.py
+```
+
+Then, run the tests with
+```
+npm run test:dash -- --project=chromium
 ```
 
 

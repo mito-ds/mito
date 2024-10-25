@@ -113,6 +113,60 @@ jobs:
         path: tests/playwright-report/
         retention-days: 14
 
+  test-mitoai-frontend-jupyterlab:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.10', '3.11']
+      fail-fast: false
+
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.7.0
+      with:
+        access_token: ${{ github.token }}
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: |
+          mito-ai/setup.py
+          tests/requirements.txt
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: mito-ai/package-lock.json
+    - name: Install dependencies
+      run: |
+        cd tests
+        bash mac-setup.sh
+    - name: Setup JupyterLab
+      run: |
+        cd tests
+        source venv/bin/activate
+        cd ../mito-ai
+        jupyter labextension develop . --overwrite
+        jupyter server extension enable --py mito-ai
+    - name: Start a server and run tests
+      run: |
+        cd tests
+        source venv/bin/activate
+        jupyter lab --config jupyter_server_test_config.py &
+        npm run test:mitoai
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    - name: Upload test-results
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: mitoai-jupyterlab-playwright-report-${{ matrix.python-version }}
+        path: tests/playwright-report/
+        retention-days: 14
+
   test-mitosheet-frontend-streamlit:
     timeout-minutes: 60
     strategy:

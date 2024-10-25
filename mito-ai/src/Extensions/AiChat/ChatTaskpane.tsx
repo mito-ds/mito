@@ -18,7 +18,6 @@ import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { IEditorExtensionRegistry } from '@jupyterlab/codemirror';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { CodeCell } from '@jupyterlab/cells';
 import { StateEffect, Compartment } from '@codemirror/state';
@@ -60,7 +59,6 @@ interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
     variableManager: IVariableManager
-    editorExtensionRegistry: IEditorExtensionRegistry
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
 }
@@ -69,7 +67,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     rendermime,
     variableManager,
-    editorExtensionRegistry,
     app,
     operatingSystem
 }) => {
@@ -81,7 +78,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
 
     const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
-    const originalDiffedCodeRef = useRef<string | undefined>(undefined)
+    const originalCodeBeforeDiff = useRef<string | undefined>(undefined)
 
     useEffect(() => {
         /* 
@@ -191,7 +188,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
 
                 // Store the original code so that we can revert to it if the user rejects the AI's code
-                originalDiffedCodeRef.current = activeCellCode
+                originalCodeBeforeDiff.current = activeCellCode || ''
 
                 // Temporarily write the unified code string to the active cell so we can display
                 // the code diffs to the user. Once the user accepts or rejects the code, we'll 
@@ -230,8 +227,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const rejectAICode = () => {
-        const originalDiffedCode = originalDiffedCodeRef.current
-        if (!originalDiffedCode) {
+        const originalDiffedCode = originalCodeBeforeDiff.current
+        if (originalDiffedCode === undefined) {
             return
         }
         _applyCode(originalDiffedCode)
@@ -240,7 +237,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _applyCode = (code: string) => {
         writeCodeToActiveCell(notebookTracker, code, true)
         setUnifiedDiffLines(undefined)
-        originalDiffedCodeRef.current = undefined
+        originalCodeBeforeDiff.current = undefined
     }
 
     useEffect(() => {

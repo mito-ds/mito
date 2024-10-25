@@ -1,6 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { awaitResponse } from '../streamlit_ui_tests/utils';
-import { waitForIdle } from '../jupyterlab_ui_tests/utils';
 
 test.describe('Mitosheet Jupyter Notebook integration', () => {
   test('renders a mitosheet.sheet() and generates code', async ({ page }) => {
