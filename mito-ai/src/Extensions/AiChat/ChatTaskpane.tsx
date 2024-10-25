@@ -21,6 +21,7 @@ import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { CodeCell } from '@jupyterlab/cells';
 import { StateEffect, Compartment } from '@codemirror/state';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
+import OpenAI from "openai";
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -116,15 +117,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     */
     const sendDebugErrorMessage = (errorMessage: string) => {
 
+        // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        newChatHistoryManager.addGenericUserPromptedMessage(input)
+        newChatHistoryManager.addDebugErrorMessage(errorMessage)
+
+        // Step 2: Send the message to the AI
         _sendMessageToOpenAI(newChatHistoryManager)
+
+        // Step 3: Update the code diff stripes
+        updateCodeDiffStripes
     }
 
     const sendExplainCodeMessage = () => {
+
+        // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.addExplainCodeMessage()
+
+        // Step 2: Send the message to the AI
         _sendMessageToOpenAI(newChatHistoryManager)
+
+        // Step 3: No post processing step needed for explaining code. 
     }
 
     /* 
@@ -132,32 +145,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     */
     const sendGenericUserPromptedMessage = async () => {
 
+        // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.addGenericUserPromptedMessage(input)
 
-        setChatHistoryManager(newChatHistoryManager)
-
+        // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
 
-        if (!aiMessage) {
-            return
-        }
-
-        const activeCellCode = getActiveCellCode(notebookTracker)
-
-        // Extract the code from the AI's message and then calculate the code diffs
-        const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
-        const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
-
-        // Store the original code so that we can revert to it if the user rejects the AI's code
-        originalCodeBeforeDiff.current = activeCellCode || ''
-
-        // Temporarily write the unified code string to the active cell so we can display
-        // the code diffs to the user. Once the user accepts or rejects the code, we'll 
-        // apply the correct version of the code.
-        writeCodeToActiveCell(notebookTracker, unifiedCodeString)
-        setUnifiedDiffLines(unifiedDiffs)
+        // Step 3: Update the code diff stripes
+        updateCodeDiffStripes(aiMessage)
     }
 
     const _sendMessageToOpenAI = async (newChatHistoryManager: ChatHistoryManager) => {
@@ -193,7 +189,28 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             setLoadingAIResponse(false)
             return aiRespone
         }
+    }
 
+    const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessage | undefined) => {
+        if (!aiMessage) {
+            return
+        }
+
+        const activeCellCode = getActiveCellCode(notebookTracker)
+
+        // Extract the code from the AI's message and then calculate the code diffs
+        const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
+        const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
+        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
+
+        // Store the original code so that we can revert to it if the user rejects the AI's code
+        originalCodeBeforeDiff.current = activeCellCode || ''
+
+        // Temporarily write the unified code string to the active cell so we can display
+        // the code diffs to the user. Once the user accepts or rejects the code, we'll 
+        // apply the correct version of the code.
+        writeCodeToActiveCell(notebookTracker, unifiedCodeString)
+        setUnifiedDiffLines(unifiedDiffs)
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
