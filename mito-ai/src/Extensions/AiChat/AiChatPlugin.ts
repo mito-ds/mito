@@ -8,7 +8,6 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { IEditorExtensionRegistry } from '@jupyterlab/codemirror';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 
 
@@ -19,7 +18,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito_ai:plugin',
   description: 'AI chat for JupyterLab',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette, IRenderMimeRegistry, IVariableManager, IEditorExtensionRegistry],
+  requires: [INotebookTracker, ICommandPalette, IRenderMimeRegistry, IVariableManager],
   optional: [ILayoutRestorer],
   activate: (
     app: JupyterFrontEnd, 
@@ -27,7 +26,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
     palette: ICommandPalette, 
     rendermime: IRenderMimeRegistry,
     variableManager: IVariableManager,
-    editorExtensionRegistry: IEditorExtensionRegistry,
     restorer: ILayoutRestorer | null
   ) => {
 
@@ -35,7 +33,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<void> = {
     // then call it to make a new widget
     const newWidget = () => {
       // Create a blank content widget inside of a MainAreaWidget
-      const chatWidget = buildChatWidget(app, notebookTracker, rendermime, variableManager, editorExtensionRegistry)
+      const chatWidget = buildChatWidget(app, notebookTracker, rendermime, variableManager)
       return chatWidget
     }
 

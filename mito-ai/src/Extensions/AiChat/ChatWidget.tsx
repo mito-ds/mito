@@ -8,7 +8,6 @@ import chatIconSvg from '../../../src/icons/ChatIcon.svg'
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getOperatingSystem } from '../../utils/user';
-import { IEditorExtensionRegistry } from '@jupyterlab/codemirror';
 
 export const chatIcon = new LabIcon({
     name: 'mito_ai',
@@ -20,7 +19,6 @@ export function buildChatWidget(
     notebookTracker: INotebookTracker,
     rendermime: IRenderMimeRegistry,
     variableManager: IVariableManager,
-    editorExtensionRegistry: IEditorExtensionRegistry
 ) {
 
     // Get the operating system here so we don't have to do it each time the chat changes.
@@ -34,7 +32,6 @@ export function buildChatWidget(
             rendermime={rendermime}
             variableManager={variableManager}
             operatingSystem={operatingSystem}
-            editorExtensionRegistry={editorExtensionRegistry}
         />
     ) 
     chatWidget.id = 'mito_ai';

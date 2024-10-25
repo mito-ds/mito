@@ -41,6 +41,7 @@ test.describe('Mito AI Chat', () => {
 
     const code = await getCodeFromCell(page, 1);
     expect(code).not.toContain('df["C"] = [7, 8, 9]');
+    expect(code?.trim()).toBe("")
   });
 });
 
