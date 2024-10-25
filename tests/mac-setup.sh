@@ -20,12 +20,15 @@ if [ $# -eq 0 ]
     npx playwright install || echo "Warning: Failed to install additional browsers"
 fi
 
-# Install mitosheet
+
+# Install mitosheet and build JS
 cd ../mitosheet
-
-# Install Python dependencies
 pip install -e ".[test]"
+jlpm install
+jlpm run build
 
-# Install the npm dependences for Mitosheet, and build JS
+# Install mito-ai and build JS
+cd ../mito-ai
+pip install -e ".[test]"
 jlpm install
 jlpm run build
