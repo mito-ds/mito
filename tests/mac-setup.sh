@@ -13,10 +13,11 @@ jlpm install
 # install only the necessary browsers.
 if [ $# -eq 0 ]
   then
-    npx playwright install chromium webkit firefox chrome
-else
-    npx playwright install $1
-    npx playwright install
+    npx playwright install chromium webkit firefox || echo "Warning: Failed to install some browsers"
+    npx playwright install chrome || echo "Warning: Failed to install Chrome"
+  else
+    npx playwright install $1 || echo "Warning: Failed to install specified browser"
+    npx playwright install || echo "Warning: Failed to install additional browsers"
 fi
 
 # Install mitosheet
