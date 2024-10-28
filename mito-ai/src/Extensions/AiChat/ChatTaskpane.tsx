@@ -46,10 +46,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     operatingSystem
 }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [input, setInput] = useState('');
+
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, variableManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
-    const [input, setInput] = useState('');
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
 
     const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
@@ -115,17 +116,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         This is useful when we want to send the error message from the MIME renderer directly
         to the AI chat.
     */
-    const sendDebugErrorMessage = (errorMessage: string) => {
+    const sendDebugErrorMessage = async (errorMessage: string) => {
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.addDebugErrorMessage(errorMessage)
 
         // Step 2: Send the message to the AI
-        _sendMessageToOpenAI(newChatHistoryManager)
+        const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
 
         // Step 3: Update the code diff stripes
-        updateCodeDiffStripes
+        updateCodeDiffStripes(aiMessage)
     }
 
     const sendExplainCodeMessage = () => {
@@ -143,7 +144,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendGenericUserPromptedMessage = async () => {
+    const sendChatInputMessage = async () => {
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -399,7 +400,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // shift + enter to add a new line.
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        sendGenericUserPromptedMessage()
+                        sendChatInputMessage()
                     }
                 }}
             />
