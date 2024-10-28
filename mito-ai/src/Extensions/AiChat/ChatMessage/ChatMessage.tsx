@@ -14,7 +14,7 @@ import { UnifiedDiffLine } from '../../../utils/codeDiff';
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
     messageIndex: number
-    error: boolean
+    mitoAIConnectionError: boolean
     notebookTracker: INotebookTracker
     rendermime: IRenderMimeRegistry
     app: JupyterFrontEnd
@@ -28,7 +28,7 @@ interface IChatMessageProps {
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message, 
     messageIndex, 
-    error,
+    mitoAIConnectionError,
     notebookTracker,
     rendermime,
     app,
@@ -50,7 +50,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             "message", 
             {"message-user" : message.role === 'user'},
             {'message-assistant' : message.role === 'assistant'},
-            {'message-error': error}
         )}>
             {messageContentParts.map(messagePart => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -75,7 +74,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <p>{error && <span style={{marginRight: '4px'}}><ErrorIcon /></span>}{messagePart}</p>
+                        <p>{mitoAIConnectionError && <span style={{marginRight: '4px'}}><ErrorIcon /></span>}{messagePart}</p>
                     )
                 }
             })}

@@ -5,11 +5,13 @@ on:
     branches: [ dev ]
     paths:
       - 'mitosheet/**'
+      - 'tests/**'
+      - 'mito-ai/**'
   pull_request:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
-
+      - 'mito-ai/**'
 jobs:
   test-mitosheet-frontend-jupyterlab:
     runs-on: ubuntu-20.04

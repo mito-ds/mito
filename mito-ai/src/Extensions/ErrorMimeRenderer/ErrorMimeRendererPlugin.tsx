@@ -4,7 +4,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
-import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE } from '../../commands';
 import MagicWandIcon from '../../icons/MagicWand';
 import '../../../style/ErrorMimeRendererPlugin.css'
 
@@ -81,7 +81,7 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
         const conciseErrorMessage = this.getErrorString(model);
         this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT)
-        this.app.commands.execute(COMMAND_MITO_AI_SEND_MESSAGE, { input: conciseErrorMessage });
+        this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: conciseErrorMessage });
     }
 
     /* 

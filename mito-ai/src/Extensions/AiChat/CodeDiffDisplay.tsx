@@ -102,3 +102,4 @@ export function codeDiffStripesExtension(options: { unifiedDiffLines?: UnifiedDi
     showStripes
   ];
 }
+
