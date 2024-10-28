@@ -15,7 +15,10 @@ export interface IChatHistory {
     aiOptimizedChatHistory: OpenAI.Chat.ChatCompletionMessageParam[]
 
     // The display optimized chat history is what we display to the user. Each message
-    // is a subset of the corresponding message in aiOptimizedChatHistory. 
+    // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
+    // displayOptimizedChatHistory, we also include connection error messages so that we can 
+    // display them in the chat interface. For example, if the user does not have an API key set, 
+    // we add a message to the chat ui that tells them to set an API key.
     displayOptimizedChatHistory: IDisplayOptimizedChatHistory[]
 }
 
@@ -68,7 +71,7 @@ export class ChatHistoryManager {
         return this.history.displayOptimizedChatHistory;
     }
 
-    addGenericUserPromptedMessage(input: string): void {
+    addChatInputMessage(input: string): void {
 
 
         const variables = this.variableManager.variables

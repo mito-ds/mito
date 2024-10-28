@@ -148,7 +148,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        newChatHistoryManager.addGenericUserPromptedMessage(input)
+        newChatHistoryManager.addChatInputMessage(input)
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
