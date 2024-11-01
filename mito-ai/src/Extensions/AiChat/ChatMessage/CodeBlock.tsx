@@ -24,18 +24,18 @@ interface ICodeBlockProps {
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
-    code, 
-    role, 
-    rendermime, 
-    notebookTracker, 
-    app, 
+    code,
+    role,
+    rendermime,
+    notebookTracker,
+    app,
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
     acceptAICode,
     rejectAICode
 }): JSX.Element => {
-    
+
     const notebookName = getNotebookName(notebookTracker)
 
     const copyCodeToClipboard = () => {
@@ -61,12 +61,16 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    <button onClick={() => {acceptAICode()}}>
-                        Apply {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y') : ''}
-                    </button>
-                    <button onClick={() => {rejectAICode()}}>
-                        Deny {isLastAiMessage ? (operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D') : ''}
-                    </button>
+                    {isLastAiMessage && (
+                        <>
+                            <button onClick={() => { acceptAICode() }}>
+                                Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
+                            </button>
+                            <button onClick={() => { rejectAICode() }}>
+                                Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
+                            </button>
+                        </>
+                    )}
                     <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>
                 <PythonCode
