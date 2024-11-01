@@ -2,8 +2,8 @@
     flex-grow: 1;
     height: 100%;
     width: 100%;
-    margin: 0;
-    padding: 10px;
+    margin: 0 !important;
+    padding: 10px !important;
     font-size: 12px;
     font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
     white-space: nowrap;
