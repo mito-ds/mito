@@ -5,8 +5,11 @@
     margin: 0 !important;
     padding: 10px !important;
     font-size: 12px !important;
-    white-space: pre !important;
     overflow-x: auto;
+}
+
+code {
+    white-space: pre !important;
 }
 
 .code-message-part-python-code .jp-RenderedHTMLCommon > *:last-child {
