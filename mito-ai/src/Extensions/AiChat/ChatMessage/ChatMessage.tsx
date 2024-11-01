@@ -9,7 +9,7 @@ import ErrorIcon from '../../../icons/ErrorIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
-
+import PencilIcon from '../../../icons/Pencil';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -20,14 +20,14 @@ interface IChatMessageProps {
     app: JupyterFrontEnd
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
-    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined >>;
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
     acceptAICode: () => void
     rejectAICode: () => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
-    message, 
-    messageIndex, 
+    message,
+    messageIndex,
     mitoAIConnectionError,
     notebookTracker,
     rendermime,
@@ -47,9 +47,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     return (
         <div className={classNames(
-            "message", 
-            {"message-user" : message.role === 'user'},
-            {'message-assistant' : message.role === 'assistant'},
+            "message",
+            { "message-user": message.role === 'user' },
+            { 'message-assistant': message.role === 'assistant' },
         )}>
             {messageContentParts.map(messagePart => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -58,7 +58,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     // TODO: Add a test for this since its broke a few times now.
                     if (messagePart.length > 14) {
                         return (
-                            <CodeBlock 
+                            <CodeBlock
                                 code={messagePart}
                                 role={message.role}
                                 rendermime={rendermime}
@@ -74,7 +74,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <p>{mitoAIConnectionError && <span style={{marginRight: '4px'}}><ErrorIcon /></span>}{messagePart}</p>
+                        <p>
+                            {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
+                            {messagePart}
+                            {message.role === 'user' && <span style={{ position: 'relative', top: '2px', marginLeft: '4px' }}><PencilIcon /></span>}
+                        </p>
                     )
                 }
             })}
