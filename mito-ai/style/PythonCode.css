@@ -8,7 +8,7 @@
     overflow-x: auto;
 }
 
-code {
+.code-message-part-python-code code {
     white-space: pre !important;
 }
 
