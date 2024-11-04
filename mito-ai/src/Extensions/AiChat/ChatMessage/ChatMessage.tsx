@@ -127,18 +127,19 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <p onDoubleClick={() => setIsEditing(true)}>
-                            {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
-                            {messagePart}
+                        <div style={{ position: 'relative' }}>
+                            <p onDoubleClick={() => setIsEditing(true)}>
+                                {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
+                                {messagePart}
+                            </p>
                             {message.role === 'user' && (
-                                <span
-                                    style={{ position: 'relative', top: '2px', marginLeft: '4px', cursor: 'pointer' }}
-                                    onClick={handleEditClick}
-                                >
-                                    <PencilIcon />
-                                </span>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                                    <span onClick={handleEditClick} style={{ cursor: 'pointer' }}>
+                                        <PencilIcon />
+                                    </span>
+                                </div>
                             )}
-                        </p>
+                        </div>
                     )
                 }
             })}
