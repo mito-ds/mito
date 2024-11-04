@@ -65,7 +65,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleCancel = () => {
-        setEditedContent(message.content as string);
+        // When canceling, remove the code block from the message.
+        setEditedContent((message.content as string).replace(/```[\s\S]*?```/g, '').trim());
         setIsEditing(false);
     };
 
