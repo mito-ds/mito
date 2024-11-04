@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -10,7 +10,6 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
-import { useState } from 'react';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
