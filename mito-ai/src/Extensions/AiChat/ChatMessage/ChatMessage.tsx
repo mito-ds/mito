@@ -127,7 +127,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <p>
+                        <p onDoubleClick={() => setIsEditing(true)}>
                             {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                             {messagePart}
                             {message.role === 'user' && (
