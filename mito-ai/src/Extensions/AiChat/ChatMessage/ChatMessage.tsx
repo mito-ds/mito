@@ -43,8 +43,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(
-        // When editing, temporarily remove the code block from message.
-        // This allows users to edit message without having to see the code block.
+        // When editing, remove the code block from message.
+        // ChatHistoryManager will re-add the code block.
         (message.content as string).replace(/```[\s\S]*?```/g, '').trim()
     );
 
@@ -60,9 +60,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = () => {
-        // Re-add the code block to the message.
-        const newMessageWithCodeBlock = messageContentParts[0] + '\n\n' + editedContent
-        onUpdateMessage(messageIndex, newMessageWithCodeBlock);
+        onUpdateMessage(messageIndex, editedContent);
         setIsEditing(false);
     };
 
