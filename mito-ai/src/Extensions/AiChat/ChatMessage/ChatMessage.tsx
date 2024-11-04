@@ -42,7 +42,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     onUpdateMessage
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
-    const [editedContent, setEditedContent] = useState(message.content as string);
+    const [editedContent, setEditedContent] = useState(
+        // When editing, temporarily remove the code block from message.
+        // This allows users to edit message without having to see the code block.
+        (message.content as string).replace(/```[\s\S]*?```/g, '').trim()
+    );
 
     if (message.role !== 'user' && message.role !== 'assistant') {
         // Filter out other types of messages, like system messages
@@ -56,7 +60,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = () => {
-        onUpdateMessage(messageIndex, editedContent);
+        // Re-add the code block to the message.
+        const newMessageWithCodeBlock = messageContentParts[0] + '\n\n' + editedContent
+        onUpdateMessage(messageIndex, newMessageWithCodeBlock);
         setIsEditing(false);
     };
 
@@ -119,7 +125,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                             {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                             {messagePart}
                             {message.role === 'user' && (
-                                <span 
+                                <span
                                     style={{ position: 'relative', top: '2px', marginLeft: '4px', cursor: 'pointer' }}
                                     onClick={handleEditClick}
                                 >
