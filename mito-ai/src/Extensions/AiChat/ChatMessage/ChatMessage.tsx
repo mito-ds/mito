@@ -10,6 +10,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
+import { useState } from 'react';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -23,6 +24,7 @@ interface IChatMessageProps {
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
     acceptAICode: () => void
     rejectAICode: () => void
+    onUpdateMessage: (messageIndex: number, newContent: string) => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -36,14 +38,53 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     operatingSystem,
     setDisplayCodeDiff,
     acceptAICode,
-    rejectAICode
+    rejectAICode,
+    onUpdateMessage
 }): JSX.Element | null => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState(message.content as string);
+
     if (message.role !== 'user' && message.role !== 'assistant') {
         // Filter out other types of messages, like system messages
         return null
     }
 
     const messageContentParts = splitStringWithCodeBlocks(message)
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleSave = () => {
+        onUpdateMessage(messageIndex, editedContent);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setEditedContent(message.content as string);
+        setIsEditing(false);
+    };
+
+    if (isEditing) {
+        return (
+            <div className={classNames(
+                "message",
+                { "message-user": message.role === 'user' },
+                { 'message-assistant': message.role === 'assistant' },
+            )}>
+                <textarea
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    className="message-edit-textarea"
+                    autoFocus
+                />
+                <div className="message-edit-buttons">
+                    <button onClick={handleSave}>Save</button>
+                    <button onClick={handleCancel}>Cancel</button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={classNames(
@@ -77,7 +118,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                         <p>
                             {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                             {messagePart}
-                            {message.role === 'user' && <span style={{ position: 'relative', top: '2px', marginLeft: '4px' }}><PencilIcon /></span>}
+                            {message.role === 'user' && (
+                                <span 
+                                    style={{ position: 'relative', top: '2px', marginLeft: '4px', cursor: 'pointer' }}
+                                    onClick={handleEditClick}
+                                >
+                                    <PencilIcon />
+                                </span>
+                            )}
                         </p>
                     )
                 }

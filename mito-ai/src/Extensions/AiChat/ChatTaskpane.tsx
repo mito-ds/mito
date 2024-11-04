@@ -157,6 +157,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         updateCodeDiffStripes(aiMessage)
     }
 
+    const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
+        // Step 1: Update the chat history manager
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
+
+        // Step 2: Send the message to the AI
+        const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
+
+        // Step 3: Update the code diff stripes
+        updateCodeDiffStripes(aiMessage)
+    };
+
     const _sendMessageToOpenAI = async (newChatHistoryManager: ChatHistoryManager) => {
 
         setInput('');
@@ -380,6 +392,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             setDisplayCodeDiff={setUnifiedDiffLines}
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
+                            onUpdateMessage={handleUpdateMessage}
                         />
                     )
                 }).filter(message => message !== null)}

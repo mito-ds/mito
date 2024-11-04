@@ -134,6 +134,72 @@ Your task: ${input}`};
         this.history.aiOptimizedChatHistory.push(aiOptimizedMessage);
     }
 
+    updateMessageAtIndex(index: number, newContent: string): void {
+        const variables = this.variableManager.variables
+        const activeCellCode = getActiveCellCode(this.notebookTracker)
+
+        const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+            role: 'user',
+            content: `You have access to the following variables:
+
+${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
+
+Complete the task below. Decide what variables to use and what changes you need to make to the active code cell. Only return the full new active code cell and a concise explanation of the changes you made.
+
+<Reminders>
+
+Do not: 
+- Use the word "I"
+- Include multiple approaches in your response
+- Recreate variables that already exist
+
+Do: 
+- Use the variables that you have access to
+- Keep as much of the original code as possible
+- Ask for more context if you need it. 
+
+</Reminders>
+
+<Example>
+
+Code in the active code cell:
+
+\`\`\`python
+import pandas as pd
+loans_df = pd.read_csv('./loans.csv')
+\`\`\`
+
+Your task: convert the issue_date column to datetime.
+
+Output:
+
+\`\`\`python
+import pandas as pd
+loans_df = pd.read_csv('./loans.csv')
+loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'])
+\`\`\`
+
+Use the pd.to_datetime function to convert the issue_date column to datetime.
+
+</Example>
+
+Code in the active code cell:
+
+\`\`\`python
+${activeCellCode}
+\`\`\`
+
+Your task: ${newContent}`};
+
+        // Update the message at the specified index
+        this.history.aiOptimizedChatHistory[index] = aiOptimizedMessage;
+        this.history.displayOptimizedChatHistory[index].message = getDisplayedOptimizedUserMessage(newContent, activeCellCode);
+
+        // Remove all messages after the index we're updating
+        this.history.aiOptimizedChatHistory = this.history.aiOptimizedChatHistory.slice(0, index + 1);
+        this.history.displayOptimizedChatHistory = this.history.displayOptimizedChatHistory.slice(0, index + 1);
+    }
+
     addDebugErrorMessage(errorMessage: string): void {
     
         const activeCellCode = getActiveCellCode(this.notebookTracker)
