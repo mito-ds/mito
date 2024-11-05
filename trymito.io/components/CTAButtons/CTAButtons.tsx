@@ -29,7 +29,7 @@ const CTAButtons = (props: {
         > 
             {props.variant === 'download' && 
                 <TextButton 
-                    text={props.ctaText || 'Install Open Source Mito'}
+                    text={props.ctaText || 'Install Mito'}
                     href={MITO_INSTALLATION_DOCS_LINK}
                     className={props.textButtonClassName}
                 />
