@@ -22,6 +22,7 @@ import { CodeCell } from '@jupyterlab/cells';
 import { StateEffect, Compartment } from '@codemirror/state';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import OpenAI from "openai";
+import SupportIcon from '../../icons/SupportIcon';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -356,7 +357,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                <p className="chat-taskpane-header-title"></p>
+                <IconButton
+                    icon={<SupportIcon />}
+                    title="Get Help"
+                    onClick={() => {
+                        window.open('mailto:founders@sagacollab.com?subject=Mito AI Chat Support', '_blank');
+                    }}
+                />
                 <IconButton
                     icon={<ResetIcon />}
                     title="Clear the chat history"
