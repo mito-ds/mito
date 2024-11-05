@@ -55,7 +55,7 @@ const Home: NextPage = () => {
             </h1>
 
             <h2 className={titleStyles.description}>
-              The world’s largest companies save hours per week with Mito’s AI assistance and spreadsheet analysis.
+              The world’s largest companies save hours per week with Mito's AI copilot and spreadsheet editor.
             </h2>
               
             <div className={homeStyles.cta_button_and_video_spacer}>
