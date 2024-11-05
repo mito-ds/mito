@@ -1,7 +1,7 @@
 import { expect, test } from '@jupyterlab/galata';
 import { createAndRunNotebookWithCells, getCodeFromCell, selectCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
-import { sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+import { sendAndEditMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });
@@ -33,6 +33,21 @@ test.describe('Mito AI Chat', () => {
     const code = await getCodeFromCell(page, 1);
     expect(code).not.toContain('df["C"] = [7, 8, 9]');
     expect(code?.trim()).toBe("")
+  });
+
+  test('Edit Message', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    const initialMessage = 'Write the code df["C"] = [7, 8, 9]';
+    const editedMessage = 'Write the code df["D"] = [7, 8, 9]';
+    await sendAndEditMitoAIMessage(page, initialMessage, editedMessage);
+
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    const code = await getCodeFromCell(page, 1);
+    expect(code).toContain('df["D"] = [7, 8, 9]');
   });
 
   test('Code Diffs are applied', async ({ page }) => {
