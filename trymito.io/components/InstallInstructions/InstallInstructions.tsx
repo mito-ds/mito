@@ -5,7 +5,7 @@ import ctaButtons from '../CTAButtons/CTAButtons.module.css'
 import installInstructions from './InstallInstructions.module.css'
 import pageStyles from '../../styles/Home.module.css';
 import { CREATE_MITOSHEET_DOCS_LINK, MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
-import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
+import { MITO_GITHUB_LINK } from '../Buttons/GithubButton/GithubButton';
 import { PLAUSIBLE_COPIED_MITOSHEET_HELLO_COMMAND, PLAUSIBLE_COPIED_PIP_INSTALL_COMMAND } from '../../utils/plausible';
 import { classNames } from '../../utils/classNames';
 import { DISCORD_LINK } from '../Footer/Footer';

@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import titleStyles from '../styles/Title.module.css'
 import pageStyles from '../styles/Page.module.css'
 import plansStyles from '../styles/Plans.module.css'
@@ -9,18 +9,18 @@ import iconAndTextCardStyles from '../styles/IconAndTextCard.module.css'
 
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
 import Footer from '../components/Footer/Footer';
-import PlanBullet from '../components/PlanBullet/PlanBullet';
-import TranslucentButton from '../components/TranslucentButton/TranslucentButton';
-import DropdownItem from '../components/DropdownItem/DropdownItem';
+import PlanBullet from '../components/PlansFeatureGroup/PlanBullet';
+import TranslucentButton from '../components/Buttons/TranslucentButton/TranslucentButton';
+import DropdownItem from '../components/Dropdown/DropdownItem';
 import Dropdown from '../components/Dropdown/Dropdown';
 import FAQCard from '../components/FAQCard/FAQCard'
-import TextButton from '../components/TextButton/TextButton'
-import FeatureSection from '../components/FeatureSection/FeatureSection'
-import GithubButton from '../components/GithubButton/GithubButton'
+import TextButton from '../components/Buttons/TextButton/TextButton';
+import PlansFeatureGroup from '../components/PlansFeatureGroup/PlansFeatureGroup'
 import FlagIcon from '../public/icon-squares/FlagIcon.svg'
 import ContactCTACard from '../components/CTACards/ContactCTACard'
 import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED_PLANS_PAGE, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS } from '../utils/plausible'
 import { CALENDLY_LINK } from '../components/CTAButtons/CTAButtons'
+import GithubButton from '../components/Buttons/GithubButton/GithubButton'
 
 
 /* 
@@ -555,68 +555,68 @@ const Plans: NextPage = () => {
             </section>
 
             <section className={pageStyles.suppress_section_margin_top + ' only-on-mobile'}>
-              <FeatureSection
+              <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Integration'
                 features={INTEGRATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Exploration'
                 features={EXPLORATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Presentation'
                 features={PRESENTATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Transformation'
                 features={TRANSFORMATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Code Generation'
                 features={CODE_GENERATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Privacy'
                 features={PRIVACY_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Support'
                 features={SUPPORT_FEATURES}
               />
             </section>
             <section className={pageStyles.suppress_section_margin_top + ' ' + plansStyles.plan_feature_grid_container + ' only-on-desktop-inline-block'}>
-              <FeatureSection
+              <PlansFeatureGroup
                   sectionTitle='Integration'
                   features={INTEGRATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 sectionTitle='Exploration'
                 features={EXPLORATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 sectionTitle='Transformation'
                 features={TRANSFORMATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 sectionTitle='Presentation'
                 features={PRESENTATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 sectionTitle='Code Generation'
                 features={CODE_GENERATION_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 sectionTitle='Privacy'
                 features={PRIVACY_FEATURES}
               />
-              <FeatureSection
+              <PlansFeatureGroup
                 sectionTitle='Support'
                 features={SUPPORT_FEATURES}
               />

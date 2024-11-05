@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
-import TextButton from '../TextButton/TextButton';
+import TextButton from '../Buttons/TextButton/TextButton';
 import ctaButtons from './CTAButtons.module.css'
 import { classNames } from '../../utils/classNames';
 
@@ -29,7 +29,7 @@ const CTAButtons = (props: {
         > 
             {props.variant === 'download' && 
                 <TextButton 
-                    text={props.ctaText || 'Install Mito'}
+                    text={props.ctaText || 'Install Open Source Mito'}
                     href={MITO_INSTALLATION_DOCS_LINK}
                     className={props.textButtonClassName}
                 />
