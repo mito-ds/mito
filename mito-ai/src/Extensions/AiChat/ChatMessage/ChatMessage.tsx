@@ -134,9 +134,13 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                             </p>
                             {message.role === 'user' && (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                    <span onClick={handleEditClick} style={{ cursor: 'pointer' }}>
+                                    <button
+                                        className="message-edit-button"
+                                        onClick={handleEditClick}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <PencilIcon />
-                                    </span>
+                                    </button>
                                 </div>
                             )}
                         </div>

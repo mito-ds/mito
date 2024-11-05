@@ -82,6 +82,11 @@
     align-items: center;
 }
 
+.message-edit-button {
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+}
+
 .message-edit-textarea {
     width: 100%;
     min-height: 100px;
