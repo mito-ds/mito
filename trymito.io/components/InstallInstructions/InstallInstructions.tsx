@@ -37,8 +37,8 @@ const InstallInstructions = (props: {}): JSX.Element => {
                 <CodeBlock prefix='$ ' paddingRight='7rem' className={PLAUSIBLE_COPIED_PIP_INSTALL_COMMAND}>
                     pip install mitosheet
                 </CodeBlock>
-                <CodeBlock prefix='$ ' paddingRight='7rem' className={PLAUSIBLE_COPIED_MITOSHEET_HELLO_COMMAND}>
-                    python -m mitosheet hello
+                <CodeBlock prefix='$ ' paddingRight='7rem'>
+                    pip install mito-ai
                 </CodeBlock>
                 <div className={classNames('text-primary', ctaButtons.pro_cta_text)}>
                     Then, check out our {" "}

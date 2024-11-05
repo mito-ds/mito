@@ -5,6 +5,7 @@ import featureSquaresStyles from './FeatureSquares.module.css';
 import pageStyles from '../../styles/Page.module.css';
 import CTAButtons from '../CTAButtons/CTAButtons';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FEATURE_SQUARES } from '../../utils/plausible';
+import Link from 'next/link';
 const FeatureSquares = (): JSX.Element => {
 
     return (
@@ -20,6 +21,11 @@ const FeatureSquares = (): JSX.Element => {
                             <div className={featureSquaresStyles.feature_card_image_container}>
                                 <Image src='/features/ai-chat.png' alt='AI Chat' height={243} width={464} />
                             </div>
+                            <p className={pageStyles.link}>
+                                <Link href="/python-ai-tools" >
+                                    Learn more about Mito AI →
+                                </Link>
+                            </p>
                         </div>
                     </td>
                     <td>
@@ -31,6 +37,9 @@ const FeatureSquares = (): JSX.Element => {
                             <div className={featureSquaresStyles.feature_card_image_container}>
                                 <Image src='/features/spreadsheet-editor.png' alt='Spreadsheet Editor' height={243} width={464} />
                             </div>
+                            <a href="https://docs.trymito.io/how-to/importing-data-to-mito" target="_blank" rel="noreferrer" className={pageStyles.link_with_p_tag_margins}>
+                                View all 100+ transformations →
+                            </a>
                         </div>
                     </td>
                 </tr>
