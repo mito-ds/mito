@@ -20,6 +20,7 @@ import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
 import { PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED, PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD, PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
+import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 
 const Home: NextPage = () => {
 
@@ -86,6 +87,7 @@ const Home: NextPage = () => {
           <LogoSection></LogoSection>
 
           <section>
+            <FeatureSquares />
           </section>
 
           <section className={pageStyles.background_card} >
