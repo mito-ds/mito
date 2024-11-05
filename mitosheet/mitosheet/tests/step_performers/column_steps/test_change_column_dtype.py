@@ -388,3 +388,12 @@ def test_change_dtype_to_datetime_finds_first_string():
             ]
         })
     )
+
+def test_change_dtype_to_datetime_with_datetime_objects_in_string_series():
+    df = pd.DataFrame({'A': [pd.to_datetime('2020-01-01'), pd.to_datetime('2020-01-02'), pd.to_datetime('2020-01-03')]}, dtype=object)
+    mito = create_mito_wrapper(df)
+
+    mito.change_column_dtype(0, ['A'], 'datetime')
+
+    expected_df = pd.DataFrame({'A': [pd.to_datetime('2020-01-01'), pd.to_datetime('2020-01-02'), pd.to_datetime('2020-01-03')]})
+    assert mito.dfs[0].equals(expected_df)

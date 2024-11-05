@@ -1,5 +1,7 @@
-import { IJupyterLabPageFixture, expect, test } from '@jupyterlab/galata';
-import { TURN_OFF_TOURS, clickToolbarButton, createAndRunNotebookWithCells, dfCreationCode, getNumberOfColumns, typeInNotebookCell, updateCellValue, waitForCodeToBeWritten, waitForIdle } from './utils';
+import { expect, test } from '@jupyterlab/galata';
+import { TURN_OFF_TOURS, clickToolbarButton, updateCellValue, dfCreationCode, getNumberOfColumns } from '../jupyter_utils/mitosheet_utils';
+import { waitForIdle, createAndRunNotebookWithCells, typeInNotebookCell, waitForCodeToBeWritten } from '../jupyter_utils/jupyterlab_utils';
+
 import { Page } from '@playwright/test';
 
 test.describe.configure({ mode: 'parallel' });

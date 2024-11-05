@@ -23,7 +23,8 @@
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
-    "src/**/*.{ts,tsx}"
+    "src/**/*.{ts,tsx}",
+    "schema/*.json"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -63,7 +64,8 @@
     "@types/react-dom": "^18.0.10",
     "openai": "^4.1.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "vscode-diff": "^2.1.1"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^4.0.0",
@@ -102,7 +104,8 @@
   },
   "jupyterlab": {
     "extension": true,
-    "outputDir": "mito-ai/labextension"
+    "outputDir": "mito-ai/labextension",
+    "schemaDir": "schema"
   },
   "eslintIgnore": [
     "node_modules",

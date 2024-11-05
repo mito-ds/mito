@@ -89,7 +89,10 @@ def get_conversion_code(state: State, sheet_index: int, column_id: ColumnID, old
 
             datetime_params_string = get_param_dict_as_code(to_datetime_params, as_single_line=True)
 
-            return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], {datetime_params_string}, errors=\'coerce\')'
+            if datetime_params_string:
+                return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], {datetime_params_string}, errors=\'coerce\')'
+            else:
+                return f'{df_name}[{transpiled_column_header}] = pd.to_datetime({df_name}[{transpiled_column_header}], errors=\'coerce\')'
         elif is_timedelta_dtype(new_dtype):
             return f'{df_name}[{transpiled_column_header}] = pd.to_timedelta({df_name}[{transpiled_column_header}], errors=\'coerce\')'
     elif is_datetime_dtype(old_dtype):

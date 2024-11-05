@@ -1,0 +1,16 @@
+{
+    "jupyter.lab.shortcuts": [],
+    "title": "mito-ai",
+    "description": "mito-ai settings.",
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false,
+    "jupyter.lab.toolbars": {
+      "Cell": [
+        {
+          "name": "explain-code",
+          "command": "toolbar-button:explain-code"
+        }
+      ]
+    }
+}

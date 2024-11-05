@@ -16,10 +16,14 @@ REM install only the necessary browsers.
 if [%1]==[] npx playwright install chromium firefox chrome msedge else npx playwright install %1
 
 
-REM Navigate to the mitosheet directory and install dependencies
+REM Navigate to the mitosheet directory and install dependencies + build JS
 cd ../mitosheet
 pip install -e ".[test]"
+jlpm install
+jlpm run build
 
-REM Install and build npm packages
+REM Navigate to the mito-ai directory and install dependencies + build JS
+cd ../mito-a
+pip install -e ".[test]"
 jlpm install
 jlpm run build

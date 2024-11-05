@@ -5,11 +5,11 @@ on:
     branches: [ dev ]
     paths:
       - 'mitosheet/**'
+      - 'tests/**'
   pull_request:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
-
 jobs:
   test-mitosheet-frontend-jupyterlab:
     runs-on: ubuntu-20.04

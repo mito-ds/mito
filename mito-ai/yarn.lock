@@ -7926,6 +7926,7 @@ __metadata:
     stylelint-csstree-validator: ^3.0.0
     stylelint-prettier: ^4.0.0
     typescript: ~5.0.2
+    vscode-diff: ^2.1.1
     yjs: ^13.5.0
   languageName: unknown
   linkType: soft
@@ -10234,6 +10235,13 @@ __metadata:
   version: 1.0.3
   resolution: "validate.io-number@npm:1.0.3"
   checksum: 42418aeb6c969efa745475154fe576809b02eccd0961aad0421b090d6e7a12d23a3e28b0d5dddd2c6347c1a6bdccb82bba5048c716131cd20207244d50e07282
+  languageName: node
+  linkType: hard
+
+"vscode-diff@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "vscode-diff@npm:2.1.1"
+  checksum: 17c2493a79d7db1c56683ea8ac14c7999d4dfb6995c3254bca402eedaabf6da7055457c423ade4ed00389983faaf7f0b027ea479e04a040c1e7153b077ae5fbf
   languageName: node
   linkType: hard
 
