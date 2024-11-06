@@ -117,6 +117,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         className="message-edit-button"
                                         onClick={handleEditClick}
                                         style={{ cursor: 'pointer' }}
+                                        title="Edit message"
                                     >
                                         <PencilIcon />
                                     </button>
