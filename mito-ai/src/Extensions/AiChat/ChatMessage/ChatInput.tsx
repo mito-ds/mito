@@ -25,6 +25,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         e.preventDefault();
                         onSave(editedContent);
                     }
+                    // Escape key cancels editing
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        onCancel();
+                    }
                 }}
                 className="message-edit-textarea"
                 autoFocus
