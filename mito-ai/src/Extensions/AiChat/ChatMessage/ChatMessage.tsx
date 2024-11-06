@@ -67,7 +67,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             <div className={classNames(
                 "message",
                 { "message-user": message.role === 'user' },
-                { 'message-assistant': message.role === 'assistant' },
             )}>
                 <ChatInput
                     initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
