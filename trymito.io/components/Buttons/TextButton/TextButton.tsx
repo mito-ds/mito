@@ -1,4 +1,4 @@
-import { classNames } from '../../utils/classNames';
+import { classNames } from '../../../utils/classNames';
 import textButtonStyles from './TextButton.module.css'
 
 const TextButton = (props : {

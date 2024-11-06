@@ -13,6 +13,7 @@ export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER = 'plausible-event-name=
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA = 'plausible-event-name=install_docs_cta_pressed+location_excel_to_python_glossary_toc_cta'
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA = 'plausible-event-name=install_docs_cta_pressed+location_excel_to_python_glossary_in_content_cta'
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG = 'plausible-event-name=install_docs_cta_pressed+location_blog'
+export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FEATURE_SQUARES = 'plausible-event-name=install_docs_cta_pressed+location_feature_squares'
 
 // Copy the install instructions directly
 export const PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS = 'plausible-event-name=scrolled_to_install_instructions+location_title_card'
