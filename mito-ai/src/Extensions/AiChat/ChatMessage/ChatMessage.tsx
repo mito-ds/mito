@@ -10,6 +10,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
+import ChatInput from './ChatInput';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -41,31 +42,23 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     onUpdateMessage
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
-    const [editedContent, setEditedContent] = useState(
-        // When editing, remove the code block from message.
-        // ChatHistoryManager will re-add the code block.
-        (message.content as string).replace(/```[\s\S]*?```/g, '').trim()
-    );
 
     if (message.role !== 'user' && message.role !== 'assistant') {
-        // Filter out other types of messages, like system messages
-        return null
+        return null;
     }
 
-    const messageContentParts = splitStringWithCodeBlocks(message)
+    const messageContentParts = splitStringWithCodeBlocks(message);
 
     const handleEditClick = () => {
         setIsEditing(true);
     };
 
-    const handleSave = () => {
-        onUpdateMessage(messageIndex, editedContent);
+    const handleSave = (content: string) => {
+        onUpdateMessage(messageIndex, content);
         setIsEditing(false);
     };
 
     const handleCancel = () => {
-        // When canceling, remove the code block from the message.
-        setEditedContent((message.content as string).replace(/```[\s\S]*?```/g, '').trim());
         setIsEditing(false);
     };
 
@@ -76,24 +69,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 { "message-user": message.role === 'user' },
                 { 'message-assistant': message.role === 'assistant' },
             )}>
-                <textarea
-                    value={editedContent}
-                    onChange={(e) => setEditedContent(e.target.value)}
-                    onKeyDown={(e) => {
-                        // Enter key sends the message, but we still want to allow 
-                        // shift + enter to add a new line.
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSave()
-                        }
-                    }}
-                    className="message-edit-textarea"
-                    autoFocus
+                <ChatInput
+                    initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
                 />
-                <div className="message-edit-buttons">
-                    <button onClick={handleSave}>Save</button>
-                    <button onClick={handleCancel}>Cancel</button>
-                </div>
             </div>
         );
     }
