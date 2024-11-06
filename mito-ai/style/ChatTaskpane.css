@@ -95,6 +95,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     resize: vertical;
+    box-sizing: border-box;
 }
 
 .message-edit-buttons {
