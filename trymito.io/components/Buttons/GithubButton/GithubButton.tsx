@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import { useState } from 'react'
 import stylesGithubButton from './GithubButton.module.css'
 
 type GithubButtonVariant = 'Star' | 'Issue'

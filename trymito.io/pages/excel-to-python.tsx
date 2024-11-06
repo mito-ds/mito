@@ -12,7 +12,7 @@ import { classNames } from '../utils/classNames';
 import { getGlossaryPageInfo, getPageContentJsonArray, GlossaryPageInfo } from '../utils/excel-to-python';
 import Link from 'next/link';
 import PageTOC from '../components/Glossary/PageTOC/PageTOC';
-import TextButton from '../components/TextButton/TextButton';
+import TextButton from '../components/Buttons/TextButton/TextButton';
 import { PageContent } from '../excel-to-python-page-contents/types';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import CTAButtons from '../components/CTAButtons/CTAButtons';

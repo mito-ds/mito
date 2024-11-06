@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
 import translucentButtonStyles from './TranslucentButton.module.css'
-import { classNames } from '../../utils/classNames';
+import { classNames } from '../../../utils/classNames';
 
 const TranslucentButton = (props: {
     children: JSX.Element;

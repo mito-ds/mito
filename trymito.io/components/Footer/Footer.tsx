@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from "next/image"
 import footerStyle from './Footer.module.css'
 import pageStyle from '../../styles/Page.module.css'
-import { MITO_GITHUB_LINK } from '../GithubButton/GithubButton';
+import { MITO_GITHUB_LINK } from '../Buttons/GithubButton/GithubButton';
 import { JOBS_BOARD_LINK, MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 import { classNames } from '../../utils/classNames';
 

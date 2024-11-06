@@ -10,7 +10,7 @@ import titleStyles from '../../styles/Title.module.css';
 
 import Footer from '../../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../../components/Header/Header';
-import TextButton from '../../components/TextButton/TextButton';
+import TextButton from '../../components/Buttons/TextButton/TextButton';
 import { classNames } from '../../utils/classNames';
 
 import { GetStaticProps } from 'next';

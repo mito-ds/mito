@@ -4,10 +4,10 @@ import { useState } from "react"
 
 import headerStyles from './Header.module.css'
 import CloseButton from '../../public/CloseButton.png'
-import TranslucentButton from "../TranslucentButton/TranslucentButton"
-import GithubButton, { MITO_GITHUB_LINK } from "../GithubButton/GithubButton"
+import TranslucentButton from "../Buttons/TranslucentButton/TranslucentButton"
 import { classNames } from "../../utils/classNames"
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER } from "../../utils/plausible"
+import GithubButton, { MITO_GITHUB_LINK } from "../Buttons/GithubButton/GithubButton"
 
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'

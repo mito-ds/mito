@@ -15,7 +15,7 @@ import homeStyles from '../styles/Home.module.css'
 
 // Import Icons & Background Grid
 import { classNames } from '../utils/classNames';
-import ImageTextCard from '../components/ImageTextCard/ImageTextCard';
+import IconAndTextRow from '../components/IconAndTextRow/IconAndTextRow';
 import AuthenticateIcon from '../public/low-code-sql/AuthenticateIcon.svg';
 import EditIcon from '../public/low-code-sql/EditIcon.svg';
 import EmailIcon from '../public/low-code-sql/EmailIcon.svg';
@@ -114,22 +114,22 @@ const LowCodeSQL: NextPage = () => {
                     <h3 className={classNames(lowCodeSQLStyles.sql_python_card_title)}>
                         Use SQL to:
                     </h3>
-                    <ImageTextCard title={'Authenticate to data sources'} imageSrc={AuthenticateIcon} />
-                    <ImageTextCard title={'Select data for your analysis'} imageSrc={SelectIcon} />
-                    <ImageTextCard title={'Create dataframes in your notebook'} imageSrc={SpreadsheetIcon} />
-                    <ImageTextCard title={'Write data back to database'} imageSrc={EditIcon} />          
+                    <IconAndTextRow title={'Authenticate to data sources'} imageSrc={AuthenticateIcon} />
+                    <IconAndTextRow title={'Select data for your analysis'} imageSrc={SelectIcon} />
+                    <IconAndTextRow title={'Create dataframes in your notebook'} imageSrc={SpreadsheetIcon} />
+                    <IconAndTextRow title={'Write data back to database'} imageSrc={EditIcon} />          
                 </div>
                 <div className={classNames(lowCodeSQLStyles.sql_python_card_container, lowCodeSQLStyles.sql_python_card_container_light)}>
                     <h3 className={classNames(lowCodeSQLStyles.sql_python_card_title)}>
                         Use Python to:
                     </h3>
-                    <ImageTextCard title={'Explore, clean, and preprocess data'} imageSrc={ExploreIcon} />
-                    <ImageTextCard title={'Transform and analyze data'} imageSrc={EditIcon} />
-                    <ImageTextCard title={'Use filters, pivot tables & more'} imageSrc={FilterIcon} />
-                    <ImageTextCard title={'Visualize data'} imageSrc={WideGraphIcon} /> 
-                    <ImageTextCard title={'Export reports to Excel '} imageSrc={SpreadsheetIcon} /> 
-                    <ImageTextCard title={'Send emails'} imageSrc={EmailIcon} /> 
-                    <ImageTextCard title={'Schedule reports to execute '} imageSrc={ScheduleIcon} /> 
+                    <IconAndTextRow title={'Explore, clean, and preprocess data'} imageSrc={ExploreIcon} />
+                    <IconAndTextRow title={'Transform and analyze data'} imageSrc={EditIcon} />
+                    <IconAndTextRow title={'Use filters, pivot tables & more'} imageSrc={FilterIcon} />
+                    <IconAndTextRow title={'Visualize data'} imageSrc={WideGraphIcon} /> 
+                    <IconAndTextRow title={'Export reports to Excel '} imageSrc={SpreadsheetIcon} /> 
+                    <IconAndTextRow title={'Send emails'} imageSrc={EmailIcon} /> 
+                    <IconAndTextRow title={'Schedule reports to execute '} imageSrc={ScheduleIcon} /> 
                 </div>
             </section>
 
