@@ -36,8 +36,8 @@ export const editMitoAIMessage = async (
         await selectCell(page, activeCellIndex);
     }
     const messageLocator = page.locator('.message').nth(messageIndex);
-    await messageLocator.click();
-    await messageLocator.locator('.chat-input').nth(messageIndex).fill(message);
+    await messageLocator.getByRole('button', { name: 'Edit message' }).click();
+    await page.getByPlaceholder('Edit your message').fill(message);
     await page.keyboard.press('Enter');
     await waitForMitoAILoadingToDisappear(page);
 }
