@@ -1,7 +1,7 @@
 import { Feature, PlanType } from "../../pages/plans"
-import FeatureRow from "../FeatureRow/FeatureRow"
+import PlansFeatureRow from "./PlansFeatureRow"
 
-const FeatureSection = (props: {
+const PlansFeatureGroup = (props: {
     sectionTitle: string,
     mobilePlanDisplayed?: PlanType
     features: Feature[],
@@ -11,14 +11,14 @@ const FeatureSection = (props: {
     if (mobilePlanDisplayed !== undefined) {
         return (
             <>
-                <FeatureRow
+                <PlansFeatureRow
                     isHeader
                     rowLabel={props.sectionTitle} 
                     featureRowContent={[mobilePlanDisplayed]}
                 />
                 {props.features.map((f, idx) => {
                     return (
-                    <FeatureRow
+                    <PlansFeatureRow
                         key={idx}
                         rowLabel={f.feature} 
                         featureRowContent={[f.planSupport[mobilePlanDisplayed]]}
@@ -31,14 +31,14 @@ const FeatureSection = (props: {
     } else {
         return (
             <>
-                <FeatureRow
+                <PlansFeatureRow
                     isHeader
                     rowLabel={props.sectionTitle} 
                     featureRowContent={['Open Source', 'Pro', 'Enterprise']}
                 />
                 {props.features.map((f, idx) => {
                     return (
-                    <FeatureRow
+                    <PlansFeatureRow
                         key={idx}
                         rowLabel={f.feature} 
                         featureRowContent={[f.planSupport['Open Source'], f.planSupport['Pro'], f.planSupport['Enterprise']]}
@@ -51,4 +51,4 @@ const FeatureSection = (props: {
     }
 }
 
-export default FeatureSection; 
+export default PlansFeatureGroup; 

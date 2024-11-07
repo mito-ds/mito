@@ -10,7 +10,7 @@ import titleStyles from '../styles/Title.module.css';
 
 // Import Icons & Background Grid
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
-import { MITO_GITHUB_LINK } from '../components/GithubButton/GithubButton';
+import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import CCPAIcon from '../public/icon-squares/CCPAIcon.svg';
 import ComputerIcon from '../public/icon-squares/ComputerIcon.svg';
 import OpenSourceIcon from '../public/icon-squares/OpenSourceIcon.svg';

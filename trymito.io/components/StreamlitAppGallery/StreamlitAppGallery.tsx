@@ -1,4 +1,4 @@
-import StreamlitAppCard from "../StreamlitAppCard/StreamlitAppCard";
+import StreamlitAppCard from "./StreamlitAppCard";
 
 import streamlitAppGalleryStyles from './StreamlitAppGallery.module.css'
 import pageStyles from '../../styles/Page.module.css'

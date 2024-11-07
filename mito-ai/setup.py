@@ -86,7 +86,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "jupyterlab>=4.0.0,<5",
-        "openai",
+        "openai>=1.0.0"
     ],
     extras_require = {
         'deploy': [
