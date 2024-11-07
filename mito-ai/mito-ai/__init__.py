@@ -1,5 +1,6 @@
 from jupyter_server.utils import url_path_join
-from .OpenAICompletionHandler import OpenAICompletionHandler
+from .handlers import OpenAICompletionHandler, InlineCompletionHandler
+from .providers import OpenAIProvider
 from pathlib import Path
 import json
 
@@ -10,6 +11,7 @@ except ImportError:
     # in editable mode with pip. It is highly recommended to install
     # the package from a stable release or in editable mode: https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
     import warnings
+
     warnings.warn("Importing 'mito-ai' outside a proper installation.")
     __version__ = "dev"
 
@@ -20,11 +22,10 @@ HERE = Path(__file__).parent.resolve()
 with (HERE / "labextension" / "package.json").open() as fid:
     data = json.load(fid)
 
+
 def _jupyter_labextension_paths():
-    return [{
-        "src": "labextension",
-        "dest": "mito-ai"
-    }]
+    return [{"src": "labextension", "dest": "mito-ai"}]
+
 
 def _jupyter_server_extension_points():
     """
@@ -33,9 +34,11 @@ def _jupyter_server_extension_points():
     """
     return [{"module": "mito-ai"}]
 
-# Jupyter Server is the backend used by JupyterLab. A sever extension lets 
+
+# Jupyter Server is the backend used by JupyterLab. A sever extension lets
 # us add new API's to the backend, so we can do some processing that we don't
-# want to exist in the users's javascript. 
+# want to exist in the users's javascript.
+
 
 # For a further explanation of the Jupyter architecture watch the first 35 minutes
 # of this video: https://www.youtube.com/watch?v=9_-siU-_XoI
@@ -44,6 +47,16 @@ def _load_jupyter_server_extension(server_app):
     web_app = server_app.web_app
     base_url = web_app.settings["base_url"]
     route_pattern = url_path_join(base_url, "mito_ai", "completion")
-    handlers = [(route_pattern, OpenAICompletionHandler)]
+
+    provider = OpenAIProvider(config=server_app.config)
+
+    handlers = [
+        (route_pattern, OpenAICompletionHandler),
+        (
+            url_path_join(base_url, "mito-ai", "inline-completion"),
+            InlineCompletionHandler,
+            {"llm": provider},
+        ),
+    ]
     web_app.add_handlers(host_pattern, handlers)
-    web_app.log.info("Loaded the mito_ai server extension")
+    server_app.log.info("Loaded the mito_ai server extension")

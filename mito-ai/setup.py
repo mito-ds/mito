@@ -85,9 +85,12 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
+        "jinja2>=3.0.3",
         "jupyterlab>=4.0.0,<5",
         "openai>=1.0.0",
         'analytics-python',
+        "tornado>=6.2.0",
+        "traitlets>=5.6.0",
     ],
     extras_require = {
         'deploy': [
