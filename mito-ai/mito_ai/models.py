@@ -79,6 +79,7 @@ class InlineCompletionReply:
     list: InlineCompletionList
     # number of request for which we are replying
     reply_to: int
+    type: Literal["inline_completion"] = "inline_completion"
     error: Optional[CompletionError] = None
 
 

@@ -12,7 +12,7 @@ except ImportError:
     # the package from a stable release or in editable mode: https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
     import warnings
 
-    warnings.warn("Importing 'mito-ai' outside a proper installation.")
+    warnings.warn("Importing 'mito_ai' outside a proper installation.")
     __version__ = "dev"
 
 
@@ -32,7 +32,7 @@ def _jupyter_server_extension_points():
     Returns a list of dictionaries with metadata describing
     where to find the `_load_jupyter_server_extension` function.
     """
-    return [{"module": "mito-ai"}]
+    return [{"module": "mito_ai"}]
 
 
 # Jupyter Server is the backend used by JupyterLab. A sever extension lets
@@ -48,14 +48,12 @@ def _load_jupyter_server_extension(server_app):
     base_url = web_app.settings["base_url"]
     route_pattern = url_path_join(base_url, "mito_ai", "completion")
 
-    provider = OpenAIProvider(config=server_app.config)
-
     handlers = [
         (route_pattern, OpenAICompletionHandler),
         (
             url_path_join(base_url, "mito-ai", "inline-completion"),
             InlineCompletionHandler,
-            {"llm": provider},
+            {"config": server_app.config},
         ),
     ]
     web_app.add_handlers(host_pattern, handlers)

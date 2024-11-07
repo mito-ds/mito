@@ -7,7 +7,7 @@ import os
 
 HERE = Path(__file__).parent.resolve()
 package_json = json.loads(open('package.json').read())
-lab_path = Path(HERE, 'mito-ai', 'labextension')
+lab_path = Path(HERE, 'mito_ai', 'labextension')
 
 
 data_files_spec = [

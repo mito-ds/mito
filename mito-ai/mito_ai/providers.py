@@ -1,9 +1,9 @@
+import asyncio
+import logging
 import os
-import traceback
 from typing import AsyncGenerator, List, Optional, Union
 
 from jinja2 import Environment, DictLoader
-from jupyter_core.utils import run_sync
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Unicode, default
@@ -71,10 +71,6 @@ class OpenAIProvider(LoggingConfigurable):
             )
         )
 
-    def __del__(self):
-        if self._client:
-            run_sync(self._client.close)
-
     @default("api_key")
     def _api_key_default(self):
         return os.environ.get("OPENAI_API_KEY", "")
@@ -82,15 +78,16 @@ class OpenAIProvider(LoggingConfigurable):
     @property
     def client(self) -> AsyncOpenAI:
         if not self._client or self._client.is_closed():
-            self._client = run_sync(self._check_authentication)
+            self._client = AsyncOpenAI(api_key=self.api_key)
+
         return self._client
 
-    async def _check_authentication(self) -> AsyncOpenAI:
-        client = AsyncOpenAI(api_key=self.api_key)
-        # TODO we could actually make use of that list
-        async for _ in client.models.list():
-            break
-        return client
+    async def _check_authentication(self) -> None:
+        # # TODO implement this
+        # async for _ in client.models.list():
+        #     logging.getLogger("ServerApp").info("%s", _)
+        #     break
+        ...
 
     def _get_messages(
         self, request: InlineCompletionRequest
@@ -108,15 +105,22 @@ class OpenAIProvider(LoggingConfigurable):
             },
         ]
 
-    async def request_completions(self, request: InlineCompletionRequest) -> InlineCompletionReply:
+    def get_token(self, request: InlineCompletionRequest) -> str:
+        return f"t{request.number}s0"
+
+    async def request_completions(
+        self, request: InlineCompletionRequest
+    ) -> InlineCompletionReply:
         # FIXME non-stream completion
         ...
 
     async def stream_completions(
         self, request: InlineCompletionRequest
-    ) -> AsyncGenerator[Union[InlineCompletionReply, InlineCompletionStreamChunk]]:
+    ) -> AsyncGenerator[
+        Union[InlineCompletionReply, InlineCompletionStreamChunk], None
+    ]:
         # FIXME analyze usefulness
-        token = f"t{request.number}s0"
+        token = self.get_token(request)
         # FIXME why not streaming only the delta?
         suggestion = processed_suggestion = ""
 

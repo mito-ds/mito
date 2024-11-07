@@ -58,16 +58,10 @@ class OpenAICompletionHandler(APIHandler):
 
 
 class InlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler):
-    def initialize(self, llm: OpenAIProvider):
+    def initialize(self, config):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
-        self._llm = llm
-        self._bg_tasks: List[asyncio.Task] = []
-
-    def __del__(self):
-        all_tasks = asyncio.gather(*self._bg_tasks, return_exceptions=True)
-        all_tasks.cancel()
-        asyncio.shield(asyncio.wait_for(all_tasks, timeout=5))
+        self._llm = OpenAIProvider(config=config)
 
     async def pre_get(self):
         """Handles authentication/authorization."""
@@ -102,32 +96,13 @@ class InlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler
             self.log.error("Invalid inline completion request.", exc_info=e)
             return
 
-        # next, dispatch the request to the correct handler and create the
-        # `handle_request` coroutine object
-        handle_request = None
-        if request.stream:
-            try:
-                handle_request = self._handle_stream_request(request)
-            except NotImplementedError:
-                self.log.error(
-                    "Unable to handle stream request. The current `InlineCompletionHandler` does not implement the `handle_stream_request()` method."
-                )
-                return
-
-        else:
-            handle_request = self._handle_request(request)
-
-        # finally, wrap `handle_request` in an exception handler, and start the
-        # task on the event loop.
-        async def handle_request_and_catch():
-            try:
-                await handle_request
-            except Exception as e:
-                await self.handle_exc(e, request)
-
-        task = asyncio.create_task(handle_request_and_catch())
-        task.add_done_callback(lambda t: self._bg_tasks.remove(t))
-        self._bg_tasks.append(task)
+        try:
+            if request.stream:
+                await self._handle_stream_request(request)
+            else:
+                await self._handle_request(request)
+        except Exception as e:
+            await self.handle_exc(e, request)
 
     async def handle_exc(self, e: Exception, request: InlineCompletionRequest):
         """
@@ -140,13 +115,26 @@ class InlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler
             title=e.args[0] if e.args else "Exception",
             traceback=traceback.format_exc(),
         )
-        self.reply(
-            InlineCompletionReply(
+        if request.stream:
+            reply = InlineCompletionStreamChunk(
+                response=InlineCompletionItem(
+                    insertText="", isIncomplete=True, token=self._get_token(request)
+                ),
+                reply_to=request.number,
+                done=True,
+                error=error,
+            )
+        else:
+            reply = InlineCompletionReply(
                 list=InlineCompletionList(items=[]),
                 error=error,
                 reply_to=request.number,
             )
-        )
+        self.reply(reply)
+
+    def _get_token(self, request: InlineCompletionRequest) -> str:
+        """Get the request token."""
+        return self._llm.get_token(request)
 
     async def _handle_request(self, request: InlineCompletionRequest) -> None:
         """Handle completion request."""
@@ -159,7 +147,7 @@ class InlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler
     async def _handle_stream_request(self, request: InlineCompletionRequest) -> None:
         """Handle stream completion request."""
         start = time.time()
-        async for reply in self.llm.stream_inline_completions(request):
+        async for reply in self._llm.stream_completions(request):
             self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Inline completion streaming completed in {latency_ms} ms.")
