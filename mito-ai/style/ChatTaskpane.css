@@ -87,17 +87,6 @@
     border: none;
 }
 
-.message-edit-textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: vertical;
-    box-sizing: border-box;
-}
-
 .message-edit-buttons {
     display: flex;
     gap: 8px;

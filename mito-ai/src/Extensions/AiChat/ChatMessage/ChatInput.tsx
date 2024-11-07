@@ -1,45 +1,75 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { classNames } from '../../../utils/classNames';
 
 interface ChatInputProps {
     initialContent: string;
+    placeholder: string;
     onSave: (content: string) => void;
-    onCancel: () => void;
+    onCancel?: () => void ;
+    isEditing: boolean;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
     initialContent,
+    placeholder,
     onSave,
-    onCancel
+    onCancel,
+    isEditing
 }) => {
-    const [editedContent, setEditedContent] = React.useState(initialContent);
+    const [input, setInput] = React.useState(initialContent);
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // TextAreas cannot automatically adjust their height based on the content that they contain, 
+    // so instead we re-adjust the height as the content changes here. 
+    const adjustHeight = () => {
+        const textarea = textAreaRef?.current;
+        if (!textarea) {
+            return
+        }
+        textarea.style.height = 'auto';
+
+        // The height should be 20 at minimum to support the placeholder
+        const height = textarea.scrollHeight < 20 ? 20 : textarea.scrollHeight
+        textarea.style.height = `${height}px`;
+    };
+
+    useEffect(() => {
+        adjustHeight();
+    }, [textAreaRef?.current?.value]);
 
     return (
         <>
             <textarea
-                value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
+                ref={textAreaRef}
+                className={classNames("message", "message-user", 'chat-input')}
+                placeholder={placeholder}
+                value={input}
+                onChange={(e) => { setInput(e.target.value) }}
                 onKeyDown={(e) => {
                     // Enter key sends the message, but we still want to allow 
                     // shift + enter to add a new line.
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        onSave(editedContent);
+                        onSave(input)
+                        setInput('')
                     }
                     // Escape key cancels editing
                     if (e.key === 'Escape') {
                         e.preventDefault();
-                        onCancel();
+                        if (onCancel) {
+                            onCancel();
+                        }
                     }
                 }}
-                className="message-edit-textarea"
-                autoFocus
             />
-            <div className="message-edit-buttons">
-                <button onClick={() => onSave(editedContent)}>Save</button>
-                <button onClick={onCancel}>Cancel</button>
-            </div>
+            {isEditing && 
+                <div className="message-edit-buttons">
+                    <button onClick={() => onSave(input)}>Save</button>
+                    <button onClick={onCancel}>Cancel</button>
+                </div>
+            }
         </>
-    );
+    )
 };
 
 export default ChatInput;

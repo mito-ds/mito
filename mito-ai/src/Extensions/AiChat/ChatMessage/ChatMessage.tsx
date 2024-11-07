@@ -39,7 +39,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     setDisplayCodeDiff,
     acceptAICode,
     rejectAICode,
-    onUpdateMessage
+    onUpdateMessage,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -70,8 +70,10 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             )}>
                 <ChatInput
                     initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
+                    placeholder={"Edit your message"}
                     onSave={handleSave}
                     onCancel={handleCancel}
+                    isEditing={isEditing}
                 />
             </div>
         );
