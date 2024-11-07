@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
-import { classNames } from '../../utils/classNames';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, writeCodeToActiveCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -22,6 +21,7 @@ import { CodeCell } from '@jupyterlab/cells';
 import { StateEffect, Compartment } from '@codemirror/state';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import OpenAI from "openai";
+import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
@@ -46,9 +46,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     app,
     operatingSystem
 }) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [input, setInput] = useState('');
-
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, variableManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
@@ -80,25 +77,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         chatHistoryManagerRef.current = chatHistoryManager;
     }, [chatHistoryManager]);
-
-    // TextAreas cannot automatically adjust their height based on the content that they contain, 
-    // so instead we re-adjust the height as the content changes here. 
-    const adjustHeight = () => {
-        const textarea = textareaRef.current;
-        if (!textarea) {
-            return
-        }
-        textarea.style.minHeight = 'auto';
-
-        // The height should be 20 at minimum to support the placeholder
-        const minHeight = textarea.scrollHeight < 20 ? 20 : textarea.scrollHeight
-        textarea.style.minHeight = `${minHeight}px`;
-    };
-
-    useEffect(() => {
-        adjustHeight();
-    }, [input]);
-
     
 
     const getDuplicateChatHistoryManager = () => {
@@ -145,7 +123,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async () => {
+    const sendChatInputMessage = async (input: string) => {
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -158,9 +136,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         updateCodeDiffStripes(aiMessage)
     }
 
+    const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
+        // Step 1: Update the chat history manager
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
+
+        // Step 2: Send the message to the AI
+        const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
+
+        // Step 3: Update the code diff stripes
+        updateCodeDiffStripes(aiMessage)
+    };
+
     const _sendMessageToOpenAI = async (newChatHistoryManager: ChatHistoryManager) => {
 
-        setInput('');
         setLoadingAIResponse(true)
 
         let aiRespone = undefined
@@ -352,7 +341,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [unifiedDiffLines, updateCodeCellsExtensions]);
 
 
-    const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
+    const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()    
 
     return (
         <div className="chat-taskpane">
@@ -387,6 +376,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             setDisplayCodeDiff={setUnifiedDiffLines}
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
+                            onUpdateMessage={handleUpdateMessage}
                         />
                     )
                 }).filter(message => message !== null)}
@@ -396,20 +386,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     Loading AI Response <LoadingDots />
                 </div>
             }
-            <textarea
-                ref={textareaRef}
-                className={classNames("message", "message-user", 'chat-input')}
+            <ChatInput
+                initialContent={''}
                 placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
-                value={input}
-                onChange={(e) => { setInput(e.target.value) }}
-                onKeyDown={(e) => {
-                    // Enter key sends the message, but we still want to allow 
-                    // shift + enter to add a new line.
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendChatInputMessage()
-                    }
-                }}
+                onSave={sendChatInputMessage}
+                onCancel={undefined}
+                isEditing={false}
             />
         </div>
     );

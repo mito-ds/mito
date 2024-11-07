@@ -81,3 +81,25 @@
 .message-text {
     align-items: center;
 }
+
+.message-edit-button {
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+}
+
+.message-edit-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.message-edit-buttons button {
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.message-edit-buttons button:hover {
+    background: #f0f0f0;
+}
