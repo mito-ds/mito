@@ -35,16 +35,14 @@ test.describe('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
-  test.only('Edit Message', async ({ page }) => {
+  test('Edit Message', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
     
     // Send the first message
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
     await page.getByRole('button', { name: 'Apply' }).click();
-    console.log('1')
     await waitForIdle(page);
-    console.log('2')
 
     // Send the second message
     await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
@@ -58,6 +56,10 @@ test.describe('Mito AI Chat', () => {
 
     const code = await getCodeFromCell(page, 1);
     expect(code).toContain('df["C_edited"] = [7, 8, 9]');
+
+    // Ensure previous messages are removed.
+    const messageAssistantDivs = await page.locator('.message.message-assistant').count();
+    expect(messageAssistantDivs).toBe(1);
   });
 
   test('Code Diffs are applied', async ({ page }) => {
