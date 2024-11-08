@@ -1,5 +1,9 @@
 import { IJupyterLabPageFixture } from "@jupyterlab/galata";
 
+export const runCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+    await page.notebook.runCell(cellIndex);
+    await waitForIdle(page);
+}
 
 export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture, cellContents: string[]) => {
     const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
