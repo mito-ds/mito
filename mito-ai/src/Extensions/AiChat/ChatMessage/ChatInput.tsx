@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
+import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 
 interface ChatInputProps {
     initialContent: string;
@@ -7,6 +8,7 @@ interface ChatInputProps {
     onSave: (content: string) => void;
     onCancel?: () => void ;
     isEditing: boolean;
+    variableManager?: IVariableManager;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -14,7 +16,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     placeholder,
     onSave,
     onCancel,
-    isEditing
+    isEditing,
+    variableManager
 }) => {
     const [input, setInput] = React.useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -32,6 +35,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const minHeight = textarea.scrollHeight < 20 ? 20 : textarea.scrollHeight
         textarea.style.height = `${minHeight}px`;
     };
+
+    const handleVariableManagerClick = () => {
+        console.log('variableManager', variableManager)
+        variableManager?.variables.map((variable) => {
+            console.log('name', variable.variable_name)
+            console.log('type', variable.type)
+            console.log('value', variable.value)
+        })
+    }
 
     useEffect(() => {
         adjustHeight();
@@ -67,6 +79,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     <button onClick={() => onSave(input)}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
+            }
+            {variableManager && 
+                <button onClick={handleVariableManagerClick}>
+                    Open Variable Manager
+                </button>
             }
         </>
     )

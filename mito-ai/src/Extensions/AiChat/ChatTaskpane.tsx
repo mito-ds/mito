@@ -397,6 +397,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 onSave={sendChatInputMessage}
                 onCancel={undefined}
                 isEditing={false}
+                variableManager={variableManager}
             />
         </div>
     );
