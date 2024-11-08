@@ -29,12 +29,20 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     rendermime,
     notebookTracker,
     app,
+    code,
+    role,
+    rendermime,
+    notebookTracker,
+    app,
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
     acceptAICode,
     rejectAICode
 }): JSX.Element => {
+
+    console.log("Input >>>>>>>> \n", code);
+
 
     const notebookName = getNotebookName(notebookTracker)
 
@@ -44,6 +52,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     }
 
     if (role === 'user') {
+        console.log("User code: ", code);
         return (
             <div className='code-message-part-container'>
                 <PythonCode
@@ -55,6 +64,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     }
 
     if (role === 'assistant') {
+        console.log("Assitant code: ", code);
         return (
             <div className='code-message-part-container'>
                 <div className='code-message-part-toolbar'>
