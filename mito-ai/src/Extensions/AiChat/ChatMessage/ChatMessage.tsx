@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -9,7 +9,8 @@ import ErrorIcon from '../../../icons/ErrorIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
-
+import PencilIcon from '../../../icons/Pencil';
+import ChatInput from './ChatInput';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -20,14 +21,15 @@ interface IChatMessageProps {
     app: JupyterFrontEnd
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
-    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined >>;
+    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
     acceptAICode: () => void
     rejectAICode: () => void
+    onUpdateMessage: (messageIndex: number, newContent: string) => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
-    message, 
-    messageIndex, 
+    message,
+    messageIndex,
     mitoAIConnectionError,
     notebookTracker,
     rendermime,
@@ -36,20 +38,52 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     operatingSystem,
     setDisplayCodeDiff,
     acceptAICode,
-    rejectAICode
+    rejectAICode,
+    onUpdateMessage,
 }): JSX.Element | null => {
+    const [isEditing, setIsEditing] = useState(false);
+
     if (message.role !== 'user' && message.role !== 'assistant') {
-        // Filter out other types of messages, like system messages
-        return null
+        return null;
     }
 
-    const messageContentParts = splitStringWithCodeBlocks(message)
+    const messageContentParts = splitStringWithCodeBlocks(message);
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleSave = (content: string) => {
+        onUpdateMessage(messageIndex, content);
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+    };
+
+    if (isEditing) {
+        return (
+            <div className={classNames(
+                "message",
+                { "message-user": message.role === 'user' },
+            )}>
+                <ChatInput
+                    initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
+                    placeholder={"Edit your message"}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
+                    isEditing={isEditing}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className={classNames(
-            "message", 
-            {"message-user" : message.role === 'user'},
-            {'message-assistant' : message.role === 'assistant'},
+            "message",
+            { "message-user": message.role === 'user' },
+            { 'message-assistant': message.role === 'assistant' },
         )}>
             {messageContentParts.map((messagePart, index) => {
                 console.log('messagePart', messagePart)
@@ -75,7 +109,24 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <p key={index + messagePart}>{mitoAIConnectionError && <span style={{marginRight: '4px'}}><ErrorIcon /></span>}{messagePart}</p>
+                        <div style={{ position: 'relative' }}>
+                            <p onDoubleClick={() => setIsEditing(true)}>
+                                {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
+                                {messagePart}
+                            </p>
+                            {message.role === 'user' && (
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                                    <button
+                                        className="message-edit-button"
+                                        onClick={handleEditClick}
+                                        style={{ cursor: 'pointer' }}
+                                        title="Edit message"
+                                    >
+                                        <PencilIcon />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     )
                 }
             })}
