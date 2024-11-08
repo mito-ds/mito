@@ -86,7 +86,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             { 'message-assistant': message.role === 'assistant' },
         )}>
             {messageContentParts.map((messagePart, index) => {
-                console.log('messagePart', messagePart)
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
                     // Make sure that there is actually code in the message. 
                     // An empty code will look like this '```python  ```'
