@@ -119,9 +119,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     */
     const sendDebugErrorMessage = async (errorMessage: string) => {
 
-        // Step 1: Add the user's message to the chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        // Step 1: Clear the chat history, and add the new error message
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
         newChatHistoryManager.addDebugErrorMessage(errorMessage)
+        setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
@@ -132,10 +133,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const sendExplainCodeMessage = () => {
 
-        // Step 1: Add the user's message to the chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        // Step 1: Clear the chat history, and add the explain code message
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
         newChatHistoryManager.addExplainCodeMessage()
-
+        setChatHistoryManager(newChatHistoryManager)
+        
         // Step 2: Send the message to the AI
         _sendMessageToOpenAI(newChatHistoryManager)
 
@@ -247,6 +249,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         originalCodeBeforeDiff.current = undefined
     }
 
+    const clearChatHistory = () => {
+        setChatHistoryManager(getDefaultChatHistoryManager(notebookTracker, variableManager))
+    }
+
     useEffect(() => {
         /* 
             Add a new command to the JupyterLab command registry that applies the latest AI generated code
@@ -295,7 +301,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 sendExplainCodeMessage()
             }
         })
-
     }, [])
 
     // Create a WeakMap to store compartments per code cell
@@ -367,9 +372,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <IconButton
                     icon={<ResetIcon />}
                     title="Clear the chat history"
-                    onClick={() => {
-                        setChatHistoryManager(getDefaultChatHistoryManager(notebookTracker, variableManager))
-                    }}
+                    onClick={() => {clearChatHistory()}}
                 />
             </div>
             <div className="chat-messages">

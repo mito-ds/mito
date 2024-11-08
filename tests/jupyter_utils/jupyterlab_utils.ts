@@ -32,10 +32,13 @@ export const waitForCodeToBeWritten = async (page: IJupyterLabPageFixture, cellI
     }
 }
 
-export const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string) => {
+export const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string, runAfterTyping?: boolean) => {
     await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
     await page.notebook.enterCellEditingMode(cellIndex);
     await page.notebook.setCell(cellIndex, 'code', cellValue);
+    if (runAfterTyping) {
+        await page.notebook.runCell(cellIndex);
+    }
 }
 
 export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {

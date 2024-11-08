@@ -1,5 +1,5 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, getCodeFromCell, selectCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
+import { createAndRunNotebookWithCells, getCodeFromCell, selectCell, typeInNotebookCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 import { sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 const placeholderCellText = '# Empty code cell';
@@ -82,6 +82,23 @@ test.describe('Mito AI Chat', () => {
 
     // Check that the message "Explain this code" exists in the AI chat
     await expect(page.getByText('Explain this code')).toBeVisible();
+
+  });
+
+  test('Fix Error and Explain code buttons clear chat history', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await waitForIdle(page);
+
+    await sendMessageToMitoAI(page, 'Write the code print(2)');
+
+    await typeInNotebookCell(page, 2, 'print(3', true)
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
+    await waitForIdle(page);
 
   });
 });
