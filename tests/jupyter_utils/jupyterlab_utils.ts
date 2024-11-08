@@ -1,5 +1,9 @@
 import { IJupyterLabPageFixture } from "@jupyterlab/galata";
 
+export const runCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+    await page.notebook.runCell(cellIndex);
+    await waitForIdle(page);
+}
 
 export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture, cellContents: string[]) => {
     const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
@@ -32,10 +36,13 @@ export const waitForCodeToBeWritten = async (page: IJupyterLabPageFixture, cellI
     }
 }
 
-export const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string) => {
+export const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string, runAfterTyping?: boolean) => {
     await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
     await page.notebook.enterCellEditingMode(cellIndex);
     await page.notebook.setCell(cellIndex, 'code', cellValue);
+    if (runAfterTyping) {
+        await page.notebook.runCell(cellIndex);
+    }
 }
 
 export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
