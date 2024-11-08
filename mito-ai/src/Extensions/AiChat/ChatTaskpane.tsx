@@ -343,8 +343,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()    
 
+    function getVariableManager() {
+        console.log('variableManager', variableManager)
+    }
+
     return (
         <div className="chat-taskpane">
+            <button onClick={getVariableManager}>Get Variable Manager</button>
             <div className="chat-taskpane-header">
                 <IconButton
                     icon={<SupportIcon />}
