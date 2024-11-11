@@ -138,7 +138,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 className={classNames("message", "message-user", 'chat-input')}
                 placeholder={placeholder}
                 value={input}
-                // onChange={(e) => { setInput(e.target.value) }}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
             />

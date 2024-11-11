@@ -377,6 +377,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
+                            variableManager={variableManager}
                         />
                     )
                 }).filter(message => message !== null)}
