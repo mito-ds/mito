@@ -93,12 +93,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 case 'ArrowDown':
                     event.preventDefault();
                     setSelectedIndex((prev) =>
-                        prev < filteredOptions.length - 1 ? prev + 1 : prev
+                        prev < filteredOptions.length - 1 ? prev + 1 : 0
                     );
                     break;
                 case 'ArrowUp':
                     event.preventDefault();
-                    setSelectedIndex((prev) => prev > 0 ? prev - 1 : prev);
+                    setSelectedIndex((prev) =>
+                        prev > 0 ? prev - 1 : filteredOptions.length - 1
+                    );
                     break;
                 case 'Enter':
                     event.preventDefault();
@@ -132,7 +134,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, [textAreaRef?.current?.value]);
 
     return (
-        <div>
+        <div style={{ position: 'relative' }}>
             <textarea
                 ref={textAreaRef}
                 className={classNames("message", "message-user", 'chat-input')}

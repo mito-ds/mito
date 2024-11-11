@@ -14,16 +14,13 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     return (
         <ul
             style={{
-                // position: "absolute",
-                // top: "100%",
-                // left: "0",
-                // right: "0",
-                // background: "white",
-                // border: "1px solid #ccc",
-                // borderRadius: "4px",
-                // listStyle: "none",
-                // padding: "0",
-                // margin: "4px 0 0 0",
+                position: "absolute",
+                border: "1px solid #ccc",
+                backgroundColor: "white",
+                listStyleType: "none",
+                padding: 0,
+                margin: 0,
+                width: "100%",
             }}
         >
             {options.map((option, index) => (
