@@ -95,32 +95,46 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }
         }, 0);
     };
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        // First check if dropdown is visible and handle those cases
+        if (isDropdownVisible) {
+            switch (event.key) {
+                case 'ArrowDown':
+                    event.preventDefault();
+                    setSelectedIndex((prev) =>
+                        prev < filteredOptions.length - 1 ? prev + 1 : prev
+                    );
+                    break;
+                case 'ArrowUp':
+                    event.preventDefault();
+                    setSelectedIndex((prev) => prev > 0 ? prev - 1 : prev);
+                    break;
+                case 'Enter':
+                    event.preventDefault();
+                    if (filteredOptions[selectedIndex]) {
+                        handleOptionSelect(filteredOptions[selectedIndex]);
+                    }
+                    break;
+                case 'Escape':
+                    setDropdownVisible(false);
+                    break;
+            }
+            return; // Exit early if we handled dropdown navigation
+        }
 
-    // const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    //     if (!isDropdownVisible) return;
 
-    //     switch (event.key) {
-    //         case 'ArrowDown':
-    //             event.preventDefault();
-    //             setSelectedIndex((prev) =>
-    //                 prev < filteredOptions.length - 1 ? prev + 1 : prev
-    //             );
-    //             break;
-    //         case 'ArrowUp':
-    //             event.preventDefault();
-    //             setSelectedIndex((prev) => prev > 0 ? prev - 1 : prev);
-    //             break;
-    //         case 'Enter':
-    //             event.preventDefault();
-    //             if (filteredOptions[selectedIndex]) {
-    //                 handleOptionSelect(filteredOptions[selectedIndex]);
-    //             }
-    //             break;
-    //         case 'Escape':
-    //             setDropdownVisible(false);
-    //             break;
-    //     }
-    // };
+        // Handle non-dropdown keyboard events
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            onSave(input)
+            setInput('')
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            if (onCancel) {
+                onCancel();
+            }
+        }
+    };
 
     useEffect(() => {
         adjustHeight();
@@ -135,22 +149,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 value={input}
                 // onChange={(e) => { setInput(e.target.value) }}
                 onChange={handleInputChange}
-                onKeyDown={(e) => {
-                    // Enter key sends the message, but we still want to allow 
-                    // shift + enter to add a new line.
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        onSave(input)
-                        setInput('')
-                    }
-                    // Escape key cancels editing
-                    if (e.key === 'Escape') {
-                        e.preventDefault();
-                        if (onCancel) {
-                            onCancel();
-                        }
-                    }
-                }}
+                onKeyDown={handleKeyDown}
             />
             {isEditing &&
                 <div className="message-edit-buttons">
