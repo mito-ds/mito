@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 
 import '../../../../style/PythonCode.css';
+import { addMarkdownCodeFormatting } from '../../../utils/strings';
 
 interface IPythonCodeProps {
   code: string;
@@ -9,31 +10,26 @@ interface IPythonCodeProps {
 }
 
 const PythonCode: React.FC<IPythonCodeProps> = ({ code, rendermime }) => {
-  const [renderedContent, setRenderedContent] = useState<JSX.Element | null>(null);
-
-  console.log('code', code);
+  const [node, setNode] = useState<Node | null>(null)
 
   useEffect(() => {
-    const renderMarkdown = async () => {
-      const model = new MimeModel({
-        data: { ['text/markdown']: code },
-      });
 
-      const renderer = rendermime.createRenderer('text/markdown');
-      await renderer.renderModel(model);
+    const model = new MimeModel({
+      data: { ['text/markdown']: addMarkdownCodeFormatting(code, true) },
+    });
 
-      const node = renderer.node;
-      setRenderedContent(<div ref={(el) => el && el.appendChild(node)} />);
-    };
+    const renderer = rendermime.createRenderer('text/markdown');
+    renderer.renderModel(model)
 
-    renderMarkdown();
-  }, [code, rendermime]);
+    const node = renderer.node
+    setNode(node)
+  }, [code, rendermime]) // Add dependencies to useEffect
 
-  return (
-    <div className='code-message-part-python-code'>
-      {renderedContent || <div>No content</div>}
-    </div>
-  );
+  if (node) {
+    return <div className='code-message-part-python-code' ref={(el) => el && el.appendChild(node)} />
+  } else {
+    return <div className='code-message-part-python-code' />
+  }
 };
 
 export default PythonCode;
