@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 
@@ -6,9 +6,9 @@ interface ChatInputProps {
     initialContent: string;
     placeholder: string;
     onSave: (content: string) => void;
-    onCancel?: () => void ;
+    onCancel?: () => void;
     isEditing: boolean;
-    variableManager?: IVariableManager;
+    variableManager: IVariableManager;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -20,6 +20,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     variableManager
 }) => {
     const [input, setInput] = React.useState(initialContent);
+    const [isDropdownVisible, setDropdownVisible] = useState(false);
+    const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
+    const [selectedIndex, setSelectedIndex] = useState(0);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
@@ -44,6 +47,80 @@ const ChatInput: React.FC<ChatInputProps> = ({
             console.log('value', variable.value)
         })
     }
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const value = event.target.value;
+        setInput(value);
+
+        const cursorPosition = event.target.selectionStart;
+        const textBeforeCursor = value.slice(0, cursorPosition);
+        const words = textBeforeCursor.split(/\s+/);
+        const currentWord = words[words.length - 1];
+
+        if (currentWord.startsWith("@")) {
+            const query = currentWord.slice(1);
+            const filtered = variableManager?.variables.filter((variable) => variable.variable_name.startsWith(query));
+            setFilteredOptions(filtered?.map(v => v.variable_name) || []);
+            setDropdownVisible(filtered?.length > 0 || false);
+            setSelectedIndex(0);
+        } else {
+            setDropdownVisible(false);
+        }
+    };
+
+    const handleOptionSelect = (username: string) => {
+        const textarea = document.querySelector('textarea');
+        if (!textarea) return;
+
+        const cursorPosition = textarea.selectionStart;
+        const textBeforeCursor = input.slice(0, cursorPosition);
+        const atIndex = textBeforeCursor.lastIndexOf("@");
+        const textAfterAt = input.slice(atIndex);
+        const endOfWord = textAfterAt.search(/[\s\n]|$/);
+
+        const newValue =
+            input.slice(0, atIndex) +
+            `@${username}` +
+            input.slice(atIndex + endOfWord);
+
+        setInput(newValue);
+        setDropdownVisible(false);
+
+        setTimeout(() => {
+            if (textarea) {
+                const newCursorPosition = atIndex + username.length + 1;
+                textarea.focus();
+                textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+            }
+        }, 0);
+    };
+
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (!isDropdownVisible) return;
+
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                setSelectedIndex((prev) =>
+                    prev < filteredOptions.length - 1 ? prev + 1 : prev
+                );
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                setSelectedIndex((prev) => prev > 0 ? prev - 1 : prev);
+                break;
+            case 'Enter':
+                event.preventDefault();
+                if (filteredOptions[selectedIndex]) {
+                    handleOptionSelect(filteredOptions[selectedIndex]);
+                }
+                break;
+            case 'Escape':
+                setDropdownVisible(false);
+                break;
+        }
+    };
 
     useEffect(() => {
         adjustHeight();
@@ -74,13 +151,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     }
                 }}
             />
-            {isEditing && 
+            {isEditing &&
                 <div className="message-edit-buttons">
                     <button onClick={() => onSave(input)}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }
-            {variableManager && 
+            {variableManager &&
                 <button onClick={handleVariableManagerClick}>
                     Open Variable Manager
                 </button>
