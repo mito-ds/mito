@@ -36,7 +36,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     rejectAICode
 }): JSX.Element => {
 
-
     const notebookName = getNotebookName(notebookTracker)
 
     const copyCodeToClipboard = () => {
