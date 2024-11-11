@@ -36,8 +36,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     rejectAICode
 }): JSX.Element => {
 
-    console.log("Input >>>>>>>> \n", code);
-
 
     const notebookName = getNotebookName(notebookTracker)
 
