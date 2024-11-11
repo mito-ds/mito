@@ -44,7 +44,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     }
 
     if (role === 'user') {
-        console.log("User code: ", code);
         return (
             <div className='code-message-part-container'>
                 <PythonCode
@@ -56,7 +55,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     }
 
     if (role === 'assistant') {
-        console.log("Assitant code: ", code);
         return (
             <div className='code-message-part-container'>
                 <div className='code-message-part-toolbar'>
