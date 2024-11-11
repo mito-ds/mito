@@ -60,7 +60,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    const handleOptionSelect = (username: string) => {
+    const handleOptionSelect = (variableName: string) => {
         const textarea = document.querySelector('textarea');
         if (!textarea) return;
 
@@ -72,7 +72,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         const newValue =
             input.slice(0, atIndex) +
-            `@${username}` +
+            `@${variableName}` +
             input.slice(atIndex + endOfWord);
 
         setInput(newValue);
@@ -80,7 +80,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + username.length + 1;
+                const newCursorPosition = atIndex + variableName.length + 1;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }

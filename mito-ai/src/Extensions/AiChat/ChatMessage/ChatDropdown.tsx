@@ -3,7 +3,7 @@ import React from 'react';
 interface ChatDropdownProps {
     options: string[];
     selectedIndex: number;
-    onSelect: (username: string) => void;
+    onSelect: (variableName: string) => void;
 }
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
