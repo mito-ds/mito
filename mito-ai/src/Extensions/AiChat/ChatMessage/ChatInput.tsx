@@ -40,15 +40,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         textarea.style.height = `${minHeight}px`;
     };
 
-    const handleVariableManagerClick = () => {
-        console.log('variableManager', variableManager)
-        variableManager?.variables.map((variable) => {
-            console.log('name', variable.variable_name)
-            console.log('type', variable.type)
-            console.log('value', variable.value)
-        })
-    }
-
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = event.target.value;
         setInput(value);
@@ -164,11 +155,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     onSelect={handleOptionSelect}
                 />
             )}
-            {variableManager &&
-                <button onClick={handleVariableManagerClick}>
-                    Open Variable Manager
-                </button>
-            }
         </div>
     )
 };
