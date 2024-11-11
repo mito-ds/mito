@@ -24,7 +24,6 @@ interface IChatMessageProps {
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
-    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
@@ -32,8 +31,6 @@ interface IChatMessageProps {
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
-    message,
-    messageIndex,
     message,
     messageIndex,
     mitoAIConnectionError,
