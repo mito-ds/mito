@@ -12,26 +12,12 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     onSelect,
 }) => {
     return (
-        <ul
-            style={{
-                position: "absolute",
-                border: "1px solid #ccc",
-                backgroundColor: "white",
-                listStyleType: "none",
-                padding: 0,
-                margin: 0,
-                width: "100%",
-            }}
-        >
+        <ul className="chat-dropdown-list">
             {options.map((option, index) => (
                 <li
                     key={option}
+                    className={`chat-dropdown-item ${index === selectedIndex ? 'selected' : ''}`}
                     onClick={() => onSelect(option)}
-                    style={{
-                        padding: "8px",
-                        cursor: "pointer",
-                        backgroundColor: index === selectedIndex ? '#e6e6e6' : 'white',
-                    }}
                 >
                     {option}
                 </li>
