@@ -116,6 +116,7 @@
     padding: 0;
     margin: 0;
     width: 100%;
+    z-index: 9999; /* Ensure the dropdown list is always on top */
 }
 
 .chat-dropdown-item {
