@@ -55,7 +55,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
                 variable.type !== "<class 'module'>"
             ) || [];
-            setFilteredOptions(filtered.map(v => ({ variable_name: v.variable_name, type: v.type })));
+            setFilteredOptions(filtered);
             setDropdownVisible(filtered.length > 0);
             setSelectedIndex(0);
         } else {
