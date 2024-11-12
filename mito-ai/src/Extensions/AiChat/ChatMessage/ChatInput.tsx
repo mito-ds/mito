@@ -52,7 +52,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         if (currentWord.startsWith("@")) {
             const query = currentWord.slice(1);
             const filtered = variableManager?.variables.filter((variable) =>
-                variable.variable_name.toLowerCase().includes(query.toLowerCase())
+                variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
+                variable.type !== "<class 'module'>"
             ) || [];
             setFilteredOptions(filtered.map(v => v.variable_name));
             setDropdownVisible(filtered.length > 0);
