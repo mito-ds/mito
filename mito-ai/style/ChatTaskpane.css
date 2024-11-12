@@ -132,3 +132,11 @@
 .chat-dropdown-item.selected {
     background-color: #e6e6e6;
 }
+
+.chat-dropdown-item-type {
+    display: inline-block;
+    font-weight: bolder;
+    color: #888;
+    width: 35px;
+    margin-right: 8px; 
+}

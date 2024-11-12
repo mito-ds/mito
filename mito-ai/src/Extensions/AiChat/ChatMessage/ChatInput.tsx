@@ -22,7 +22,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
     const [input, setInput] = React.useState(initialContent);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
-    const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
+    const [filteredOptions, setFilteredOptions] = useState<{ variable_name: string, type: string }[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -55,7 +55,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
                 variable.type !== "<class 'module'>"
             ) || [];
-            setFilteredOptions(filtered.map(v => v.variable_name));
+            setFilteredOptions(filtered.map(v => ({ variable_name: v.variable_name, type: v.type })));
             setDropdownVisible(filtered.length > 0);
             setSelectedIndex(0);
         } else {
@@ -108,7 +108,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 case 'Enter':
                     event.preventDefault();
                     if (filteredOptions[selectedIndex]) {
-                        handleOptionSelect(filteredOptions[selectedIndex]);
+                        handleOptionSelect(filteredOptions[selectedIndex].variable_name);
                     }
                     break;
                 case 'Escape':
