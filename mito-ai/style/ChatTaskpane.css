@@ -124,6 +124,10 @@
     background-color: white;
 }
 
+.chat-dropdown-item:hover {
+    background-color: #e6e6e6;
+}
+
 .chat-dropdown-item.selected {
     background-color: #e6e6e6;
 }
