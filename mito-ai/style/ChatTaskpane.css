@@ -143,3 +143,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.chat-dropdown-item-parent-df {
+    color: #888;
+    font-size: 12px;
+    margin-left: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

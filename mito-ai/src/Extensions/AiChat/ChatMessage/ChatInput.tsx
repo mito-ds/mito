@@ -13,7 +13,7 @@ interface ChatInputProps {
     variableManager?: IVariableManager;
 }
 
-interface ExpandedVariable extends Variable {
+export interface ExpandedVariable extends Variable {
     parent_df?: string;
 }
 

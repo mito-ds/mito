@@ -1,8 +1,8 @@
 import React from 'react';
-import { Variable } from '../../VariableManager/VariableInspector';
+import { ExpandedVariable } from './ChatInput';
 
 interface ChatDropdownProps {
-    options: Variable[];
+    options: ExpandedVariable[];
     selectedIndex: number;
     onSelect: (variableName: string) => void;
 }
@@ -32,6 +32,11 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                     <span className="chat-dropdown-item-name">
                         {option.variable_name}
                     </span>
+                    {option.parent_df && (
+                        <span className="chat-dropdown-item-parent-df">
+                            {option.parent_df}
+                        </span>
+                    )}
                 </li>
             ))}
         </ul>
