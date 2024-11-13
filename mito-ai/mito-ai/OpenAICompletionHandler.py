@@ -4,6 +4,7 @@ from jupyter_server.base.handlers import APIHandler
 from tornado import web
 import json
 from openai import OpenAI
+from .utils.get_open_ai_completion_new import get_open_ai_completion
 
 
 # This handler is responsible for the mito_ai/completion endpoint. 
@@ -17,24 +18,19 @@ class OpenAICompletionHandler(APIHandler):
         data = self.get_json_body()
         messages = data.get('messages', '')
 
-        # Get the OpenAI API key from environment variables
-        openai_api_key = os.getenv('OPENAI_API_KEY')
-        if not openai_api_key:
-            # If the API key is not set, return a 401 unauthorized error
-            self.set_status(401)
-            self.finish(json.dumps({"response": "OPENAI_API_KEY not set"}))
-            return
-
-        # Set up the OpenAI client
-        openai.api_key = openai_api_key
-        client = OpenAI()
+        print(" AARONHERE")
 
         try:
             # Query OpenAI API
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages
-            )
+            response = get_open_ai_completion(messages)
+            
+            # Set up the OpenAI client
+            # openai.api_key = openai_api_key
+            # client = OpenAI()
+            # response = client.chat.completions.create(
+            #     model="gpt-4o-mini",
+            #     messages=messages
+            # )
 
             response_dict = response.to_dict()
 
