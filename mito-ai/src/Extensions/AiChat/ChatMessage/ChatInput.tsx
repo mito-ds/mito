@@ -13,6 +13,10 @@ interface ChatInputProps {
     variableManager?: IVariableManager;
 }
 
+interface ExpandedVariable extends Variable {
+    parent_df?: string;
+}
+
 const ChatInput: React.FC<ChatInputProps> = ({
     initialContent,
     placeholder,
@@ -23,9 +27,34 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
     const [input, setInput] = useState(initialContent);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
-    const [filteredOptions, setFilteredOptions] = useState<Variable[]>([]);
+    const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
+    const [filteredOptions, setFilteredOptions] = useState<ExpandedVariable[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // By default the variable manager does not have series (cols).
+    // So everytime the variable manager is updated, we loop through and expand the variables.
+    useEffect(() => {
+        const expandedVariables: ExpandedVariable[] = variableManager?.variables.map(variable => ({
+            ...variable,
+            parent_df: undefined // only series (cols) will have a parent_df
+        })) || [];
+
+        // Get all the dataframes
+        const dfs = variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame")
+
+        // Get all the series (cols)
+        const series = dfs?.flatMap((df) =>
+            Object.entries(df.value).map(([seriesName, details]) => ({
+                variable_name: seriesName,
+                type: "col", // details.dtype,
+                value: "replace_me",
+                parent_df: df.variable_name,
+            }))) || []
+
+        expandedVariables.push(...series)
+        setExpandedVariables(expandedVariables)
+    }, [variableManager?.variables]);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
@@ -52,7 +81,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         if (currentWord.startsWith("@")) {
             const query = currentWord.slice(1);
-            const filtered = variableManager?.variables.filter((variable) =>
+            // const filtered = variableManager?.variables.filter((variable) =>
+            const filtered = expandedVariables.filter((variable) =>
                 variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
                 variable.type !== "<class 'module'>"
             ) || [];
