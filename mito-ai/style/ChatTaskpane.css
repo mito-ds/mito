@@ -139,4 +139,7 @@
     color: #888;
     width: 35px;
     margin-right: 8px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
