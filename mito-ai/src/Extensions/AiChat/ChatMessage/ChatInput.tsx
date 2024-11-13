@@ -81,10 +81,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         if (currentWord.startsWith("@")) {
             const query = currentWord.slice(1);
-            // const filtered = variableManager?.variables.filter((variable) =>
             const filtered = expandedVariables.filter((variable) =>
                 variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
                 variable.type !== "<class 'module'>"
+                // variable.type !== "col"
             ) || [];
             setFilteredOptions(filtered);
             setDropdownVisible(filtered.length > 0);
@@ -94,7 +94,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    const handleOptionSelect = (variableName: string) => {
+    const handleOptionSelect = (variableName: string, parentDf?: string) => {
         const textarea = document.querySelector('textarea');
         if (!textarea) return;
 
@@ -104,17 +104,25 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const textAfterAt = input.slice(atIndex);
         const endOfWord = textAfterAt.search(/[\s\n]|$/);
 
+        let variableNameWithBackticks: string;
+        if (!parentDf) {
+            variableNameWithBackticks = `\`${variableName}\``
+        } else {
+            // If there is a parent df, format it like so: `df['col']`
+            variableNameWithBackticks = `\`${parentDf}['${variableName}']\``
+        }
+
         const newValue =
             input.slice(0, atIndex) +
-            `\`${variableName}\`` +
+            variableNameWithBackticks +
             input.slice(atIndex + endOfWord);
-
         setInput(newValue);
+
         setDropdownVisible(false);
 
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + variableName.length + 3; // +3 for the backticks + space after 
+                const newCursorPosition = atIndex + variableNameWithBackticks.length + 1;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
@@ -140,7 +148,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 case 'Enter':
                     event.preventDefault();
                     if (filteredOptions[selectedIndex]) {
-                        handleOptionSelect(filteredOptions[selectedIndex].variable_name);
+                        handleOptionSelect(filteredOptions[selectedIndex].variable_name, filteredOptions[selectedIndex].parent_df);
                     }
                     break;
                 case 'Escape':

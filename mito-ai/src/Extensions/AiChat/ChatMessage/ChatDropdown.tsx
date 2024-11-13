@@ -4,7 +4,7 @@ import { ExpandedVariable } from './ChatInput';
 interface ChatDropdownProps {
     options: ExpandedVariable[];
     selectedIndex: number;
-    onSelect: (variableName: string) => void;
+    onSelect: (variableName: string, parentDf?: string) => void;
 }
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
@@ -24,7 +24,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 <li
                     key={option.variable_name}
                     className={`chat-dropdown-item ${index === selectedIndex ? 'selected' : ''}`}
-                    onClick={() => onSelect(option.variable_name)}
+                    onClick={() => onSelect(option.variable_name, option.parent_df)}
                 >
                     <span className="chat-dropdown-item-type">
                         {getShortType(option.type)}
