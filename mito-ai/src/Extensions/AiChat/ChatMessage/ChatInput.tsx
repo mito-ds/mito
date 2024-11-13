@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import ChatDropdown from './ChatDropdown';
+import { Variable } from '../../VariableManager/VariableInspector';
 
 interface ChatInputProps {
     initialContent: string;
@@ -20,9 +21,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     isEditing,
     variableManager
 }) => {
-    const [input, setInput] = React.useState(initialContent);
+    const [input, setInput] = useState(initialContent);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
-    const [filteredOptions, setFilteredOptions] = useState<{ variable_name: string, type: string }[]>([]);
+    const [filteredOptions, setFilteredOptions] = useState<Variable[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -89,6 +90,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }
         }, 0);
     };
+
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // First check if dropdown is visible and handle those cases
         if (isDropdownVisible) {
@@ -117,7 +119,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }
             return; // Exit early if we handled dropdown navigation
         }
-
 
         // Handle non-dropdown keyboard events
         switch (event.key) {

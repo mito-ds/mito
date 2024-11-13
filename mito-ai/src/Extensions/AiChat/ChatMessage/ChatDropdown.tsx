@@ -1,10 +1,8 @@
 import React from 'react';
+import { Variable } from '../../VariableManager/VariableInspector';
 
 interface ChatDropdownProps {
-    options: {
-        variable_name: string,
-        type: string,
-    }[];
+    options: Variable[];
     selectedIndex: number;
     onSelect: (variableName: string) => void;
 }
