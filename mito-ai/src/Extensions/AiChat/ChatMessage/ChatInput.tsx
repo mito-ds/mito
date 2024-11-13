@@ -75,7 +75,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         const newValue =
             input.slice(0, atIndex) +
-            `@${variableName}` +
+            `\`${variableName}\`` +
             input.slice(atIndex + endOfWord);
 
         setInput(newValue);
@@ -83,7 +83,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + variableName.length + 1;
+                const newCursorPosition = atIndex + variableName.length + 3; // +3 for the backticks + space after 
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
@@ -120,14 +120,45 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
 
         // Handle non-dropdown keyboard events
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            onSave(input)
-            setInput('')
-        } else if (event.key === 'Escape') {
-            event.preventDefault();
-            if (onCancel) {
-                onCancel();
+        switch (event.key) {
+            case 'Enter':
+                if (!event.shiftKey) {
+                    event.preventDefault();
+                    onSave(input)
+                    setInput('')
+                }
+                break;
+            case 'Escape':
+                event.preventDefault();
+                if (onCancel) {
+                    onCancel();
+                }
+                break;
+            case 'Backspace': {
+                // Handle backspace for deleting content between backticks
+                const textarea = event.currentTarget;
+                const cursorPosition = textarea.selectionStart;
+                const textBeforeCursor = input.slice(0, cursorPosition);
+
+                // Check if we're right after a closing backtick
+                if (textBeforeCursor.endsWith('`')) {
+                    const lastOpeningBacktick = textBeforeCursor.lastIndexOf('`', cursorPosition - 2);
+                    if (lastOpeningBacktick !== -1) {
+                        event.preventDefault();
+                        // Remove everything between and including the backticks
+                        const newValue =
+                            input.slice(0, lastOpeningBacktick) +
+                            input.slice(cursorPosition);
+                        setInput(newValue);
+
+                        // Set cursor position to where the opening backtick was
+                        setTimeout(() => {
+                            textarea.setSelectionRange(lastOpeningBacktick, lastOpeningBacktick);
+                        }, 0);
+                        return;
+                    }
+                }
+                break;
             }
         }
     };
