@@ -35,25 +35,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
     // By default the variable manager does not have series (cols).
     // So everytime the variable manager is updated, we loop through and expand the variables.
     useEffect(() => {
-        const expandedVariables: ExpandedVariable[] = variableManager?.variables.map(variable => ({
-            ...variable,
-            parent_df: undefined // only series (cols) will have a parent_df
-        })) || [];
+        // Start with an empty array
+        const expandedVariables: ExpandedVariable[] = [];
+        
+        // Add base variables (excluding DataFrames since we'll handle their columns separately)
+        const baseVariables = variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || [];
+        expandedVariables.push(...baseVariables);
 
-        // Get all the dataframes
-        const dfs = variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame")
+        // Get all the dataframes and their columns
+        const dfs = variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || [];
+        
+        // Add the DataFrame variables themselves
+        expandedVariables.push(...dfs);
 
-        // Get all the series (cols)
-        const series = dfs?.flatMap((df) =>
+        // Add series (columns) with their parent DataFrame references
+        const series = dfs.flatMap((df) =>
             Object.entries(df.value).map(([seriesName, details]) => ({
                 variable_name: seriesName,
-                type: "col", // details.dtype,
+                type: "col",
                 value: "replace_me",
                 parent_df: df.variable_name,
-            }))) || []
+            })));
 
-        expandedVariables.push(...series)
-        setExpandedVariables(expandedVariables)
+        expandedVariables.push(...series);
+        
+        // Update state with deduplicated variables
+        setExpandedVariables(expandedVariables);
     }, [variableManager?.variables]);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
@@ -83,14 +90,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
             const query = currentWord.slice(1);
             const filtered = expandedVariables.filter((variable) =>
                 variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
-                variable.type !== "<class 'module'>"
-                // variable.type !== "col"
+                variable.type !== "<class 'module'>" &&
+                variable.type !== "col"
             ) || [];
             setFilteredOptions(filtered);
             setDropdownVisible(filtered.length > 0);
             setSelectedIndex(0);
         } else {
             setDropdownVisible(false);
+            setFilteredOptions([]);
         }
     };
 
