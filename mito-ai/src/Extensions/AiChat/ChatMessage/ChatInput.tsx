@@ -37,14 +37,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
     useEffect(() => {
         // Start with an empty array
         const expandedVariables: ExpandedVariable[] = [];
-        
+
         // Add base variables (excluding DataFrames since we'll handle their columns separately)
         const baseVariables = variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || [];
         expandedVariables.push(...baseVariables);
 
         // Get all the dataframes and their columns
         const dfs = variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || [];
-        
+
         // Add the DataFrame variables themselves
         expandedVariables.push(...dfs);
 
@@ -58,8 +58,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             })));
 
         expandedVariables.push(...series);
-        
-        // Update state with deduplicated variables
         setExpandedVariables(expandedVariables);
     }, [variableManager?.variables]);
 
@@ -90,8 +88,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             const query = currentWord.slice(1);
             const filtered = expandedVariables.filter((variable) =>
                 variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
-                variable.type !== "<class 'module'>" &&
-                variable.type !== "col"
+                variable.type !== "<class 'module'>"
             ) || [];
             setFilteredOptions(filtered);
             setDropdownVisible(filtered.length > 0);
@@ -103,7 +100,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const handleOptionSelect = (variableName: string, parentDf?: string) => {
-        const textarea = document.querySelector('textarea');
+        const textarea = textAreaRef.current;
         if (!textarea) return;
 
         const cursorPosition = textarea.selectionStart;
