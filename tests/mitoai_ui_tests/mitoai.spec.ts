@@ -125,15 +125,11 @@ test.describe('Mito AI Chat', () => {
 
     await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
     await waitForIdle(page);
-
-    const messageCount = await page.locator('.message').count();
-    expect(messageCount).toBe(2);
+    await expect(page.locator('.message-assistant')).toHaveCount(2);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     await waitForIdle(page);
-
-    const newMessageCount = await page.locator('.message').count();
-    expect(newMessageCount).toBe(2);
+    await expect(page.locator('.message-assistant')).toHaveCount(3);
   });
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
