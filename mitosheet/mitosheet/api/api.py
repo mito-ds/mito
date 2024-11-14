@@ -55,7 +55,7 @@ MAX_QUEUED_API_CALLS = 3
 # so the API calls are handled in the main thread, to make printing easy.
 # In newer versions of JupyterLab, to see these print statements:
 # View > Show Log Console > in the console set Log Level to Debug
-THREADED = False
+THREADED = True
 
 
 def get_api_should_be_threaded() -> bool:
