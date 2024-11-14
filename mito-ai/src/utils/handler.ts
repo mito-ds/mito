@@ -1,11 +1,10 @@
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
-import OpenAI from 'openai';
 
 
 export type SuccessfulAPIResponse = {
     'type': 'success',
-    response: OpenAI.Chat.ChatCompletion
+    response: string
 }
 export type FailedAPIResponse = {
     type: 'error',
@@ -41,8 +40,8 @@ export async function requestAPI(
 
     // Merge default headers with any provided headers
     init.headers = {
-         ...defaultHeaders, 
-         ...init.headers,   
+        ...defaultHeaders, 
+        ...init.headers,   
     };
 
     // Make the request
@@ -85,7 +84,7 @@ export async function requestAPI(
         data = JSON.parse(data);
         return {
             type: 'success',
-            response: data
+            response: data['completion']
         }
     } catch (error) {
         console.error('Not a JSON response body.', response);

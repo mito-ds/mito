@@ -166,8 +166,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (apiResponse.type === 'success') {
 
-                const response = apiResponse.response;
-                const aiMessage = response.choices[0].message;
+                const aiCompletion = apiResponse.response;
+
+                // TODO: Do we need to be storing the entire chat history as actual OpenAI messages?
+                // If so, we should update the lambda funciton to return the entire message instead of
+                // just the content so we don't have to recreate the message here.
+                const aiMessage: OpenAI.Chat.Completions.ChatCompletionMessage = {
+                    role: 'assistant',
+                    content: aiCompletion,
+                    refusal: null
+                }
 
                 newChatHistoryManager.addAIMessageFromResponse(aiMessage);
                 setChatHistoryManager(newChatHistoryManager);
