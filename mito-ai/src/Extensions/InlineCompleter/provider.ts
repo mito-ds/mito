@@ -1,27 +1,28 @@
+import { Notification, showErrorMessage } from '@jupyterlab/apputils';
+import { IEditorMimeTypeService } from '@jupyterlab/codeeditor';
 import {
   IEditorLanguageRegistry,
   type IEditorLanguage
 } from '@jupyterlab/codemirror';
 import {
-  type IInlineCompletionProvider,
+  InlineCompletionTriggerKind,
   type CompletionHandler,
   type IInlineCompletionContext,
   type IInlineCompletionItem,
   type IInlineCompletionList,
-  InlineCompletionTriggerKind
+  type IInlineCompletionProvider
 } from '@jupyterlab/completer';
+import { DocumentWidget } from '@jupyterlab/docregistry';
+import { NotebookPanel } from '@jupyterlab/notebook';
+import type { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { type JSONValue } from '@lumino/coreutils';
+import type { IDisposable } from '@lumino/disposable';
+import { Signal, Stream } from '@lumino/signaling';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
 } from './client';
-import { Notification, showErrorMessage } from '@jupyterlab/apputils';
-import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { CompletionError, InlineCompletionStreamChunk } from './models';
-import type { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { IEditorMimeTypeService } from '@jupyterlab/codeeditor';
-import { NotebookPanel } from '@jupyterlab/notebook';
-import { DocumentWidget } from '@jupyterlab/docregistry';
-import type { IDisposable } from '@lumino/disposable';
 
 /**
  * Mito AI inline completer
@@ -37,19 +38,29 @@ export class MitoAIInlineCompleter
   private _languageRegistry: IEditorLanguageRegistry;
   private _settings: MitoAIInlineCompleter.ISettings =
     MitoAIInlineCompleter.DEFAULT_SETTINGS;
-  private _streamPromises: Map<
+  /**
+   * Map of stream chunk per completion token.
+   */
+  private _streamMap = new Map<
     string,
-    PromiseDelegate<InlineCompletionStreamChunk>
-  > = new Map();
+    Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>
+  >();
+  private _fullCompletionMap = new WeakMap<
+    Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>,
+    string
+  >();
 
-  constructor({ languageRegistry, ...others }: MitoAIInlineCompleter.IOptions) {
+  constructor({
+    languageRegistry,
+    ...clientOptions
+  }: MitoAIInlineCompleter.IOptions) {
     this._languageRegistry = languageRegistry;
-    this._client = new CompletionWebsocketClient(others);
+    this._client = new CompletionWebsocketClient(clientOptions);
 
     this._client
       .initialize()
       .then(() => {
-        this._client.streamed.connect(this._receiveStreamChunk, this);
+        this._client.stream.connect(this._receiveStreamChunk, this);
       })
       .catch(reason => {
         console.error(
@@ -59,13 +70,26 @@ export class MitoAIInlineCompleter
       });
   }
 
+  /**
+   * Completer unique identifier
+   */
   readonly identifier: string = 'mito-ai';
+
+  /**
+   * Completer name
+   */
   readonly name: string = 'Mito AI';
 
+  /**
+   * Whether the completer is disposed or not.
+   */
   get isDisposed(): boolean {
     return this._isDisposed;
   }
 
+  /**
+   * Settings schema contributed by provider for user customization.
+   */
   get schema(): ISettingRegistry.IProperty {
     return {
       properties: {
@@ -76,29 +100,43 @@ export class MitoAIInlineCompleter
             { const: 'any', title: 'Automatic (on typing or invocation)' },
             { const: 'manual', title: 'Only when invoked manually' }
           ],
-          description:
-            'When to trigger inline completions when using jupyter-ai.'
+          description: 'When to trigger inline completions when using mito-ai.'
         }
       },
       default: MitoAIInlineCompleter.DEFAULT_SETTINGS as any
     };
   }
 
+  /**
+   * Callback on user settings changes.
+   */
   async configure(settings: { [property: string]: JSONValue }): Promise<void> {
     this._settings = settings as unknown as MitoAIInlineCompleter.ISettings;
   }
 
+  /**
+   * Dispose of the resources used by the completer.
+   */
   dispose(): void {
     if (this._isDisposed) {
       return;
     }
     this._isDisposed = true;
-    this._client.streamed.disconnect(this._receiveStreamChunk, this);
+    this._client.stream.disconnect(this._receiveStreamChunk, this);
     this._client.dispose();
-    this._streamPromises.forEach(promise => promise.reject('Disposed'));
-    this._streamPromises.clear();
+    for (const stream of this._streamMap.values()) {
+      stream.stop();
+    }
+    this._streamMap.clear();
+    Signal.clearData(this);
   }
 
+  /**
+   * The method called when user requests inline completions.
+   *
+   * The implicit request (on typing) vs explicit invocation are distinguished
+   * by the value of `triggerKind` in the provided `context`.
+   */
   async fetch(
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
@@ -110,7 +148,7 @@ export class MitoAIInlineCompleter
       triggerKind !== InlineCompletionTriggerKind.Invoke
     ) {
       // Short-circuit if user requested to only invoke inline completions
-      // on manual trigger for jupyter-ai. Users may still get completions
+      // on manual trigger. Users may still get completions
       // from other (e.g. less expensive or faster) providers.
       return {
         items: []
@@ -140,10 +178,6 @@ export class MitoAIInlineCompleter
 
     const stream = true;
 
-    if (stream) {
-      // Reset stream promises handler
-      this._streamPromises.clear();
-    }
     const result = await this._client.sendMessage({
       path: context.session?.path,
       mime,
@@ -162,23 +196,47 @@ export class MitoAIInlineCompleter
         `Inline completion failed: ${error.type}\n${error.traceback}`
       );
     }
+
     return result.list;
   }
 
   /**
    * Stream a reply for completion identified by given `token`.
    */
-  async *stream(
-    token: string
-  ): AsyncGenerator<InlineCompletionStreamChunk, void, unknown> {
-    let done = false;
-    while (!done) {
-      const delegate = new PromiseDelegate<InlineCompletionStreamChunk>();
-      this._streamPromises.set(token, delegate);
-      const promise = delegate.promise;
-      yield promise;
-      done = (await promise).done;
+  async *stream(token: string): AsyncGenerator<{
+    response: IInlineCompletionItem;
+  }> {
+    const stream = this._getStream(token);
+
+    try {
+      for await (const chunk of stream) {
+        yield chunk;
+        if (chunk.done) {
+          // Break this for loop
+          stream.stop();
+        }
+      }
+    } finally {
+      this._streamMap.delete(token);
     }
+  }
+
+  /**
+   * Create a stream for a given completion.
+   *
+   * @param token Completion unique identifier
+   */
+  private _getStream(
+    token: string
+  ): Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk> {
+    let stream = this._streamMap.get(token);
+    if (!stream) {
+      stream = new Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>(
+        this
+      );
+      this._streamMap.set(token, stream);
+    }
+    return stream;
   }
 
   /**
@@ -218,25 +276,26 @@ export class MitoAIInlineCompleter
     _emitter: CompletionWebsocketClient,
     chunk: InlineCompletionStreamChunk
   ) {
-    // FIXME we need to merge the stream chunks
+    if (chunk.error) {
+      this._notifyCompletionFailure(chunk.error);
+    }
+
     const token = chunk.response.token;
     if (!token) {
-      throw Error('Stream chunks must return define `token` in `response`');
+      throw Error('Stream chunks must define `token` in `response`');
     }
-    const delegate = this._streamPromises.get(token);
-    if (!delegate) {
-      console.warn('Unhandled stream chunk');
-    } else {
-      if (chunk.error) {
-        this._notifyCompletionFailure(chunk.error);
-        delegate.reject(chunk.error);
-      } else {
-        delegate.resolve(chunk);
+    const stream = this._getStream(token);
+    let fullCompletion = this._fullCompletionMap.get(stream) ?? '';
+    fullCompletion += chunk.response.insertText;
+    this._fullCompletionMap.set(stream, fullCompletion);
+
+    stream.emit({
+      ...chunk,
+      response: {
+        ...chunk.response,
+        insertText: fullCompletion
       }
-      if (chunk.done) {
-        this._streamPromises.delete(token);
-      }
-    }
+    });
   }
 
   private _resolveLanguage(language: IEditorLanguage | null) {

@@ -1,8 +1,8 @@
-import { IDisposable } from '@lumino/disposable';
-import { PromiseDelegate } from '@lumino/coreutils';
-import { ServerConnection } from '@jupyterlab/services';
 import { URLExt } from '@jupyterlab/coreutils';
-import { Signal, ISignal } from '@lumino/signaling';
+import { ServerConnection } from '@jupyterlab/services';
+import { PromiseDelegate } from '@lumino/coreutils';
+import { IDisposable } from '@lumino/disposable';
+import { Signal, Stream, type IStream } from '@lumino/signaling';
 import type {
   CompleterMessage,
   InlineCompletionReply,
@@ -16,6 +16,9 @@ const SERVICE_URL = 'mito-ai/inline-completion';
  * The instantiation options for the inline completion client.
  */
 export interface ICompletionWebsocketClientOptions {
+  /**
+   * Jupyter server settings.
+   */
   serverSettings?: ServerConnection.ISettings;
 }
 
@@ -54,24 +57,26 @@ export class CompletionWebsocketClient implements IDisposable {
   sendMessage(
     message: InlineCompletionRequest
   ): Promise<InlineCompletionReply> {
-    return this._socket
-      ? new Promise(resolve => {
-          this._socket!.send(JSON.stringify(message));
-          this._replyForResolver.set(message.number, resolve);
-        })
-      : Promise.reject(
-          new Error('Inline completion websocket not initialized')
-        );
+    const pendingReply = new PromiseDelegate<InlineCompletionReply>();
+    if (this._socket) {
+      this._socket.send(JSON.stringify(message));
+      this._pendingRepliesMap.set(message.number, pendingReply);
+    } else {
+      pendingReply.reject(
+        new Error('Inline completion websocket not initialized')
+      );
+    }
+    return pendingReply.promise;
   }
 
   /**
-   * Signal emitted when a new chunk of completion is streamed.
+   * Completion chunk stream.
    */
-  get streamed(): ISignal<
+  get stream(): IStream<
     CompletionWebsocketClient,
     InlineCompletionStreamChunk
   > {
-    return this._streamed;
+    return this._stream;
   }
 
   /**
@@ -100,23 +105,30 @@ export class CompletionWebsocketClient implements IDisposable {
       socket.onclose = () => undefined;
       socket.close();
     }
+
+    this._stream.stop();
+    for (const resolver of this._pendingRepliesMap.values()) {
+      resolver.reject(new Error('Completion websocket client disposed'));
+    }
+    this._pendingRepliesMap.clear();
     Signal.clearData(this);
   }
 
   private _onMessage(message: CompleterMessage): void {
     switch (message.type) {
       case 'connection': {
-        this._initialized.resolve();
+        this._ready.resolve();
         break;
       }
       case 'stream': {
-        this._streamed.emit(message);
+        this._stream.emit(message);
         break;
       }
       default: {
-        if (this._replyForResolver.has(message.reply_to)) {
-          this._replyForResolver.get(message.reply_to)?.(message);
-          this._replyForResolver.delete(message.reply_to);
+        const resolver = this._pendingRepliesMap.get(message.reply_to);
+        if (resolver) {
+          resolver.resolve(message);
+          this._pendingRepliesMap.delete(message.reply_to);
         } else {
           console.warn('Unhandled message', message);
         }
@@ -124,14 +136,6 @@ export class CompletionWebsocketClient implements IDisposable {
       }
     }
   }
-
-  /**
-   * Dictionary mapping message IDs to Promise resolvers.
-   */
-  private _replyForResolver = new Map<
-    number,
-    (value: InlineCompletionReply) => void
-  >();
 
   private _onClose(e: CloseEvent, reject: (reason: unknown) => void) {
     reject(new Error('Inline completion websocket disconnected'));
@@ -152,7 +156,7 @@ export class CompletionWebsocketClient implements IDisposable {
       return;
     }
     const promise = new PromiseDelegate<void>();
-    this._initialized = promise;
+    this._ready = promise;
     console.log(
       'Creating a new websocket connection for mito-ai inline completions...'
     );
@@ -170,9 +174,16 @@ export class CompletionWebsocketClient implements IDisposable {
 
   private _isDisposed = false;
   private _socket: WebSocket | null = null;
-  private _streamed = new Signal<
+  private _stream = new Stream<
     CompletionWebsocketClient,
     InlineCompletionStreamChunk
   >(this);
-  private _initialized: PromiseDelegate<void> = new PromiseDelegate<void>();
+  private _ready: PromiseDelegate<void> = new PromiseDelegate<void>();
+  /**
+   * Dictionary mapping message IDs to Promise resolvers.
+   */
+  private _pendingRepliesMap = new Map<
+    number,
+    PromiseDelegate<InlineCompletionReply>
+  >();
 }
