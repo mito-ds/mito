@@ -92,8 +92,8 @@ class OpenAIProvider(LoggingConfigurable):
             },
             {
                 "role": "user",
-                "content": """Complete the following code responding only with additional code,
-and with no markdown formatting.""",
+                "content": """Complete the following code responding only with additional code, 
+code comments or docstrings, and with no markdown formatting.""",
             },
             {"role": "user", "content": inputs["prefix"]},
         ]
@@ -142,6 +142,7 @@ and with no markdown formatting.""",
         ] = await self.client.chat.completions.create(
             model=self.model,
             stream=True,
+            max_tokens=100,
             messages=self._get_messages(request),
         )
         async for chunk in stream:

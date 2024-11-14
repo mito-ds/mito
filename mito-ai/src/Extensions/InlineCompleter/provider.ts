@@ -141,6 +141,9 @@ export class MitoAIInlineCompleter
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    if (!this.isEnabled()) {
+      return Promise.reject('Mito AI completion is disabled.');
+    }
     const allowedTriggerKind = this._settings.triggerKind;
     const triggerKind = context.triggerKind;
     if (
@@ -201,11 +204,21 @@ export class MitoAIInlineCompleter
   }
 
   /**
+   * Whether the completer is enabled or not.
+   */
+  isEnabled(): boolean {
+    return this._settings.enabled;
+  }
+
+  /**
    * Stream a reply for completion identified by given `token`.
    */
   async *stream(token: string): AsyncGenerator<{
     response: IInlineCompletionItem;
   }> {
+    if (!this.isEnabled()) {
+      throw new Error('Mito AI completion is disabled.');
+    }
     const stream = this._getStream(token);
 
     try {
@@ -284,7 +297,10 @@ export class MitoAIInlineCompleter
     if (!token) {
       throw Error('Stream chunks must define `token` in `response`');
     }
-    const stream = this._getStream(token);
+    const stream = this._streamMap.get(token);
+    if (!stream) {
+      throw Error(`Stream not found for token ${token}`);
+    }
     let fullCompletion = this._fullCompletionMap.get(stream) ?? '';
     fullCompletion += chunk.response.insertText;
     this._fullCompletionMap.set(stream, fullCompletion);
@@ -321,9 +337,13 @@ export namespace MitoAIInlineCompleter {
 
   export interface ISettings {
     triggerKind: 'any' | 'manual';
+    debouncerDelay: number;
+    enabled: boolean;
   }
 
   export const DEFAULT_SETTINGS: ISettings = {
-    triggerKind: 'any'
+    triggerKind: 'any',
+    debouncerDelay: 250,
+    enabled: false
   };
 }
