@@ -79,6 +79,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                     : getShortType(option.type) === 'col' ? 'orange'
                                         : "green"
                             }}
+                            title={getShortType(option.type)}
                         >
                             {getShortType(option.type)}
                         </span>
