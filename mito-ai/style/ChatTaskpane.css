@@ -111,7 +111,7 @@
 .chat-dropdown-list {
     position: absolute;
     border: 0px;
-    border-radius: 8px;
+    border-radius: 5px;
     background-color: white;
     list-style-type: none;
     padding: 0;
@@ -127,11 +127,11 @@
 }
 
 .chat-dropdown-item:hover {
-    background-color: #e9e0fc;
+    background-color: #E9E0FD;
 }
 
 .chat-dropdown-item.selected {
-    background-color: #e9e0fc;
+    background-color: #E9E0FD;
 }
 
 .chat-dropdown-item-type {
