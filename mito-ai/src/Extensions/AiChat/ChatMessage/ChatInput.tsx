@@ -127,6 +127,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={(e) => {
+                    // If dropdown is visible, don't handle any keyboard events here
+                    if (isDropdownVisible) {
+                        return;
+                    }
+
                     // Enter key sends the message, but we still want to allow 
                     // shift + enter to add a new line.
                     if (e.key === 'Enter' && !e.shiftKey) {
