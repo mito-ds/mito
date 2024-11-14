@@ -1,13 +1,10 @@
-import asyncio
 import json
 import os
 import time
 import traceback
-from asyncio import AbstractEventLoop
 from dataclasses import asdict
 from http import HTTPStatus
-from logging import Logger
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Union
 
 import openai
 import tornado
