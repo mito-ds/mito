@@ -1,0 +1,183 @@
+import { expect, galata, test } from '@jupyterlab/galata';
+import { PromiseDelegate } from '@lumino/coreutils';
+
+/**
+ * Don't load JupyterLab webpage before running the tests.
+ * This is required to ensure we capture all log messages.
+ */
+test.use({
+  autoGoto: false,
+  mockSettings: {
+    ...galata.DEFAULT_SETTINGS,
+    '@jupyterlab/completer-extension:inline-completer': {
+      providers: {
+        '@jupyterlab/inline-completer:history': {
+          enabled: false,
+          timeout: 5000,
+          debouncerDelay: 0,
+          maxSuggestions: 100
+        },
+        'mito-ai': {
+          enabled: true,
+          timeout: 5000,
+          debouncerDelay: 250,
+          triggerKind: 'any'
+        }
+      }
+    }
+  }
+});
+
+test('should emit an activation console message', async ({ page, tmpPath }) => {
+  const replyDone = new PromiseDelegate<void>();
+  // Mock completion request with code prefix 'def fib'
+  await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, ws => {
+    ws.onMessage(message => {
+      const payload = JSON.parse(message as string);
+      const messageId = payload.number;
+      if (payload.prefix === 'def fib' && payload.stream) {
+        let counter = -1;
+        const streamReply = setInterval(() => {
+          if (++counter < MOCKED_MESSAGES.length) {
+            ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
+          } else {
+            clearInterval(streamReply);
+            replyDone.resolve();
+          }
+        }, 100);
+      } else {
+        ws.send(
+          JSON.stringify({
+            list: { items: [] },
+            reply_to: messageId,
+            type: 'inline_completion',
+            error: { type: 'ValueError', title: `Unknown request ${message}.` }
+          })
+        );
+      }
+    });
+  });
+
+  await page.goto(`tree/${tmpPath}`);
+  const filename = 'inline-completer.ipynb';
+  await page.notebook.createNew(filename);
+  await page.pause();
+  await page.notebook.setCell(0, 'code', 'def fib');
+
+  await replyDone.promise;
+
+  expect
+    .soft(await page.getByRole('main').screenshot())
+    .toMatchSnapshot('successful-inline-suggestion.png');
+
+  // FIXME keyboard shortcut works when testing this in debug mode
+  // need to figure out why it does not work in normal mode
+  // Note: waiting for timeout of 500ms was tried unsuccessfully
+  // await page.keyboard.press('Alt+End');
+
+  await page.evaluate(() =>
+    window.galata.app.commands.execute('inline-completer:accept')
+  );
+
+  expect(await page.getByRole('main').screenshot()).toMatchSnapshot(
+    'successful-inline-completion.png'
+  );
+});
+
+// Mocked messages to simulate the inline completion process
+const MOCKED_MESSAGES = [
+  {
+    list: {
+      items: [
+        {
+          insertText: '',
+          filterText: null,
+          isIncomplete: true,
+          token: 't1s0',
+          error: null
+        }
+      ]
+    },
+    parent_id: '1',
+    type: 'inline_completion',
+    error: null
+  },
+  {
+    response: {
+      insertText: '',
+      filterText: null,
+      isIncomplete: true,
+      token: 't1s0',
+      error: null
+    },
+    parent_id: '1',
+    done: false,
+    type: 'stream',
+    error: null
+  },
+  {
+    response: {
+      insertText: 'def',
+      filterText: null,
+      isIncomplete: true,
+      token: 't1s0',
+      error: null
+    },
+    parent_id: '1',
+    done: false,
+    type: 'stream',
+    error: null
+  },
+  {
+    response: {
+      insertText: ' fib',
+      filterText: null,
+      isIncomplete: true,
+      token: 't1s0',
+      error: null
+    },
+    parent_id: '1',
+    done: false,
+    type: 'stream',
+    error: null
+  },
+  {
+    response: {
+      insertText: '(n',
+      filterText: null,
+      isIncomplete: true,
+      token: 't1s0',
+      error: null
+    },
+    parent_id: '1',
+    done: false,
+    type: 'stream',
+    error: null
+  },
+  {
+    response: {
+      insertText: '):\n',
+      filterText: null,
+      isIncomplete: true,
+      token: 't1s0',
+      error: null
+    },
+    parent_id: '1',
+    done: false,
+    type: 'stream',
+    error: null
+  },
+  {
+    response: {
+      insertText: '    pass\n',
+      filterText: null,
+      isIncomplete: true,
+      token: 't1s0',
+      error: null
+    },
+    parent_id: '1',
+    done: true,
+    type: 'stream',
+    error: null
+  }
+];
