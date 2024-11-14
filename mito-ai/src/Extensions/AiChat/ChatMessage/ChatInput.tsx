@@ -27,42 +27,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
     const [input, setInput] = useState(initialContent);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
-    const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const [filteredOptions, setFilteredOptions] = useState<ExpandedVariable[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
-    // By default the variable manager does not have series (cols).
-    // So everytime the variable manager is updated, we loop through and expand the variables.
-    useEffect(() => {
-        // Start with an empty array
-        const expandedVariables: ExpandedVariable[] = [];
-
-        // Add base variables (excluding DataFrames since we'll handle their columns separately)
-        const baseVariables = variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || [];
-        expandedVariables.push(...baseVariables);
-
-        // Get all the dataframes and their columns
-        const dfs = variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || [];
-
-        // Add the DataFrame variables themselves
-        expandedVariables.push(...dfs);
-
-        // Add series (columns) with their parent DataFrame references
-        const series = dfs.flatMap((df) =>
-            Object.entries(df.value).map(([seriesName, details]) => ({
-                variable_name: seriesName,
-                type: "col",
-                value: "replace_me",
-                parent_df: df.variable_name,
-            })));
-
-        expandedVariables.push(...series);
-        setExpandedVariables(expandedVariables);
-    }, [variableManager?.variables]);
-
-    // TextAreas cannot automatically adjust their height based on the content that they contain, 
-    // so instead we re-adjust the height as the content changes here. 
     const adjustHeight = () => {
         const textarea = textAreaRef?.current;
         if (!textarea) {
@@ -86,6 +54,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         if (currentWord.startsWith("@")) {
             const query = currentWord.slice(1);
+            const expandedVariables: ExpandedVariable[] = [
+                // Add base variables (excluding DataFrames)
+                ...(variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
+                // Add DataFrames
+                ...(variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
+                // Add series with parent DataFrame references
+                ...(variableManager?.variables
+                    .filter((variable) => variable.type === "pd.DataFrame")
+                    .flatMap((df) =>
+                        Object.entries(df.value).map(([seriesName, details]) => ({
+                            variable_name: seriesName,
+                            type: "col",
+                            value: "replace_me",
+                            parent_df: df.variable_name,
+                        }))
+                    ) || [])
+            ];
+
             const filtered = expandedVariables.filter((variable) =>
                 variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
                 variable.type !== "<class 'module'>"
