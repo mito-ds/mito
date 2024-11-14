@@ -1,10 +1,11 @@
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
+import OpenAI from "openai";
 
 
 export type SuccessfulAPIResponse = {
     'type': 'success',
-    response: string
+    response: OpenAI.Chat.Completions.ChatCompletionMessage
 }
 export type FailedAPIResponse = {
     type: 'error',
@@ -82,9 +83,18 @@ export async function requestAPI(
 
     try {
         data = JSON.parse(data);
+        
+        // TODO: Update the lambda funciton to return the entire message instead of
+        // just the content so we don't have to recreate the message here.
+        const aiMessage: OpenAI.Chat.Completions.ChatCompletionMessage = {
+            role: 'assistant',
+            content: data['completion'],
+            refusal: null
+        }
+
         return {
             type: 'success',
-            response: data['completion']
+            response: aiMessage            
         }
     } catch (error) {
         console.error('Not a JSON response body.', response);
