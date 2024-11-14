@@ -9,7 +9,7 @@ export type ConnectionMessage = {
 };
 
 export type InlineCompletionRequest = {
-  number: number;
+  message_id: string;
   path?: string;
   /* The model has to complete given prefix */
   prefix: string;
@@ -30,14 +30,14 @@ export type CompletionError = {
 export type InlineCompletionReply = {
   type?: 'inline_completion';
   list: IInlineCompletionList;
-  reply_to: number;
+  parent_id: string;
   error?: CompletionError;
 };
 
 export type InlineCompletionStreamChunk = {
   type: 'stream';
   response: IInlineCompletionItem;
-  reply_to: number;
+  parent_id: string;
   done: boolean;
   error?: CompletionError;
 };

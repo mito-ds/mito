@@ -177,7 +177,7 @@ export class MitoAIInlineCompleter
     if (!path && context.widget instanceof DocumentWidget) {
       path = context.widget.context.path;
     }
-    const number = ++this._counter;
+    const messageId = ++this._counter;
 
     const stream = true;
 
@@ -187,7 +187,7 @@ export class MitoAIInlineCompleter
       prefix: this._getPrefix(request),
       suffix: this._getSuffix(request),
       language: this._resolveLanguage(language),
-      number,
+      message_id: messageId.toString(),
       stream,
       cell_id: cellId
     });
@@ -224,7 +224,7 @@ export class MitoAIInlineCompleter
     try {
       for await (const chunk of stream) {
         yield chunk;
-        if (chunk.done) {
+        if (chunk.done || chunk.error) {
           // Break this for loop
           stream.stop();
         }

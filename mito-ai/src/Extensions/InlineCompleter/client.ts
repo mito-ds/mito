@@ -60,7 +60,7 @@ export class CompletionWebsocketClient implements IDisposable {
     const pendingReply = new PromiseDelegate<InlineCompletionReply>();
     if (this._socket) {
       this._socket.send(JSON.stringify(message));
-      this._pendingRepliesMap.set(message.number, pendingReply);
+      this._pendingRepliesMap.set(message.message_id, pendingReply);
     } else {
       pendingReply.reject(
         new Error('Inline completion websocket not initialized')
@@ -125,10 +125,10 @@ export class CompletionWebsocketClient implements IDisposable {
         break;
       }
       default: {
-        const resolver = this._pendingRepliesMap.get(message.reply_to);
+        const resolver = this._pendingRepliesMap.get(message.parent_id);
         if (resolver) {
           resolver.resolve(message);
-          this._pendingRepliesMap.delete(message.reply_to);
+          this._pendingRepliesMap.delete(message.parent_id);
         } else {
           console.warn('Unhandled message', message);
         }
@@ -183,7 +183,7 @@ export class CompletionWebsocketClient implements IDisposable {
    * Dictionary mapping message IDs to Promise resolvers.
    */
   private _pendingRepliesMap = new Map<
-    number,
+    string,
     PromiseDelegate<InlineCompletionReply>
   >();
 }

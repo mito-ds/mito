@@ -120,7 +120,7 @@ class InlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler
                 response=InlineCompletionItem(
                     insertText="", isIncomplete=True, token=self._get_token(request)
                 ),
-                reply_to=request.number,
+                parent_id=request.message_id,
                 done=True,
                 error=error,
             )
@@ -128,7 +128,7 @@ class InlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler
             reply = InlineCompletionReply(
                 list=InlineCompletionList(items=[]),
                 error=error,
-                reply_to=request.number,
+                parent_id=request.message_id,
             )
         self.reply(reply)
 

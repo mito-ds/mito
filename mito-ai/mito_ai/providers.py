@@ -112,7 +112,7 @@ code comments or docstrings, and with no markdown formatting.""",
         return messages
 
     def get_token(self, request: InlineCompletionRequest) -> str:
-        return f"t{request.number}s0"
+        return f"t{request.message_id}s0"
 
     async def request_completions(
         self, request: InlineCompletionRequest
@@ -134,7 +134,7 @@ code comments or docstrings, and with no markdown formatting.""",
                     InlineCompletionItem(insertText="", isIncomplete=True, token=token)
                 ]
             ),
-            reply_to=request.number,
+            parent_id=request.message_id,
         )
 
         stream: AsyncStream[
@@ -148,7 +148,7 @@ code comments or docstrings, and with no markdown formatting.""",
         async for chunk in stream:
             is_finished = chunk.choices[0].finish_reason is not None
             yield InlineCompletionStreamChunk(
-                reply_to=request.number,
+                parent_id=request.message_id,
                 response=InlineCompletionItem(
                     insertText=chunk.choices[0].delta.content or "",
                     isIncomplete=True,
