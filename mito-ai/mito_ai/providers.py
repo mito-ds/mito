@@ -119,10 +119,8 @@ class OpenAIProvider(LoggingConfigurable):
     ) -> AsyncGenerator[
         Union[InlineCompletionReply, InlineCompletionStreamChunk], None
     ]:
-        # FIXME analyze usefulness
+        # Use by the frontend to reconciliate the completion with the request.
         token = self.get_token(request)
-        # FIXME why not streaming only the delta?
-        suggestion = processed_suggestion = ""
 
         yield InlineCompletionReply(
             list=InlineCompletionList(
@@ -144,7 +142,7 @@ class OpenAIProvider(LoggingConfigurable):
                 reply_to=request.number,
                 response=InlineCompletionItem(
                     insertText=chunk.choices[0].delta.content or "",
-                    isIncomplete=not is_finished,
+                    isIncomplete=True,
                     token=token,
                 ),
                 done=is_finished,
