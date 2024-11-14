@@ -126,6 +126,22 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 placeholder={placeholder}
                 value={input}
                 onChange={handleInputChange}
+                onKeyDown={(e) => {
+                    // Enter key sends the message, but we still want to allow 
+                    // shift + enter to add a new line.
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        onSave(input)
+                        setInput('')
+                    }
+                    // Escape key cancels editing
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        if (onCancel) {
+                            onCancel();
+                        }
+                    }
+                }}
             />
             {isEditing &&
                 <div className="message-edit-buttons">
