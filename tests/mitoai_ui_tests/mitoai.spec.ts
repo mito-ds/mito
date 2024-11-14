@@ -38,7 +38,7 @@ test.describe('Mito AI Chat', () => {
   test('Edit Message', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
-    
+
     // Send the first message
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
     await page.getByRole('button', { name: 'Apply' }).click();
@@ -134,19 +134,20 @@ test.describe('Mito AI Chat', () => {
 
     const newMessageCount = await page.locator('.message').count();
     expect(newMessageCount).toBe(2);
-    
+  });
+
   test('Variable dropdown shows correct variables', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await clickOnMitoAIChatTab(page);
-    
+
     // The fill() command doesn't trigger input events that the dropdown relies on
     // So we need to type it character by character instead
     await page.locator('.chat-input').click();
     await page.keyboard.type("Edit column @ap");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
-    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();    
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
   });
 });
 
