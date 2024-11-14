@@ -110,28 +110,28 @@
 
 .chat-dropdown-list {
     position: absolute;
-    border: 1px solid #ccc;
+    border: 0px;
+    border-radius: 8px;
     background-color: white;
     list-style-type: none;
     padding: 0;
     margin: 0;
     width: 100%;
     z-index: 9999;
-    /* Ensure the dropdown list is always on top */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .chat-dropdown-item {
     padding: 8px;
     cursor: pointer;
-    background-color: white;
 }
 
 .chat-dropdown-item:hover {
-    background-color: #e6e6e6;
+    background-color: #e9e0fc;
 }
 
 .chat-dropdown-item.selected {
-    background-color: #e6e6e6;
+    background-color: #e9e0fc;
 }
 
 .chat-dropdown-item-type {

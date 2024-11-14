@@ -60,8 +60,9 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     }
 
     return (
-        <ul className="chat-dropdown-list">
-            {filteredOptions.map((option, index) => {
+        <div className="chat-dropdown-container">
+            <ul className="chat-dropdown-list" >
+                {filteredOptions.map((option, index) => {
                 const uniqueKey = option.parent_df
                     ? `${option.parent_df}.${option.variable_name}`
                     : option.variable_name;
@@ -91,8 +92,9 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                         )}
                     </li>
                 );
-            })}
-        </ul>
+                })}
+            </ul>
+        </div>
     );
 };
 
