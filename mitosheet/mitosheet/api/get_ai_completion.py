@@ -67,18 +67,22 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
         headers = {
                 'Content-Type': 'application/json',
         }
+        print("AARON 2")
 
         try:
                 res = requests.post(MITO_AI_URL, headers=headers, json=data)
+                print("AARON 3")
         except:
                 return {
                         'error': f'There was an error accessing the Mito AI API. This is likely due to internet connectivity problems or a firewall.'
                 }
         
 
+        print('HERE 2')
         if res.status_code == 200:
                 __num_usages = __num_usages + 1
                 set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages + 1)
+                print('HERE')
                 return {
                         'user_input': user_input,
                         'prompt_version': PROMPT_VERSION,

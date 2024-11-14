@@ -1,5 +1,14 @@
 scratch*
 
+# Ignore all the ipynb files in mitosheet and mito-ai
+mitosheet/**/*.ipynb
+mito-ai/**/*.ipynb
+
+# Ignore all the iframe_figures in mitosheet and mito-ai
+# These get generated when creating plotly graphs
+mitosheet/iframe_figures/
+mito-ai/iframe_figures/
+
 # Mac Specific 
 
 ## General
