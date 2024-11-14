@@ -1,5 +1,5 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, getCodeFromCell, selectCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
+import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 import { clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 const placeholderCellText = '# Empty code cell';
@@ -112,6 +112,29 @@ test.describe('Mito AI Chat', () => {
 
   });
 
+  test('Fix Error and Explain code buttons clear chat history', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await waitForIdle(page);
+
+    await sendMessageToMitoAI(page, 'Write the code print(2)');
+    await page.getByRole('button', { name: 'Apply' }).click();
+    runCell(page, 1)
+
+    await typeInNotebookCell(page, 2, 'print(3', true)
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
+    await waitForIdle(page);
+
+    const messageCount = await page.locator('.message').count();
+    expect(messageCount).toBe(2);
+
+    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
+    await waitForIdle(page);
+
+    const newMessageCount = await page.locator('.message').count();
+    expect(newMessageCount).toBe(2);
+    
   test('Variable dropdown shows correct variables', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
     await waitForIdle(page);
@@ -123,7 +146,7 @@ test.describe('Mito AI Chat', () => {
     await page.locator('.chat-input').click();
     await page.keyboard.type("Edit column @ap");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
-    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();    
   });
 });
 

@@ -89,14 +89,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             { "message-user": message.role === 'user' },
             { 'message-assistant': message.role === 'assistant' },
         )}>
-            {messageContentParts.map(messagePart => {
+            {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
                     // Make sure that there is actually code in the message. 
                     // An empty code will look like this '```python  ```'
-                    // TODO: Add a test for this since its broke a few times now.
                     if (messagePart.length > 14) {
                         return (
                             <CodeBlock
+                                key={index + messagePart} 
                                 code={messagePart}
                                 role={message.role}
                                 rendermime={rendermime}
