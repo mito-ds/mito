@@ -5,19 +5,21 @@ interface ChatDropdownProps {
     options: ExpandedVariable[];
     onSelect: (variableName: string, parentDf?: string) => void;
     filterText: string;
+    maxDropdownItems?: number;
 }
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,
     onSelect,
     filterText,
+    maxDropdownItems = 10,
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const filteredOptions = options.filter((variable) =>
         variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
         variable.type !== "<class 'module'>"
-    );
+    ).slice(0, maxDropdownItems);
 
     useEffect(() => {
         setSelectedIndex(0);
