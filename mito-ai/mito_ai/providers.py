@@ -1,20 +1,18 @@
-import asyncio
-import logging
 import os
 from typing import AsyncGenerator, List, Optional, Union
 
-from jinja2 import Environment, DictLoader
+from jinja2 import DictLoader, Environment
 from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletionMessageParam
+from openai.types.chat import ChatCompletionMessageParam, ChatCompletionChunk
+from openai._streaming import AsyncStream
 from traitlets import Unicode, default
 from traitlets.config import LoggingConfigurable
 
 from .models import (
-    CompletionError,
     InlineCompletionItem,
     InlineCompletionList,
-    InlineCompletionRequest,
     InlineCompletionReply,
+    InlineCompletionRequest,
     InlineCompletionStreamChunk,
 )
 
@@ -33,19 +31,7 @@ interactive outputs.
 
 COMPLETION_DEFAULT_TEMPLATE = """
 The document is called `{{filename}}` and written in {{language}}.
-{% if suffix %}
-The code after the completion request is:
-
-```
-{{suffix}}
-```
-{% endif %}
-
-Complete the following code:
-
-```
-{{prefix}}
-```"""
+"""
 
 
 class OpenAIProvider(LoggingConfigurable):
@@ -92,7 +78,8 @@ class OpenAIProvider(LoggingConfigurable):
     def _get_messages(
         self, request: InlineCompletionRequest
     ) -> List[ChatCompletionMessageParam]:
-        return [
+        inputs = request.to_template_inputs()
+        messages = [
             {
                 "role": "system",
                 "content": self._templates.get_template("completion-system").render(),
@@ -100,10 +87,29 @@ class OpenAIProvider(LoggingConfigurable):
             {
                 "role": "user",
                 "content": self._templates.get_template("completion-human").render(
-                    request.to_template_inputs()
+                    inputs
                 ),
             },
+            {
+                "role": "user",
+                "content": """Complete the following code responding only with additional code,
+and with no markdown formatting.""",
+            },
+            {"role": "user", "content": inputs["prefix"]},
         ]
+
+        if inputs.get("suffix"):
+            messages.extend(
+                [
+                    {
+                        "role": "user",
+                        "content": "The new code appears before the following snippet.",
+                    },
+                    {"role": "user", "content": inputs["suffix"]},
+                ]
+            )
+
+        return messages
 
     def get_token(self, request: InlineCompletionRequest) -> str:
         return f"t{request.number}s0"
@@ -131,7 +137,9 @@ class OpenAIProvider(LoggingConfigurable):
             reply_to=request.number,
         )
 
-        stream = await self.client.chat.completions.create(
+        stream: AsyncStream[
+            ChatCompletionChunk
+        ] = await self.client.chat.completions.create(
             model=self.model,
             stream=True,
             messages=self._get_messages(request),
