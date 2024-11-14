@@ -1,4 +1,19 @@
+# Ignore all the scratch files
 scratch*
+
+# Ignore all the ipynb files in mitosheet and mito-ai
+mitosheet/**/*.ipynb
+mito-ai/**/*.ipynb
+
+# Ignore all the ipynb_checkpoints in mitosheet and mito-ai
+mitosheet/.ipynb_checkpoints/*
+mito-ai/.ipynb_checkpoints/*
+tests/.ipynb_checkpoints/*
+
+# Ignore all the iframe_figures in mitosheet and mito-ai
+# These get generated when creating plotly graphs
+mitosheet/iframe_figures/*
+mito-ai/iframe_figures/*
 
 # Mac Specific 
 
