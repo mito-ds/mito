@@ -13,14 +13,13 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     filterText,
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [filteredOptions, setFilteredOptions] = useState<ExpandedVariable[]>([]);
+
+    const filteredOptions = options.filter((variable) =>
+        variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
+        variable.type !== "<class 'module'>"
+    );
 
     useEffect(() => {
-        const filtered = options.filter((variable) =>
-            variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
-            variable.type !== "<class 'module'>"
-        );
-        setFilteredOptions(filtered);
         setSelectedIndex(0);
     }, [options, filterText]);
 
