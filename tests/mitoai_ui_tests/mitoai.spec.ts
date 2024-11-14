@@ -1,7 +1,7 @@
 import { expect, test } from '@jupyterlab/galata';
 import { createAndRunNotebookWithCells, getCodeFromCell, selectCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
-import { editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+import { clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });
@@ -110,6 +110,20 @@ test.describe('Mito AI Chat', () => {
     // Check that the message "Explain this code" exists in the AI chat
     await expect(page.getByText('Explain this code')).toBeVisible();
 
+  });
+
+  test('Variable dropdown shows correct variables', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await clickOnMitoAIChatTab(page);
+    
+    // The fill() command doesn't trigger input events that the dropdown relies on
+    // So we need to type it character by character instead
+    await page.locator('.chat-input').click();
+    await page.keyboard.type("Edit column @ap");
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
   });
 });
 
