@@ -134,6 +134,18 @@
     background-color: #E9E0FD;
 }
 
+.chat-dropdown-item:first-child.selected {
+    /* Add rounded corners to the top of the first selected dropdown item */
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.chat-dropdown-item:last-child.selected {
+    /* Add rounded corners to the bottom of the last selected dropdown item */
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
 .chat-dropdown-item-type {
     display: inline-block;
     font-weight: bolder;
