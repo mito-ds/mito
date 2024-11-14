@@ -27,8 +27,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
     const [input, setInput] = useState(initialContent);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
-    const [filteredOptions, setFilteredOptions] = useState<ExpandedVariable[]>([]);
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [dropdownFilter, setDropdownFilter] = useState('');
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
     const adjustHeight = () => {
@@ -54,34 +53,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         if (currentWord.startsWith("@")) {
             const query = currentWord.slice(1);
-            const expandedVariables: ExpandedVariable[] = [
-                // Add base variables (excluding DataFrames)
-                ...(variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
-                // Add DataFrames
-                ...(variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
-                // Add series with parent DataFrame references
-                ...(variableManager?.variables
-                    .filter((variable) => variable.type === "pd.DataFrame")
-                    .flatMap((df) =>
-                        Object.entries(df.value).map(([seriesName, details]) => ({
-                            variable_name: seriesName,
-                            type: "col",
-                            value: "replace_me",
-                            parent_df: df.variable_name,
-                        }))
-                    ) || [])
-            ];
-
-            const filtered = expandedVariables.filter((variable) =>
-                variable.variable_name.toLowerCase().includes(query.toLowerCase()) &&
-                variable.type !== "<class 'module'>"
-            ) || [];
-            setFilteredOptions(filtered);
-            setDropdownVisible(filtered.length > 0);
-            setSelectedIndex(0);
+            setDropdownFilter(query);
+            setDropdownVisible(true);
         } else {
             setDropdownVisible(false);
-            setFilteredOptions([]);
+            setDropdownFilter('');
         }
     };
 
@@ -120,82 +96,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }, 0);
     };
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        // First check if dropdown is visible and handle those cases
-        if (isDropdownVisible) {
-            switch (event.key) {
-                case 'ArrowDown':
-                    event.preventDefault();
-                    setSelectedIndex((prev) =>
-                        prev < filteredOptions.length - 1 ? prev + 1 : 0
-                    );
-                    break;
-                case 'ArrowUp':
-                    event.preventDefault();
-                    setSelectedIndex((prev) =>
-                        prev > 0 ? prev - 1 : filteredOptions.length - 1
-                    );
-                    break;
-                case 'Enter':
-                    event.preventDefault();
-                    if (filteredOptions[selectedIndex]) {
-                        handleOptionSelect(filteredOptions[selectedIndex].variable_name, filteredOptions[selectedIndex].parent_df);
-                    }
-                    break;
-                case 'Escape':
-                    setDropdownVisible(false);
-                    break;
-            }
-            return; // Exit early if we handled dropdown navigation
-        }
-
-        // Handle non-dropdown keyboard events
-        switch (event.key) {
-            case 'Enter':
-                if (!event.shiftKey) {
-                    event.preventDefault();
-                    onSave(input)
-                    setInput('')
-                }
-                break;
-            case 'Escape':
-                event.preventDefault();
-                if (onCancel) {
-                    onCancel();
-                }
-                break;
-            case 'Backspace': {
-                // Handle backspace for deleting content between backticks
-                const textarea = event.currentTarget;
-                const cursorPosition = textarea.selectionStart;
-                const textBeforeCursor = input.slice(0, cursorPosition);
-
-                // Check if we're right after a closing backtick
-                if (textBeforeCursor.endsWith('`')) {
-                    const lastOpeningBacktick = textBeforeCursor.lastIndexOf('`', cursorPosition - 2);
-                    if (lastOpeningBacktick !== -1) {
-                        event.preventDefault();
-                        // Remove everything between and including the backticks
-                        const newValue =
-                            input.slice(0, lastOpeningBacktick) +
-                            input.slice(cursorPosition);
-                        setInput(newValue);
-
-                        // Set cursor position to where the opening backtick was
-                        setTimeout(() => {
-                            textarea.setSelectionRange(lastOpeningBacktick, lastOpeningBacktick);
-                        }, 0);
-                        return;
-                    }
-                }
-                break;
-            }
-        }
-    };
-
     useEffect(() => {
         adjustHeight();
     }, [textAreaRef?.current?.value]);
+
+    const expandedVariables: ExpandedVariable[] = [
+        // Add base variables (excluding DataFrames)
+        ...(variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
+        // Add DataFrames
+        ...(variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
+        // Add series with parent DataFrame references
+        ...(variableManager?.variables
+            .filter((variable) => variable.type === "pd.DataFrame")
+            .flatMap((df) =>
+                Object.entries(df.value).map(([seriesName, details]) => ({
+                    variable_name: seriesName,
+                    type: "col",
+                    value: "replace_me",
+                    parent_df: df.variable_name,
+                }))
+            ) || [])
+    ];
 
     return (
         <div style={{ position: 'relative' }}>
@@ -205,7 +126,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 placeholder={placeholder}
                 value={input}
                 onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
             />
             {isEditing &&
                 <div className="message-edit-buttons">
@@ -215,9 +135,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }
             {isDropdownVisible && (
                 <ChatDropdown
-                    options={filteredOptions}
-                    selectedIndex={selectedIndex}
+                    options={expandedVariables}
                     onSelect={handleOptionSelect}
+                    filterText={dropdownFilter}
                 />
             )}
         </div>
