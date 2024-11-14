@@ -116,7 +116,8 @@
     padding: 0;
     margin: 0;
     width: 100%;
-    z-index: 9999; /* Ensure the dropdown list is always on top */
+    z-index: 9999;
+    /* Ensure the dropdown list is always on top */
 }
 
 .chat-dropdown-item {
@@ -138,10 +139,15 @@
     font-weight: bolder;
     color: #888;
     width: 35px;
-    margin-right: 8px; 
+    margin-right: 8px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    vertical-align: middle;
+}
+
+.chat-dropdown-item-name {
+    vertical-align: middle;
 }
 
 .chat-dropdown-item-parent-df {
