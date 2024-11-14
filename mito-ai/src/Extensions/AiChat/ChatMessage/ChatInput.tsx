@@ -70,6 +70,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const atIndex = textBeforeCursor.lastIndexOf("@");
         const textAfterAt = input.slice(atIndex);
         const endOfWord = textAfterAt.search(/[\s\n]|$/);
+        const wordAfterAt = textAfterAt.slice(0, endOfWord);
 
         let variableNameWithBackticks: string;
         if (!parentDf) {
@@ -82,14 +83,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const newValue =
             input.slice(0, atIndex) +
             variableNameWithBackticks +
+            wordAfterAt +
             input.slice(atIndex + endOfWord);
-        setInput(newValue);
+        setInput(newValue.replace("@", ""));
 
         setDropdownVisible(false);
 
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + variableNameWithBackticks.length + 1;
+                const newCursorPosition = atIndex + variableNameWithBackticks.length;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
