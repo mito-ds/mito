@@ -67,38 +67,38 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 {filteredOptions.length === 0 && (
                     <li className="chat-dropdown-item">No variables found</li>
                 )}
-                
-                {filteredOptions.map((option, index) => {
-                const uniqueKey = option.parent_df
-                    ? `${option.parent_df}.${option.variable_name}`
-                    : option.variable_name;
 
-                return (
-                    <li
-                        key={uniqueKey}
-                        className={`chat-dropdown-item ${index === selectedIndex ? 'selected' : ''}`}
-                        onClick={() => onSelect(option.variable_name, option.parent_df)}
-                    >
-                        <span className="chat-dropdown-item-type"
-                            style={{
-                                color: getShortType(option.type) === 'df' ? 'blue'
-                                    : getShortType(option.type) === 'col' ? 'orange'
-                                        : "green"
-                            }}
-                            title={getShortType(option.type)}
+                {filteredOptions.map((option, index) => {
+                    const uniqueKey = option.parent_df
+                        ? `${option.parent_df}.${option.variable_name}`
+                        : option.variable_name;
+
+                    return (
+                        <li
+                            key={uniqueKey}
+                            className={`chat-dropdown-item ${index === selectedIndex ? 'selected' : ''}`}
+                            onClick={() => onSelect(option.variable_name, option.parent_df)}
                         >
-                            {getShortType(option.type)}
-                        </span>
-                        <span className="chat-dropdown-item-name">
-                            {option.variable_name}
-                        </span>
-                        {option.parent_df && (
-                            <span className="chat-dropdown-item-parent-df">
-                                {option.parent_df}
+                            <span className="chat-dropdown-item-type"
+                                style={{
+                                    color: getShortType(option.type) === 'df' ? 'blue'
+                                        : getShortType(option.type) === 'col' ? 'orange'
+                                            : "green"
+                                }}
+                                title={getShortType(option.type)}
+                            >
+                                {getShortType(option.type)}
                             </span>
-                        )}
-                    </li>
-                );
+                            <span className="chat-dropdown-item-name">
+                                {option.variable_name}
+                            </span>
+                            {option.parent_df && (
+                                <span className="chat-dropdown-item-parent-df">
+                                    {option.parent_df}
+                                </span>
+                            )}
+                        </li>
+                    );
                 })}
             </ul>
         </div>
