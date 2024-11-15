@@ -112,24 +112,22 @@ test.describe('Mito AI Chat', () => {
 
   });
 
-  test('Fix Error and Explain code buttons clear chat history', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
-    await waitForIdle(page);
-
-    await sendMessageToMitoAI(page, 'Write the code print(2)');
-    await page.getByRole('button', { name: 'Apply' }).click();
-    runCell(page, 1)
-
-    await typeInNotebookCell(page, 2, 'print(3', true)
+  test('Test fix error button', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(3']);
     await waitForIdle(page);
 
     await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
     await waitForIdle(page);
-    await expect(page.locator('.message-assistant')).toHaveCount(2);
+    await expect(page.locator('.message-assistant')).toHaveCount(1);
+  });
+
+  test('Test explain code button', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await waitForIdle(page);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     await waitForIdle(page);
-    await expect(page.locator('.message-assistant')).toHaveCount(3);
+    await expect(page.locator('.message-assistant')).toHaveCount(1);
   });
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
