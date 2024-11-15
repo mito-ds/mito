@@ -26,6 +26,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     variableManager
 }) => {
     const [input, setInput] = useState(initialContent);
+    const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -100,23 +101,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
         adjustHeight();
     }, [textAreaRef?.current?.value]);
 
-    const expandedVariables: ExpandedVariable[] = [
-        // Add base variables (excluding DataFrames)
-        ...(variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
-        // Add DataFrames
-        ...(variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
-        // Add series with parent DataFrame references
-        ...(variableManager?.variables
-            .filter((variable) => variable.type === "pd.DataFrame")
-            .flatMap((df) =>
-                Object.entries(df.value).map(([seriesName, details]) => ({
-                    variable_name: seriesName,
-                    type: "col",
-                    value: "replace_me",
-                    parent_df: df.variable_name,
-                }))
-            ) || [])
-    ];
+    // Update the expandedVariables arr when the variable manager changes
+    useEffect(() => {
+        const expandedVariables: ExpandedVariable[] = [
+            // Add base variables (excluding DataFrames)
+            ...(variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
+            // Add DataFrames
+            ...(variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
+            // Add series with parent DataFrame references
+            ...(variableManager?.variables
+                .filter((variable) => variable.type === "pd.DataFrame")
+                .flatMap((df) =>
+                    Object.entries(df.value).map(([seriesName, details]) => ({
+                        variable_name: seriesName,
+                        type: "col",
+                        value: "replace_me",
+                        parent_df: df.variable_name,
+                    }))
+                ) || [])
+        ];
+        setExpandedVariables(expandedVariables);
+    }, [variableManager?.variables]);
 
     return (
         <div style={{ position: 'relative' }}>
