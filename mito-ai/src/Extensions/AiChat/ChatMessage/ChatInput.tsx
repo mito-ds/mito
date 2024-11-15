@@ -89,6 +89,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         setDropdownVisible(false);
 
+        // After updating the input value, set the cursor position after the inserted variable name
+        // We use setTimeout to ensure this happens after React's state update
         setTimeout(() => {
             if (textarea) {
                 const newCursorPosition = atIndex + variableNameWithBackticks.length;
