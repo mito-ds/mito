@@ -32,6 +32,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [showDropdownAbove, setShowDropdownAbove] = useState(false);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
+    // TextAreas cannot automatically adjust their height based on the content that they contain, 
+    // so instead we re-adjust the height as the content changes here. 
     const adjustHeight = () => {
         const textarea = textAreaRef?.current;
         if (!textarea) {
