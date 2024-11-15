@@ -64,6 +64,10 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     return (
         <div className={`chat-dropdown ${position}`}>
             <ul className="chat-dropdown-list" >
+                {filteredOptions.length === 0 && (
+                    <li className="chat-dropdown-item">No variables found</li>
+                )}
+                
                 {filteredOptions.map((option, index) => {
                 const uniqueKey = option.parent_df
                     ? `${option.parent_df}.${option.variable_name}`
