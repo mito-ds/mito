@@ -126,8 +126,8 @@
 
 .chat-dropdown {
     display: flex;
-    justify-content: start;
-    align-items: center;
+    justify-content: space-evenly;
+    align-items: baseline;
 }
 
 .chat-dropdown-list {
@@ -146,8 +146,7 @@
 .chat-dropdown-item {
     padding: 8px;
     cursor: pointer;
-    display: grid;
-    grid-template-columns: 35px 1fr auto;
+    display: flex;
     align-items: center;
     gap: 8px;
 }
@@ -175,22 +174,19 @@
 .chat-dropdown-item-type {
     color: var(--muted-text-color);
     font-family: var(--jp-code-font-family);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    min-width: 35px; /* Fixed width for type column */
 }
 
 .chat-dropdown-item-name {
     font-size: 15px;
-    display: inline;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
 .chat-dropdown-item-parent-df {
     color: var(--muted-text-color);
     font-size: 12px;
-    display: inline;
     margin-left: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
