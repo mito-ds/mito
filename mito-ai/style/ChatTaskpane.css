@@ -143,11 +143,11 @@
 }
 
 .chat-dropdown-item:hover {
-    background-color: #E9E0FD;
+    background-color: var(--item-selected-color);
 }
 
 .chat-dropdown-item.selected {
-    background-color: #E9E0FD;
+    background-color: var(--item-selected-color);
 }
 
 .chat-dropdown-item:first-child.selected {
