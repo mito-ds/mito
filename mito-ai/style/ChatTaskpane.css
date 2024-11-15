@@ -108,8 +108,24 @@
     background: #f0f0f0;
 }
 
-.chat-dropdown-list {
+.chat-dropdown {
     position: absolute;
+    width: 100%;
+    z-index: 9999;
+}
+
+.chat-dropdown.above {
+    bottom: 100%;
+    margin-bottom: 5px;
+}
+
+.chat-dropdown.below {
+    top: 100%;
+    margin-top: 5px;
+}
+
+.chat-dropdown-list {
+    position: relative;
     border: 0px;
     border-radius: 5px;
     background-color: white;

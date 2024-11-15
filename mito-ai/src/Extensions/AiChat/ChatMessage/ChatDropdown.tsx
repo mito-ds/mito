@@ -6,6 +6,7 @@ interface ChatDropdownProps {
     onSelect: (variableName: string, parentDf?: string) => void;
     filterText: string;
     maxDropdownItems?: number;
+    position?: 'above' | 'below';
 }
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
@@ -13,6 +14,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     onSelect,
     filterText,
     maxDropdownItems = 10,
+    position = 'below'
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -60,7 +62,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     }
 
     return (
-        <div className="chat-dropdown-container">
+        <div className={`chat-dropdown ${position}`}>
             <ul className="chat-dropdown-list" >
                 {filteredOptions.map((option, index) => {
                 const uniqueKey = option.parent_df

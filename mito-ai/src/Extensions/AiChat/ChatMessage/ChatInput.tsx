@@ -29,6 +29,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
+    const [showDropdownAbove, setShowDropdownAbove] = useState(false);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
     const adjustHeight = () => {
@@ -123,8 +124,34 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setExpandedVariables(expandedVariables);
     }, [variableManager?.variables]);
 
+    const calculateDropdownPosition = () => {
+        if (!textAreaRef.current) return;
+
+        const textarea = textAreaRef.current;
+        const textareaRect = textarea.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const spaceBelow = windowHeight - textareaRect.bottom;
+
+        // If space below is less than 200px (typical dropdown height), show above
+        setShowDropdownAbove(spaceBelow < 200);
+    };
+
+    useEffect(() => {
+        if (isDropdownVisible) {
+            calculateDropdownPosition();
+        }
+    }, [isDropdownVisible]);
+
     return (
         <div style={{ position: 'relative' }}>
+            {isDropdownVisible && showDropdownAbove && (
+                <ChatDropdown
+                    options={expandedVariables}
+                    onSelect={handleOptionSelect}
+                    filterText={dropdownFilter}
+                    position="above"
+                />
+            )}
             <textarea
                 ref={textAreaRef}
                 className={classNames("message", "message-user", 'chat-input')}
@@ -159,11 +186,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }
-            {isDropdownVisible && (
+            {isDropdownVisible && !showDropdownAbove && (
                 <ChatDropdown
                     options={expandedVariables}
                     onSelect={handleOptionSelect}
                     filterText={dropdownFilter}
+                    position="below"
                 />
             )}
         </div>
