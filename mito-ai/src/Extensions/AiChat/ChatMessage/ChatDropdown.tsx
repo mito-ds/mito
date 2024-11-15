@@ -27,21 +27,21 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         setSelectedIndex(0);
     }, [options, filterText]);
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {        
         switch (event.key) {
-            case 'ArrowDown':
+            case 'ArrowDown' || 'Down':
                 event.preventDefault();
                 setSelectedIndex((prev) =>
                     prev < filteredOptions.length - 1 ? prev + 1 : 0
                 );
                 break;
-            case 'ArrowUp':
+            case 'ArrowUp' || 'Up':
                 event.preventDefault();
                 setSelectedIndex((prev) =>
                     prev > 0 ? prev - 1 : filteredOptions.length - 1
                 );
                 break;
-            case 'Enter':
+            case 'Enter' || 'Return':
                 event.preventDefault();
                 if (filteredOptions[selectedIndex]) {
                     onSelect(filteredOptions[selectedIndex].variable_name, filteredOptions[selectedIndex].parent_df);
