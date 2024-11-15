@@ -164,8 +164,8 @@
 
 .chat-dropdown-item-type {
     display: inline-block;
-    font-weight: bolder;
     color: var(--muted-text-color);
+    font-family: var(--jp-code-font-family);
     width: 35px;
     margin-right: 8px;
     overflow: hidden;
@@ -176,6 +176,7 @@
 
 .chat-dropdown-item-name {
     vertical-align: middle;
+    font-size: 15px;
 }
 
 .chat-dropdown-item-parent-df {
