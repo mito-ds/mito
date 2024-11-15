@@ -159,8 +159,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={(e) => {
-                    // If dropdown is visible, don't handle any keyboard events here
+                    // If dropdown is visible, only handle escape to close it
                     if (isDropdownVisible) {
+                        if (e.key === 'Escape') {
+                            e.preventDefault();
+                            setDropdownVisible(false);
+                        }
                         return;
                     }
 
