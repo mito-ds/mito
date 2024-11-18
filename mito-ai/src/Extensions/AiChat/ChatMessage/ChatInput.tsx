@@ -146,14 +146,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div style={{ position: 'relative' }}>
-            {isDropdownVisible && showDropdownAbove && (
-                <ChatDropdown
-                    options={expandedVariables}
-                    onSelect={handleOptionSelect}
-                    filterText={dropdownFilter}
-                    position="above"
-                />
-            )}
             <textarea
                 ref={textAreaRef}
                 className={classNames("message", "message-user", 'chat-input')}
@@ -192,12 +184,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }
-            {isDropdownVisible && !showDropdownAbove && (
+            {isDropdownVisible && (
                 <ChatDropdown
                     options={expandedVariables}
                     onSelect={handleOptionSelect}
                     filterText={dropdownFilter}
-                    position="below"
+                    position={showDropdownAbove ? "above" : "below"}
                 />
             )}
         </div>
