@@ -150,10 +150,7 @@
     gap: 8px;
 }
 
-.chat-dropdown-item:hover {
-    background-color: var(--item-selected-color);
-}
-
+.chat-dropdown-item:hover, 
 .chat-dropdown-item.selected {
     background-color: var(--item-selected-color);
 }
@@ -190,4 +187,6 @@
     font-size: 12px;
     margin-left: 4px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
