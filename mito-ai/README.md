@@ -50,24 +50,25 @@ pip install -e ".[test, deploy]"
 # Install the node modules
 jlpm install
 
+# Build the extension
+jlpm build
+
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 
 # Start the jupyter server extension for development
 jupyter server extension enable --py mito-ai
 
-# Rebuild extension Typescript source after making changes
+# Watch the source directory in one terminal, automatically rebuilding when needed
 # In case of Error: If this command fails because the lib directory was not created (the error will say something like
 # unable to find main entry point) then run `jlpm run clean:lib` first to get rid of the old buildcache 
 # that might be preventing a new lib directory from getting created. 
-jlpm build
+jlpm watch
 ```
 
-You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
+Then, in a new terminal, run:
 
 ```bash
-# Watch the source directory in one terminal, automatically rebuilding when needed
-jlpm watch
 # Run JupyterLab in another terminal
 jupyter lab
 ```

@@ -86,16 +86,27 @@ export async function requestAPI(
         
         // TODO: Update the lambda funciton to return the entire message instead of
         // just the content so we don't have to recreate the message here.
-        const aiMessage: OpenAI.Chat.Completions.ChatCompletionMessage = {
-            role: 'assistant',
-            content: data['completion'],
-            refusal: null
+        if ('completion' in data) {
+            const aiMessage: OpenAI.Chat.Completions.ChatCompletionMessage = {
+                role: 'assistant',
+                content: data['completion'],
+                refusal: null
+            }
+
+            return {
+                type: 'success',
+                response: aiMessage            
+            }
+        } else if ('error' in data) {
+            return {
+                type: 'error',
+                errorMessage: data['error']
+            }
+        } else {
+            throw new Error('Invalid response from the Mito AI server')
         }
 
-        return {
-            type: 'success',
-            response: aiMessage            
-        }
+        
     } catch (error) {
         console.error('Not a JSON response body.', response);
         return {
