@@ -13,7 +13,7 @@ from .version_utils import is_pro
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
 
-OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 100
+OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 500
 
 __user_email = None
 __user_id = None
@@ -45,7 +45,7 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
 
         if not pro and __num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
                 return {
-                        'error': f'You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times.'
+                        'error': f'You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times. Either upgrade to Pro for unlimited uses or supply your own OpenAI API key.'
                 }
                 
         data = {
