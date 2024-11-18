@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { classNames } from '../../../utils/classNames';
 import { ExpandedVariable } from './ChatInput';
 
 interface ChatDropdownProps {
@@ -76,7 +77,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                     return (
                         <li
                             key={uniqueKey}
-                            className={`chat-dropdown-item ${index === selectedIndex ? 'selected' : ''}`}
+                            className={classNames("chat-dropdown-item", { selected: index === selectedIndex })}
                             onClick={() => onSelect(option.variable_name, option.parent_df)}
                         >
                             <span className="chat-dropdown-item-type"
