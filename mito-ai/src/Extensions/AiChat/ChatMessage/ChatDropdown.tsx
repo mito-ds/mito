@@ -27,7 +27,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         setSelectedIndex(0);
     }, [options, filterText]);
 
-    const handleKeyDown = (event: KeyboardEvent) => {        
+    const handleKeyDown = (event: KeyboardEvent) => {
         switch (event.key) {
             case 'ArrowDown' || 'Down':
                 event.preventDefault();
@@ -89,7 +89,16 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                             >
                                 {getShortType(option.type)}
                             </span>
-                            <span className="chat-dropdown-item-name">
+                            <span
+                                className="chat-dropdown-item-name"
+                                title={option.variable_name}
+                                ref={(el) => {
+                                    // Show full text on hover if the text is too long
+                                    if (el) {
+                                        el.title = el.scrollWidth > el.clientWidth ? option.variable_name : '';
+                                    }
+                                }}
+                            >
                                 {option.variable_name}
                             </span>
                             {option.parent_df && (
