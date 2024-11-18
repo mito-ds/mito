@@ -15,6 +15,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.8', '3.10', '3.11']
+        use-mito-ai-server: [true, false]
       fail-fast: false
 
     steps:
@@ -54,7 +55,7 @@ jobs:
         jupyter lab --config jupyter_server_test_config.py &
         npm run test:mitoai
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ matrix.use-mito-ai-server && '' || secrets.OPENAI_API_KEY }}
     - name: Upload test-results
       uses: actions/upload-artifact@v3
       if: failure()

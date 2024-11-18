@@ -165,12 +165,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             });
 
             if (apiResponse.type === 'success') {
-
-                const response = apiResponse.response;
-                const aiMessage = response.choices[0].message;
+                const aiMessage = apiResponse.response;
 
                 newChatHistoryManager.addAIMessageFromResponse(aiMessage);
                 setChatHistoryManager(newChatHistoryManager);
+                
                 aiRespone = aiMessage
             } else {
                 newChatHistoryManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
