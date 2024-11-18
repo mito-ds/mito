@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 from .db import get_user_field, set_user_field
 from .schema import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from .version_utils import is_pro
+from .create import initialize_user, is_user_json_exists_and_valid_json
 
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
@@ -26,7 +27,10 @@ def _get_ai_completion_data(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
             "temperature": 0,
         }
 
-def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]:   
+def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]: 
+
+        if not is_user_json_exists_and_valid_json():
+                initialize_user()
         
         global __user_email, __user_id, __num_usages
 
