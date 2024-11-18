@@ -73,8 +73,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const textBeforeCursor = input.slice(0, cursorPosition);
         const atIndex = textBeforeCursor.lastIndexOf("@");
         const textAfterCursor = input.slice(cursorPosition);
-        // const textAfterAt = input.slice(atIndex);
-        // const endOfWord = textAfterAt.search(/[\s\n]|$/);
 
         let variableNameWithBackticks: string;
         if (!parentDf) {
