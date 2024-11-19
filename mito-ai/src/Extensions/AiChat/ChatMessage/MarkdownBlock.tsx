@@ -28,7 +28,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, rendermime }) =
     }, [markdown, rendermime]);
 
     return (
-        <div>{renderedContent || <div>No content</div>} </div>
+        <div>{renderedContent || <div></div>} </div>
     );
 };
 

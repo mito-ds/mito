@@ -114,7 +114,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 } else {
                     return (
                         <div style={{ position: 'relative' }}>
-                            <p key={index} onDoubleClick={() => setIsEditing(true)}>
+                            <p key={index + messagePart} onDoubleClick={() => setIsEditing(true)}>
                                 {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                                 <MarkdownBlock
                                     markdown={messagePart}
