@@ -57,7 +57,7 @@ jlpm build
 jupyter labextension develop . --overwrite
 
 # Start the jupyter server extension for development
-jupyter server extension enable --py mito-ai
+jupyter server extension enable --py mito_ai
 
 # Watch the source directory in one terminal, automatically rebuilding when needed
 # In case of Error: If this command fails because the lib directory was not created (the error will say something like
