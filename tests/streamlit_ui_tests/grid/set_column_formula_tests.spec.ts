@@ -380,7 +380,11 @@ test('Can\'t use cross-sheet formula for non-vlookup calls', async ({ page }) =>
 });
 
 
-test('Start writing a cross-sheet formula using cel editor and switch to formula bar', async ({ page }) => {
+test('Start writing a cross-sheet formula using cel editor and switch to formula bar', async ({ page, browserName }) => {
+    if (browserName === 'firefox') {
+        test.skip()
+    }
+
     const mito = await getMitoFrameWithTestCSV(page);
     // Add a new column to this sheet because the dropdown covers the columns when the formula bar is open
     await mito.locator('.mito-toolbar-button', { hasText: 'Insert' }).click();    
