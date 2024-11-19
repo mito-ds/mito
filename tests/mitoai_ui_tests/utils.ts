@@ -6,6 +6,15 @@ export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixtu
     await mitoAILoadingLocator.waitFor({ state: 'hidden' });
 }
 
+export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
+    // Click the AI Chat tab if it's not already selected
+    const aiChatTab = await page.getByRole('tab', { name: 'AI Chat for your JupyterLab' });
+    const isSelected = await aiChatTab.getAttribute('aria-selected');
+    if (isSelected !== 'true') {
+        await aiChatTab.getByRole('img').click();
+    }
+}
+
 export const sendMessageToMitoAI = async (
     page: IJupyterLabPageFixture,
     message: string,
@@ -14,12 +23,7 @@ export const sendMessageToMitoAI = async (
     if (activeCellIndex) {
         await selectCell(page, activeCellIndex);
     }
-    // Click the AI Chat tab if it's not already selected
-    const aiChatTab = await page.getByRole('tab', { name: 'AI Chat for your JupyterLab' });
-    const isSelected = await aiChatTab.getAttribute('aria-selected');
-    if (isSelected !== 'true') {
-        await aiChatTab.getByRole('img').click();
-    }
+    await clickOnMitoAIChatTab(page);
     // Fill in the message and send it
     await page.locator('.chat-input').fill(message);
     await page.keyboard.press('Enter');
