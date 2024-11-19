@@ -1,11 +1,10 @@
 import os
 from typing import Any, Dict, Optional
-from mitosheet.user.schemas import UJ_FEEDBACKS_V2
 import requests
 from .version_utils import is_pro
-from .schema import UJ_MITOSHEET_ENTERPRISE, UJ_MITOSHEET_PRO, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL
+from .schema import UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from .db import get_user_field
-__version__ = 10
+from .._version import __version__
 from .utils import is_running_test
 
 import analytics
@@ -46,20 +45,23 @@ def telemetry_turned_on() -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
+    print("A1")
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
+        print("A2")
         return False
 
-    # Check if the config is set
-    if os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY') is not None:
-        from mitosheet.enterprise.mito_config import is_env_variable_set_to_true
-        return is_env_variable_set_to_true(os.environ.get('MITO_CONFIG_FEATURE_TELEMETRY', ''))
+    # TODO: Check if the an enterprise user has turned telemetry to true
 
     # If Mito Pro is on, then don't log anything
+    print("A3")
     if is_pro():
+        print("A4")
         return False
 
+    print("A5")
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
+    print("A6")
     return telemetry if telemetry is not None else False
 
 def identify() -> None:
@@ -67,12 +69,16 @@ def identify() -> None:
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
     """
+    print('D')
     if not telemetry_turned_on():
         return
-
+    print('E')
     static_user_id = get_user_field(UJ_STATIC_USER_ID)
+    print('F')
     user_email = get_user_field(UJ_USER_EMAIL)
+    print('G')
     feedbacks_v2 = get_user_field(UJ_FEEDBACKS_V2)
+    print('H')
 
     params = {
         'version_mitoai': __version__,
@@ -84,8 +90,11 @@ def identify() -> None:
         # TODO: If the user is in JupyterLite, we need to do some extra work.
         # You can see this in the mitosheet package. 
         try:
+            print('I')
             analytics.identify(static_user_id, params)
+            print('J')
         except Exception as e:
+            print('K', e)
             pass
 
 
