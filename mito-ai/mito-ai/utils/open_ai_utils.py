@@ -10,9 +10,13 @@ from .db import get_user_field, set_user_field
 from .schema import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from .version_utils import is_pro
 from .create import initialize_user, is_user_json_exists_and_valid_json
-
+from .telemetry_utils import log
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
+
+KEY_TYPE_PARAM = 'key_type'
+MITO_SERVER_KEY= 'mito_server'
+USER_KEY = 'user_key'
 
 OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 500
 
@@ -26,6 +30,23 @@ def _get_ai_completion_data(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
             "messages": messages,
             "temperature": 0,
         }
+
+def _get_ai_completion_with_key(ai_completion_data: Dict[str, Any], OPENAI_API_KEY: str) -> Dict[str, Any]:
+        headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {OPENAI_API_KEY}' 
+        }
+
+        res = requests.post(OPEN_AI_URL, headers=headers, json=ai_completion_data)
+
+        # If the response status code is in the 200s, this does nothing
+        # If the response status code indicates an error (4xx or 5xx), 
+        # raise an HTTPError exception with details about what went wrong
+        res.raise_for_status()
+
+        completion = res.json()['choices'][0]['message']['content']
+        return {'completion': completion}
+        
 
 def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]: 
 
@@ -62,22 +83,17 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
                 'Content-Type': 'application/json',
         }
 
-        try:
-                res = requests.post(MITO_AI_URL, headers=headers, json=data)
+        res = requests.post(MITO_AI_URL, headers=headers, json=data)
 
-                # If the response status code is in the 200s, this does nothing
-                # If the response status code indicates an error (4xx or 5xx), 
-                # raise an HTTPError exception with details about what went wrong
-                res.raise_for_status()
+        # If the response status code is in the 200s, this does nothing
+        # If the response status code indicates an error (4xx or 5xx), 
+        # raise an HTTPError exception with details about what went wrong
+        res.raise_for_status()
 
-                # The lambda function returns a dictionary with a completion entry in it,
-                # so we just return that.
-                return res.json()
+        # The lambda function returns a dictionary with a completion entry in it,
+        # so we just return that.
+        return res.json()
 
-
-        except Exception as e:
-                print('Error using mito server', e)
-                raise e
         
 
 def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -85,31 +101,26 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
         ai_completion_data = _get_ai_completion_data(messages)
 
-        if OPENAI_API_KEY is None:
-                # If they don't have an Open AI key, use the mito server to get a completion
-                completion = _get_ai_completion_from_mito_server(ai_completion_data)
-
-                # Increment the number of usages
-                global __num_usages
-                __num_usages = __num_usages + 1
-                set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages)
-                return completion
-
-        headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {OPENAI_API_KEY}' 
-        }
-
         try:
-                res = requests.post(OPEN_AI_URL, headers=headers, json=ai_completion_data)
+                if OPENAI_API_KEY is None:
+                        # If they don't have an Open AI key, use the mito server to get a completion
+                        completion = _get_ai_completion_from_mito_server(ai_completion_data)
 
-                # If the response status code is in the 200s, this does nothing
-                # If the response status code indicates an error (4xx or 5xx), 
-                # raise an HTTPError exception with details about what went wrong
-                res.raise_for_status()
+                        # Increment the number of usages
+                        global __num_usages
+                        __num_usages = __num_usages + 1
+                        set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages)
 
-                completion = res.json()['choices'][0]['message']['content']
-                return {'completion': completion}
+                        # Log the successful completion
+                        log('ai_completion_success', params={KEY_TYPE_PARAM: MITO_SERVER_KEY})
+                        return completion
+                else:
+                        completion =  _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
+
+                        # Log the successful completion
+                        log('ai_completion_success', params={KEY_TYPE_PARAM: USER_KEY})
+                        return completion
         except Exception as e:
+                key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
+                log('ai_completion_error', params={KEY_TYPE_PARAM: key_type}, error=e)
                 raise e
-        
