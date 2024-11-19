@@ -10,7 +10,7 @@ from .db import get_user_field, set_user_field
 from .schema import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from .version_utils import is_pro
 from .create import initialize_user
-from .telemetry_utils import log, KEY_TYPE_PARAM, MITO_SERVER_KEY, USER_KEY, MITO_AI_COMPLETION_SUCCESS, MITO_AI_COMPLETION_ERROR
+from .telemetry_utils import log, KEY_TYPE_PARAM, MITO_SERVER_KEY, USER_KEY, MITO_AI_COMPLETION_SUCCESS, MITO_AI_COMPLETION_ERROR, MITO_SERVER_NUM_USAGES, MITO_SERVER_FREE_TIER_LIMIT_REACHED
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
 
@@ -44,7 +44,9 @@ def _get_ai_completion_with_key(ai_completion_data: Dict[str, Any], OPENAI_API_K
         return {'completion': completion}
         
 
-def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]: 
+def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]:
+
+        print(123) 
         
         global __user_email, __user_id, __num_usages
 
@@ -55,16 +57,17 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
         if __num_usages is None:
                 __num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
 
-
+        print(456)
         if __num_usages is None:
                 __num_usages = 0
 
         pro = is_pro()
 
+        print(1)
+
         if not pro and __num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
-                return {
-                        'error': f'You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times. Either upgrade to Pro for unlimited uses or supply your own OpenAI API key.'
-                }
+                log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
+                raise PermissionError
                 
         data = {
                 'email': __user_email,
@@ -99,7 +102,7 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         try:
                 if OPENAI_API_KEY is None:
                         # If they don't have an Open AI key, use the mito server to get a completion
-                        completion = _get_ai_completion_from_mito_server(ai_completion_data)
+                        response = _get_ai_completion_from_mito_server(ai_completion_data)
 
                         # Increment the number of usages
                         global __num_usages
@@ -107,14 +110,17 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
                         set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages)
 
                         # Log the successful completion
-                        log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: MITO_SERVER_KEY})
-                        return completion
+                        log(MITO_AI_COMPLETION_SUCCESS, params={
+                                KEY_TYPE_PARAM: MITO_SERVER_KEY,
+                                MITO_SERVER_NUM_USAGES: __num_usages
+                        })
+                        return response
                 else:
-                        completion =  _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
+                        response =  _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
 
                         # Log the successful completion
                         log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
-                        return completion
+                        return response
         except Exception as e:
                 key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
                 log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)

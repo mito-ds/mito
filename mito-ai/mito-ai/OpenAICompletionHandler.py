@@ -19,6 +19,9 @@ class OpenAICompletionHandler(APIHandler):
             # Query OpenAI API
             response = get_open_ai_completion(messages)
             self.finish(json.dumps(response))
+        except PermissionError as e:
+            self.set_status(403)
+            self.finish()
         except Exception as e:
             self.set_status(500)
-            self.finish(json.dumps({"response": f"Error: {str(e)}"}))
+            self.finish()

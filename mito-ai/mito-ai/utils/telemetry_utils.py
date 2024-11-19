@@ -15,15 +15,26 @@ analytics.write_key = WRITE_KEY
 # helpful for debugging.
 PRINT_LOGS = False
 
-# Constants for logging the success or error 
-# of Mito AI
+################################# 
+# Mito AI Completion 
+# Constants for logging the success or error of Mito AI
 MITO_AI_COMPLETION_SUCCESS = 'mito_ai_success'
 MITO_AI_COMPLETION_ERROR = 'mito_ai_error'
 
-# Constants for logging the type of key 
+# Params 
+# - logging the type of key 
 KEY_TYPE_PARAM = 'AI_key_type'
 MITO_SERVER_KEY= 'mito_server_key'
 USER_KEY = 'user_key'
+
+# - logging the number of usages of the Mito server
+MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'
+#################################
+
+################################# 
+# Mito Server Free Tier Reached
+MITO_SERVER_FREE_TIER_LIMIT_REACHED = 'mito_server_free_tier_limit_reached'
+#################################
 
 def telemetry_turned_on() -> bool:
     """
@@ -72,7 +83,7 @@ def identify() -> None:
 
 def log(
         log_event: str, 
-        params: Dict[str, Any]=None, 
+        params: Optional[Dict[str, Any]]=None, 
         error: Optional[Exception]=None, 
     ) -> None:
     """
@@ -82,7 +93,7 @@ def log(
     we log the ai event
     """
 
-    final_params: Dict[str, Any] = params
+    final_params: Dict[str, Any] = params or {}
     
     # Then, make sure to add the user email
     final_params['email'] = get_user_field(UJ_USER_EMAIL)
