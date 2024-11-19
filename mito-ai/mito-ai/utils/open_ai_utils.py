@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 from .db import get_user_field, set_user_field
 from .schema import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from .version_utils import is_pro
-from .create import initialize_user, is_user_json_exists_and_valid_json
+from .create import initialize_user
 from .telemetry_utils import log
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
@@ -98,9 +98,7 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
 
 def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
 
-        print(1)
         initialize_user()
-        print(2)
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
         ai_completion_data = _get_ai_completion_data(messages)
@@ -115,18 +113,14 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
                         __num_usages = __num_usages + 1
                         set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages)
 
-                        print(5)
                         # Log the successful completion
                         log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: MITO_SERVER_KEY})
-                        print(6)
                         return completion
                 else:
                         completion =  _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
 
                         # Log the successful completion
-                        print(3)
                         log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
-                        print(4)
                         return completion
         except Exception as e:
                 key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY

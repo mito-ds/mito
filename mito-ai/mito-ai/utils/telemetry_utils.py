@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict, Optional
 import requests
-from .version_utils import is_pro
+from .version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
 from .schema import UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from .db import get_user_field
 from .._version import __version__
@@ -10,31 +10,6 @@ from .utils import is_running_test
 import analytics
 WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 analytics.write_key = WRITE_KEY
-
-try:
-    import mitosheet_helper_pro
-    MITOSHEET_HELPER_PRO = True
-except ImportError:
-    MITOSHEET_HELPER_PRO = False
-try:
-    import mitosheet_helper_enterprise
-    MITOSHEET_HELPER_ENTERPRISE = True
-except ImportError:
-    MITOSHEET_HELPER_ENTERPRISE = False
-
-try:
-    import mitosheet_private
-    MITOSHEET_PRIVATE = True
-except ImportError:
-    MITOSHEET_PRIVATE = False
-
-# This is a legacy helper that we don't use anymore, however, we're keeping it for now
-# for backwards compatibility, since I'm not 100% confident that nobody is currently using it.
-try:
-    import mitosheet_helper_private
-    MITOSHEET_HELPER_PRIVATE = True
-except ImportError:
-    MITOSHEET_HELPER_PRIVATE = False
 
 # If you want, you can optionally choose to print logs
 # helpful for debugging.
@@ -45,23 +20,17 @@ def telemetry_turned_on() -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
-    print("A1")
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
-        print("A2")
         return False
 
     # TODO: Check if the an enterprise user has turned telemetry to true
 
     # If Mito Pro is on, then don't log anything
-    print("A3")
     if is_pro():
-        print("A4")
         return False
 
-    print("A5")
     telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
-    print("A6")
     return telemetry if telemetry is not None else False
 
 def identify() -> None:
@@ -69,16 +38,12 @@ def identify() -> None:
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
     """
-    print('D')
     if not telemetry_turned_on():
         return
-    print('E')
+
     static_user_id = get_user_field(UJ_STATIC_USER_ID)
-    print('F')
     user_email = get_user_field(UJ_USER_EMAIL)
-    print('G')
     feedbacks_v2 = get_user_field(UJ_FEEDBACKS_V2)
-    print('H')
 
     params = {
         'version_mitoai': __version__,
@@ -90,11 +55,8 @@ def identify() -> None:
         # TODO: If the user is in JupyterLite, we need to do some extra work.
         # You can see this in the mitosheet package. 
         try:
-            print('I')
             analytics.identify(static_user_id, params)
-            print('J')
         except Exception as e:
-            print('K', e)
             pass
 
 

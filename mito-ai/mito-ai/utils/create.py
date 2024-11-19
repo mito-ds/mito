@@ -37,20 +37,17 @@ def is_user_json_exists_and_valid_json() -> bool:
 
 
 def try_create_user_json_file() -> None:
-    print('A1')
+    
     # Create the mito folder if it does not exist
     if not os.path.exists(MITO_FOLDER):
         os.mkdir(MITO_FOLDER)
 
-    print('A2')
     # We create a user.json file if it does not exist, or if it
     # is invalid (e.g. it is not parseable JSON).
     if not is_user_json_exists_and_valid_json():
         # First, we write an empty default object
         with open(USER_JSON_PATH, 'w+') as f:
             f.write(json.dumps(USER_JSON_DEFAULT))
-
-        print('A3')
 
         # Then, we take special care to put all the testing/CI environments 
         # (e.g. Github actions) under one ID and email
@@ -68,13 +65,13 @@ def initialize_user() -> None:
     2. Identifies the user
     """
     # Try to create the user.json file, if it does not already exist
-    print('A')
     try_create_user_json_file()
-    print('B')
+
     # Identify the user 
     identify()
-    print('C')
+
     # Note, its possible that a user has a previous version of the user.json file if they 
-    # downloaded Mito >1 year ago and have not yet upgraded. But for simplicity, let's not 
+    # downloaded Mito >1 year ago and have not yet upgraded. In this case, we would like to 
+    # upgrade the user.json to the newest versio. But for simplicity, let's not 
     # try to upgrade it here. We will either move away from user.json all together
     # or unify the utilities for mitosheet and mitoai.
