@@ -13,6 +13,7 @@ from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import APIHandler, JupyterHandler
 from openai import OpenAI
 from tornado import web
+from tornado.websocket import WebSocketHandler
 
 from .models import (
     CompletionError,
@@ -54,7 +55,7 @@ class OpenAICompletionHandler(APIHandler):
             self.finish()
 
 
-class InlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler):
+class InlineCompletionHandler(JupyterHandler, WebSocketHandler):
     def initialize(self, config):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)

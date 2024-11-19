@@ -1,8 +1,6 @@
 from jupyter_server.utils import url_path_join
 from .handlers import OpenAICompletionHandler, InlineCompletionHandler
 from .providers import OpenAIProvider
-from pathlib import Path
-import json
 
 try:
     from _version import __version__
@@ -14,13 +12,6 @@ except ImportError:
 
     warnings.warn("Importing 'mito_ai' outside a proper installation.")
     __version__ = "dev"
-
-
-HERE = Path(__file__).parent.resolve()
-
-
-with (HERE / "labextension" / "package.json").open() as fid:
-    data = json.load(fid)
 
 
 def _jupyter_labextension_paths():
