@@ -379,6 +379,7 @@ test('Can\'t use cross-sheet formula for non-vlookup calls', async ({ page }) =>
     await expect(mito.getByText('Cross-sheet references are only allowed in calls to VLOOKUP')).toBeVisible();
 });
 
+
 test('Start writing a cross-sheet formula using cel editor and switch to formula bar', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     // Add a new column to this sheet because the dropdown covers the columns when the formula bar is open
@@ -409,7 +410,8 @@ test('Start writing a cross-sheet formula using cel editor and switch to formula
     await mito.locator('#cell-editor-input').press('End');
     await mito.locator('#cell-editor-input').pressSequentially(', 3)');
     await mito.locator('#cell-editor-input').press('Enter');
-
+    await awaitResponse(page);
+    
     // Expect that it navigated automatically back to the original sheet and that the values are correct
     await checkColumnCellsHaveExpectedValues(mito, 1, ['2.00', '5.00', '5.00', 'NaN', '11.00'])
 });

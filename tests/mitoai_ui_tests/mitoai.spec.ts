@@ -112,7 +112,7 @@ test.describe('Mito AI Chat', () => {
 
   });
 
-  test.only('Fix Error and Explain code buttons clear chat history', async ({ page }) => {
+  test('Fix Error and Explain code buttons clear chat history', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
 
