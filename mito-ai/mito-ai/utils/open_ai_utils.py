@@ -10,16 +10,9 @@ from .db import get_user_field, set_user_field
 from .schema import UJ_AI_MITO_API_NUM_USAGES, UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from .version_utils import is_pro
 from .create import initialize_user
-from .telemetry_utils import log
+from .telemetry_utils import log, KEY_TYPE_PARAM, MITO_SERVER_KEY, USER_KEY, MITO_AI_COMPLETION_SUCCESS, MITO_AI_COMPLETION_ERROR
 OPEN_AI_URL = 'https://api.openai.com/v1/chat/completions'
 MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/'
-
-KEY_TYPE_PARAM = 'key_type'
-MITO_SERVER_KEY= 'mito_server'
-USER_KEY = 'user_key'
-
-MITO_AI_COMPLETION_SUCCESS = 'mito_ai_completion_success'
-MITO_AI_COMPLETION_ERROR = 'mito_ai_completion_error'
 
 OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 500
 

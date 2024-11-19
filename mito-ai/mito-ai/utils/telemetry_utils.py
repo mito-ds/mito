@@ -15,6 +15,16 @@ analytics.write_key = WRITE_KEY
 # helpful for debugging.
 PRINT_LOGS = False
 
+# Constants for logging the success or error 
+# of Mito AI
+MITO_AI_COMPLETION_SUCCESS = 'mito_ai_success'
+MITO_AI_COMPLETION_ERROR = 'mito_ai_error'
+
+# Constants for logging the type of key 
+KEY_TYPE_PARAM = 'AI_key_type'
+MITO_SERVER_KEY= 'mito_server_key'
+USER_KEY = 'user_key'
+
 def telemetry_turned_on() -> bool:
     """
     Helper function that tells you if logging is turned on or
