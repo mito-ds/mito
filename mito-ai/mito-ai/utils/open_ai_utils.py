@@ -45,8 +45,6 @@ def _get_ai_completion_with_key(ai_completion_data: Dict[str, Any], OPENAI_API_K
         
 
 def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]:
-
-        print(123) 
         
         global __user_email, __user_id, __num_usages
 
@@ -57,13 +55,10 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
         if __num_usages is None:
                 __num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
 
-        print(456)
         if __num_usages is None:
                 __num_usages = 0
 
         pro = is_pro()
-
-        print(1)
 
         if not pro and __num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
                 log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)

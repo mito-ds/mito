@@ -20,8 +20,11 @@ class OpenAICompletionHandler(APIHandler):
             response = get_open_ai_completion(messages)
             self.finish(json.dumps(response))
         except PermissionError as e:
+            # Raise a PermissionError when the user has 
+            # reached the free tier limit for Mito AI.
             self.set_status(403)
             self.finish()
         except Exception as e:
+            # Catch all other exceptions and return a 500 error
             self.set_status(500)
             self.finish()
