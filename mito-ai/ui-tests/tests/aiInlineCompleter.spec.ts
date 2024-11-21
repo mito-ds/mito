@@ -1,87 +1,118 @@
 import { expect, galata, test } from '@jupyterlab/galata';
 import { PromiseDelegate } from '@lumino/coreutils';
 
-/**
- * Don't load JupyterLab webpage before running the tests.
- * This is required to ensure we capture all log messages.
- */
-test.use({
-  autoGoto: false,
-  mockSettings: {
-    ...galata.DEFAULT_SETTINGS,
-    '@jupyterlab/completer-extension:inline-completer': {
-      providers: {
-        '@jupyterlab/inline-completer:history': {
-          enabled: false,
-          timeout: 5000,
-          debouncerDelay: 0,
-          maxSuggestions: 100
-        },
-        'mito-ai': {
-          enabled: true,
-          timeout: 5000,
-          debouncerDelay: 250,
-          triggerKind: 'any'
+test.describe('first time setup', () => {
+  test('should ask the user to activate the inline completion', async ({
+    page
+  }) => {
+    await page
+      .getByText(/Thanks for installing the Mito AI extension/)
+      .waitFor();
+    await page.getByRole('button', { name: 'Enable' }).click();
+
+    // Check that reload trigger loading not empty mito ai config
+    await Promise.all([
+      page.reload(),
+      page.waitForResponse(async response => {
+        if (response.request().method() !== 'GET') {
+          return false;
+        }
+        const url = response.url();
+        if (galata.Routes.config.test(url) && /\/mitoaiconfig\?+/.test(url)) {
+          const content = await response.json();
+          return !!content['state']?.['settingsChecked'];
+        }
+        return false;
+      })
+    ]);
+
+    await expect(
+      page.getByText(/Thanks for installing the Mito AI extension/)
+    ).toHaveCount(0);
+  });
+});
+
+test.describe('default inline completion', () => {
+  test.use({
+    autoGoto: false,
+    mockSettings: {
+      ...galata.DEFAULT_SETTINGS,
+      '@jupyterlab/completer-extension:inline-completer': {
+        providers: {
+          '@jupyterlab/inline-completer:history': {
+            enabled: false,
+            timeout: 5000,
+            debouncerDelay: 0,
+            maxSuggestions: 100
+          },
+          'mito-ai': {
+            enabled: true,
+            timeout: 5000,
+            debouncerDelay: 250,
+            triggerKind: 'any'
+          }
         }
       }
     }
-  }
-});
-
-test('should emit an activation console message', async ({ page, tmpPath }) => {
-  const replyDone = new PromiseDelegate<void>();
-  // Mock completion request with code prefix 'def fib'
-  await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, ws => {
-    ws.onMessage(message => {
-      const payload = JSON.parse(message as string);
-      const messageId = payload.number;
-      if (payload.prefix === 'def fib' && payload.stream) {
-        let counter = -1;
-        const streamReply = setInterval(() => {
-          if (++counter < MOCKED_MESSAGES.length) {
-            ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
-          } else {
-            clearInterval(streamReply);
-            replyDone.resolve();
-          }
-        }, 100);
-      } else {
-        ws.send(
-          JSON.stringify({
-            list: { items: [] },
-            reply_to: messageId,
-            type: 'inline_completion',
-            error: { type: 'ValueError', title: `Unknown request ${message}.` }
-          })
-        );
-      }
-    });
   });
 
-  await page.goto(`tree/${tmpPath}`);
-  const filename = 'inline-completer.ipynb';
-  await page.notebook.createNew(filename);
-  await page.pause();
-  await page.notebook.setCell(0, 'code', 'def fib');
+  test('should display inline completion', async ({ page, tmpPath }) => {
+    const replyDone = new PromiseDelegate<void>();
+    // Mock completion request with code prefix 'def fib'
+    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, ws => {
+      ws.onMessage(message => {
+        const payload = JSON.parse(message as string);
+        const messageId = payload.number;
+        if (payload.prefix === 'def fib' && payload.stream) {
+          let counter = -1;
+          const streamReply = setInterval(() => {
+            if (++counter < MOCKED_MESSAGES.length) {
+              ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
+            } else {
+              clearInterval(streamReply);
+              replyDone.resolve();
+            }
+          }, 100);
+        } else {
+          ws.send(
+            JSON.stringify({
+              list: { items: [] },
+              reply_to: messageId,
+              type: 'inline_completion',
+              error: {
+                type: 'ValueError',
+                title: `Unknown request ${message}.`
+              }
+            })
+          );
+        }
+      });
+    });
 
-  await replyDone.promise;
+    await page.goto(`tree/${tmpPath}`);
+    const filename = 'inline-completer.ipynb';
+    await page.notebook.createNew(filename);
+    await page.notebook.setCell(0, 'code', 'def fib');
 
-  expect
-    .soft(await page.getByRole('main').screenshot())
-    .toMatchSnapshot('successful-inline-suggestion.png');
+    await replyDone.promise;
 
-  // FIXME keyboard shortcut works when testing this in debug mode
-  // need to figure out why it does not work in normal mode
-  // Note: waiting for timeout of 500ms was tried unsuccessfully
-  // await page.keyboard.press('Alt+End');
+    expect
+      .soft(await page.getByRole('main').screenshot())
+      .toMatchSnapshot('successful-inline-suggestion.png');
 
-  await page.evaluate(() =>
-    window.galata.app.commands.execute('inline-completer:accept')
-  );
+    // FIXME keyboard shortcut works when testing this in debug mode
+    // need to figure out why it does not work in normal mode
+    // Note: waiting for timeout of 500ms was tried unsuccessfully
+    // await page.keyboard.press('Alt+End');
 
-  expect(await page.getByRole('main').screenshot()).toMatchSnapshot(
-    'successful-inline-completion.png'
-  );
+    await page.evaluate(() =>
+      window.galata.app.commands.execute('inline-completer:accept')
+    );
+
+    expect(await page.getByRole('main').screenshot()).toMatchSnapshot(
+      'successful-inline-completion.png'
+    );
+  });
 });
 
 // Mocked messages to simulate the inline completion process
