@@ -1600,7 +1600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/state@npm:^6.0.0, @codemirror/state@npm:^6.4.0, @codemirror/state@npm:^6.4.1":
+"@codemirror/state@npm:^6.0.0, @codemirror/state@npm:^6.2.0, @codemirror/state@npm:^6.4.0, @codemirror/state@npm:^6.4.1":
   version: 6.4.1
   resolution: "@codemirror/state@npm:6.4.1"
   checksum: b81b55574091349eed4d32fc0eadb0c9688f1f7c98b681318f59138ee0f527cb4c4a97831b70547c0640f02f3127647838ae6730782de4a3dd2cc58836125d01
@@ -1615,6 +1615,17 @@ __metadata:
     style-mod: ^4.1.0
     w3c-keyname: ^2.2.4
   checksum: e28896a7fb40df8e7221fbebfc2cd92c10c6963948e20f3a4300e99c897fbddd091f4fc90cc30eeaf90d07c61dcf6170cd3c164810606fa07337ffb970ffdac2
+  languageName: node
+  linkType: hard
+
+"@codemirror/view@npm:^6.9.6":
+  version: 6.35.0
+  resolution: "@codemirror/view@npm:6.35.0"
+  dependencies:
+    "@codemirror/state": ^6.4.0
+    style-mod: ^4.1.0
+    w3c-keyname: ^2.2.4
+  checksum: 8584d354df2147f07bb184a2443d6451db25f7a63c09644fc705c695e100042141f5162058718c495eb1c51fbab5eb37814bb72fc1ddf968e855def669a43193
   languageName: node
   linkType: hard
 
@@ -2901,7 +2912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/commands@npm:^2.3.0, @lumino/commands@npm:^2.3.1":
+"@lumino/commands@npm:^2.0.0, @lumino/commands@npm:^2.3.0, @lumino/commands@npm:^2.3.1":
   version: 2.3.1
   resolution: "@lumino/commands@npm:2.3.1"
   dependencies:
@@ -7895,10 +7906,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "mito-ai@workspace:."
   dependencies:
+    "@codemirror/state": ^6.2.0
+    "@codemirror/view": ^6.9.6
     "@jupyterlab/application": ^4.2.4
     "@jupyterlab/apputils": ^4.3.4
     "@jupyterlab/builder": ^4.0.0
     "@jupyterlab/testutils": ^4.0.0
+    "@lumino/commands": ^2.0.0
     "@lumino/widgets": ^2.5.0
     "@types/jest": ^29.2.0
     "@types/json-schema": ^7.0.11
