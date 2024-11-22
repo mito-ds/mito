@@ -37,6 +37,7 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
     print(f"\nPrompt: \033[1m{prompt_name}\033[0m")
 
     table = PrettyTable()
+    table.align = 'l'  # Left align all columns
     field_names = ['Test Name', 'Result']
     table.field_names = field_names
 
