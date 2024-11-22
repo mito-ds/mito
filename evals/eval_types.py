@@ -15,5 +15,9 @@ class TestCase:
     notebook_state: NotebookState
     user_input: str
     expected_code: str
-    tags: List[Literal['variable declaration', 'dataframe transformation']]
+    tags: List[Literal[
+        'variable declaration', 
+        'function declaration',
+        'dataframe transformation'
+    ]]
 
