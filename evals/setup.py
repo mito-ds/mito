@@ -7,5 +7,6 @@ setup(
     install_requires=[
         "mypy>=1.0.0",
         "types-setuptools",
+        "openai>=1.0.0"
     ],
 )
