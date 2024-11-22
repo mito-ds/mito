@@ -18,13 +18,16 @@ class TestCase:
     tags: List[Literal[
         'variable declaration', 
         'function declaration',
-        'dataframe transformation'
+        'dataframe transformation',
+        'df creation',
+        'pandas'
     ]]
 
 @dataclass(frozen=True)
 class TestCaseResult:
     test: TestCase
     passed: bool
+
 
 class PromptGenerator():
 

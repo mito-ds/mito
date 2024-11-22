@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 from prettytable import PrettyTable
 from evals.eval_types import TestCaseResult
-
+import pandas as pd
 
 def get_script_from_cells(cells: List[str]) -> str:
     return "\n".join(cells)
@@ -19,16 +19,6 @@ def get_globals_to_compare(globals: Dict[str, Any]) -> Dict[str, Any]:
     globals = {k: v for k, v in globals.items() if not callable(v)}
 
     return globals
-
-def print_green(text: str):
-    print("\033[92m", end="")
-    print(text)
-    print("\033[0m", end="")
-
-def print_red(text: str):
-    print("\033[91m", end="")
-    print(text)
-    print("\033[0m", end="")
 
 
 def print_test_case_result_table(prompt_name: str, test_case_results: List[TestCaseResult]):
@@ -51,3 +41,29 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
     table.add_row([f"Average Score", f"{average_score:.2f}"])
 
     print(table)
+
+def are_globals_equal(globals1: Dict[str, Any], globals2: Dict[str, Any]) -> bool:
+    """
+    Compares two dictionaries of globals, and returns True if they are equal,
+    and False otherwise.
+
+    Take special care to correctly check equality for pandas DataFrames.
+    """
+
+    # First, check if the keys are the same
+    if globals1.keys() != globals2.keys():
+        return False
+    
+    global_keys_one = set(globals1.keys())
+    for key in global_keys_one:
+        var_one = globals1[key]
+        var_two = globals2[key]
+
+        if isinstance(var_one, pd.DataFrame) and isinstance(var_two, pd.DataFrame):
+            if not var_one.equals(var_two):
+                return False
+        else:
+            if var_one != var_two:
+                return False
+    
+    return True
