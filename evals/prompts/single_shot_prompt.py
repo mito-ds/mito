@@ -1,7 +1,10 @@
 from evals.eval_types import NotebookState, PromptGenerator
 
+__all__ = ['single_shot_prompt_generator']
 
-class SingleShotPromptGenerator(PromptGenerator):
+class _SingleShotPromptGenerator(PromptGenerator):
+    prompt_name = "single_shot_prompt"
+
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
         return f"""You are an expert python programmer. You are given a set of variables, existing code, and a task. 
 
@@ -34,3 +37,5 @@ Your job is to:
 {user_input}
 
 Response:"""
+
+single_shot_prompt_generator = _SingleShotPromptGenerator()

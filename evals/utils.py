@@ -1,5 +1,7 @@
 from typing import List, Dict, Any
 
+from evals.eval_types import TestCaseResult
+
 
 def get_script_from_cells(cells: List[str]) -> str:
     return "\n".join(cells)
@@ -27,3 +29,9 @@ def print_red(text: str):
     print("\033[91m", end="")
     print(text)
     print("\033[0m", end="")
+
+
+def print_test_case_result_table(prompt_name: str, test_case_results: List[TestCaseResult]):
+    print(f"Prompt: {prompt_name}")
+    for test_case_result in test_case_results:
+        print(f"Test: {test_case_result.test.name} - {test_case_result.passed}")

@@ -21,7 +21,15 @@ class TestCase:
         'dataframe transformation'
     ]]
 
+@dataclass(frozen=True)
+class TestCaseResult:
+    test: TestCase
+    passed: bool
 
 class PromptGenerator():
+
+    prompt_name: str
+
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
         raise NotImplementedError("Subclasses must implement this method")
+

@@ -1,8 +1,7 @@
-from evals.prompts.multi_shot_prompt import MultiShotPromptGenerator
-from evals.prompts.single_shot_prompt import SingleShotPromptGenerator
-
+from evals.prompts.single_shot_prompt import single_shot_prompt_generator
+from evals.prompts.multi_shot_prompt import multi_shot_prompt_generator
 
 PROMPT_GENERATORS = [
-    MultiShotPromptGenerator(),
-    SingleShotPromptGenerator()
+    single_shot_prompt_generator,
+    multi_shot_prompt_generator
 ]

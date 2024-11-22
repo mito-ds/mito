@@ -1,6 +1,9 @@
 from evals.eval_types import NotebookState, PromptGenerator
 
-class MultiShotPromptGenerator(PromptGenerator):
+__all__ = ['multi_shot_prompt_generator']
+
+class _MultiShotPromptGenerator(PromptGenerator):
+    prompt_name = "multi_shot_prompt"
 
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
         return f"""You are an expert python programmer. You are given a set of variables, existing code, and a task. 
@@ -67,3 +70,5 @@ Your job is to:
 {user_input}
 
 Response:"""
+    
+multi_shot_prompt_generator = _MultiShotPromptGenerator()

@@ -1,8 +1,8 @@
 from typing import List
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.prompts import PROMPT_GENERATORS
-from evals.eval_types import NotebookState, TestCase
-from evals.utils import get_globals_to_compare, get_script_from_cells, print_green, print_red
+from evals.eval_types import NotebookState, TestCase, TestCaseResult
+from evals.utils import print_test_case_result_table, get_globals_to_compare, get_script_from_cells, print_green, print_red
 
 
 EMPTY_NOTEBOOK_STATE: NotebookState = NotebookState(
@@ -42,6 +42,9 @@ TESTS: List[TestCase] = [
 ]
 
 for prompt_generator in PROMPT_GENERATORS:
+
+    test_case_results: List[TestCaseResult] = []
+
     for test in TESTS:
             
         # Get the script from the cells
@@ -68,13 +71,8 @@ for prompt_generator in PROMPT_GENERATORS:
 
         # TODO: Add statistics on how many tests pass/fail
 
-        if expected_globals == actual_globals:
-            print_green(f"Test {test.name} passed")
-        else:
-            print_red(f"Test {test.name} failed")
-            print("Expected globals:")
-            print(expected_globals)
-            print("Actual globals:")
-            print(actual_globals)
-    
+        test_case_result = TestCaseResult(test=test, passed=expected_globals == actual_globals)
+        test_case_results.append(test_case_result)
+
+    print_test_case_result_table(prompt_generator.prompt_name, test_case_results)
     
