@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-
+from prettytable import PrettyTable
 from evals.eval_types import TestCaseResult
 
 
@@ -32,6 +32,21 @@ def print_red(text: str):
 
 
 def print_test_case_result_table(prompt_name: str, test_case_results: List[TestCaseResult]):
-    print(f"Prompt: {prompt_name}")
+
+    # Bold prompt name
+    print(f"\nPrompt: \033[1m{prompt_name}\033[0m")
+
+    table = PrettyTable()
+    field_names = ['Test Name', 'Result']
+    table.field_names = field_names
+
+    average_score = sum(test_case_result.passed for test_case_result in test_case_results) / len(test_case_results)
+
     for test_case_result in test_case_results:
-        print(f"Test: {test_case_result.test.name} - {test_case_result.passed}")
+        result_text = "Passed" if test_case_result.passed else "\033[91mFailed\033[0m"
+        table.add_row([test_case_result.test.name, result_text])
+
+    table.add_row(["" for _ in field_names])
+    table.add_row([f"Average Score", f"{average_score:.2f}"])
+
+    print(table)
