@@ -1,13 +1,13 @@
-from typing import List, Literal
+from typing import List
 from evals.prompts.simple_prompt import get_simple_prompt
 from evals.eval_types import NotebookState, TestCase
 from evals.utils import get_script_from_cells
 
 
-EMPTY_NOTEBOOK_STATE: NotebookState = {
-  'global_vars': {},
-  'cell_contents': []
-}
+EMPTY_NOTEBOOK_STATE: NotebookState = NotebookState(
+  global_vars={},
+  cell_contents=[]
+)
 
 
 TESTS: List[TestCase] = [
@@ -27,12 +27,10 @@ for test in TESTS:
     # Get the script from the cells
     script = get_script_from_cells(test.notebook_state.cell_contents)
 
-    # Create separate execution environments
     expected_globals = {}
     generated_globals = {}
-
-    exec(script, expected_globals)
-    exec(test.expected_code, generated_globals)
+    exec(script, {})
+    exec(test.expected_code, {})
 
     if expected_globals == generated_globals:
         print(f"Test {test.name} passed")
@@ -45,3 +43,4 @@ for test in TESTS:
 	# Execute the expected code and get the result of the global variables
 	# Execute the LLM generated code and get the result of the global variables
 	# Compare the global variables and return 1 if they match exactly. Return 0 if they don't match exactly
+    
