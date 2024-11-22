@@ -205,7 +205,48 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
         user_input="Calculate a new column called sum_int_columns that is the sum of all the integer columns",
         expected_code="loans_df['sum_int_columns'] = loans_df['annual_income']+loans_df['loan_amount']",
         tags=['dataframe transformation', 'pandas']
-    )
+    ),
+    TestCase(
+        name='delete_column',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Delete the annual_income column",
+        expected_code="loans_df.drop(columns=['annual_income'], inplace=True)",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='find_and_replace_string',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Replace the word 'Low' with 'Bottom Bucket' in the entire dataframe",
+        expected_code='loans_df = loans_df.astype(str).replace("(?i)Low", "Bottom Bucket", regex=True).astype(loans_df.dtypes.to_dict())',
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='find_and_replace_with_regex',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Replace the phrase 'car' with 'automobile'",
+        expected_code='loans_df = loans_df.astype(str).replace("car", "automobile", regex=True).astype(loans_df.dtypes.to_dict())',
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='find_and_replace_with_no_regex',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Replace the word 'car' with 'automobile'. Do not replace the substring 'car' if it is part of a bigger word.",
+        expected_code='loans_df = loans_df.astype(str).replace("car", "automobile").astype(loans_df.dtypes.to_dict())',
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='pivot_table_simple',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Create a pivot table called loans_df_pivot that shows the average loan amount for each loan purpose. Reset the index of the pivot table so the purpose column is a column in the dataframe. Do not edit the original dataframe. Instead, if you need to edit the original dataframe, make a copy of it called tmp_df and edit that one.",
+        expected_code="""tmp_df = loans_df[['loan_amount', 'purpose']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['purpose'],
+    values=['loan_amount'],
+    aggfunc={'loan_amount': ['mean']}
+)
+loans_df_pivot = pivot_table.reset_index()""",
+        tags=['dataframe transformation', 'pandas']
+    ),
 ]
 
 for prompt_generator in PROMPT_GENERATORS:
@@ -214,7 +255,7 @@ for prompt_generator in PROMPT_GENERATORS:
 
     for test in TESTS:
 
-        print(f"\n\nRunning test: {test.name}")
+        print(f"Running test: {test.name}")
             
         # Get the script from the cells
         current_cell_contents_script = get_script_from_cells(test.notebook_state.cell_contents)
@@ -247,14 +288,6 @@ for prompt_generator in PROMPT_GENERATORS:
 
         expected_globals = get_globals_to_compare(expected_globals)
         actual_globals = get_globals_to_compare(actual_globals)
-
-        # TODO: Add statistics on how many tests pass/fail
-
-        # print(f"\nExpected globals:")
-        # print(expected_globals)
-
-        # print(f"\nActual globals:")
-        # print(actual_globals)
 
         test_case_result = TestCaseResult(test=test, passed=are_globals_equal(expected_globals, actual_globals))
         test_case_results.append(test_case_result)
