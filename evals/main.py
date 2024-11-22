@@ -108,11 +108,25 @@ sum_result = my_sum(1, 2)
         tags=['dataframe transformation', 'pandas']
     ),
     TestCase(
-        name="implicit_type_conversion",
+        name="implicit_datetime_conversion",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Create a new column called year that is the year of the issue_date column",
         expected_code="""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
 loans_df['year'] = loans_df['issue_date'].dt.year""",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="explicit_float_conversion",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Convert the annual income column to a float",
+        expected_code="loans_df['annual_income'] = loans_df['annual_income'].astype(float)",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="explicit_int_conversion",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Convert the interest rate column to an int",
+        expected_code="loans_df['interest_rate'] = loans_df['interest_rate'].astype(int)",
         tags=['dataframe transformation', 'pandas']
     ),
     TestCase(
@@ -136,10 +150,62 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
         expected_code="loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else col for col in loans_df.columns]",
         tags=['dataframe transformation', 'pandas']
     ),
-
-
-
-    
+    TestCase(
+        name="column_multiplication_scalar",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Multiply the interest rate by 100",
+        expected_code="loans_df['interest_rate'] = loans_df['interest_rate'] * 100",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="calculate_monthly_payment_provided_formula",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Calculate the monthly_payment by multiplying the loan amount by the interest rate / 12",
+        expected_code="loans_df['monthly_payment'] = loans_df['loan_amount'] * (loans_df['interest_rate'] / 12)",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="calculate_monthly_payment_no_formula",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Calculate the monthly_payment",
+        expected_code="loans_df['monthly_payment'] = loans_df['loan_amount'] * (loans_df['interest_rate'] / 12)",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="column_division_scalar",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Divide the total payment by 1000",
+        expected_code="loans_df['total_pymnt'] = loans_df['total_pymnt']/1000",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='calculate_remaining_balance_provided_formula',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Calculate the remaining_balance",
+        expected_code="loans_df['remaining_principal'] = loans_df['loan_amount']-loans_df['total_rec_prncp']",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='calculate_remaining_balance_no_formula',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Calculate the remaining_balance by subtracting the total_rec_prncp from the loan amount",
+        expected_code="loans_df['remaining_principal'] = loans_df['loan_amount']-loans_df['total_rec_prncp']",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='sum_last_three_columns',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Calculate a new column called sum_last_three that is the sum of the last three columns",
+        expected_code="loans_df['sum_last_three'] = loans_df['interest_rate']+loans_df['total_pymnt']+loans_df['total_rec_prncp']",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='sum_int_columns',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Calculate a new column called sum_int_columns that is the sum of all the integer columns",
+        expected_code="loans_df['sum_int_columns'] = loans_df['annual_income']+loans_df['loan_amount']",
+        tags=['dataframe transformation', 'pandas']
+    )
 ]
 
 for prompt_generator in PROMPT_GENERATORS:
@@ -166,8 +232,8 @@ for prompt_generator in PROMPT_GENERATORS:
         expected_globals = {}
         actual_globals = {}
 
-        print(f"\nExpected code: \n{expected_code}")
-        print(f"\nActual code: \n{actual_code}")
+        # print(f"\nExpected code: \n{expected_code}")
+        # print(f"\nActual code: \n{actual_code}")
 
         try:
             exec(expected_code, expected_globals)
