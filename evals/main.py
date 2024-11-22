@@ -21,10 +21,9 @@ INITIALIZED_VARIABLES_NOTEBOOK: NotebookState = NotebookState(
   cell_contents=['x = 1', 'y = 2', 'z = 3', '']
 )
 
-
 LOANS_DF_NOTEBOOK: NotebookState = NotebookState(
   global_vars={'loans_df': pd.DataFrame({
-    'issue_date': ['2011-01-12', '2011-01-12'],  # shortened for brevity
+    'issue_date': ['2011-01-12', '2011-01-12'],
     'income_category': ['Low', 'Low'],
     'annual_income': [24000, 30000],
     'loan_amount': [5000, 2500],
@@ -37,14 +36,18 @@ LOANS_DF_NOTEBOOK: NotebookState = NotebookState(
     'total_rec_prncp': [5000.00, 456.46]
   })},
   cell_contents=["""import pandas as pd
-import os
-print(os.getcwd())
-loans_df = pd.read_csv("evals/data/loans.csv")
-""", '']
+loans_df = pd.read_csv('evals/data/loans.csv')""", '']
 )
+
+"""
+Tests to add:
+- [ ] Import Excel file
+- [ ] Import file from url 
+"""
 
 
 TESTS: List[TestCase] = [
+    # Create variables tests
     TestCase(
         name="empty_notebook_variable_declaration",
         notebook_state=EMPTY_NOTEBOOK,
@@ -52,6 +55,24 @@ TESTS: List[TestCase] = [
         expected_code='x=1',
         tags=['variable declaration']
     ),
+    TestCase(
+        name="initialized_variables_variable_declaration",
+        notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
+        user_input="create a new variable w that is the product of x, y, and z",
+        expected_code="w = x * y * z",
+        tags=['variable declaration']
+    ),
+
+    # Create dataframe tests
+    TestCase(
+        name="import_csv",
+        notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
+        user_input="Create a datafame called loans_df by importing the csv using the path 'evals/data/loans.csv'",
+        expected_code="loans_df = pd.read_csv('evals/data/loans.csv')",
+        tags=['df creation', 'pandas']
+    ),
+
+    # Create functions tests
     TestCase(
         name="empty_notebook_function_declaration",
         notebook_state=EMPTY_NOTEBOOK,
@@ -63,20 +84,62 @@ sum_result = my_sum(1, 2)
 """,
         tags=['function declaration']
     ),
+
+    # Edit Dataframe Tests
     TestCase(
-        name="initialized_variables_variable_declaration",
-        notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
-        user_input="create a new variable w that is the product of x, y, and z",
-        expected_code="w = x * y * z",
-        tags=['variable declaration']
+        name="single_column_numeric_filter",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Filter the annual income column to > 100k",
+        expected_code="loans_df = loans_df[loans_df['annual_income'] > 100000]",
+        tags=['dataframe transformation', 'pandas']
     ),
     TestCase(
-        name="import_csv",
-        notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
-        user_input="Create a datafame called loans_df by importing the csv using the path 'evals/data/loans.csv'",
-        expected_code="loans_df = pd.read_csv('evals/data/loans.csv')",
-        tags=['df creation', 'pandas']
-    )
+        name="two_column_filter",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Filter the annual income column to > 100k and the loan condition to only include 'Bad Loan'",
+        expected_code="loans_df = loans_df[(loans_df['annual_income'] > 100000) & (loans_df['loan_condition'] == 'Bad Loan')]",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="explicit_datetime_conversion",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Convert the issue_date column to datetime format",
+        expected_code="loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="implicit_type_conversion",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Create a new column called year that is the year of the issue_date column",
+        expected_code="""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
+loans_df['year'] = loans_df['issue_date'].dt.year""",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="single_column_renaming_specifc",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Rename issue_date to Issue Date",
+        expected_code="loans_df.rename(columns={'issue_date': 'Issue Date'}, inplace=True)",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="single_column_renaming_less_specifc",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Rename the date column to date",
+        expected_code="loans_df.rename(columns={'issue_date': 'date'}, inplace=True)",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name="bulk_column_renaming",
+        notebook_state=LOANS_DF_NOTEBOOK,
+        user_input="Replace the _ with a space in all column names",
+        expected_code="loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else col for col in loans_df.columns]",
+        tags=['dataframe transformation', 'pandas']
+    ),
+
+
+
+    
 ]
 
 for prompt_generator in PROMPT_GENERATORS:
@@ -103,12 +166,15 @@ for prompt_generator in PROMPT_GENERATORS:
         expected_globals = {}
         actual_globals = {}
 
+        print(f"\nExpected code: \n{expected_code}")
+        print(f"\nActual code: \n{actual_code}")
+
         try:
             exec(expected_code, expected_globals)
             exec(actual_code, actual_globals)
         except Exception as e:
             # Fail early if we can't execute the code
-            test_case_result = TestCaseResult(test=test, passed=True)
+            test_case_result = TestCaseResult(test=test, passed=False)
             test_case_results.append(test_case_result)
             print(f"Error: {e}")
             continue
@@ -118,11 +184,11 @@ for prompt_generator in PROMPT_GENERATORS:
 
         # TODO: Add statistics on how many tests pass/fail
 
-        print(f"\nExpected globals:")
-        print(expected_globals)
+        # print(f"\nExpected globals:")
+        # print(expected_globals)
 
-        print(f"\nActual globals:")
-        print(actual_globals)
+        # print(f"\nActual globals:")
+        # print(actual_globals)
 
         test_case_result = TestCaseResult(test=test, passed=are_globals_equal(expected_globals, actual_globals))
         test_case_results.append(test_case_result)
