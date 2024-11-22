@@ -1,4 +1,7 @@
-def get_simple_prompt(user_input, notebook_state):
+from evals.eval_types import NotebookState
+
+
+def get_simple_prompt(user_input: str, notebook_state: NotebookState) -> str:
 		return f"""You are a ... 
 		
 You have these variables:
