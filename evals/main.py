@@ -2,12 +2,17 @@ from typing import List
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.prompts.simple_prompt import get_simple_prompt
 from evals.eval_types import NotebookState, TestCase
-from evals.utils import get_globals_to_compare, get_script_from_cells
+from evals.utils import get_globals_to_compare, get_script_from_cells, print_green, print_red
 
 
 EMPTY_NOTEBOOK_STATE: NotebookState = NotebookState(
   global_vars={},
   cell_contents=[]
+)
+
+INITIALIZED_VARIABLES_NOTEBOOK_STATE: NotebookState = NotebookState(
+  global_vars={'x': 1, 'y': 2, 'z': 3},
+  cell_contents=['x = 1', 'y = 2', 'z = 3', '']
 )
 
 
@@ -27,6 +32,13 @@ TESTS: List[TestCase] = [
     return a + b""",
         tags=['function declaration']
     ),
+    TestCase(
+        name="initialized_variables_variable_declaration",
+        notebook_state=INITIALIZED_VARIABLES_NOTEBOOK_STATE,
+        user_input="create a new variable that is the product of x, y, and z",
+        expected_code="w = x * y * z",
+        tags=['variable declaration']
+    )
 ]
 
 for test in TESTS:
@@ -53,10 +65,12 @@ for test in TESTS:
     expected_globals = get_globals_to_compare(expected_globals)
     actual_globals = get_globals_to_compare(actual_globals)
 
+    # TODO: Add statistics on how many tests pass/fail
+
     if expected_globals == actual_globals:
-        print(f"Test {test.name} passed")
+        print_green(f"Test {test.name} passed")
     else:
-        print(f"Test {test.name} failed")
+        print_red(f"Test {test.name} failed")
         print("Expected globals:")
         print(expected_globals)
         print("Actual globals:")
