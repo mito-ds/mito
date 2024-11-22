@@ -1,8 +1,8 @@
 from typing import List
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
-from evals.prompts.simple_prompt import get_simple_prompt
-from evals.eval_types import NotebookState, TestCase
-from evals.utils import get_globals_to_compare, get_script_from_cells, print_green, print_red
+from evals.prompts import PROMPT_GENERATORS
+from evals.eval_types import NotebookState, TestCase, TestCaseResult
+from evals.utils import print_test_case_result_table, get_globals_to_compare, get_script_from_cells, print_green, print_red
 
 
 EMPTY_NOTEBOOK_STATE: NotebookState = NotebookState(
@@ -35,45 +35,44 @@ TESTS: List[TestCase] = [
     TestCase(
         name="initialized_variables_variable_declaration",
         notebook_state=INITIALIZED_VARIABLES_NOTEBOOK_STATE,
-        user_input="create a new variable that is the product of x, y, and z",
+        user_input="create a new variable w that is the product of x, y, and z",
         expected_code="w = x * y * z",
         tags=['variable declaration']
     )
 ]
 
-for test in TESTS:
-    
-    # Get the script from the cells
-    current_cell_contents_script = get_script_from_cells(test.notebook_state.cell_contents)
+for prompt_generator in PROMPT_GENERATORS:
 
-    # Get the expected code script 
-    expected_code = current_cell_contents_script + "\n" + test.expected_code
+    test_case_results: List[TestCaseResult] = []
 
-    # Create the actual code script produced by the LLM
-    prompt = get_simple_prompt(test.user_input, test.notebook_state)
-    ai_generated_code = get_open_ai_completion(prompt)
-    actual_code = current_cell_contents_script + "\n" + ai_generated_code
+    for test in TESTS:
+            
+        # Get the script from the cells
+        current_cell_contents_script = get_script_from_cells(test.notebook_state.cell_contents)
 
-    # So that we can compare the results of the two scripts, create global context for 
-    # each script. When calling exec, the globals are updated in place.
-    expected_globals = {}
-    actual_globals = {}
+        # Get the expected code script 
+        expected_code = current_cell_contents_script + "\n" + test.expected_code
 
-    exec(expected_code, expected_globals)
-    exec(actual_code, actual_globals)
+        # Create the actual code script produced by the LLM
+        prompt = prompt_generator.get_prompt(test.user_input, test.notebook_state)
+        ai_generated_code = get_open_ai_completion(prompt)
+        actual_code = current_cell_contents_script + "\n" + ai_generated_code
 
-    expected_globals = get_globals_to_compare(expected_globals)
-    actual_globals = get_globals_to_compare(actual_globals)
+        # So that we can compare the results of the two scripts, create global context for 
+        # each script. When calling exec, the globals are updated in place.
+        expected_globals = {}
+        actual_globals = {}
 
-    # TODO: Add statistics on how many tests pass/fail
+        exec(expected_code, expected_globals)
+        exec(actual_code, actual_globals)
 
-    if expected_globals == actual_globals:
-        print_green(f"Test {test.name} passed")
-    else:
-        print_red(f"Test {test.name} failed")
-        print("Expected globals:")
-        print(expected_globals)
-        print("Actual globals:")
-        print(actual_globals)
-    
+        expected_globals = get_globals_to_compare(expected_globals)
+        actual_globals = get_globals_to_compare(actual_globals)
+
+        # TODO: Add statistics on how many tests pass/fail
+
+        test_case_result = TestCaseResult(test=test, passed=expected_globals == actual_globals)
+        test_case_results.append(test_case_result)
+
+    print_test_case_result_table(prompt_generator.prompt_name, test_case_results)
     
