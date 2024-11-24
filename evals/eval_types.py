@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Optional
 
 @dataclass(frozen=True)
 class NotebookState:
@@ -22,6 +22,7 @@ class TestCase:
         'df creation',
         'pandas'
     ]]
+    variables_to_compare: Optional[List[str]] = None
 
 @dataclass(frozen=True)
 class TestCaseResult:

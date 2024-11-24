@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from prettytable import PrettyTable
 from evals.eval_types import TestCaseResult
 import pandas as pd
@@ -6,12 +6,15 @@ import pandas as pd
 def get_script_from_cells(cells: List[str]) -> str:
     return "\n".join(cells)
 
-def get_globals_to_compare(globals: Dict[str, Any]) -> Dict[str, Any]:
+def get_globals_to_compare(globals: Dict[str, Any], variables_to_compare: Optional[List[str]] = None) -> Dict[str, Any]:
     """
     Globals have a lot of stuff we don't actually care about comparing. 
     For now, we only care about comparing variables created by the script.
     This functionremoves everything else
     """
+    if variables_to_compare is not None:
+        # Get the variables to compare from the globals and remove everything else
+        return {k: v for k, v in globals.items() if k in variables_to_compare}
 
     globals = {k: v for k, v in globals.items() if k != "__builtins__"}
 
@@ -40,7 +43,7 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
     total_passed = sum(test_case_result.passed for test_case_result in test_case_results)
     total_tests = len(test_case_results)
     average_score = total_passed / total_tests
-    
+
     table.add_row([f"Average Score", f"{average_score:.2f} ({total_passed}/{total_tests})"])
 
     print(table)
