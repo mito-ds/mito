@@ -129,4 +129,22 @@ highest_monthly_ending_capital = highest_monthly_ending_capital.reset_index(drop
         tags=["df_transformation", "pandas", "multistep"],
         variables_to_compare=["highest_monthly_ending_capital"],
     ),
+    TestCase(
+        name="convert_to_float_and_calc_quartiles",
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        user_input="""For the column `kmDriven`, remove the comma and the word "km" and convert it to a float.
+
+Next, create two new columns: `AgeQuartile` and `kmDrivenQuartile` that are the quartiles of the `Age` and `kmDriven` columns respectively. 
+Each quartile should have a label: "Q1", "Q2", "Q3", "Q4".
+
+Create a new column called `beater` that is `True` if the `kmDrivenQuartile` and `AgeQuartile` are both in the fourth quartile.
+""",
+        expected_code="""
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str.replace(",", "").str.replace(" km", "").astype(float)
+used_cars_df["AgeQuartile"] = pd.qcut(used_cars_df["Age"], q=4, labels=["Q1", "Q2", "Q3", "Q4"])
+used_cars_df["kmDrivenQuartile"] = pd.qcut(used_cars_df["kmDriven"], q=4, labels=["Q1", "Q2", "Q3", "Q4"])
+used_cars_df["beater"] = (used_cars_df["kmDrivenQuartile"] == "Q4") & (used_cars_df["AgeQuartile"] == "Q4")
+""",
+        tags=["misc"],
+    ),
 ]
