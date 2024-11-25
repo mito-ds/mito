@@ -1,9 +1,9 @@
 import argparse
-from typing import List
+from typing import Dict, List
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.prompts import PROMPT_GENERATORS
-from evals.eval_types import NotebookState, TestCase, TestCaseResult
-from evals.utils import are_globals_equal, print_test_case_result_table, get_globals_to_compare, get_script_from_cells
+from evals.eval_types import TestCase, TestCaseResult
+from evals.utils import are_globals_equal, get_globals_to_compare, get_script_from_cells, print_test_case_result_tables
 import pandas as pd
 from evals.notebook_states import *
 
@@ -563,10 +563,10 @@ if __name__ == "__main__":
     print(f"Collected {len(prompt_generators_to_test)} prompts")
 
 
+    # Mapping from prompt name to test results for each prompt we test
+    test_case_results: Dict[str, List[TestCaseResult]] = {}
     for prompt_generator in prompt_generators_to_test:
-
-        test_case_results: List[TestCaseResult] = []
-
+        test_case_results[prompt_generator.prompt_name] = []
         for test in tests_to_run:
 
             print(f"Running test: {test.name}")
@@ -593,7 +593,7 @@ if __name__ == "__main__":
             except Exception as e:
                 # Fail early if we can't execute the code
                 test_case_result = TestCaseResult(test=test, passed=False)
-                test_case_results.append(test_case_result)
+                test_case_results[prompt_generator.prompt_name].append(test_case_result)
                 print("Test Failed: ")
                 print(f"Expected code:\n{expected_code}")
                 print(f"\nActual code:\n{actual_code}")
@@ -604,7 +604,7 @@ if __name__ == "__main__":
             actual_globals = get_globals_to_compare(actual_globals, test.variables_to_compare)
 
             test_case_result = TestCaseResult(test=test, passed=are_globals_equal(expected_globals, actual_globals))
-            test_case_results.append(test_case_result)
+            test_case_results[prompt_generator.prompt_name].append(test_case_result)
 
-        print_test_case_result_table(prompt_generator.prompt_name, test_case_results)
+    print_test_case_result_tables(test_case_results)
     
