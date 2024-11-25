@@ -62,6 +62,14 @@ export async function requestAPI(
             errorMessage: "You're missing the OPENAI_API_KEY environment variable. Run the following code in your terminal to set the environment variable and then relaunch the jupyter server ```python\nexport OPENAI_API_KEY=<your-api-key>\n```",
         }
     }
+    if (response.status === 403) {
+        // This 403 error is set by the OpenAICompletionHandler class in the mito-ai python package.
+        // It is raised when the user has reached the free tier limit for Mito AI.
+        return {
+            type: 'error',
+            errorMessage: "You've reached the free tier limit for Mito AI. Upgrade to Pro for unlimited uses or supply your own OpenAI API key.",
+        }
+    }
     if (response.status === 404 ) {
         // This 404 error is set by Jupyter when sending a request to the mito-ai endpoint that does not exist.
         return {
@@ -96,11 +104,6 @@ export async function requestAPI(
             return {
                 type: 'success',
                 response: aiMessage            
-            }
-        } else if ('error' in data) {
-            return {
-                type: 'error',
-                errorMessage: data['error']
             }
         } else {
             throw new Error('Invalid response from the Mito AI server')
