@@ -5,7 +5,7 @@ export function createBasicPrompt(
     activeCellCode: string,
     input: string
 ): string {
-    return `You have access to the following variables:
+    const prompt = `You have access to the following variables:
 
 ${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
 
@@ -55,6 +55,10 @@ ${activeCellCode}
 \`\`\`
 
 Your task: ${input}`;
+
+    console.log(prompt);
+
+    return prompt;
 }
 
 export function createErrorPrompt(activeCellCode: string, errorMessage: string): string {
