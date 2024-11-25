@@ -379,6 +379,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
+                            variableManager={variableManager}
                         />
                     )
                 }).filter(message => message !== null)}
@@ -394,6 +395,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 onSave={sendChatInputMessage}
                 onCancel={undefined}
                 isEditing={false}
+                variableManager={variableManager}
             />
         </div>
     );
