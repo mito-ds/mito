@@ -72,6 +72,18 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
   });
 
+  test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['# Empty cell']);
+    await waitForIdle(page);
+
+    await sendMessageToMitoAI(page, 'Write the code x = 1');
+    await sendMessageToMitoAI(page, 'Write the code x = 2');
+
+    const code = await getCodeFromCell(page, 1);
+    expect(code).toContain('x = 2');
+    expect(code).not.toContain('x = 1');
+  });
+
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
     await createAndRunNotebookWithCells(page, []);
     await waitForIdle(page);
