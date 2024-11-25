@@ -126,6 +126,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string) => {
+        // Step 0: If code diffs are displayed, reject the AI code, then send the message.
+        if (unifiedDiffLines !== undefined) {
+            rejectAICode()
+        }
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -139,6 +143,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
+        // Step 0: If code diffs are displayed, reject the AI code, then send the message.
+        if (unifiedDiffLines !== undefined) {
+            rejectAICode()
+        }
+
         // Step 1: Update the chat history manager
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
