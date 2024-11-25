@@ -95,6 +95,59 @@ TESTS: List[TestCase] = [
         expected_code="loans_df = pd.read_csv('evals/data/loans.csv')",
         tags=['df creation', 'pandas']
     ),
+    TestCase(
+        name='dataframe_creation_from_dict',
+        notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
+        user_input="""Create a dataframe called used_cars_df that contains this data:
+        
+[{'Brand': 'Honda',
+  'model': 'City',
+  'Year': 2001,
+  'Age': 23,
+  'kmDriven': 98000.0,
+  'Transmission': 'Manual',
+  'Owner': 'second',
+  'FuelType': 'Petrol',
+  'PostedDate': 'Nov-24',
+  'AdditionInfo': 'Honda City v teck in mint condition, valid genuine car,',
+  'AskPrice': '₹ 1,95,000'},
+ {'Brand': 'Toyota',
+  'model': 'Innova',
+  'Year': 2009,
+  'Age': 15,
+  'kmDriven': 190000.0,
+  'Transmission': 'Manual',
+  'Owner': 'second',
+  'FuelType': 'Diesel',
+  'PostedDate': 'Jul-24',
+  'AdditionInfo': 'Toyota Innova 2.5 G (Diesel) 7 Seater, 2009, Diesel',
+  'AskPrice': '₹ 3,75,000'}]
+        """,
+        expected_code="""used_cars_df = pd.DataFrame({
+    'Brand': ['Honda', 'Toyota'],
+    'model': ['City', 'Innova'],
+    'Year': [2001, 2009],
+    'Age': [23, 15],
+    'kmDriven': [98000.0, 190000.0],
+    'Transmission': ['Manual', 'Manual'],
+    'Owner': ['second', 'second'],
+    'FuelType': ['Petrol', 'Diesel'],
+    'PostedDate': ['Nov-24', 'Jul-24'],
+    'AdditionInfo': [
+        'Honda City v teck in mint condition, valid genuine car,',
+        'Toyota Innova 2.5 G (Diesel) 7 Seater, 2009, Diesel',
+    ],
+    'AskPrice': ['₹ 1,95,000', '₹ 3,75,000']
+})}""",
+        tags=['df creation', 'pandas']
+    ),
+    TestCase(
+        name='dataframe_creation_from_for_loop',
+        notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
+        user_input="Create a new dataframe with a column called 'numbers' that contains the numbers 1 through 1000",
+        expected_code="df = pd.DataFrame({'numbers': range(1, 1001)})",
+        tags=['df creation', 'pandas']
+    ),
 
     # Create functions tests
     TestCase(
@@ -307,6 +360,67 @@ weighted_average_interest_rate = total_weighted_interest_rates / total_loan_bala
         tags=['dataframe transformation', 'pandas'],
         variables_to_compare=['weighted_average_interest_rate']
     ),
+    TestCase(
+        name='recreate_provided_code',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        user_input="""Use this code to convert the kmDriven column to a float:
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
+        expected_code="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
+        tags=['misc']
+    ),
+    TestCase(
+        name='convert_km_to_miles',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        user_input="""Use this code to convert the kmDriven column to a float:
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)
+
+And then convert then create a new column called milesDrive.
+""",
+        expected_code="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)
+used_cars_df["milesDriven"] = used_cars_df["kmDriven"] * 0.621371
+""",
+        tags=['misc']
+    ),
+    TestCase(
+        name='filter_requires_data_understanding',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        user_input="""Filter the dataset to only include cars that have only been owned by one person""",
+        expected_code="used_cars_df = used_cars_df[used_cars_df['Owner'] == 'first']",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='filter_requires_data_understanding_more_vague',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        user_input="""Filter the dataset to only include cars that have been purchased by one person in its lifetime""",
+        expected_code="used_cars_df = used_cars_df[used_cars_df['Owner'] == 'first']",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='convert_code_to_function',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        user_input="""Convert this code to a function and then use it to get the number of first owners for BMW, Toyota, and Ford. 
+
+Save the results in a variable called num_bmw, num_toyota, and num_ford.
+         
+used_cars_df = used_cars_df[(used_cars_df['Brand'].str.contains('BMW', na=False, regex=False)) & (used_cars_df['Owner'].str.contains('first', na=False, regex=False))]""",
+        expected_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')
+""",
+        tags=['function declaration']
+    )
 ]
 
 
@@ -350,8 +464,8 @@ for prompt_generator in PROMPT_GENERATORS:
         expected_globals = get_globals_to_compare(expected_globals, test.variables_to_compare)
         actual_globals = get_globals_to_compare(actual_globals, test.variables_to_compare)
 
-        print(f"\nExpected globals: \n{expected_globals}")
-        print(f"\nActual globals: \n{actual_globals}")
+        # print(f"\nExpected globals: \n{expected_globals}")
+        # print(f"\nActual globals: \n{actual_globals}")
 
         test_case_result = TestCaseResult(test=test, passed=are_globals_equal(expected_globals, actual_globals))
         test_case_results.append(test_case_result)
