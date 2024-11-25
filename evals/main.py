@@ -5,7 +5,7 @@ from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.prompts import PROMPT_GENERATORS
 from evals.eval_types import TestCase, TestCaseResult
 from evals.utils import are_globals_equal, get_globals_to_compare, get_script_from_cells, print_test_case_result_tables
-from evals.test_cases import TESTS
+from evals.test_cases import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run evaluation tests')
