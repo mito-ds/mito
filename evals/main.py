@@ -580,6 +580,7 @@ if __name__ == "__main__":
             # Create the actual code script produced by the LLM
             prompt = prompt_generator.get_prompt(test.user_input, test.notebook_state)
             ai_generated_code = get_open_ai_completion(prompt)
+            print(f"AI generated code:\n{ai_generated_code}")
             actual_code = current_cell_contents_script + "\n" + ai_generated_code
 
             # So that we can compare the results of the two scripts, create global context for 
