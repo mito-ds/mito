@@ -14,21 +14,21 @@ TESTS: List[TestCase] = [
         notebook_state=EMPTY_NOTEBOOK,
         user_input="create a variable x and set it equal to 1",
         expected_code='x=1',
-        tags=['variable declaration']
+        tags=['variable_declaration']
     ),
     TestCase(
         name="initialized_variables_variable_declaration",
         notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
         user_input="create a new variable w that is the product of x, y, and z",
         expected_code="w = x * y * z",
-        tags=['variable declaration']
+        tags=['variable_declaration']
     ),
     TestCase(
         name='find_largest_number_of_intialized_variables',
         notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
         user_input="find the largest number of initialized variables and save it in largest_number",
         expected_code="largest_number = max([x, y, z])",
-        tags=['variable declaration']
+        tags=['variable_declaration']
     ),
 
     # Create dataframe tests
@@ -37,7 +37,7 @@ TESTS: List[TestCase] = [
         notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
         user_input="Create a datafame called loans_df by importing the csv using the path 'evals/data/loans.csv'",
         expected_code="loans_df = pd.read_csv('evals/data/loans.csv')",
-        tags=['df creation', 'pandas']
+        tags=['df_creation', 'pandas']
     ),
     TestCase(
         name='dataframe_creation_from_dict',
@@ -83,21 +83,21 @@ TESTS: List[TestCase] = [
     ],
     'AskPrice': ['₹ 1,95,000', '₹ 3,75,000']
 })""",
-        tags=['df creation', 'pandas']
+        tags=['df_creation', 'pandas']
     ),
     TestCase(
         name='dataframe_creation_from_for_loop',
         notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
         user_input="Create a new dataframe with a column called 'numbers' that contains the numbers 1 through 1000",
         expected_code="df = pd.DataFrame({'numbers': range(1, 1001)})",
-        tags=['df creation', 'pandas']
+        tags=['df_creation', 'pandas']
     ),
     TestCase(
         name='dataframe_creation_from_url',
         notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
         user_input="Create a `df` from this url https://raw.githubusercontent.com/plotly/datasets/master/tesla-stock-price.csv",
         expected_code="df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/tesla-stock-price.csv')",
-        tags=['df creation', 'pandas']
+        tags=['df_creation', 'pandas']
     ),
 
     # Create functions tests
@@ -110,7 +110,7 @@ TESTS: List[TestCase] = [
     
 sum_result = my_sum(1, 2)
 """,
-        tags=['function declaration']
+        tags=['function_declaration']
     ),
 
     # Edit Dataframe Tests
@@ -119,21 +119,21 @@ sum_result = my_sum(1, 2)
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Filter the annual income column to > 100k",
         expected_code="loans_df = loans_df[loans_df['annual_income'] > 100000]",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="two_column_filter",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Filter the annual income column to > 100k and the loan condition to only include 'Bad Loan'",
         expected_code="loans_df = loans_df[(loans_df['annual_income'] > 100000) & (loans_df['loan_condition'] == 'Bad Loan')]",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="explicit_datetime_conversion",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Convert the issue_date column to datetime format",
         expected_code="loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="implicit_datetime_conversion",
@@ -141,28 +141,28 @@ sum_result = my_sum(1, 2)
         user_input="Create a new column called year that is the year of the issue_date column",
         expected_code="""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
 loans_df['year'] = loans_df['issue_date'].dt.year""",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='datetime_conversion_non_conventional_format',
         notebook_state=USED_CARS_DF_NOTEBOOK,
         user_input="Convert the posted date column to an actual datetime column",
         expected_code="""used_cars_df['PostedDate'] = pd.to_datetime(used_cars_df['PostedDate'], format='%b-%y')""",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="explicit_float_conversion",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Convert the annual income column to a float",
         expected_code="loans_df['annual_income'] = loans_df['annual_income'].astype(float)",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="explicit_int_conversion",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Convert the interest rate column to an int",
         expected_code="loans_df['interest_rate'] = loans_df['interest_rate'].astype(int)",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='convert_currency_string_to_float',
@@ -171,7 +171,7 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
         expected_code="""df['Transaction_Price'] = df['Transaction_Price'].str[1:]
 df['Transaction_Price'] = df['Transaction_Price'].astype(float)
 """,
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='convert_string_to_float_tricky',
@@ -180,7 +180,7 @@ df['Transaction_Price'] = df['Transaction_Price'].astype(float)
         expected_code="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='calculate_num_of_prev_days',
@@ -189,112 +189,112 @@ used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
         expected_code="""df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
 df['Days Ago'] = df['Date'] - pd.to_datetime("now")
 """,
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="single_column_renaming_specifc",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Rename issue_date to Issue Date",
         expected_code="loans_df.rename(columns={'issue_date': 'Issue Date'}, inplace=True)",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="single_column_renaming_less_specifc",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Rename the date column to date",
         expected_code="loans_df.rename(columns={'issue_date': 'date'}, inplace=True)",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="bulk_column_renaming",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Replace the _ with a space in all column names",
         expected_code="loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else col for col in loans_df.columns]",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="column_multiplication_scalar",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Multiply the interest rate by 100",
         expected_code="loans_df['interest_rate'] = loans_df['interest_rate'] * 100",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="calculate_monthly_payment_provided_formula",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Calculate the monthly_payment by multiplying the loan amount by the interest rate / 12",
         expected_code="loans_df['monthly_payment'] = loans_df['loan_amount'] * (loans_df['interest_rate'] / 12)",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="calculate_monthly_payment_no_formula",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Calculate the monthly_payment",
         expected_code="loans_df['monthly_payment'] = loans_df['loan_amount'] * (loans_df['interest_rate'] / 12)",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name="column_division_scalar",
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Divide the total payment by 1000",
         expected_code="loans_df['total_pymnt'] = loans_df['total_pymnt']/1000",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='calculate_remaining_balance_provided_formula',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Calculate the remaining_balance",
         expected_code="loans_df['remaining_principal'] = loans_df['loan_amount']-loans_df['total_rec_prncp']",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='calculate_remaining_balance_no_formula',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Calculate the remaining_balance by subtracting the total_rec_prncp from the loan amount",
         expected_code="loans_df['remaining_principal'] = loans_df['loan_amount']-loans_df['total_rec_prncp']",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='sum_last_three_columns',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Calculate a new column called sum_last_three that is the sum of the last three columns",
         expected_code="loans_df['sum_last_three'] = loans_df['interest_rate']+loans_df['total_pymnt']+loans_df['total_rec_prncp']",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='sum_int_columns',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Calculate a new column called sum_int_columns that is the sum of all the integer columns",
         expected_code="loans_df['sum_int_columns'] = loans_df['annual_income']+loans_df['loan_amount']",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='delete_column',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Delete the annual_income column",
         expected_code="loans_df.drop(columns=['annual_income'], inplace=True)",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='find_and_replace_string',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Replace the word 'Low' with 'Bottom Bucket' in the entire dataframe",
         expected_code='loans_df = loans_df.astype(str).replace("(?i)Low", "Bottom Bucket", regex=True).astype(loans_df.dtypes.to_dict())',
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='find_and_replace_with_regex',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Replace the phrase 'car' with 'automobile'",
         expected_code='loans_df = loans_df.astype(str).replace("car", "automobile", regex=True).astype(loans_df.dtypes.to_dict())',
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='find_and_replace_with_no_regex',
         notebook_state=LOANS_DF_NOTEBOOK,
         user_input="Replace the word 'car' with 'automobile'. Do not replace the substring 'car' if it is part of a bigger word.",
         expected_code='loans_df = loans_df.astype(str).replace("car", "automobile").astype(loans_df.dtypes.to_dict())',
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='pivot_table_simple',
@@ -307,7 +307,7 @@ pivot_table = tmp_df.pivot_table(
     aggfunc={'loan_amount': ['mean']}
 )
 loans_df_pivot = pivot_table.reset_index()""",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='separate_data_by_column_value',
@@ -316,7 +316,7 @@ loans_df_pivot = pivot_table.reset_index()""",
         expected_code="""low_df = loans_df[loans_df['income_category'] == 'Low']
 medium_df = loans_df[loans_df['income_category'] == 'Medium']
 high_df = loans_df[loans_df['income_category'] == 'High']""",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='weighted_average_interest_rate',
@@ -326,7 +326,7 @@ high_df = loans_df[loans_df['income_category'] == 'High']""",
 total_weighted_interest_rates = loans_df['weighted interest rate'].sum()
 total_loan_balances = loans_df['loan_amount'].sum()
 weighted_average_interest_rate = total_weighted_interest_rates / total_loan_balances""",
-        tags=['dataframe transformation', 'pandas'],
+        tags=['df_transformation', 'pandas'],
         variables_to_compare=['weighted_average_interest_rate']
     ),
     TestCase(
@@ -363,14 +363,14 @@ used_cars_df["milesDriven"] = used_cars_df["kmDriven"] * 0.621371
         notebook_state=USED_CARS_DF_NOTEBOOK,
         user_input="""Filter the dataset to only include cars that have only been owned by one person""",
         expected_code="used_cars_df = used_cars_df[used_cars_df['Owner'] == 'first']",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='filter_requires_data_understanding_more_vague',
         notebook_state=USED_CARS_DF_NOTEBOOK,
         user_input="""Filter the dataset to only include cars that have been purchased by one person in its lifetime""",
         expected_code="used_cars_df = used_cars_df[used_cars_df['Owner'] == 'first']",
-        tags=['dataframe transformation', 'pandas']
+        tags=['df_transformation', 'pandas']
     ),
     TestCase(
         name='convert_code_to_function',
@@ -388,7 +388,7 @@ num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')
 """,
-        tags=['function declaration']
+        tags=['function_declaration']
     ),
 
     # Mutli-step workflow tests
@@ -406,7 +406,7 @@ df['Stock '] = df['Stock '].str[:-6]
 df.drop(['Type_of_Investment'], axis=1, inplace=True)
 df.rename(columns={'Description of each transaction': 'Description'}, inplace=True)
 """,
-        tags=['dataframe transformation', 'pandas', 'multi-step']
+        tags=['df_transformation', 'pandas', 'multistep']
     ),
     TestCase(
         name='simple_recon',
@@ -438,7 +438,7 @@ df_merge = df_merge.apply(lambda row: check_row(row), axis = 1)
 missing_data_df = df_merge[df_merge['Check'] == "Action Required. Missing Data."]
 matching_df = df_merge[df_merge['Check'] == "Matching. No action required."]
 not_matching_df = df_merge[df_merge['Check'] == "Action Required. Quantity does not match."]""",
-        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        tags=['df_transformation', 'pandas', 'multistep'],
         variables_to_compare=['missing_data_df', 'matching_df', 'not_matching_df']
     ),
 
@@ -464,7 +464,7 @@ def calculate_total_equity(balances_df, fees_df):
 
 july_equity = calculate_total_equity(july_balances, july_fees)
 august_equity = calculate_total_equity(august_balances, august_fees)""",
-        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        tags=['df_transformation', 'pandas', 'multistep'],
         variables_to_compare=['july_equity', 'august_equity']
     ),
 
@@ -499,7 +499,7 @@ august_equity = calculate_total_equity(august_balances, august_fees)
 top_five_funds_july = get_top_five_funds(july_equity)
 top_five_funds_august = get_top_five_funds(august_equity)
 """,
-        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        tags=['df_transformation', 'pandas', 'multistep'],
         variables_to_compare=['top_five_funds_july', 'top_five_funds_august']
     ),
 
@@ -519,7 +519,7 @@ highest_monthly_ending_capital = highest_monthly_ending_capital.drop_duplicates(
 highest_monthly_ending_capital = highest_monthly_ending_capital.sort_values(by='entity_id', ascending=True, na_position='first')
 highest_monthly_ending_capital = highest_monthly_ending_capital.reset_index(drop=True)
 """,
-        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        tags=['df_transformation', 'pandas', 'multistep'],
         variables_to_compare=['highest_monthly_ending_capital']
     ),
 
@@ -531,6 +531,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run evaluation tests')
     parser.add_argument('--test-name', type=str, help='Name of specific test to run')
     parser.add_argument('--prompt-name', type=str, help='Name of specific prompt to run')
+    parser.add_argument('--tags', type=str, help='Comma separated list of tags to filter tests by')
     args = parser.parse_args()
 
     # Filter tests if test name provided
@@ -542,6 +543,13 @@ if __name__ == "__main__":
         if not tests_to_run:
             print(f"No test found with name: {args.test_name}")
             exit(1)
+
+    if args.tags:
+        tests_to_run = [test for test in tests_to_run if any(tag in args.tags for tag in test.tags)]
+        if not tests_to_run:
+            print(f"No tests found with tags: {args.tags}")
+            exit(1)
+
     print(f"Collected {len(tests_to_run)} tests")
 
     # Filter prompts if prompt name provided

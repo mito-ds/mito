@@ -16,13 +16,13 @@ class TestCase:
     user_input: str
     expected_code: str
     tags: List[Literal[
-        'variable declaration', 
-        'function declaration',
-        'dataframe transformation',
-        'df creation',
+        'variable_declaration', 
+        'function_declaration',
+        'df_transformation',
+        'df_creation',
         'pandas',
         'misc',
-        'multi-step'
+        'multistep'
     ]]
     variables_to_compare: Optional[List[str]] = None
 
