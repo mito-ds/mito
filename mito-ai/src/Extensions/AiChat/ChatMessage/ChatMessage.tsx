@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import CodeBlock from './CodeBlock';
+import MarkdownBlock from './MarkdownBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
 import ErrorIcon from '../../../icons/ErrorIcon';
@@ -11,6 +12,7 @@ import { OperatingSystem } from '../../../utils/user';
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
+import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -25,6 +27,7 @@ interface IChatMessageProps {
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
+    variableManager?: IVariableManager
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -40,6 +43,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
+    variableManager
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -74,6 +78,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     onSave={handleSave}
                     onCancel={handleCancel}
                     isEditing={isEditing}
+                    variableManager={variableManager}
                 />
             </div>
         );
@@ -92,7 +97,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     if (messagePart.length > 14) {
                         return (
                             <CodeBlock
-                                key={index + messagePart} 
+                                key={index + messagePart}
                                 code={messagePart}
                                 role={message.role}
                                 rendermime={rendermime}
@@ -109,9 +114,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 } else {
                     return (
                         <div style={{ position: 'relative' }}>
-                            <p onDoubleClick={() => setIsEditing(true)}>
+                            <p key={index + messagePart} onDoubleClick={() => setIsEditing(true)}>
                                 {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
-                                {messagePart}
+                                <MarkdownBlock
+                                    markdown={messagePart}
+                                    rendermime={rendermime}
+                                />
                             </p>
                             {message.role === 'user' && (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
