@@ -13,7 +13,7 @@ get the version of the package. This means we can easily bump the package
 version in one place (package.json) and have it automatically update here too. 
 This is nice for the release process. 
 
-Since this is a Jupyter Lab 4 extension, themito-ai/labextension folder
+Since this is a Jupyter Lab 4 extension, the mito-ai/labextension folder
 contains the package.json directly. So we can just read it there. 
 """
 lab_extension_folder = os.path.join(Path(__file__).parent, 'labextension')
