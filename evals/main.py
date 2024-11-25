@@ -4,71 +4,7 @@ from evals.prompts import PROMPT_GENERATORS
 from evals.eval_types import NotebookState, TestCase, TestCaseResult
 from evals.utils import are_globals_equal, print_test_case_result_table, get_globals_to_compare, get_script_from_cells
 import pandas as pd
-
-
-EMPTY_NOTEBOOK: NotebookState = NotebookState(
-  global_vars={},
-  cell_contents=[]
-)
-
-EMPTY_NOTEBOOK_WITH_PANDAS: NotebookState = NotebookState(
-    global_vars={},
-    cell_contents=['import pandas as pd', '']
-)
-
-INITIALIZED_VARIABLES_NOTEBOOK: NotebookState = NotebookState(
-  global_vars={'x': 1, 'y': 2, 'z': 3},
-  cell_contents=['x = 1', 'y = 2', 'z = 3', '']
-)
-
-LOANS_DF_NOTEBOOK: NotebookState = NotebookState(
-    global_vars={'loans_df': pd.DataFrame({
-        'issue_date': ['2011-01-12', '2011-01-12'],
-        'income_category': ['Low', 'Low'],
-        'annual_income': [24000, 30000],
-        'loan_amount': [5000, 2500],
-        'term': ['36 months', '60 months'],
-        'purpose': ['credit_card', 'car'],
-        'interest_payments': ['Low', 'High'],
-        'loan_condition': ['Good Loan', 'Bad Loan'],
-        'interest_rate': [10.65, 15.27],
-        'total_pymnt': [5861.071414, 1008.710000],
-        'total_rec_prncp': [5000.00, 456.46]
-    })},
-    cell_contents=["""import pandas as pd
-loans_df = pd.read_csv('evals/data/loans.csv')""", '']
-)
-
-USED_CARS_DF_NOTEBOOK: NotebookState = NotebookState(
-    global_vars={'used_cars_df': pd.DataFrame({
-        'Brand': ['Honda', 'Toyota', 'Volkswagen', 'Maruti Suzuki', 'Maruti Suzuki'],
-        'model': ['City', 'Innova', 'VentoTest', 'Swift', 'Baleno'],
-        'Year': [2001, 2009, 2010, 2017, 2019],
-        'Age': [23, 15, 14, 7, 5],
-        'kmDriven': [98000.0, 190000.0, 77246.0, 83500.0, 45000.0],
-        'Transmission': ['Manual', 'Manual', 'Manual', 'Manual', 'Automatic'],
-        'Owner': ['second', 'second', 'first', 'second', 'first'],
-        'FuelType': ['Petrol', 'Diesel', 'Diesel', 'Diesel', 'Petrol'],
-        'PostedDate': ['Nov-24', 'Jul-24', 'Nov-24', 'Nov-24', 'Nov-24'],
-        'AdditionInfo': [
-            'Honda City v teck in mint condition, valid genuine car,',
-            'Toyota Innova 2.5 G (Diesel) 7 Seater, 2009, Diesel',
-            'Volkswagen Vento 2010-2013 Diesel Breeze, 2010, Diesel',
-            'Maruti Suzuki Swift 2017 Diesel Good Condition',
-            'Maruti Suzuki Baleno Alpha CVT, 2019, Petrol'
-        ],
-        'AskPrice': ['₹ 1,95,000', '₹ 3,75,000', '₹ 1,84,999', '₹ 5,65,000', '₹ 6,85,000']
-    })},
-    cell_contents=["""import pandas as pd
-used_cars_df = pd.read_csv('evals/data/used_cars.csv')""", '']
-)
-
-"""
-Tests to add:
-- [ ] Import Excel file
-- [ ] Import file from url 
-"""
-
+from evals.notebook_states import *
 
 TESTS: List[TestCase] = [
     # Create variables tests
@@ -84,6 +20,13 @@ TESTS: List[TestCase] = [
         notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
         user_input="create a new variable w that is the product of x, y, and z",
         expected_code="w = x * y * z",
+        tags=['variable declaration']
+    ),
+    TestCase(
+        name='find_largest_number_of_intialized_variables',
+        notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
+        user_input="find the largest number of initialized variables and save it in largest_number",
+        expected_code="largest_number = max([x, y, z])",
         tags=['variable declaration']
     ),
 
@@ -138,7 +81,7 @@ TESTS: List[TestCase] = [
         'Toyota Innova 2.5 G (Diesel) 7 Seater, 2009, Diesel',
     ],
     'AskPrice': ['₹ 1,95,000', '₹ 3,75,000']
-})}""",
+})""",
         tags=['df creation', 'pandas']
     ),
     TestCase(
@@ -146,6 +89,13 @@ TESTS: List[TestCase] = [
         notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
         user_input="Create a new dataframe with a column called 'numbers' that contains the numbers 1 through 1000",
         expected_code="df = pd.DataFrame({'numbers': range(1, 1001)})",
+        tags=['df creation', 'pandas']
+    ),
+    TestCase(
+        name='dataframe_creation_from_url',
+        notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
+        user_input="Create a `df` from this url https://raw.githubusercontent.com/plotly/datasets/master/tesla-stock-price.csv",
+        expected_code="df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/tesla-stock-price.csv')",
         tags=['df creation', 'pandas']
     ),
 
@@ -214,12 +164,30 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
         tags=['dataframe transformation', 'pandas']
     ),
     TestCase(
+        name='convert_currency_string_to_float',
+        notebook_state=MESSY_DATA_NOTEBOOK,
+        user_input="Convert the Transaction_Price column to a float",
+        expected_code="""df['Transaction_Price'] = df['Transaction_Price'].str[1:]
+df['Transaction_Price'] = df['Transaction_Price'].astype(float)
+""",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
         name='convert_string_to_float_tricky',
         notebook_state=USED_CARS_DF_NOTEBOOK,
         user_input="Convert the kilometers driven column to a number series",
         expected_code="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
+        tags=['dataframe transformation', 'pandas']
+    ),
+    TestCase(
+        name='calculate_num_of_prev_days',
+        notebook_state=MESSY_DATA_NOTEBOOK,
+        user_input="Calculate a new column called 'Days Ago' that is the number of days between now and the transaction date",
+        expected_code="""df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
+df['Days Ago'] = df['Date'] - pd.to_datetime("now")
+""",
         tags=['dataframe transformation', 'pandas']
     ),
     TestCase(
@@ -420,7 +388,140 @@ num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')
 """,
         tags=['function declaration']
-    )
+    ),
+
+    # Mutli-step workflow tests
+    TestCase(
+        name='clean_messy_data_multi_step',
+        notebook_state=MESSY_DATA_NOTEBOOK,
+        user_input="""Clean the data by:
+- Convert the dates that are strings to timetime format
+- Remove the substring -Stock from the Stock column
+- Delete columns that only have one unqiue value
+- Change the name of the Description column to Description""",
+        expected_code="""
+df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
+df['Stock '] = df['Stock '].str[:-6]
+df.drop(['Type_of_Investment'], axis=1, inplace=True)
+df.rename(columns={'Description of each transaction': 'Description'}, inplace=True)
+""",
+        tags=['dataframe transformation', 'pandas', 'multi-step']
+    ),
+    TestCase(
+        name='simple_recon',
+        notebook_state=SIMPLE_RECON_NOTEBOOK,
+        user_input="""
+- Import transaction records from two different data sources: Eagle and an Excel file that is manually tracked.
+- Merge them together on a column called Transaction ID
+- Create a new column called "Check" and set it to the following:
+    - If the either dataset does not have a value in the Share Quantity column, set the value of the Check column to "Action Required. Missing Data.".
+    - If the Quantity numbers are the same, set the value of the Check column to "Matching. No action required."
+    - If the numbers are not matching, set the value of the Check column to "Action Required. Quantity does not match."
+- Finally, separate the data in 3 different sheets, one for each condition: `missing_data_df`, `matching_df`, `not_matching_df`""",
+        expected_code="""
+temp_df = excel_transactions.drop_duplicates(subset=['Transaction ID']) # Remove duplicates so lookup merge only returns first match
+df_merge = eagle_transactions.merge(temp_df, left_on=['Transaction ID'], right_on=['Transaction ID'], how='left', suffixes=['_eagle_transactions', '_excel_transactions'])
+
+def check_row(row):
+    if pd.isnull(row['Share Quantity_eagle_transactions']) or pd.isnull(row['Share Quantity_excel_transactions']):
+        row['Check'] = "Action Required. Missing Data."
+    elif row['Share Quantity_eagle_transactions'] == row['Share Quantity_excel_transactions']:
+        row['Check'] = "Matching. No action required."
+    else: 
+        row['Check'] = "Action Required. Quantity does not match."
+
+    return row
+
+df_merge = df_merge.apply(lambda row: check_row(row), axis = 1)
+
+missing_data_df = df_merge[df_merge['Check'] == "Action Required. Missing Data."]
+matching_df = df_merge[df_merge['Check'] == "Matching. No action required."]
+not_matching_df = df_merge[df_merge['Check'] == "Action Required. Quantity does not match."]""",
+        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        variables_to_compare=['missing_data_df', 'matching_df', 'not_matching_df']
+    ),
+
+    TestCase(
+        name='monthly_equity',
+        notebook_state=MONTHLY_EQUITY_NOTEBOOK,
+        user_input="""Calculate the Total Equity for each month for each entity by subtracting the Management Fee from the Ending Capital.
+
+Create two dataframes, `july_equity` and `august_equity` that the final columns: entity_id, ending_capital, fees, and total_equity.
+""",
+        expected_code="""
+def calculate_total_equity(balances_df, fees_df):
+
+    # Merged data8_july_balances and data8_july_fees into df_merge
+    temp_df = fees_df.drop_duplicates(subset=['entity_id']) # Remove duplicates so lookup merge only returns first match
+    df_merge = balances_df.merge(temp_df, left_on=['entity_id'], right_on=['entity_id'], how='left')
+    
+    # Added column 'Total Equity'
+    df_merge['total_equity'] = df_merge['ending_capital']-df_merge['fees']
+
+    return df_merge
+
+
+july_equity = calculate_total_equity(july_balances, july_fees)
+august_equity = calculate_total_equity(august_balances, august_fees)""",
+        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        variables_to_compare=['july_equity', 'august_equity']
+    ),
+
+    TestCase(
+        name='top_five_funds',
+        notebook_state=MONTHLY_EQUITY_NOTEBOOK,
+        user_input="""Calculate the five funds with the highest total equity for each month. Where the total equity is the ending capital minus the management fee.
+
+Create two dataframes, `top_five_funds_july` and `top_five_funds_august` that are a dataframe that contain the top 5 funds for each month. It should have the final columns: entity_id, ending_capital, fees, and total_equity, and the indexes should be 0 to 4.
+""",
+        expected_code="""
+def calculate_total_equity(balances_df, fees_df):
+
+    # Merged data8_july_balances and data8_july_fees into df_merge
+    temp_df = fees_df.drop_duplicates(subset=['entity_id']) # Remove duplicates so lookup merge only returns first match
+    df_merge = balances_df.merge(temp_df, left_on=['entity_id'], right_on=['entity_id'], how='left')
+    
+    # Added column 'Total Equity'
+    df_merge['total_equity'] = df_merge['ending_capital']-df_merge['fees']
+
+    return df_merge
+
+def get_top_five_funds(fund_total_equity_df):
+    fund_total_equity_df = fund_total_equity_df.sort_values(by='total_equity', ascending=False, na_position='last')
+    fund_total_equity_df = fund_total_equity_df.reset_index(drop=True)
+    return fund_total_equity_df.head(5)
+
+
+july_equity = calculate_total_equity(july_balances, july_fees)
+august_equity = calculate_total_equity(august_balances, august_fees)
+
+top_five_funds_july = get_top_five_funds(july_equity)
+top_five_funds_august = get_top_five_funds(august_equity)
+""",
+        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        variables_to_compare=['top_five_funds_july', 'top_five_funds_august']
+    ),
+
+    TestCase(
+        name='highest_monthly_ending_capital',
+        notebook_state=MONTHLY_EQUITY_NOTEBOOK,
+        user_input="""Find the month with the highest ending capital for each entity.
+
+Create a dataframe called `highest_monthly_ending_capital` that has the final columns: entity_id, ending_capital, and month.
+""",
+        expected_code="""
+july_balances['month'] = 'July'
+aug_balances['month'] = 'August'
+highest_monthly_ending_capital = pd.concat([july_balances, aug_balances], join='inner', ignore_index=True)
+highest_monthly_ending_capital = highest_monthly_ending_capital.sort_values(by='ending_capital', ascending=False, na_position='last')
+highest_monthly_ending_capital = highest_monthly_ending_capital.drop_duplicates(subset=['entity_id'], keep='first')
+highest_monthly_ending_capital = highest_monthly_ending_capital.sort_values(by='entity_id', ascending=True, na_position='first')
+highest_monthly_ending_capital = highest_monthly_ending_capital.reset_index(drop=True)
+""",
+        tags=['dataframe transformation', 'pandas', 'multi-step'],
+        variables_to_compare=['highest_monthly_ending_capital']
+    ),
+
 ]
 
 
@@ -448,9 +549,6 @@ for prompt_generator in PROMPT_GENERATORS:
         expected_globals = {}
         actual_globals = {}
 
-        #print(f"\nExpected code: \n{expected_code}")
-        print(f"\nActual code: \n{actual_code}")
-
         try:
             exec(expected_code, expected_globals)
             exec(actual_code, actual_globals)
@@ -458,6 +556,9 @@ for prompt_generator in PROMPT_GENERATORS:
             # Fail early if we can't execute the code
             test_case_result = TestCaseResult(test=test, passed=False)
             test_case_results.append(test_case_result)
+            print("Test Failed: ")
+            print(f"Expected code:\n{expected_code}")
+            print(f"\nActual code:\n{actual_code}")
             print(f"Error: {e}")
             continue
 

@@ -4,7 +4,10 @@ from evals.eval_types import TestCaseResult
 import pandas as pd
 
 def get_script_from_cells(cells: List[str]) -> str:
-    return "\n".join(cells)
+    """
+    Convert all of the previous cells into a single script. Exclude the current cell.
+    """
+    return "\n".join(cells[:-1])
 
 def get_globals_to_compare(globals: Dict[str, Any], variables_to_compare: Optional[List[str]] = None) -> Dict[str, Any]:
     """

@@ -21,7 +21,8 @@ class TestCase:
         'dataframe transformation',
         'df creation',
         'pandas',
-        'misc'
+        'misc',
+        'multi-step'
     ]]
     variables_to_compare: Optional[List[str]] = None
 
