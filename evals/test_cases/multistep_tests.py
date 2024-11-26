@@ -132,12 +132,11 @@ highest_monthly_ending_capital = highest_monthly_ending_capital.reset_index(drop
     TestCase(
         name="convert_to_float_and_calc_quartiles",
         notebook_state=USED_CARS_DF_NOTEBOOK,
-        user_input="""For the column `kmDriven`, remove the comma and the word "km" and convert it to a float.
+        user_input="""Convert the column `kmDriven` to a float and remove any commas and units.
 
-Next, create two new columns: `AgeQuartile` and `kmDrivenQuartile` that are the quartiles of the `Age` and `kmDriven` columns respectively. 
-Each quartile should have a label: "Q1", "Q2", "Q3", "Q4".
+Next, create two new columns: `AgeQuartile` and `kmDrivenQuartile`. Each quartile should have a label: Q1, Q2, etc.
 
-Create a new column called `beater` that is `True` if the `kmDrivenQuartile` and `AgeQuartile` are both in the fourth quartile.
+Finally, create a new column called `beater` that is `True` if the `kmDrivenQuartile` and `AgeQuartile` are both in the fourth quartile.
 """,
         expected_code="""
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str.replace(",", "").str.replace(" km", "").astype(float)
