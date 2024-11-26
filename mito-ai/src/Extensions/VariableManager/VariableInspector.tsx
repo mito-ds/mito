@@ -92,7 +92,6 @@ async function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVar
         future.onIOPub = (msg: KernelMessage.IMessage) => {
             // A 'stream' message represents standard output (stdout) or standard error (stderr) produced 
             // during the execution of code in the kernel.
-            console.log("Returned message", msg)
             if (KernelMessage.isStreamMsg(msg)) {
                 if (msg.content.name === 'stdout') {
                     try {

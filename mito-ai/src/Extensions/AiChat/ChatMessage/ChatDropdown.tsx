@@ -21,7 +21,8 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 
     const filteredOptions = options.filter((variable) =>
         variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
-        variable.type !== "<class 'module'>"
+        variable.type !== "<class 'module'>" &&
+        variable.variable_name !== "FUNCTIONS" // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
     ).slice(0, maxDropdownItems);
 
     useEffect(() => {
