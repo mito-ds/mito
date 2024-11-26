@@ -92,8 +92,12 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         initialize_user()
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+        key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
+        
+        # Prep the ai completion data 
         ai_completion_data = _get_ai_completion_data(messages)
 
+        # Try to get the AI response
         try:
                 if OPENAI_API_KEY is None:
                         # If they don't have an Open AI key, use the mito server to get a completion
@@ -111,12 +115,28 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
                         })
                         return response
                 else:
-                        response =  _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
+                        # If they DO have an Open AI key, use it to get a completion
+                        response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
 
                         # Log the successful completion
                         log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
                         return response
+        except PermissionError as e:
+                log(
+                        MITO_AI_COMPLETION_ERROR, 
+                        params={
+                                KEY_TYPE_PARAM: key_type,
+                                'mito_ai_free_tier_limit_reached': 'True'
+                        }, 
+                        error=e
+                )
+                raise e
         except Exception as e:
-                key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
-                log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+                log(
+                        MITO_AI_COMPLETION_ERROR, 
+                        params={
+                                KEY_TYPE_PARAM: key_type
+                        }, 
+                        error=e
+                )
                 raise e
