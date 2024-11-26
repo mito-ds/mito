@@ -17,6 +17,7 @@ sum_result = my_sum(1, 2)
         name="palindrome_function",
         notebook_state=EMPTY_NOTEBOOK,
         user_input="""Create a function is_palindrome that takes a string and returns True if it is a palindrome and False otherwise. 
+
 Then use it to create a variable called is_palindrome_result that is True if 'racecar' is a palindrome and False otherwise.
 """,
         expected_code="""def is_palindrome(s):
@@ -24,6 +25,34 @@ Then use it to create a variable called is_palindrome_result that is True if 'ra
 
 is_palindrome_result = is_palindrome('racecar')
 """,
+        tags=["function_declaration"],
+    ),
+    TestCase(
+        name="fibonacci_function",
+        notebook_state=EMPTY_NOTEBOOK,
+        user_input="""Create a function fibonacci that takes an integer n and returns an array of the first n Fibonacci numbers where the first two numbers are 1 and 3.
+
+Then create a variable called x that is an array of the first 10 Fibonacci numbers.
+
+Finally, create a variable called y that is the sum of x.
+""",
+        expected_code="""def fibonacci(n):
+    if n <= 0:
+        return []
+    if n == 1:
+        return [1]
+    if n == 2:
+        return [1, 3]
+
+    fib_array = [1, 3]
+    for i in range(2, n):
+        fib_array.append(fib_array[-1] + fib_array[-2])
+    return fib_array
+
+x = fibonacci(10)
+y = sum(x)
+""",
+        variables_to_compare=["x", "y"],
         tags=["function_declaration"],
     ),
 ]
