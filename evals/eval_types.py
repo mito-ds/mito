@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Optional
 
 @dataclass(frozen=True)
 class NotebookState:
@@ -16,15 +16,21 @@ class TestCase:
     user_input: str
     expected_code: str
     tags: List[Literal[
-        'variable declaration', 
-        'function declaration',
-        'dataframe transformation'
+        'variable_declaration', 
+        'function_declaration',
+        'df_transformation',
+        'df_creation',
+        'pandas',
+        'misc',
+        'multistep'
     ]]
+    variables_to_compare: Optional[List[str]] = None
 
 @dataclass(frozen=True)
 class TestCaseResult:
     test: TestCase
     passed: bool
+
 
 class PromptGenerator():
 
