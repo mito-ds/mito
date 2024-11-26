@@ -30,19 +30,23 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 
     const handleKeyDown = (event: KeyboardEvent) => {
         switch (event.key) {
-            case 'ArrowDown' || 'Down':
+            case 'ArrowDown':
+            case 'Down':
                 event.preventDefault();
                 setSelectedIndex((prev) =>
                     prev < filteredOptions.length - 1 ? prev + 1 : 0
                 );
                 break;
-            case 'ArrowUp' || 'Up':
+            case 'ArrowUp':
+            case 'Up':
                 event.preventDefault();
                 setSelectedIndex((prev) =>
                     prev > 0 ? prev - 1 : filteredOptions.length - 1
                 );
                 break;
-            case 'Enter' || 'Return':
+            case 'Enter':
+            case 'Return':
+            case 'Tab':
                 event.preventDefault();
                 if (filteredOptions[selectedIndex]) {
                     onSelect(filteredOptions[selectedIndex].variable_name, filteredOptions[selectedIndex].parent_df);
