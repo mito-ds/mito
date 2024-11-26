@@ -83,8 +83,8 @@ SIMPLE_RECON_NOTEBOOK: NotebookState = NotebookState(
         'excel_transactions': pd.DataFrame({'Transaction ID': [12975, 16889, 57686, 53403, 42699], 'Share Quantity': [20, 25, 24, 22, 40]}), 
         'excel_transactions': pd.DataFrame({'Transaction ID': [12975, 16889, 57686, 53403, 42699], 'Share Quantity': [20, 25, 24, 22, 0]})},
     cell_contents=["""import pandas as pd
-excel_transactions = pd.read_excel('evals/data/simple_recon/transactions_excel.csv')
-eagle_transactions = pd.read_excel('evals/data/simple_recon/transactions_eagle.csv')
+excel_transactions = pd.read_csv('evals/data/simple_recon/transactions_excel.csv')
+eagle_transactions = pd.read_csv('evals/data/simple_recon/transactions_eagle.csv')
 """, '']
 )
 
