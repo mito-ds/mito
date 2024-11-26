@@ -101,6 +101,8 @@ def log(
     # Add the error if it exists
     if error is not None:
         final_params['error'] = str(error)
+        
+    print(final_params)
 
     # Finally, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off

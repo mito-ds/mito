@@ -62,7 +62,7 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
 
         if not pro and __num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
                 log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-                raise PermissionError
+                raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
                 
         data = {
                 'email': __user_email,
@@ -92,8 +92,7 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         initialize_user()
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-        key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
-        
+                
         # Prep the ai completion data 
         ai_completion_data = _get_ai_completion_data(messages)
 
@@ -121,17 +120,8 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
                         # Log the successful completion
                         log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
                         return response
-        except PermissionError as e:
-                log(
-                        MITO_AI_COMPLETION_ERROR, 
-                        params={
-                                KEY_TYPE_PARAM: key_type,
-                                'mito_ai_free_tier_limit_reached': 'True'
-                        }, 
-                        error=e
-                )
-                raise e
         except Exception as e:
+                key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
                 log(
                         MITO_AI_COMPLETION_ERROR, 
                         params={
