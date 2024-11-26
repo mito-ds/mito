@@ -44,7 +44,7 @@ def _get_ai_completion_with_key(ai_completion_data: Dict[str, Any], OPENAI_API_K
         return {'completion': completion}
         
 
-def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]:
+def _get_ai_completion_from_mito_server(last_message_content: str, ai_completion_data: Dict[str, Any]) -> Dict[str, Any]:
         
         global __user_email, __user_id, __num_usages
 
@@ -67,7 +67,8 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
         data = {
                 'email': __user_email,
                 'user_id': __user_id,
-                'data': ai_completion_data
+                'data': ai_completion_data,
+                'user_input': last_message_content # We add this just for logging purposes
         }
 
         headers = {
@@ -95,12 +96,13 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
                 
         # Prep the ai completion data 
         ai_completion_data = _get_ai_completion_data(messages)
+        last_message_content = messages[-1]['content']
 
         # Try to get the AI response
         try:
                 if OPENAI_API_KEY is None:
                         # If they don't have an Open AI key, use the mito server to get a completion
-                        response = _get_ai_completion_from_mito_server(ai_completion_data)
+                        response = _get_ai_completion_from_mito_server(last_message_content, ai_completion_data)
 
                         # Increment the number of usages
                         global __num_usages
