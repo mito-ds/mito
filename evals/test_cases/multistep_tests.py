@@ -145,6 +145,7 @@ used_cars_df["AgeQuartile"] = pd.qcut(used_cars_df["Age"], q=4, labels=["Q1", "Q
 used_cars_df["kmDrivenQuartile"] = pd.qcut(used_cars_df["kmDriven"], q=4, labels=["Q1", "Q2", "Q3", "Q4"])
 used_cars_df["beater"] = (used_cars_df["kmDrivenQuartile"] == "Q4") & (used_cars_df["AgeQuartile"] == "Q4")
 """,
-        tags=["misc"],
+        tags=["df_transformation", "pandas", "multistep"],
+        variables_to_compare=["used_cars_df"],
     ),
 ]
