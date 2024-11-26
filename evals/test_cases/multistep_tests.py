@@ -147,4 +147,45 @@ used_cars_df["beater"] = (used_cars_df["kmDrivenQuartile"] == "Q4") & (used_cars
         tags=["df_transformation", "pandas", "multistep"],
         variables_to_compare=["used_cars_df"],
     ),
+    TestCase(
+        name="most_popular_car_model",
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        user_input="""1. Create a new dataframe called `most_popular_car_model`. For each car `Brand`, identify the most popular model and include the following information in the dataframe: the `Brand`, `model`, and the count of that model.
+
+2. Filter the dataframe to keep only the top 10 most popular models.
+
+3. For each model, calculate the following averages:
+   - Average car year
+   - Average price
+   - Average kilometers driven
+
+   Add these averages as new columns to the dataframe.
+
+4. Add a new column called `cost_per_km`, which is calculated by dividing the average price by the average kilometers driven for each model.
+
+5. Create a dictionary variable named `cars` where the key is the name of the most popular model, and the value is its `cost_per_km`.
+""",
+        expected_code="""
+used_cars_df['AskPrice'] = used_cars_df['AskPrice'].replace({'₹': '', ',': ''}, regex=True).astype(float)
+used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({' km': '', ',': ''}, regex=True).astype(float)
+
+# Group by Brand and Model, and calculate the necessary aggregates
+most_popular_car_model = used_cars_df.groupby(['Brand', 'model']).agg(
+    count=('model', 'size'),
+    avg_year=('Year', 'mean'),
+    avg_price=('AskPrice', 'mean'),
+    avg_km_driven=('kmDriven', 'mean')
+).reset_index()
+
+# Sort by count to get the most popular models and select top 10
+most_popular_car_model = most_popular_car_model.sort_values(by='count', ascending=False).head(10)
+
+# Calculate the 'cost_per_km' column
+most_popular_car_model['cost_per_km'] = most_popular_car_model['avg_price'] / most_popular_car_model['avg_km_driven']
+
+cars = most_popular_car_model.set_index('model')['cost_per_km'].to_dict()
+""",
+        tags=["df_transformation", "pandas", "multistep"],
+        variables_to_compare=["cars"],
+    ),
 ]
