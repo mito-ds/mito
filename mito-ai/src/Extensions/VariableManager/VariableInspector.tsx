@@ -34,19 +34,42 @@ def get_dataframe_structure(df, sample_size=5):
 def structured_globals():
     output = []
     for k, v in globals().items():
-        if not k.startswith("_") and k not in ("In", "Out", "json") and not callable(v):
-            if _is_pandas_imported and isinstance(v, pd.DataFrame):
-                output.append({
-                    "variable_name": k,
-                    "type": "pd.DataFrame",
-                    "value": get_dataframe_structure(v)
-                })
-            else:
-                output.append({
-                    "variable_name": k,
-                    "type": str(type(v)),
-                    "value": repr(v)
-                })
+            if not k.startswith("_") and k not in ("In", "Out", "json") and not callable(v):
+                if _is_pandas_imported and isinstance(v, pd.DataFrame):
+
+                    new_variable = {
+                        "variable_name": k,
+                        "type": "pd.DataFrame",
+                        "value": get_dataframe_structure(v)
+                    }
+
+                    try:
+                        # Check if the variable can be converted to JSON.
+                        # If it can, add it to the outputs. If it can't, we just skip it.
+                        # We check each variable individually so that we don't crash
+                        # the entire variable inspection if just one variable cannot be serialized.
+                        json.dumps(new_variable["value"])
+                        output.append(new_variable)
+                    except:
+                        pass
+
+                else:
+
+                    new_variable = {
+                        "variable_name": k,
+                        "type": str(type(v)),
+                        "value": repr(v)
+                    }
+
+                    try:
+                        # Check if the variable can be converted to JSON.
+                        # If it can, add it to the outputs. If it can't, we just skip it.
+                        # We check each variable individually so that we don't crash
+                        # the entire variable inspection if just one variable cannot be serialized.
+                        json.dumps(new_variable["value"])
+                        output.append(new_variable)
+                    except:
+                        pass
 
     return json.dumps(output)
 
@@ -69,6 +92,7 @@ async function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVar
         future.onIOPub = (msg: KernelMessage.IMessage) => {
             // A 'stream' message represents standard output (stdout) or standard error (stderr) produced 
             // during the execution of code in the kernel.
+            console.log("Returned message", msg)
             if (KernelMessage.isStreamMsg(msg)) {
                 if (msg.content.name === 'stdout') {
                     try {
@@ -91,6 +115,7 @@ export function setupKernelListener(notebookTracker: INotebookTracker, setVariab
 
         // Listen to kernel messages
         notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
+
             // Watch for execute_input messages, which indicate is a request to execute code. 
             // Previosuly, we watched for 'execute_result' messages, but these are only returned
             // from the kernel when a code cell prints a value to the output cell, which is not what we want.
