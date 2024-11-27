@@ -278,4 +278,38 @@ num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')
 """,
         tags=["function_declaration"],
     ),
+    TestCase(
+        name="0_index_column_numbers",
+        notebook_state=NotebookState(
+            global_vars={'df': pd.DataFrame({
+                'company_name': ['Apple', 'Google', 'Microsoft', 'Amazon', 'Apple'],
+                'currently_active': [True, True, True, True, False],
+                'active_in_june': [True, False, True, True, True],
+                'active_in_july': [False, True, True, False, True],
+                'active_in_august': [False, True, False, False, False],
+                'active_in_september': [True, False, True, False, True],
+                'active_in_october': [True, True, False, False, True],
+                'active_in_november': [False, False, False, True, True],
+                'active_in_december': [True, False, False, False, False],
+                'active_in_january': [True, False, True, False, False],
+            })},
+            cell_contents=["""import pandas as pd
+df = pd.DataFrame({
+    'company_name': ['Apple', 'Google', 'Microsoft', 'Amazon', 'Apple'],
+    'currently_active': [True, True, True, True, False],
+    'active_in_june': [True, False, True, True, True],
+    'active_in_july': [False, True, True, False, True],
+    'active_in_august': [False, True, False, False, False],
+    'active_in_september': [True, False, True, False, True],
+    'active_in_october': [True, True, False, False, True],
+    'active_in_november': [False, False, False, True, True],
+    'active_in_december': [True, False, False, False, False],
+    'active_in_january': [True, False, True, False, False],
+})""", '']
+        
+    ),
+    user_input="Create a new column called active_months that is total number of times the company is True for columns 3 through 9",
+        expected_code="df['active_months'] = df.iloc[:, 3:10].sum(axis=1)",
+        tags=["df_transformation", "pandas"],
+    ),
 ]
