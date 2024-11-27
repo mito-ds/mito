@@ -170,7 +170,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
-                    messages: newChatHistoryManager.getAIOptimizedHistory()
+                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message)
                 })
             });
 
