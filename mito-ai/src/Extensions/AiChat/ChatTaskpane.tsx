@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, writeCodeToActiveCell } from '../../utils/notebook';
+import { getActiveCellCode, writeCodeToActiveCell, writeCodeToCellByID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -133,6 +133,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
+        console.log("getAIOptimizedHistory", newChatHistoryManager.getAIOptimizedHistory())
         newChatHistoryManager.addChatInputMessage(input)
 
         // Step 2: Send the message to the AI
@@ -232,16 +233,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         _applyCode(aiGeneratedCode)
     }
 
-    const rejectAICode = () => {
+    const rejectAICode = (codeCellID?: string) => {
         const originalDiffedCode = originalCodeBeforeDiff.current
         if (originalDiffedCode === undefined) {
             return
         }
+        
+        if (codeCellID) {
+            _applyCode(originalDiffedCode, codeCellID)
+        }
+
         _applyCode(originalDiffedCode)
     }
 
-    const _applyCode = (code: string) => {
-        writeCodeToActiveCell(notebookTracker, code, true)
+    const _applyCode = (code: string, codeCellID?: string) => {
+        if (codeCellID) {
+            writeCodeToCellByID(notebookTracker, code, codeCellID)
+        } else {
+            writeCodeToActiveCell(notebookTracker, code, true)
+        }
         setUnifiedDiffLines(undefined)
         originalCodeBeforeDiff.current = undefined
     }

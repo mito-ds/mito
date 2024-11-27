@@ -1,4 +1,3 @@
-
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Cell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
@@ -31,6 +30,18 @@ export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: s
         if (focus) {
             activeCell.node.focus()
         }
+    }
+}
+
+export const writeCodeToCellByID = (
+    notebookTracker: INotebookTracker, 
+    code: string | undefined, 
+    codeCellID: string
+): void => {
+    const notebook = notebookTracker.currentWidget?.content;
+    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    if (cell && code !== undefined) {
+        cell.model.sharedModel.source = code;
     }
 }
 
