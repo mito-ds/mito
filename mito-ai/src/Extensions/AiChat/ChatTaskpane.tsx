@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, writeCodeToActiveCell, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCell, getActiveCellCode, getCellCodeByID, writeCodeToActiveCell, writeCodeToCellByID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -127,17 +127,33 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     */
     const sendChatInputMessage = async (input: string) => {
         // Step 0: If code diffs are displayed, reject the AI code, then send the message.
-        if (unifiedDiffLines !== undefined) {
-            rejectAICode()
-        }
+        // if (unifiedDiffLines !== undefined) {
+        //     rejectAICode()
+        // }
 
+        // console.log("activeCellCode1", getActiveCellCode(notebookTracker))
+        // Make note of active cell id before we add the user's message
+        // const activeCellTemp = getActiveCell(notebookTracker)
+        // console.log("activeCellTemp", activeCellTemp)
+        
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        console.log("getAIOptimizedHistory", newChatHistoryManager.getAIOptimizedHistory())
         newChatHistoryManager.addChatInputMessage(input)
+
+        // Step 1.5: If code diffs are still displayed, automatically reject the AI code
+        if (unifiedDiffLines !== undefined) {
+            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage()
+            rejectAICode(codeCellID)
+        }
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
+        // console.log("aiMessage", aiMessage)
+
+        const codeCellID_1 = getActiveCell(notebookTracker)?.model.id
+        console.log("codeCellID_1", codeCellID_1)
+        console.log("activeCellCode", getActiveCellCode(notebookTracker))
+        console.log("activeCellCodeByID", getCellCodeByID(notebookTracker, codeCellID_1 || ''))
 
         // Step 3: Update the code diff stripes
         updateCodeDiffStripes(aiMessage)
@@ -248,7 +264,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const _applyCode = (code: string, codeCellID?: string) => {
         if (codeCellID) {
-            writeCodeToCellByID(notebookTracker, code, codeCellID)
+            writeCodeToCellByID(notebookTracker, code, codeCellID, true)
         } else {
             writeCodeToActiveCell(notebookTracker, code, true)
         }

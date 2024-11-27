@@ -10,8 +10,15 @@ export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefin
 }
 
 export const getActiveCellCode = (notebookTracker: INotebookTracker): string | undefined => {
+    console.log("getActiveCellCode__", notebookTracker.currentWidget?.model?.cells)
     const activeCell = getActiveCell(notebookTracker)
     return activeCell?.model.sharedModel.source
+}
+
+export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string): string | undefined => {
+    const notebook = notebookTracker.currentWidget?.content;
+    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    return cell?.model.sharedModel.source
 }
 
 /* 
@@ -36,12 +43,25 @@ export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: s
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
     code: string | undefined, 
-    codeCellID: string
+    codeCellID: string,
+    returnFocus?: boolean
 ): void => {
+    if (code === undefined) {
+        return;
+    }
+
+    const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
+    const activeCell = getActiveCell(notebookTracker)
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
-    if (cell && code !== undefined) {
-        cell.model.sharedModel.source = code;
+    
+    if (cell) {
+        cell.model.sharedModel.source = codeMirrorValidCode;
+    }
+
+    // Return focus to the cell if requested
+    if (returnFocus && activeCell) {
+        activeCell.node.focus()
     }
 }
 

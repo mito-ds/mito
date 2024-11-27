@@ -214,6 +214,14 @@ export class ChatHistoryManager {
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         return displayOptimizedChatHistory[lastAIMessagesIndex]
     }
+
+    getCodeCellIDOfMostRecentAIMessage = (): string | undefined => {
+        const aiMessages = this.history.aiOptimizedChatHistory.filter(historyItem => historyItem.message.role === 'assistant')
+        if (aiMessages.length === 0) {
+            return undefined
+        }
+        return aiMessages[aiMessages.length - 1].codeCellID
+    }
 }
 
 
