@@ -86,7 +86,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         "jupyterlab>=4.0.0,<5",
-        "openai>=1.0.0"
+        "openai>=1.0.0",
+        'analytics-python',
     ],
     extras_require = {
         'deploy': [

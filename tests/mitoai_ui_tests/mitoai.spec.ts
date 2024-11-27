@@ -1,7 +1,7 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, getCodeFromCell, selectCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
+import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
-import { sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+import { clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });
@@ -33,6 +33,33 @@ test.describe('Mito AI Chat', () => {
     const code = await getCodeFromCell(page, 1);
     expect(code).not.toContain('df["C"] = [7, 8, 9]');
     expect(code?.trim()).toBe("")
+  });
+
+  test('Edit Message', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    // Send the first message
+    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    // Send the second message
+    await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    // Edit the first message
+    await editMitoAIMessage(page, 'Write the code df["C_edited"] = [7, 8, 9]', 0);
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    const code = await getCodeFromCell(page, 1);
+    expect(code).toContain('df["C_edited"] = [7, 8, 9]');
+
+    // Ensure previous messages are removed.
+    const messageAssistantDivs = await page.locator('.message.message-assistant').count();
+    expect(messageAssistantDivs).toBe(1);
   });
 
   test('Code Diffs are applied', async ({ page }) => {
@@ -83,6 +110,38 @@ test.describe('Mito AI Chat', () => {
     // Check that the message "Explain this code" exists in the AI chat
     await expect(page.getByText('Explain this code')).toBeVisible();
 
+  });
+
+  test('Test fix error button', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(3']);
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
+    await waitForIdle(page);
+    await expect(page.locator('.message-assistant')).toHaveCount(1);
+  });
+
+  test('Test explain code button', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
+    await waitForIdle(page);
+    await expect(page.locator('.message-assistant')).toHaveCount(1);
+  });
+
+  test('Variable dropdown shows correct variables', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await clickOnMitoAIChatTab(page);
+
+    // The fill() command doesn't trigger input events that the dropdown relies on
+    // So we need to type it character by character instead
+    await page.locator('.chat-input').click();
+    await page.keyboard.type("Edit column @ap");
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
   });
 });
 

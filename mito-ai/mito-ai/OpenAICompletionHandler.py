@@ -1,9 +1,7 @@
-import os
-import openai
 from jupyter_server.base.handlers import APIHandler
 from tornado import web
 import json
-from openai import OpenAI
+from .utils.open_ai_utils import get_open_ai_completion
 
 
 # This handler is responsible for the mito_ai/completion endpoint. 
@@ -17,33 +15,16 @@ class OpenAICompletionHandler(APIHandler):
         data = self.get_json_body()
         messages = data.get('messages', '')
 
-        # Get the OpenAI API key from environment variables
-        openai_api_key = os.getenv('OPENAI_API_KEY')
-        if not openai_api_key:
-            # If the API key is not set, return a 401 unauthorized error
-            self.set_status(401)
-            self.finish(json.dumps({"response": "OPENAI_API_KEY not set"}))
-            return
-
-        # Set up the OpenAI client
-        openai.api_key = openai_api_key
-        client = OpenAI()
-
         try:
             # Query OpenAI API
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages
-            )
-
-            response_dict = response.to_dict()
-
-            # Send the response back to the frontend
-            # TODO: In the future, instead of returning the raw response, 
-            # return a cleaned up version of the response so we can support
-            # multiple models 
-
-            self.finish(json.dumps(response_dict))
+            response = get_open_ai_completion(messages)
+            self.finish(json.dumps(response))
+        except PermissionError as e:
+            # Raise a PermissionError when the user has 
+            # reached the free tier limit for Mito AI.
+            self.set_status(403)
+            self.finish()
         except Exception as e:
+            # Catch all other exceptions and return a 500 error
             self.set_status(500)
-            self.finish(json.dumps({"response": f"Error: {str(e)}"}))
+            self.finish()

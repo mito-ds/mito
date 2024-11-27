@@ -1,0 +1,6 @@
+{
+    "python.analysis.typeCheckingMode": "basic",
+    "mypy-type-checker.args": [
+        "--config-file=mypy.ini"
+    ]
+}

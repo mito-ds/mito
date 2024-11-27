@@ -1,11 +1,11 @@
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 
 export type SuccessfulAPIResponse = {
     'type': 'success',
-    response: OpenAI.Chat.ChatCompletion
+    response: OpenAI.Chat.Completions.ChatCompletionMessage
 }
 export type FailedAPIResponse = {
     type: 'error',
@@ -41,8 +41,8 @@ export async function requestAPI(
 
     // Merge default headers with any provided headers
     init.headers = {
-         ...defaultHeaders, 
-         ...init.headers,   
+        ...defaultHeaders, 
+        ...init.headers,   
     };
 
     // Make the request
@@ -60,6 +60,14 @@ export async function requestAPI(
         return {
             type: 'error',
             errorMessage: "You're missing the OPENAI_API_KEY environment variable. Run the following code in your terminal to set the environment variable and then relaunch the jupyter server ```python\nexport OPENAI_API_KEY=<your-api-key>\n```",
+        }
+    }
+    if (response.status === 403) {
+        // This 403 error is set by the OpenAICompletionHandler class in the mito-ai python package.
+        // It is raised when the user has reached the free tier limit for Mito AI.
+        return {
+            type: 'error',
+            errorMessage: "You've reached the free tier limit for Mito AI. Upgrade to Pro for unlimited uses or supply your own OpenAI API key.",
         }
     }
     if (response.status === 404 ) {
@@ -83,10 +91,25 @@ export async function requestAPI(
 
     try {
         data = JSON.parse(data);
-        return {
-            type: 'success',
-            response: data
+        
+        // TODO: Update the lambda funciton to return the entire message instead of
+        // just the content so we don't have to recreate the message here.
+        if ('completion' in data) {
+            const aiMessage: OpenAI.Chat.Completions.ChatCompletionMessage = {
+                role: 'assistant',
+                content: data['completion'],
+                refusal: null
+            }
+
+            return {
+                type: 'success',
+                response: aiMessage            
+            }
+        } else {
+            throw new Error('Invalid response from the Mito AI server')
         }
+
+        
     } catch (error) {
         console.error('Not a JSON response body.', response);
         return {
