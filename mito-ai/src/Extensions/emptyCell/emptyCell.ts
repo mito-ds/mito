@@ -29,12 +29,12 @@ const adviceTheme = EditorView.baseTheme({
 /**
  * A facet that stores the chat shortcut.
  */
-const chatShortcut = Facet.define<string[], string[]>({
-  combine: values => (values.length ? values[values.length - 1] : [''])
+const adviceText = Facet.define<string, string>({
+  combine: values => (values.length ? values[values.length - 1] : '')
 });
 
 class AdviceWidget extends WidgetType {
-  constructor(readonly shortcut: string[]) {
+  constructor(readonly advice: string) {
     super();
   }
 
@@ -45,14 +45,13 @@ class AdviceWidget extends WidgetType {
   toDOM() {
     const wrap = document.createElement('span');
     wrap.className = 'cm-mito-advice';
-    // FIXME it should come from JupyterLab setting
-    wrap.innerHTML = `Press ${this.shortcut.map(s => `<kbd>${s}</kbd>`).join(' + ')} to ask Mito AI to do something. Start typing to dismiss.`;
+    wrap.innerHTML = this.advice;
     return wrap;
   }
 }
 
 function shouldDisplayAdvice(view: EditorView): DecorationSet {
-  const shortcut = view.state.facet(chatShortcut);
+  const shortcut = view.state.facet(adviceText);
   const widgets = [];
   if (view.hasFocus && view.state.doc.length == 0) {
     const deco = Decoration.widget({
@@ -73,11 +72,11 @@ export const showAdvice = ViewPlugin.fromClass(
     }
 
     update(update: ViewUpdate) {
-      const shortcut = update.view.state.facet(chatShortcut);
+      const advice = update.view.state.facet(adviceText);
       if (
         update.docChanged ||
         update.focusChanged ||
-        shortcut.join('') !== update.startState.facet(chatShortcut).join('')
+        advice !== update.startState.facet(adviceText)
       ) {
         this.decorations = shouldDisplayAdvice(update.view);
       }
@@ -89,6 +88,6 @@ export const showAdvice = ViewPlugin.fromClass(
   }
 );
 
-export function advicePlugin(options: { shortcut?: string[] } = {}): Extension {
-  return [chatShortcut.of(options.shortcut ?? ['Ctrl', 'E']), showAdvice];
+export function advicePlugin(options: { advice?: string } = {}): Extension {
+  return [adviceText.of(options.advice ?? ''), showAdvice];
 }
