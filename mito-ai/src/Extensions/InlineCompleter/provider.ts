@@ -24,6 +24,8 @@ import {
 } from './client';
 import type { CompletionError, InlineCompletionStreamChunk } from './models';
 
+const PYTHON_FIRST_KEYWORDS = ['class', 'def', '#', '@', 'import', 'async'];
+
 /**
  * Mito AI inline completer
  *
@@ -159,54 +161,54 @@ export class MitoAIInlineCompleter
       // Stop current stream if any
       this._resetCurrentStream();
 
-    const allowedTriggerKind = this._settings.triggerKind;
-    const triggerKind = context.triggerKind;
-    if (
-      allowedTriggerKind === 'manual' &&
-      triggerKind !== InlineCompletionTriggerKind.Invoke
-    ) {
-      // Short-circuit if user requested to only invoke inline completions
-      // on manual trigger. Users may still get completions
-      // from other (e.g. less expensive or faster) providers.
-      return {
-        items: []
-      };
-    }
-    const mime = request.mimeType ?? IEditorMimeTypeService.defaultMimeType;
-    const language = this._languageRegistry.findByMIME(mime);
-    if (!language) {
-      console.warn(
-        `Could not recognize language for ${mime} - cannot complete`
-      );
-      return { items: [] };
-    }
-
-    let cellId = undefined;
-    let path = context.session?.path;
-    if (context.widget instanceof NotebookPanel) {
-      const activeCell = context.widget.content.activeCell;
-      if (activeCell) {
-        cellId = activeCell.model.id;
+      const allowedTriggerKind = this._settings.triggerKind;
+      const triggerKind = context.triggerKind;
+      if (
+        allowedTriggerKind === 'manual' &&
+        triggerKind !== InlineCompletionTriggerKind.Invoke
+      ) {
+        // Short-circuit if user requested to only invoke inline completions
+        // on manual trigger. Users may still get completions
+        // from other (e.g. less expensive or faster) providers.
+        return {
+          items: []
+        };
       }
-    }
-    if (!path && context.widget instanceof DocumentWidget) {
-      path = context.widget.context.path;
-    }
-    const messageId = ++this._counter;
+      const mime = request.mimeType ?? IEditorMimeTypeService.defaultMimeType;
+      const language = this._languageRegistry.findByMIME(mime);
+      if (!language) {
+        console.warn(
+          `Could not recognize language for ${mime} - cannot complete`
+        );
+        return { items: [] };
+      }
 
-    const stream = true;
+      let cellId = undefined;
+      let path = context.session?.path;
+      if (context.widget instanceof NotebookPanel) {
+        const activeCell = context.widget.content.activeCell;
+        if (activeCell) {
+          cellId = activeCell.model.id;
+        }
+      }
+      if (!path && context.widget instanceof DocumentWidget) {
+        path = context.widget.context.path;
+      }
+      const messageId = ++this._counter;
+
+      const stream = true;
 
       const prefix = this._getPrefix(request);
-    const result = await this._client.sendMessage({
-      path: context.session?.path,
-      mime,
+      const result = await this._client.sendMessage({
+        path: context.session?.path,
+        mime,
         prefix,
-      suffix: this._getSuffix(request),
-      language: this._resolveLanguage(language),
-      message_id: messageId.toString(),
-      stream,
-      cell_id: cellId
-    });
+        suffix: this._getSuffix(request),
+        language: this._resolveLanguage(language),
+        message_id: messageId.toString(),
+        stream,
+        cell_id: cellId
+      });
 
       this._currentPrefix = prefix;
       for (let index = prefix.length - 1; index >= 0; index--) {
@@ -223,15 +225,15 @@ export class MitoAIInlineCompleter
         >(this);
       }
 
-    const error = result.error;
-    if (error) {
-      this._notifyCompletionFailure(error);
-      throw new Error(
-        `Inline completion failed: ${error.type}\n${error.traceback}`
-      );
-    }
+      const error = result.error;
+      if (error) {
+        this._notifyCompletionFailure(error);
+        throw new Error(
+          `Inline completion failed: ${error.type}\n${error.traceback}`
+        );
+      }
 
-    return result.list;
+      return result.list;
     } finally {
       this._completionLock.resolve();
     }
@@ -267,12 +269,12 @@ export class MitoAIInlineCompleter
       if (this._currentToken !== token) {
         break;
       }
-        yield chunk;
-        if (chunk.done || chunk.error) {
-          // Break this for loop
+      yield chunk;
+      if (chunk.done || chunk.error) {
+        // Break this for loop
         this._currentStream?.stop();
-        }
       }
+    }
   }
 
   /**
@@ -337,11 +339,42 @@ export class MitoAIInlineCompleter
     fullCompletion += chunk.response.insertText;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
+    // Clean suggestion
+    let cleanedCompletion = fullCompletion.slice(0);
+    if (this._currentPrefix) {
+      if (
+        cleanedCompletion.startsWith(this._currentPrefix) ||
+        this._currentPrefix.startsWith(cleanedCompletion)
+      ) {
+        cleanedCompletion = cleanedCompletion.slice(this._currentPrefix.length);
+      } else {
+        if (!['\n', ' '].includes(cleanedCompletion[0])) {
+          let addPrefix = '';
+          if (
+            this._currentPrefix.startsWith('#') ||
+            this._currentPrefix.endsWith(':')
+          ) {
+            addPrefix = '\n';
+          }
+          for (const keyword of PYTHON_FIRST_KEYWORDS) {
+            if (cleanedCompletion.startsWith(keyword)) {
+              addPrefix = '\n';
+              break;
+            }
+          }
+
+          if (addPrefix) {
+            cleanedCompletion = addPrefix + cleanedCompletion;
+          }
+        }
+      }
+    }
+
     this._currentStream.emit({
       ...chunk,
       response: {
         ...chunk.response,
-        insertText: fullCompletion
+        insertText: cleanedCompletion
       }
     });
   }
