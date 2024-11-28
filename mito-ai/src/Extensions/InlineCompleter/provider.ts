@@ -24,8 +24,6 @@ import {
 } from './client';
 import type { CompletionError, InlineCompletionStreamChunk } from './models';
 
-const PYTHON_FIRST_KEYWORDS = ['class', 'def', '#', '@', 'import', 'async'];
-
 /**
  * Mito AI inline completer
  *
@@ -347,26 +345,8 @@ export class MitoAIInlineCompleter
         this._currentPrefix.startsWith(cleanedCompletion)
       ) {
         cleanedCompletion = cleanedCompletion.slice(this._currentPrefix.length);
-      } else {
-        if (!['\n', ' '].includes(cleanedCompletion[0])) {
-          let addPrefix = '';
-          if (
-            this._currentPrefix.startsWith('#') ||
-            this._currentPrefix.endsWith(':')
-          ) {
-            addPrefix = '\n';
-          }
-          for (const keyword of PYTHON_FIRST_KEYWORDS) {
-            if (cleanedCompletion.startsWith(keyword)) {
-              addPrefix = '\n';
-              break;
-            }
-          }
-
-          if (addPrefix) {
-            cleanedCompletion = addPrefix + cleanedCompletion;
-          }
-        }
+      } else if (!['\n', ' '].includes(cleanedCompletion[0])) {
+        cleanedCompletion = '\n' + cleanedCompletion;
       }
     }
 
