@@ -106,7 +106,7 @@ test.describe('default inline completion', () => {
     // FIXME keyboard shortcut works when testing this in debug mode
     // need to figure out why it does not work in normal mode
     // Note: waiting for timeout of 500ms was tried unsuccessfully
-    // await page.keyboard.press('Alt+End');
+    // await page.keyboard.press('Tab');
 
     await page.evaluate(() =>
       window.galata.app.commands.execute('inline-completer:accept')
@@ -115,7 +115,86 @@ test.describe('default inline completion', () => {
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
     expect(
       (await page.notebook.getCellLocator(0))!.getByRole('textbox')
-    ).toHaveText('def fibdef fib(n):\n    pass\n');
+    ).toHaveText('def fib(n):\n    pass\n');
+  });
+});
+
+test.describe('default manual inline completion', () => {
+  test.use({
+    autoGoto: false,
+    mockSettings: {
+      ...galata.DEFAULT_SETTINGS,
+      '@jupyterlab/completer-extension:inline-completer': {
+        providers: {
+          '@jupyterlab/inline-completer:history': {
+            enabled: false,
+            timeout: 5000,
+            debouncerDelay: 0,
+            maxSuggestions: 100
+          },
+          'mito-ai': {
+            enabled: true,
+            timeout: 5000,
+            debouncerDelay: 250,
+            triggerKind: 'manual'
+          }
+        }
+      }
+    }
+  });
+
+  test('should display inline completion', async ({ page, tmpPath }) => {
+    const replyDone = new PromiseDelegate<void>();
+    // Mock completion request with code prefix 'def fib'
+    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, ws => {
+      ws.onMessage(message => {
+        const payload = JSON.parse(message as string);
+        const messageId = payload.number;
+        if (payload.prefix === 'def fib' && payload.stream) {
+          let counter = -1;
+          const streamReply = setInterval(() => {
+            if (++counter < MOCKED_MESSAGES.length) {
+              ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
+            } else {
+              clearInterval(streamReply);
+              replyDone.resolve();
+            }
+          }, 100);
+        } else {
+          ws.send(
+            JSON.stringify({
+              list: { items: [] },
+              reply_to: messageId,
+              type: 'inline_completion',
+              error: {
+                type: 'ValueError',
+                title: `Unknown request ${message}.`
+              }
+            })
+          );
+        }
+      });
+    });
+
+    await page.goto(`tree/${tmpPath}`);
+    const filename = 'inline-completer.ipynb';
+    await page.notebook.createNew(filename);
+    await page.notebook.setCell(0, 'code', 'def fib');
+    await page.keyboard.press('Alt+\\');
+
+    await replyDone.promise;
+
+    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
+    expect
+      .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
+      .toHaveText('def fibdef fib(n):\n    pass\n');
+
+    await page.keyboard.press('Tab');
+
+    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
+    expect(
+      (await page.notebook.getCellLocator(0))!.getByRole('textbox')
+    ).toHaveText('def fib(n):\n    pass\n');
   });
 });
 
