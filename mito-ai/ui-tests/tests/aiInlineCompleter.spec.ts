@@ -1,6 +1,8 @@
 import { expect, galata, test } from '@jupyterlab/galata';
 import { PromiseDelegate } from '@lumino/coreutils';
 
+const GHOST_SELECTOR = '.jp-GhostText';
+
 test.describe('first time setup', () => {
   test('should ask the user to activate the inline completion', async ({
     page
@@ -96,9 +98,10 @@ test.describe('default inline completion', () => {
 
     await replyDone.promise;
 
+    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
     expect
-      .soft(await page.getByRole('main').screenshot())
-      .toMatchSnapshot('successful-inline-suggestion.png');
+      .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
+      .toHaveText('def fibdef fib(n):\n    pass\n');
 
     // FIXME keyboard shortcut works when testing this in debug mode
     // need to figure out why it does not work in normal mode
@@ -109,9 +112,10 @@ test.describe('default inline completion', () => {
       window.galata.app.commands.execute('inline-completer:accept')
     );
 
-    expect(await page.getByRole('main').screenshot()).toMatchSnapshot(
-      'successful-inline-completion.png'
-    );
+    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
+    expect(
+      (await page.notebook.getCellLocator(0))!.getByRole('textbox')
+    ).toHaveText('def fibdef fib(n):\n    pass\n');
   });
 });
 
