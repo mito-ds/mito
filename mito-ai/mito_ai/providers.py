@@ -118,7 +118,7 @@ code comments or docstrings, and with no markdown formatting.""",
         self, request: InlineCompletionRequest
     ) -> InlineCompletionReply:
         # FIXME non-stream completion
-        ...
+        raise NotImplementedError()
 
     async def stream_completions(
         self, request: InlineCompletionRequest

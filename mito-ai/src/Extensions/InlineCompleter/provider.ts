@@ -15,7 +15,7 @@ import {
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import type { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { type JSONValue } from '@lumino/coreutils';
+import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
 import {
@@ -38,13 +38,17 @@ export class MitoAIInlineCompleter
   private _languageRegistry: IEditorLanguageRegistry;
   private _settings: MitoAIInlineCompleter.ISettings =
     MitoAIInlineCompleter.DEFAULT_SETTINGS;
-  /**
-   * Map of stream chunk per completion token.
-   */
-  private _streamMap = new Map<
-    string,
-    Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>
-  >();
+  // Store only one inline completion stream
+  //   Each new request should invalidate any other suggestions.
+  private _currentPrefix = '';
+  private _currentToken = '';
+  private _currentStream: Stream<
+    MitoAIInlineCompleter,
+    InlineCompletionStreamChunk
+  > | null = null;
+  // Block processing chunks while waiting for the acknowledge request
+  // that will provide the unique completion token;
+  private _completionLock = new PromiseDelegate<void>();
   private _fullCompletionMap = new WeakMap<
     Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>,
     string
@@ -61,8 +65,10 @@ export class MitoAIInlineCompleter
       .initialize()
       .then(() => {
         this._client.stream.connect(this._receiveStreamChunk, this);
+        this._completionLock.resolve();
       })
       .catch(reason => {
+        this._completionLock.reject(reason);
         console.error(
           'Failed to initialize the websocket connection for ai completions.',
           reason
@@ -124,10 +130,7 @@ export class MitoAIInlineCompleter
     this._isDisposed = true;
     this._client.stream.disconnect(this._receiveStreamChunk, this);
     this._client.dispose();
-    for (const stream of this._streamMap.values()) {
-      stream.stop();
-    }
-    this._streamMap.clear();
+    this._resetCurrentStream();
     Signal.clearData(this);
   }
 
@@ -144,6 +147,18 @@ export class MitoAIInlineCompleter
     if (!this.isEnabled()) {
       return Promise.reject('Mito AI completion is disabled.');
     }
+
+    if (this.isDisposed) {
+      return Promise.reject('Mito AI provider is disposed.');
+    }
+
+    await this._completionLock.promise;
+
+    this._completionLock = new PromiseDelegate<void>();
+    try {
+      // Stop current stream if any
+      this._resetCurrentStream();
+
     const allowedTriggerKind = this._settings.triggerKind;
     const triggerKind = context.triggerKind;
     if (
@@ -181,16 +196,32 @@ export class MitoAIInlineCompleter
 
     const stream = true;
 
+      const prefix = this._getPrefix(request);
     const result = await this._client.sendMessage({
       path: context.session?.path,
       mime,
-      prefix: this._getPrefix(request),
+        prefix,
       suffix: this._getSuffix(request),
       language: this._resolveLanguage(language),
       message_id: messageId.toString(),
       stream,
       cell_id: cellId
     });
+
+      this._currentPrefix = prefix;
+      for (let index = prefix.length - 1; index >= 0; index--) {
+        if (prefix[index] === '\n') {
+          this._currentPrefix = prefix.slice(index + 1);
+          break;
+        }
+      }
+      if (stream && result.list.items[0]?.token) {
+        this._currentToken = result.list.items[0].token;
+        this._currentStream = new Stream<
+          MitoAIInlineCompleter,
+          InlineCompletionStreamChunk
+        >(this);
+      }
 
     const error = result.error;
     if (error) {
@@ -201,6 +232,9 @@ export class MitoAIInlineCompleter
     }
 
     return result.list;
+    } finally {
+      this._completionLock.resolve();
+    }
   }
 
   /**
@@ -219,37 +253,26 @@ export class MitoAIInlineCompleter
     if (!this.isEnabled()) {
       throw new Error('Mito AI completion is disabled.');
     }
-    const stream = this._getStream(token);
+    // Wait for the acknowledge request to be fulfilled before starting the stream
+    await this._completionLock.promise;
 
-    try {
-      for await (const chunk of stream) {
+    if (this._currentToken !== token) {
+      // New completion may be triggered before the code have started streaming
+      // the previous one. So not raising an error here.
+      console.debug(`No stream found for token '${token}'.`);
+      return;
+    }
+
+    for await (const chunk of this._currentStream!) {
+      if (this._currentToken !== token) {
+        break;
+      }
         yield chunk;
         if (chunk.done || chunk.error) {
           // Break this for loop
-          stream.stop();
+        this._currentStream?.stop();
         }
       }
-    } finally {
-      this._streamMap.delete(token);
-    }
-  }
-
-  /**
-   * Create a stream for a given completion.
-   *
-   * @param token Completion unique identifier
-   */
-  private _getStream(
-    token: string
-  ): Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk> {
-    let stream = this._streamMap.get(token);
-    if (!stream) {
-      stream = new Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>(
-        this
-      );
-      this._streamMap.set(token, stream);
-    }
-    return stream;
   }
 
   /**
@@ -297,21 +320,39 @@ export class MitoAIInlineCompleter
     if (!token) {
       throw Error('Stream chunks must define `token` in `response`');
     }
-    const stream = this._streamMap.get(token);
-    if (!stream) {
+
+    if (this._currentToken !== token) {
+      // This may happen if the backend is still streaming for a previous token
+      console.debug(
+        `Received completion chunk for an unknown token '${token}'`
+      );
+      return;
+    }
+
+    if (!this._currentStream) {
       throw Error(`Stream not found for token ${token}`);
     }
-    let fullCompletion = this._fullCompletionMap.get(stream) ?? '';
-    fullCompletion += chunk.response.insertText;
-    this._fullCompletionMap.set(stream, fullCompletion);
 
-    stream.emit({
+    let fullCompletion = this._fullCompletionMap.get(this._currentStream) ?? '';
+    fullCompletion += chunk.response.insertText;
+    this._fullCompletionMap.set(this._currentStream, fullCompletion);
+
+    this._currentStream.emit({
       ...chunk,
       response: {
         ...chunk.response,
         insertText: fullCompletion
       }
     });
+  }
+
+  private _resetCurrentStream() {
+    this._currentToken = '';
+    if (this._currentStream) {
+      this._currentStream.stop();
+      this._fullCompletionMap.delete(this._currentStream);
+      this._currentStream = null;
+    }
   }
 
   private _resolveLanguage(language: IEditorLanguage | null) {
