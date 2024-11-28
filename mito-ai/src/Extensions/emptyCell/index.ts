@@ -3,6 +3,8 @@ import type {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import type { WidgetTracker } from '@jupyterlab/apputils';
+import type { ICellModel } from '@jupyterlab/cells';
+import { IEditorMimeTypeService } from '@jupyterlab/codeeditor';
 import {
   EditorExtensionRegistry,
   IEditorExtensionRegistry
@@ -27,19 +29,32 @@ export const localPrompt: JupyterFrontEndPlugin<void> = {
     const keyBindings = app.commands.keyBindings.find(
       b => b.command === COMMAND_MITO_AI_OPEN_CHAT
     );
+    const pythonAdvice = `Start writing python or Press ${CommandRegistry.formatKeystroke(
+      keyBindings?.keys[0] ?? 'Accel E'
+    )
+      .split(/[\+\s]/)
+      .map(s => `<kbd>${s}</kbd>`)
+      .join(' + ')} to ask Mito AI to write code for you.`;
     extensions.addExtension({
       name: 'mito-ai:empty-editor-advice',
       factory: options => {
         let advice = ''; // Default advice
         // Add the advice only for cells (not for file editor)
         if (options.inline) {
+          let guessedMimeType = options.model.mimeType;
+          if (
+            guessedMimeType === IEditorMimeTypeService.defaultMimeType &&
+            (options.model as ICellModel).type === 'code'
+          ) {
+            // Assume the kernel is not yet ready and will be a Python one.
+            // FIXME it will be better to deal with model.mimeTypeChanged signal
+            // but this is gonna be hard.
+            guessedMimeType = 'text/x-ipython';
+          }
           // Tune the advice with the mimetype
-          switch (options.model.mimeType) {
+          switch (guessedMimeType) {
             case 'text/x-ipython': // Python code cell
-              advice = `Start writing python or Press ${keyBindings?.keys
-                .map(CommandRegistry.formatKeystroke)
-                .map(s => `<kbd>${s}</kbd>`)
-                .join(' + ')} to ask Mito AI to write code for you.`;
+              advice = pythonAdvice;
               break;
             case 'text/x-ipythongfm': // Jupyter Markdown cell
               advice = 'Start writing markdown.';
