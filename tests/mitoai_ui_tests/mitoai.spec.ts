@@ -62,7 +62,7 @@ test.describe('Mito AI Chat', () => {
     expect(messageAssistantDivs).toBe(1);
 
     // Ensure you cannot edit the AI's messages by clicking the pencil icon or double clicking the message
-    await expect(page.locator('.message-edit-button')).not.toBeVisible();
+    await expect(page.locator('.message-assistant .message-edit-button')).not.toBeVisible();
     await page.locator('.message-assistant p').last().dblclick();
     await expect(page.getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
