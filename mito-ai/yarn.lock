@@ -1360,24 +1360,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/autocomplete@npm:^6.0.0, @codemirror/autocomplete@npm:^6.3.2, @codemirror/autocomplete@npm:^6.7.1":
-  version: 6.18.0
-  resolution: "@codemirror/autocomplete@npm:6.18.0"
-  dependencies:
-    "@codemirror/language": ^6.0.0
-    "@codemirror/state": ^6.0.0
-    "@codemirror/view": ^6.17.0
-    "@lezer/common": ^1.0.0
-  peerDependencies:
-    "@codemirror/language": ^6.0.0
-    "@codemirror/state": ^6.0.0
-    "@codemirror/view": ^6.0.0
-    "@lezer/common": ^1.0.0
-  checksum: 806163d13be3e86f5eceb46768329955f48935e228e238c2b8ae7ebe0b6634b5fe90fc5eeb6df81acb1e9e6e5a84e136f14233459d4bcfea2f3dd8a45ae84f37
-  languageName: node
-  linkType: hard
-
-"@codemirror/autocomplete@npm:^6.16.0":
+"@codemirror/autocomplete@npm:^6.0.0, @codemirror/autocomplete@npm:^6.16.0, @codemirror/autocomplete@npm:^6.3.2, @codemirror/autocomplete@npm:^6.7.1":
   version: 6.18.3
   resolution: "@codemirror/autocomplete@npm:6.18.3"
   dependencies:
@@ -1624,18 +1607,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/view@npm:^6.0.0, @codemirror/view@npm:^6.17.0, @codemirror/view@npm:^6.23.0, @codemirror/view@npm:^6.27.0":
-  version: 6.33.0
-  resolution: "@codemirror/view@npm:6.33.0"
-  dependencies:
-    "@codemirror/state": ^6.4.0
-    style-mod: ^4.1.0
-    w3c-keyname: ^2.2.4
-  checksum: e28896a7fb40df8e7221fbebfc2cd92c10c6963948e20f3a4300e99c897fbddd091f4fc90cc30eeaf90d07c61dcf6170cd3c164810606fa07337ffb970ffdac2
-  languageName: node
-  linkType: hard
-
-"@codemirror/view@npm:^6.26.3, @codemirror/view@npm:^6.9.6":
+"@codemirror/view@npm:^6.0.0, @codemirror/view@npm:^6.17.0, @codemirror/view@npm:^6.23.0, @codemirror/view@npm:^6.26.3, @codemirror/view@npm:^6.27.0, @codemirror/view@npm:^6.9.6":
   version: 6.35.0
   resolution: "@codemirror/view@npm:6.35.0"
   dependencies:
@@ -2463,16 +2435,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/nbformat@npm:^3.0.0 || ^4.0.0-alpha.21 || ^4.0.0":
-  version: 4.2.5
-  resolution: "@jupyterlab/nbformat@npm:4.2.5"
-  dependencies:
-    "@lumino/coreutils": ^2.1.2
-  checksum: b3ad2026969bfa59f8cfb7b1a991419f96f7e6dc8c4acf4ac166c210d7ab99631350c785e9b04350095488965d2824492c8adbff24a2e26db615457545426b3c
-  languageName: node
-  linkType: hard
-
-"@jupyterlab/nbformat@npm:^4.3.1":
+"@jupyterlab/nbformat@npm:^3.0.0 || ^4.0.0-alpha.21 || ^4.0.0, @jupyterlab/nbformat@npm:^4.3.1":
   version: 4.3.1
   resolution: "@jupyterlab/nbformat@npm:4.3.1"
   dependencies:
@@ -2857,17 +2820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lezer/markdown@npm:^1.0.0":
-  version: 1.3.1
-  resolution: "@lezer/markdown@npm:1.3.1"
-  dependencies:
-    "@lezer/common": ^1.0.0
-    "@lezer/highlight": ^1.0.0
-  checksum: b5cbb857a90411e174e7ad23433756a81cf2ab422ef749e529211e078ed4061b4595fa8cbcca56119919c0b2735e8ecac11ff34768d64cb90e599fde2bc6c730
-  languageName: node
-  linkType: hard
-
-"@lezer/markdown@npm:^1.3.0":
+"@lezer/markdown@npm:^1.0.0, @lezer/markdown@npm:^1.3.0":
   version: 1.3.2
   resolution: "@lezer/markdown@npm:1.3.2"
   dependencies:
@@ -2963,7 +2916,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/coreutils@npm:^1.11.0 || ^2.0.0, @lumino/coreutils@npm:^1.11.0 || ^2.2.0, @lumino/coreutils@npm:^2.0.0, @lumino/coreutils@npm:^2.1.2, @lumino/coreutils@npm:^2.2.0":
+"@lumino/coreutils@npm:^1.11.0 || ^2.0.0, @lumino/coreutils@npm:^1.11.0 || ^2.2.0, @lumino/coreutils@npm:^2.0.0, @lumino/coreutils@npm:^2.2.0":
   version: 2.2.0
   resolution: "@lumino/coreutils@npm:2.2.0"
   dependencies:
@@ -3369,16 +3322,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 22.5.4
-  resolution: "@types/node@npm:22.5.4"
-  dependencies:
-    undici-types: ~6.19.2
-  checksum: 77ac225c38c428200036780036da0bc6764e2721cfa8f528c7e7da7cfefe01a32a5791e28a54efbeedbc977949058d7db902b2e00139298225d4686cee4ae6db
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^18.11.18":
+"@types/node@npm:*, @types/node@npm:^18.11.18":
   version: 18.19.50
   resolution: "@types/node@npm:18.19.50"
   dependencies:
@@ -3820,7 +3764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abab@npm:^2.0.3, abab@npm:^2.0.5, abab@npm:^2.0.6":
+"abab@npm:^2.0.3, abab@npm:^2.0.6":
   version: 2.0.6
   resolution: "abab@npm:2.0.6"
   checksum: 6ffc1af4ff315066c62600123990d87551ceb0aafa01e6539da77b0f5987ac7019466780bf480f1787576d4385e3690c81ccc37cfda12819bf510b8ab47e5a3e
@@ -4770,17 +4714,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:3.0.10":
+"csstype@npm:3.0.10, csstype@npm:^3.0.2":
   version: 3.0.10
   resolution: "csstype@npm:3.0.10"
   checksum: 20a8fa324f2b33ddf94aa7507d1b6ab3daa6f3cc308888dc50126585d7952f2471de69b2dbe0635d1fdc31223fef8e070842691877e725caf456e2378685a631
-  languageName: node
-  linkType: hard
-
-"csstype@npm:^3.0.2":
-  version: 3.1.3
-  resolution: "csstype@npm:3.1.3"
-  checksum: 8db785cc92d259102725b3c694ec0c823f5619a84741b5c7991b8ad135dfaa66093038a1cc63e03361a6cd28d122be48f2106ae72334e067dd619a51f49eddf7
   languageName: node
   linkType: hard
 
@@ -5915,21 +5852,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^7.1.3, glob@npm:^7.1.4":
-  version: 7.2.3
-  resolution: "glob@npm:7.2.3"
-  dependencies:
-    fs.realpath: ^1.0.0
-    inflight: ^1.0.4
-    inherits: 2
-    minimatch: ^3.1.1
-    once: ^1.3.0
-    path-is-absolute: ^1.0.0
-  checksum: 29452e97b38fa704dabb1d1045350fb2467cf0277e155aa9ff7077e90ad81d1ea9d53d3ee63bd37c05b09a065e90f16aec4a65f5b8de401d1dac40bc5605d133
-  languageName: node
-  linkType: hard
-
-"glob@npm:~7.1.6":
+"glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:~7.1.6":
   version: 7.1.7
   resolution: "glob@npm:7.1.7"
   dependencies:
@@ -7797,7 +7720,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^3.0.4, minimatch@npm:^3.0.5, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
+"minimatch@npm:^3.0.4, minimatch@npm:^3.0.5, minimatch@npm:^3.1.2":
   version: 3.1.2
   resolution: "minimatch@npm:3.1.2"
   dependencies:
@@ -9299,23 +9222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-loader@npm:^1.0.2":
-  version: 1.1.3
-  resolution: "source-map-loader@npm:1.1.3"
-  dependencies:
-    abab: ^2.0.5
-    iconv-lite: ^0.6.2
-    loader-utils: ^2.0.0
-    schema-utils: ^3.0.0
-    source-map: ^0.6.1
-    whatwg-mimetype: ^2.3.0
-  peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: 0ca16a1458f206e12925f242ce52913b5f35de657d2ec17fd60ab3de7fa85b72b6707951b7a18899bdf05679d679a8b9edeb660c557aafa66453886d6907e3ec
-  languageName: node
-  linkType: hard
-
-"source-map-loader@npm:~1.0.2":
+"source-map-loader@npm:^1.0.2, source-map-loader@npm:~1.0.2":
   version: 1.0.2
   resolution: "source-map-loader@npm:1.0.2"
   dependencies:
@@ -10100,13 +10007,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.19.2":
-  version: 6.19.8
-  resolution: "undici-types@npm:6.19.8"
-  checksum: de51f1b447d22571cf155dfe14ff6d12c5bdaec237c765085b439c38ca8518fc360e88c70f99469162bf2e14188a7b0bcb06e1ed2dc031042b984b0bb9544017
-  languageName: node
-  linkType: hard
-
 "unicode-canonical-property-names-ecmascript@npm:^2.0.0":
   version: 2.0.0
   resolution: "unicode-canonical-property-names-ecmascript@npm:2.0.0"
@@ -10287,7 +10187,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vscode-jsonrpc@npm:8.2.0":
+"vscode-jsonrpc@npm:8.2.0, vscode-jsonrpc@npm:^8.0.2":
   version: 8.2.0
   resolution: "vscode-jsonrpc@npm:8.2.0"
   checksum: f302a01e59272adc1ae6494581fa31c15499f9278df76366e3b97b2236c7c53ebfc71efbace9041cfd2caa7f91675b9e56f2407871a1b3c7f760a2e2ee61484a
@@ -10298,13 +10198,6 @@ __metadata:
   version: 6.0.0
   resolution: "vscode-jsonrpc@npm:6.0.0"
   checksum: 3a67a56f287e8c449f2d9752eedf91e704dc7b9a326f47fb56ac07667631deb45ca52192e9bccb2ab108764e48409d70fa64b930d46fc3822f75270b111c5f53
-  languageName: node
-  linkType: hard
-
-"vscode-jsonrpc@npm:^8.0.2":
-  version: 8.2.1
-  resolution: "vscode-jsonrpc@npm:8.2.1"
-  checksum: 2af2c333d73f6587896a7077978b8d4b430e55c674d5dbb90597a84a6647057c1655a3bff398a9b08f1f8ba57dbd2deabf05164315829c297b0debba3b8bc19e
   languageName: node
   linkType: hard
 
