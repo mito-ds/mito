@@ -1,7 +1,7 @@
 import React from 'react';
 import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getNotebookName } from '../../../utils/notebook';
+import { getActiveCell, getNotebookName } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -19,8 +19,8 @@ interface ICodeBlockProps {
     isLastAiMessage: boolean,
     operatingSystem: OperatingSystem,
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
-    acceptAICode: () => void,
-    rejectAICode: () => void
+    acceptAICode: (codeCellID: string) => void,
+    rejectAICode: (codeCellID: string) => void
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -43,6 +43,11 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
         navigator.clipboard.writeText(codeWithoutMarkdown)
     }
 
+    const getCodeCellID = () => {
+        const activeCell = getActiveCell(notebookTracker)
+        return activeCell?.model.id || ''
+    }
+
     if (role === 'user') {
         return (
             <div className='code-message-part-container'>
@@ -63,10 +68,10 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     </div>
                     {isLastAiMessage && (
                         <>
-                            <button onClick={() => { acceptAICode() }}>
+                            <button onClick={() => { acceptAICode(getCodeCellID()) }}>
                                 Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
                             </button>
-                            <button onClick={() => { rejectAICode() }}>
+                            <button onClick={() => { rejectAICode(getCodeCellID()) }}>
                                 Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
                             </button>
                         </>

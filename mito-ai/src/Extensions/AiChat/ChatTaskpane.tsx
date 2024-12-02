@@ -132,7 +132,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1.5: If code diffs are still displayed, automatically reject the AI code
         if (unifiedDiffLines !== undefined) {
-            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage()
+            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
             rejectAICode(codeCellID)
         }
 
@@ -150,7 +150,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1.5: If code diffs are still displayed, automatically reject the AI code
         if (unifiedDiffLines !== undefined) {
-            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage()
+            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
             rejectAICode(codeCellID)
         }
 
@@ -200,6 +200,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         const activeCellCode = getActiveCellCode(notebookTracker)
+        const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
 
         // Extract the code from the AI's message and then calculate the code diffs
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
@@ -212,13 +213,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user. Once the user accepts or rejects the code, we'll 
         // apply the correct version of the code.
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, undefined)
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID)
         setUnifiedDiffLines(unifiedDiffs)
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const acceptAICode = () => {
+    const acceptAICode = (codeCellID: string) => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
         
@@ -231,10 +232,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        _applyCode(aiGeneratedCode)
+        _applyCode(aiGeneratedCode, codeCellID)
     }
 
-    const rejectAICode = (codeCellID?: string) => {
+    const rejectAICode = (codeCellID: string) => {
         const originalDiffedCode = originalCodeBeforeDiff.current
         if (originalDiffedCode === undefined) {
             return
@@ -242,8 +243,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         _applyCode(originalDiffedCode, codeCellID)
     }
 
-    const _applyCode = (code: string, codeCellID?: string) => {
-        writeCodeToCellByID(notebookTracker, code, codeCellID || undefined, true)
+    const _applyCode = (code: string, codeCellID: string) => {
+        writeCodeToCellByID(notebookTracker, code, codeCellID, true)
         setUnifiedDiffLines(undefined)
         originalCodeBeforeDiff.current = undefined
     }
@@ -261,13 +262,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_APPLY_LATEST_CODE, {
             execute: () => {
-                acceptAICode()
+                const newChatHistoryManager = getDuplicateChatHistoryManager()
+                const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
+                acceptAICode(codeCellID)
             }
         })
 
         app.commands.addCommand(COMMAND_MITO_AI_REJECT_LATEST_CODE, {
             execute: () => {
-                rejectAICode()
+                const newChatHistoryManager = getDuplicateChatHistoryManager()
+                const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
+                rejectAICode(codeCellID)
             }
         })
 

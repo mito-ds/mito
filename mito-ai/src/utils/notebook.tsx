@@ -24,7 +24,7 @@ export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: s
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
     code: string | undefined, 
-    codeCellID: string | undefined,
+    codeCellID: string,
     returnFocus?: boolean
 ): void => {
     /* 
@@ -34,11 +34,6 @@ export const writeCodeToCellByID = (
 
     if (code === undefined) {
         return;
-    }
-
-    if (codeCellID === undefined) {
-        // If the codeCellID is undefined, we use the active cell
-        codeCellID = getActiveCell(notebookTracker)?.model.id || ''
     }
 
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
