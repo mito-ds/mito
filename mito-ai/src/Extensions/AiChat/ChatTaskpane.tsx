@@ -126,16 +126,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string) => {
-        // Step 0: If code diffs are displayed, reject the AI code, then send the message.
-        // if (unifiedDiffLines !== undefined) {
-        //     rejectAICode()
-        // }
-
-        // console.log("activeCellCode1", getActiveCellCode(notebookTracker))
-        // Make note of active cell id before we add the user's message
-        // const activeCellTemp = getActiveCell(notebookTracker)
-        // console.log("activeCellTemp", activeCellTemp)
-        
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.addChatInputMessage(input)
@@ -160,14 +150,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
-        // Step 0: If code diffs are displayed, reject the AI code, then send the message.
-        if (unifiedDiffLines !== undefined) {
-            rejectAICode()
-        }
-
         // Step 1: Update the chat history manager
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
+
+        // Step 1.5: If code diffs are still displayed, automatically reject the AI code
+        if (unifiedDiffLines !== undefined) {
+            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage()
+            rejectAICode(codeCellID)
+        }
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
