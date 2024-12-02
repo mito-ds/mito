@@ -64,7 +64,7 @@ test.describe('Mito AI Chat', () => {
     // Ensure you cannot edit the AI's messages by clicking the pencil icon or double clicking the message
     await expect(page.locator('.message-assistant .message-edit-button')).not.toBeVisible();
     await page.locator('.message-assistant p').last().dblclick();
-    await expect(page.getByRole('button', { name: 'Save' })).not.toBeVisible();
+    await expect(page.locator('.message-assistant').getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
 
   test('Code Diffs are applied', async ({ page }) => {
