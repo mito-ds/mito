@@ -11,7 +11,7 @@ export interface IDisplayOptimizedChatHistory {
 
 export interface IAIOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    codeCellID?: string 
+    codeCellID: string
 }
 
 export interface IChatHistory {
@@ -97,7 +97,7 @@ export class ChatHistoryManager {
             {message: getDisplayedOptimizedUserMessage(input, activeCellCode), type: 'openai message'}
         );
         this.history.aiOptimizedChatHistory.push(
-            {message: aiOptimizedMessage, codeCellID: this.getCurrentCellId()}
+            {message: aiOptimizedMessage, codeCellID: this.getCurrentCellId() || ''}
         )
     }
 
@@ -111,7 +111,7 @@ export class ChatHistoryManager {
         };
 
         // Update the message at the specified index
-        this.history.aiOptimizedChatHistory[index] = {message: aiOptimizedMessage, codeCellID: this.getCurrentCellId()};
+        this.history.aiOptimizedChatHistory[index] = {message: aiOptimizedMessage, codeCellID: this.getCurrentCellId() || ''};
         this.history.displayOptimizedChatHistory[index].message = getDisplayedOptimizedUserMessage(newContent, activeCellCode);
 
         // Remove all messages after the index we're updating
@@ -132,7 +132,7 @@ export class ChatHistoryManager {
         this.history.aiOptimizedChatHistory.push(
             {
                 message: {role: 'user', content: aiOptimizedPrompt}, 
-                codeCellID: this.getCurrentCellId()
+                codeCellID: this.getCurrentCellId() || ''
             }
         );
     }
@@ -148,7 +148,7 @@ export class ChatHistoryManager {
         this.history.aiOptimizedChatHistory.push(
             {
                 message: {role: 'user', content: aiOptimizedPrompt}, 
-                codeCellID: this.getCurrentCellId()
+                codeCellID: this.getCurrentCellId() || ''
             }
         );
     }
@@ -180,7 +180,7 @@ export class ChatHistoryManager {
             {message: aiMessage, type: mitoAIConnectionError ? 'connection error' : 'openai message'}
         );
         this.history.aiOptimizedChatHistory.push(
-            {message: aiMessage, codeCellID: this.getCurrentCellId()}
+            {message: aiMessage, codeCellID: this.getCurrentCellId() || ''}
         );
     }
 
@@ -190,7 +190,7 @@ export class ChatHistoryManager {
             content: message
         }
         this.history.displayOptimizedChatHistory.push({message: systemMessage, type: 'openai message'});
-        this.history.aiOptimizedChatHistory.push({message: systemMessage, codeCellID: this.getCurrentCellId()});
+        this.history.aiOptimizedChatHistory.push({message: systemMessage, codeCellID: this.getCurrentCellId() || ''});
     }
 
     getLastAIMessageIndex = (): number | undefined => {
