@@ -8,7 +8,7 @@ class _SingleShotPromptGenerator(PromptGenerator):
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
         return f"""You are an expert python programmer. You are given a set of variables, existing code, and a task. 
 
-Respond with the python code and nothing else.
+Respond with the python code that starts with ```python and ends with ```. Do not return anything else.
 
 <Example>
 You have these variables: 

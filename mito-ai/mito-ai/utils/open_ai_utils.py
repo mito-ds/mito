@@ -44,7 +44,7 @@ def _get_ai_completion_with_key(ai_completion_data: Dict[str, Any], OPENAI_API_K
         return {'completion': completion}
         
 
-def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> Dict[str, Any]:
+def _get_ai_completion_from_mito_server(last_message_content: str, ai_completion_data: Dict[str, Any]) -> Dict[str, Any]:
         
         global __user_email, __user_id, __num_usages
 
@@ -62,12 +62,13 @@ def _get_ai_completion_from_mito_server(ai_completion_data: Dict[str, Any]) -> D
 
         if not pro and __num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
                 log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-                raise PermissionError
+                raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
                 
         data = {
                 'email': __user_email,
                 'user_id': __user_id,
-                'data': ai_completion_data
+                'data': ai_completion_data,
+                'user_input': last_message_content # We add this just for logging purposes
         }
 
         headers = {
@@ -92,12 +93,16 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         initialize_user()
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+                
+        # Prep the ai completion data 
         ai_completion_data = _get_ai_completion_data(messages)
+        last_message_content = messages[-1]['content']
 
+        # Try to get the AI response
         try:
                 if OPENAI_API_KEY is None:
                         # If they don't have an Open AI key, use the mito server to get a completion
-                        response = _get_ai_completion_from_mito_server(ai_completion_data)
+                        response = _get_ai_completion_from_mito_server(last_message_content, ai_completion_data)
 
                         # Increment the number of usages
                         global __num_usages
@@ -111,12 +116,19 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
                         })
                         return response
                 else:
-                        response =  _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
+                        # If they DO have an Open AI key, use it to get a completion
+                        response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
 
                         # Log the successful completion
                         log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
                         return response
         except Exception as e:
                 key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
-                log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+                log(
+                        MITO_AI_COMPLETION_ERROR, 
+                        params={
+                                KEY_TYPE_PARAM: key_type
+                        }, 
+                        error=e
+                )
                 raise e
