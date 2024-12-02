@@ -54,3 +54,11 @@ export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number
     const cell = await page.notebook.getCell(cellIndex);
     await cell?.click();
 }
+
+export const addNewCell = async (
+    page: IJupyterLabPageFixture,
+    cellType: 'code' | 'markdown' = 'code',
+    cellValue: string = ''
+) => {
+    await page.notebook.addCell(cellType, cellValue);
+}

@@ -1,5 +1,5 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
+import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle, addNewCell } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 import { clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 const placeholderCellText = '# Empty code cell';
@@ -72,16 +72,28 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
   });
 
-  test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['# Empty cell']);
+  test.only('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print("cell 0")']);
     await waitForIdle(page);
 
+    // Send a first message in cell 1
     await sendMessageToMitoAI(page, 'Write the code x = 1');
-    await sendMessageToMitoAI(page, 'Write the code x = 2');
 
-    const code = await getCodeFromCell(page, 1);
-    expect(code).toContain('x = 2');
-    expect(code).not.toContain('x = 1');
+    // Create a new cell w/o accepting the first message
+    await addNewCell(page);
+
+    // Send a second message in cell 2
+    await sendMessageToMitoAI(page, 'Write the code x = 2');
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+
+    const codeInCell1 = await getCodeFromCell(page, 1);
+    expect(codeInCell1).not.toContain('x = 1'); // First msg should be auto-rejected
+
+    const codeInCell2 = await getCodeFromCell(page, 2);
+    expect(codeInCell2).toContain('x = 2');
+    expect(codeInCell2).not.toContain('x = 1'); // Make sure the first msg does not show up in the second cell
   });
 
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
