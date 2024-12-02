@@ -42,10 +42,8 @@ export const writeCodeToCellByID = (
 
     // Return focus to the cell if requested
     if (focusOnCell) {
-        console.log('focusing on cell', codeCellID)
         cell?.node.focus()
     } else {
-        console.log('focusing on active cell')
         activeCell?.node.focus()
     }
 }
