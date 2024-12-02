@@ -10,7 +10,6 @@ export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefin
 }
 
 export const getActiveCellCode = (notebookTracker: INotebookTracker): string | undefined => {
-    console.log("getActiveCellCode__", notebookTracker.currentWidget?.model?.cells)
     const activeCell = getActiveCell(notebookTracker)
     return activeCell?.model.sharedModel.source
 }
