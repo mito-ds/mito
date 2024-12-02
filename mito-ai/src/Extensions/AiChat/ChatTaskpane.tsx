@@ -257,9 +257,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         
         if (codeCellID) {
             _applyCode(originalDiffedCode, codeCellID)
+        } else {
+            _applyCode(originalDiffedCode)
         }
-
-        _applyCode(originalDiffedCode)
     }
 
     const _applyCode = (code: string, codeCellID?: string) => {
