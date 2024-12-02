@@ -7,5 +7,5 @@
 }
 
 .icon-button:hover {
-    background-color: var(--clear-button-hover)
+    background-color: var(--grey-300);
 }
