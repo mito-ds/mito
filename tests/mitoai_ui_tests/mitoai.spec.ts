@@ -60,6 +60,11 @@ test.describe('Mito AI Chat', () => {
     // Ensure previous messages are removed.
     const messageAssistantDivs = await page.locator('.message.message-assistant').count();
     expect(messageAssistantDivs).toBe(1);
+
+    // Ensure you cannot edit the AI's messages by clicking the pencil icon or double clicking the message
+    await expect(page.locator('.message-edit-button')).not.toBeVisible();
+    await page.locator('.message-assistant p').last().dblclick();
+    await expect(page.getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
 
   test('Code Diffs are applied', async ({ page }) => {
