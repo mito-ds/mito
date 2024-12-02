@@ -131,10 +131,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         newChatHistoryManager.addChatInputMessage(input)
 
         // Step 1.5: If code diffs are still displayed, automatically reject the AI code
-        if (unifiedDiffLines !== undefined) {
-            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-            rejectAICode(codeCellID, false)
-        }
+        rejectAICodeIfNeeded(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
@@ -149,10 +146,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
 
         // Step 1.5: If code diffs are still displayed, automatically reject the AI code
-        if (unifiedDiffLines !== undefined) {
-            const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-            rejectAICode(codeCellID, false)
-        }
+        rejectAICodeIfNeeded(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
@@ -191,6 +185,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } finally {
             setLoadingAIResponse(false)
             return aiRespone
+        }
+    }
+
+    const rejectAICodeIfNeeded = (chatHistoryManager: ChatHistoryManager) => {
+        // If code diffs are still displayed, and the user sends a new message, 
+        // automatically reject the AI code before sending a new message.
+        if (unifiedDiffLines !== undefined) {
+            const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
+            rejectAICode(codeCellID, false)
         }
     }
 
