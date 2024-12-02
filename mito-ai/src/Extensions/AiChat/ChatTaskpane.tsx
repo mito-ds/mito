@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCell, getActiveCellCode, getCellCodeByID, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCellCode, writeCodeToCellByID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -138,12 +138,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
-        // console.log("aiMessage", aiMessage)
-
-        const codeCellID_1 = getActiveCell(notebookTracker)?.model.id
-        console.log("codeCellID_1", codeCellID_1)
-        console.log("activeCellCode", getActiveCellCode(notebookTracker))
-        console.log("activeCellCodeByID", getCellCodeByID(notebookTracker, codeCellID_1 || ''))
 
         // Step 3: Update the code diff stripes
         updateCodeDiffStripes(aiMessage)

@@ -21,10 +21,6 @@ export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: s
     return cell?.model.sharedModel.source
 }
 
-/* 
-    Writes code to a cell by ID. 
-    If the codeCellID is undefined, it writes to the active cell. 
-*/
 
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
@@ -32,6 +28,11 @@ export const writeCodeToCellByID = (
     codeCellID: string | undefined,
     returnFocus?: boolean
 ): void => {
+    /* 
+        Writes code to a cell by ID. 
+        If the codeCellID is undefined, it writes to the active cell.
+    */
+
     if (code === undefined) {
         return;
     }
