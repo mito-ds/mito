@@ -25,13 +25,8 @@ export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
     code: string | undefined, 
     codeCellID: string,
-    returnFocus?: boolean
+    focusOnCell?: boolean
 ): void => {
-    /* 
-        Writes code to a cell by ID. 
-        If the codeCellID is undefined, it writes to the active cell.
-    */
-
     if (code === undefined) {
         return;
     }
@@ -46,8 +41,12 @@ export const writeCodeToCellByID = (
     }
 
     // Return focus to the cell if requested
-    if (returnFocus && activeCell) {
-        activeCell.node.focus()
+    if (focusOnCell) {
+        console.log('focusing on cell', codeCellID)
+        cell?.node.focus()
+    } else {
+        console.log('focusing on active cell')
+        activeCell?.node.focus()
     }
 }
 

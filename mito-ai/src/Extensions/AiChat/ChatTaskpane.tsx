@@ -133,7 +133,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1.5: If code diffs are still displayed, automatically reject the AI code
         if (unifiedDiffLines !== undefined) {
             const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-            rejectAICode(codeCellID)
+            rejectAICode(codeCellID, false)
         }
 
         // Step 2: Send the message to the AI
@@ -151,7 +151,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1.5: If code diffs are still displayed, automatically reject the AI code
         if (unifiedDiffLines !== undefined) {
             const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-            rejectAICode(codeCellID)
+            rejectAICode(codeCellID, false)
         }
 
         // Step 2: Send the message to the AI
@@ -213,7 +213,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user. Once the user accepts or rejects the code, we'll 
         // apply the correct version of the code.
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID)
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
         setUnifiedDiffLines(unifiedDiffs)
     }
 
@@ -235,16 +235,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         _applyCode(aiGeneratedCode, codeCellID)
     }
 
-    const rejectAICode = (codeCellID: string) => {
+    const rejectAICode = (codeCellID: string, focusOnCell?: boolean) => {
         const originalDiffedCode = originalCodeBeforeDiff.current
         if (originalDiffedCode === undefined) {
             return
         }
-        _applyCode(originalDiffedCode, codeCellID)
+        _applyCode(originalDiffedCode, codeCellID, focusOnCell)
     }
 
-    const _applyCode = (code: string, codeCellID: string) => {
-        writeCodeToCellByID(notebookTracker, code, codeCellID, true)
+    const _applyCode = (code: string, codeCellID: string, focusOnCell?: boolean) => {
+        writeCodeToCellByID(notebookTracker, code, codeCellID, focusOnCell)
         setUnifiedDiffLines(undefined)
         originalCodeBeforeDiff.current = undefined
     }
