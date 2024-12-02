@@ -60,7 +60,7 @@
     "@codemirror/state": "^6.2.0",
     "@codemirror/view": "^6.9.6",
     "@jupyterlab/application": "^4.1.0",
-    "@jupyterlab/apputils": "^4.2.0",
+    "@jupyterlab/apputils": "^4.1.0",
     "@jupyterlab/cells": "^4.1.0",
     "@jupyterlab/codeeditor": "^4.1.0",
     "@jupyterlab/codemirror": "^4.1.0",
@@ -75,8 +75,8 @@
     "vscode-diff": "^2.1.1"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^4.0.0",
-    "@jupyterlab/testutils": "^4.0.0",
+    "@jupyterlab/builder": "^4.1.0",
+    "@jupyterlab/testutils": "^4.1.0",
     "@types/jest": "^29.2.0",
     "@types/json-schema": "^7.0.11",
     "@types/react": "^18.0.26",
