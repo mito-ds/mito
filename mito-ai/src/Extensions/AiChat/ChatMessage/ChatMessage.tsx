@@ -114,7 +114,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 } else {
                     return (
                         <div style={{ position: 'relative' }}>
-                            <p key={index + messagePart} onDoubleClick={() => setIsEditing(true)}>
+                            <p 
+                                key={index + messagePart} 
+                                onDoubleClick={() => {
+                                    // Only allow users to edit their own messages, not the AI responses
+                                    if (message.role === 'user') {
+                                        setIsEditing(true)
+                                }
+                            }}>
                                 {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                                 <MarkdownBlock
                                     markdown={messagePart}
