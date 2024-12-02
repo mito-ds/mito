@@ -72,7 +72,7 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
   });
 
-  test.only('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
+  test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print("cell 0")']);
     await waitForIdle(page);
 
