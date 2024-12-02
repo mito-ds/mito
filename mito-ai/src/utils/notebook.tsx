@@ -22,32 +22,23 @@ export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: s
 }
 
 /* 
-    Writes code to the active cell in the notebook. If the code is undefined, it does nothing.
+    Writes code to a cell by ID. 
+    If the codeCellID is undefined, it writes to the active cell. 
 */
-export const writeCodeToActiveCell = (notebookTracker: INotebookTracker, code: string | undefined, focus?: boolean): void =>  {
-    if (code === undefined) {
-        return
-    }
-    
-    const codeMirrorValidCode = removeMarkdownCodeFormatting(code)
-    const activeCell = getActiveCell(notebookTracker)
-    if (activeCell !== undefined) {
-        activeCell.model.sharedModel.source = codeMirrorValidCode
-
-        if (focus) {
-            activeCell.node.focus()
-        }
-    }
-}
 
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
     code: string | undefined, 
-    codeCellID: string,
+    codeCellID: string | undefined,
     returnFocus?: boolean
 ): void => {
     if (code === undefined) {
         return;
+    }
+
+    if (codeCellID === undefined) {
+        // If the codeCellID is undefined, we use the active cell
+        codeCellID = getActiveCell(notebookTracker)?.model.id || ''
     }
 
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code);

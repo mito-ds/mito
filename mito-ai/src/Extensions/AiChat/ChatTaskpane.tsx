@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCell, getActiveCellCode, getCellCodeByID, writeCodeToActiveCell, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCell, getActiveCellCode, getCellCodeByID, writeCodeToCellByID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -227,7 +227,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user. Once the user accepts or rejects the code, we'll 
         // apply the correct version of the code.
-        writeCodeToActiveCell(notebookTracker, unifiedCodeString)
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, undefined)
         setUnifiedDiffLines(unifiedDiffs)
     }
 
@@ -254,20 +254,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (originalDiffedCode === undefined) {
             return
         }
-        
-        if (codeCellID) {
-            _applyCode(originalDiffedCode, codeCellID)
-        } else {
-            _applyCode(originalDiffedCode)
-        }
+        _applyCode(originalDiffedCode, codeCellID)
     }
 
     const _applyCode = (code: string, codeCellID?: string) => {
-        if (codeCellID) {
-            writeCodeToCellByID(notebookTracker, code, codeCellID, true)
-        } else {
-            writeCodeToActiveCell(notebookTracker, code, true)
-        }
+        writeCodeToCellByID(notebookTracker, code, codeCellID || undefined, true)
         setUnifiedDiffLines(undefined)
         originalCodeBeforeDiff.current = undefined
     }
