@@ -189,12 +189,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const rejectAICodeIfNeeded = (chatHistoryManager: ChatHistoryManager) => {
-        // If code diffs are still displayed, and the user sends a new message, 
-        // automatically reject the AI code before sending a new message.
+        // If the user has sends a msg, and code diffs are displayed, 
+        // then automatically reject the AI code before sending a new message.
         if (unifiedDiffLines !== undefined) {
             const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
             rejectAICode(codeCellID, false)
         }
+    }
+
+    const getCodeCellIDWithDiff = (codeCellID: string): string => {
+        /*
+            Handle edge case where user switches cells, and tries to accept/reject code
+            that was generated in another cell. If the cell ID is the same as the one
+            of the most recent AI message, then we simply return the same cell ID.
+        */
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        const codeCellIdWithDiff = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
+        if (codeCellID !== codeCellIdWithDiff) {
+            return codeCellIdWithDiff
+        }
+        return codeCellID
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessage | undefined) => {
@@ -235,6 +249,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
+        // Handle edge case where user switches cells, and tries to accept code
+        // that was generated in another cell.
+        codeCellID = getCodeCellIDWithDiff(codeCellID)
+
         _applyCode(aiGeneratedCode, codeCellID)
     }
 
@@ -243,6 +261,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (originalDiffedCode === undefined) {
             return
         }
+
+        // Handle edge case where user switches cells, and tries to reject code
+        // that was generated in another cell.
+        codeCellID = getCodeCellIDWithDiff(codeCellID)
+
         _applyCode(originalDiffedCode, codeCellID, focusOnCell)
     }
 
