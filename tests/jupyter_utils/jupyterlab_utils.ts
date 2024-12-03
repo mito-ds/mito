@@ -13,10 +13,10 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
     await waitForIdle(page);
 
     for (let i = 0; i < cellContents.length; i++) {
-        // For some reason, code cells that don't start with a newline do not run.
-        // Need to look further into this. 
-        const normalizedContent = cellContents[i].startsWith('\n') ? cellContents[i] : `\n${cellContents[i]}`;
-        await page.notebook.setCell(i, 'code', normalizedContent);
+        // Add a short delay to ensure that the cell is created and the decoration placeholder extension
+        // has a chance to process
+        await page.waitForTimeout(100);
+        await page.notebook.setCell(i, 'code', cellContents[i]);
         await page.notebook.runCell(i);
     }
     await waitForIdle(page)
