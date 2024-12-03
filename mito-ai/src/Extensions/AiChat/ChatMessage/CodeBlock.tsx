@@ -40,6 +40,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     rejectAICode
 }): JSX.Element => {
     const [isApplyingCode, setIsApplyingCode] = useState(false)
+    const [codeWasAccepted, setCodeWasAccepted] = useState(false)
+
     const notebookName = getNotebookName(notebookTracker)
 
     const copyCodeToClipboard = () => {
@@ -67,15 +69,15 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     </div>
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
-                            {!isApplyingCode && (
+                            {!isApplyingCode && !codeWasAccepted && (
                                 <button onClick={() => { setIsApplyingCode(true); applyAICode() }}>Apply</button>
                             )}
 
-                            {isApplyingCode && (
+                            {isApplyingCode && !codeWasAccepted && (
                                 <>
                                     <button
                                         className='code-block-accept-button'
-                                        onClick={() => { acceptAICode(codeCellID); setIsApplyingCode(false) }}
+                                        onClick={() => { acceptAICode(codeCellID); setIsApplyingCode(false); setCodeWasAccepted(true) }}
                                         title={`Accept code (${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'})`}
                                     >
                                         Accept
