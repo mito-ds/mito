@@ -73,7 +73,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['\nprint("cell 0")']);
+    await createAndRunNotebookWithCells(page, ['print("cell 0")']);
     await waitForIdle(page);
 
     // Send a first message in cell 1
