@@ -190,3 +190,25 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.code-message-part-toolbar button {
+    font-size: 12px !important;
+}
+
+.code-block-accept-button {
+    background-color: green !important;
+    color: white !important;
+}
+
+.code-block-accept-button:hover {
+    background-color: darkgreen !important;
+}
+
+.code-block-deny-button {
+    background-color: red !important;
+    color: white !important;
+}
+
+.code-block-deny-button:hover {
+    background-color: darkred !important;
+}

@@ -73,11 +73,19 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 
                             {isApplyingCode && (
                                 <>
-                                    <button onClick={() => { acceptAICode(codeCellID); setIsApplyingCode(false) }}>
-                                        Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
+                                    <button
+                                        className='code-block-accept-button'
+                                        onClick={() => { acceptAICode(codeCellID); setIsApplyingCode(false) }}
+                                        title={`Accept code (${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'})`}
+                                    >
+                                        Accept
                                     </button>
-                                    <button onClick={() => { rejectAICode(codeCellID); setIsApplyingCode(false) }}>
-                                        Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
+                                    <button
+                                        className='code-block-deny-button'
+                                        onClick={() => { rejectAICode(codeCellID); setIsApplyingCode(false) }}
+                                        title={`Deny code (${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'})`}
+                                    >
+                                        Deny
                                     </button>
                                 </>
                             )}
