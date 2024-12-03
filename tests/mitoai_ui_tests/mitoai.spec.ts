@@ -1,7 +1,7 @@
 import { expect, test } from '@jupyterlab/galata';
 import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
-import { clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+import { clearMitoAIChatInput, clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });
@@ -142,6 +142,40 @@ test.describe('Mito AI Chat', () => {
     await page.keyboard.type("Edit column @ap");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
+  });
+
+  test.only('Unserializable objects are handled correctly', async ({ page }) => {
+    await createAndRunNotebookWithCells(
+      page, 
+      [
+        '\nimport pandas as pd',
+        'timestamp_df = pd.DataFrame({"timestamp_col_A": [pd.to_datetime("2020-01-01"), pd.to_datetime("2020-01-02"), pd.to_datetime("2020-01-03")]}, dtype=object)',
+        'none_type_df = pd.DataFrame({"none_type_col_A": [None, None, None]})'
+      ]
+    );
+    // await createAndRunNotebookWithCells(page, ['\nimport pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await clickOnMitoAIChatTab(page);
+
+    // The fill() command doesn't trigger input events that the dropdown relies on
+    // So we need to type it character by character instead
+    await page.locator('.chat-input').click();
+
+    await page.keyboard.type("@timestamp_df");
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'timestamp_df' })).toBeVisible();
+    await clearMitoAIChatInput(page);
+
+    await page.keyboard.type("@timestamp_col_A");
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'timestamp_col_A' })).toBeVisible();
+    await clearMitoAIChatInput(page);
+
+    await page.keyboard.type("@none_type_df");
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_df' })).toBeVisible();
+    await clearMitoAIChatInput(page);
+
+    await page.keyboard.type("@none_type_col_A");
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
   });
 });
 
