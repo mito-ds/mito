@@ -142,9 +142,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
         setAiCodeSuggestion(aiMessage)
-        
-        // Step 3: Update the code diff stripes
-        // updateCodeDiffStripes(aiMessage)
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
@@ -157,9 +154,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
-
-        // Step 3: Update the code diff stripes
-        updateCodeDiffStripes(aiMessage)
+        setAiCodeSuggestion(aiMessage)
     };
 
     const _sendMessageToOpenAI = async (newChatHistoryManager: ChatHistoryManager) => {
