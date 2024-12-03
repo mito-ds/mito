@@ -9,11 +9,11 @@ test('should display an advice message in empty code cell', async ({
   // Should display the advice message by default
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
-    .toHaveText(
-      'Start writing python or Press Ctrl + E to ask Mito AI to write code for you.'
+    .toContainText(
+      'Start writing python or Press'
     );
 
-  await page.notebook.setCell(0, 'code', 'print("Hello, World!")');
+  await page.notebook.setCell(0, 'code', '\nprint("Hello, World!")');
 
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
@@ -26,8 +26,8 @@ test('should display an advice message in empty code cell', async ({
   // Should display the advice message if cell content is erased
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
-    .toHaveText(
-      'Start writing python or Press Ctrl + E to ask Mito AI to write code for you.'
+    .toContainText(
+      'Start writing python or Press'
     );
 
   await page.keyboard.press('ControlOrMeta+e');

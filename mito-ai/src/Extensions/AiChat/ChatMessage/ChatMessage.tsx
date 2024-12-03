@@ -16,6 +16,7 @@ import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    codeCellID: string | undefined
     messageIndex: number
     mitoAIConnectionError: boolean
     notebookTracker: INotebookTracker
@@ -32,6 +33,7 @@ interface IChatMessageProps {
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
+    codeCellID,
     messageIndex,
     mitoAIConnectionError,
     notebookTracker,
@@ -99,6 +101,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                             <CodeBlock
                                 key={index + messagePart}
                                 code={messagePart}
+                                codeCellID={codeCellID}
                                 role={message.role}
                                 rendermime={rendermime}
                                 notebookTracker={notebookTracker}
@@ -113,15 +116,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <div style={{ position: 'relative' }}>
+                        <div className={classNames('markdown-message-part')} style={{ position: 'relative' }}>
                             <p 
                                 key={index + messagePart} 
                                 onDoubleClick={() => {
                                     // Only allow users to edit their own messages, not the AI responses
                                     if (message.role === 'user') {
                                         setIsEditing(true)
-                                }
-                            }}>
+                                    }
+                                }}
+                            >
                                 {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                                 <MarkdownBlock
                                     markdown={messagePart}
