@@ -117,8 +117,16 @@ export class ChatHistoryManager {
         };
 
         // Update the message at the specified index
-        this.history.aiOptimizedChatHistory[index] = {message: aiOptimizedMessage, codeCellID: activeCellID|| ''};
-        this.history.displayOptimizedChatHistory[index].message = getDisplayedOptimizedUserMessage(newContent, activeCellCode);
+        this.history.aiOptimizedChatHistory[index] = {
+            message: aiOptimizedMessage, 
+            codeCellID: activeCellID
+        };
+        
+        this.history.displayOptimizedChatHistory[index] = { 
+            message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
+            type: 'openai message',
+            codeCellID: activeCellID
+        }
 
         // Remove all messages after the index we're updating
         this.history.aiOptimizedChatHistory = this.history.aiOptimizedChatHistory.slice(0, index + 1);
