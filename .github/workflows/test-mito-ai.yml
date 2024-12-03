@@ -39,9 +39,7 @@ jobs:
         cache-dependency-path: mito-ai/package-lock.json
     - name: Install dependencies
       run: |
-        cd mito-ai
-        yarn install --check-files
-        cd ../tests
+        cd tests
         bash mac-setup.sh
     - name: Setup JupyterLab
       run: |
