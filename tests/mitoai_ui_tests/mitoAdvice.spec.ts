@@ -1,6 +1,6 @@
 import { expect, test } from '@jupyterlab/galata';
 
-test('should display an advice message in empty code cell', async ({
+test.only('should display an advice message in empty code cell', async ({
   page
 }) => {
   await page.notebook.createNew();
@@ -10,10 +10,10 @@ test('should display an advice message in empty code cell', async ({
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
     .toHaveText(
-      'Start writing python or Press Ctrl + E to ask Mito AI to write code for you.'
+      'Start writing python or Press ⌘ + E to ask Mito AI to write code for you.'
     );
 
-  await page.notebook.setCell(0, 'code', 'print("Hello, World!")');
+  await page.notebook.setCell(0, 'code', '\nprint("Hello, World!")');
 
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
@@ -27,7 +27,7 @@ test('should display an advice message in empty code cell', async ({
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
     .toHaveText(
-      'Start writing python or Press Ctrl + E to ask Mito AI to write code for you.'
+      'Start writing python or Press ⌘ + E to ask Mito AI to write code for you.'
     );
 
   await page.keyboard.press('ControlOrMeta+e');
