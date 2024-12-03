@@ -1,6 +1,6 @@
 import { expect, test } from '@jupyterlab/galata';
 
-test.only('should display an advice message in empty code cell', async ({
+test('should display an advice message in empty code cell', async ({
   page
 }) => {
   await page.notebook.createNew();
