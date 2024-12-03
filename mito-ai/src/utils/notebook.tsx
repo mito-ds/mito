@@ -3,10 +3,13 @@ import { Cell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
-
     const notebook = notebookTracker.currentWidget?.content;
     const activeCell = notebook?.activeCell;
     return activeCell || undefined
+}
+
+export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
+    return getActiveCell(notebookTracker)?.model.id
 }
 
 export const getActiveCellCode = (notebookTracker: INotebookTracker): string | undefined => {
@@ -14,12 +17,15 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
     return activeCell?.model.sharedModel.source
 }
 
-export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string): string | undefined => {
+export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {
+    if (codeCellID === undefined) {
+        return undefined
+    }
+
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
     return cell?.model.sharedModel.source
 }
-
 
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
