@@ -41,8 +41,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
         textarea.style.minHeight = 'auto';
 
-        // The height should be 20 at minimum to support the placeholder
-        const minHeight = textarea.scrollHeight < 20 ? 20 : textarea.scrollHeight
+        // The height should be 40 at minimum to support the placeholder
+        const minHeight = textarea.scrollHeight < 40 ? 40 : textarea.scrollHeight
         textarea.style.height = `${minHeight}px`;
     };
 
