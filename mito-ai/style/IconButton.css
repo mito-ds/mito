@@ -2,4 +2,10 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.icon-button:hover {
+    background-color: var(--grey-300);
 }
