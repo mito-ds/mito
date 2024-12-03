@@ -27,8 +27,6 @@ def get_dataframe_structure(df, sample_size=5):
         if pd.isna(value):
             # Handle None and NaN (convert to None, which maps to null in JSON)
             return None
-        elif isinstance(value, pd.Timestamp):
-            return str(value)
         elif not isinstance(value, (str, int, float, bool, type(None))):
             return str(value)            
         return value 
