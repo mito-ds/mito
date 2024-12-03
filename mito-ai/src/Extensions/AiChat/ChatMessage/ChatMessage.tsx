@@ -16,6 +16,7 @@ import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    codeCellID: string | undefined
     messageIndex: number
     mitoAIConnectionError: boolean
     notebookTracker: INotebookTracker
@@ -32,6 +33,7 @@ interface IChatMessageProps {
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
+    codeCellID,
     messageIndex,
     mitoAIConnectionError,
     notebookTracker,
@@ -99,6 +101,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                             <CodeBlock
                                 key={index + messagePart}
                                 code={messagePart}
+                                codeCellID={codeCellID}
                                 role={message.role}
                                 rendermime={rendermime}
                                 notebookTracker={notebookTracker}

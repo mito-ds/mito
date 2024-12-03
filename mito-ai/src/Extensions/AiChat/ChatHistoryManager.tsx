@@ -6,7 +6,8 @@ import { createBasicPrompt, createErrorPrompt, createExplainCodePrompt } from ".
 
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'connection error'
+    type: 'openai message' | 'connection error',
+    codeCellID: string | undefined
 }
 
 export interface IAIOptimizedChatHistory {
@@ -92,7 +93,8 @@ export class ChatHistoryManager {
         this.history.displayOptimizedChatHistory.push(
             {
                 message: getDisplayedOptimizedUserMessage(input, activeCellCode), 
-                type: 'openai message'
+                type: 'openai message',
+                codeCellID: activeCellID
             }
         );
         this.history.aiOptimizedChatHistory.push(
@@ -133,7 +135,8 @@ export class ChatHistoryManager {
         this.history.displayOptimizedChatHistory.push(
             {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
-                type: 'openai message'
+                type: 'openai message',
+                codeCellID: activeCellID
             }
         );
         this.history.aiOptimizedChatHistory.push(
@@ -152,7 +155,11 @@ export class ChatHistoryManager {
         const aiOptimizedPrompt = createExplainCodePrompt(activeCellCode || '')
 
         this.history.displayOptimizedChatHistory.push(
-            {message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), type: 'openai message'}
+            {
+                message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), 
+                type: 'openai message',
+                codeCellID: activeCellID
+            }
         );
         this.history.aiOptimizedChatHistory.push(
             {
@@ -188,10 +195,17 @@ export class ChatHistoryManager {
         const activeCellID = getActiveCellID(this.notebookTracker)
 
         this.history.displayOptimizedChatHistory.push(
-            {message: aiMessage, type: mitoAIConnectionError ? 'connection error' : 'openai message'}
+            {
+                message: aiMessage, 
+                type: mitoAIConnectionError ? 'connection error' : 'openai message',
+                codeCellID: activeCellID
+            }
         );
         this.history.aiOptimizedChatHistory.push(
-            {message: aiMessage, codeCellID: activeCellID}
+            {
+                message: aiMessage, 
+                codeCellID: activeCellID,
+            }
         );
     }
 
@@ -200,8 +214,15 @@ export class ChatHistoryManager {
             role: 'system',
             content: message
         }
-        this.history.displayOptimizedChatHistory.push({message: systemMessage, type: 'openai message'});
-        this.history.aiOptimizedChatHistory.push({message: systemMessage, codeCellID: undefined});
+        this.history.displayOptimizedChatHistory.push({
+            message: systemMessage, 
+            type: 'openai message',
+            codeCellID: undefined
+        });
+        this.history.aiOptimizedChatHistory.push({
+            message: systemMessage, 
+            codeCellID: undefined
+        });
     }
 
     getLastAIMessageIndex = (): number | undefined => {

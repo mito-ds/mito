@@ -1,7 +1,7 @@
 import React from 'react';
 import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCell, getNotebookName } from '../../../utils/notebook';
+import { getNotebookName } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -11,7 +11,8 @@ import { UnifiedDiffLine } from '../../../utils/codeDiff';
 
 
 interface ICodeBlockProps {
-    code: string
+    code: string,
+    codeCellID: string | undefined,
     role: 'user' | 'assistant'
     rendermime: IRenderMimeRegistry
     notebookTracker: INotebookTracker,
@@ -25,6 +26,7 @@ interface ICodeBlockProps {
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
     code,
+    codeCellID,
     role,
     rendermime,
     notebookTracker,
@@ -41,11 +43,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     const copyCodeToClipboard = () => {
         const codeWithoutMarkdown = removeMarkdownCodeFormatting(code)
         navigator.clipboard.writeText(codeWithoutMarkdown)
-    }
-
-    const getCodeCellID = () => {
-        const activeCell = getActiveCell(notebookTracker)
-        return activeCell?.model.id || ''
     }
 
     if (role === 'user') {
@@ -66,12 +63,12 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    {isLastAiMessage && (
+                    {isLastAiMessage && codeCellID !== undefined && (
                         <>
-                            <button onClick={() => { acceptAICode(getCodeCellID()) }}>
+                            <button onClick={() => { acceptAICode(codeCellID) }}>
                                 Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
                             </button>
-                            <button onClick={() => { rejectAICode(getCodeCellID()) }}>
+                            <button onClick={() => { rejectAICode(codeCellID) }}>
                                 Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
                             </button>
                         </>
