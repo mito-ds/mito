@@ -53,6 +53,7 @@ test.describe('Dataframe renders as mitosheet', () => {
     // Check that the second cell contains the placeholder text and therefore a new code cell was not inserted
     const secondCell = await page.locator('.jp-Cell-inputArea').nth(1);
     await secondCell.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(100);
     expect(await secondCell.textContent()).toContain("from mitosheet.public");
 
     // Check that the third cell still contains the placeholder text

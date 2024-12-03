@@ -11,7 +11,8 @@ import { UnifiedDiffLine } from '../../../utils/codeDiff';
 
 
 interface ICodeBlockProps {
-    code: string
+    code: string,
+    codeCellID: string | undefined,
     role: 'user' | 'assistant'
     rendermime: IRenderMimeRegistry
     notebookTracker: INotebookTracker,
@@ -19,12 +20,13 @@ interface ICodeBlockProps {
     isLastAiMessage: boolean,
     operatingSystem: OperatingSystem,
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
-    acceptAICode: () => void,
-    rejectAICode: () => void
+    acceptAICode: (codeCellID: string) => void,
+    rejectAICode: (codeCellID: string) => void
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
     code,
+    codeCellID,
     role,
     rendermime,
     notebookTracker,
@@ -61,12 +63,12 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    {isLastAiMessage && (
+                    {isLastAiMessage && codeCellID !== undefined && (
                         <>
-                            <button onClick={() => { acceptAICode() }}>
+                            <button onClick={() => { acceptAICode(codeCellID) }}>
                                 Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
                             </button>
-                            <button onClick={() => { rejectAICode() }}>
+                            <button onClick={() => { rejectAICode(codeCellID) }}>
                                 Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
                             </button>
                         </>

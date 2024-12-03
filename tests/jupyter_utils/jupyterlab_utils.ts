@@ -9,7 +9,13 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
     const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
     await page.notebook.createNew(randomFileName);
 
+    // Wait for the kernel to be ready before setting cells
+    await waitForIdle(page);
+
     for (let i = 0; i < cellContents.length; i++) {
+        // Add a short delay to ensure that the cell is created and the decoration placeholder extension
+        // has a chance to process
+        await page.waitForTimeout(100);
         await page.notebook.setCell(i, 'code', cellContents[i]);
         await page.notebook.runCell(i);
     }
@@ -53,4 +59,12 @@ export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: n
 export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
     const cell = await page.notebook.getCell(cellIndex);
     await cell?.click();
+}
+
+export const addNewCell = async (
+    page: IJupyterLabPageFixture,
+    cellType: 'code' | 'markdown' = 'code',
+    cellValue: string = ''
+) => {
+    await page.notebook.addCell(cellType, cellValue);
 }

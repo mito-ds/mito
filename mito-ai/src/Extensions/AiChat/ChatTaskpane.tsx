@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, writeCodeToActiveCell } from '../../utils/notebook';
+import { getActiveCellCode, writeCodeToCellByID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -96,6 +96,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendDebugErrorMessage = async (errorMessage: string) => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
 
         // Step 1: Clear the chat history, and add the new error message
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
@@ -110,6 +112,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendExplainCodeMessage = () => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
 
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
@@ -126,6 +130,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string) => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -139,6 +145,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
         // Step 1: Update the chat history manager
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
@@ -160,7 +169,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
-                    messages: newChatHistoryManager.getAIOptimizedHistory()
+                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message)
                 })
             });
 
@@ -189,6 +198,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         const activeCellCode = getActiveCellCode(notebookTracker)
+        const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
 
         // Extract the code from the AI's message and then calculate the code diffs
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
@@ -201,7 +211,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user. Once the user accepts or rejects the code, we'll 
         // apply the correct version of the code.
-        writeCodeToActiveCell(notebookTracker, unifiedCodeString)
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
         setUnifiedDiffLines(unifiedDiffs)
     }
 
@@ -220,21 +230,34 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        _applyCode(aiGeneratedCode)
+        // Use the codeCellID to accept the code so the code is applied to the correct cell
+        // even if the user switches cells.
+        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, lastAIMessage.codeCellID)
     }
 
-    const rejectAICode = () => {
+    const rejectAICode = (focusOnCell?: boolean) => {
+        const latestChatHistoryManager = chatHistoryManagerRef.current;
+        const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
+
+        if (!lastAIMessage) {
+            return
+        }
+
         const originalDiffedCode = originalCodeBeforeDiff.current
         if (originalDiffedCode === undefined) {
             return
         }
-        _applyCode(originalDiffedCode)
+
+        writeCodeToCellAndTurnOffDiffs(originalDiffedCode, lastAIMessage.codeCellID, focusOnCell)
     }
 
-    const _applyCode = (code: string) => {
-        writeCodeToActiveCell(notebookTracker, code, true)
+    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined, focusOnCell?: boolean) => {
         setUnifiedDiffLines(undefined)
         originalCodeBeforeDiff.current = undefined
+
+        if (codeCellID !== undefined) {
+            writeCodeToCellByID(notebookTracker, code, codeCellID, focusOnCell)
+        }
     }
 
     const clearChatHistory = () => {
@@ -368,6 +391,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     return (
                         <ChatMessage
                             message={displayOptimizedChat.message}
+                            codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             messageIndex={index}
                             notebookTracker={notebookTracker}

@@ -1,18 +1,25 @@
 import OpenAI from "openai";
 import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode } from "../../utils/notebook";
+import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { createBasicPrompt, createErrorPrompt, createExplainCodePrompt } from "./PromptManager";
+
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'connection error'
+    type: 'openai message' | 'connection error',
+    codeCellID: string | undefined
+}
+
+export interface IAIOptimizedChatHistory {
+    message: OpenAI.Chat.ChatCompletionMessageParam
+    codeCellID: string | undefined
 }
 
 export interface IChatHistory {
     // The AI optimized chat history is what we actually send to the AI. It includes
     // things like: instructions on how to respond, the code context, etc. 
     // Much of this, we don't want to display to the user because its extra clutter. 
-    aiOptimizedChatHistory: OpenAI.Chat.ChatCompletionMessageParam[]
+    aiOptimizedChatHistory: IAIOptimizedChatHistory[]
 
     // The display optimized chat history is what we display to the user. Each message
     // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -63,7 +70,7 @@ export class ChatHistoryManager {
         return { ...this.history };
     }
 
-    getAIOptimizedHistory(): OpenAI.Chat.ChatCompletionMessageParam[] {
+    getAIOptimizedHistory(): IAIOptimizedChatHistory[] {
         return this.history.aiOptimizedChatHistory;
     }
 
@@ -76,19 +83,33 @@ export class ChatHistoryManager {
 
         const variables = this.variableManager.variables
         const activeCellCode = getActiveCellCode(this.notebookTracker)
+        const activeCellID = getActiveCellID(this.notebookTracker)
 
         const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
             content: createBasicPrompt(variables, activeCellCode || '', input)
         };
 
-        this.history.displayOptimizedChatHistory.push({message: getDisplayedOptimizedUserMessage(input, activeCellCode), type: 'openai message'});
-        this.history.aiOptimizedChatHistory.push(aiOptimizedMessage);
+        this.history.displayOptimizedChatHistory.push(
+            {
+                message: getDisplayedOptimizedUserMessage(input, activeCellCode), 
+                type: 'openai message',
+                codeCellID: activeCellID
+            }
+        );
+        this.history.aiOptimizedChatHistory.push(
+            {
+                message: aiOptimizedMessage, 
+                codeCellID: activeCellID
+            }
+        )
     }
 
     updateMessageAtIndex(index: number, newContent: string): void {
         const variables = this.variableManager.variables
-        const activeCellCode = getActiveCellCode(this.notebookTracker)
+
+        const activeCellID = getActiveCellID(this.notebookTracker)
+        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
         const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
@@ -96,8 +117,16 @@ export class ChatHistoryManager {
         };
 
         // Update the message at the specified index
-        this.history.aiOptimizedChatHistory[index] = aiOptimizedMessage;
-        this.history.displayOptimizedChatHistory[index].message = getDisplayedOptimizedUserMessage(newContent, activeCellCode);
+        this.history.aiOptimizedChatHistory[index] = {
+            message: aiOptimizedMessage, 
+            codeCellID: activeCellID
+        };
+        
+        this.history.displayOptimizedChatHistory[index] = { 
+            message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
+            type: 'openai message',
+            codeCellID: activeCellID
+        }
 
         // Remove all messages after the index we're updating
         this.history.aiOptimizedChatHistory = this.history.aiOptimizedChatHistory.slice(0, index + 1);
@@ -106,22 +135,46 @@ export class ChatHistoryManager {
 
     addDebugErrorMessage(errorMessage: string): void {
     
-        const activeCellCode = getActiveCellCode(this.notebookTracker)
+        const activeCellID = getActiveCellID(this.notebookTracker)
+        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const aiOptimizedPrompt = createErrorPrompt(errorMessage, activeCellCode || '')
+        const aiOptimizedPrompt = createErrorPrompt(activeCellCode, errorMessage)
 
-
-        this.history.displayOptimizedChatHistory.push({message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), type: 'openai message'});
-        this.history.aiOptimizedChatHistory.push({role: 'user', content: aiOptimizedPrompt});
+        this.history.displayOptimizedChatHistory.push(
+            {
+                message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
+                type: 'openai message',
+                codeCellID: activeCellID
+            }
+        );
+        this.history.aiOptimizedChatHistory.push(
+            {
+                message: {role: 'user', content: aiOptimizedPrompt}, 
+                codeCellID: activeCellID
+            }
+        );
     }
 
     addExplainCodeMessage(): void {
-        const activeCellCode = getActiveCellCode(this.notebookTracker)
+
+        const activeCellID = getActiveCellID(this.notebookTracker)
+        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
         const aiOptimizedPrompt = createExplainCodePrompt(activeCellCode || '')
 
-        this.history.displayOptimizedChatHistory.push({message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), type: 'openai message'});
-        this.history.aiOptimizedChatHistory.push({role: 'user', content: aiOptimizedPrompt});
+        this.history.displayOptimizedChatHistory.push(
+            {
+                message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), 
+                type: 'openai message',
+                codeCellID: activeCellID
+            }
+        );
+        this.history.aiOptimizedChatHistory.push(
+            {
+                message: {role: 'user', content: aiOptimizedPrompt}, 
+                codeCellID: activeCellID
+            }
+        );
     }
 
 
@@ -147,8 +200,21 @@ export class ChatHistoryManager {
     }
 
     _addAIMessage(aiMessage: OpenAI.Chat.ChatCompletionMessageParam, mitoAIConnectionError: boolean=false): void {
-        this.history.displayOptimizedChatHistory.push({message: aiMessage, type: mitoAIConnectionError ? 'connection error' : 'openai message'});
-        this.history.aiOptimizedChatHistory.push(aiMessage);
+        const activeCellID = getActiveCellID(this.notebookTracker)
+
+        this.history.displayOptimizedChatHistory.push(
+            {
+                message: aiMessage, 
+                type: mitoAIConnectionError ? 'connection error' : 'openai message',
+                codeCellID: activeCellID
+            }
+        );
+        this.history.aiOptimizedChatHistory.push(
+            {
+                message: aiMessage, 
+                codeCellID: activeCellID,
+            }
+        );
     }
 
     addSystemMessage(message: string): void {
@@ -156,8 +222,15 @@ export class ChatHistoryManager {
             role: 'system',
             content: message
         }
-        this.history.displayOptimizedChatHistory.push({message: systemMessage, type: 'openai message'});
-        this.history.aiOptimizedChatHistory.push(systemMessage);
+        this.history.displayOptimizedChatHistory.push({
+            message: systemMessage, 
+            type: 'openai message',
+            codeCellID: undefined
+        });
+        this.history.aiOptimizedChatHistory.push({
+            message: systemMessage, 
+            codeCellID: undefined
+        });
     }
 
     getLastAIMessageIndex = (): number | undefined => {
@@ -180,6 +253,14 @@ export class ChatHistoryManager {
 
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         return displayOptimizedChatHistory[lastAIMessagesIndex]
+    }
+
+    getCodeCellIDOfMostRecentAIMessage = (): string | undefined => {
+        const aiMessages = this.history.aiOptimizedChatHistory.filter(historyItem => historyItem.message.role === 'assistant')
+        if (aiMessages.length === 0) {
+            return undefined
+        }
+        return aiMessages[aiMessages.length - 1].codeCellID
     }
 }
 
