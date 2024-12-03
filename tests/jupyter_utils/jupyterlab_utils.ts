@@ -9,8 +9,14 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
     const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
     await page.notebook.createNew(randomFileName);
 
+    // Wait for the kernel to be ready before setting cells
+    await waitForIdle(page);
+
     for (let i = 0; i < cellContents.length; i++) {
-        await page.notebook.setCell(i, 'code', cellContents[i]);
+        // For some reason, code cells that don't start with a newline do not run.
+        // Need to look further into this. 
+        const normalizedContent = cellContents[i].startsWith('\n') ? cellContents[i] : `\n${cellContents[i]}`;
+        await page.notebook.setCell(i, 'code', normalizedContent);
         await page.notebook.runCell(i);
     }
     await waitForIdle(page)
