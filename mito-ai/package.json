@@ -70,8 +70,8 @@
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.10",
     "openai": "^4.1.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "vscode-diff": "^2.1.1"
   },
   "devDependencies": {
@@ -207,5 +207,6 @@
       "selector-no-vendor-prefix": null,
       "value-no-vendor-prefix": null
     }
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
