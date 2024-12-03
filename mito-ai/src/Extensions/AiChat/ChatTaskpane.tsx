@@ -96,6 +96,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendDebugErrorMessage = async (errorMessage: string) => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
 
         // Step 1: Clear the chat history, and add the new error message
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
@@ -110,6 +112,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendExplainCodeMessage = () => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
 
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
@@ -126,12 +130,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string) => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.addChatInputMessage(input)
-
-        // Step 1.5: If code diffs are still displayed, automatically reject the AI code
-        rejectAICodeIfNeeded(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
@@ -141,12 +145,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
         // Step 1: Update the chat history manager
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
-
-        // Step 1.5: If code diffs are still displayed, automatically reject the AI code
-        rejectAICodeIfNeeded(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
@@ -185,14 +189,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } finally {
             setLoadingAIResponse(false)
             return aiRespone
-        }
-    }
-
-    const rejectAICodeIfNeeded = (chatHistoryManager: ChatHistoryManager) => {
-        // If the user has sends a msg, and code diffs are displayed, 
-        // then automatically reject the AI code before sending a new message.
-        if (unifiedDiffLines !== undefined) {
-            rejectAICode(false)
         }
     }
 
@@ -251,9 +247,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (originalDiffedCode === undefined) {
             return
         }
-
-        // Handle edge case where user switches cells, and tries to reject code
-        // that was generated in another cell.
 
         writeCodeToCellAndTurnOffDiffs(originalDiffedCode, lastAIMessage.codeCellID, focusOnCell)
     }
