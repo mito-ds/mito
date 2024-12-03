@@ -54,6 +54,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
     const originalCodeBeforeDiff = useRef<string | undefined>(undefined)
 
+    const [aiCodeSuggestion, setAiCodeSuggestion] = useState<OpenAI.ChatCompletionMessage | undefined>(undefined)
+
     useEffect(() => {
         /* 
             Why we use a ref (chatHistoryManagerRef) instead of directly accessing the state (chatHistoryManager):
@@ -139,9 +141,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
-
+        setAiCodeSuggestion(aiMessage)
+        
         // Step 3: Update the code diff stripes
-        updateCodeDiffStripes(aiMessage)
+        // updateCodeDiffStripes(aiMessage)
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
@@ -216,6 +219,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
+
+    const applyAICode = () => {
+        if (!aiCodeSuggestion) {
+            return
+        }
+        updateCodeDiffStripes(aiCodeSuggestion)
+    }
 
     const acceptAICode = () => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
@@ -400,6 +410,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
                             setDisplayCodeDiff={setUnifiedDiffLines}
+                            applyAICode={applyAICode}
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}

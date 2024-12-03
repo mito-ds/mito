@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getNotebookName } from '../../../utils/notebook';
@@ -20,6 +20,7 @@ interface ICodeBlockProps {
     isLastAiMessage: boolean,
     operatingSystem: OperatingSystem,
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
+    applyAICode: () => void,
     acceptAICode: (codeCellID: string) => void,
     rejectAICode: (codeCellID: string) => void
 }
@@ -34,10 +35,11 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
+    applyAICode,
     acceptAICode,
     rejectAICode
 }): JSX.Element => {
-
+    const [isApplyingCode, setIsApplyingCode] = useState(false)
     const notebookName = getNotebookName(notebookTracker)
 
     const copyCodeToClipboard = () => {
@@ -65,12 +67,20 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     </div>
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
-                            <button onClick={() => { acceptAICode(codeCellID) }}>
-                                Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
-                            </button>
-                            <button onClick={() => { rejectAICode(codeCellID) }}>
-                                Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
-                            </button>
+                            {!isApplyingCode && (
+                                <button onClick={() => { setIsApplyingCode(true); applyAICode() }}>Apply</button>
+                            )}
+
+                            {isApplyingCode && (
+                                <>
+                                    <button onClick={() => { acceptAICode(codeCellID); setIsApplyingCode(false) }}>
+                                        Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
+                                    </button>
+                                    <button onClick={() => { rejectAICode(codeCellID); setIsApplyingCode(false) }}>
+                                        Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
+                                    </button>
+                                </>
+                            )}
                         </>
                     )}
                     <button onClick={copyCodeToClipboard}>Copy</button>
