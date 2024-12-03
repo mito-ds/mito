@@ -218,7 +218,7 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
   });
 
-  test.only('Unserializable objects are handled correctly', async ({ page }) => {
+  test('Unserializable objects are handled correctly', async ({ page }) => {
     await createAndRunNotebookWithCells(
       page, 
       [
@@ -227,9 +227,8 @@ test.describe('Mito AI Chat', () => {
         'none_type_df = pd.DataFrame({"none_type_col_A": [None, None, None]})'
       ]
     );
-    // await createAndRunNotebookWithCells(page, ['\nimport pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
-    await waitForIdle(page);
 
+    await waitForIdle(page);
     await clickOnMitoAIChatTab(page);
 
     // The fill() command doesn't trigger input events that the dropdown relies on
