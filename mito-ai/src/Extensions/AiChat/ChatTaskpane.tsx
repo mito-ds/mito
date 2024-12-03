@@ -192,23 +192,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // If the user has sends a msg, and code diffs are displayed, 
         // then automatically reject the AI code before sending a new message.
         if (unifiedDiffLines !== undefined) {
-            const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-            rejectAICode(codeCellID, false)
+            rejectAICode(false)
         }
-    }
-
-    const getCodeCellIDWithDiff = (codeCellID: string): string => {
-        /*
-            Handle edge case where user switches cells, and tries to accept/reject code
-            that was generated in another cell. If the cell ID is the same as the one
-            of the most recent AI message, then we simply return the same cell ID.
-        */
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const codeCellIdWithDiff = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-        if (codeCellID !== codeCellIdWithDiff) {
-            return codeCellIdWithDiff
-        }
-        return codeCellID
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessage | undefined) => {
@@ -236,7 +221,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const acceptAICode = (codeCellID: string) => {
+    const acceptAICode = () => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
         
@@ -249,14 +234,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        // Handle edge case where user switches cells, and tries to accept code
-        // that was generated in another cell.
-        codeCellID = getCodeCellIDWithDiff(codeCellID)
-
-        _applyCode(aiGeneratedCode, codeCellID)
+        // Use the codeCellID to accept the code so the code is applied to the correct cell
+        // even if the user switches cells.
+        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, lastAIMessage.codeCellID)
     }
 
-    const rejectAICode = (codeCellID: string, focusOnCell?: boolean) => {
+    const rejectAICode = (focusOnCell?: boolean) => {
+        const latestChatHistoryManager = chatHistoryManagerRef.current;
+        const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
+
+        if (!lastAIMessage) {
+            return
+        }
+
         const originalDiffedCode = originalCodeBeforeDiff.current
         if (originalDiffedCode === undefined) {
             return
@@ -264,15 +254,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Handle edge case where user switches cells, and tries to reject code
         // that was generated in another cell.
-        codeCellID = getCodeCellIDWithDiff(codeCellID)
 
-        _applyCode(originalDiffedCode, codeCellID, focusOnCell)
+        writeCodeToCellAndTurnOffDiffs(originalDiffedCode, lastAIMessage.codeCellID, focusOnCell)
     }
 
-    const _applyCode = (code: string, codeCellID: string, focusOnCell?: boolean) => {
-        writeCodeToCellByID(notebookTracker, code, codeCellID, focusOnCell)
+    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined, focusOnCell?: boolean) => {
         setUnifiedDiffLines(undefined)
         originalCodeBeforeDiff.current = undefined
+
+        if (codeCellID !== undefined) {
+            writeCodeToCellByID(notebookTracker, code, codeCellID, focusOnCell)
+        }
     }
 
     const clearChatHistory = () => {
@@ -288,17 +280,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_APPLY_LATEST_CODE, {
             execute: () => {
-                const newChatHistoryManager = getDuplicateChatHistoryManager()
-                const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-                acceptAICode(codeCellID)
+                acceptAICode()
             }
         })
 
         app.commands.addCommand(COMMAND_MITO_AI_REJECT_LATEST_CODE, {
             execute: () => {
-                const newChatHistoryManager = getDuplicateChatHistoryManager()
-                const codeCellID = newChatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-                rejectAICode(codeCellID)
+                rejectAICode()
             }
         })
 
