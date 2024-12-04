@@ -9,7 +9,7 @@ test.describe.configure({ mode: 'parallel' });
 test.describe('Mito AI Chat', () => {
 
   test('Apply and Accept AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['\nimport pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
