@@ -70,7 +70,7 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
         const originalBackground = cellElement.style.background;
         
         // Add a yellow highlight
-        cellElement.style.background = 'var(--yellow-300)';
+        cellElement.style.background = 'var(--purple-400)';
         
         // Remove highlight after 500ms
         cellElement.style.transition = 'background 0.5s ease';
