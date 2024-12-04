@@ -59,3 +59,24 @@ export const getNotebookName = (notebookTracker: INotebookTracker): string => {
     return notebook?.title.label || 'Untitled'
 }
 
+export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string) => {
+    /*
+        Briefly highlights a code cell, to draw the user's attention to it.
+    */
+    const notebook = notebookTracker.currentWidget?.content;
+    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    if (cell) {
+        const cellElement = cell.node;
+        const originalBackground = cellElement.style.background;
+        
+        // Add a yellow highlight
+        cellElement.style.background = 'var(--yellow-300)';
+        
+        // Remove highlight after 500ms
+        cellElement.style.transition = 'background 0.5s ease';
+        setTimeout(() => {
+            cellElement.style.background = originalBackground;
+        }, 500);
+    }
+}
+

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID } from '../../utils/notebook';
+import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -205,6 +205,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // the code diffs to the user
         writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
         setUnifiedDiffLines(unifiedDiffs)
+
+        // If the active cell is not the one we are applying the diffs to, highlight it
+        if (codeCellID !== notebookTracker.currentWidget?.content?.activeCellIndex?.toString()) {
+            highlightCodeCell(notebookTracker, codeCellID)
+        }
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
