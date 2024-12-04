@@ -131,13 +131,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string) => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number) => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        newChatHistoryManager.addChatInputMessage(input)
+        if (messageIndex !== undefined) {
+            newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
+        } else {
+            newChatHistoryManager.addChatInputMessage(input)
+        }
 
         // Step 2: Send the message to the AI
         const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
@@ -145,16 +149,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
-
-        // Step 1: Update the chat history manager
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-        newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent)
-
-        // Step 2: Send the message to the AI
-        const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
-        setAiCodeSuggestion(aiMessage)
+        sendChatInputMessage(newContent, messageIndex)
     };
 
     const _sendMessageToOpenAI = async (newChatHistoryManager: ChatHistoryManager) => {
