@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, writeCodeToCellByID } from '../../utils/notebook';
+import { writeCodeToCellByID, getCellCodeByID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -190,20 +190,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        const activeCellCode = getActiveCellCode(notebookTracker)
         const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
+        const originalCellCode = getCellCodeByID(notebookTracker, codeCellID) || ''
 
         // Extract the code from the AI's message and then calculate the code diffs
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
+        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(originalCellCode, aiGeneratedCodeCleaned)
 
         // Store the original code so that we can revert to it if the user rejects the AI's code
-        originalCodeBeforeDiff.current = activeCellCode || ''
+        originalCodeBeforeDiff.current = originalCellCode
 
         // Temporarily write the unified code string to the active cell so we can display
-        // the code diffs to the user. Once the user accepts or rejects the code, we'll 
-        // apply the correct version of the code.
+        // the code diffs to the user
         writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
         setUnifiedDiffLines(unifiedDiffs)
     }
