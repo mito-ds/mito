@@ -59,8 +59,6 @@ ${activeCellCode}
 
 Your task: ${input}`
 
-    console.log(prompt);
-
     return prompt;
 }
 
