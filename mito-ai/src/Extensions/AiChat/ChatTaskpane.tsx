@@ -206,10 +206,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
         setUnifiedDiffLines(unifiedDiffs)
 
-        // If the active cell is not the one we are applying the diffs to, highlight it
-        if (codeCellID !== notebookTracker.currentWidget?.content?.activeCellIndex?.toString()) {
-            highlightCodeCell(notebookTracker, codeCellID)
-        }
+        // Briefly highlight the code cell to draw the user's attention to it
+        highlightCodeCell(notebookTracker, codeCellID)
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
