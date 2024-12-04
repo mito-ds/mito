@@ -24,6 +24,12 @@
     font-size: 14px;
 }
 
+.error-mime-renderer-button:hover {
+    background-color: var(--jp-error-color4);
+    cursor: pointer;
+}   
+
+
 .error-mime-renderer-button svg {
     margin-right: 5px;
 }
