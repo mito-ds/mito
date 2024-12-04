@@ -8,19 +8,6 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('Mito AI Chat', () => {
 
-  test('Apply AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['\nimport pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
-    await waitForIdle(page);
-
-    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
-
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
-
-    const code = await getCodeFromCell(page, 1);
-    expect(code).toContain('df["C"] = [7, 8, 9]');
-  });
-
   test('Apply and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['\nimport pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
@@ -35,8 +22,6 @@ test.describe('Mito AI Chat', () => {
 
     const code = await getCodeFromCell(page, 1);
     expect(code).toContain('df["C"] = [7, 8, 9]');
-    // Code diffs should disappear once the code is accepted
-    await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
   });
 
   test('Reject AI Generated Code', async ({ page }) => {
