@@ -17,6 +17,10 @@ test.describe('Mito AI Chat', () => {
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
+    // No code diffs should be visible before the user clicks apply
+    await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
+    await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
+
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
 
@@ -195,6 +199,10 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
 
     await waitForMitoAILoadingToDisappear(page);
+
+    // No code diffs should be visible before the user clicks apply
+    await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
+    await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
 
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
