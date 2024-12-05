@@ -191,6 +191,15 @@ test.describe('Mito AI Chat', () => {
     expect(codeMessagePartContainersCount).toBe(1);
   });
 
+  test('Test fix error button', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(3']);
+    await waitForIdle(page);
+
+    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
+    await waitForIdle(page);
+    await expect(page.locator('.message-assistant')).toHaveCount(1);
+  });
+
   test('Errors have fix with AI button', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1']);
     await waitForIdle(page);
@@ -226,15 +235,6 @@ test.describe('Mito AI Chat', () => {
 
   });
 
-  test('Test fix error button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(3']);
-    await waitForIdle(page);
-
-    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
-    await waitForIdle(page);
-    await expect(page.locator('.message-assistant')).toHaveCount(1);
-  });
-
   test('Test explain code button', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
@@ -260,7 +260,7 @@ test.describe('Mito AI Chat', () => {
 
   test('Unserializable objects are handled correctly', async ({ page }) => {
     await createAndRunNotebookWithCells(
-      page, 
+      page,
       [
         '\nimport pandas as pd',
         'timestamp_df = pd.DataFrame({"timestamp_col_A": [pd.to_datetime("2020-01-01"), pd.to_datetime("2020-01-02"), pd.to_datetime("2020-01-03")]}, dtype=object)',
