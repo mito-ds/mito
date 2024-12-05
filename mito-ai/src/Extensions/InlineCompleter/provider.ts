@@ -18,6 +18,7 @@ import type { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
+import type { Widget } from '@lumino/widgets';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
@@ -46,8 +47,10 @@ export class MitoAIInlineCompleter
     MitoAIInlineCompleter,
     InlineCompletionStreamChunk
   > | null = null;
-  // Block processing chunks while waiting for the acknowledge request
-  // that will provide the unique completion token;
+  /**
+   * Block processing chunks while waiting for the acknowledge request
+   * that will provide the unique completion token.
+   */
   private _completionLock = new PromiseDelegate<void>();
   private _fullCompletionMap = new WeakMap<
     Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>,
@@ -152,6 +155,8 @@ export class MitoAIInlineCompleter
       return Promise.reject('Mito AI provider is disposed.');
     }
 
+    // Block processing chunks while waiting for the acknowledge request
+    // that will provide the unique completion token.
     await this._completionLock.promise;
 
     this._completionLock = new PromiseDelegate<void>();
@@ -181,17 +186,12 @@ export class MitoAIInlineCompleter
         return { items: [] };
       }
 
-      let cellId = undefined;
       let path = context.session?.path;
-      if (context.widget instanceof NotebookPanel) {
-          cellId = context.widget.content.activeCell?.model.id;
-      }
+      const cellId = getActiveCellID(context.widget);
       if (!path && context.widget instanceof DocumentWidget) {
         path = context.widget.context.path;
       }
       const messageId = ++this._counter;
-
-      const stream = true;
 
       const prefix = this._getPrefix(request);
       const result = await this._client.sendMessage({
@@ -201,18 +201,12 @@ export class MitoAIInlineCompleter
         suffix: this._getSuffix(request),
         language: this._resolveLanguage(language),
         message_id: messageId.toString(),
-        stream,
+        stream: true,
         cell_id: cellId
       });
 
-      this._currentPrefix = prefix;
-      for (let index = prefix.length - 1; index >= 0; index--) {
-        if (prefix[index] === '\n') {
-          this._currentPrefix = prefix.slice(index + 1);
-          break;
-        }
-      }
-      if (stream && result.list.items[0]?.token) {
+      this._currentPrefix = getPrefixLastLine(prefix);
+      if (result.list.items[0]?.token) {
         this._currentToken = result.list.items[0].token;
         this._currentStream = new Stream<
           MitoAIInlineCompleter,
@@ -231,6 +225,15 @@ export class MitoAIInlineCompleter
       return result.list;
     } finally {
       this._completionLock.resolve();
+    }
+
+    function getPrefixLastLine(prefix: string) {
+      for (let index = prefix.length - 1; index >= 0; index--) {
+        if (prefix[index] === '\n') {
+          return prefix.slice(index + 1);
+        }
+      }
+      return prefix;
     }
   }
 
@@ -261,6 +264,8 @@ export class MitoAIInlineCompleter
     }
 
     for await (const chunk of this._currentStream!) {
+      // If a new completion is triggered, stop the current stream
+      // before the backend has finished streaming the full suggestion.
       if (this._currentToken !== token) {
         break;
       }
@@ -274,6 +279,9 @@ export class MitoAIInlineCompleter
 
   /**
    * Extract prefix from request, accounting for context window limit.
+   *
+   * For the case of a cell, this extract all the code of the current cell
+   * before the cursor.
    */
   private _getPrefix(request: CompletionHandler.IRequest): string {
     return request.text.slice(0, request.offset);
@@ -281,6 +289,9 @@ export class MitoAIInlineCompleter
 
   /**
    * Extract suffix from request, accounting for context window limit.
+   *
+   * For the case of a cell, this extract all the code of the current cell
+   * after the cursor.
    */
   private _getSuffix(request: CompletionHandler.IRequest): string {
     return request.text.slice(request.offset);
@@ -398,4 +409,10 @@ export namespace MitoAIInlineCompleter {
     debouncerDelay: 250,
     enabled: false
   };
+}
+
+function getActiveCellID(widget: Widget): string | undefined {
+  if (widget instanceof NotebookPanel) {
+    return widget.content.activeCell?.model.id;
+  }
 }
