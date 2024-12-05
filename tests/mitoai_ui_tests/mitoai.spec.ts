@@ -4,8 +4,8 @@ import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 import { clearMitoAIChatInput, clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 
 const placeholderCellText = '# Empty code cell';
-const acceptButtonSelector = '[data-testid="check-icon"]';
-const denyButtonSelector = '[data-testid="x-mark-icon"]';
+const acceptButtonSelector = '[class="code-block-accept-button"]';
+const denyButtonSelector = '[class="code-block-deny-button"]'
 
 test.describe.configure({ mode: 'parallel' });
 
