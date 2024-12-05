@@ -184,10 +184,7 @@ export class MitoAIInlineCompleter
       let cellId = undefined;
       let path = context.session?.path;
       if (context.widget instanceof NotebookPanel) {
-        const activeCell = context.widget.content.activeCell;
-        if (activeCell) {
-          cellId = activeCell.model.id;
-        }
+          cellId = context.widget.content.activeCell?.model.id;
       }
       if (!path && context.widget instanceof DocumentWidget) {
         path = context.widget.context.path;
