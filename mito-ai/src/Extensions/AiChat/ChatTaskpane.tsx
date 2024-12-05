@@ -105,7 +105,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        const aiMessage = await _sendMessageToOpenAI(newChatHistoryManager)
+        const aiMessage = await _sendMessageAndSaveResponse(newChatHistoryManager)
 
         // Step 3: Update the code diff stripes
         updateCodeDiffStripes(aiMessage)
@@ -121,7 +121,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
         
         // Step 2: Send the message to the AI
-        _sendMessageToOpenAI(newChatHistoryManager)
+        _sendMessageAndSaveResponse(newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -142,14 +142,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         // Step 2: Send the message to the AI
-        await _sendMessageToOpenAI(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
         sendChatInputMessage(newContent, messageIndex)
     };
 
-    const _sendMessageToOpenAI = async (newChatHistoryManager: ChatHistoryManager) => {
+    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager) => {
 
         setLoadingAIResponse(true)
 
