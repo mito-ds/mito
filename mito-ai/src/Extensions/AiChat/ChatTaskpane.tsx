@@ -113,10 +113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        const aiMessage = await _sendMessageAndSaveResponse(newChatHistoryManager)
-
-        // Step 3: Update the code diff stripes
-        updateCodeDiffStripes(aiMessage)
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
     }
 
     const sendExplainCodeMessage = () => {
