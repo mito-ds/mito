@@ -354,7 +354,8 @@ export class MitoAIInlineCompleter
       ...chunk,
       response: {
         ...chunk.response,
-        insertText: cleanedCompletion
+        insertText: cleanedCompletion,
+        isIncomplete: !chunk.done
       }
     });
   }

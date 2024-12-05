@@ -35,6 +35,9 @@ The document is called `{{filename}}` and written in {{language}}.
 
 
 class OpenAIProvider(LoggingConfigurable):
+    """Provide AI feature through OpenAI services."""
+    # Internally it uses jinja2 template to render prompt messages.
+
     api_key = Unicode(
         config=True,
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
@@ -48,6 +51,7 @@ class OpenAIProvider(LoggingConfigurable):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._client: Optional[AsyncOpenAI] = None
+        # Load jinja2 templates
         self._templates = Environment(
             loader=DictLoader(
                 {
@@ -63,6 +67,7 @@ class OpenAIProvider(LoggingConfigurable):
 
     @property
     def client(self) -> AsyncOpenAI:
+        """Get the asynchronous OpenAI client."""
         if not self._client or self._client.is_closed():
             self._client = AsyncOpenAI(api_key=self.api_key)
 
@@ -125,9 +130,22 @@ code comments or docstrings, and with no markdown formatting.""",
     ) -> AsyncGenerator[
         Union[InlineCompletionReply, InlineCompletionStreamChunk], None
     ]:
+        """Stream completions from the OpenAI API.
+        
+        Args:
+            request: The completion request description.
+        Returns:
+            An async generator yielding first an acknowledge completion reply without
+            completion and then completion chunks from the third-party provider.
+        """
+        # The streaming completion has two steps:
+        # Step 1: Acknowledge the request
+        # Step 2: Stream the completion chunks coming from the OpenAI API
+
         # Use by the frontend to reconciliate the completion with the request.
         token = self.get_token(request)
 
+        # Acknowledge the request
         yield InlineCompletionReply(
             list=InlineCompletionList(
                 items=[
@@ -137,6 +155,7 @@ code comments or docstrings, and with no markdown formatting.""",
             parent_id=request.message_id,
         )
 
+        # Send the completion request to the OpenAI API and returns a stream of completion chunks
         stream: AsyncStream[
             ChatCompletionChunk
         ] = await self.client.chat.completions.create(
