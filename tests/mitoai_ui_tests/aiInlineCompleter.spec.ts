@@ -5,7 +5,7 @@ const GHOST_SELECTOR = '.jp-GhostText';
 
 test.describe('first time setup', () => {
   test('should ask the user to activate the inline completion', async ({
-    page
+    page, request
   }) => {
     await page
       .getByText(/Thanks for installing the Mito AI extension/)
@@ -28,9 +28,15 @@ test.describe('first time setup', () => {
       })
     ]);
 
-    await expect(
+    await expect.soft(
       page.getByText(/Thanks for installing the Mito AI extension/)
     ).toHaveCount(0);
+
+    // Check settings is correctly set
+    const reply = await request.get('/api/settings/@jupyterlab/completer-extension:inline-completer')
+    const body = await reply.json()
+    expect.soft(body["settings"]['@jupyterlab/inline-completer:history']['enabled']).toEqual(false)
+    expect(body["settings"]['mito-ai']['enabled']).toEqual(true)
   });
 });
 
@@ -187,7 +193,7 @@ test.describe('default manual inline completion', () => {
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
     expect
       .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
-      .toHaveText('def fibdef fib(n):\n    pass\n');
+      .toHaveText('def fib(n):\n    pass\n');
 
     await page.keyboard.press('Tab');
 

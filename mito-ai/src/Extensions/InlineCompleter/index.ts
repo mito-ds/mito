@@ -88,6 +88,15 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
                       label: 'Enable',
                       displayType: 'accent',
                       callback: async () => {
+                        if (
+                          providers['@jupyterlab/inline-completer:history']?.[
+                            'enabled'
+                          ] !== false
+                        ) {
+                          providers['@jupyterlab/inline-completer:history'][
+                            'enabled'
+                          ] = false;
+                        }
                         providers['mito-ai']['enabled'] = true;
                         await settingRegistry.set(
                           JUPYTERLAB_INLINE_COMPLETER_ID,
