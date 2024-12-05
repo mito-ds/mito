@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getNotebookName } from '../../../utils/notebook';
@@ -24,7 +24,9 @@ interface ICodeBlockProps {
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
     applyAICode: () => void,
     acceptAICode: (codeCellID: string) => void,
-    rejectAICode: (codeCellID: string) => void
+    rejectAICode: (codeCellID: string) => void,
+    isApplyingCode: boolean,
+    codeWasAccepted: boolean
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -39,11 +41,10 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     setDisplayCodeDiff,
     applyAICode,
     acceptAICode,
-    rejectAICode
+    rejectAICode,
+    isApplyingCode,
+    codeWasAccepted
 }): JSX.Element => {
-    const [isApplyingCode, setIsApplyingCode] = useState(false)
-    const [codeWasAccepted, setCodeWasAccepted] = useState(false)
-
     const notebookName = getNotebookName(notebookTracker)
 
     const copyCodeToClipboard = () => {
@@ -72,21 +73,21 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
                             {!isApplyingCode && !codeWasAccepted && (
-                                <button onClick={() => { setIsApplyingCode(true); applyAICode() }}>Apply</button>
+                                <button onClick={() => { applyAICode() }}>Apply</button>
                             )}
 
                             {isApplyingCode && !codeWasAccepted && (
                                 <>
                                     <button
                                         className='code-block-accept-button'
-                                        onClick={() => { acceptAICode(codeCellID); setIsApplyingCode(false); setCodeWasAccepted(true) }}
+                                        onClick={() => { acceptAICode(codeCellID); }}
                                         title={`Accept code (${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'})`}
                                     >
                                         <CheckIcon />
                                     </button>
                                     <button
                                         className='code-block-deny-button'
-                                        onClick={() => { rejectAICode(codeCellID); setIsApplyingCode(false) }}
+                                        onClick={() => { rejectAICode(codeCellID); }}
                                         title={`Deny code (${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'})`}
                                     >
                                         <XMarkIcon />

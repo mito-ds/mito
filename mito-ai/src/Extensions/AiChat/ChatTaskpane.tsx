@@ -54,6 +54,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
     const originalCodeBeforeDiff = useRef<string | undefined>(undefined)
 
+    const [isApplyingCode, setIsApplyingCode] = useState<boolean>(false);
+    const [codeWasAccepted, setCodeWasAccepted] = useState<boolean>(false);
+
     useEffect(() => {
         /* 
             Why we use a ref (chatHistoryManagerRef) instead of directly accessing the state (chatHistoryManager):
@@ -210,6 +213,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
     const applyAICode = () => {
+        setIsApplyingCode(true);
+        setCodeWasAccepted(false);
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
     }
 
@@ -226,9 +231,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
+        setIsApplyingCode(false);
+        setCodeWasAccepted(true);
+
         // Use the codeCellID to accept the code so the code is applied to the correct cell
         // even if the user switches cells.
         writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, lastAIMessage.codeCellID)
+
+        // Reset states to allow future messages to show the "Apply" button
+        setIsApplyingCode(false);
+        setCodeWasAccepted(false);
     }
 
     const rejectAICode = (focusOnCell?: boolean) => {
@@ -243,6 +255,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (originalDiffedCode === undefined) {
             return
         }
+
+        setIsApplyingCode(false);
+        setCodeWasAccepted(false);
 
         writeCodeToCellAndTurnOffDiffs(originalDiffedCode, lastAIMessage.codeCellID, focusOnCell)
     }
@@ -401,6 +416,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
                             variableManager={variableManager}
+                            isApplyingCode={isApplyingCode}
+                            codeWasAccepted={codeWasAccepted}
                         />
                     )
                 }).filter(message => message !== null)}

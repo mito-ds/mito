@@ -30,6 +30,8 @@ interface IChatMessageProps {
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
     variableManager?: IVariableManager
+    isApplyingCode: boolean
+    codeWasAccepted: boolean
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -47,7 +49,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    variableManager
+    variableManager,
+    isApplyingCode,
+    codeWasAccepted
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -114,6 +118,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 applyAICode={applyAICode}
                                 acceptAICode={acceptAICode}
                                 rejectAICode={rejectAICode}
+                                isApplyingCode={isApplyingCode}
+                                codeWasAccepted={codeWasAccepted}
                             />
                         )
                     }
