@@ -2,19 +2,25 @@ import { expect, test } from '@jupyterlab/galata';
 import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle, addNewCell } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 import { clearMitoAIChatInput, clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+
 const placeholderCellText = '# Empty code cell';
+const acceptButtonSelector = '[class="code-block-accept-button"]';
+const denyButtonSelector = '[class="code-block-deny-button"]'
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('Mito AI Chat', () => {
 
-  test('Apply AI Generated Code', async ({ page }) => {
+  test('Apply and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -27,7 +33,10 @@ test.describe('Mito AI Chat', () => {
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
-    await page.getByRole('button', { name: 'Deny' }).click();
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    await page.locator(denyButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -43,15 +52,21 @@ test.describe('Mito AI Chat', () => {
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
+    await page.locator(acceptButtonSelector).click();
+    await waitForIdle(page);
 
     // Send the second message
     await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
+    await page.locator(acceptButtonSelector).click();
+    await waitForIdle(page);
 
     // Edit the first message
     await editMitoAIMessage(page, 'Write the code df["C_edited"] = [7, 8, 9]', 0);
     await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -67,11 +82,14 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant').getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
 
-  test('Code Diffs are applied', async ({ page }) => {
+  test('Code Diffs are applied after clicking apply', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Remove the code print(1) and add the code print(2)', 0);
+
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
 
     await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
     await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
@@ -90,6 +108,8 @@ test.describe('Mito AI Chat', () => {
     // Send a second message in cell 2
     await sendMessageToMitoAI(page, 'Write the code x = 2');
     await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
 
@@ -117,6 +137,8 @@ test.describe('Mito AI Chat', () => {
     // Accept the first message
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
+    await page.locator(acceptButtonSelector).click();
+    await waitForIdle(page);
 
     const codeInCell1 = await getCodeFromCell(page, 1);
     expect(codeInCell1).toContain('x = 1');
@@ -140,7 +162,9 @@ test.describe('Mito AI Chat', () => {
     await typeInNotebookCell(page, 2, '# this should not be overwritten', true);
 
     // Reject the first message
-    await page.getByRole('button', { name: 'Deny' }).click();
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+    await page.locator(denyButtonSelector).click();
     await waitForIdle(page);
 
     const codeInCell1 = await getCodeFromCell(page, 1);
@@ -173,6 +197,9 @@ test.describe('Mito AI Chat', () => {
     await waitForMitoAILoadingToDisappear(page);
 
     await page.getByRole('button', { name: 'Apply' }).click();
+    await waitForIdle(page);
+
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 0);

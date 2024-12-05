@@ -13,6 +13,7 @@ import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { CodeReviewStatus } from '../ChatTaskpane';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -25,10 +26,12 @@ interface IChatMessageProps {
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
+    applyAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
     variableManager?: IVariableManager
+    codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -42,10 +45,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
+    applyAICode,
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    variableManager
+    variableManager,
+    codeReviewStatus
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -109,8 +114,10 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 isLastAiMessage={isLastAiMessage}
                                 operatingSystem={operatingSystem}
                                 setDisplayCodeDiff={setDisplayCodeDiff}
+                                applyAICode={applyAICode}
                                 acceptAICode={acceptAICode}
                                 rejectAICode={rejectAICode}
+                                codeReviewStatus={codeReviewStatus}
                             />
                         )
                     }

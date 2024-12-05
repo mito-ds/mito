@@ -8,6 +8,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import '../../../../style/CodeMessagePart.css'
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
+import { CodeReviewStatus } from '../ChatTaskpane';
 
 
 interface ICodeBlockProps {
@@ -20,8 +21,10 @@ interface ICodeBlockProps {
     isLastAiMessage: boolean,
     operatingSystem: OperatingSystem,
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
+    applyAICode: () => void,
     acceptAICode: (codeCellID: string) => void,
-    rejectAICode: (codeCellID: string) => void
+    rejectAICode: (codeCellID: string) => void,
+    codeReviewStatus: CodeReviewStatus
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -34,10 +37,11 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
+    applyAICode,
     acceptAICode,
-    rejectAICode
+    rejectAICode,
+    codeReviewStatus
 }): JSX.Element => {
-
     const notebookName = getNotebookName(notebookTracker)
 
     const copyCodeToClipboard = () => {
@@ -65,12 +69,28 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     </div>
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
-                            <button onClick={() => { acceptAICode(codeCellID) }}>
-                                Apply {operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}
-                            </button>
-                            <button onClick={() => { rejectAICode(codeCellID) }}>
-                                Deny {operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}
-                            </button>
+                            {codeReviewStatus === 'chatPreview' && (
+                                <button onClick={() => { applyAICode() }}>Apply</button>
+                            )}
+
+                            {codeReviewStatus === 'codeCellPreview' && (
+                                <>
+                                    <button
+                                        className='code-block-accept-button'
+                                        onClick={() => { acceptAICode(codeCellID); }}
+                                        title={`Accept code (${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'})`}
+                                    >
+                                        {operatingSystem === 'mac' ? 'Accept ⌘+Y' : 'Accept CTRL+Y'}
+                                    </button>
+                                    <button
+                                        className='code-block-deny-button'
+                                        onClick={() => { rejectAICode(codeCellID); }}
+                                        title={`Deny code (${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'})`}
+                                    >
+                                        {operatingSystem === 'mac' ? 'Deny ⌘+D' : 'Deny CTRL+D'}
+                                    </button>
+                                </>
+                            )}
                         </>
                     )}
                     <button onClick={copyCodeToClipboard}>Copy</button>
