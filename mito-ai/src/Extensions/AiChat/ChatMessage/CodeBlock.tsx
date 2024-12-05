@@ -8,8 +8,6 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import '../../../../style/CodeMessagePart.css'
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
-import XMarkIcon from '../../../icons/XMark';
-import CheckIcon from '../../../icons/Check';
 import { CodeReviewStatus } from '../ChatTaskpane';
 
 
@@ -82,14 +80,14 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                                         onClick={() => { acceptAICode(codeCellID); }}
                                         title={`Accept code (${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'})`}
                                     >
-                                        <CheckIcon />
+                                        {operatingSystem === 'mac' ? 'Accept ⌘+Y' : 'Accept CTRL+Y'}
                                     </button>
                                     <button
                                         className='code-block-deny-button'
                                         onClick={() => { rejectAICode(codeCellID); }}
                                         title={`Deny code (${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'})`}
                                     >
-                                        <XMarkIcon />
+                                        {operatingSystem === 'mac' ? 'Deny ⌘+D' : 'Deny CTRL+D'}
                                     </button>
                                 </>
                             )}
