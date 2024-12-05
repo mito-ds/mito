@@ -180,6 +180,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } catch (error) {
             console.error('Error calling OpenAI API:', error);
         } finally {
+            // Reset states to allow future messages to show the "Apply" button
+            setIsApplyingCode(false);
+            setCodeWasAccepted(false);
+
             setLoadingAIResponse(false)
             return aiRespone
         }
@@ -238,9 +242,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // even if the user switches cells.
         writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, lastAIMessage.codeCellID)
 
-        // Reset states to allow future messages to show the "Apply" button
-        setIsApplyingCode(false);
-        setCodeWasAccepted(false);
+        // Do not reset `isApplyingCode` or `codeWasAccepted` here. Once accepted, there is no need to
+        // show the "Apply" button again since users can only accept the code once.
+        // These states are reset in `_sendMessageAndSaveResponse`.
     }
 
     const rejectAICode = (focusOnCell?: boolean) => {
