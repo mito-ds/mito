@@ -49,6 +49,9 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     const CONFIG_SECTION = 'mitoaiconfig';
 
     // Use Jupyter Server configuration to check if this is the first time the extension is installed.
+    // Jupyter Server configuration are stored in the $HOME/.jupyter/serverconfig folder as JSON files.
+    // If the user click on "Enable" or "Not now" button in the notification, the configuration will
+    // be changed to contain `{settingsChecked: true}` to prevent notifying the user at later launches.
     ConfigSection.create({
       name: CONFIG_SECTION,
       serverSettings: app.serviceManager.serverSettings
@@ -57,6 +60,8 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
         const state = (config?.data as any as IMitoAIConfig | undefined)?.[
           'state'
         ];
+        // Check if the user has acknowledge the notification before;
+        // aka if the settingsChecked flag is set to true.
         if (!state?.settingsChecked) {
           const checkSettings = async () => {
             const providers = (
@@ -67,7 +72,8 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
             ).composite as any;
 
             const updateConfig = () => {
-              // Set the settingsChecked flag to true
+              // Set the settingsChecked flag to true to store
+              // that the user has acknowledge the notification.
               config
                 .update({ state: { settingsChecked: true } })
                 .catch(reason => {
@@ -120,6 +126,10 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
             }
           };
 
+          // Jupyter inline completer settings may not be available yet
+          // If they are, we check the settings immediately. Otherwise,
+          // we wait for the settings to be available by listening to the
+          // settingsRegistry.pluginChanged signal.
           if (JUPYTERLAB_INLINE_COMPLETER_ID in settingRegistry.plugins) {
             await checkSettings();
           } else {
