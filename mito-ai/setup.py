@@ -90,7 +90,7 @@ setup(
         "openai>=1.0.0",
         'analytics-python',
         "tornado>=6.2.0",
-        "traitlets>=5.6.0",
+        "traitlets",
     ],
     extras_require = {
         'deploy': [
