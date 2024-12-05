@@ -2,7 +2,10 @@ import { expect, test } from '@jupyterlab/galata';
 import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle, addNewCell } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 import { clearMitoAIChatInput, clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+
 const placeholderCellText = '# Empty code cell';
+const acceptButtonSelector = '[data-testid="check-icon"]';
+const denyButtonSelector = '[data-testid="x-mark-icon"]';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -17,14 +20,14 @@ test.describe('Mito AI Chat', () => {
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
 
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
     expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
-  test('Reject AI Generated Code', async ({ page }) => {
+  test.only('Reject AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
@@ -33,7 +36,7 @@ test.describe('Mito AI Chat', () => {
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
 
-    await page.getByRole('button', { name: 'Deny' }).click();
+    await page.locator(denyButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -49,21 +52,21 @@ test.describe('Mito AI Chat', () => {
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     // Send the second message
     await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     // Edit the first message
     await editMitoAIMessage(page, 'Write the code df["C_edited"] = [7, 8, 9]', 0);
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -101,7 +104,7 @@ test.describe('Mito AI Chat', () => {
     await sendMessageToMitoAI(page, 'Write the code x = 2');
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
 
@@ -129,7 +132,7 @@ test.describe('Mito AI Chat', () => {
     // Accept the first message
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     const codeInCell1 = await getCodeFromCell(page, 1);
@@ -156,7 +159,7 @@ test.describe('Mito AI Chat', () => {
     // Reject the first message
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
-    await page.getByRole('button', { name: 'Deny' }).click();
+    await page.locator(denyButtonSelector).click();
     await waitForIdle(page);
 
     const codeInCell1 = await getCodeFromCell(page, 1);
@@ -191,7 +194,7 @@ test.describe('Mito AI Chat', () => {
     await page.getByRole('button', { name: 'Apply' }).click();
     await waitForIdle(page);
 
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 0);
