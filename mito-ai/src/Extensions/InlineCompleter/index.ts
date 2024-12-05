@@ -87,17 +87,14 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
                     {
                       label: 'Enable',
                       displayType: 'accent',
-                      callback: () => {
+                      callback: async () => {
                         providers['mito-ai']['enabled'] = true;
-                        settingRegistry
-                          .set(
-                            JUPYTERLAB_INLINE_COMPLETER_ID,
-                            'providers',
-                            providers
-                          )
-                          .then(() => {
-                            updateConfig();
-                          });
+                        await settingRegistry.set(
+                          JUPYTERLAB_INLINE_COMPLETER_ID,
+                          'providers',
+                          providers
+                        );
+                        updateConfig();
                       }
                     },
                     {
