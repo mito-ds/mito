@@ -10,6 +10,7 @@ import '../../../../style/CodeMessagePart.css'
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import XMarkIcon from '../../../icons/XMark';
 import CheckIcon from '../../../icons/Check';
+import { CodeReviewStatus } from '../ChatTaskpane';
 
 
 interface ICodeBlockProps {
@@ -25,8 +26,7 @@ interface ICodeBlockProps {
     applyAICode: () => void,
     acceptAICode: (codeCellID: string) => void,
     rejectAICode: (codeCellID: string) => void,
-    isApplyingCode: boolean,
-    codeWasAccepted: boolean
+    codeReviewStatus: CodeReviewStatus
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -42,8 +42,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     applyAICode,
     acceptAICode,
     rejectAICode,
-    isApplyingCode,
-    codeWasAccepted
+    codeReviewStatus
 }): JSX.Element => {
     const notebookName = getNotebookName(notebookTracker)
 
@@ -72,11 +71,11 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     </div>
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
-                            {!isApplyingCode && !codeWasAccepted && (
+                            {codeReviewStatus === 'chatPreview' && (
                                 <button onClick={() => { applyAICode() }}>Apply</button>
                             )}
 
-                            {isApplyingCode && !codeWasAccepted && (
+                            {codeReviewStatus === 'codeCellPreview' && (
                                 <>
                                     <button
                                         className='code-block-accept-button'

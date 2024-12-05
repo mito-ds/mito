@@ -13,6 +13,7 @@ import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { CodeReviewStatus } from '../ChatTaskpane';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -30,8 +31,7 @@ interface IChatMessageProps {
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
     variableManager?: IVariableManager
-    isApplyingCode: boolean
-    codeWasAccepted: boolean
+    codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -50,8 +50,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     rejectAICode,
     onUpdateMessage,
     variableManager,
-    isApplyingCode,
-    codeWasAccepted
+    codeReviewStatus
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -118,8 +117,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 applyAICode={applyAICode}
                                 acceptAICode={acceptAICode}
                                 rejectAICode={rejectAICode}
-                                isApplyingCode={isApplyingCode}
-                                codeWasAccepted={codeWasAccepted}
+                                codeReviewStatus={codeReviewStatus}
                             />
                         )
                     }

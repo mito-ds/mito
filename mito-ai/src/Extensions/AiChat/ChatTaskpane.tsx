@@ -39,6 +39,8 @@ interface IChatTaskpaneProps {
     operatingSystem: OperatingSystem
 }
 
+export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
+
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     rendermime,
@@ -54,8 +56,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
     const originalCodeBeforeDiff = useRef<string | undefined>(undefined)
 
-    const [isApplyingCode, setIsApplyingCode] = useState<boolean>(false);
-    const [codeWasAccepted, setCodeWasAccepted] = useState<boolean>(false);
+    // Three possible states:
+    // 1. chatPreview: state where the user has not yet pressed the apply button.
+    // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
+    // 3. applied: state where the user has applied the code to the code cell
+    const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
 
     useEffect(() => {
         /* 
@@ -181,8 +186,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             console.error('Error calling OpenAI API:', error);
         } finally {
             // Reset states to allow future messages to show the "Apply" button
-            setIsApplyingCode(false);
-            setCodeWasAccepted(false);
+            setCodeReviewStatus('chatPreview')
 
             setLoadingAIResponse(false)
             return aiRespone
@@ -217,15 +221,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
     const applyAICode = () => {
-        setIsApplyingCode(true);
-        setCodeWasAccepted(false);
+        setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
     }
 
     const acceptAICode = () => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
-        
+
         if (!lastAIMessage) {
             return
         }
@@ -235,8 +238,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        setIsApplyingCode(false);
-        setCodeWasAccepted(true);
+        setCodeReviewStatus('applied')
 
         // Use the codeCellID to accept the code so the code is applied to the correct cell
         // even if the user switches cells.
@@ -260,8 +262,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        setIsApplyingCode(false);
-        setCodeWasAccepted(false);
+        setCodeReviewStatus('chatPreview')
 
         writeCodeToCellAndTurnOffDiffs(originalDiffedCode, lastAIMessage.codeCellID, focusOnCell)
     }
@@ -420,8 +421,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
                             variableManager={variableManager}
-                            isApplyingCode={isApplyingCode}
-                            codeWasAccepted={codeWasAccepted}
+                            codeReviewStatus={codeReviewStatus}
                         />
                     )
                 }).filter(message => message !== null)}
