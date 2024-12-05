@@ -1,162 +1,86 @@
-import { expect, galata, test } from '@jupyterlab/galata';
-import { PromiseDelegate } from '@lumino/coreutils';
+import { expect, galata, test } from "@jupyterlab/galata";
+import { PromiseDelegate } from "@lumino/coreutils";
 
-const GHOST_SELECTOR = '.jp-GhostText';
+const GHOST_SELECTOR = ".jp-GhostText";
 
-test.describe('first time setup', () => {
-  test('should ask the user to activate the inline completion', async ({
-    page, request
+test.describe("first time setup", () => {
+  test("should ask the user to activate the inline completion", async ({
+    page,
+    request,
   }) => {
     await page
       .getByText(/Thanks for installing the Mito AI extension/)
       .waitFor();
-    await page.getByRole('button', { name: 'Enable' }).click();
+    await page.getByRole("button", { name: "Enable" }).click();
 
     // Check that reload trigger loading not empty mito ai config
     await Promise.all([
       page.reload(),
-      page.waitForResponse(async response => {
-        if (response.request().method() !== 'GET') {
+      page.waitForResponse(async (response) => {
+        if (response.request().method() !== "GET") {
           return false;
         }
         const url = response.url();
         if (galata.Routes.config.test(url) && /\/mitoaiconfig\?+/.test(url)) {
           const content = await response.json();
-          return !!content['state']?.['settingsChecked'];
+          return !!content["state"]?.["settingsChecked"];
         }
         return false;
-      })
+      }),
     ]);
 
-    await expect.soft(
-      page.getByText(/Thanks for installing the Mito AI extension/)
-    ).toHaveCount(0);
+    await expect
+      .soft(page.getByText(/Thanks for installing the Mito AI extension/))
+      .toHaveCount(0);
 
     // Check settings is correctly set
-    const reply = await request.get('/api/settings/@jupyterlab/completer-extension:inline-completer')
-    const body = await reply.json()
-    expect.soft(body["settings"]['@jupyterlab/inline-completer:history']['enabled']).toEqual(false)
-    expect(body["settings"]['mito-ai']['enabled']).toEqual(true)
-  });
-});
-
-test.describe('default inline completion', () => {
-  test.use({
-    autoGoto: false,
-    mockSettings: {
-      ...galata.DEFAULT_SETTINGS,
-      '@jupyterlab/completer-extension:inline-completer': {
-        providers: {
-          '@jupyterlab/inline-completer:history': {
-            enabled: false,
-            timeout: 5000,
-            debouncerDelay: 0,
-            maxSuggestions: 100
-          },
-          'mito-ai': {
-            enabled: true,
-            timeout: 5000,
-            debouncerDelay: 250,
-            triggerKind: 'any'
-          }
-        }
-      }
-    }
-  });
-
-  test('should display inline completion', async ({ page, tmpPath }) => {
-    const replyDone = new PromiseDelegate<void>();
-    // Mock completion request with code prefix 'def fib'
-    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, ws => {
-      ws.onMessage(message => {
-        const payload = JSON.parse(message as string);
-        const messageId = payload.number;
-        if (payload.prefix === 'def fib' && payload.stream) {
-          let counter = -1;
-          const streamReply = setInterval(() => {
-            if (++counter < MOCKED_MESSAGES.length) {
-              ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
-            } else {
-              clearInterval(streamReply);
-              replyDone.resolve();
-            }
-          }, 100);
-        } else {
-          ws.send(
-            JSON.stringify({
-              list: { items: [] },
-              reply_to: messageId,
-              type: 'inline_completion',
-              error: {
-                type: 'ValueError',
-                title: `Unknown request ${message}.`
-              }
-            })
-          );
-        }
-      });
-    });
-
-    await page.goto(`tree/${tmpPath}`);
-    const filename = 'inline-completer.ipynb';
-    await page.notebook.createNew(filename);
-    await page.notebook.setCell(0, 'code', 'def fib');
-
-    await replyDone.promise;
-
-    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
-    expect
-      .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
-      .toHaveText('def fibdef fib(n):\n    pass\n');
-
-    // FIXME keyboard shortcut works when testing this in debug mode
-    // need to figure out why it does not work in normal mode
-    // Note: waiting for timeout of 500ms was tried unsuccessfully
-    // await page.keyboard.press('Tab');
-
-    await page.evaluate(() =>
-      window.galata.app.commands.execute('inline-completer:accept')
+    const reply = await request.get(
+      "/lab/api/settings/@jupyterlab/completer-extension:inline-completer"
     );
-
-    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
-    expect(
-      (await page.notebook.getCellLocator(0))!.getByRole('textbox')
-    ).toHaveText('def fib(n):\n    pass\n');
+    const body = await reply.json();
+    expect
+      .soft(
+        body["settings"]["providers"]["@jupyterlab/inline-completer:history"][
+          "enabled"
+        ]
+      )
+      .toEqual(false);
+    expect(body["settings"]["providers"]["mito-ai"]["enabled"]).toEqual(true);
   });
 });
 
-test.describe('default manual inline completion', () => {
+test.describe("default inline completion", () => {
   test.use({
     autoGoto: false,
     mockSettings: {
       ...galata.DEFAULT_SETTINGS,
-      '@jupyterlab/completer-extension:inline-completer': {
+      "@jupyterlab/completer-extension:inline-completer": {
         providers: {
-          '@jupyterlab/inline-completer:history': {
+          "@jupyterlab/inline-completer:history": {
             enabled: false,
             timeout: 5000,
             debouncerDelay: 0,
-            maxSuggestions: 100
+            maxSuggestions: 100,
           },
-          'mito-ai': {
+          "mito-ai": {
             enabled: true,
             timeout: 5000,
             debouncerDelay: 250,
-            triggerKind: 'manual'
-          }
-        }
-      }
-    }
+            triggerKind: "any",
+          },
+        },
+      },
+    },
   });
 
-  test('should display inline completion', async ({ page, tmpPath }) => {
+  test("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
-    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, ws => {
-      ws.onMessage(message => {
+    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, (ws) => {
+      ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
-        if (payload.prefix === 'def fib' && payload.stream) {
+        if (payload.prefix === "def fib" && payload.stream) {
           let counter = -1;
           const streamReply = setInterval(() => {
             if (++counter < MOCKED_MESSAGES.length) {
@@ -171,11 +95,11 @@ test.describe('default manual inline completion', () => {
             JSON.stringify({
               list: { items: [] },
               reply_to: messageId,
-              type: 'inline_completion',
+              type: "inline_completion",
               error: {
-                type: 'ValueError',
-                title: `Unknown request ${message}.`
-              }
+                type: "ValueError",
+                title: `Unknown request ${message}.`,
+              },
             })
           );
         }
@@ -183,24 +107,110 @@ test.describe('default manual inline completion', () => {
     });
 
     await page.goto(`tree/${tmpPath}`);
-    const filename = 'inline-completer.ipynb';
+    const filename = "inline-completer.ipynb";
     await page.notebook.createNew(filename);
-    await page.notebook.setCell(0, 'code', 'def fib');
-    await page.keyboard.press('Alt+\\');
+    // Don't use the helper, page.notebook.setCell because it check
+    // of content will fail if the inline completion is already displayed
+    // before it grabs the text content.
+    await (await page.notebook.getCellLocator(0))!
+      .getByRole("textbox")
+      .fill("def fib");
 
     await replyDone.promise;
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
     expect
-      .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
-      .toHaveText('def fib(n):\n    pass\n');
+      .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
+      .toHaveText("def fib(n):\n    pass\n");
 
     await page.keyboard.press('Tab');
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
     expect(
-      (await page.notebook.getCellLocator(0))!.getByRole('textbox')
-    ).toHaveText('def fib(n):\n    pass\n');
+      (await page.notebook.getCellLocator(0))!.getByRole("textbox")
+    ).toHaveText("def fib(n):\n    pass\n");
+  });
+});
+
+test.describe("default manual inline completion", () => {
+  test.use({
+    autoGoto: false,
+    mockSettings: {
+      ...galata.DEFAULT_SETTINGS,
+      "@jupyterlab/completer-extension:inline-completer": {
+        providers: {
+          "@jupyterlab/inline-completer:history": {
+            enabled: false,
+            timeout: 5000,
+            debouncerDelay: 0,
+            maxSuggestions: 100,
+          },
+          "mito-ai": {
+            enabled: true,
+            timeout: 5000,
+            debouncerDelay: 250,
+            triggerKind: "manual",
+          },
+        },
+      },
+    },
+  });
+
+  test("should display inline completion", async ({ page, tmpPath }) => {
+    const replyDone = new PromiseDelegate<void>();
+    // Mock completion request with code prefix 'def fib'
+    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, (ws) => {
+      ws.onMessage((message) => {
+        console.log(`inline completion ${message}`);
+        const payload = JSON.parse(message as string);
+        const messageId = payload.number;
+        if (payload.prefix === "def fib" && payload.stream) {
+          let counter = -1;
+          const streamReply = setInterval(() => {
+            if (++counter < MOCKED_MESSAGES.length) {
+              ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
+            } else {
+              clearInterval(streamReply);
+              replyDone.resolve();
+            }
+          }, 100);
+        } else {
+          ws.send(
+            JSON.stringify({
+              list: { items: [] },
+              reply_to: messageId,
+              type: "inline_completion",
+              error: {
+                type: "ValueError",
+                title: `Unknown request ${message}.`,
+              },
+            })
+          );
+        }
+      });
+    });
+
+    await page.goto(`tree/${tmpPath}`);
+    const filename = "inline-completer.ipynb";
+    await page.notebook.createNew(filename);
+    await page.notebook.setCell(0, "code", "def fib");
+    // Ensure the cell is focused with the cursor at the end of the content
+    await (await page.notebook.getCellLocator(0))!.click();
+    await page.keyboard.press("Alt+\\");
+
+    await replyDone.promise;
+
+    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
+    expect
+      .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
+      .toHaveText("def fib(n):\n    pass\n");
+
+    await page.keyboard.press("Tab");
+
+    expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
+    expect(
+      (await page.notebook.getCellLocator(0))!.getByRole("textbox")
+    ).toHaveText("def fib(n):\n    pass\n");
   });
 });
 
@@ -210,94 +220,94 @@ const MOCKED_MESSAGES = [
     list: {
       items: [
         {
-          insertText: '',
+          insertText: "",
           filterText: null,
           isIncomplete: true,
-          token: 't1s0',
-          error: null
-        }
-      ]
+          token: "t1s0",
+          error: null,
+        },
+      ],
     },
-    parent_id: '1',
-    type: 'inline_completion',
-    error: null
+    parent_id: "1",
+    type: "inline_completion",
+    error: null,
   },
   {
     response: {
-      insertText: '',
+      insertText: "",
       filterText: null,
       isIncomplete: true,
-      token: 't1s0',
-      error: null
+      token: "t1s0",
+      error: null,
     },
-    parent_id: '1',
+    parent_id: "1",
     done: false,
-    type: 'stream',
-    error: null
+    type: "stream",
+    error: null,
   },
   {
     response: {
-      insertText: 'def',
+      insertText: "def",
       filterText: null,
       isIncomplete: true,
-      token: 't1s0',
-      error: null
+      token: "t1s0",
+      error: null,
     },
-    parent_id: '1',
+    parent_id: "1",
     done: false,
-    type: 'stream',
-    error: null
+    type: "stream",
+    error: null,
   },
   {
     response: {
-      insertText: ' fib',
+      insertText: " fib",
       filterText: null,
       isIncomplete: true,
-      token: 't1s0',
-      error: null
+      token: "t1s0",
+      error: null,
     },
-    parent_id: '1',
+    parent_id: "1",
     done: false,
-    type: 'stream',
-    error: null
+    type: "stream",
+    error: null,
   },
   {
     response: {
-      insertText: '(n',
+      insertText: "(n",
       filterText: null,
       isIncomplete: true,
-      token: 't1s0',
-      error: null
+      token: "t1s0",
+      error: null,
     },
-    parent_id: '1',
+    parent_id: "1",
     done: false,
-    type: 'stream',
-    error: null
+    type: "stream",
+    error: null,
   },
   {
     response: {
-      insertText: '):\n',
+      insertText: "):\n",
       filterText: null,
       isIncomplete: true,
-      token: 't1s0',
-      error: null
+      token: "t1s0",
+      error: null,
     },
-    parent_id: '1',
+    parent_id: "1",
     done: false,
-    type: 'stream',
-    error: null
+    type: "stream",
+    error: null,
   },
   {
     response: {
-      insertText: '    pass\n',
+      insertText: "    pass\n",
       filterText: null,
       isIncomplete: true,
-      token: 't1s0',
-      error: null
+      token: "t1s0",
+      error: null,
     },
-    parent_id: '1',
+    parent_id: "1",
     done: true,
-    type: 'stream',
-    error: null
-  }
+    type: "stream",
+    error: null,
+  },
 ];

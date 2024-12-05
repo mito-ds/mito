@@ -47,7 +47,7 @@ jobs:
         source venv/bin/activate
         cd ../mito-ai
         jupyter labextension develop . --overwrite
-        jupyter server extension enable --py mito-ai
+        jupyter server extension enable --py mito_ai
     - name: Start a server and run tests
       run: |
         cd tests
