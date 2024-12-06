@@ -5,13 +5,11 @@ from .dataframe_creation_tests import DATAFRAME_CREATION_TESTS
 from .dataframe_transformation_tests import DATAFRAME_TRANSFORMATION_TESTS
 from .function_tests import FUNCTION_TESTS
 from .multistep_tests import MULTISTEP_TESTS
-from .misc_tests import MISC_TESTS
 
-TESTS: List[TestCase] = (
-    VARIABLE_TESTS +
-    DATAFRAME_CREATION_TESTS +
-    DATAFRAME_TRANSFORMATION_TESTS +
-    FUNCTION_TESTS +
-    MULTISTEP_TESTS +
-    MISC_TESTS
-) 
+TESTS: List[TestCase] = [
+    *VARIABLE_TESTS,
+    *DATAFRAME_CREATION_TESTS,
+    *DATAFRAME_TRANSFORMATION_TESTS,
+    *FUNCTION_TESTS,
+    *MULTISTEP_TESTS
+] 

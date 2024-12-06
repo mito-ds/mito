@@ -60,3 +60,31 @@ august_balances = pd.read_csv('evals/data/monthly_equity/august_balances.csv')
 august_fees = pd.read_csv('evals/data/monthly_equity/august_fees.csv')
 """, '']
 )
+
+COMPANIES_ACTIVE_MONTHS_NOTEBOOK: NotebookState = NotebookState(
+    global_vars={'df': pd.DataFrame({
+        'company_name': ['Apple', 'Google', 'Microsoft', 'Amazon', 'Apple'],
+        'currently_active': [True, True, True, True, False],
+        'active_in_june': [True, False, True, True, True],
+        'active_in_july': [False, True, True, False, True],
+        'active_in_august': [False, True, False, False, False],
+        'active_in_september': [True, False, True, False, True],
+        'active_in_october': [True, True, False, False, True],
+        'active_in_november': [False, False, False, True, True],
+        'active_in_december': [True, False, False, False, False],
+        'active_in_january': [True, False, True, False, False],
+    })},
+    cell_contents=["""import pandas as pd
+df = pd.DataFrame({
+    'company_name': ['Apple', 'Google', 'Microsoft', 'Amazon', 'Apple'],
+    'currently_active': [True, True, True, True, False],
+    'active_in_june': [True, False, True, True, True],
+    'active_in_july': [False, True, True, False, True],
+    'active_in_august': [False, True, False, False, False],
+    'active_in_september': [True, False, True, False, True],
+    'active_in_october': [True, True, False, False, True],
+    'active_in_november': [False, False, False, True, True],
+    'active_in_december': [True, False, False, False, False],
+    'active_in_january': [True, False, True, False, False],
+})""", '']
+)

@@ -43,7 +43,7 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
 
     for test_case_result in test_case_results:
         result_text = "Passed" if test_case_result.passed else "\033[91mFailed\033[0m"
-        clean_tags = clean_tags_for_display(test_case_result.test.tags)
+        clean_tags = clean_tags_for_display(test_case_result.test.test_case_core.tags)
         table.add_row([test_case_result.test.name, clean_tags, result_text])
 
     table.add_row(["" for _ in field_names])

@@ -1,35 +1,20 @@
-from evals.eval_types import TestCase
+from evals.eval_types import CodeGenTestCaseCore, TestCase
 from evals.notebook_states import *
 
-MULTISTEP_TESTS = [
-    TestCase(
-        name="clean_messy_data_multi_step",
-        notebook_state=MESSY_DATA_NOTEBOOK,
-        user_input="""Clean the data by:
-- Convert the dates that are strings to timetime format
-- Remove the substring -Stock from the Stock column
-- Delete columns that only have one unqiue value
-- Change the name of the Description column to Description""",
-        expected_code="""
+CLEAN_MESSY_DATA_MULTISTEP = CodeGenTestCaseCore(
+    notebook_state=MESSY_DATA_NOTEBOOK,
+    expected_code="""
 df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
 df['Stock '] = df['Stock '].str[:-6]
 df.drop(['Type_of_Investment'], axis=1, inplace=True)
 df.rename(columns={'Description of each transaction': 'Description'}, inplace=True)
 """,
-        tags=["df_transformation", "pandas", "multistep"],
-    ),
-    TestCase(
-        name="simple_recon",
-        notebook_state=SIMPLE_RECON_NOTEBOOK,
-        user_input="""
-- Import transaction records from two different data sources: Eagle and an Excel file that is manually tracked.
-- Merge them together on a column called Transaction ID
-- Create a new column called "Check" and set it to the following:
-    - If the either dataset does not have a value in the Share Quantity column, set the value of the Check column to "Action Required. Missing Data.".
-    - If the Quantity numbers are the same, set the value of the Check column to "Matching. No action required."
-    - If the numbers are not matching, set the value of the Check column to "Action Required. Quantity does not match."
-- Finally, separate the data in 3 different sheets, one for each condition: `missing_data_df`, `matching_df`, `not_matching_df`""",
-        expected_code="""
+    tags=["df_transformation", "pandas", "multistep"],
+)
+
+EAGLE_EXCEL_RECON_MULTISTEP = CodeGenTestCaseCore(
+    notebook_state=SIMPLE_RECON_NOTEBOOK,
+    expected_code="""
 temp_df = excel_transactions.drop_duplicates(subset=['Transaction ID']) # Remove duplicates so lookup merge only returns first match
 df_merge = eagle_transactions.merge(temp_df, left_on=['Transaction ID'], right_on=['Transaction ID'], how='left', suffixes=['_eagle_transactions', '_excel_transactions'])
 
@@ -48,17 +33,13 @@ df_merge = df_merge.apply(lambda row: check_row(row), axis = 1)
 missing_data_df = df_merge[df_merge['Check'] == "Action Required. Missing Data."]
 matching_df = df_merge[df_merge['Check'] == "Matching. No action required."]
 not_matching_df = df_merge[df_merge['Check'] == "Action Required. Quantity does not match."]""",
-        tags=["df_transformation", "pandas", "multistep"],
-        variables_to_compare=["missing_data_df", "matching_df", "not_matching_df"],
-    ),
-    TestCase(
-        name="monthly_equity",
-        notebook_state=MONTHLY_EQUITY_NOTEBOOK,
-        user_input="""Calculate the Total Equity for each month for each entity by subtracting the Management Fee from the Ending Capital.
+    tags=["df_transformation", "pandas", "multistep"],
+    variables_to_compare=["missing_data_df", "matching_df", "not_matching_df"],
+)
 
-Create two dataframes, `july_equity` and `august_equity` that the final columns: entity_id, ending_capital, fees, and total_equity.
-""",
-        expected_code="""
+MONTHLY_EQUITY_MULTISTEP = CodeGenTestCaseCore(
+    notebook_state=MONTHLY_EQUITY_NOTEBOOK,
+    expected_code="""
 def calculate_total_equity(balances_df, fees_df):
 
     # Merged data8_july_balances and data8_july_fees into df_merge
@@ -73,17 +54,13 @@ def calculate_total_equity(balances_df, fees_df):
 
 july_equity = calculate_total_equity(july_balances, july_fees)
 august_equity = calculate_total_equity(august_balances, august_fees)""",
-        tags=["df_transformation", "pandas", "multistep"],
-        variables_to_compare=["july_equity", "august_equity"],
-    ),
-    TestCase(
-        name="top_five_funds",
-        notebook_state=MONTHLY_EQUITY_NOTEBOOK,
-        user_input="""Calculate the five funds with the highest total equity for each month. Where the total equity is the ending capital minus the management fee.
+    tags=["df_transformation", "pandas", "multistep"],
+    variables_to_compare=["july_equity", "august_equity"],
+)
 
-Create two dataframes, `top_five_funds_july` and `top_five_funds_august` that are a dataframe that contain the top 5 funds for each month. It should have the final columns: entity_id, ending_capital, fees, and total_equity, and the indexes should be 0 to 4.
-""",
-        expected_code="""
+TOP_FIVE_FUNDS_MULTISTEP = CodeGenTestCaseCore(
+    notebook_state=MONTHLY_EQUITY_NOTEBOOK,
+    expected_code="""
 def calculate_total_equity(balances_df, fees_df):
 
     # Merged data8_july_balances and data8_july_fees into df_merge
@@ -107,17 +84,13 @@ august_equity = calculate_total_equity(august_balances, august_fees)
 top_five_funds_july = get_top_five_funds(july_equity)
 top_five_funds_august = get_top_five_funds(august_equity)
 """,
-        tags=["df_transformation", "pandas", "multistep"],
-        variables_to_compare=["top_five_funds_july", "top_five_funds_august"],
-    ),
-    TestCase(
-        name="highest_monthly_ending_capital",
-        notebook_state=MONTHLY_EQUITY_NOTEBOOK,
-        user_input="""Find the month with the highest ending capital for each entity.
+    tags=["df_transformation", "pandas", "multistep"],
+    variables_to_compare=["top_five_funds_july", "top_five_funds_august"],
+)
 
-Create a dataframe called `highest_monthly_ending_capital` that has the final columns: entity_id, ending_capital, and month.
-""",
-        expected_code="""
+HIGHEST_MONTHLY_ENDING_CAPITAL_MULTISTEP = CodeGenTestCaseCore(
+    notebook_state=MONTHLY_EQUITY_NOTEBOOK,
+    expected_code="""
 july_balances['month'] = 'July'
 aug_balances['month'] = 'August'
 highest_monthly_ending_capital = pd.concat([july_balances, aug_balances], join='inner', ignore_index=True)
@@ -126,46 +99,25 @@ highest_monthly_ending_capital = highest_monthly_ending_capital.drop_duplicates(
 highest_monthly_ending_capital = highest_monthly_ending_capital.sort_values(by='entity_id', ascending=True, na_position='first')
 highest_monthly_ending_capital = highest_monthly_ending_capital.reset_index(drop=True)
 """,
-        tags=["df_transformation", "pandas", "multistep"],
-        variables_to_compare=["highest_monthly_ending_capital"],
-    ),
-    TestCase(
-        name="convert_to_float_and_calc_quartiles",
-        notebook_state=USED_CARS_DF_NOTEBOOK,
-        user_input="""Convert the column `kmDriven` to a float and remove any commas and units.
+    tags=["df_transformation", "pandas", "multistep"],
+    variables_to_compare=["highest_monthly_ending_capital"],
+)
 
-Next, create two new columns: `AgeQuartile` and `kmDrivenQuartile`. Each quartile should have a label: Q1, Q2, etc.
-
-Finally, create a new column called `beater` that is `True` if the `kmDrivenQuartile` and `AgeQuartile` are both in the fourth quartile.
-""",
+LABEL_BEATER_CARS_MULTISTEP = CodeGenTestCaseCore(
+    notebook_state=USED_CARS_DF_NOTEBOOK,
         expected_code="""
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str.replace(",", "").str.replace(" km", "").astype(float)
 used_cars_df["AgeQuartile"] = pd.qcut(used_cars_df["Age"], q=4, labels=["Q1", "Q2", "Q3", "Q4"])
 used_cars_df["kmDrivenQuartile"] = pd.qcut(used_cars_df["kmDriven"], q=4, labels=["Q1", "Q2", "Q3", "Q4"])
 used_cars_df["beater"] = (used_cars_df["kmDrivenQuartile"] == "Q4") & (used_cars_df["AgeQuartile"] == "Q4")
 """,
-        tags=["df_transformation", "pandas", "multistep"],
-        variables_to_compare=["used_cars_df"],
-    ),
-    TestCase(
-        name="most_popular_car_model",
-        notebook_state=USED_CARS_DF_NOTEBOOK,
-        user_input="""1. Create a new dataframe called `most_popular_car_model`. For each car `Brand`, identify the most popular model and include the following information in the dataframe: the `Brand`, `model`, and the count of that model.
+    tags=["df_transformation", "pandas", "multistep"],
+    variables_to_compare=["used_cars_df"],
+)
 
-2. Filter the dataframe to keep only the top 10 most popular models.
-
-3. For each model, calculate the following averages:
-   - Average car year
-   - Average price
-   - Average kilometers driven
-
-   Add these averages as new columns to the dataframe.
-
-4. Add a new column called `cost_per_km`, which is calculated by dividing the average price by the average kilometers driven for each model.
-
-5. Create a dictionary variable named `cars` where the key is the name of the most popular model, and the value is its `cost_per_km`.
-""",
-        expected_code="""
+MOST_POPULAR_CAR_MODEL_MULTISTEP = CodeGenTestCaseCore(
+    notebook_state=USED_CARS_DF_NOTEBOOK,
+    expected_code="""
 used_cars_df['AskPrice'] = used_cars_df['AskPrice'].replace({'₹': '', ',': ''}, regex=True).astype(float)
 used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({' km': '', ',': ''}, regex=True).astype(float)
 
@@ -185,7 +137,84 @@ most_popular_car_model['cost_per_km'] = most_popular_car_model['avg_price'] / mo
 
 cars = most_popular_car_model.set_index('model')['cost_per_km'].to_dict()
 """,
-        tags=["df_transformation", "pandas", "multistep"],
-        variables_to_compare=["cars"],
+    tags=["df_transformation", "pandas", "multistep"],
+    variables_to_compare=["cars"],
+)
+
+MULTISTEP_TESTS = [
+    TestCase(
+        name="clean_messy_data_multi_step",
+        test_case_core=CLEAN_MESSY_DATA_MULTISTEP,
+        user_input="""Clean the data by:
+- Convert the dates that are strings to timetime format
+- Remove the substring -Stock from the Stock column
+- Delete columns that only have one unqiue value
+- Change the name of the Description column to Description""",
+    ),
+    TestCase(
+        name="simple_recon",
+        test_case_core=EAGLE_EXCEL_RECON_MULTISTEP,
+        user_input="""
+- Import transaction records from two different data sources: Eagle and an Excel file that is manually tracked.
+- Merge them together on a column called Transaction ID
+- Create a new column called "Check" and set it to the following:
+    - If the either dataset does not have a value in the Share Quantity column, set the value of the Check column to "Action Required. Missing Data.".
+    - If the Quantity numbers are the same, set the value of the Check column to "Matching. No action required."
+    - If the numbers are not matching, set the value of the Check column to "Action Required. Quantity does not match."
+- Finally, separate the data in 3 different sheets, one for each condition: `missing_data_df`, `matching_df`, `not_matching_df`""",
+    ),
+    TestCase(
+        name="monthly_equity",
+        test_case_core=MONTHLY_EQUITY_MULTISTEP,
+        user_input="""Calculate the Total Equity for each month for each entity by subtracting the Management Fee from the Ending Capital.
+
+Create two dataframes, `july_equity` and `august_equity` that the final columns: entity_id, ending_capital, fees, and total_equity.
+""",
+    ),
+    TestCase(
+        name="top_five_funds",
+        test_case_core=TOP_FIVE_FUNDS_MULTISTEP,
+        user_input="""Calculate the five funds with the highest total equity for each month. Where the total equity is the ending capital minus the management fee.
+
+Create two dataframes, `top_five_funds_july` and `top_five_funds_august` that are a dataframe that contain the top 5 funds for each month. It should have the final columns: entity_id, ending_capital, fees, and total_equity, and the indexes should be 0 to 4.
+""",
+        
+    ),
+    TestCase(
+        name="highest_monthly_ending_capital",
+        test_case_core=HIGHEST_MONTHLY_ENDING_CAPITAL_MULTISTEP,
+        user_input="""Find the month with the highest ending capital for each entity.
+
+Create a dataframe called `highest_monthly_ending_capital` that has the final columns: entity_id, ending_capital, and month.
+""",
+    ),
+    TestCase(
+        name="convert_to_float_and_calc_quartiles",
+        test_case_core=LABEL_BEATER_CARS_MULTISTEP,
+        user_input="""Convert the column `kmDriven` to a float and remove any commas and units.
+
+Next, create two new columns: `AgeQuartile` and `kmDrivenQuartile`. Each quartile should have a label: Q1, Q2, etc.
+
+Finally, create a new column called `beater` that is `True` if the `kmDrivenQuartile` and `AgeQuartile` are both in the fourth quartile.
+""",
+    ),
+    TestCase(
+        name="most_popular_car_model",
+        test_case_core=MOST_POPULAR_CAR_MODEL_MULTISTEP,
+        user_input="""1. Create a new dataframe called `most_popular_car_model`. For each car `Brand`, identify the most popular model and include the following information in the dataframe: the `Brand`, `model`, and the count of that model.
+
+2. Filter the dataframe to keep only the top 10 most popular models.
+
+3. For each model, calculate the following averages:
+   - Average car year
+   - Average price
+   - Average kilometers driven
+
+   Add these averages as new columns to the dataframe.
+
+4. Add a new column called `cost_per_km`, which is calculated by dividing the average price by the average kilometers driven for each model.
+
+5. Create a dictionary variable named `cars` where the key is the name of the most popular model, and the value is its `cost_per_km`.
+""",
     ),
 ]
