@@ -68,7 +68,7 @@ df['Days Ago'] = df['Date'] - pd.to_datetime("now")""",
 
 RENAME_ISSUE_DATE_TO_DATE = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
-    expected_code="loans_df.rename(columns={'issue_date': 'date'}, inplace=True)",
+    expected_code="loans_df.rename(columns={'issue_date': 'Date'}, inplace=True)",
     tags=["df_transformation", "pandas"],
 )
 
@@ -263,12 +263,12 @@ DATAFRAME_TRANSFORMATION_TESTS = [
     TestCase(
         name="single_column_renaming_specifc",
         test_case_core=RENAME_ISSUE_DATE_TO_DATE,
-        user_input="Rename issue_date to Issue Date",
+        user_input="Rename issue_date to Date",
     ),
     TestCase(
         name="single_column_renaming_less_specifc",
         test_case_core=RENAME_ISSUE_DATE_TO_DATE,
-        user_input="Rename the date column to date",
+        user_input="Rename the date column to Date",
     ),
     TestCase(
         name="bulk_column_renaming",
@@ -298,12 +298,12 @@ DATAFRAME_TRANSFORMATION_TESTS = [
     TestCase(
         name="calculate_remaining_balance_provided_formula",
         test_case_core=CALCULATE_REMAINING_BALANCE,
-        user_input="Calculate the remaining_balance",
+        user_input="Calculate the remaining_balance by subtracting the total_rec_prncp from the loan amount",
     ),
     TestCase(
         name="calculate_remaining_balance_no_formula",
         test_case_core=CALCULATE_REMAINING_BALANCE,
-        user_input="Calculate the remaining_balance by subtracting the total_rec_prncp from the loan amount",
+        user_input="Calculate the remaining_balance",
     ),
     TestCase(
         name="sum_last_three_columns",
