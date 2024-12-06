@@ -1,5 +1,19 @@
-from evals.eval_types import TestCase
+from evals.eval_types import CodeGenTestCaseCore, TestCase
 from evals.notebook_states import *
+
+NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION = CodeGenTestCaseCore(
+    notebook_state=USED_CARS_DF_NOTEBOOK,
+    expected_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+    tags=["function_declaration"],
+)
+
+
 
 FUNCTION_TESTS = [
     TestCase(

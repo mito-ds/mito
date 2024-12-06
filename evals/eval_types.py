@@ -7,13 +7,10 @@ class NotebookState:
     global_vars: Dict[str, Any]
     cell_contents: List[str]
     
-    
+
 @dataclass(frozen=True)
-class TestCase:
-    """A single test case with input state and expected output"""
-    name: str
+class CodeGenTestCaseCore:
     notebook_state: NotebookState
-    user_input: str
     expected_code: str
     tags: List[Literal[
         'variable_declaration', 
@@ -25,6 +22,15 @@ class TestCase:
         'multistep'
     ]]
     variables_to_compare: Optional[List[str]] = None
+    
+
+@dataclass(frozen=True)
+class TestCase:
+    """A single test case with input state and expected output"""
+    name: str
+    test_case_core: CodeGenTestCaseCore
+    user_input: str
+    
 
 @dataclass(frozen=True)
 class TestCaseResult:
