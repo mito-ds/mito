@@ -59,12 +59,10 @@ ${activeCellCode}
 
 Your task: ${input}`
 
-    console.log(prompt);
-
     return prompt;
 }
 
-export function createErrorPrompt(activeCellCode: string, errorMessage: string): string {
+export function createErrorPrompt(activeCellCode: string | undefined, errorMessage: string): string {
     return `You just ran the active code cell and received an error. Return the full code cell with the error corrected and a short explanation of the error.
             
 <Reminders>
@@ -117,7 +115,7 @@ The variable y has not yet been created.Define the variable y before printing it
 Code in the active code cell:
 
 \`\`\`python
-${activeCellCode}
+${activeCellCode || ''}
 \`\`\`
 
 Error Message: 

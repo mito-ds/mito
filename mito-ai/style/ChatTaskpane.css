@@ -61,6 +61,14 @@
     color: var(--chat-assistant-message-font-color);
 }
 
+.markdown-message-part * .jp-RenderedHTMLCommon :not(pre) > code {
+    background-color: var(--purple-300);
+    color: var(--purple-700);
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+}
+
 .chat-input {
     outline: none;
     border: none;
@@ -150,7 +158,7 @@
     gap: 8px;
 }
 
-.chat-dropdown-item:hover, 
+.chat-dropdown-item:hover,
 .chat-dropdown-item.selected {
     background-color: var(--item-selected-color);
 }
@@ -170,7 +178,8 @@
 .chat-dropdown-item-type {
     color: var(--muted-text-color);
     font-family: var(--jp-code-font-family);
-    min-width: 35px; /* Fixed width for type column */
+    min-width: 35px;
+    /* Fixed width for type column */
 }
 
 .chat-dropdown-item-name {
@@ -189,4 +198,26 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.code-message-part-toolbar button {
+    font-size: 12px !important;
+}
+
+.code-block-accept-button {
+    background-color: var(--green-600) !important;
+    color: white !important;
+}
+
+.code-block-accept-button:hover {
+    background-color: var(--green-700) !important;
+}
+
+.code-block-deny-button {
+    background-color: var(--red-600) !important;
+    color: white !important;
+}
+
+.code-block-deny-button:hover {
+    background-color: var(--red-700) !important;
 }

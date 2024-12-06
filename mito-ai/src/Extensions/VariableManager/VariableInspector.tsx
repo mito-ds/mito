@@ -23,11 +23,19 @@ except:
 
 # Function to convert dataframe to structured format
 def get_dataframe_structure(df, sample_size=5):
+    def convert_value(value):
+        if pd.isna(value):
+            # Handle None and NaN (convert to None, which maps to null in JSON)
+            return None
+        elif not isinstance(value, (str, int, float, bool, type(None))):
+            return str(value)            
+        return value 
+        
     structure = {}
     for column in df.columns:
         structure[column] = {
             "dtype": str(df[column].dtype),
-            "samples": df[column].head(sample_size).tolist()
+            "samples": [convert_value(x) for x in df[column].head(sample_size)]
         }
     return structure
 

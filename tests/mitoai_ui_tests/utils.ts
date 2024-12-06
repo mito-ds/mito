@@ -15,6 +15,10 @@ export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
     }
 }
 
+export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {
+    await page.locator('.chat-input').fill('');
+}
+
 export const sendMessageToMitoAI = async (
     page: IJupyterLabPageFixture,
     message: string,

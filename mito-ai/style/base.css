@@ -11,4 +11,32 @@
     --chat-assistant-message-font-color: #0E1119;
     --item-selected-color: #E9E0FD;
     --muted-text-color: #888;
+
+    --green-700: #15803d;
+    --green-600: #65a30d;
+    --green-500: #84cc16;
+    --green-400: #a3e635;
+    --green-300: #bef264;
+
+    --red-700: #b91c1c;
+    --red-600: #dc2626;
+    --red-500: #ef4444;
+    --red-400: #f87171;
+    --red-300: #fca5a5;
+
+    --yellow-300: #fde047;
+
+    --grey-900: #222934;
+    --grey-800: #5F6B7A;
+    --grey-700: #8795A7;
+    --grey-500: #B8C4CE;
+    --grey-400: #CFD6DE;
+    --grey-300: #E1E7EB;
+    --grey-200: #F8F9FA;
+
+    --purple-700: #844AF7;
+    --purple-600: #9D6CFF;
+    --purple-500: #BA9BF8;
+    --purple-400: #D0B9FE;
+    --purple-300: #E9E0FD;
 }

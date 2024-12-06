@@ -13,9 +13,11 @@ import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { CodeReviewStatus } from '../ChatTaskpane';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    codeCellID: string | undefined
     messageIndex: number
     mitoAIConnectionError: boolean
     notebookTracker: INotebookTracker
@@ -24,14 +26,17 @@ interface IChatMessageProps {
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
+    applyAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
     variableManager?: IVariableManager
+    codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
+    codeCellID,
     messageIndex,
     mitoAIConnectionError,
     notebookTracker,
@@ -40,10 +45,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
+    applyAICode,
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    variableManager
+    variableManager,
+    codeReviewStatus
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -99,6 +106,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                             <CodeBlock
                                 key={index + messagePart}
                                 code={messagePart}
+                                codeCellID={codeCellID}
                                 role={message.role}
                                 rendermime={rendermime}
                                 notebookTracker={notebookTracker}
@@ -106,15 +114,25 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 isLastAiMessage={isLastAiMessage}
                                 operatingSystem={operatingSystem}
                                 setDisplayCodeDiff={setDisplayCodeDiff}
+                                applyAICode={applyAICode}
                                 acceptAICode={acceptAICode}
                                 rejectAICode={rejectAICode}
+                                codeReviewStatus={codeReviewStatus}
                             />
                         )
                     }
                 } else {
                     return (
-                        <div style={{ position: 'relative' }}>
-                            <p key={index + messagePart} onDoubleClick={() => setIsEditing(true)}>
+                        <div className={classNames('markdown-message-part')} style={{ position: 'relative' }}>
+                            <p 
+                                key={index + messagePart} 
+                                onDoubleClick={() => {
+                                    // Only allow users to edit their own messages, not the AI responses
+                                    if (message.role === 'user') {
+                                        setIsEditing(true)
+                                    }
+                                }}
+                            >
                                 {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                                 <MarkdownBlock
                                     markdown={messagePart}
