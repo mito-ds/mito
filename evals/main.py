@@ -25,7 +25,7 @@ if __name__ == "__main__":
             exit(1)
 
     if args.tags:
-        tests_to_run = [test for test in tests_to_run if any(tag in args.tags for tag in test.tags)]
+        tests_to_run = [test for test in tests_to_run if any(tag in args.tags for tag in test.test_case_core.tags)]
         if not tests_to_run:
             print(f"No tests found with tags: {args.tags}")
             exit(1)
