@@ -52,13 +52,13 @@ if __name__ == "__main__":
             print(f"Running test: {test.name}")
                 
             # Get the script from the cells
-            current_cell_contents_script = get_script_from_cells(test.notebook_state.cell_contents)
+            current_cell_contents_script = get_script_from_cells(test.test_case_core.notebook_state.cell_contents)
 
             # Get the expected code script 
-            expected_code = current_cell_contents_script + "\n" + test.expected_code
+            expected_code = current_cell_contents_script + "\n" + test.test_case_core.expected_code
 
             # Create the actual code script produced by the LLM
-            prompt = prompt_generator.get_prompt(test.user_input, test.notebook_state)
+            prompt = prompt_generator.get_prompt(test.user_input, test.test_case_core.notebook_state)
             ai_generated_code = get_open_ai_completion(prompt)
             print(f"AI generated code:\n{ai_generated_code}")
             actual_code = current_cell_contents_script + "\n" + ai_generated_code
@@ -81,8 +81,8 @@ if __name__ == "__main__":
                 print(f"Error: {e}")
                 continue
 
-            expected_globals = get_globals_to_compare(expected_globals, test.variables_to_compare)
-            actual_globals = get_globals_to_compare(actual_globals, test.variables_to_compare)
+            expected_globals = get_globals_to_compare(expected_globals, test.test_case_core.variables_to_compare)
+            actual_globals = get_globals_to_compare(actual_globals, test.test_case_core.variables_to_compare)
 
             test_case_result = TestCaseResult(test=test, passed=are_globals_equal(expected_globals, actual_globals))
             test_case_results[prompt_generator.prompt_name].append(test_case_result)
