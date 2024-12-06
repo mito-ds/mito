@@ -31,16 +31,14 @@ def get_pypi_version(package_name: str, on_dev: Optional[bool]=None) -> str:
     """
 
     if on_dev:
-        url = f'https://test.pypi.org/project/{package_name}/'
+        url = f"https://test.pypi.org/pypi/{package_name}/json"
     else:
-        url = f'https://pypi.org/project/{package_name}/'
+        url = f"https://pypi.org/pypi/{package_name}/json"
 
     try:
-        contents = urllib.request.urlopen(url).read().decode().split('\n')
-        tag = f'<a class="card release__card" href="/project/{package_name}/'
-        contents_with_package_link = [c for c in contents if tag in c]
-        last_version = contents_with_package_link[0].strip().split(tag)[1][:-3]
-        return last_version
+        response = urllib.request.urlopen(url).read().decode()
+        data = json.loads(response)
+        return data['info']['version']
     except urllib.error.HTTPError:
         # If we don't have a last version deployed, default to 0.1.0
         return '0.1.0'
