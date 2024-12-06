@@ -23,7 +23,7 @@ jlpm install
 jlpm run build
 
 REM Navigate to the mito-ai directory and install dependencies + build JS
-cd ../mito-a
+cd ../mito-ai
 pip install -e ".[test]"
 jlpm install
 jlpm run build

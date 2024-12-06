@@ -74,7 +74,7 @@ export async function requestAPI(
         // This 404 error is set by Jupyter when sending a request to the mito-ai endpoint that does not exist.
         return {
             type: 'error',
-            errorMessage: "The Mito AI server is not enabled. You can enable it by running ```python\n!jupyter server extension enable mito-ai\n```",
+            errorMessage: "The Mito AI server is not enabled. You can enable it by running ```python\n!jupyter server extension enable mito_ai\n``` Then restart the application.",
         }
     }
     if (response.status === 500) {
