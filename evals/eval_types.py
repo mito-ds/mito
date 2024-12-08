@@ -25,17 +25,17 @@ class CodeGenTestCaseCore:
     
 
 @dataclass(frozen=True)
-class TestCase:
+class CodeGenTestCase:
     """A single test case with input state and expected output"""
     name: str
     test_case_core: CodeGenTestCaseCore
     user_input: str
-    
 
 @dataclass(frozen=True)
 class TestCaseResult:
-    test: TestCase
+    test: CodeGenTestCase
     passed: bool
+
 
 
 class PromptGenerator():

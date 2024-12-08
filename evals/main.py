@@ -2,8 +2,9 @@ import argparse
 import pandas as pd
 from typing import Dict, List
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
+from evals.code_gen_test_runner import run_code_gen_test
 from evals.prompts import PROMPT_GENERATORS
-from evals.eval_types import TestCase, TestCaseResult
+from evals.eval_types import CodeGenTestCase, TestCaseResult
 from evals.utils import are_globals_equal, get_globals_to_compare, get_script_from_cells, print_test_case_result_tables
 from evals.test_cases import *
 
@@ -49,42 +50,8 @@ if __name__ == "__main__":
         test_case_results[prompt_generator.prompt_name] = []
         for test in tests_to_run:
 
-            print(f"Running test: {test.name}")
-                
-            # Get the script from the cells
-            current_cell_contents_script = get_script_from_cells(test.test_case_core.notebook_state.cell_contents)
-
-            # Get the expected code script 
-            expected_code = current_cell_contents_script + "\n" + test.test_case_core.expected_code
-
-            # Create the actual code script produced by the LLM
-            prompt = prompt_generator.get_prompt(test.user_input, test.test_case_core.notebook_state)
-            ai_generated_code = get_open_ai_completion(prompt)
-            print(f"AI generated code:\n{ai_generated_code}")
-            actual_code = current_cell_contents_script + "\n" + ai_generated_code
-
-            # So that we can compare the results of the two scripts, create global context for 
-            # each script. When calling exec, the globals are updated in place.
-            expected_globals = {}
-            actual_globals = {}
-
-            try:
-                exec(expected_code, expected_globals)
-                exec(actual_code, actual_globals)
-            except Exception as e:
-                # Fail early if we can't execute the code
-                test_case_result = TestCaseResult(test=test, passed=False)
-                test_case_results[prompt_generator.prompt_name].append(test_case_result)
-                print("Test Failed: ")
-                print(f"Expected code:\n{expected_code}")
-                print(f"\nActual code:\n{actual_code}")
-                print(f"Error: {e}")
-                continue
-
-            expected_globals = get_globals_to_compare(expected_globals, test.test_case_core.variables_to_compare)
-            actual_globals = get_globals_to_compare(actual_globals, test.test_case_core.variables_to_compare)
-
-            test_case_result = TestCaseResult(test=test, passed=are_globals_equal(expected_globals, actual_globals))
+            
+            test_case_result = run_code_gen_test(test, prompt_generator)
             test_case_results[prompt_generator.prompt_name].append(test_case_result)
 
     print_test_case_result_tables(test_case_results)
