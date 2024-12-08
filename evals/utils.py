@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional, Sequence
 from prettytable import PrettyTable
-from evals.eval_types import TestCaseResult
+from evals.eval_types import SmartDebugTestCase, TestCaseResult
 import pandas as pd
 
 def get_script_from_cells(cells: List[str]) -> str:
@@ -43,7 +43,11 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
 
     for test_case_result in test_case_results:
         result_text = "Passed" if test_case_result.passed else "\033[91mFailed\033[0m"
-        clean_tags = clean_tags_for_display(test_case_result.test.test_case_core.tags)
+
+        # Get the tags for the test. Smart debug tags are defined at the test level. 
+        # Code gen tags are defined at the test case core level.
+        tags = test_case_result.test.tags if isinstance(test_case_result.test, SmartDebugTestCase) else test_case_result.test.test_case_core.tags
+        clean_tags = clean_tags_for_display(tags)
         table.add_row([test_case_result.test.name, clean_tags, result_text])
 
     table.add_row(["" for _ in field_names])
