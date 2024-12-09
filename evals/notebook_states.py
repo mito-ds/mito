@@ -1,6 +1,6 @@
 from evals.eval_types import NotebookState
 import pandas as pd
-
+import numpy as np
 
 EMPTY_NOTEBOOK: NotebookState = NotebookState(
   global_vars={},
@@ -86,5 +86,35 @@ df = pd.DataFrame({
     'active_in_november': [False, False, False, True, True],
     'active_in_december': [True, False, False, False, False],
     'active_in_january': [True, False, True, False, False],
+})""", '']
+)
+
+
+
+np.random.seed(42)
+stock_df = pd.DataFrame({
+    'date': pd.date_range(start='2023-01-01', periods=100),
+    'ticker': np.random.choice(['AAPL', 'GOOGL', 'MSFT', 'AMZN'], 100),
+    'price': np.random.uniform(100, 1000, 100),
+    'volume': np.random.randint(1000, 1000000, 100),
+    'market_cap': ['$1.5T', '$800B', '$2.1T', '$1.2T'] * 25,
+    'sector': ['Tech', 'Tech', 'Tech', 'Consumer'] * 25,
+    'pe_ratio': np.random.uniform(10, 50, 100),
+    'dividend_yield': ['2.5%', '1.8%', None, '0%'] * 25
+})
+STOCK_MARKET_DATA_NOTEBOOK: NotebookState = NotebookState(
+    global_vars={'stock_df': stock_df.head(5)},
+    cell_contents=["""import pandas as pd
+import numpy as np
+np.random.seed(42)
+stock_df = pd.DataFrame({
+    'date': pd.date_range(start='2023-01-01', periods=100),
+    'ticker': np.random.choice(['AAPL', 'GOOGL', 'MSFT', 'AMZN'], 100),
+    'price': np.random.uniform(100, 1000, 100),
+    'volume': np.random.randint(1000, 1000000, 100),
+    'market_cap': ['$1.5T', '$800B', '$2.1T', '$1.2T'] * 25,
+    'sector': ['Tech', 'Tech', 'Tech', 'Consumer'] * 25,
+    'pe_ratio': np.random.uniform(10, 50, 100),
+    'dividend_yield': ['2.5%', '1.8%', None, '0%'] * 25
 })""", '']
 )
