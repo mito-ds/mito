@@ -41,7 +41,7 @@ class SmartDebugTestCase:
     notebook_state: NotebookState
     invalid_code: str
     correct_code: str
-    tags: List[Literal['error_handling']] 
+    tags: List[Literal['simple']] 
     variables_to_compare: Optional[List[str]] = None
 
 

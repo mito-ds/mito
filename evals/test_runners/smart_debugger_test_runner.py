@@ -1,3 +1,4 @@
+import copy
 from typing import Dict, List, Optional
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.eval_types import ChatPromptGenerator, CodeGenTestCase, DebugPromptGenerator, SmartDebugTestCase, TestCaseResult
@@ -31,6 +32,7 @@ def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], 
         if not prompt_generators_to_test:
             print(f"No prompt found with name: {prompt_name}")
             exit(1)
+    
     print(f"Collected {len(prompt_generators_to_test)} prompts")
 
 
@@ -48,29 +50,35 @@ def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], 
 def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPromptGenerator) -> TestCaseResult:
     print(f"Running test: {test.name}")
                 
-    # Get the script from the cells
-    current_cell_contents_script = get_script_from_cells(test.notebook_state.cell_contents)
+    # Create a copy of the notebook state that includes the invalid code.
+    script_without_invalid_code = get_script_from_cells(test.notebook_state.cell_contents)
 
-    invalid_code = current_cell_contents_script + "\n" + test.invalid_code
+    invalid_notebook_state = copy.deepcopy(test.notebook_state)
+    
+    # Add the invalid code to a new cell. This is fine because we're converting the whole thing
+    # into a single script when we execute it anyways. 
+    invalid_notebook_state.cell_contents.append(test.invalid_code)
+    invalid_code_cells_script = get_script_from_cells(invalid_notebook_state.cell_contents, include_current_cell=True)
 
     # Exec the invalid code and get the error message
     error_message = None
     try:
-        exec(invalid_code, {})
+        exec(invalid_code_cells_script, {})
     except Exception as e:
         error_message = str(e)
 
-    print(f"Error message: {error_message}")
     if error_message is None:
         raise ValueError("Broken Test: Test did not produce an error.")
     
     # Ask the AI to correct the error
-    prompt = prompt_generator.get_prompt(error_message, test.notebook_state)
+    # Make sure to use the invalid_notebook_state so that the prompt can include the 
+    # invalid code in the prompt. 
+    prompt = prompt_generator.get_prompt(error_message, invalid_notebook_state)
     ai_generated_code = get_open_ai_completion(prompt)
-    actual_code = current_cell_contents_script + "\n" + ai_generated_code
+    actual_code = script_without_invalid_code + "\n" + ai_generated_code
 
     # Get the expected code script 
-    expected_code = current_cell_contents_script + "\n" + test.correct_code
+    expected_code = script_without_invalid_code + "\n" + test.correct_code
 
     # TODO: Turn this into a function and add it to utils.py
     # So that we can compare the results of the two scripts, create global context for 
@@ -84,10 +92,10 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
         exec(actual_code, actual_globals)
     except Exception as e:
         # Fail early if we can't execute the code
-        print("Test Failed: ")
-        print(f"Expected code:\n{expected_code}")
-        print(f"\nActual code:\n{actual_code}")
-        print(f"Error: {e}")
+        # print("Test Failed: ")
+        # print(f"Expected code:\n{expected_code}")
+        # print(f"\nActual code:\n{actual_code}")
+        # print(f"Error: {e}")
         return TestCaseResult(test=test, passed=False)
 
     expected_globals = get_globals_to_compare(expected_globals, test.variables_to_compare)

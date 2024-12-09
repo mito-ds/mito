@@ -3,11 +3,16 @@ from prettytable import PrettyTable
 from evals.eval_types import SmartDebugTestCase, TestCaseResult
 import pandas as pd
 
-def get_script_from_cells(cells: List[str]) -> str:
+def get_script_from_cells(cells: List[str], include_current_cell: bool = False) -> str:
     """
     Convert all of the previous cells into a single script. Exclude the current cell.
     """
-    return "\n".join(cells[:-1])
+
+    # TODO: Check if in the code gen test runners, we care about excluding the current cell.
+    if include_current_cell:
+        return "\n".join(cells)
+    else:
+        return "\n".join(cells[:-1])
 
 def get_globals_to_compare(globals: Dict[str, Any], variables_to_compare: Optional[List[str]] = None) -> Dict[str, Any]:
     """
