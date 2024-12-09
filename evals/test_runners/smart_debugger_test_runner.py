@@ -84,22 +84,12 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     # Get the expected code script 
     expected_code = script_without_invalid_code + "\n" + test.correct_code
 
-    # TODO: Turn this into a function and add it to utils.py
-    # So that we can compare the results of the two scripts, create global context for 
-    # each script. When calling exec, the globals are updated in place.
-
-    expected_globals = {}
-    actual_globals = {}
-
     try:
         expected_globals, expected_output = exec_code_and_get_globals_and_output(expected_code)
         actual_globals, actual_output = exec_code_and_get_globals_and_output(actual_code)
     except Exception as e:
         # Fail early if we can't execute the code
-        print("Test Failed: ")
-        print(f"Expected code:\n{expected_code}")
-        print(f"\nActual code:\n{actual_code}")
-        print(f"Error: {e}")
+        print(f"Failed to execute code with error: {e}")
         return TestCaseResult(test=test, passed=False)
 
     equal_globals = assert_equal_globals(expected_globals, actual_globals, test.variables_to_compare)

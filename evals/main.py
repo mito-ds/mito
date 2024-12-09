@@ -17,7 +17,7 @@ if __name__ == "__main__":
     prompt_name = args.prompt_name
     tags = args.tags
 
-    if test_type == "chat":
+    if test_type.lower() == "chat":
         run_code_gen_tests(test_name, prompt_name, tags)
-    elif test_type == "smart_debug":
+    elif test_type.lower() == "smart_debug":
         run_smart_debug_tests(test_name, prompt_name, tags)

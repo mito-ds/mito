@@ -3,6 +3,7 @@ from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.eval_types import ChatPromptGenerator, CodeGenTestCase, TestCaseResult
 from evals.prompts.chat_prompts import CHAT_PROMPT_GENERATORS
 from evals.test_cases.code_gen_tests import CODE_GEN_TESTS
+from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
 from evals.asserts.equal_globals import assert_equal_globals
 
@@ -57,23 +58,14 @@ def run_code_gen_test(test: CodeGenTestCase, prompt_generator: ChatPromptGenerat
     # Create the actual code script produced by the LLM
     prompt = prompt_generator.get_prompt(test.user_input, test.test_case_core.notebook_state)
     ai_generated_code = get_open_ai_completion(prompt)
-    print(f"AI generated code:\n{ai_generated_code}")
     actual_code = current_cell_contents_script + "\n" + ai_generated_code
 
-    # So that we can compare the results of the two scripts, create global context for 
-    # each script. When calling exec, the globals are updated in place.
-    expected_globals = {}
-    actual_globals = {}
-
     try:
-        exec(expected_code, expected_globals)
-        exec(actual_code, actual_globals)
+        expected_globals, _ = exec_code_and_get_globals_and_output(expected_code)
+        actual_globals, _ = exec_code_and_get_globals_and_output(actual_code)
     except Exception as e:
         # Fail early if we can't execute the code
-        print("Test Failed: ")
-        print(f"Expected code:\n{expected_code}")
-        print(f"\nActual code:\n{actual_code}")
-        print(f"Error: {e}")
+        print(f"Failed to execute code with error: {e}")
         return TestCaseResult(test=test, passed=False)
 
     passed = assert_equal_globals(expected_globals, actual_globals, test.test_case_core.variables_to_compare)
