@@ -1,4 +1,3 @@
-
 from typing import Any, Dict, List, Optional
 import pandas as pd
 
@@ -41,6 +40,11 @@ def assert_equal_globals(expected_globals: Dict[str, Any], actual_globals: Dict[
 
         if isinstance(var_one, pd.DataFrame) and isinstance(var_two, pd.DataFrame):
             if not var_one.equals(var_two):
+                return False
+        elif hasattr(var_one, '__array__') and hasattr(var_two, '__array__'):
+            # Handle numpy arrays and array-like objects
+            import numpy as np
+            if not np.array_equal(var_one, var_two, equal_nan=True):
                 return False
         else:
             if var_one != var_two:
