@@ -5,17 +5,6 @@ from evals.test_cases.code_gen_tests.dataframe_transformation_tests import CONVE
 
 PANDAS_TESTS = [
     SmartDebugTestCase(
-        name='create_dataframe_simple',
-        notebook_state=EMPTY_NOTEBOOK,
-        invalid_code="""
-df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
-""",
-        correct_code="""
-df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
-""",
-        tags=['simple', 'pandas']
-    ),
-    SmartDebugTestCase(
         name='datetime_conversion_required',
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="""
