@@ -179,7 +179,10 @@
     color: var(--muted-text-color);
     font-family: var(--jp-code-font-family);
     min-width: 35px;
-    /* Fixed width for type column */
+    width: 35px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .chat-dropdown-item-name {
