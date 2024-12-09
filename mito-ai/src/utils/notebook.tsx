@@ -136,33 +136,32 @@ function insertMarkdownBeforeCell(notebook: NotebookPanel, targetCellId: string,
   const targetIndex = findCellIndexById(notebook.content, targetCellId);
   if (targetIndex === -1) return;
 
+  // Set the active cell index to the target index
+  notebook.content.activeCellIndex = targetIndex;
+
   // Insert a new cell above the target index
   NotebookActions.insertAbove(notebook.content);
-  notebook.content.activeCellIndex = targetIndex;
   NotebookActions.changeCellType(notebook.content, 'markdown');
 
   // Get the newly inserted cell
-  const newCell = notebook.content.activeCell;
+  const newCell = notebook.content.widgets[targetIndex];
 
-  // Change the cell type to Markdown
+  // Change the cell type to Markdown and write content
   if (newCell) {
-    console.log("New cell >> ", newCell)
-    NotebookActions.changeCellType(notebook.content, 'markdown');
-    writeToCell(newCell?.model, aiMessage);
+    console.log("New cell ID >> ", newCell.model.id);
+    writeToCell(newCell.model, aiMessage);
     NotebookActions.renderAllMarkdown(notebook.content);
-    
   } else {
     console.error("New cell not found");
   }
 }
 
-  
 
 // Function to get combined code from selected cells
 export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker): Promise<void> => {
     const selectedCellIndices = getSelectedCodeCellIds(notebookTracker);
     
-    if (selectedCellIndices.length == 0) {
+    if (selectedCellIndices.length === 0) {
         return;
     }
   
@@ -186,8 +185,7 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
             })
         });
         if (apiResponse.type === 'success') {
-            // Assuming apiResponse.response is an object with a 'content' property
-            aiMessage = apiResponse.response.content || ''; // Extract the string content
+            aiMessage = apiResponse.response.content || '';
             console.log('AI message:', aiMessage);
             const currentNotebook: NotebookPanel | null = notebookTracker.currentWidget;
 
@@ -197,14 +195,11 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
             }
 
             insertMarkdownBeforeCell(currentNotebook, selectedCellIndices[0], aiMessage);
-            aiMessage = '';
         }
     } catch (error) {
         console.error('Error calling API:', error);
-        return;
     }
-    
-  }
+}
 
 
 
