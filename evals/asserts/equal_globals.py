@@ -1,6 +1,5 @@
 
 from typing import Any, Dict, List, Optional
-from evals.utils import get_globals_to_compare
 import pandas as pd
 
 def get_globals_to_compare(globals: Dict[str, Any], variables_to_compare: Optional[List[str]] = None) -> Dict[str, Any]:
