@@ -189,6 +189,31 @@ loans_df_pivot = pivot_table.reset_index()""",
         tags=['simple', 'pandas']
     ),
     SmartDebugTestCase(
+        name='pivot_table_missing_multiple_columns',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        invalid_code="""
+tmp_df = loans_df[['loan_amount', 'purpose']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['purpose'],
+    columns=['income_category'],
+    values=['loan_amount', 'annual_income'],
+    aggfunc=['mean']
+)
+loans_df_pivot = pivot_table.reset_index()
+""",
+        correct_code="""
+tmp_df = loans_df[['loan_amount', 'purpose', 'annual_income', 'income_category']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['purpose'],
+    columns=['income_category'],
+    values=['loan_amount', 'annual_income'],
+    aggfunc=['mean']
+)
+loans_df_pivot = pivot_table.reset_index()
+""",
+        tags=['simple', 'pandas']
+    ),
+    SmartDebugTestCase(
         name='pivot_table_invalid_aggfunc_syntax',
         notebook_state=LOANS_DF_NOTEBOOK,
         invalid_code="""
@@ -209,6 +234,145 @@ pivot_table = tmp_df.pivot_table(
 loans_df_pivot = pivot_table.reset_index()""",
         tags=['simple', 'pandas']
     ),
+    SmartDebugTestCase(
+        name='pivot_table_incorrect_argument_rows',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        invalid_code="""
+tmp_df = loans_df[['loan_amount', 'purpose', 'annual_income']].copy()
+pivot_table = tmp_df.pivot_table(
+    rows=['purpose'],
+    values=['loan_amount', 'annual_income'],
+    aggfunc=['mean']
+)
+loans_df_pivot = pivot_table.reset_index()""",
+        correct_code="""
+tmp_df = loans_df[['loan_amount', 'purpose', 'annual_income']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['purpose'],
+    values=['loan_amount', 'annual_income'],
+    aggfunc=['mean']
+)
+loans_df_pivot = pivot_table.reset_index()""",
+        tags=['simple', 'pandas']
+    ),
+    SmartDebugTestCase(
+        name='pivot_table_incorrect_argument_columns',
+        notebook_state=LOANS_DF_NOTEBOOK,
+        invalid_code="""
+tmp_df = loans_df[['loan_amount', 'purpose', 'annual_income', 'income_category']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['purpose'],
+    cols=['income_category'],
+    values=['loan_amount', 'annual_income'],
+    aggfunc=['mean']
+)
+loans_df_pivot = pivot_table.reset_index()""",
+        correct_code="""
+tmp_df = loans_df[['loan_amount', 'purpose', 'annual_income', 'income_category']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['purpose'],
+    columns=['income_category'],
+    values=['loan_amount', 'annual_income'],
+    aggfunc=['mean']
+)
+loans_df_pivot = pivot_table.reset_index()""",
+        tags=['simple', 'pandas']
+    ),
+    SmartDebugTestCase(
+        name='first_owner_function_wrong_arguments',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        invalid_code="""def get_number_of_first_owner_vehicles_by_brand(brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
 
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        correct_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
 
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        tags=['simple', 'pandas']
+    ),
+    SmartDebugTestCase(
+        name='first_owner_function_wrong_column_name',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        invalid_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        correct_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        tags=['simple', 'pandas']
+    ),
+    SmartDebugTestCase(
+        name='first_owner_function_invalid_indentation',
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        invalid_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['owner'].str.contains('first', na=False, regex=False))]
+return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        correct_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        tags=['simple', 'pandas']
+    ),
+    SmartDebugTestCase( 
+        # Should not use len around function return value
+        name='first_owner_function_incorrect_handling_return_value', 
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        invalid_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = len(get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW'))
+num_toyota = len(get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota'))
+num_ford = len(get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford'))""",
+        correct_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        tags=['simple', 'pandas']
+    ),
+    SmartDebugTestCase(
+        # Missing 's' at end of last function call
+        name='first_owner_function_called_with_wrong_name', 
+        notebook_state=USED_CARS_DF_NOTEBOOK,
+        invalid_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return df
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicle_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        correct_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
+    return len(df)
+
+num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
+num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
+num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
+        tags=['simple', 'pandas']
+    ),
 ]
