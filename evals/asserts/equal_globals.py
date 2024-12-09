@@ -34,7 +34,6 @@ def assert_equal_globals(expected_globals: Dict[str, Any], actual_globals: Dict[
     expected_globals = get_globals_to_compare(expected_globals, variables_to_compare)
     actual_globals = get_globals_to_compare(actual_globals, variables_to_compare)
 
-
     # First, check if the keys are the same
     if expected_globals.keys() != actual_globals.keys():
         return False
@@ -44,7 +43,14 @@ def assert_equal_globals(expected_globals: Dict[str, Any], actual_globals: Dict[
         var_one = expected_globals[key]
         var_two = actual_globals[key]
 
+        # If they are different types, then they are not equal
+        if type(var_one) != type(var_two):
+            return False
+
         if isinstance(var_one, pd.DataFrame) and isinstance(var_two, pd.DataFrame):
+            if not var_one.equals(var_two):
+                return False
+        elif isinstance(var_one, pd.Series) and isinstance(var_two, pd.Series):
             if not var_one.equals(var_two):
                 return False
         elif hasattr(var_one, '__array__') and hasattr(var_two, '__array__'):

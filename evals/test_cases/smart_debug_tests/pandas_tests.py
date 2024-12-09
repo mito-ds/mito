@@ -1,5 +1,5 @@
 from evals.eval_types import SmartDebugTestCase
-from evals.notebook_states import EMPTY_NOTEBOOK, LOANS_DF_NOTEBOOK, MESSY_DATA_NOTEBOOK, USED_CARS_DF_NOTEBOOK
+from evals.notebook_states import EMPTY_NOTEBOOK, LOANS_DF_NOTEBOOK, MESSY_DATA_NOTEBOOK, STOCK_MARKET_DATA_NOTEBOOK, USED_CARS_DF_NOTEBOOK
 from evals.test_cases.code_gen_tests.dataframe_transformation_tests import CONVERT_CURRENCY_STRING_TO_FLOAT
 
 
@@ -77,7 +77,7 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].astype(float)
         name='missing_quotes_in_column_name',
         notebook_state=LOANS_DF_NOTEBOOK,
         invalid_code="""
-"loans_df = loans_df[loans_df[annual_income] > 100000]",
+loans_df = loans_df[loans_df[annual_income] > 100000],
 """, 
         correct_code="""
 loans_df = loans_df[loans_df['annual_income'] > 100000]
@@ -122,20 +122,11 @@ used_cars_df['PostedDate'] = pd.to_datetime(used_cars_df['PostedDate'], format='
         notebook_state=LOANS_DF_NOTEBOOK,
         invalid_code="""
 loans_df.rename(columns={'issue_date': 'Date'})
+loans_df['Year'] = loans_df['Date'].dt.year
 """,
         correct_code="""
 loans_df.rename(columns={'issue_date': 'Date'}, inplace=True)
-""",
-        tags=['simple', 'pandas']
-    ),
-    SmartDebugTestCase(
-        name='column_delete_missing_inplace',
-        notebook_state=LOANS_DF_NOTEBOOK,
-        invalid_code="""
-loans_df.drop(columns=['annual_income'])
-""",
-        correct_code="""
-loans_df.drop(columns=['annual_income'], inplace=True)
+loans_df['Year'] = loans_df['Date'].dt.year
 """,
         tags=['simple', 'pandas']
     ),
@@ -375,4 +366,122 @@ num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
         tags=['simple', 'pandas']
     ),
+    SmartDebugTestCase(
+        # ValueError: window must be an integer 0 or greater
+        name='stock_market_rolling_window_incorrect_period',
+        notebook_state=STOCK_MARKET_DATA_NOTEBOOK,
+        invalid_code="""
+# Calculate 5 cell rolling average volume by ticker with min periods
+stock_df = stock_df.sort_values('date')
+rolling_vol = stock_df.groupby('ticker').rolling('5D')['volume'].mean()
+stock_df['rolling_vol'] = rolling_vol
+""",
+        correct_code="""
+# Calculate 5 cell rolling average volume by ticker with min periods
+stock_df = stock_df.sort_values('date')
+rolling_vol = stock_df.groupby('ticker')['volume'].rolling(5, min_periods=1).mean()
+stock_df['rolling_vol'] = rolling_vol.reset_index(level=0, drop=True)
+""",
+        tags=['pandas']
+    ),
+    SmartDebugTestCase(
+        name='stock_market_convert_T_and_B_to_float',
+        notebook_state=STOCK_MARKET_DATA_NOTEBOOK,
+        invalid_code="""
+stock_df['market_cap_numeric_billions'] = stock_df['market_cap'].str.replace('$', '')
+stock_df['market_cap_numeric_billions'] = stock_df['market_cap_numeric_billions'].astype(float)
+""",
+        correct_code="""
+stock_df['market_cap_numeric_billions'] = stock_df['market_cap'].str.replace('$', '').str.replace('T', '000').str.replace('B', '')
+stock_df['market_cap_numeric_billions'] = stock_df['market_cap_numeric_billions'].astype(float)
+""",
+        tags=['pandas']
+    ),
+    SmartDebugTestCase(
+        # TypeError: agg function failed [how->mean,dtype->object]
+        name='stock_market_agg_function_failed',
+        notebook_state=STOCK_MARKET_DATA_NOTEBOOK,
+        invalid_code="""
+sector_dividend = stock_df.groupby('sector')['dividend_yield'].mean()
+""",
+        correct_code="""
+stock_df['dividend_numeric'] = stock_df['dividend_yield'].replace('0%', '0').str.rstrip('%').astype(float) / 100
+sector_dividend = stock_df.groupby('sector')['dividend_numeric'].mean()
+""",
+        tags=['pandas']
+    ),
+    SmartDebugTestCase(
+        # TypeError: incompatible index of inserted column with frame index
+        name='stock_market_incompatible_index',
+        notebook_state=STOCK_MARKET_DATA_NOTEBOOK,
+        invalid_code="""
+# Calculate daily stock price volatility with log returns
+stock_df = stock_df.sort_values(['ticker', 'date'])
+stock_df['log_returns'] = np.log(stock_df.groupby('ticker')['price'].pct_change() + 1)
+stock_df['volatility'] = stock_df.groupby('ticker')['log_returns'].rolling(window=20).std() * np.sqrt(252)
+""",
+        correct_code="""
+# Calculate daily stock price volatility with log returns
+stock_df = stock_df.sort_values(['ticker', 'date'])
+stock_df['log_returns'] = np.log(stock_df.groupby('ticker')['price'].pct_change() + 1)
+stock_df['volatility'] = (stock_df.groupby('ticker')['log_returns'].rolling(window=20).std() * np.sqrt(252)).reset_index(level=0, drop=True)
+""",
+        tags=['pandas']
+    ),
+    SmartDebugTestCase(
+        # ValueError: setting an array element with a sequence. 
+        # The requested array has an inhomogeneous shape after 2 dimensions. 
+        # The detected shape was (4, 2) + inhomogeneous part.
+        name='calculate_volume_weighted_average_price',
+        notebook_state=STOCK_MARKET_DATA_NOTEBOOK,
+        invalid_code="""
+# Calculate VWAP for each stock
+stock_df = stock_df.sort_values(['ticker', 'date'])
+stock_df['vwap'] = (stock_df.groupby('ticker')['price'] * stock_df['volume']).cumsum() / stock_df.groupby('ticker')['volume'].cumsum()
+stock_df.drop('price_volume', axis=1, inplace=True)
+""",
+        correct_code="""
+# Calculate VWAP for each stock
+stock_df = stock_df.sort_values(['ticker', 'date'])
+stock_df['price_volume'] = stock_df['price'] * stock_df['volume']
+stock_df['vwap'] = (stock_df.groupby('ticker')['price_volume'].cumsum() / stock_df.groupby('ticker')['volume'].cumsum())
+stock_df.drop('price_volume', axis=1, inplace=True)
+""",
+        tags=['pandas']
+    ),
+    SmartDebugTestCase(
+        name='rsi_calc_with_incompatible_index',
+        notebook_state=STOCK_MARKET_DATA_NOTEBOOK,
+        invalid_code="""
+# Calculate RSI
+def calculate_rsi(data, periods=14):
+    delta = data.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=periods).mean()
+    avg_loss = loss.rolling(window=periods).mean()
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
+
+stock_df['rsi'] = stock_df.groupby('ticker')['price'].apply(calculate_rsi)
+""",
+        correct_code="""
+# Calculate RSI
+def calculate_rsi(data, periods=14):
+    delta = data.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.ewm(com=periods-1, min_periods=periods).mean()
+    avg_loss = loss.ewm(com=periods-1, min_periods=periods).mean()
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
+
+# Without sorting first, the diff() calculations could be 
+# comparing prices across different stocks within the same ticker group, 
+# leading to incorrect gain/loss calculations.
+stock_df = stock_df.sort_values(['ticker', 'date'])
+stock_df['rsi'] = stock_df.groupby('ticker')['price'].transform(calculate_rsi)
+""",
+        tags=['logic_correction', 'pandas']
+    )
 ]
