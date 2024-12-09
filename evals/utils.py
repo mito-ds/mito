@@ -14,23 +14,6 @@ def get_script_from_cells(cells: List[str], include_current_cell: bool = False) 
     else:
         return "\n".join(cells[:-1])
 
-def get_globals_to_compare(globals: Dict[str, Any], variables_to_compare: Optional[List[str]] = None) -> Dict[str, Any]:
-    """
-    Globals have a lot of stuff we don't actually care about comparing. 
-    For now, we only care about comparing variables created by the script.
-    This functionremoves everything else
-    """
-    if variables_to_compare is not None:
-        # Get the variables to compare from the globals and remove everything else
-        return {k: v for k, v in globals.items() if k in variables_to_compare}
-
-    globals = {k: v for k, v in globals.items() if k != "__builtins__"}
-
-    # Remove functions from the globals since we don't want to compare them
-    globals = {k: v for k, v in globals.items() if not callable(v)}
-
-    return globals
-
 
 def print_test_case_result_tables(test_case_results_dict: Dict[str, List[TestCaseResult]]):
     for prompt_name, test_case_results in test_case_results_dict.items():
@@ -71,28 +54,3 @@ def clean_tags_for_display(tags: Sequence[str]) -> str:
     """
     return ", ".join([tag.replace("[", "").replace("]", "").replace('"', "").replace("'", "") for tag in tags])
 
-def are_globals_equal(globals1: Dict[str, Any], globals2: Dict[str, Any]) -> bool:
-    """
-    Compares two dictionaries of globals, and returns True if they are equal,
-    and False otherwise.
-
-    Take special care to correctly check equality for pandas DataFrames.
-    """
-
-    # First, check if the keys are the same
-    if globals1.keys() != globals2.keys():
-        return False
-    
-    global_keys_one = set(globals1.keys())
-    for key in global_keys_one:
-        var_one = globals1[key]
-        var_two = globals2[key]
-
-        if isinstance(var_one, pd.DataFrame) and isinstance(var_two, pd.DataFrame):
-            if not var_one.equals(var_two):
-                return False
-        else:
-            if var_one != var_two:
-                return False
-    
-    return True

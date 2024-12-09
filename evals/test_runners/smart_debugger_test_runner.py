@@ -92,14 +92,12 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
         exec(actual_code, actual_globals)
     except Exception as e:
         # Fail early if we can't execute the code
-        # print("Test Failed: ")
-        # print(f"Expected code:\n{expected_code}")
-        # print(f"\nActual code:\n{actual_code}")
-        # print(f"Error: {e}")
+        print("Test Failed: ")
+        print(f"Expected code:\n{expected_code}")
+        print(f"\nActual code:\n{actual_code}")
+        print(f"Error: {e}")
         return TestCaseResult(test=test, passed=False)
 
-    expected_globals = get_globals_to_compare(expected_globals, test.variables_to_compare)
-    actual_globals = get_globals_to_compare(actual_globals, test.variables_to_compare)
-    passed = are_globals_equal(expected_globals, actual_globals)
+    passed = are_globals_equal(expected_globals, actual_globals, test.variables_to_compare)
 
     return TestCaseResult(test=test, passed=passed)

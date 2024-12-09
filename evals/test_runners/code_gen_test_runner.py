@@ -3,8 +3,8 @@ from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.eval_types import ChatPromptGenerator, CodeGenTestCase, TestCaseResult
 from evals.prompts.chat_prompts import CHAT_PROMPT_GENERATORS
 from evals.test_cases.code_gen_tests import CODE_GEN_TESTS
-from evals.utils import are_globals_equal, get_globals_to_compare, get_script_from_cells, print_test_case_result_tables
-
+from evals.utils import get_script_from_cells, print_test_case_result_tables
+from evals.asserts.equal_globals import assert_equal_globals
 
 def run_code_gen_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
 
@@ -76,7 +76,6 @@ def run_code_gen_test(test: CodeGenTestCase, prompt_generator: ChatPromptGenerat
         print(f"Error: {e}")
         return TestCaseResult(test=test, passed=False)
 
-    expected_globals = get_globals_to_compare(expected_globals, test.test_case_core.variables_to_compare)
-    actual_globals = get_globals_to_compare(actual_globals, test.test_case_core.variables_to_compare)
+    passed = assert_equal_globals(expected_globals, actual_globals, test.test_case_core.variables_to_compare)
 
-    return TestCaseResult(test=test, passed=are_globals_equal(expected_globals, actual_globals))
+    return TestCaseResult(test=test, passed=passed)
