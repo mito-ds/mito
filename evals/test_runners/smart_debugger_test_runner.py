@@ -1,10 +1,13 @@
 import copy
 from typing import Dict, List, Optional
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
+from evals.asserts.equal_globals import assert_equal_globals
+from evals.asserts.equal_outputs import assert_equal_outputs
 from evals.eval_types import ChatPromptGenerator, CodeGenTestCase, DebugPromptGenerator, SmartDebugTestCase, TestCaseResult
 from evals.prompts.smart_debug_prompts import SMART_DEBUG_PROMPT_GENERATORS
 from evals.test_cases.smart_debug_tests.smart_debug_tests import SMART_DEBUG_TESTS
-from evals.utils import are_globals_equal, get_globals_to_compare, get_script_from_cells, print_test_case_result_tables
+from evals.test_runners.utils import exec_code_and_get_globals_and_output
+from evals.utils import get_script_from_cells, print_test_case_result_tables
 
 
 def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
@@ -67,6 +70,7 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     except Exception as e:
         error_message = str(e)
 
+    print(f"Error message: {error_message}")
     if error_message is None:
         raise ValueError("Broken Test: Test did not produce an error.")
     
@@ -88,8 +92,8 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     actual_globals = {}
 
     try:
-        exec(expected_code, expected_globals)
-        exec(actual_code, actual_globals)
+        expected_globals, expected_output = exec_code_and_get_globals_and_output(expected_code)
+        actual_globals, actual_output = exec_code_and_get_globals_and_output(actual_code)
     except Exception as e:
         # Fail early if we can't execute the code
         print("Test Failed: ")
@@ -98,6 +102,8 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
         print(f"Error: {e}")
         return TestCaseResult(test=test, passed=False)
 
-    passed = are_globals_equal(expected_globals, actual_globals, test.variables_to_compare)
+    equal_globals = assert_equal_globals(expected_globals, actual_globals, test.variables_to_compare)
+    equal_outputs = assert_equal_outputs(expected_output, actual_output)
+    passed = equal_globals and equal_outputs
 
     return TestCaseResult(test=test, passed=passed)

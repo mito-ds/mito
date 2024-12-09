@@ -46,4 +46,23 @@ else:
 """,
         tags=['simple']
     ),
+    SmartDebugTestCase(
+        name="output_comparison",
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="print('hello world)",
+        correct_code="print('hello world')",
+        tags=['simple']
+    ),
+    SmartDebugTestCase(
+        name="missing_datetime_import",
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="""
+today = datetime.today().strftime('%Y-%m-%d')
+""",
+        correct_code="""
+from datetime import datetime
+today = datetime.today().strftime('%Y-%m-%d')
+""",
+        tags=['simple']
+    )
 ]
