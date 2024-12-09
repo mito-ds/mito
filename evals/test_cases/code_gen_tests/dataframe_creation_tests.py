@@ -1,8 +1,8 @@
-from evals.eval_types import TestCase, CodeGenTestCaseCore
+from evals.eval_types import CodeGenTestCase, CodeGenTestCaseCore
 from evals.notebook_states import *
 
 DATAFRAME_CREATION_TESTS = [
-    TestCase(
+    CodeGenTestCase(
         name="import_csv",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
@@ -11,7 +11,7 @@ DATAFRAME_CREATION_TESTS = [
         ),
         user_input="Create a datafame called loans_df by importing the csv using the path 'evals/data/loans.csv'",
     ),
-    TestCase(
+    CodeGenTestCase(
         name="dataframe_creation_from_dict",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
@@ -59,7 +59,7 @@ DATAFRAME_CREATION_TESTS = [
   'AskPrice': '₹ 3,75,000'}]
         """,
     ),
-    TestCase(
+    CodeGenTestCase(
         name="dataframe_creation_from_for_loop",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
@@ -68,7 +68,7 @@ DATAFRAME_CREATION_TESTS = [
         ),
         user_input="Create a new dataframe with a column called 'numbers' that contains the numbers 1 through 1000",
     ),
-    TestCase(
+    CodeGenTestCase(
         name="dataframe_creation_from_url",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK_WITH_PANDAS,
