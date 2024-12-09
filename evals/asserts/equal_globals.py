@@ -5,13 +5,19 @@ def get_globals_to_compare(globals: Dict[str, Any], variables_to_compare: Option
     """
     Globals have a lot of stuff we don't actually care about comparing. 
     For now, we only care about comparing variables created by the script.
-    This functionremoves everything else
+    This function removes everything else including:
+    1. Builtins
+    2. Functions
+    3. Variables not in variables_to_compare
+    4. Warnings
     """
     if variables_to_compare is not None:
         # Get the variables to compare from the globals and remove everything else
         return {k: v for k, v in globals.items() if k in variables_to_compare}
 
+    # Remove builtins and warnings from the globals
     globals = {k: v for k, v in globals.items() if k != "__builtins__"}
+    globals = {k: v for k, v in globals.items() if k != "__warningregistry__"}
 
     # Remove functions from the globals since we don't want to compare them
     globals = {k: v for k, v in globals.items() if not callable(v)}
