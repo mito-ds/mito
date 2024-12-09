@@ -18,11 +18,16 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Running all tests 
-From the `mito` folder, run the command: 
-TODO: Improve the running so that we don't have to be in the `mito` folder.
+## Running the tests 
+
+1. Navigate to the `mito` folder. 
+2. To run the `chat` tests, run the command: 
 ```
-python -m evals.main
+python -m evals.main --test-type=chat
+```
+3. To run the `smart-debugger` tests, run the command: 
+```
+python -m evals.main --test-type=smart_debug
 ```
 
 ## Running specific tests
@@ -35,5 +40,5 @@ To specify which tests to run, set some of the following flags:
 
 For example, to run all tests for the `single_shot_prompt` prompt, run: 
 ```
-python -m evals.main --prompt-name=single_shot_prompt
+python -m evals.main --test-type=chat --prompt-name=single_shot_prompt
 ```

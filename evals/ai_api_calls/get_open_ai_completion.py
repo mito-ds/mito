@@ -21,7 +21,6 @@ def get_code_block_from_message(message: str) -> str:
     Extract the first code block from a message. A code block is a block of 
     text that starts with ```python and ends with ```.
     """
-    print(f"Message: {message}")
 
     # If ```python is not part of the message, then we assume that the 
     # entire message is the code block

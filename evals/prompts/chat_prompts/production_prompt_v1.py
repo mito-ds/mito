@@ -1,8 +1,8 @@
-from evals.eval_types import NotebookState, PromptGenerator
+from evals.eval_types import NotebookState, ChatPromptGenerator
 
 __all__ = ['production_prompt_v1_generator']
 
-class _ProductionPromptV1(PromptGenerator):
+class _ProductionPromptV1(ChatPromptGenerator):
     prompt_name = "production_prompt_v1"
 
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
