@@ -1,6 +1,8 @@
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { Cell } from '@jupyterlab/cells';
+import { INotebookTracker, NotebookPanel, Notebook, NotebookActions } from '@jupyterlab/notebook';
+// import { INotebookModel } from '@jupyterlab/notebook/lib/model';
+import { Cell, ICellModel } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
+import { requestAPI } from './handler';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
@@ -70,4 +72,139 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
         }, 500);
     }
 }
+
+/**
+ * Get indices of all selected code cells in a Jupyter Notebook.
+ * @param notebookModel - The notebook model containing the cells.
+ * @returns An array of indices of selected code cells.
+ */
+/**
+ * Get indices of all selected code cells in a Jupyter Notebook.
+ * @param notebookTracker - The notebook tracker to find the current notebook.
+ * @returns An array of indices of selected code cells.
+ */
+export const getSelectedCodeCellIds = (notebookTracker: INotebookTracker): string[] => {
+    const selectedCodeCellIds: string[] = [];
+    const notebook = notebookTracker.currentWidget?.content; // Get the current notebook widget's content
+
+    if (notebook) {
+        // Iterate over all cells in the notebook
+        notebook.widgets.forEach((cell, index) => {
+            // Check if the cell is selected and is a code cell
+            if (notebook.isSelectedOrActive(cell) && cell.model.type === 'code') {
+                selectedCodeCellIds.push(cell.model.id);
+            }
+        });
+    }
+    return selectedCodeCellIds;
+};
+
+/**
+ * Find the index of a cell with a specific metadata ID.
+ * @param {NotebookPanel} notebook - The active notebook panel.
+ * @param {string} targetCellId - The target cell ID to search for.
+ * @returns {number} The index of the target cell, or -1 if not found.
+ */
+function findCellIndexById(notebook: Notebook, targetCellId: string): number {
+    if (!notebook || !notebook.widgets || !targetCellId) {
+      return -1;
+    }
+  
+    for (let index = 0; index < notebook.widgets.length; index++) {
+      const cell = notebook.widgets[index];
+      if (cell && cell.model && cell.model.id === targetCellId) {
+        return index;
+      }
+    }
+  
+    return -1;
+}
+
+export function writeToCell(cell: ICellModel | undefined, code: string): void {
+    if (cell == undefined) {
+        return;
+    }
+    cell.sharedModel.source = code
+}
+
+/**
+ * Insert a Markdown cell before a specific cell by ID.
+ * @param {NotebookPanel} notebook - The active notebook panel.
+ * @param {string} targetCellId - The ID of the target cell.
+ */
+function insertMarkdownBeforeCell(notebook: NotebookPanel, targetCellId: string, aiMessage: string) {
+  const targetIndex = findCellIndexById(notebook.content, targetCellId);
+  if (targetIndex === -1) return;
+
+  // Insert a new cell above the target index
+  NotebookActions.insertAbove(notebook.content);
+  notebook.content.activeCellIndex = targetIndex;
+  NotebookActions.changeCellType(notebook.content, 'markdown');
+
+  // Get the newly inserted cell
+  const newCell = notebook.content.activeCell;
+
+  // Change the cell type to Markdown
+  if (newCell) {
+    console.log("New cell >> ", newCell)
+    NotebookActions.changeCellType(notebook.content, 'markdown');
+    writeToCell(newCell?.model, aiMessage);
+    NotebookActions.renderAllMarkdown(notebook.content);
+    
+  } else {
+    console.error("New cell not found");
+  }
+}
+
+  
+
+// Function to get combined code from selected cells
+export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker): Promise<void> => {
+    const selectedCellIndices = getSelectedCodeCellIds(notebookTracker);
+    
+    if (selectedCellIndices.length == 0) {
+        return;
+    }
+  
+    let combinedCode = '';
+            
+    selectedCellIndices.forEach(cellIndex => {
+              const cellCode = getCellCodeByID(notebookTracker, cellIndex);
+              console.log(`Code for cell ${cellIndex}:`, cellCode);
+              if (cellCode) {
+                combinedCode += cellCode + '\n'; // Append code with a newline
+              }
+    });
+            
+    console.log('Combined code:\n', combinedCode);
+    let aiMessage = '';
+    try {
+        const apiResponse = await requestAPI('mito_ai/completion', {
+            method: 'POST',
+            body: JSON.stringify({
+                messages: [{role: 'user', content: "Write markdown documentation for the following code:\n" + combinedCode}]
+            })
+        });
+        if (apiResponse.type === 'success') {
+            // Assuming apiResponse.response is an object with a 'content' property
+            aiMessage = apiResponse.response.content || ''; // Extract the string content
+            console.log('AI message:', aiMessage);
+            const currentNotebook: NotebookPanel | null = notebookTracker.currentWidget;
+
+            if (!currentNotebook) {
+                console.error('No active notebook found.');
+                return;
+            }
+
+            insertMarkdownBeforeCell(currentNotebook, selectedCellIndices[0], aiMessage);
+            aiMessage = '';
+        }
+    } catch (error) {
+        console.error('Error calling API:', error);
+        return;
+    }
+    
+  }
+
+
 

@@ -3,13 +3,15 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
+import { ICommandPalette, WidgetTracker, ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { addIcon } from '@jupyterlab/ui-components';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
+import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_WRITE_MARKDOWN_DOC } from '../../commands';
 import { IChatTracker } from './token';
+import { getMarkdownDocumentation } from '../../utils/notebook';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 
@@ -121,6 +123,31 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     if (restorer) {
       restorer.add(widget, 'mito_ai');
     }
+
+    app.commands.addCommand(COMMAND_MITO_AI_WRITE_MARKDOWN_DOC, {
+      label: 'Write markdown documentation for selected cells',
+      icon: addIcon, // Use an appropriate icon from JupyterLab's icon set
+      execute: () => {
+        
+      }
+    });
+
+    // Add the command to the notebook toolbar
+    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
+      // Add a ToolbarButton to the notebook toolbar
+      notebookPanel.toolbar.insertItem(
+        10, // Position of the button in the toolbar
+        'writeMarkdownDoc', // Name of the toolbar item
+        new ToolbarButton({
+          icon: addIcon, // Icon for the button
+          tooltip: 'Write Markdown Documentation for Selected Cells', // Tooltip text
+          onClick: async () => {
+            await getMarkdownDocumentation(notebookTracker);
+          }
+        })
+      );
+    });
+    
 
     // This allows us to force plugin load order
     console.log("mito-ai: AiChatPlugin activated");
