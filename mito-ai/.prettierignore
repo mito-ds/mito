@@ -3,4 +3,4 @@ node_modules
 **/lib
 **/package.json
 !/package.json
-mito-ai
+mito_ai
