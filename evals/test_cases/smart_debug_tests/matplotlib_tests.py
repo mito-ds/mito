@@ -1,6 +1,11 @@
 from evals.eval_types import SmartDebugTestCase
 from evals.notebook_states import EMPTY_NOTEBOOK, LOANS_DF_NOTEBOOK, MESSY_DATA_NOTEBOOK, STOCK_MARKET_DATA_NOTEBOOK, USED_CARS_DF_NOTEBOOK
 
+'''
+When writing tests for matplotlib, exclude `plt.show()` from the code.
+Displaying the plot will cause the test to pause until the user closes the plot window.
+'''
+
 MATPLOTLIB_TESTS = [
     SmartDebugTestCase(
         name="axis_w_different_lengths",
@@ -76,5 +81,33 @@ plt.xlabel('X-axis')
 plt.ylabel('Y-axis (log scale)')
 """,
         tags=['matplotlib']
+    ),
+    SmartDebugTestCase(
+        name="minor_tick_locator_type_error",
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="""
+import matplotlib.pyplot as plt
+
+x = [0.1, 0.2, 0.3, 0.4, 0.5]
+y = [1, 4, 9, 16, 25]
+
+plt.plot(x, y)
+plt.xticks([0.1, 0.2, 0.3], labels=[0.1, 0.2, 0.3])
+plt.minorticks_on()
+plt.gca().xaxis.set_minor_locator([0.15, 0.25, 0.35])
+""",
+        correct_code="""
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+
+x = [0.1, 0.2, 0.3, 0.4, 0.5]
+y = [1, 4, 9, 16, 25]
+
+plt.plot(x, y)
+plt.xticks([0.1, 0.2, 0.3], labels=[0.1, 0.2, 0.3])
+plt.minorticks_on()
+plt.gca().xaxis.set_minor_locator(MultipleLocator(0.05))
+""",
+        tags=['matplotlib', 'type_error']
     )
 ]
