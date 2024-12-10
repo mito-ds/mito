@@ -95,13 +95,13 @@ The best way to do this is with a function. We can call this function \`parse_da
 
 Guidelines for Solutions:
 
-Error Analysis (think to yourself):
+Error Analysis:
 
 - Identify error type (Syntax, Runtime, Logic).
 - Use the defined variables and code in the active cell to understand the error.
 - Consider kernel state and execution order
 
-Intent Preservation (think to yourself):
+Intent Preservation:
 
 - Try to understand the user's intent using the defined variables and code in the active cell.
 

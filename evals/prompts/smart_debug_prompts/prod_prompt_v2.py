@@ -109,11 +109,13 @@ Intent Preservation:
 
 Solution Requirements:
 
-- Update the code in the active cell to fix the error.
-- Return the entire updated active code cell.
+- Return the full code cell with the error fixed and a short explanation of the error.
 - Propose a solution that fixes the error and does not change the user's intent.
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
+- Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
+
+Here is your task. 
 
 Defined Variables:
 {notebook_state.global_vars}
@@ -126,7 +128,11 @@ Code in active cell:
 Error Message:
 {error_message}
 
-Return the SOLUTION.
+ERROR ANALYSIS:
+
+INTENT ANALYSIS:
+
+SOLUTION:
 """
 
 prod_prompt_v2_generator = _ProdPromptV2Generator()
