@@ -7,7 +7,10 @@ def get_open_ai_completion(prompt: str):
     
     response = client.chat.completions.create(
         model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {"role": "system", "content": "You are an expert Python programmer."},
+            {"role": "user", "content": prompt}
+        ],
         temperature=0.0
     )
 
