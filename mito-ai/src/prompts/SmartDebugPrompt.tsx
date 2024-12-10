@@ -139,9 +139,6 @@ export function removeInnerThoughtsFromMessage(messageContent: string) {
     We remove them before saving the message in the chat history
     */
 
-    console.log("AARON")
-
-    console.log('messageContent', messageContent)
     if (messageContent === null) {
         return ''
     }
@@ -156,7 +153,5 @@ export function removeInnerThoughtsFromMessage(messageContent: string) {
 
     const solutionText = messageContent.split(SOLUTION_STRING)[1].trim()
 
-
-    console.log('solutionText', solutionText)
     return solutionText
 }
