@@ -109,5 +109,39 @@ plt.minorticks_on()
 plt.gca().xaxis.set_minor_locator(MultipleLocator(0.05))
 """,
         tags=['matplotlib', 'type_error']
+    ),
+    SmartDebugTestCase(
+        name="scatter_colors_length_mismatch",
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="""
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.random.rand(10)
+y = np.random.rand(10)
+colors = ['red', 'blue', 'green']  # Only 3 colors for 10 points
+colors_length = len(colors)
+
+plt.scatter(x, y, c=colors)
+plt.xlabel('X values')
+plt.ylabel('Y values')
+plt.title('Red Scatter Plot')
+""",
+        correct_code="""
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.random.rand(10)
+y = np.random.rand(10)
+colors = ['red'] * 10  # One color for each point
+colors_length = len(colors)
+
+plt.scatter(x, y, c=colors)
+plt.xlabel('X values')
+plt.ylabel('Y values')
+plt.title('Red Scatter Plot')
+""",
+        variables_to_compare=['colors_length'],
+        tags=['matplotlib']
     )
 ]
