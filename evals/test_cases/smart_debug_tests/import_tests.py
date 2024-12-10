@@ -28,6 +28,19 @@ df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
         tags=['simple', 'import']
     ),
     SmartDebugTestCase(
+        name="import_as_typo",
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="""
+import pandas as ps
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+""",
+        correct_code="""
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+""",
+        tags=['import']
+    ),
+    SmartDebugTestCase(
         name="missing_multiple_imports_1",
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="""
