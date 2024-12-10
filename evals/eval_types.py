@@ -48,6 +48,8 @@ class SmartDebugTestCase:
         'import', 
         'typo', 
         'type_error', 
+        'value_error',
+        'argument_error',
         'logic_correction', 
         'matplotlib'
     ]] 

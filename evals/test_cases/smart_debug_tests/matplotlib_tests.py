@@ -26,7 +26,7 @@ y = [1, 2, 3, 4, 5]
 
 plt.plot(x, y)
 """,
-        tags=['simple', 'matplotlib']
+        tags=['matplotlib', 'value_error']
     ),
     SmartDebugTestCase(
         name="bar_chart_missing_y_values",
@@ -53,7 +53,7 @@ plt.xlabel('Categories')
 plt.ylabel('Values')
 plt.title('Bar Chart')
 """,
-        tags=['simple', 'matplotlib']
+        tags=['matplotlib', 'argument_error']
     ),
     SmartDebugTestCase(
         name="incorrectly_applied_log_scale",
@@ -80,7 +80,7 @@ plt.yscale('log')
 plt.xlabel('X-axis')
 plt.ylabel('Y-axis (log scale)')
 """,
-        tags=['matplotlib']
+        tags=['matplotlib', 'value_error']
     ),
     SmartDebugTestCase(
         name="minor_tick_locator_type_error",
@@ -142,6 +142,6 @@ plt.ylabel('Y values')
 plt.title('Red Scatter Plot')
 """,
         variables_to_compare=['colors_length'],
-        tags=['matplotlib']
+        tags=['matplotlib', 'value_error']
     )
 ]
