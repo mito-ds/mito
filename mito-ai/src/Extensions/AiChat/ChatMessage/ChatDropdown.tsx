@@ -62,9 +62,16 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     }, [filteredOptions, selectedIndex]);
 
     const getShortType = (type: string) => {
-        return type.includes("DataFrame") ? "df"
-            : type.includes("<class '") ? type.split("'")[1]
-                : type;
+        if (type.includes("DataFrame")) {
+            return "df";
+        }
+        if (type.includes("Series")) {
+            return "s";
+        }
+        if (type.includes("<class '")) {
+            return type.split("'")[1];
+        }
+        return type;
     }
 
     return (
