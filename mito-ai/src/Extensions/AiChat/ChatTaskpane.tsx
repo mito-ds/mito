@@ -113,7 +113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug')
     }
 
     const sendExplainCodeMessage = () => {
@@ -154,7 +154,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendChatInputMessage(newContent, messageIndex)
     };
 
-    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager) => {
+    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager, messageType: 'default' | 'smartDebug' = 'default') => {
 
         setLoadingAIResponse(true)
 
@@ -170,13 +170,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (apiResponse.type === 'success') {
                 const aiMessage = apiResponse.response;
-
-                newChatHistoryManager.addAIMessageFromResponse(aiMessage);
+                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, messageType);
                 setChatHistoryManager(newChatHistoryManager);
                 
                 aiRespone = aiMessage
             } else {
-                newChatHistoryManager.addAIMessageFromMessageContent(apiResponse.errorMessage, true)
+                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, messageType, true)
                 setChatHistoryManager(newChatHistoryManager);
             }
         } catch (error) {
