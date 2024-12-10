@@ -8,7 +8,7 @@ MY_SUM_FUNCTION = CodeGenTestCaseCore(
     
 sum_result = my_sum(1, 2)
 """,
-    tags=["function_declaration"],
+    tags=["function"],
 )
 
 
@@ -19,7 +19,7 @@ PALINDROME_FUNCTION = CodeGenTestCaseCore(
 
 is_palindrome_result = is_palindrome('racecar')
 """,
-    tags=["function_declaration"],
+    tags=["function"],
 )
 
 FIBONACCI_FUNCTION = CodeGenTestCaseCore(
@@ -40,7 +40,7 @@ FIBONACCI_FUNCTION = CodeGenTestCaseCore(
 x = fibonacci(10)
 y = sum(x)
 """,
-    tags=["function_declaration"],
+    tags=["function"],
 )
 
 FUNCTION_TESTS = [

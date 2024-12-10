@@ -14,7 +14,7 @@ class CodeGenTestCaseCore:
     expected_code: str
     tags: List[Literal[
         'variable_declaration', 
-        'function_declaration',
+        'function',
         'df_transformation',
         'df_creation',
         'pandas',
@@ -41,7 +41,24 @@ class SmartDebugTestCase:
     notebook_state: NotebookState
     invalid_code: str
     correct_code: str
-    tags: List[Literal['simple']] 
+    tags: List[Literal[
+        'simple', 
+        'function', 
+        'pandas', 
+        'import', 
+        'typo', 
+        'type_conversion', 
+        'logic_correction', 
+        'matplotlib',
+        'SyntaxError',
+        'NameError',
+        'TypeError',
+        'IndentationError',
+        'AttributeError',
+        'ValueError',
+        'OutOfBoundsDatetime',
+        'KeyError'
+    ]] 
     variables_to_compare: Optional[List[str]] = None
 
 

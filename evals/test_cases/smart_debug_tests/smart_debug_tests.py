@@ -2,33 +2,16 @@ from evals.eval_types import CodeGenTestCase, CodeGenTestCaseCore, SmartDebugTes
 from evals.notebook_states import EMPTY_NOTEBOOK
 
 
-SMART_DEBUG_TESTS = [
+TESTS = [
     SmartDebugTestCase(
-        name="error_missing_quote",
+        name="error_missing_quote_simple",
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="x='aaron",
         correct_code="x='aaron'",
-        tags=['simple']
+        tags=['simple', 'SyntaxError']
     ),
     SmartDebugTestCase(
-        name="missing_colon_in_function_definition",
-        notebook_state=EMPTY_NOTEBOOK,
-        invalid_code=""""
-def my_sum(x, y)
-    return x + y
-
-sum_one = my_sum(1, 2)
-sum_two = my_sum(3, 4)""",
-        correct_code="""
-def my_sum(x, y):
-    return x + y
-
-sum_one = my_sum(1, 2)
-sum_two = my_sum(3, 4)""",
-        tags=['simple']
-    ),
-    SmartDebugTestCase(
-        name="single_equals_sign_in_if_statement",
+        name="single_equals_sign_in_if_statement_simple",
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="""
 x = 1
@@ -44,25 +27,55 @@ if x == 1:
 else:
     print("x is not 1")
 """,
-        tags=['simple']
+        tags=['simple', 'SyntaxError']
     ),
     SmartDebugTestCase(
-        name="output_comparison",
+        name="output_comparison_simple",
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="print('hello world)",
         correct_code="print('hello world')",
-        tags=['simple']
+        tags=['simple', 'SyntaxError']
     ),
     SmartDebugTestCase(
-        name="missing_datetime_import",
+        name="variable_name_typo_simple",
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="""
-today = datetime.today().strftime('%Y-%m-%d')
+aaron_age = 27
+aaron_age = Aaron_age + 1
 """,
         correct_code="""
-from datetime import datetime
-today = datetime.today().strftime('%Y-%m-%d')
+aaron_age = 27
+aaron_age = aaron_age + 1
 """,
-        tags=['simple']
+        tags=['simple', 'NameError']
+    ),
+    SmartDebugTestCase(
+        name='string_integer_operations_simple',
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="""
+y = '5'
+x = y + 27
+""",
+        correct_code="""
+y = 5
+x = y + 27
+""",
+        tags=['simple', 'TypeError'],
+        variables_to_compare=['x']
+    ),
+    SmartDebugTestCase(
+        name="typo_adding_code_cell_below",
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="""
+bb
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+""",
+        correct_code="""
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+""",
+        tags=['simple', 'typo', 'NameError']
     )
+
 ]

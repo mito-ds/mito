@@ -27,14 +27,14 @@ python -m evals.main --test-type=chat
 ```
 3. To run the `smart-debugger` tests, run the command: 
 ```
-python -m evals.main --test-type=smart_debug
+python -m evals.main --test_type=smart_debug
 ```
 
 ## Running specific tests
 To specify which tests to run, set some of the following flags: 
 
-- `--test-name`
-- `--prompt-name`
+- `--test_name`
+- `--prompt_name`
 - `--tags`
 
 
