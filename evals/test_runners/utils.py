@@ -19,6 +19,7 @@ def exec_code_and_get_globals_and_output(code: str) -> Tuple[Dict[str, Any], str
         globals = {}
 
         # Execute the code
+        code = remove_process_pausing_code_lines(code)
         exec(code, globals)
 
         sys.stdout = old_stdout
@@ -30,3 +31,12 @@ def exec_code_and_get_globals_and_output(code: str) -> Tuple[Dict[str, Any], str
         raise e
     
     return globals, actual_output_str
+
+
+def remove_process_pausing_code_lines(code: str) -> str:
+    """
+    When plt.show() is called, it pauses execution of the tests until the user closes the plot.
+    """
+    if "plt.show()" in code:
+        return code.replace("plt.show()", "")
+    return code

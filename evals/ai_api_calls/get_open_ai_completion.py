@@ -6,7 +6,7 @@ def get_open_ai_completion(prompt: str):
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are an expert Python programmer."},
             {"role": "user", "content": prompt}

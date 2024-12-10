@@ -96,17 +96,22 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     equal_globals = assert_equal_globals(expected_globals, actual_globals, test.variables_to_compare)
     equal_outputs = assert_equal_outputs(expected_output, actual_output)
 
+    passed = equal_globals and equal_outputs
+
+    if not passed:
+        print(f"Test {test.name} failed")
+        print(f"Expected Code: {expected_code}")
+        print(f"Actual Code: {actual_code}\n")
+
     if not equal_globals:
         print("Globals are not equal")
         print(f"Expected globals: {get_globals_to_compare(expected_globals, test.variables_to_compare)}")
         print(f"Actual globals: {get_globals_to_compare(actual_globals, test.variables_to_compare)}")
-        print(f"Variables to compare: {test.variables_to_compare}")
+        print(f"Variables to compare: {test.variables_to_compare}\n")
 
     if not equal_outputs:
         print("Outputs are not equal")
         print(f"Expected output: {expected_output}")
-        print(f"Actual output: {actual_output}")
-
-    passed = equal_globals and equal_outputs
+        print(f"Actual output: {actual_output}\n")
 
     return TestCaseResult(test=test, passed=passed)
