@@ -36,7 +36,6 @@ plt.bar(categories)
 plt.xlabel('Categories')
 plt.ylabel('Values')
 plt.title('Bar Chart')
-plt.show()
 """,
         correct_code="""
 import matplotlib.pyplot as plt
@@ -48,8 +47,34 @@ plt.bar(categories, values)
 plt.xlabel('Categories')
 plt.ylabel('Values')
 plt.title('Bar Chart')
-plt.show()
 """,
         tags=['simple', 'matplotlib']
+    ),
+    SmartDebugTestCase(
+        name="incorrectly_applied_log_scale",
+        notebook_state=EMPTY_NOTEBOOK,
+        invalid_code="""
+import matplotlib.pyplot as plt
+
+x = [1, 10, 100, 1000, 10000]
+y = [10, 100, 1000, 10000, 100000]
+
+plt.plot(x, y)
+plt.yscale('logarithmic')
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis (log scale)')
+""",
+        correct_code="""
+import matplotlib.pyplot as plt
+
+x = [1, 10, 100, 1000, 10000]
+y = [10, 100, 1000, 10000, 100000]
+
+plt.plot(x, y)
+plt.yscale('log')
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis (log scale)')
+""",
+        tags=['matplotlib']
     )
 ]
