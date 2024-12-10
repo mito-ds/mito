@@ -13,7 +13,7 @@ today = datetime.today().strftime('%Y-%m-%d')
 from datetime import datetime
 today = datetime.today().strftime('%Y-%m-%d')
 """,
-        tags=['simple', 'import']
+        tags=['simple', 'import', 'NameError']
     ),
     SmartDebugTestCase(
         name="missing_pandas_import_simple",
@@ -25,7 +25,7 @@ df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 import pandas as pd
 df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 """,
-        tags=['simple', 'import']
+        tags=['simple', 'import', 'NameError']
     ),
     SmartDebugTestCase(
         name="import_as_typo",
@@ -38,7 +38,7 @@ df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 import pandas as pd
 df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 """,
-        tags=['import']
+        tags=['import', 'typo', 'NameError']
     ),
     SmartDebugTestCase(
         name="missing_multiple_imports_1",
@@ -90,7 +90,7 @@ def _generate_sample_data(days: int = 90) -> pd.DataFrame:
         
         return pd.DataFrame(data)
 """,
-        tags=['import']
+        tags=['import', 'NameError']
     ),
     SmartDebugTestCase(
         name="missing_multiple_imports_2",
@@ -142,6 +142,6 @@ def generate_fake_dataset(rows: int = 100) -> pd.DataFrame:
         
         return df
 """,
-        tags=['import']
+        tags=['import', 'NameError']
     )
 ]

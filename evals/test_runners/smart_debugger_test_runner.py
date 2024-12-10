@@ -68,7 +68,8 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     try:
         exec(invalid_code_cells_script, {})
     except Exception as e:
-        error_message = str(e)
+        error_type = e.__class__.__name__
+        error_message = f"{error_type}: {str(e)}"
 
     print(f"Error message: {error_message}")
     if error_message is None:
@@ -89,25 +90,22 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
         actual_globals, actual_output = exec_code_and_get_globals_and_output(actual_code)
     except Exception as e:
         # Fail early if we can't execute the code
-        print(f"Failed to execute code with error: {e}")
+        # print(f"Failed to execute code with error: {e}")
         return TestCaseResult(test=test, passed=False)
-    
-    print(f"expected_code: {expected_code}")
-    print(f"actual_code: {actual_code}")
 
     equal_globals = assert_equal_globals(expected_globals, actual_globals, test.variables_to_compare)
     equal_outputs = assert_equal_outputs(expected_output, actual_output)
 
-    if not equal_globals:
-        print("Globals are not equal")
-        print(f"Expected globals: {get_globals_to_compare(expected_globals, test.variables_to_compare)}")
-        print(f"Actual globals: {get_globals_to_compare(actual_globals, test.variables_to_compare)}")
-        print(f"Variables to compare: {test.variables_to_compare}")
+    # if not equal_globals:
+    #     print("Globals are not equal")
+    #     print(f"Expected globals: {get_globals_to_compare(expected_globals, test.variables_to_compare)}")
+    #     print(f"Actual globals: {get_globals_to_compare(actual_globals, test.variables_to_compare)}")
+    #     print(f"Variables to compare: {test.variables_to_compare}")
 
-    if not equal_outputs:
-        print("Outputs are not equal")
-        print(f"Expected output: {expected_output}")
-        print(f"Actual output: {actual_output}")
+    # if not equal_outputs:
+    #     print("Outputs are not equal")
+    #     print(f"Expected output: {expected_output}")
+    #     print(f"Actual output: {actual_output}")
 
     passed = equal_globals and equal_outputs
 

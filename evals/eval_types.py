@@ -47,11 +47,17 @@ class SmartDebugTestCase:
         'pandas', 
         'import', 
         'typo', 
-        'type_error', 
-        'value_error',
-        'argument_error',
+        'type_conversion', 
         'logic_correction', 
-        'matplotlib'
+        'matplotlib',
+        'SyntaxError',
+        'NameError',
+        'TypeError',
+        'IndentationError',
+        'AttributeError',
+        'ValueError',
+        'OutOfBoundsDatetime',
+        'KeyError'
     ]] 
     variables_to_compare: Optional[List[str]] = None
 
