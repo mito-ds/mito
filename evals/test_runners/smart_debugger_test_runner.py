@@ -68,7 +68,8 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     try:
         exec(invalid_code_cells_script, {})
     except Exception as e:
-        error_message = str(e)
+        error_type = e.__class__.__name__
+        error_message = f"{error_type}: {str(e)}"
 
     print(f"Error message: {error_message}")
     if error_message is None:
@@ -91,9 +92,6 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
         # Fail early if we can't execute the code
         print(f"Failed to execute code with error: {e}")
         return TestCaseResult(test=test, passed=False)
-    
-    print(f"expected_code: {expected_code}")
-    print(f"actual_code: {actual_code}")
 
     equal_globals = assert_equal_globals(expected_globals, actual_globals, test.variables_to_compare)
     equal_outputs = assert_equal_outputs(expected_output, actual_output)

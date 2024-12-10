@@ -18,7 +18,7 @@ df = pd.DataFrame({'A': ['1/2/24', '2/2/24', '3/2/24'], 'B': [4, 5, 6]})
 df['A'] = pd.to_datetime(df['A'])
 df['Year'] = df['A'].dt.year
 """,
-        tags=['simple', 'pandas', 'type_error']
+        tags=['simple', 'pandas', 'type_conversion', 'AttributeError']
     ),
     SmartDebugTestCase(
         name='must_handle_missing_values_in_type_conversion',
@@ -37,7 +37,7 @@ df = pd.DataFrame({'A': ['1/2/24', '2/2/24', '3/2/24'], 'B': ['4', None, '6']})
 # Convert to an integer, ignoring missing values
 df['B'] = df['B'].fillna(0).astype(int)
 """,
-        tags=['simple', 'pandas', 'type_error']
+        tags=['simple', 'pandas', 'type_conversion', 'TypeError']
     ),
     SmartDebugTestCase(
         name='convert_currency_to_float',
@@ -47,7 +47,7 @@ df['Transaction_Price'] = df['Transaction_Price'].astype(float)
 """,
         correct_code="""df['Transaction_Price'] = df['Transaction_Price'].str[1:]
 df['Transaction_Price'] = df['Transaction_Price'].astype(float)""",
-        tags=['simple', 'pandas', 'type_error']
+        tags=['simple', 'pandas', 'type_conversion', 'ValueError']
     ),
     SmartDebugTestCase(
         name='convert_kilometers_drive_to_float',
@@ -60,7 +60,7 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
 used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=True)
 used_cars_df['kmDriven'] = used_cars_df['kmDriven'].astype(float)
 """,
-        tags=['simple', 'pandas', 'type_error']
+        tags=['simple', 'pandas', 'type_conversion', 'ValueError']
     ),
     SmartDebugTestCase(
         name='missing_quotes_in_column_name',
@@ -71,7 +71,7 @@ loans_df = loans_df[loans_df[annual_income] > 100000],
         correct_code="""
 loans_df = loans_df[loans_df['annual_income'] > 100000]
 """,
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'NameError']
     ),
     SmartDebugTestCase(
         name='wrong_combine_filter_condition_syntax',
@@ -82,7 +82,7 @@ loans_df = loans_df[(loans_df['annual_income'] > 100000) and (loans_df['loan_con
         correct_code="""
 loans_df = loans_df[(loans_df['annual_income'] > 100000) & (loans_df['loan_condition'] == 'Bad Loan')]
 """,
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'SyntaxError']
     ),
     SmartDebugTestCase(
         name='date_format_missing_required_format',
@@ -93,7 +93,7 @@ used_cars_df['PostedDate'] = pd.to_datetime(used_cars_df['PostedDate'])
         correct_code="""
 used_cars_df['PostedDate'] = pd.to_datetime(used_cars_df['PostedDate'], format='%b-%y')
 """,
-        tags=['simple', 'pandas', 'type_error']
+        tags=['simple', 'pandas', 'type_conversion', 'OutOfBoundsDatetime']
     ),
     SmartDebugTestCase(
         name='invalid_date_format',
@@ -104,7 +104,7 @@ used_cars_df['PostedDate'] = pd.to_datetime(used_cars_df['PostedDate'], format='
         correct_code="""
 used_cars_df['PostedDate'] = pd.to_datetime(used_cars_df['PostedDate'], format='%b-%y')
 """,
-        tags=['simple', 'pandas', 'type_error']
+        tags=['simple', 'pandas', 'type_conversion', 'ValueError']
     ),
     SmartDebugTestCase(
         name='column_rename_missing_inplace',
@@ -117,7 +117,7 @@ loans_df['Year'] = loans_df['Date'].dt.year
 loans_df.rename(columns={'issue_date': 'Date'}, inplace=True)
 loans_df['Year'] = loans_df['Date'].dt.year
 """,
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'KeyError']
     ),
     SmartDebugTestCase(
         name='replace_with_invalid_regex',
@@ -147,7 +147,7 @@ pivot_table = tmp_df.pivot_table(
     aggfunc={'loan_amount': ['mean']}
 )
 loans_df_pivot = pivot_table.reset_index()""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'AttributeError']
     ),
     SmartDebugTestCase(
         name='pivot_table_missing_column',
@@ -166,7 +166,7 @@ pivot_table = tmp_df.pivot_table(
     aggfunc={'mean'}
 )
 loans_df_pivot = pivot_table.reset_index()""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'KeyError']
     ),
     SmartDebugTestCase(
         name='pivot_table_missing_multiple_columns',
@@ -191,7 +191,7 @@ pivot_table = tmp_df.pivot_table(
 )
 loans_df_pivot = pivot_table.reset_index()
 """,
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'KeyError']
     ),
     SmartDebugTestCase(
         name='pivot_table_invalid_aggfunc_syntax',
@@ -212,7 +212,7 @@ pivot_table = tmp_df.pivot_table(
     aggfunc=['mean']
 )
 loans_df_pivot = pivot_table.reset_index()""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'TypeError']
     ),
     SmartDebugTestCase(
         name='pivot_table_incorrect_argument_rows',
@@ -233,7 +233,7 @@ pivot_table = tmp_df.pivot_table(
     aggfunc=['mean']
 )
 loans_df_pivot = pivot_table.reset_index()""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'TypeError']
     ),
     SmartDebugTestCase(
         name='pivot_table_incorrect_argument_columns',
@@ -256,7 +256,7 @@ pivot_table = tmp_df.pivot_table(
     aggfunc=['mean']
 )
 loans_df_pivot = pivot_table.reset_index()""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'TypeError']
     ),
     SmartDebugTestCase(
         name='first_owner_function_wrong_arguments',
@@ -275,7 +275,7 @@ num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
 num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'TypeError']
     ),
     SmartDebugTestCase(
         name='first_owner_function_wrong_column_name',
@@ -294,13 +294,13 @@ num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
 num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'KeyError']
     ),
     SmartDebugTestCase(
         name='first_owner_function_invalid_indentation',
         notebook_state=USED_CARS_DF_NOTEBOOK,
         invalid_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
-    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['owner'].str.contains('first', na=False, regex=False))]
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
 return len(df)
 
 num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
@@ -313,14 +313,14 @@ num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
 num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'SyntaxError']
     ),
     SmartDebugTestCase( 
         # Should not use len around function return value
         name='first_owner_function_incorrect_handling_return_value', 
         notebook_state=USED_CARS_DF_NOTEBOOK,
         invalid_code="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
-    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['owner'].str.contains('first', na=False, regex=False))]
+    df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
     return len(df)
 
 num_bmw = len(get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW'))
@@ -333,7 +333,7 @@ num_ford = len(get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')
 num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'TypeError'] # TODO: Make sure this is a TypeError
     ),
     SmartDebugTestCase(
         # Missing 's' at end of last function call
@@ -353,7 +353,7 @@ num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
 num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
-        tags=['simple', 'pandas']
+        tags=['simple', 'pandas', 'NameError']
     ),
     SmartDebugTestCase(
         # ValueError: window must be an integer 0 or greater
@@ -371,7 +371,7 @@ stock_df = stock_df.sort_values('date')
 rolling_vol = stock_df.groupby('ticker')['volume'].rolling(5, min_periods=1).mean()
 stock_df['rolling_vol'] = rolling_vol.reset_index(level=0, drop=True)
 """,
-        tags=['pandas']
+        tags=['pandas', 'ValueError']
     ),
     SmartDebugTestCase(
         name='stock_market_convert_T_and_B_to_float',
@@ -384,7 +384,7 @@ stock_df['market_cap_numeric_billions'] = stock_df['market_cap_numeric_billions'
 stock_df['market_cap_numeric_billions'] = stock_df['market_cap'].str.replace('$', '').str.replace('T', '000').str.replace('B', '')
 stock_df['market_cap_numeric_billions'] = stock_df['market_cap_numeric_billions'].astype(float)
 """,
-        tags=['pandas']
+        tags=['pandas', 'type_conversion', 'ValueError']
     ),
     SmartDebugTestCase(
         # TypeError: agg function failed [how->mean,dtype->object]
@@ -397,7 +397,7 @@ sector_dividend = stock_df.groupby('sector')['dividend_yield'].mean()
 stock_df['dividend_numeric'] = stock_df['dividend_yield'].replace('0%', '0').str.rstrip('%').astype(float) / 100
 sector_dividend = stock_df.groupby('sector')['dividend_numeric'].mean()
 """,
-        tags=['pandas']
+        tags=['pandas', 'TypeError']
     ),
     SmartDebugTestCase(
         # TypeError: incompatible index of inserted column with frame index
@@ -415,7 +415,7 @@ stock_df = stock_df.sort_values(['ticker', 'date'])
 stock_df['log_returns'] = np.log(stock_df.groupby('ticker')['price'].pct_change() + 1)
 stock_df['volatility'] = (stock_df.groupby('ticker')['log_returns'].rolling(window=20).std() * np.sqrt(252)).reset_index(level=0, drop=True)
 """,
-        tags=['pandas']
+        tags=['pandas', 'TypeError']
     ),
     SmartDebugTestCase(
         # ValueError: setting an array element with a sequence. 
@@ -436,7 +436,7 @@ stock_df['price_volume'] = stock_df['price'] * stock_df['volume']
 stock_df['vwap'] = (stock_df.groupby('ticker')['price_volume'].cumsum() / stock_df.groupby('ticker')['volume'].cumsum())
 stock_df.drop('price_volume', axis=1, inplace=True)
 """,
-        tags=['pandas']
+        tags=['pandas', 'ValueError']
     ),
     SmartDebugTestCase(
         name='rsi_calc_with_incompatible_index',
@@ -471,6 +471,6 @@ def calculate_rsi(data, periods=14):
 stock_df = stock_df.sort_values(['ticker', 'date'])
 stock_df['rsi'] = stock_df.groupby('ticker')['price'].transform(calculate_rsi)
 """,
-        tags=['logic_correction', 'pandas']
+        tags=['pandas', 'logic_correction','TypeError']
     )
 ]

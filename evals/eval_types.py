@@ -41,7 +41,24 @@ class SmartDebugTestCase:
     notebook_state: NotebookState
     invalid_code: str
     correct_code: str
-    tags: List[Literal['simple', 'function', 'pandas', 'import', 'typo', 'type_error', 'logic_correction']] 
+    tags: List[Literal[
+        'simple', 
+        'function', 
+        'pandas', 
+        'import', 
+        'typo', 
+        'type_conversion', 
+        'logic_correction', 
+        'matplotlib',
+        'SyntaxError',
+        'NameError',
+        'TypeError',
+        'IndentationError',
+        'AttributeError',
+        'ValueError',
+        'OutOfBoundsDatetime',
+        'KeyError'
+    ]] 
     variables_to_compare: Optional[List[str]] = None
 
 
