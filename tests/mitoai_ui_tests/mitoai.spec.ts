@@ -11,18 +11,22 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('Mito AI Chat', () => {
 
-  test('Apply and Accept AI Generated Code', async ({ page }) => {
+  test.only('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
-    // No code diffs should be visible before the user clicks apply
+    // No code diffs should be visible before the user clicks preview
     await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
     await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
 
     await page.getByRole('button', { name: 'Preview' }).click();
     await waitForIdle(page);
+
+    // Code diffs should be visible after the user clicks preview
+    await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
+    await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
 
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
@@ -84,19 +88,6 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant .message-edit-button')).not.toBeVisible();
     await page.locator('.message-assistant p').last().dblclick();
     await expect(page.locator('.message-assistant').getByRole('button', { name: 'Save' })).not.toBeVisible();
-  });
-
-  test('Code Diffs are applied after clicking apply', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
-    await waitForIdle(page);
-
-    await sendMessageToMitoAI(page, 'Remove the code print(1) and add the code print(2)', 0);
-
-    await page.getByRole('button', { name: 'Preview' }).click();
-    await waitForIdle(page);
-
-    await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
-    await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
   });
 
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
@@ -209,7 +200,7 @@ test.describe('Mito AI Chat', () => {
 
     await waitForMitoAILoadingToDisappear(page);
 
-    // No code diffs should be visible before the user clicks apply
+    // No code diffs should be visible before the user clicks preview
     await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
     await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
 
