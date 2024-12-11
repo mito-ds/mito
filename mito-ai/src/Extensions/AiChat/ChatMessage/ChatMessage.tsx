@@ -26,7 +26,7 @@ interface IChatMessageProps {
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
-    applyAICode: () => void
+    previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
@@ -45,7 +45,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
-    applyAICode,
+    previewAICode,
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
@@ -114,7 +114,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 isLastAiMessage={isLastAiMessage}
                                 operatingSystem={operatingSystem}
                                 setDisplayCodeDiff={setDisplayCodeDiff}
-                                applyAICode={applyAICode}
+                                previewAICode={previewAICode}
                                 acceptAICode={acceptAICode}
                                 rejectAICode={rejectAICode}
                                 codeReviewStatus={codeReviewStatus}

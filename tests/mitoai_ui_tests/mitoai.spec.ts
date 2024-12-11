@@ -1,7 +1,7 @@
 import { expect, test } from '@jupyterlab/galata';
 import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle, addNewCell } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
-import { clearMitoAIChatInput, clickOnMitoAIChatTab, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+import { clearMitoAIChatInput, clickOnMitoAIChatTab, clickPreviewButton, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
 
 const placeholderCellText = '# Empty code cell';
 const acceptButtonSelector = '[class="code-block-accept-button"]';
@@ -11,18 +11,20 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('Mito AI Chat', () => {
 
-  test('Apply and Accept AI Generated Code', async ({ page }) => {
+  test.only('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
-    // No code diffs should be visible before the user clicks apply
+    // No code diffs should be visible before the user clicks preview
     await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
     await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
 
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
+    // Code diffs should be visible after the user clicks preview
+    await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
+    await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
 
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
@@ -37,8 +39,7 @@ test.describe('Mito AI Chat', () => {
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
 
     await page.locator(denyButtonSelector).click();
     await waitForIdle(page);
@@ -54,22 +55,20 @@ test.describe('Mito AI Chat', () => {
 
     // Send the first message
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+
+    await clickPreviewButton(page);
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     // Send the second message
     await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
     // Edit the first message
     await editMitoAIMessage(page, 'Write the code df["C_edited"] = [7, 8, 9]', 0);
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
@@ -86,19 +85,6 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant').getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
 
-  test('Code Diffs are applied after clicking apply', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
-    await waitForIdle(page);
-
-    await sendMessageToMitoAI(page, 'Remove the code print(1) and add the code print(2)', 0);
-
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
-
-    await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
-    await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
-  });
-
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print("cell 0")']);
     await waitForIdle(page);
@@ -111,8 +97,7 @@ test.describe('Mito AI Chat', () => {
 
     // Send a second message in cell 2
     await sendMessageToMitoAI(page, 'Write the code x = 2');
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
@@ -139,8 +124,7 @@ test.describe('Mito AI Chat', () => {
     await typeInNotebookCell(page, 2, '# this should not be overwritten', true);
 
     // Accept the first message
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);
 
@@ -166,8 +150,7 @@ test.describe('Mito AI Chat', () => {
     await typeInNotebookCell(page, 2, '# this should not be overwritten', true);
 
     // Reject the first message
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
     await page.locator(denyButtonSelector).click();
     await waitForIdle(page);
 
@@ -209,12 +192,11 @@ test.describe('Mito AI Chat', () => {
 
     await waitForMitoAILoadingToDisappear(page);
 
-    // No code diffs should be visible before the user clicks apply
+    // No code diffs should be visible before the user clicks preview
     await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
     await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
 
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await waitForIdle(page);
+    await clickPreviewButton(page);
 
     await page.locator(acceptButtonSelector).click();
     await waitForIdle(page);

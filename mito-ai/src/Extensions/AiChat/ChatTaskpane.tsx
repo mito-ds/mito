@@ -216,7 +216,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const applyAICode = () => {
+    const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
     }
@@ -412,7 +412,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
                             setDisplayCodeDiff={setUnifiedDiffLines}
-                            applyAICode={applyAICode}
+                            previewAICode={previewAICode}
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}

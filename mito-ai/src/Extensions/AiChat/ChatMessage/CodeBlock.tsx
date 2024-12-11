@@ -21,7 +21,7 @@ interface ICodeBlockProps {
     isLastAiMessage: boolean,
     operatingSystem: OperatingSystem,
     setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
-    applyAICode: () => void,
+    previewAICode: () => void,
     acceptAICode: (codeCellID: string) => void,
     rejectAICode: (codeCellID: string) => void,
     codeReviewStatus: CodeReviewStatus
@@ -37,7 +37,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     isLastAiMessage,
     operatingSystem,
     setDisplayCodeDiff,
-    applyAICode,
+    previewAICode,
     acceptAICode,
     rejectAICode,
     codeReviewStatus
@@ -70,7 +70,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
                             {codeReviewStatus === 'chatPreview' && (
-                                <button onClick={() => { applyAICode() }}>Apply</button>
+                                <button onClick={() => { previewAICode() }}>Preview Code in Notebook</button>
                             )}
 
                             {codeReviewStatus === 'codeCellPreview' && (
