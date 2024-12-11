@@ -70,7 +70,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
                             {codeReviewStatus === 'chatPreview' && (
-                                <button onClick={() => { previewAICode() }}>Preview</button>
+                                <button onClick={() => { previewAICode() }}>Preview Code in Notebook</button>
                             )}
 
                             {codeReviewStatus === 'codeCellPreview' && (

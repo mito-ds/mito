@@ -1,5 +1,5 @@
 import { IJupyterLabPageFixture } from "@jupyterlab/galata";
-import { selectCell } from "../jupyter_utils/jupyterlab_utils";
+import { selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixture) => {
     const mitoAILoadingLocator = page.locator('.chat-loading-message');
@@ -48,4 +48,9 @@ export const editMitoAIMessage = async (
     await page.getByPlaceholder('Edit your message').fill(message);
     await page.keyboard.press('Enter');
     await waitForMitoAILoadingToDisappear(page);
+}
+
+export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
+    await page.getByRole('button', { name: 'Preview Code in Notebook' }).click();
+    await waitForIdle(page);
 }
