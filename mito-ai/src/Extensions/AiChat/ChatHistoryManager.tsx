@@ -2,7 +2,10 @@ import OpenAI from "openai";
 import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
-import { createBasicPrompt, createErrorPrompt, createExplainCodePrompt } from "./PromptManager";
+import { createBasicPrompt } from "../../prompts/BasicPrompt";
+import { createErrorPrompt, removeInnerThoughtsFromMessage } from "../../prompts/SmartDebugPrompt";
+import { createExplainCodePrompt } from "../../prompts/ExplainCodePrompt";
+
 
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -106,14 +109,12 @@ export class ChatHistoryManager {
     }
 
     updateMessageAtIndex(index: number, newContent: string): void {
-        const variables = this.variableManager.variables
-
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
         const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
-            content: createBasicPrompt(variables, activeCellCode || '', newContent)
+            content: createBasicPrompt(this.variableManager.variables, activeCellCode || '', newContent)
         };
 
         // Update the message at the specified index
@@ -138,7 +139,7 @@ export class ChatHistoryManager {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const aiOptimizedPrompt = createErrorPrompt(activeCellCode, errorMessage)
+        const aiOptimizedPrompt = createErrorPrompt(errorMessage, activeCellCode, this.variableManager.variables)
 
         this.history.displayOptimizedChatHistory.push(
             {
@@ -177,24 +178,18 @@ export class ChatHistoryManager {
         );
     }
 
-
-
-    addAIMessageFromResponse(message: OpenAI.Chat.Completions.ChatCompletionMessage, mitoAIConnectionError: boolean=false): void {
-        if (message.content === null) {
+    addAIMessageFromResponse(messageContent: string | null, messageType: 'default' | 'smartDebug', mitoAIConnectionError: boolean=false): void {
+        if (messageContent === null) {
             return
         }
 
-        const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'assistant',
-            content: message.content
+        if (messageType === 'smartDebug') {
+            messageContent = removeInnerThoughtsFromMessage(messageContent)
         }
-        this._addAIMessage(aiMessage, mitoAIConnectionError)
-    }
 
-    addAIMessageFromMessageContent(message: string, mitoAIConnectionError: boolean=false): void {
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
-            content: message
+            content: messageContent
         }
         this._addAIMessage(aiMessage, mitoAIConnectionError)
     }

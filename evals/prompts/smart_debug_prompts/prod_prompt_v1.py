@@ -1,10 +1,10 @@
 
 from evals.eval_types import DebugPromptGenerator, NotebookState
 
-__all__ = ["multi_shot_prompt_generator"]
+__all__ = ["prod_prompt_v1_generator"]
 
-class _MultiShotPromptGenerator(DebugPromptGenerator):
-    prompt_name = "debug_multi_shot_prompt"
+class _ProdPromptV1Generator(DebugPromptGenerator):
+    prompt_name = "prod_prompt_v1"
 
     def get_prompt(self, error_message: str, notebook_state: NotebookState) -> str:
         return f"""You just ran the active code cell and received an error. Return the full code cell with the error corrected and a short explanation of the error.
@@ -68,4 +68,4 @@ Error Message:
 
 Output:"""
 
-multi_shot_prompt_generator = _MultiShotPromptGenerator()
+prod_prompt_v1_generator = _ProdPromptV1Generator()
