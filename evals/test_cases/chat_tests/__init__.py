@@ -8,7 +8,7 @@ from evals.test_cases.chat_tests.dataframe_transformation_tests import DATAFRAME
 from evals.test_cases.chat_tests.function_tests import FUNCTION_TESTS
 from evals.test_cases.chat_tests.multistep_tests import MULTISTEP_TESTS
 
-CHAT_TEST: List[ChatTestCase] = [
+CHAT_TESTS: List[ChatTestCase] = [
     *VARIABLE_TESTS,
     *DATAFRAME_CREATION_TESTS,
     *DATAFRAME_TRANSFORMATION_TESTS,

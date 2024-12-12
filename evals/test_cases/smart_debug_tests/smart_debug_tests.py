@@ -8,7 +8,8 @@ TESTS = [
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="x='aaron",
         correct_code="x='aaron'",
-        tags=['simple', 'SyntaxError']
+        workflow_tags=['simple'],
+        type_tags=['SyntaxError']
     ),
     SmartDebugTestCase(
         name="single_equals_sign_in_if_statement_simple",
@@ -27,14 +28,16 @@ if x == 1:
 else:
     print("x is not 1")
 """,
-        tags=['simple', 'SyntaxError']
+        workflow_tags=['simple'],
+        type_tags=['SyntaxError']
     ),
     SmartDebugTestCase(
         name="output_comparison_simple",
         notebook_state=EMPTY_NOTEBOOK,
         invalid_code="print('hello world)",
         correct_code="print('hello world')",
-        tags=['simple', 'SyntaxError']
+        workflow_tags=['simple'],
+        type_tags=['SyntaxError']
     ),
     SmartDebugTestCase(
         name="variable_name_typo_simple",
@@ -47,7 +50,8 @@ aaron_age = Aaron_age + 1
 aaron_age = 27
 aaron_age = aaron_age + 1
 """,
-        tags=['simple', 'NameError']
+        workflow_tags=['simple'],
+        type_tags=['NameError']
     ),
     SmartDebugTestCase(
         name='string_integer_operations_simple',
@@ -60,7 +64,8 @@ x = y + 27
 y = 5
 x = y + 27
 """,
-        tags=['simple', 'TypeError'],
+        workflow_tags=['simple'],
+        type_tags=['TypeError'],
         variables_to_compare=['x']
     ),
     SmartDebugTestCase(
@@ -75,7 +80,8 @@ df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 import pandas as pd
 df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 """,
-        tags=['simple', 'typo', 'NameError']
+        workflow_tags=['simple', 'typo'],
+        type_tags=['NameError']
     )
 
 ]

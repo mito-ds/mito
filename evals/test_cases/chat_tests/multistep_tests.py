@@ -9,7 +9,7 @@ df['Stock '] = df['Stock '].str[:-6]
 df.drop(['Type_of_Investment'], axis=1, inplace=True)
 df.rename(columns={'Description of each transaction': 'Description'}, inplace=True)
 """,
-    tags=["df_transformation", "pandas", "multistep"],
+    workflow_tags=["df_transformation", "pandas", "multistep"],
 )
 
 EAGLE_EXCEL_RECON_MULTISTEP = CodeGenTestCaseCore(
@@ -33,7 +33,7 @@ df_merge = df_merge.apply(lambda row: check_row(row), axis = 1)
 missing_data_df = df_merge[df_merge['Check'] == "Action Required. Missing Data."]
 matching_df = df_merge[df_merge['Check'] == "Matching. No action required."]
 not_matching_df = df_merge[df_merge['Check'] == "Action Required. Quantity does not match."]""",
-    tags=["df_transformation", "pandas", "multistep"],
+    workflow_tags=["df_transformation", "pandas", "multistep"],
     variables_to_compare=["missing_data_df", "matching_df", "not_matching_df"],
 )
 
@@ -54,7 +54,7 @@ def calculate_total_equity(balances_df, fees_df):
 
 july_equity = calculate_total_equity(july_balances, july_fees)
 august_equity = calculate_total_equity(august_balances, august_fees)""",
-    tags=["df_transformation", "pandas", "multistep"],
+    workflow_tags=["df_transformation", "pandas", "multistep"],
     variables_to_compare=["july_equity", "august_equity"],
 )
 
@@ -84,7 +84,7 @@ august_equity = calculate_total_equity(august_balances, august_fees)
 top_five_funds_july = get_top_five_funds(july_equity)
 top_five_funds_august = get_top_five_funds(august_equity)
 """,
-    tags=["df_transformation", "pandas", "multistep"],
+    workflow_tags=["df_transformation", "pandas", "multistep"],
     variables_to_compare=["top_five_funds_july", "top_five_funds_august"],
 )
 
@@ -99,7 +99,7 @@ highest_monthly_ending_capital = highest_monthly_ending_capital.drop_duplicates(
 highest_monthly_ending_capital = highest_monthly_ending_capital.sort_values(by='entity_id', ascending=True, na_position='first')
 highest_monthly_ending_capital = highest_monthly_ending_capital.reset_index(drop=True)
 """,
-    tags=["df_transformation", "pandas", "multistep"],
+    workflow_tags=["df_transformation", "pandas", "multistep"],
     variables_to_compare=["highest_monthly_ending_capital"],
 )
 
@@ -111,7 +111,7 @@ used_cars_df["AgeQuartile"] = pd.qcut(used_cars_df["Age"], q=4, labels=["Q1", "Q
 used_cars_df["kmDrivenQuartile"] = pd.qcut(used_cars_df["kmDriven"], q=4, labels=["Q1", "Q2", "Q3", "Q4"])
 used_cars_df["beater"] = (used_cars_df["kmDrivenQuartile"] == "Q4") & (used_cars_df["AgeQuartile"] == "Q4")
 """,
-    tags=["df_transformation", "pandas", "multistep"],
+    workflow_tags=["df_transformation", "pandas", "multistep"],
     variables_to_compare=["used_cars_df"],
 )
 
@@ -137,7 +137,7 @@ most_popular_car_model['cost_per_km'] = most_popular_car_model['avg_price'] / mo
 
 cars = most_popular_car_model.set_index('model')['cost_per_km'].to_dict()
 """,
-    tags=["df_transformation", "pandas", "multistep"],
+    workflow_tags=["df_transformation", "pandas", "multistep"],
     variables_to_compare=["cars"],
 )
 

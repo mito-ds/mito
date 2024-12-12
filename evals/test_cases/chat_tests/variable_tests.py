@@ -7,7 +7,7 @@ VARIABLE_TESTS = [
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK,
             expected_code="x=1",
-            tags=["variable_declaration"],
+            workflow_tags=["variable_declaration"],
         ),
         user_input="create a variable x and set it equal to 1",
     ),
@@ -16,7 +16,7 @@ VARIABLE_TESTS = [
         test_case_core=CodeGenTestCaseCore(
             notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
             expected_code="w = x * y * z",
-            tags=["variable_declaration"],
+            workflow_tags=["variable_declaration"],
         ),
         user_input="create a new variable w that is the product of x, y, and z",
     ),
@@ -25,7 +25,7 @@ VARIABLE_TESTS = [
         test_case_core=CodeGenTestCaseCore(
             notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
             expected_code="largest_number = max([x, y, z])",
-            tags=["variable_declaration"],
+            workflow_tags=["variable_declaration"],
         ),
         user_input="find the largest number of initialized variables and save it in largest_number",
     ),

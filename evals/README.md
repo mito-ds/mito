@@ -23,7 +23,11 @@ pip install -r requirements.txt
 1. Navigate to the `mito` folder. 
 2. To run the `chat` tests, run the command: 
 ```
-python -m evals.main --test-type=chat
+python -m evals.main --test_type=chat
+```
+2. To run the `inline_code_completion` tests, run the command: 
+```
+python -m evals.main --test_type=inline_code_completion
 ```
 3. To run the `smart-debugger` tests, run the command: 
 ```

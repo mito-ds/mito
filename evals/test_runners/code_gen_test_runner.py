@@ -3,14 +3,14 @@ from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.eval_types import ChatPromptGenerator, ChatTestCase, InlineCodeCompletionPromptGenerator, InlineCodeCompletionTestCase, TestCaseResult
 from evals.prompts.chat_prompts import CHAT_PROMPT_GENERATORS
 from evals.prompts.inline_code_completion_prompts import INLINE_CODE_COMPLETION_PROMPT_GENERATORS
-from evals.test_cases.chat_tests import CHAT_TEST
+from evals.test_cases.chat_tests import CHAT_TESTS
 from evals.test_cases.inline_code_completion_tests import INLINE_CODE_COMPLETION_TESTS
 from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
 from evals.asserts.equal_globals import assert_equal_globals
 
 def run_chat_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
-    _run_code_gen_tests('chat', CHAT_TEST, CHAT_PROMPT_GENERATORS, test_name, prompt_name, tags)
+    _run_code_gen_tests('chat', CHAT_TESTS, CHAT_PROMPT_GENERATORS, test_name, prompt_name, tags)
 
     
 def run_inline_code_completion_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
@@ -33,7 +33,7 @@ def _run_code_gen_tests(
             exit(1)
 
     if tags:
-        tests_to_run = [test for test in tests_to_run if any(tag in tags for tag in test.test_case_core.tags)]
+        tests_to_run = [test for test in tests_to_run if any(tag in tags for tag in test.test_case_core.workflow_tags)]
         if not tests_to_run:
             print(f"No tests found with tags: {tags}")
             exit(1)

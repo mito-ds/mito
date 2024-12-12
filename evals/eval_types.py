@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Union
 
 WORKFLOW_TAGS = Literal[
@@ -22,7 +22,7 @@ class NotebookState:
 class CodeGenTestCaseCore:
     notebook_state: NotebookState
     expected_code: str
-    tags: List[WORKFLOW_TAGS]
+    workflow_tags: List[WORKFLOW_TAGS]
     variables_to_compare: Optional[List[str]] = None
     
 
@@ -32,7 +32,8 @@ class ChatTestCase:
     name: str
     test_case_core: CodeGenTestCaseCore
     user_input: str
-    test_type: Literal['chat'] = 'chat'
+    test_type: Literal['chat'] = 'chat',
+    type_tags: List[Literal['']] = field(default_factory=list) # TODO: Add type tags later if we want
 
 
 @dataclass(frozen=True)
@@ -42,8 +43,8 @@ class InlineCodeCompletionTestCase:
     test_case_core: CodeGenTestCaseCore
     prefix: str 
     suffix: str
-    inline_code_completion_tags: List[Literal[
-	    'prefix_completion',
+    type_tags: List[Literal[
+	    'code_completion',
 	    'comment_following'
     ]]
     test_type: Literal['inline_code_completion'] = 'inline_code_completion'
@@ -59,7 +60,7 @@ class SmartDebugTestCase:
     notebook_state: NotebookState
     invalid_code: str
     correct_code: str
-    tags: List[Literal[
+    workflow_tags: List[Literal[
         'simple', 
         'function', 
         'pandas', 
@@ -68,6 +69,8 @@ class SmartDebugTestCase:
         'type_conversion', 
         'logic_correction', 
         'matplotlib',
+    ]]
+    type_tags: List[Literal[
         'SyntaxError',
         'NameError',
         'TypeError',
@@ -76,7 +79,7 @@ class SmartDebugTestCase:
         'ValueError',
         'OutOfBoundsDatetime',
         'KeyError'
-    ]] 
+    ]]
     variables_to_compare: Optional[List[str]] = None
 
 

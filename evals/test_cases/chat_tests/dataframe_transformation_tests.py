@@ -4,51 +4,51 @@ from evals.notebook_states import *
 FILTER_ANNUAL_INCOME_GREATER_THAN_100K = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df = loans_df[loans_df['annual_income'] > 100000]",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df = loans_df[(loans_df['annual_income'] > 100000) & (loans_df['loan_condition'] == 'Bad Loan')]",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 DATETIME_CONVERSION = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 EXTRACT_YEAR_FROM_STRING_DATE = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
 loans_df['year'] = loans_df['issue_date'].dt.year""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 DATETIME_CONVERSION_NON_CONVENTIONAL_FORMAT = CodeGenTestCaseCore(
     notebook_state=USED_CARS_DF_NOTEBOOK,
     expected_code="used_cars_df['PostedDate'] = pd.to_datetime(used_cars_df['PostedDate'], format='%b-%y')",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CONVERT_ANNUAL_INCOME_TO_FLOAT = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['annual_income'] = loans_df['annual_income'].astype(float)",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CONVERT_INTEREST_RATE_TO_INT = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['interest_rate'] = loans_df['interest_rate'].astype(int)",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CONVERT_CURRENCY_STRING_TO_FLOAT = CodeGenTestCaseCore(
     notebook_state=MESSY_DATA_NOTEBOOK,
     expected_code="""df['Transaction_Price'] = df['Transaction_Price'].str[1:]
 df['Transaction_Price'] = df['Transaction_Price'].astype(float)""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CONVERT_KILOMETERS_DRIVEN_TO_FLOAT = CodeGenTestCaseCore(
@@ -56,86 +56,86 @@ CONVERT_KILOMETERS_DRIVEN_TO_FLOAT = CodeGenTestCaseCore(
     expected_code="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CALCULATE_NUM_OF_PREV_DAYS = CodeGenTestCaseCore(
     notebook_state=MESSY_DATA_NOTEBOOK,
     expected_code="""df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
 df['Days Ago'] = df['Date'] - pd.to_datetime("now")""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 RENAME_ISSUE_DATE_TO_DATE = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df.rename(columns={'issue_date': 'Date'}, inplace=True)",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else col for col in loans_df.columns]",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 MULTIPLY_INTEREST_RATE_BY_100 = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['interest_rate'] = loans_df['interest_rate'] * 100",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CALCULATE_MONTHLY_LOAN_PAYMENT_PROVIDED_FORMULA = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['monthly_payment'] = loans_df['loan_amount'] * (loans_df['interest_rate'] / 12)",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 DIVIDE_TOTAL_PAYMENT_BY_1000 = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['total_pymnt'] = loans_df['total_pymnt']/1000",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CALCULATE_REMAINING_BALANCE = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['remaining_principal'] = loans_df['loan_amount']-loans_df['total_rec_prncp']",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 SUM_LAST_THREE_COLUMNS = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['sum_last_three'] = loans_df['interest_rate']+loans_df['total_pymnt']+loans_df['total_rec_prncp']",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 SUM_INT_COLUMNS = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df['sum_int_columns'] = loans_df['annual_income']+loans_df['loan_amount']",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 DELETE_ANNUAL_INCOME_COLUMN = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code="loans_df.drop(columns=['annual_income'], inplace=True)",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 REPLACE_LOW_WITH_BOTTOM_BUCKET = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code='loans_df = loans_df.astype(str).replace("(?i)Low", "Bottom Bucket", regex=True).astype(loans_df.dtypes.to_dict())',
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 REPLACE_CAR_WITH_AUTOMOBILE_REGEX = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code='loans_df = loans_df.astype(str).replace("(?i)car", "automobile", regex=True).astype(loans_df.dtypes.to_dict())',
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 REPLACE_CAR_WITH_AUTOMOBILE_NO_REGEX = CodeGenTestCaseCore(
     notebook_state=LOANS_DF_NOTEBOOK,
     expected_code='loans_df = loans_df.astype(str).replace("car", "automobile").astype(loans_df.dtypes.to_dict())',
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 PIVOT_TABLE_AVG_LOAN_AMOUNT_BY_PURPOSE = CodeGenTestCaseCore(
@@ -147,7 +147,7 @@ pivot_table = tmp_df.pivot_table(
     aggfunc={'loan_amount': ['mean']}
 )
 loans_df_pivot = pivot_table.reset_index()""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 SEPARATE_DATA_BY_COLUMN_VALUE = CodeGenTestCaseCore(
@@ -155,7 +155,7 @@ SEPARATE_DATA_BY_COLUMN_VALUE = CodeGenTestCaseCore(
     expected_code="""low_df = loans_df[loans_df['income_category'] == 'Low']
 medium_df = loans_df[loans_df['income_category'] == 'Medium']
 high_df = loans_df[loans_df['income_category'] == 'High']""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 WEIGHTED_AVERAGE_INTEREST_RATE = CodeGenTestCaseCore(
@@ -164,7 +164,7 @@ WEIGHTED_AVERAGE_INTEREST_RATE = CodeGenTestCaseCore(
 total_weighted_interest_rates = loans_df['weighted interest rate'].sum()
 total_loan_balances = loans_df['loan_amount'].sum()
 weighted_average_interest_rate = total_weighted_interest_rates / total_loan_balances""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
     variables_to_compare=["weighted_average_interest_rate"]
 )
 
@@ -173,7 +173,7 @@ RECREATE_PROVIDED_CODE = CodeGenTestCaseCore(
     expected_code="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 CONVERT_KM_TO_MILES = CodeGenTestCaseCore(
@@ -182,13 +182,13 @@ CONVERT_KM_TO_MILES = CodeGenTestCaseCore(
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)
 used_cars_df["milesDriven"] = used_cars_df["kmDriven"] * 0.621371""",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 FILTER_USED_CARS_TO_FIRST_OWNER = CodeGenTestCaseCore(
     notebook_state=USED_CARS_DF_NOTEBOOK,
     expected_code="used_cars_df = used_cars_df[used_cars_df['Owner'] == 'first']",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION = CodeGenTestCaseCore(
@@ -200,13 +200,13 @@ NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION = CodeGenTestCaseCore(
 num_bmw = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
-    tags=["function"],
+    workflow_tags=["function"],
 )
 
 ACTIVE_MONTHS_COLUMNS_3_TO_9 = CodeGenTestCaseCore(
     notebook_state=COMPANIES_ACTIVE_MONTHS_NOTEBOOK,
     expected_code="df['active_months'] = df.iloc[:, 3:10].sum(axis=1)",
-    tags=["df_transformation", "pandas"],
+    workflow_tags=["df_transformation", "pandas"],
 )
 
 DATAFRAME_TRANSFORMATION_TESTS = [
