@@ -40,5 +40,5 @@ To specify which tests to run, set some of the following flags:
 
 For example, to run all tests for the `single_shot_prompt` prompt, run: 
 ```
-python -m evals.main --test-type=chat --prompt-name=single_shot_prompt
+python -m evals.main --test_type=chat --prompt_name=single_shot_prompt
 ```

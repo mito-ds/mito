@@ -1,4 +1,4 @@
-from evals.eval_types import CodeGenTestCase, CodeGenTestCaseCore, SmartDebugTestCase
+from evals.eval_types import ChatTestCase, CodeGenTestCaseCore, SmartDebugTestCase
 from evals.notebook_states import EMPTY_NOTEBOOK
 
 

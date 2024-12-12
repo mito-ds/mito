@@ -1,4 +1,4 @@
-from evals.eval_types import CodeGenTestCaseCore, CodeGenTestCase
+from evals.eval_types import CodeGenTestCaseCore, ChatTestCase
 from evals.notebook_states import *
 
 CLEAN_MESSY_DATA_MULTISTEP = CodeGenTestCaseCore(
@@ -142,7 +142,7 @@ cars = most_popular_car_model.set_index('model')['cost_per_km'].to_dict()
 )
 
 MULTISTEP_TESTS = [
-    CodeGenTestCase(
+    ChatTestCase(
         name="clean_messy_data_multi_step",
         test_case_core=CLEAN_MESSY_DATA_MULTISTEP,
         user_input="""Clean the data by:
@@ -151,7 +151,7 @@ MULTISTEP_TESTS = [
 - Delete columns that only have one unqiue value
 - Change the name of the Description column to Description""",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="simple_recon",
         test_case_core=EAGLE_EXCEL_RECON_MULTISTEP,
         user_input="""
@@ -163,7 +163,7 @@ MULTISTEP_TESTS = [
     - If the numbers are not matching, set the value of the Check column to "Action Required. Quantity does not match."
 - Finally, separate the data in 3 different sheets, one for each condition: `missing_data_df`, `matching_df`, `not_matching_df`""",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="monthly_equity",
         test_case_core=MONTHLY_EQUITY_MULTISTEP,
         user_input="""Calculate the Total Equity for each month for each entity by subtracting the Management Fee from the Ending Capital.
@@ -171,7 +171,7 @@ MULTISTEP_TESTS = [
 Create two dataframes, `july_equity` and `august_equity` that the final columns: entity_id, ending_capital, fees, and total_equity.
 """,
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="top_five_funds",
         test_case_core=TOP_FIVE_FUNDS_MULTISTEP,
         user_input="""Calculate the five funds with the highest total equity for each month. Where the total equity is the ending capital minus the management fee.
@@ -180,7 +180,7 @@ Create two dataframes, `top_five_funds_july` and `top_five_funds_august` that ar
 """,
         
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="highest_monthly_ending_capital",
         test_case_core=HIGHEST_MONTHLY_ENDING_CAPITAL_MULTISTEP,
         user_input="""Find the month with the highest ending capital for each entity.
@@ -188,7 +188,7 @@ Create two dataframes, `top_five_funds_july` and `top_five_funds_august` that ar
 Create a dataframe called `highest_monthly_ending_capital` that has the final columns: entity_id, ending_capital, and month.
 """,
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="convert_to_float_and_calc_quartiles",
         test_case_core=LABEL_BEATER_CARS_MULTISTEP,
         user_input="""Convert the column `kmDriven` to a float and remove any commas and units.
@@ -198,7 +198,7 @@ Next, create two new columns: `AgeQuartile` and `kmDrivenQuartile`. Each quartil
 Finally, create a new column called `beater` that is `True` if the `kmDrivenQuartile` and `AgeQuartile` are both in the fourth quartile.
 """,
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="most_popular_car_model",
         test_case_core=MOST_POPULAR_CAR_MODEL_MULTISTEP,
         user_input="""1. Create a new dataframe called `most_popular_car_model`. For each car `Brand`, identify the most popular model and include the following information in the dataframe: the `Brand`, `model`, and the count of that model.
