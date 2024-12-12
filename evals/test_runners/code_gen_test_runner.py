@@ -83,6 +83,7 @@ def run_code_gen_test(
     # Construct the actual code
     if test.test_type == 'inline_code_completion':
         actual_code = current_cell_contents_script + test.prefix + ai_generated_code + test.suffix
+        print(f"Actual code: \n{actual_code}")
     else:
         actual_code = current_cell_contents_script + "\n" + ai_generated_code
 
