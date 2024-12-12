@@ -1,5 +1,5 @@
 import argparse
-from evals.test_runners.chat_test_runner import run_chat_tests
+from evals.test_runners.code_gen_test_runner import run_chat_tests, run_inline_code_completion_tests
 from evals.test_runners.smart_debugger_test_runner import run_smart_debug_tests
 
 if __name__ == "__main__":
@@ -19,5 +19,7 @@ if __name__ == "__main__":
 
     if test_type.lower() == "chat":
         run_chat_tests(test_name, prompt_name, tags)
+    elif test_type.lower() == "inline_code_completion":
+        run_inline_code_completion_tests(test_name, prompt_name, tags)
     elif test_type.lower() == "smart_debug":
         run_smart_debug_tests(test_name, prompt_name, tags)

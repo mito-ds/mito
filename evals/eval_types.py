@@ -1,6 +1,16 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional, Union
 
+WORKFLOW_TAGS = Literal[
+    'variable_declaration', 
+    'function',
+    'df_transformation',
+    'df_creation',
+    'pandas',
+    'misc',
+    'multistep'
+]
+
 @dataclass(frozen=True)
 class NotebookState:
     """Represents the state of variables in a notebook at test time"""
@@ -12,15 +22,7 @@ class NotebookState:
 class CodeGenTestCaseCore:
     notebook_state: NotebookState
     expected_code: str
-    tags: List[Literal[
-        'variable_declaration', 
-        'function',
-        'df_transformation',
-        'df_creation',
-        'pandas',
-        'misc',
-        'multistep'
-    ]]
+    tags: List[WORKFLOW_TAGS]
     variables_to_compare: Optional[List[str]] = None
     
 
@@ -30,6 +32,18 @@ class ChatTestCase:
     name: str
     test_case_core: CodeGenTestCaseCore
     user_input: str
+
+@dataclass(frozen=True)
+class InlineCodeCompletionTestCase:
+    """A single test case with input state and expected output"""
+    name: str
+    test_case_core: CodeGenTestCaseCore
+    prefix: str 
+    suffix: str
+    inline_code_completion_tags: List[Literal[
+	    'prefix_completion',
+	    'comment_following'
+    ]]
 
 @dataclass(frozen=True)
 class SmartDebugTestCase:
@@ -75,6 +89,13 @@ class ChatPromptGenerator():
     prompt_name: str
 
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
+        raise NotImplementedError("Subclasses must implement this method")
+    
+class InlineCodeCompletionPromptGenerator():
+
+    prompt_name: str
+
+    def get_prompt(self, prefix: str, suffix: str, notebook_state: NotebookState) -> str:
         raise NotImplementedError("Subclasses must implement this method")
 
 class DebugPromptGenerator():

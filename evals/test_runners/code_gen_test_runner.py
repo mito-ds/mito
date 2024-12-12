@@ -1,17 +1,33 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional, Union
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
-from evals.eval_types import ChatPromptGenerator, ChatTestCase, TestCaseResult
+from evals.eval_types import ChatPromptGenerator, ChatTestCase, InlineCodeCompletionPromptGenerator, InlineCodeCompletionTestCase, TestCaseResult
 from evals.prompts.chat_prompts import CHAT_PROMPT_GENERATORS
-from evals.test_cases.code_gen_tests import CODE_GEN_TESTS
+from evals.prompts.inline_code_completion_prompts import INLINE_CODE_COMPLETION_PROMPT_GENERATORS
+from evals.test_cases.chat_tests import CHAT_TEST
+from evals.test_cases.inline_code_completion_tests import INLINE_CODE_COMPLETION_TESTS
 from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
 from evals.asserts.equal_globals import assert_equal_globals
 
 def run_chat_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
+    _run_code_gen_tests('chat', CHAT_TEST, CHAT_PROMPT_GENERATORS, test_name, prompt_name, tags)
 
-    tests_to_run = CODE_GEN_TESTS
+    
+def run_inline_code_completion_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
+    _run_code_gen_tests('inline_code_completion', INLINE_CODE_COMPLETION_TESTS, INLINE_CODE_COMPLETION_PROMPT_GENERATORS, test_name, prompt_name, tags)
+
+def _run_code_gen_tests(
+    test_type: Literal['chat', 'inline_code_completion'],
+    tests_cases: Union[List[ChatTestCase], List[InlineCodeCompletionTestCase]],
+    prompt_generators: Union[List[ChatPromptGenerator], List[InlineCodeCompletionPromptGenerator]],
+    test_name: Optional[str], 
+    prompt_name: Optional[str], 
+    tags: Optional[List[str]]
+):
+    print("Collecting tests...")
+    tests_to_run = tests_cases
     if test_name:
-        tests_to_run = [test for test in CODE_GEN_TESTS if test.name == test_name]
+        tests_to_run = [test for test in tests_to_run if test.name == test_name]
         if not tests_to_run:
             print(f"No test found with name: {test_name}")
             exit(1)
@@ -26,25 +42,29 @@ def run_chat_tests(test_name: Optional[str], prompt_name: Optional[str], tags: O
 
     # Filter prompts if prompt name provided
     print("Collecting prompts...")
-    prompt_generators_to_test = CHAT_PROMPT_GENERATORS
+    prompt_generators_to_test = prompt_generators
     if prompt_name:
-        prompt_generators_to_test = [prompt for prompt in CHAT_PROMPT_GENERATORS if prompt.prompt_name == prompt_name]
+        prompt_generators_to_test = [prompt for prompt in prompt_generators_to_test if prompt.prompt_name == prompt_name]
         if not prompt_generators_to_test:
             print(f"No prompt found with name: {prompt_name}")
             exit(1)
     print(f"Collected {len(prompt_generators_to_test)} prompts")
-
 
     # Mapping from prompt name to test results for each prompt we test
     test_case_results: Dict[str, List[TestCaseResult]] = {}
     for prompt_generator in prompt_generators_to_test:
         test_case_results[prompt_generator.prompt_name] = []
         for test in tests_to_run:
-            test_case_result = run_chat_test(test, prompt_generator)
+            if test_type == 'chat':
+                test_case_result = run_chat_test(test, prompt_generator)
+            else:
+                test_case_result = run_inline_code_completion_test(test, prompt_generator)
             test_case_results[prompt_generator.prompt_name].append(test_case_result)
 
     print_test_case_result_tables(test_case_results)
-    
+
+def run_inline_code_completion_test(test: InlineCodeCompletionTestCase, prompt_generator: InlineCodeCompletionPromptGenerator) -> TestCaseResult:
+    pass
 
 def run_chat_test(test: ChatTestCase, prompt_generator: ChatPromptGenerator) -> TestCaseResult:
     print(f"Running test: {test.name}")

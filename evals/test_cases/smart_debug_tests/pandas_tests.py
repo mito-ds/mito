@@ -1,6 +1,5 @@
 from evals.eval_types import SmartDebugTestCase
 from evals.notebook_states import EMPTY_NOTEBOOK, LOANS_DF_NOTEBOOK, MESSY_DATA_NOTEBOOK, STOCK_MARKET_DATA_NOTEBOOK, USED_CARS_DF_NOTEBOOK
-from evals.test_cases.code_gen_tests.dataframe_transformation_tests import CONVERT_CURRENCY_STRING_TO_FLOAT
 
 
 PANDAS_TESTS = [
