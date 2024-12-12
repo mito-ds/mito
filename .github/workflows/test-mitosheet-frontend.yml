@@ -6,14 +6,12 @@ on:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
-    paths-ignore:
-      - 'tests/mitoai_ui_tests/**'
+      - '!tests/mitoai_ui_tests/**'
   pull_request:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
-    paths-ignore:
-      - 'tests/mitoai_ui_tests/**'
+      - '!tests/mitoai_ui_tests/**'
 jobs:
   test-mitosheet-frontend-jupyterlab:
     runs-on: ubuntu-20.04
