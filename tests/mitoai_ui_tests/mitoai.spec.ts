@@ -11,7 +11,7 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('Mito AI Chat', () => {
 
-  test.only('Preview and Accept AI Generated Code', async ({ page }) => {
+  test('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
@@ -271,6 +271,12 @@ test.describe('Mito AI Chat', () => {
 
     await page.keyboard.type("@none_type_col_A");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
+  });
+
+  test('CMD+E opens the AI chat', async ({ page }) => {
+    await page.keyboard.press('Meta+B'); // Close the sidebar
+    await page.keyboard.press('Meta+E');
+    await expect(page.locator('.chat-input')).toBeVisible();
   });
 });
 
