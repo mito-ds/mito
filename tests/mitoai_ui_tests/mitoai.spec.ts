@@ -274,6 +274,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('CMD+E opens the AI chat', async ({ page }) => {
+    await page.keyboard.press('Meta+B'); // Close the sidebar
     await page.keyboard.press('Meta+E');
     await expect(page.locator('.chat-input')).toBeVisible();
   });
