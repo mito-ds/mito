@@ -6,22 +6,21 @@ class _ProdPromptV1(InlineCodeCompletionPromptGenerator):
     prompt_name = "prod_prompt_v1"
 
     def get_prompt(self, prefix: str, suffix: str, notebook_state: NotebookState) -> str:
-        return f"""You are an expert python programmer. Complete the following code.
+        return f"""You are an application built to provide helpful code completion suggestions.
+You should only produce code. Keep comments to minimum, use the programming language comment syntax. Produce clean executable code.
+The code is written for a data analysis and code development environment which can execute code to produce graphics, tables and interactive outputs.
 
-The text REPLACE_ME_WITH_YOUR_CODE will be replaced with the the code that you write. 
+The document is called Untitled.ipynb and written in Python.
 
-This is the current state of the code:
+Complete the following code responding only with additional code, code comments or docstrings, and with no markdown formatting.
 
-{prefix}REPLACE_ME_WITH_YOUR_CODE{suffix}
-        
-Replace the text REPLACE_ME_WITH_YOUR_CODE with the code that you write so that the final code can be executed like this:
+{prefix}
 
-new_code = {prefix}{{REPLACE_ME_WITH_YOUR_CODE}}{suffix}
-exec(new_code)
+{suffix != '' and f'''The new code appears before the following snippet.
+ 
+{suffix}
+''' or ''}
 
-Do not include any extra spaces or newline characters in your response unless they are part of the code.
-
-Return only the code that you substitute for REPLACE_ME_WITH_YOUR_CODE.
 """
 
 prod_prompt_v1 = _ProdPromptV1()
