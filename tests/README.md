@@ -60,7 +60,7 @@ First, you need to run (from the mito-ai/ directory) in this same virtual enviro
 
 ```
 jupyter labextension develop . --overwrite
-jupyter server extension enable --py mito-ai
+jupyter server extension enable --py mito_ai
 ```
 
 Then, from the tests/directory, set your OPENAI_API_KEY environment variable:

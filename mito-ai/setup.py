@@ -7,7 +7,7 @@ import os
 
 HERE = Path(__file__).parent.resolve()
 package_json = json.loads(open('package.json').read())
-lab_path = Path(HERE, 'mito-ai', 'labextension')
+lab_path = Path(HERE, 'mito_ai', 'labextension')
 
 
 data_files_spec = [
@@ -85,9 +85,12 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
+        "jinja2>=3.0.3",
         "jupyterlab>=4.0.0,<5",
         "openai>=1.0.0",
         'analytics-python',
+        "tornado>=6.2.0",
+        "traitlets",
     ],
     extras_require = {
         'deploy': [
