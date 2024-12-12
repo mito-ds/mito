@@ -4,6 +4,7 @@ import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRen
 import CellToolbarButtonsPlugin from './Extensions/CellToolbarButtons/CellToolbarButtonsPlugin';
 import { localPrompt } from './Extensions/emptyCell';
 import { completionPlugin } from './Extensions/InlineCompleter';
+import { statusItem } from './Extensions/status';
 
 // This is the main entry point to the mito-ai extension. It must export all of the top level
 // extensions that we want to load.
@@ -13,5 +14,6 @@ export default [
   VariableManagerPlugin,
   CellToolbarButtonsPlugin,
   localPrompt,
-  completionPlugin
+  completionPlugin,
+  statusItem
 ];
