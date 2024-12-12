@@ -273,9 +273,10 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
   });
 
-  test('CMD+E opens the AI chat', async ({ page }) => {
-    await page.keyboard.press('Meta+B'); // Close the sidebar
-    await page.keyboard.press('Meta+E');
+  test('Keyboard shortcut opens the AI chat', async ({ page, browserName }) => {
+    const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
+    await page.keyboard.press(`${modifierKey}+B`); // Close the sidebar
+    await page.keyboard.press(`${modifierKey}+E`);
     await expect(page.locator('.chat-input')).toBeVisible();
   });
 });
