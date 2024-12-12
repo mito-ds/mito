@@ -1,5 +1,5 @@
 
-from evals.prompts.inline_code_completion_prompts import prod_prompt_v1
+from evals.prompts.inline_code_completion_prompts.prod_prompt_v1 import prod_prompt_v1
 
 
 INLINE_CODE_COMPLETION_PROMPT_GENERATORS = [

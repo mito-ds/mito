@@ -32,6 +32,8 @@ class ChatTestCase:
     name: str
     test_case_core: CodeGenTestCaseCore
     user_input: str
+    test_type: Literal['chat'] = 'chat'
+
 
 @dataclass(frozen=True)
 class InlineCodeCompletionTestCase:
@@ -44,6 +46,8 @@ class InlineCodeCompletionTestCase:
 	    'prefix_completion',
 	    'comment_following'
     ]]
+    test_type: Literal['inline_code_completion'] = 'inline_code_completion'
+
 
 @dataclass(frozen=True)
 class SmartDebugTestCase:
@@ -83,6 +87,14 @@ class TestCaseResult:
     """
     test: Union[ChatTestCase, SmartDebugTestCase]
     passed: bool
+
+
+"""
+Prompt Generators for each type of prompt. 
+
+They each have a prompt_name that is used to identify the prompt and 
+a get_prompt method that returns the prompt as a string given the inputs.
+"""
 
 class ChatPromptGenerator():
 

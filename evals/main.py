@@ -6,7 +6,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run evaluation tests')
         
     # Require the user to specify if they want to run chat or smart debug tests
-    parser.add_argument('--test_type', type=str, required=True, choices=['chat', 'smart_debug'], help='Type of tests to run (chat or smart_debug)')
+    parser.add_argument('--test_type', type=str, required=True, choices=['chat', 'inline_code_completion', 'smart_debug'], help='Type of tests to run (chat or smart_debug)')
     parser.add_argument('--test_name', type=str, help='Name of specific test to run')
     parser.add_argument('--prompt_name', type=str, help='Name of specific prompt to run')
     parser.add_argument('--tags', type=str, help='Comma separated list of tags to filter tests by')

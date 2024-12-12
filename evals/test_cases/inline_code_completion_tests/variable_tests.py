@@ -11,7 +11,7 @@ VARIABLE_TESTS = [
         ),
         prefix="""
 # Create a variable x and set it equal to 1
-x = """,
+x =""",
         suffix="",
         inline_code_completion_tags=["prefix_completion"],
     ),
@@ -26,8 +26,9 @@ y=2""",
         ),
         prefix="""
 # Set x equal to 1
-x = """,
-        suffix="y=2",
+x =""",
+        suffix="""
+y=2""",
         inline_code_completion_tags=["prefix_completion"],
     )
 ]

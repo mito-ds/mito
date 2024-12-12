@@ -6,36 +6,22 @@ class _ProdPromptV1(InlineCodeCompletionPromptGenerator):
     prompt_name = "prod_prompt_v1"
 
     def get_prompt(self, prefix: str, suffix: str, notebook_state: NotebookState) -> str:
-        return f"""You are an expert python programmer. You are given a set of variables, existing code, and a task. 
+        return f"""You are an expert python programmer. Complete the following code.
 
-Respond with the python code that starts with ```python and ends with ```. Do not return anything else.
+The text REPLACE_ME_WITH_YOUR_CODE will be replaced with the the code that you write. 
 
-<Example>
-You have these variables: 
-{{'x': 1, 'y': 2}}
+This is the current state of the code:
 
-The current code cell is: 
-x = 1
-y = 2
+{prefix}REPLACE_ME_WITH_YOUR_CODE{suffix}
+        
+Replace the text REPLACE_ME_WITH_YOUR_CODE with the code that you write so that the final code can be executed like this:
 
-Your job is to: 
-Create a new variable z that is the sum of x and y
+new_code = {prefix}{{REPLACE_ME_WITH_YOUR_CODE}}{suffix}
+exec(new_code)
 
-Response:
-z = x + y
-</Example>
+Do not include any extra spaces or newline characters in your response unless they are part of the code.
 
-Now complete this task:
-
-You have these variables:
-{notebook_state.global_vars}
-
-The current code cell is:
-{notebook_state.cell_contents[-1] if len(notebook_state.cell_contents) > 0 else ""}
-
-Your job is to: 
-{prefix}
-
-Response:"""
+Return only the code that you substitute for REPLACE_ME_WITH_YOUR_CODE.
+"""
 
 prod_prompt_v1 = _ProdPromptV1()
