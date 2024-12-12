@@ -25,7 +25,7 @@ class CodeGenTestCaseCore:
     
 
 @dataclass(frozen=True)
-class CodeGenTestCase:
+class ChatTestCase:
     """A single test case with input state and expected output"""
     name: str
     test_case_core: CodeGenTestCaseCore
@@ -67,7 +67,7 @@ class TestCaseResult:
     """
     The result of running a test case. Used to display the results.
     """
-    test: Union[CodeGenTestCase, SmartDebugTestCase]
+    test: Union[ChatTestCase, SmartDebugTestCase]
     passed: bool
 
 class ChatPromptGenerator():

@@ -1,13 +1,13 @@
 from typing import Dict, List, Optional
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
-from evals.eval_types import ChatPromptGenerator, CodeGenTestCase, TestCaseResult
+from evals.eval_types import ChatPromptGenerator, ChatTestCase, TestCaseResult
 from evals.prompts.chat_prompts import CHAT_PROMPT_GENERATORS
 from evals.test_cases.code_gen_tests import CODE_GEN_TESTS
 from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
 from evals.asserts.equal_globals import assert_equal_globals
 
-def run_code_gen_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
+def run_chat_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
 
     tests_to_run = CODE_GEN_TESTS
     if test_name:
@@ -40,13 +40,13 @@ def run_code_gen_tests(test_name: Optional[str], prompt_name: Optional[str], tag
     for prompt_generator in prompt_generators_to_test:
         test_case_results[prompt_generator.prompt_name] = []
         for test in tests_to_run:
-            test_case_result = run_code_gen_test(test, prompt_generator)
+            test_case_result = run_chat_test(test, prompt_generator)
             test_case_results[prompt_generator.prompt_name].append(test_case_result)
 
     print_test_case_result_tables(test_case_results)
     
 
-def run_code_gen_test(test: CodeGenTestCase, prompt_generator: ChatPromptGenerator) -> TestCaseResult:
+def run_chat_test(test: ChatTestCase, prompt_generator: ChatPromptGenerator) -> TestCaseResult:
     print(f"Running test: {test.name}")
                 
     # Get the script from the cells

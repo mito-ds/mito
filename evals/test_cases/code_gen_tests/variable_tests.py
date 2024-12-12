@@ -1,8 +1,8 @@
-from evals.eval_types import CodeGenTestCaseCore, CodeGenTestCase
+from evals.eval_types import CodeGenTestCaseCore, ChatTestCase
 from evals.notebook_states import *
 
 VARIABLE_TESTS = [
-    CodeGenTestCase(
+    ChatTestCase(
         name="empty_notebook_variable_declaration",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK,
@@ -11,7 +11,7 @@ VARIABLE_TESTS = [
         ),
         user_input="create a variable x and set it equal to 1",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="initialized_variables_variable_declaration",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,
@@ -20,7 +20,7 @@ VARIABLE_TESTS = [
         ),
         user_input="create a new variable w that is the product of x, y, and z",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="find_largest_number_of_intialized_variables",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=INITIALIZED_VARIABLES_NOTEBOOK,

@@ -1,4 +1,4 @@
-from evals.eval_types import CodeGenTestCaseCore, CodeGenTestCase
+from evals.eval_types import CodeGenTestCaseCore, ChatTestCase
 from evals.notebook_states import *
 
 FILTER_ANNUAL_INCOME_GREATER_THAN_100K = CodeGenTestCaseCore(
@@ -210,147 +210,147 @@ ACTIVE_MONTHS_COLUMNS_3_TO_9 = CodeGenTestCaseCore(
 )
 
 DATAFRAME_TRANSFORMATION_TESTS = [
-    CodeGenTestCase(
+    ChatTestCase(
         name="single_column_numeric_filter",
         test_case_core=FILTER_ANNUAL_INCOME_GREATER_THAN_100K,
         user_input="Filter the annual income column to > 100k",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="two_column_filter",
         test_case_core=FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION,
         user_input="Filter the annual income column to > 100k and the loan condition to only include 'Bad Loan'",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="explicit_datetime_conversion",
         test_case_core=DATETIME_CONVERSION,
         user_input="Convert the issue_date column to datetime format",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="implicit_datetime_conversion",
         test_case_core=EXTRACT_YEAR_FROM_STRING_DATE,
         user_input="Create a new column called year that is the year of the issue_date column",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="datetime_conversion_non_conventional_format",
         test_case_core=DATETIME_CONVERSION_NON_CONVENTIONAL_FORMAT,
         user_input="Convert the posted date column to an actual datetime column",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="explicit_float_conversion",
         test_case_core=CONVERT_ANNUAL_INCOME_TO_FLOAT,
         user_input="Convert the annual income column to a float",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="explicit_int_conversion",
         test_case_core=CONVERT_INTEREST_RATE_TO_INT,
         user_input="Convert the interest rate column to an int",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="convert_currency_string_to_float",
         test_case_core=CONVERT_CURRENCY_STRING_TO_FLOAT,
         user_input="Convert the Transaction_Price column to a float",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="convert_string_to_float_tricky",
         test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
         user_input="Convert the kilometers driven column to a number series",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="calculate_num_of_prev_days",
         test_case_core=CALCULATE_NUM_OF_PREV_DAYS,
         user_input="Calculate a new column called 'Days Ago' that is the number of days between now and the transaction date",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="single_column_renaming_specifc",
         test_case_core=RENAME_ISSUE_DATE_TO_DATE,
         user_input="Rename issue_date to Date",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="single_column_renaming_less_specifc",
         test_case_core=RENAME_ISSUE_DATE_TO_DATE,
         user_input="Rename the date column to Date",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="bulk_column_renaming",
         test_case_core=REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES,
         user_input="Replace the _ with a space in all column names",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="column_multiplication_scalar",
         test_case_core=MULTIPLY_INTEREST_RATE_BY_100,
         user_input="Multiply the interest rate by 100",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="calculate_monthly_payment_provided_formula",
         test_case_core=CALCULATE_MONTHLY_LOAN_PAYMENT_PROVIDED_FORMULA,
         user_input="Calculate the monthly_payment by multiplying the loan amount by the interest rate / 12",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="calculate_monthly_payment_no_formula",
         test_case_core=CALCULATE_MONTHLY_LOAN_PAYMENT_PROVIDED_FORMULA,
         user_input="Calculate the monthly_payment",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="column_division_scalar",
         test_case_core=DIVIDE_TOTAL_PAYMENT_BY_1000,
         user_input="Divide the total payment by 1000",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="calculate_remaining_balance_provided_formula",
         test_case_core=CALCULATE_REMAINING_BALANCE,
         user_input="Calculate the remaining_balance by subtracting the total_rec_prncp from the loan amount",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="calculate_remaining_balance_no_formula",
         test_case_core=CALCULATE_REMAINING_BALANCE,
         user_input="Calculate the remaining_balance",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="sum_last_three_columns",
         test_case_core=SUM_LAST_THREE_COLUMNS,
         user_input="Calculate a new column called sum_last_three that is the sum of the last three columns",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="sum_int_columns",
         test_case_core=SUM_INT_COLUMNS,
         user_input="Calculate a new column called sum_int_columns that is the sum of all the integer columns",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="delete_column",
         test_case_core=DELETE_ANNUAL_INCOME_COLUMN,
         user_input="Delete the annual_income column",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="find_and_replace_string",
         test_case_core=REPLACE_LOW_WITH_BOTTOM_BUCKET,
         user_input="Replace the word 'Low' with 'Bottom Bucket' in the entire dataframe",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="find_and_replace_with_regex",
         test_case_core=REPLACE_CAR_WITH_AUTOMOBILE_REGEX,
         user_input="Replace the phrase 'car' with 'automobile'",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="find_and_replace_with_no_regex",
         test_case_core=REPLACE_CAR_WITH_AUTOMOBILE_NO_REGEX,
         user_input="Replace the word 'car' with 'automobile'. Do not replace the substring 'car' if it is part of a bigger word.",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="pivot_table_simple",
         test_case_core=PIVOT_TABLE_AVG_LOAN_AMOUNT_BY_PURPOSE,
         user_input="Create a pivot table called loans_df_pivot that shows the average loan amount for each loan purpose. Reset the index of the pivot table so the purpose column is a column in the dataframe. Do not edit the original dataframe. Instead, if you need to edit the original dataframe, make a copy of it called tmp_df and edit that one.",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="separate_data_by_column_value",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
         user_input="Separate the dataframe into one dataframe for each value in the income_category column. Name the dataframe <value>_df for each value. Use all lowercase letters for the df name.",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="weighted_average_interest_rate",
         test_case_core=WEIGHTED_AVERAGE_INTEREST_RATE,
         user_input="Calculate a new variable called `weighted_average_interest_rate` that is the weighted average of the interest rate and loan amount.",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="recreate_provided_code",
         test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
         user_input="""Use this code to convert the kmDriven column to a float:
@@ -358,7 +358,7 @@ used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="convert_km_to_miles",
         test_case_core=CONVERT_KM_TO_MILES,
         user_input="""Use this code to convert the kmDriven column to a float:
@@ -369,17 +369,17 @@ used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)
 And then convert then create a new column called milesDrive.
 """
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="filter_requires_data_understanding",
         test_case_core=FILTER_USED_CARS_TO_FIRST_OWNER,
         user_input="""Filter the dataset to only include cars that have only been owned by one person""",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="filter_requires_data_understanding_more_vague",
         test_case_core=FILTER_USED_CARS_TO_FIRST_OWNER,
         user_input="""Filter the dataset to only include cars that have been purchased by one person in its lifetime""",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="convert_code_to_function",
         test_case_core=NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION,
         user_input="""Convert this code to a function and then use it to get the number of first owners for BMW, Toyota, and Ford. 
@@ -388,7 +388,7 @@ Save the results in a variable called num_bmw, num_toyota, and num_ford.
          
 used_cars_df = used_cars_df[(used_cars_df['Brand'].str.contains('BMW', na=False, regex=False)) & (used_cars_df['Owner'].str.contains('first', na=False, regex=False))]""",
     ),
-    CodeGenTestCase(
+    ChatTestCase(
         name="0_index_column_numbers",
         test_case_core=ACTIVE_MONTHS_COLUMNS_3_TO_9,
         user_input="Create a new column called active_months that is total number of times the company is True for columns 3 through 9",
