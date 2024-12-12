@@ -1,28 +1,49 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import '../../../style/ChatTaskpane.css';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell } from '../../utils/notebook';
-import ChatMessage from './ChatMessage/ChatMessage';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ChatHistoryManager } from './ChatHistoryManager';
-import { requestAPI } from '../../utils/handler';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import LoadingDots from '../../components/LoadingDots';
+import { Compartment, StateEffect } from '@codemirror/state';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
-import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_REJECT_LATEST_CODE, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
-import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
-import ResetIcon from '../../icons/ResetIcon';
-import IconButton from '../../components/IconButton';
-import { OperatingSystem } from '../../utils/user';
-import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { CodeCell } from '@jupyterlab/cells';
-import { StateEffect, Compartment } from '@codemirror/state';
-import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import OpenAI from "openai";
-import ChatInput from './ChatMessage/ChatInput';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
+import OpenAI from 'openai';
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from 'react';
+import '../../../style/ChatTaskpane.css';
+import {
+    COMMAND_MITO_AI_APPLY_LATEST_CODE,
+    COMMAND_MITO_AI_REJECT_LATEST_CODE,
+    COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
+    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE
+} from '../../commands';
+import IconButton from '../../components/IconButton';
+import LoadingDots from '../../components/LoadingDots';
+import ResetIcon from '../../icons/ResetIcon';
 import SupportIcon from '../../icons/SupportIcon';
+import { CompletionWebsocketClient } from '../../utils/client';
+import {
+    getCodeDiffsAndUnifiedCodeString,
+    UnifiedDiffLine
+} from '../../utils/codeDiff';
+import {
+    getCellCodeByID,
+    highlightCodeCell,
+    writeCodeToCellByID
+} from '../../utils/notebook';
+import {
+    getCodeBlockFromMessage,
+    removeMarkdownCodeFormatting
+} from '../../utils/strings';
+import { OperatingSystem } from '../../utils/user';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { ChatHistoryManager } from './ChatHistoryManager';
+import ChatInput from './ChatMessage/ChatInput';
+import ChatMessage from './ChatMessage/ChatMessage';
+import { codeDiffStripesExtension } from './CodeDiffDisplay';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -48,7 +69,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     app,
     operatingSystem
 }) => {
-    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, variableManager));
+  const [chatHistoryManager, setChatHistoryManager] =
+    useState<ChatHistoryManager>(() =>
+      getDefaultChatHistoryManager(notebookTracker, variableManager)
+    );
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
@@ -60,7 +84,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 1. chatPreview: state where the user has not yet pressed the apply button.
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
     // 3. applied: state where the user has applied the code to the code cell
-    const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
+  const [codeReviewStatus, setCodeReviewStatus] =
+    useState<CodeReviewStatus>('chatPreview');
+
+  // Create the websocket client
+  const websocketClient = useMemo(
+    () =>
+      new CompletionWebsocketClient({
+        serverSettings: app.serviceManager.serverSettings
+      }),
+    [app.serviceManager.serverSettings]
+  );
+  // Initialize the websocket client
+  useEffect(() => {
+    websocketClient.initialize().catch(error => {
+      console.error('Failed to initialized the websocketClient');
+    });
+
+    return () => {
+      websocketClient.dispose();
+    };
+  }, [websocketClient]);
 
     useEffect(() => {
         /* 
@@ -116,7 +160,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug')
     }
 
-    const sendExplainCodeMessage = () => {
+    const sendExplainCodeMessage = async () => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -126,7 +170,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
         
         // Step 2: Send the message to the AI
-        _sendMessageAndSaveResponse(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -154,40 +198,51 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendChatInputMessage(newContent, messageIndex)
     };
 
-    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager, messageType: 'default' | 'smartDebug' = 'default') => {
+  const _sendMessageAndSaveResponse = useCallback(
+    async (
+      newChatHistoryManager: ChatHistoryManager,
+      messageType: 'default' | 'smartDebug' = 'default'
+    ) => {
+      setLoadingAIResponse(true);
 
-        setLoadingAIResponse(true)
+      try {
+        await websocketClient.ready;
 
-        let aiRespone = undefined
+        const aiResponse = await websocketClient.sendMessage({
+          message_id: UUID.uuid4(),
+          messages: newChatHistoryManager
+            .getAIOptimizedHistory()
+            .map(historyItem => historyItem.message),
+          type: 'chat',
+          stream: false
+        });
 
-        try {
-            const apiResponse = await requestAPI('mito_ai/completion', {
-                method: 'POST',
-                body: JSON.stringify({
-                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message)
-                })
-            });
-
-            if (apiResponse.type === 'success') {
-                const aiMessage = apiResponse.response;
-                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, messageType);
-                setChatHistoryManager(newChatHistoryManager);
-                
-                aiRespone = aiMessage
-            } else {
-                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, messageType, true)
-                setChatHistoryManager(newChatHistoryManager);
-            }
-        } catch (error) {
-            console.error('Error calling OpenAI API:', error);
-        } finally {
-            // Reset states to allow future messages to show the "Apply" button
-            setCodeReviewStatus('chatPreview')
-
-            setLoadingAIResponse(false)
-            return aiRespone
+        if (aiResponse.error) {
+          console.error('Error calling OpenAI API:', aiResponse.error);
+          newChatHistoryManager.addAIMessageFromResponse(
+            `${aiResponse.error.type}: ${aiResponse.error.title}`,
+            messageType,
+            true
+          );
+          setChatHistoryManager(newChatHistoryManager);
+        } else {
+          newChatHistoryManager.addAIMessageFromResponse(
+            aiResponse.items[0].insertText || '',
+            messageType
+          );
+          setChatHistoryManager(newChatHistoryManager);
         }
-    }
+      } catch (error) {
+        console.error('Error calling OpenAI API:', error);
+      } finally {
+        // Reset states to allow future messages to show the "Apply" button
+        setCodeReviewStatus('chatPreview');
+
+        setLoadingAIResponse(false);
+      }
+    },
+    [websocketClient]
+  );
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
         if (!aiMessage) {

@@ -3,62 +3,40 @@ import time
 import traceback
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Union
+from typing import Any, Dict, List
 
 import tornado
 import tornado.ioloop
 from jupyter_core.utils import ensure_async
-from jupyter_server.base.handlers import APIHandler, JupyterHandler
-from tornado import web
+from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
 
 from .models import (
     CompletionError,
-    InlineCompletionItem,
-    InlineCompletionList,
-    InlineCompletionReply,
-    InlineCompletionRequest,
-    InlineCompletionStreamChunk,
+    CompletionItem,
+    CompletionReply,
+    CompletionRequest,
+    CompletionStreamChunk,
 )
 from .providers import OpenAIProvider
-from .utils.open_ai_utils import get_open_ai_completion
+from .utils.create import initialize_user
 
-__all__ = ["OpenAICompletionHandler", "InlineCompletionHandler"]
+__all__ = ["CompletionHandler"]
 
 
-# This handler is responsible for the mito_ai/completion endpoint.
+
+
+# This handler is responsible for the mito-ai/chat-completions endpoint.
 # It takes a message from the user, sends it to the OpenAI API, and returns the response.
 # Important: Because this is a server extension, print statements are sent to the
 # jupyter server terminal by default (ie: the terminal you ran `jupyter lab`)
-class OpenAICompletionHandler(APIHandler):
-    @web.authenticated
-    def post(self):
-        # Retrieve the message from the request
-        data = self.get_json_body()
-        messages = data.get("messages", "")
+class CompletionHandler(JupyterHandler, WebSocketHandler):
+    """Completion websocket handler."""
 
-        try:
-            # Query OpenAI API
-            response = get_open_ai_completion(messages)
-            self.finish(json.dumps(response))
-        except PermissionError as e:
-            # Raise a PermissionError when the user has
-            # reached the free tier limit for Mito AI.
-            self.set_status(403)
-            self.finish()
-        except Exception as e:
-            # Catch all other exceptions and return a 500 error
-            self.set_status(500)
-            self.finish()
-
-
-class InlineCompletionHandler(JupyterHandler, WebSocketHandler):
-    """Inline completion websocket handler."""
-
-    def initialize(self, config) -> None:
+    def initialize(self, llm: OpenAIProvider) -> None:
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
-        self._llm = OpenAIProvider(config=config)
+        self._llm = llm
 
     async def pre_get(self) -> None:
         """Handles websocket authentication/authorization."""
@@ -89,24 +67,26 @@ class InlineCompletionHandler(JupyterHandler, WebSocketHandler):
             message: The message received on the WebSocket.
         """
 
-        # first, verify that the message is an `InlineCompletionRequest`.
+        initialize_user()
+
+        # first, verify that the message is an `CompletionRequest`.
         self.log.debug("Message received: %s", message)
         try:
             parsed_message = json.loads(message)
-            request = InlineCompletionRequest(**parsed_message)
+            request = CompletionRequest(**parsed_message)
         except ValueError as e:
-            self.log.error("Invalid inline completion request.", exc_info=e)
+            self.log.error("Invalid completion request.", exc_info=e)
             return
 
         try:
-            if request.stream:
+            if request.stream and self._llm.can_stream:
                 await self._handle_stream_request(request)
             else:
                 await self._handle_request(request)
         except Exception as e:
             await self.handle_exception(e, request)
 
-    async def handle_exception(self, e: Exception, request: InlineCompletionRequest):
+    async def handle_exception(self, e: Exception, request: CompletionRequest):
         """
         Handles an exception raised in either ``handle_request`` or
         ``handle_stream_request``.
@@ -121,33 +101,23 @@ class InlineCompletionHandler(JupyterHandler, WebSocketHandler):
             traceback=traceback.format_exc(),
         )
         if request.stream:
-            reply = InlineCompletionStreamChunk(
-                response=InlineCompletionItem(
-                    insertText="", isIncomplete=True, token=self._get_token(request)
+            reply = CompletionStreamChunk(
+                chunk=CompletionItem(
+                    insertText="", isIncomplete=True
                 ),
                 parent_id=request.message_id,
                 done=True,
                 error=error,
             )
         else:
-            reply = InlineCompletionReply(
-                list=InlineCompletionList(items=[]),
+            reply = CompletionReply(
+                items=[],
                 error=error,
                 parent_id=request.message_id,
             )
         self.reply(reply)
 
-    def _get_token(self, request: InlineCompletionRequest) -> str:
-        """Get the request token.
-
-        Args:
-            request: The completion request description.
-        Returns:
-            The unique token identifying the completion request in the frontend.
-        """
-        return self._llm.get_token(request)
-
-    async def _handle_request(self, request: InlineCompletionRequest) -> None:
+    async def _handle_request(self, request: CompletionRequest) -> None:
         """Handle completion request.
 
         Args:
@@ -157,23 +127,22 @@ class InlineCompletionHandler(JupyterHandler, WebSocketHandler):
         reply = await self._llm.request_completions(request)
         self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Inline completion handler resolved in {latency_ms} ms.")
+        self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
-    async def _handle_stream_request(self, request: InlineCompletionRequest) -> None:
+    async def _handle_stream_request(self, request: CompletionRequest) -> None:
         """Handle stream completion request."""
         start = time.time()
         async for reply in self._llm.stream_completions(request):
             self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Inline completion streaming completed in {latency_ms} ms.")
+        self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 
-    def reply(
-        self, reply: Union[InlineCompletionReply, InlineCompletionStreamChunk]
-    ) -> None:
+    def reply(self, reply: Any) -> None:
         """Write a reply object to the WebSocket connection.
 
         Args:
             reply: The completion reply object.
+                It must be a dataclass instance.
         """
         message = asdict(reply)
         super().write_message(message)
