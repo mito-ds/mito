@@ -20,7 +20,7 @@ def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], 
             exit(1)
 
     if tags:
-        tests_to_run = [test for test in tests_to_run if any(tag in tags for tag in test.tags)]
+        tests_to_run = [test for test in tests_to_run if any(tag in (test.workflow_tags or test.type_tags) for tag in tags)]
         if not tests_to_run:
             print(f"No tests found with tags: {tags}")
             exit(1)

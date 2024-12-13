@@ -26,7 +26,8 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
 
     table = PrettyTable()
     table.align = 'l'  # Left align all columns
-    field_names = ['Test Name', 'Tags', 'Result']
+    field_names = ['Test Name', 'Workflow Tags', 'Type Tags', 'Result']
+
     table.field_names = field_names
 
     for test_case_result in test_case_results:
@@ -34,9 +35,11 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
 
         # Get the tags for the test. Smart debug tags are defined at the test level. 
         # Code gen tags are defined at the test case core level.
-        tags = test_case_result.test.tags if isinstance(test_case_result.test, SmartDebugTestCase) else test_case_result.test.test_case_core.tags
-        clean_tags = clean_tags_for_display(tags)
-        table.add_row([test_case_result.test.name, clean_tags, result_text])
+        workflow_tags = test_case_result.test.workflow_tags if isinstance(test_case_result.test, SmartDebugTestCase) else test_case_result.test.test_case_core.workflow_tags
+        clean_workflow_tags = clean_tags_for_display(workflow_tags)
+
+        clean_type_tags = clean_tags_for_display(test_case_result.test.type_tags)
+        table.add_row([test_case_result.test.name, clean_workflow_tags, clean_type_tags, result_text])
 
     table.add_row(["" for _ in field_names])
 
@@ -44,7 +47,7 @@ def print_test_case_result_table(prompt_name: str, test_case_results: List[TestC
     total_tests = len(test_case_results)
     average_score = total_passed / total_tests
 
-    table.add_row([f"Average Score", "", f"{average_score:.2f} ({total_passed}/{total_tests})"])
+    table.add_row([f"Average Score", "", "", f"{average_score:.2f} ({total_passed}/{total_tests})"])
 
     print(table)
 

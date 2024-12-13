@@ -18,7 +18,8 @@ def my_sum(x, y):
 
 sum_one = my_sum(1, 2)
 sum_two = my_sum(3, 4)""",
-        tags=['simple', 'function', 'SyntaxError']
+        workflow_tags=['simple', 'function'],
+        type_tags=['SyntaxError']
     ),
     SmartDebugTestCase(
         name='function_indentation_error_simple',
@@ -37,7 +38,8 @@ def my_sum(x, y):
 sum_one = my_sum(1, 2)
 sum_two = my_sum(3, 4)
 """,
-        tags=['simple', 'function', 'IndentationError']
+        workflow_tags=['simple', 'function'],
+        type_tags=['IndentationError']
     ),
     SmartDebugTestCase(
         name='function_call_missing_parens_simple',
@@ -54,7 +56,8 @@ def my_sum(x, y):
 
 x = my_sum(1, 2)
 """,
-        tags=['simple', 'function', 'SyntaxError']
+        workflow_tags=['simple', 'function'],
+        type_tags=['SyntaxError']
     ),
     SmartDebugTestCase(
         name='function_call_with_missing_arguments_simple',
@@ -71,7 +74,8 @@ def my_sum(x, y):
 
 x = my_sum(1, 2)
 """,
-        tags=['simple', 'function', 'TypeError']
+        workflow_tags=['simple', 'function'],
+        type_tags=['TypeError']
     ),
     SmartDebugTestCase(
         name='function_call_with_extra_arguments_simple',
@@ -89,7 +93,8 @@ def sum_two_numbers(x, y):
 
 x = sum_two_numbers(1, 2)
 """,
-        tags=['simple', 'function', 'TypeError']
+        workflow_tags=['simple', 'function'],
+        type_tags=['TypeError']
     ),
     SmartDebugTestCase(
         name='function_call_with_missing_return_simple',
@@ -122,7 +127,8 @@ def is_even(x):
 x = my_sum(1, 2)
 is_even(x)
 """,
-        tags=['simple', 'function', 'TypeError'],
+        workflow_tags=['simple', 'function'],
+        type_tags=['TypeError'],
         variables_to_compare=['x']
     ),
     SmartDebugTestCase(
@@ -140,7 +146,8 @@ def sum_two_numbers(x, y):
 
 x = sum_two_numbers(1, 2)
 """,
-        tags=['simple', 'function', 'NameError'],
+        workflow_tags=['simple', 'function'],
+        type_tags=['NameError'],
         variables_to_compare=['x']
     )
 
