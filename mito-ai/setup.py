@@ -96,7 +96,7 @@ setup(
         'deploy': [
             'wheel==0.42.0', 
             'twine==5.1.1',
-            "setuptools==56.0.0"
+            'setuptools>=61.0.0,<70.0.0'
         ],
     },
     keywords=["AI", "Jupyter", "Mito"],
