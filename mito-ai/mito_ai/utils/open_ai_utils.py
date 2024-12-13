@@ -4,6 +4,7 @@
 # Copyright (c) Saga Inc.
 
 import os
+import json
 import requests
 from typing import Any, Dict, List
 from .db import get_user_field, set_user_field
@@ -141,11 +142,55 @@ def get_open_ai_completion(
             # If they DO have an Open AI key, use it to get a completion
             response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
 
-            # Log the successful completion
-            log(
-                MITO_AI_COMPLETION_SUCCESS,
-                params={KEY_TYPE_PARAM: USER_KEY, "input_location": input_location},
-            )
+            if input_location == "smartDebug":
+                log(
+                    "smart_debug_success",
+                    params={
+                        KEY_TYPE_PARAM: USER_KEY,
+                        "error_message": last_message_content,
+                        "response": response,
+                    },
+                )
+            elif input_location == "codeExplain":
+                log(
+                    "code_explain_success",
+                    params={
+                        KEY_TYPE_PARAM: USER_KEY,
+                        "error_message": last_message_content.split("Error Message: ")[
+                            -1
+                        ],
+                        "error_type": last_message_content.split("Error Type: ")[
+                            -1
+                        ].split(": ")[0],
+                        "response": response,
+                    },
+                )
+            elif input_location == "sidebar":
+                log(
+                    "sidebar_success",
+                    params={
+                        KEY_TYPE_PARAM: USER_KEY,
+                        "user_input": last_message_content.split("Your task: ")[-1],
+                        "code_cell_input": json.dumps(
+                            last_message_content.split("Code in the active code cell:")[
+                                -1
+                            ]
+                            .strip()
+                            .split("```python")[1]
+                            .strip()
+                            .split("```")[0]
+                        ),
+                        "response": response,
+                    },
+                )
+            else:
+                log(
+                    f"{input_location}_success",
+                    params={
+                        KEY_TYPE_PARAM: USER_KEY,
+                        "note": "This input_location has not been accounted for in open_ai_utils.py. Please add it to the codebase.",
+                    },
+                )
             return response
     except Exception as e:
         key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
