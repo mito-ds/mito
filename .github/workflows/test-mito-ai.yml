@@ -28,6 +28,24 @@ jobs:
       with:
         access_token: ${{ github.token }}
     - uses: actions/checkout@v2
+    
+    # Install system dependencies required by Playwright browser automation
+    # These dependencies are specifically needed for Python 3.12 due to changes
+    # in how it handles browser automation and system-level libraries
+    - name: Install system dependencies
+      if: matrix.python-version == '3.12'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libwoff1 \
+                               libopus0 \
+                               libwebpdemux2 \
+                               libharfbuzz-icu0 \
+                               libhyphen0 \
+                               libegl1 \
+                               libevdev2 \
+                               libgles2 \
+                               gstreamer1.0-libav
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
