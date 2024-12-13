@@ -113,7 +113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug')
+        await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug', 'smartDebug')
     }
 
     const sendExplainCodeMessage = () => {
@@ -126,7 +126,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
         
         // Step 2: Send the message to the AI
-        _sendMessageAndSaveResponse(newChatHistoryManager)
+        _sendMessageAndSaveResponse(newChatHistoryManager, 'default', 'codeExplain')
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -147,14 +147,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(newChatHistoryManager, 'default', 'sidebar')
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
         sendChatInputMessage(newContent, messageIndex)
     };
 
-    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager, messageType: 'default' | 'smartDebug' = 'default') => {
+    const _sendMessageAndSaveResponse = async (
+        newChatHistoryManager: ChatHistoryManager, 
+        messageType: 'default' | 'smartDebug' = 'default',
+        inputLocation: 'sidebar' | 'smartDebug' | 'codeExplain'
+    ) => {
 
         setLoadingAIResponse(true)
 
@@ -164,7 +168,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
-                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message)
+                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message),
+                    input_location: inputLocation
                 })
             });
 

@@ -103,7 +103,9 @@ def _get_ai_completion_from_mito_server(
     return res.json()
 
 
-def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+def get_open_ai_completion(
+    messages: List[Dict[str, Any]], input_location: str
+) -> Dict[str, Any]:
 
     initialize_user()
 
@@ -140,7 +142,10 @@ def get_open_ai_completion(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
             response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
 
             # Log the successful completion
-            log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
+            log(
+                MITO_AI_COMPLETION_SUCCESS,
+                params={KEY_TYPE_PARAM: USER_KEY, "input_location": input_location},
+            )
             return response
     except Exception as e:
         key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
