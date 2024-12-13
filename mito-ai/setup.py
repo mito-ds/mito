@@ -96,8 +96,7 @@ setup(
         'deploy': [
             'wheel==0.42.0', 
             'twine==5.1.1',
-            'setuptools==68.0.0'
-            
+            'setuptools>=61.0.0,<70.0.0'
         ],
         'test': [
             'pytest==8.3.4',
