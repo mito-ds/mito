@@ -3,7 +3,7 @@ from evals.notebook_states import *
 
 VARIABLE_TESTS = [
     InlineCodeCompletionTestCase(
-        name="empty_notebook_variable_declaration_with_prefix",
+        name="variable_declaration_with_prefix",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK,
             expected_code="x=1",
@@ -16,7 +16,7 @@ x =""",
         type_tags=["comment_following"],
     ),
     InlineCodeCompletionTestCase(
-        name="empty_notebook_variable_declaration_no_prefix",
+        name="variable_declaration_no_prefix",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK,
             expected_code="x=1",
@@ -25,6 +25,17 @@ x =""",
         prefix="""# Create a variable x and set it equal to 1""",
         suffix="",
         type_tags=["comment_following"],
+    ),
+    InlineCodeCompletionTestCase(
+        name="variable_declaration_no_expressed_intent",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""x=1""",
+            workflow_tags=["variable_declaration"],
+        ),
+        prefix="""x=1""",
+        suffix="""""",
+        type_tags=["no_expressed_intent"],
     ),
     InlineCodeCompletionTestCase(
         name="empty_notebook_variable_declaration_with_suffix",

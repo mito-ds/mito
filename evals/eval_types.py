@@ -45,7 +45,8 @@ class InlineCodeCompletionTestCase:
     suffix: str
     type_tags: List[Literal[
 	    'code_completion',
-	    'comment_following'
+	    'comment_following',
+        'no_expressed_intent'
     ]]
     test_type: Literal['inline_code_completion'] = 'inline_code_completion'
 
