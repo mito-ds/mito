@@ -5,7 +5,7 @@ import {
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker, ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { addIcon } from '@jupyterlab/ui-components';
+import { addIcon, markdownIcon } from '@jupyterlab/ui-components';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
@@ -139,7 +139,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         10, // Position of the button in the toolbar
         'writeMarkdownDoc', // Name of the toolbar item
         new ToolbarButton({
-          icon: addIcon, // Icon for the button
+          icon: markdownIcon, // Use your custom icon here
           tooltip: 'Write Markdown Documentation for Selected Cells', // Tooltip text
           onClick: async () => {
             await getMarkdownDocumentation(notebookTracker);

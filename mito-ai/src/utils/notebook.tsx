@@ -1,17 +1,10 @@
 import { INotebookTracker, NotebookPanel, Notebook, NotebookActions } from '@jupyterlab/notebook';
-// import { INotebookModel } from '@jupyterlab/notebook/lib/model';
 import { Cell, ICellModel } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { requestAPI } from './handler';
+import { ServerError, TimeoutError, ConnectionError, UnknownError, OpenAIError } from './errors';
 
 const LOADING_MARKDOWN = '> *`⏳ Generating documentation... please wait`*';
-
-const ERROR_MESSAGES = {
-    INTERNAL_SERVER: '> ❌ *Server Error: The documentation service is currently unavailable. Please try again later.*',
-    TIMEOUT: '> ❌ *Request timed out. The server took too long to respond. Please try again.*',
-    CONNECTION: '> ❌ *Connection Error: Unable to reach the documentation service. Please check your internet connection.*',
-    UNKNOWN: '> ❌ *An unexpected error occurred. Please try again.*'
-};
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
@@ -142,44 +135,29 @@ export function writeToCell(cell: ICellModel | undefined, code: string): void {
  * @param {string} targetCellId - The ID of the target cell.
  */
 function insertMarkdownBeforeCell(notebook: NotebookPanel, targetCellId: string, aiMessage: string) {
-    if (!notebook || !notebook.content || !notebook.content.model) {
-        console.error('Invalid notebook state');
-        return;
-    }
+  const targetIndex = findCellIndexById(notebook.content, targetCellId);
+  if (targetIndex === -1) return;
 
-    const targetIndex = findCellIndexById(notebook.content, targetCellId);
-    if (targetIndex === -1) {
-        console.error('Target cell not found');
-        return;
-    }
+  // Set the active cell index to the target index
+  notebook.content.activeCellIndex = targetIndex;
 
-    try {
-        // Set the active cell index to the target index
-        notebook.content.activeCellIndex = targetIndex;
+  // Insert a new cell above the target index
+  NotebookActions.insertAbove(notebook.content);
+  NotebookActions.changeCellType(notebook.content, 'markdown');
 
-        // Insert a new cell above the target index
-        NotebookActions.insertAbove(notebook.content);
-        
-        // Ensure the cell was actually created
-        const newCell = notebook.content.widgets[targetIndex];
-        if (!newCell) {
-            console.error('Failed to create new cell');
-            return;
-        }
+  // Get the newly inserted cell
+  const newCell = notebook.content.widgets[targetIndex];
 
-        NotebookActions.changeCellType(notebook.content, 'markdown');
-        writeToCell(newCell.model, aiMessage);
-        NotebookActions.renderAllMarkdown(notebook.content);
-    } catch (error) {
-        console.error('Error inserting markdown cell:', error);
-    }
+  // Change the cell type to Markdown and write content
+  if (newCell) {
+    console.log("New cell ID >> ", newCell.model.id);
+    writeToCell(newCell.model, aiMessage);
+    NotebookActions.renderAllMarkdown(notebook.content);
+  } else {
+    console.error("New cell not found");
+  }
 }
 
-// Add this helper function at the top level
-const isCellExecuting = (notebook: Notebook | undefined): boolean => {
-    if (!notebook) return false;
-    return notebook.widgets.some(cell => cell.model.executionState === 'executing');
-};
 
 // Function to get combined code from selected cells
 export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker): Promise<void> => {
@@ -196,32 +174,21 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
         return;
     }
 
-    // Check if any cells are currently executing
-    if (isCellExecuting(currentNotebook.content)) {
-        console.warn('Cannot generate documentation while cells are executing');
-        return;
-    }
-
-    try {
-        // Create loading cell first
-        insertMarkdownBeforeCell(currentNotebook, selectedCellIndices[0], LOADING_MARKDOWN);
-        // Store the ID of the newly created cell (it will be at targetIndex)
-        const loadingCellIndex = findCellIndexById(currentNotebook.content, selectedCellIndices[0]) - 1;
-        const loadingCell = currentNotebook.content.widgets[loadingCellIndex];
-        
-        if (!loadingCell) {
-            console.error('Failed to create loading cell');
-            return;
+    // Create loading cell first
+    insertMarkdownBeforeCell(currentNotebook, selectedCellIndices[0], LOADING_MARKDOWN);
+    // Store the ID of the newly created cell (it will be at targetIndex)
+    const loadingCellIndex = findCellIndexById(currentNotebook.content, selectedCellIndices[0]) - 1;
+    const loadingCell = currentNotebook.content.widgets[loadingCellIndex];
+    
+    let combinedCode = '';
+    selectedCellIndices.forEach(cellIndex => {
+        const cellCode = getCellCodeByID(notebookTracker, cellIndex);
+        if (cellCode) {
+            combinedCode += cellCode + '\n';
         }
-
-        let combinedCode = '';
-        selectedCellIndices.forEach(cellIndex => {
-            const cellCode = getCellCodeByID(notebookTracker, cellIndex);
-            if (cellCode) {
-                combinedCode += cellCode + '\n';
-            }
-        });
-        
+    });
+    
+    try {
         // Add timeout to the request
         const timeoutDuration = 30000; // 30 seconds
         const timeoutPromise = new Promise((_, reject) => {
@@ -244,19 +211,21 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
                 NotebookActions.renderAllMarkdown(currentNotebook.content);
             }
         } else {
-            throw new Error('Response was not successful');
+            throw new OpenAIError();
         }
     } catch (error: any) {
-        console.error('Error in documentation generation:', error);
+        console.error('Error calling API:', error);
         
-        let errorMessage = ERROR_MESSAGES.UNKNOWN;
+        let errorMessage = new UnknownError().message;
         
-        if (error.message === 'Request timed out') {
-            errorMessage = ERROR_MESSAGES.TIMEOUT;
+        if (error instanceof TimeoutError) {
+            errorMessage = new TimeoutError().message;
         } else if (error.response?.status === 500) {
-            errorMessage = ERROR_MESSAGES.INTERNAL_SERVER;
+            errorMessage = new ServerError().message;
         } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-            errorMessage = ERROR_MESSAGES.CONNECTION;
+            errorMessage = new ConnectionError().message;
+        } else if (error instanceof OpenAIError) {
+            errorMessage = new OpenAIError().message;
         }
 
         // Add error details for debugging (only in development)
@@ -269,11 +238,6 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
                 loadingCell.model, 
                 errorMessage + errorDetails
             );
-            NotebookActions.renderAllMarkdown(currentNotebook.content);
-        }
-    } finally {
-        // Ensure the notebook is in a clean state
-        if (currentNotebook && currentNotebook.content) {
             NotebookActions.renderAllMarkdown(currentNotebook.content);
         }
     }
