@@ -6,10 +6,12 @@ on:
     paths:
       - 'mito-ai/**'
       - 'tests/mitoai_ui_tests/**'
+      - '.github/workflows/test-mito-ai.yml'
   pull_request:
     paths:
       - 'mito-ai/**'
       - 'tests/mitoai_ui_tests/**'
+      - '.github/workflows/test-mito-ai.yml'
 jobs:
   test-mitoai-frontend-jupyterlab:
     runs-on: ubuntu-20.04

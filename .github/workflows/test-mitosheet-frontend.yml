@@ -6,11 +6,13 @@ on:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
+      - '.github/workflows/test-mitosheet-frontend.yml'
       - '!tests/mitoai_ui_tests/**'
   pull_request:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
+      - '.github/workflows/test-mitosheet-frontend.yml'
       - '!tests/mitoai_ui_tests/**'
 jobs:
   test-mitosheet-frontend-jupyterlab:
