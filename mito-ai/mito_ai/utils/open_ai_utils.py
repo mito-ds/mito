@@ -147,7 +147,15 @@ def get_open_ai_completion(
                     "smart_debug_success",
                     params={
                         KEY_TYPE_PARAM: USER_KEY,
-                        "error_message": last_message_content,
+                        "error_message": last_message_content.split("Error Message:")[
+                            -1
+                        ]
+                        .strip()
+                        .split("\n")[0]
+                        "error_type": last_message_content.split("Error Type:")[-1]
+                        .strip()
+                        .split("\n")[0]
+                        .split(":")[0],
                         "response": response,
                     },
                 )
