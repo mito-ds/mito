@@ -4,6 +4,15 @@ import { Cell, ICellModel } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { requestAPI } from './handler';
 
+const LOADING_MARKDOWN = '> *`⏳ Generating documentation... please wait`*';
+
+const ERROR_MESSAGES = {
+    INTERNAL_SERVER: '> ❌ *Server Error: The documentation service is currently unavailable. Please try again later.*',
+    TIMEOUT: '> ❌ *Request timed out. The server took too long to respond. Please try again.*',
+    CONNECTION: '> ❌ *Connection Error: Unable to reach the documentation service. Please check your internet connection.*',
+    UNKNOWN: '> ❌ *An unexpected error occurred. Please try again.*'
+};
+
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
     const activeCell = notebook?.activeCell;
@@ -133,29 +142,44 @@ export function writeToCell(cell: ICellModel | undefined, code: string): void {
  * @param {string} targetCellId - The ID of the target cell.
  */
 function insertMarkdownBeforeCell(notebook: NotebookPanel, targetCellId: string, aiMessage: string) {
-  const targetIndex = findCellIndexById(notebook.content, targetCellId);
-  if (targetIndex === -1) return;
+    if (!notebook || !notebook.content || !notebook.content.model) {
+        console.error('Invalid notebook state');
+        return;
+    }
 
-  // Set the active cell index to the target index
-  notebook.content.activeCellIndex = targetIndex;
+    const targetIndex = findCellIndexById(notebook.content, targetCellId);
+    if (targetIndex === -1) {
+        console.error('Target cell not found');
+        return;
+    }
 
-  // Insert a new cell above the target index
-  NotebookActions.insertAbove(notebook.content);
-  NotebookActions.changeCellType(notebook.content, 'markdown');
+    try {
+        // Set the active cell index to the target index
+        notebook.content.activeCellIndex = targetIndex;
 
-  // Get the newly inserted cell
-  const newCell = notebook.content.widgets[targetIndex];
+        // Insert a new cell above the target index
+        NotebookActions.insertAbove(notebook.content);
+        
+        // Ensure the cell was actually created
+        const newCell = notebook.content.widgets[targetIndex];
+        if (!newCell) {
+            console.error('Failed to create new cell');
+            return;
+        }
 
-  // Change the cell type to Markdown and write content
-  if (newCell) {
-    console.log("New cell ID >> ", newCell.model.id);
-    writeToCell(newCell.model, aiMessage);
-    NotebookActions.renderAllMarkdown(notebook.content);
-  } else {
-    console.error("New cell not found");
-  }
+        NotebookActions.changeCellType(notebook.content, 'markdown');
+        writeToCell(newCell.model, aiMessage);
+        NotebookActions.renderAllMarkdown(notebook.content);
+    } catch (error) {
+        console.error('Error inserting markdown cell:', error);
+    }
 }
 
+// Add this helper function at the top level
+const isCellExecuting = (notebook: Notebook | undefined): boolean => {
+    if (!notebook) return false;
+    return notebook.widgets.some(cell => cell.model.executionState === 'executing');
+};
 
 // Function to get combined code from selected cells
 export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker): Promise<void> => {
@@ -164,40 +188,94 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
     if (selectedCellIndices.length === 0) {
         return;
     }
-  
-    let combinedCode = '';
-            
-    selectedCellIndices.forEach(cellIndex => {
-              const cellCode = getCellCodeByID(notebookTracker, cellIndex);
-              console.log(`Code for cell ${cellIndex}:`, cellCode);
-              if (cellCode) {
-                combinedCode += cellCode + '\n'; // Append code with a newline
-              }
-    });
-            
-    console.log('Combined code:\n', combinedCode);
-    let aiMessage = '';
+
+    // Get the current notebook early
+    const currentNotebook: NotebookPanel | null = notebookTracker.currentWidget;
+    if (!currentNotebook) {
+        console.error('No active notebook found.');
+        return;
+    }
+
+    // Check if any cells are currently executing
+    if (isCellExecuting(currentNotebook.content)) {
+        console.warn('Cannot generate documentation while cells are executing');
+        return;
+    }
+
     try {
-        const apiResponse = await requestAPI('mito_ai/completion', {
+        // Create loading cell first
+        insertMarkdownBeforeCell(currentNotebook, selectedCellIndices[0], LOADING_MARKDOWN);
+        // Store the ID of the newly created cell (it will be at targetIndex)
+        const loadingCellIndex = findCellIndexById(currentNotebook.content, selectedCellIndices[0]) - 1;
+        const loadingCell = currentNotebook.content.widgets[loadingCellIndex];
+        
+        if (!loadingCell) {
+            console.error('Failed to create loading cell');
+            return;
+        }
+
+        let combinedCode = '';
+        selectedCellIndices.forEach(cellIndex => {
+            const cellCode = getCellCodeByID(notebookTracker, cellIndex);
+            if (cellCode) {
+                combinedCode += cellCode + '\n';
+            }
+        });
+        
+        // Add timeout to the request
+        const timeoutDuration = 30000; // 30 seconds
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timed out')), timeoutDuration);
+        });
+
+        const fetchPromise = requestAPI('mito_ai/completion', {
             method: 'POST',
             body: JSON.stringify({
                 messages: [{role: 'user', content: "Write markdown documentation for the following code:\n" + combinedCode}]
             })
         });
+
+        const apiResponse: any = await Promise.race([fetchPromise, timeoutPromise]);
+        
         if (apiResponse.type === 'success') {
-            aiMessage = apiResponse.response.content || '';
-            console.log('AI message:', aiMessage);
-            const currentNotebook: NotebookPanel | null = notebookTracker.currentWidget;
-
-            if (!currentNotebook) {
-                console.error('No active notebook found.');
-                return;
+            const aiMessage = apiResponse.response.content || '';
+            if (loadingCell) {
+                writeToCell(loadingCell.model, aiMessage);
+                NotebookActions.renderAllMarkdown(currentNotebook.content);
             }
-
-            insertMarkdownBeforeCell(currentNotebook, selectedCellIndices[0], aiMessage);
+        } else {
+            throw new Error('Response was not successful');
         }
-    } catch (error) {
-        console.error('Error calling API:', error);
+    } catch (error: any) {
+        console.error('Error in documentation generation:', error);
+        
+        let errorMessage = ERROR_MESSAGES.UNKNOWN;
+        
+        if (error.message === 'Request timed out') {
+            errorMessage = ERROR_MESSAGES.TIMEOUT;
+        } else if (error.response?.status === 500) {
+            errorMessage = ERROR_MESSAGES.INTERNAL_SERVER;
+        } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+            errorMessage = ERROR_MESSAGES.CONNECTION;
+        }
+
+        // Add error details for debugging (only in development)
+        const errorDetails = process.env.NODE_ENV === 'development' 
+            ? `\n\n<details><summary>Error Details</summary>\n\n\`\`\`\n${error.toString()}\n\`\`\`\n</details>`
+            : '';
+
+        if (loadingCell) {
+            writeToCell(
+                loadingCell.model, 
+                errorMessage + errorDetails
+            );
+            NotebookActions.renderAllMarkdown(currentNotebook.content);
+        }
+    } finally {
+        // Ensure the notebook is in a clean state
+        if (currentNotebook && currentNotebook.content) {
+            NotebookActions.renderAllMarkdown(currentNotebook.content);
+        }
     }
 }
 
