@@ -1,7 +1,7 @@
 
 
 from evals.eval_types import InlineCodeCompletionTestCase
-from evals.test_cases.chat_tests.dataframe_transformation_tests import DATETIME_CONVERSION, EXTRACT_YEAR_FROM_STRING_DATE, FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION, FILTER_ANNUAL_INCOME_GREATER_THAN_100K
+from evals.test_cases.chat_tests.dataframe_transformation_tests import CONVERT_ANNUAL_INCOME_TO_FLOAT, CONVERT_INTEREST_RATE_TO_INT, CONVERT_KILOMETERS_DRIVEN_TO_FLOAT, DATETIME_CONVERSION, EXTRACT_YEAR_FROM_STRING_DATE, FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION, FILTER_ANNUAL_INCOME_GREATER_THAN_100K, REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES
 
 
 DATAFRAME_TRANSFORMATION_TESTS = [
@@ -116,6 +116,104 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
         type_tags=['no_expressed_intent'],
     ),
 
+    # Convert annual income to float 
+    InlineCodeCompletionTestCase(
+        name="convert_annual_income_to_float_comment",
+        test_case_core=CONVERT_ANNUAL_INCOME_TO_FLOAT,
+        prefix=""""# Convert the annual income column to float""",
+        suffix="",
+        type_tags=['comment_following'],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="convert_annual_income_to_float_no_comment",
+        test_case_core=CONVERT_ANNUAL_INCOME_TO_FLOAT,
+        prefix=""""loans_df['annual_income'] = loans_df['annual_income'].astype(fl""",
+        suffix="",
+        type_tags=['no_expressed_intent'],
+    ),
+
+    # Convert interest rate to int
+    InlineCodeCompletionTestCase(
+        name="convert_interest_rate_to_int_comment",
+        test_case_core=CONVERT_INTEREST_RATE_TO_INT,
+        prefix=""""# Convert the interest rate column to int""",
+        suffix="",
+        type_tags=['comment_following'],
+    ),
+
+    # Convert interest rate to int -- no comment
+    InlineCodeCompletionTestCase(
+        name="convert_km_to_float_3/3_lines_provided_no_comment",
+        test_case_core=CONVERT_INTEREST_RATE_TO_INT,
+        prefix="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
+        suffix="",
+        type_tags=['no_expressed_intent'],
+    ),
+
+    # Convert interest rate to int -- no comment
+    InlineCodeCompletionTestCase(
+        name="convert_km_to_float_3/3_lines_provided_with_comment",
+        test_case_core=CONVERT_INTEREST_RATE_TO_INT,
+        prefix=""" # Convert the kilometers driven column to float
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
+used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
+        suffix="",
+        type_tags=['no_expressed_intent'],
+    ),
+
+    # Convert kilometers driven to float
+    # 2/3 lines provided as prefix
+    InlineCodeCompletionTestCase(
+        name="convert_km_to_float_no_comment_2/3_lines_provided",
+        test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
+        prefix=""""used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
+used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=True)
+""",
+        suffix="",
+        type_tags=['no_expressed_intent'],
+    ),
+
+    # Convert kilometers driven to float
+    # 1/3 lines provided as prefix
+    InlineCodeCompletionTestCase(
+        name="convert_km_to_float_no_comment_1/3_lines_provided",
+        test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
+        prefix=""""used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
+""",
+        suffix="",
+        type_tags=['no_expressed_intent'],
+    ),
+
+    # Convert kilometers driven to float
+    InlineCodeCompletionTestCase(
+        name="convert_km_to_float_comment_0/3_lines_provided",
+        test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
+        prefix=""""# Convert the kilometers driven column to float""",
+        suffix="",
+        type_tags=['comment_following'],
+    ),
+
+    # Replace underscore with space in column names
+    InlineCodeCompletionTestCase(
+        name="replace_underscore_with_space_in_column_names_comment",
+        test_case_core=REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES,
+        prefix=""""# Replace the underscore with a space in the column names""",
+        suffix="",
+        type_tags=['comment_following'],
+    ),
+
+    # Replace underscore with space in column names
+    InlineCodeCompletionTestCase(
+        name="replace_underscore_with_space_in_column_names",
+        test_case_core=REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES,
+        prefix=""""loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else""",
+        suffix="",
+        type_tags=['code_completion'],
+    ),
 
 
 ]
