@@ -1,7 +1,7 @@
 
 
 from evals.eval_types import InlineCodeCompletionTestCase
-from evals.test_cases.chat_tests.dataframe_transformation_tests import CONVERT_ANNUAL_INCOME_TO_FLOAT, CONVERT_INTEREST_RATE_TO_INT, CONVERT_KILOMETERS_DRIVEN_TO_FLOAT, DATETIME_CONVERSION, EXTRACT_YEAR_FROM_STRING_DATE, FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION, FILTER_ANNUAL_INCOME_GREATER_THAN_100K, REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES
+from evals.test_cases.chat_tests.dataframe_transformation_tests import CONVERT_ANNUAL_INCOME_TO_FLOAT, CONVERT_INTEREST_RATE_TO_INT, CONVERT_KILOMETERS_DRIVEN_TO_FLOAT, DATETIME_CONVERSION, EXTRACT_YEAR_FROM_STRING_DATE, FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION, FILTER_ANNUAL_INCOME_GREATER_THAN_100K, NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION, REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES, SEPARATE_DATA_BY_COLUMN_VALUE, WEIGHTED_AVERAGE_INTEREST_RATE
 
 
 DATAFRAME_TRANSFORMATION_TESTS = [
@@ -213,6 +213,75 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=Tru
         prefix=""""loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else""",
         suffix="",
         type_tags=['code_completion'],
+    ),
+
+    # Weighted average interest rate
+    InlineCodeCompletionTestCase(
+        name="weighted_average_interest_rate_finish_variable_declaration",
+        test_case_core=WEIGHTED_AVERAGE_INTEREST_RATE,
+        prefix=""""
+loans_df['weighted interest rate'] = loans_df['loan_amount']*loans_df['interest_rate']
+total_weighted_interest_rates = loans_df['weighted interest rate'].sum()
+total_loan_balances = loans_df['loan_amount'].sum()
+weighted_average_interest_rate =      
+""",
+        suffix="",
+        type_tags=['code_completion'],
+    ),
+
+    # Weighted average interest rate -- Calculate missing variables
+    InlineCodeCompletionTestCase(
+        name="weighted_average_interest_rate_cal_missing_variables",
+        test_case_core=WEIGHTED_AVERAGE_INTEREST_RATE,
+        prefix=""""loans_df['weighted interest rate'] = loans_df['loan_amount']*loans_df['interest_rate']""",
+        suffix="weighted_average_interest_rate = total_weighted_interest_rates / total_loan_balances",
+        type_tags=['code_completion'],
+    ),
+
+    # Weighted average interest rate -- Calculate missing column
+    # This relies on the AI understanding that weighted interest rate is the product of loan amount and interest rate.
+    InlineCodeCompletionTestCase(
+        name="weighted_average_interest_rate_cal_missing_column",
+        test_case_core=WEIGHTED_AVERAGE_INTEREST_RATE,
+        prefix=""""loans_df['weig""",
+        suffix="""total_weighted_interest_rates = loans_df['weighted interest rate'].sum()
+total_loan_balances = loans_df['loan_amount'].sum()
+weighted_average_interest_rate = total_weighted_interest_rates / total_loan_balances""",
+        type_tags=['code_completion'],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="separate_data_by_column_value_comment",
+        test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
+        prefix=""""# Create a new dataframe for each income category. ie: loans_df_low, loans_df_medium, etc.""",
+        suffix="",
+        type_tags=['comment_following'],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="separate_data_by_column_value_prefix",
+        test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
+        prefix=""""loans_df_low = loans_df[loans_df['income_category'] == 'Low']
+loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']""",
+        suffix="",
+        type_tags=['no_expressed_intent'],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="separate_data_by_column_value_suffix",
+        test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
+        prefix="""""",
+        suffix="""loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']
+loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
+        type_tags=['no_expressed_intent'],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="separate_data_by_column_value_prefix_and_suffix",
+        test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
+        prefix="""loans_df_low = loans_df[loans_df['income_category'] == 'Low']""",
+        suffix="""loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
+        type_tags=['no_expressed_intent'],
     ),
 
 
