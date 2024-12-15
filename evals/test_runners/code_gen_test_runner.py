@@ -82,11 +82,11 @@ def run_code_gen_test(
     ai_generated_code = get_open_ai_completion(prompt)
 
     # Construct the actual code
-    if test.test_type == 'inline_code_completion':
-        actual_code = current_cell_contents_script + (test.prefix or "") + ai_generated_code + (test.suffix or "")
-        print(f"Actual code: \n{actual_code}")
-    else:
+    if test.test_type == 'chat':
         actual_code = current_cell_contents_script + "\n" + ai_generated_code
+    else:
+        actual_code = current_cell_contents_script + (test.prefix or "") + ai_generated_code + (test.suffix or "")
+
 
     # Execute the code and check if they produce the same results
     try:

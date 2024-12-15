@@ -33,7 +33,7 @@ class ChatTestCase:
     name: str
     test_case_core: CodeGenTestCaseCore
     user_input: str
-    test_type: Literal['chat'] = 'chat',
+    test_type: Literal['chat'] = 'chat'
     type_tags: List[Literal['']] = field(default_factory=list) # TODO: Add type tags later if we want
 
 
