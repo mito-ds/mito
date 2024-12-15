@@ -1,8 +1,5 @@
-
-
-
 from evals.eval_types import CodeGenTestCaseCore, InlineCodeCompletionTestCase
-from evals.notebook_states import EMPTY_NOTEBOOK, RETURNS_DICT_NOTEBOOK
+from evals.notebook_states import EMPTY_NOTEBOOK
 
 
 FUNCTION_TESTS = [
@@ -40,7 +37,5 @@ x = my_sum(1, 2)
 x = my_sum(1, 2)
 """,
         type_tags=["code_completion"],
-    ),
-    
-
+    )
 ]
