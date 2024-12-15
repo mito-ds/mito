@@ -118,3 +118,56 @@ stock_df = pd.DataFrame({
     'dividend_yield': ['2.5%', '1.8%', None, '0%'] * 25
 })""", '']
 )
+
+RETURNS_DICT_NOTEBOOK: NotebookState = NotebookState(
+    global_vars={
+        'returns': {
+            '2020': {
+                'current_close': 100,
+                'previous_close': 50,
+            },
+            '2021': {
+                'current_close': 150,
+                'previous_close': 100,
+            },
+            '2022': {
+                'current_close': 200,
+                'previous_close': 150,
+            },
+            '2023': {
+                'current_close': 250,
+                'previous_close': 200,
+            },
+            '2024': {
+                'current_close': 300,
+                'previous_close': 250,
+            },
+        }
+    },
+    cell_contents=["""
+
+returns = {
+    '2020': {
+        'current_close': 100,
+        'previous_close': 50,
+    },
+    '2021': {
+        'current_close': 150,
+        'previous_close': 100,
+    },
+    '2022': {
+        'current_close': 200,
+        'previous_close': 150,
+    },
+    '2023': {
+        'current_close': 250,
+        'previous_close': 200,
+    },
+    '2024': {
+        'current_close': 300,
+        'previous_close': 250,
+    },
+}
+
+""", '']
+)

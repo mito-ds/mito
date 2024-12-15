@@ -8,7 +8,8 @@ WORKFLOW_TAGS = Literal[
     'df_creation',
     'pandas',
     'misc',
-    'multistep'
+    'multistep',
+    'loops',
 ]
 
 @dataclass(frozen=True)
@@ -41,14 +42,14 @@ class InlineCodeCompletionTestCase:
     """A single test case with input state and expected output"""
     name: str
     test_case_core: CodeGenTestCaseCore
-    prefix: str 
-    suffix: str
     type_tags: List[Literal[
 	    'code_completion',
 	    'comment_following',
         'no_expressed_intent'
     ]]
     test_type: Literal['inline_code_completion'] = 'inline_code_completion'
+    prefix: Optional[str] = None
+    suffix: Optional[str] = None
 
 
 @dataclass(frozen=True)
