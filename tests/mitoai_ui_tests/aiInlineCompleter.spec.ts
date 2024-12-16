@@ -76,11 +76,15 @@ test.describe("default inline completion", () => {
   test("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
-    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, (ws) => {
+    await page.routeWebSocket(/.*\/mito-ai\/chat-completions/, (ws) => {
       ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
-        if (payload.prefix === "def fib" && payload.stream) {
+        if (
+          payload.type === "inline_completion" &&
+          payload.messages.find((message) => message.content === "def fib") &&
+          payload.stream
+        ) {
           let counter = -1;
           const streamReply = setInterval(() => {
             if (++counter < MOCKED_MESSAGES.length) {
@@ -93,8 +97,8 @@ test.describe("default inline completion", () => {
         } else {
           ws.send(
             JSON.stringify({
-              list: { items: [] },
-              reply_to: messageId,
+              items: [],
+              parent_id: messageId,
               type: "inline_completion",
               error: {
                 type: "ValueError",
@@ -123,7 +127,7 @@ test.describe("default inline completion", () => {
       .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
       .toHaveText("def fib(n):\n    pass\n");
 
-    await page.keyboard.press('Tab');
+    await page.keyboard.press("Tab");
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
     expect(
@@ -159,12 +163,15 @@ test.describe("default manual inline completion", () => {
   test("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
-    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, (ws) => {
+    await page.routeWebSocket(/.*\/mito-ai\/chat-completions/, (ws) => {
       ws.onMessage((message) => {
-        console.log(`inline completion ${message}`);
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
-        if (payload.prefix === "def fib" && payload.stream) {
+        if (
+          payload.type === "inline_completion" &&
+          payload.messages.find((message) => message.content === "def fib") &&
+          payload.stream
+        ) {
           let counter = -1;
           const streamReply = setInterval(() => {
             if (++counter < MOCKED_MESSAGES.length) {
@@ -177,8 +184,8 @@ test.describe("default manual inline completion", () => {
         } else {
           ws.send(
             JSON.stringify({
-              list: { items: [] },
-              reply_to: messageId,
+              items: [],
+              parent_id: messageId,
               type: "inline_completion",
               error: {
                 type: "ValueError",
@@ -217,23 +224,21 @@ test.describe("default manual inline completion", () => {
 // Mocked messages to simulate the inline completion process
 const MOCKED_MESSAGES = [
   {
-    list: {
-      items: [
-        {
-          insertText: "",
-          filterText: null,
-          isIncomplete: true,
-          token: "t1s0",
-          error: null,
-        },
-      ],
-    },
+    items: [
+      {
+        insertText: "",
+        filterText: null,
+        isIncomplete: true,
+        token: "t1s0",
+        error: null,
+      },
+    ],
     parent_id: "1",
     type: "inline_completion",
     error: null,
   },
   {
-    response: {
+    chunk: {
       insertText: "",
       filterText: null,
       isIncomplete: true,
@@ -246,7 +251,7 @@ const MOCKED_MESSAGES = [
     error: null,
   },
   {
-    response: {
+    chunk: {
       insertText: "def",
       filterText: null,
       isIncomplete: true,
@@ -259,7 +264,7 @@ const MOCKED_MESSAGES = [
     error: null,
   },
   {
-    response: {
+    chunk: {
       insertText: " fib",
       filterText: null,
       isIncomplete: true,
@@ -272,7 +277,7 @@ const MOCKED_MESSAGES = [
     error: null,
   },
   {
-    response: {
+    chunk: {
       insertText: "(n",
       filterText: null,
       isIncomplete: true,
@@ -285,7 +290,7 @@ const MOCKED_MESSAGES = [
     error: null,
   },
   {
-    response: {
+    chunk: {
       insertText: "):\n",
       filterText: null,
       isIncomplete: true,
@@ -298,7 +303,7 @@ const MOCKED_MESSAGES = [
     error: null,
   },
   {
-    response: {
+    chunk: {
       insertText: "    pass\n",
       filterText: null,
       isIncomplete: true,
