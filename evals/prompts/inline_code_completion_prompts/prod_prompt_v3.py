@@ -77,12 +77,32 @@ Code in the active code cell:
 
 Output:
 ```python
-
-x = 1
 ```
 </Example 3>
 
 IMPORTANT: Notice in Example 3 that the output starts with a newline because the cursor appears at the end of a comment line.
+
+<Example 4>
+Defined Variables: {{
+    presidents: pd.DataFrame({{
+        'year': [1993, 2001, 2009, 2017, 2021],
+        'name': ['Clinton', 'Bush', 'Obama', 'Trump', 'Biden'],
+        'party': ['Democrat', 'Republican', 'Democrat', 'Republican', 'Democrat'],
+    }})
+}}
+
+Code in the active code cell:
+```python
+# Filter the presidents to only include Democrats
+presidents[presidents['party'] == 'Democrat']<cursor>
+```
+
+Output:
+```python
+```
+</Example 4>
+
+IMPORTANT: Notice in Example 4 that the output is empty because the code already implements the user's expressed intent. There is no additional information about what the user wants to do.
 
 Your Task:
 
