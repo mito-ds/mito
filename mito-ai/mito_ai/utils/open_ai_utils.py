@@ -143,51 +143,64 @@ def get_open_ai_completion(
             response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
 
             if input_location == "smartDebug":
+                code_cell_input = (
+                    last_message_content.split("Code in the active code cell:")[-1]
+                    .strip()
+                    .split("```python")[1]
+                    .strip()
+                    .split("```")[0]
+                )
+                error_message = (
+                    last_message_content.split("Error Message:")[-1]
+                    .split("ERROR ANALYSIS:")[0]
+                    .strip()
+                )
+                error_type = (
+                    last_message_content.split("Error Message:")[-1]
+                    .split("ERROR ANALYSIS:")[0]
+                    .split(": ")[0]
+                )
                 log(
                     "smart_debug_success",
                     params={
                         KEY_TYPE_PARAM: USER_KEY,
-                        "error_message": last_message_content.split("Error Message:")[
-                            -1
-                        ]
-                        .strip()
-                        .split("\n")[0],
-                        "error_type": last_message_content.split("Error Type:")[-1]
-                        .strip()
-                        .split("\n")[0]
-                        .split(":")[0],
+                        "code_cell_input": json.dumps(code_cell_input),
+                        "error_message": error_message,
+                        "error_type": error_type,
                         "response": response,
                     },
                 )
             elif input_location == "codeExplain":
+                code_cell_input = (
+                    last_message_content.split("Code in the active code cell:")[-1]
+                    .strip()
+                    .split("```python")[1]
+                    .strip()
+                    .split("```")[0]
+                )
                 log(
                     "code_explain_success",
                     params={
                         KEY_TYPE_PARAM: USER_KEY,
-                        "error_message": last_message_content.split("Error Message: ")[
-                            -1
-                        ],
-                        "error_type": last_message_content.split("Error Type: ")[
-                            -1
-                        ].split(": ")[0],
+                        "code_cell_input": json.dumps(code_cell_input),
                         "response": response,
                     },
                 )
             elif input_location == "sidebar":
+                user_input = last_message_content.split("Your task: ")[-1]
+                code_cell_input = (
+                    last_message_content.split("Code in the active code cell:")[-1]
+                    .strip()
+                    .split("```python")[1]
+                    .strip()
+                    .split("```")[0]
+                )
                 log(
                     "sidebar_success",
                     params={
                         KEY_TYPE_PARAM: USER_KEY,
-                        "user_input": last_message_content.split("Your task: ")[-1],
-                        "code_cell_input": json.dumps(
-                            last_message_content.split("Code in the active code cell:")[
-                                -1
-                            ]
-                            .strip()
-                            .split("```python")[1]
-                            .strip()
-                            .split("```")[0]
-                        ),
+                        "user_input": user_input,
+                        "code_cell_input": json.dumps(code_cell_input),
                         "response": response,
                     },
                 )
@@ -196,6 +209,7 @@ def get_open_ai_completion(
                     f"{input_location}_success",
                     params={
                         KEY_TYPE_PARAM: USER_KEY,
+                        "response": response,
                         "note": "This input_location has not been accounted for in open_ai_utils.py. Please add it to the codebase.",
                     },
                 )
