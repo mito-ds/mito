@@ -131,7 +131,7 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
         test_case_core=CONVERT_ANNUAL_INCOME_TO_FLOAT,
         prefix="""loans_df['annual_income'] = loans_df['annual_income'].astype(fl""",
         suffix="",
-        type_tags=['code_completion'],
+        type_tags=['no_expressed_intent'],
     ),
 
     # Convert interest rate to int
@@ -143,10 +143,10 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
         type_tags=['comment_following'],
     ),
 
-    # Convert KM to float -- no comment
+    # Convert interest rate to int -- no comment
     InlineCodeCompletionTestCase(
         name="convert_km_to_float_3/3_lines_provided_no_comment",
-        test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
+        test_case_core=CONVERT_INTEREST_RATE_TO_INT,
         prefix="""used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
@@ -154,10 +154,10 @@ used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
         type_tags=['no_expressed_intent'],
     ),
 
-    # Convert km to float -- no comment. Complete
+    # Convert interest rate to int -- no comment
     InlineCodeCompletionTestCase(
         name="convert_km_to_float_3/3_lines_provided_with_comment",
-        test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
+        test_case_core=CONVERT_INTEREST_RATE_TO_INT,
         prefix=""" # Convert the kilometers driven column to float
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].str[:-3]
 used_cars_df["kmDriven"] = used_cars_df["kmDriven"].replace({',': ''}, regex=True)
@@ -175,7 +175,7 @@ used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
 used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=True)
 """,
         suffix="",
-        type_tags=['code_completion'],
+        type_tags=['no_expressed_intent'],
     ),
 
     # Convert kilometers driven to float
@@ -186,7 +186,7 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=Tru
         prefix="""used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
 """,
         suffix="",
-        type_tags=['code_completion'],
+        type_tags=['no_expressed_intent'],
     ),
 
     # Convert kilometers driven to float
@@ -266,7 +266,7 @@ weighted_average_interest_rate = total_weighted_interest_rates / total_loan_bala
         prefix="""loans_df_low = loans_df[loans_df['income_category'] == 'Low']
 loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']""",
         suffix="",
-        type_tags=['code_completion'],
+        type_tags=['no_expressed_intent'],
     ),
 
     InlineCodeCompletionTestCase(
@@ -276,7 +276,7 @@ loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']""",
         suffix="""
 loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']
 loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
-        type_tags=['code_completion'],
+        type_tags=['no_expressed_intent'],
     ),
 
     InlineCodeCompletionTestCase(
@@ -286,7 +286,7 @@ loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
         suffix="""
 loans_df_high = loans_df[loans_df['income_category'] == 'High']
 """,
-        type_tags=['code_completion'],
+        type_tags=['no_expressed_intent'],
     ),
 
 
