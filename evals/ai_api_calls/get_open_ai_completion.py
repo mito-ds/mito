@@ -16,7 +16,6 @@ def get_open_ai_completion(prompt: str):
 
     response_content = response.choices[0].message.content
 
-    print(f"Response content: \nSTART{response_content}END")
     return get_code_block_from_message(response_content)
 
 
