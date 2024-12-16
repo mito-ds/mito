@@ -113,7 +113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug', 'smartDebug')
+        await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug')
     }
 
     const sendExplainCodeMessage = () => {
@@ -126,7 +126,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
         
         // Step 2: Send the message to the AI
-        _sendMessageAndSaveResponse(newChatHistoryManager, 'default', 'codeExplain')
+        _sendMessageAndSaveResponse(newChatHistoryManager, 'codeExplain')
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -147,7 +147,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager, 'default', 'sidebar')
+        await _sendMessageAndSaveResponse(newChatHistoryManager, 'sidebar')
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
@@ -156,7 +156,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const _sendMessageAndSaveResponse = async (
         newChatHistoryManager: ChatHistoryManager, 
-        messageType: 'default' | 'smartDebug' = 'default',
         inputLocation: 'sidebar' | 'smartDebug' | 'codeExplain'
     ) => {
 
@@ -175,12 +174,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (apiResponse.type === 'success') {
                 const aiMessage = apiResponse.response;
-                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, messageType);
+                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, inputLocation);
                 setChatHistoryManager(newChatHistoryManager);
                 
                 aiRespone = aiMessage
             } else {
-                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, messageType, true)
+                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, inputLocation, true)
                 setChatHistoryManager(newChatHistoryManager);
             }
         } catch (error) {

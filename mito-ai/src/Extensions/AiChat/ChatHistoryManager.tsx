@@ -178,12 +178,16 @@ export class ChatHistoryManager {
         );
     }
 
-    addAIMessageFromResponse(messageContent: string | null, messageType: 'default' | 'smartDebug', mitoAIConnectionError: boolean=false): void {
+    addAIMessageFromResponse(
+        messageContent: string | null, 
+        inputLocation: 'sidebar' | 'smartDebug' | 'codeExplain', 
+        mitoAIConnectionError: boolean=false
+    ): void {
         if (messageContent === null) {
             return
         }
 
-        if (messageType === 'smartDebug') {
+        if (inputLocation === 'smartDebug') {
             messageContent = removeInnerThoughtsFromMessage(messageContent)
         }
 
