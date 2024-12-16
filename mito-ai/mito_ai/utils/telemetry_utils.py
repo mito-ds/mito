@@ -151,7 +151,6 @@ def log_ai_completion_success(
         .strip()
         .split("```")[0]
     )
-    print(code_cell_input)
 
     if input_location == "smartDebug":
         error_message = (
