@@ -90,9 +90,13 @@ def run_code_gen_test(
         # because the inline code completion can occur in the middle of a line. 
         actual_code = current_cell_contents_script + "\n" + (test.prefix or "") + ai_generated_code + (test.suffix or "")
 
-    print(f"Prompt: \n{prompt}")
+    #print(f"Prompt: \n{prompt}")
     print(f"Ai_generated_code: \n{ai_generated_code}")
     print(f"Actual code: \n{actual_code}")
+
+    # Print if the ai_generated_code starts with a newline
+    if ai_generated_code.startswith("\n"):
+        print("Ai_generated_code starts with a newline")
 
     # Execute the code and check if they produce the same results
     try:
