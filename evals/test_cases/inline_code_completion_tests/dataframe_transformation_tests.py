@@ -9,7 +9,7 @@ DATAFRAME_TRANSFORMATION_TESTS = [
     InlineCodeCompletionTestCase(
         name="complete_basic_filter_condition",
         test_case_core=FILTER_ANNUAL_INCOME_GREATER_THAN_100K,
-        prefix=""""# Filter the annual income column to > 100k""",
+        prefix="""# Filter the annual income column to > 100k""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -27,7 +27,7 @@ DATAFRAME_TRANSFORMATION_TESTS = [
     InlineCodeCompletionTestCase(
         name="complete_filter_bracket_with_comment",
         test_case_core=FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION,
-        prefix=""""# Filter the annual income column to > 100k and the loan condition to bad loans""",
+        prefix="""# Filter the annual income column to > 100k and the loan condition to bad loans""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -56,7 +56,8 @@ DATAFRAME_TRANSFORMATION_TESTS = [
         name="extract_year_from_date_infer_from_suffix",
         test_case_core=EXTRACT_YEAR_FROM_STRING_DATE,
         prefix="""""",
-        suffix="loans_df['year'] = loans_df['issue_date'].dt.year",
+        suffix="""
+loans_df['year'] = loans_df['issue_date'].dt.year""",
         type_tags=['code_completion'],
     ),
 
@@ -65,8 +66,7 @@ DATAFRAME_TRANSFORMATION_TESTS = [
         name="extract_year_from_date_finish_code",
         test_case_core=EXTRACT_YEAR_FROM_STRING_DATE,
         prefix="""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
-loans_df['year'] = 
-        """,
+loans_df['year'] = """,
         suffix="",
         type_tags=['code_completion'],
     ),
@@ -75,7 +75,7 @@ loans_df['year'] =
     InlineCodeCompletionTestCase(
         name="extract_year_from_date_comment_following",
         test_case_core=EXTRACT_YEAR_FROM_STRING_DATE,
-        prefix=""""# Extract the year from the issue date""",
+        prefix="""# Extract the year from the issue date""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -85,8 +85,9 @@ loans_df['year'] =
     InlineCodeCompletionTestCase(
         name="extract_year_from_date_finished_in_suffix",
         test_case_core=EXTRACT_YEAR_FROM_STRING_DATE,
-        prefix=""""# Extract the year from the issue date""",
-        suffix="""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
+        prefix="""# Extract the year from the issue date""",
+        suffix="""
+loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
 loans_df['year'] = loans_df['issue_date'].dt.year""",
         type_tags=['no_expressed_intent'],
     ),
@@ -96,7 +97,7 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
     InlineCodeCompletionTestCase(
         name="extract_year_from_date_finished_in_prefix",
         test_case_core=EXTRACT_YEAR_FROM_STRING_DATE,
-        prefix=""""# Extract the year from the issue date
+        prefix="""# Extract the year from the issue date
 loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
 loans_df['year'] = loans_df['issue_date'].dt.year""",
         suffix="""""",
@@ -110,7 +111,7 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
     InlineCodeCompletionTestCase(
         name="extract_year_from_date_finished_in_prefix_no_comment",
         test_case_core=EXTRACT_YEAR_FROM_STRING_DATE,
-        prefix=""""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
+        prefix="""loans_df['issue_date'] = pd.to_datetime(loans_df['issue_date'], format='%Y-%m-%d', errors='coerce')
 loans_df['year'] = loans_df['issue_date'].dt.year""",
         suffix="""""",
         type_tags=['no_expressed_intent'],
@@ -120,7 +121,7 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
     InlineCodeCompletionTestCase(
         name="convert_annual_income_to_float_comment",
         test_case_core=CONVERT_ANNUAL_INCOME_TO_FLOAT,
-        prefix=""""# Convert the annual income column to float""",
+        prefix="""# Convert the annual income column to float""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -128,7 +129,7 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
     InlineCodeCompletionTestCase(
         name="convert_annual_income_to_float_no_comment",
         test_case_core=CONVERT_ANNUAL_INCOME_TO_FLOAT,
-        prefix=""""loans_df['annual_income'] = loans_df['annual_income'].astype(fl""",
+        prefix="""loans_df['annual_income'] = loans_df['annual_income'].astype(fl""",
         suffix="",
         type_tags=['no_expressed_intent'],
     ),
@@ -137,7 +138,7 @@ loans_df['year'] = loans_df['issue_date'].dt.year""",
     InlineCodeCompletionTestCase(
         name="convert_interest_rate_to_int_comment",
         test_case_core=CONVERT_INTEREST_RATE_TO_INT,
-        prefix=""""# Convert the interest rate column to int""",
+        prefix="""# Convert the interest rate column to int""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -170,7 +171,7 @@ used_cars_df["kmDriven"] = used_cars_df["kmDriven"].astype(float)""",
     InlineCodeCompletionTestCase(
         name="convert_km_to_float_no_comment_2/3_lines_provided",
         test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
-        prefix=""""used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
+        prefix="""used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
 used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=True)
 """,
         suffix="",
@@ -182,7 +183,7 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=Tru
     InlineCodeCompletionTestCase(
         name="convert_km_to_float_no_comment_1/3_lines_provided",
         test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
-        prefix=""""used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
+        prefix="""used_cars_df['kmDriven'] = used_cars_df['kmDriven'].str[:-3]
 """,
         suffix="",
         type_tags=['no_expressed_intent'],
@@ -192,7 +193,7 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=Tru
     InlineCodeCompletionTestCase(
         name="convert_km_to_float_comment_0/3_lines_provided",
         test_case_core=CONVERT_KILOMETERS_DRIVEN_TO_FLOAT,
-        prefix=""""# Convert the kilometers driven column to float""",
+        prefix="""# Convert the kilometers driven column to float""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -201,7 +202,7 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=Tru
     InlineCodeCompletionTestCase(
         name="replace_underscore_with_space_in_column_names_comment",
         test_case_core=REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES,
-        prefix=""""# Replace the underscore with a space in the column names""",
+        prefix="""# Replace the underscore with a space in the column names""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -210,7 +211,7 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=Tru
     InlineCodeCompletionTestCase(
         name="replace_underscore_with_space_in_column_names",
         test_case_core=REPLACE_UNDERSCORE_WITH_SPACE_IN_COLUMN_NAMES,
-        prefix=""""loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else""",
+        prefix="""loans_df.columns = [col.replace('_', ' ') if isinstance(col, str) else""",
         suffix="",
         type_tags=['code_completion'],
     ),
@@ -219,12 +220,11 @@ used_cars_df['kmDriven'] = used_cars_df['kmDriven'].replace({',': ''}, regex=Tru
     InlineCodeCompletionTestCase(
         name="weighted_average_interest_rate_finish_variable_declaration",
         test_case_core=WEIGHTED_AVERAGE_INTEREST_RATE,
-        prefix=""""
+        prefix="""
 loans_df['weighted interest rate'] = loans_df['loan_amount']*loans_df['interest_rate']
 total_weighted_interest_rates = loans_df['weighted interest rate'].sum()
 total_loan_balances = loans_df['loan_amount'].sum()
-weighted_average_interest_rate =      
-""",
+weighted_average_interest_rate = """,
         suffix="",
         type_tags=['code_completion'],
     ),
@@ -233,8 +233,9 @@ weighted_average_interest_rate =
     InlineCodeCompletionTestCase(
         name="weighted_average_interest_rate_cal_missing_variables",
         test_case_core=WEIGHTED_AVERAGE_INTEREST_RATE,
-        prefix=""""loans_df['weighted interest rate'] = loans_df['loan_amount']*loans_df['interest_rate']""",
-        suffix="weighted_average_interest_rate = total_weighted_interest_rates / total_loan_balances",
+        prefix="""loans_df['weighted interest rate'] = loans_df['loan_amount']*loans_df['interest_rate']""",
+        suffix="""
+weighted_average_interest_rate = total_weighted_interest_rates / total_loan_balances""",
         type_tags=['code_completion'],
     ),
 
@@ -243,8 +244,9 @@ weighted_average_interest_rate =
     InlineCodeCompletionTestCase(
         name="weighted_average_interest_rate_cal_missing_column",
         test_case_core=WEIGHTED_AVERAGE_INTEREST_RATE,
-        prefix=""""loans_df['weig""",
-        suffix="""total_weighted_interest_rates = loans_df['weighted interest rate'].sum()
+        prefix="""loans_df['weig""",
+        suffix="""
+total_weighted_interest_rates = loans_df['weighted interest rate'].sum()
 total_loan_balances = loans_df['loan_amount'].sum()
 weighted_average_interest_rate = total_weighted_interest_rates / total_loan_balances""",
         type_tags=['code_completion'],
@@ -253,7 +255,7 @@ weighted_average_interest_rate = total_weighted_interest_rates / total_loan_bala
     InlineCodeCompletionTestCase(
         name="separate_data_by_column_value_comment",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
-        prefix=""""# Create a new dataframe for each income category. ie: loans_df_low, loans_df_medium, etc.""",
+        prefix="""# Create a new dataframe for each income category. ie: loans_df_low, loans_df_medium, etc.""",
         suffix="",
         type_tags=['comment_following'],
     ),
@@ -261,7 +263,7 @@ weighted_average_interest_rate = total_weighted_interest_rates / total_loan_bala
     InlineCodeCompletionTestCase(
         name="separate_data_by_column_value_prefix",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
-        prefix=""""loans_df_low = loans_df[loans_df['income_category'] == 'Low']
+        prefix="""loans_df_low = loans_df[loans_df['income_category'] == 'Low']
 loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']""",
         suffix="",
         type_tags=['no_expressed_intent'],
@@ -271,7 +273,8 @@ loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']""",
         name="separate_data_by_column_value_suffix",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
         prefix="""""",
-        suffix="""loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']
+        suffix="""
+loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']
 loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
         type_tags=['no_expressed_intent'],
     ),
@@ -280,7 +283,9 @@ loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
         name="separate_data_by_column_value_prefix_and_suffix",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
         prefix="""loans_df_low = loans_df[loans_df['income_category'] == 'Low']""",
-        suffix="""loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
+        suffix="""
+loans_df_high = loans_df[loans_df['income_category'] == 'High']
+""",
         type_tags=['no_expressed_intent'],
     ),
 

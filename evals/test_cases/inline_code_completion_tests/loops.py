@@ -93,11 +93,8 @@ percent_changes = []
 for year in returns.keys():
     current_close = returns[year]['current_close']
     previous_close = returns[year]['previous_close']
-""",
-        suffix="""
-    percent_changes.append(calculate_percent_change(current_close, previous_close))
-
-""",
+    """,
+        suffix="""""",
         type_tags=["code_completion"],
     ),
     InlineCodeCompletionTestCase(
@@ -111,7 +108,7 @@ percent_changes = []
 for year in returns.keys():
     current_close = returns[year]['current_close']
     previous_close = returns[year]['previous_close']
-""",
+    """,
         suffix="""""",
         type_tags=["code_completion"],
     ),
@@ -138,8 +135,7 @@ def calculate_percent_change(current_value, previous_value):
     return (current_value - previous_value) / previous_value
 
 percent_changes = []
-for year in
-""",
+for year in """,
         suffix="""
     current_close = returns[year]['current_close']
     previous_close = returns[year]['previous_close']

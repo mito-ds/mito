@@ -73,7 +73,7 @@ def run_code_gen_test(
     expected_code = current_cell_contents_script + "\n" + test.test_case_core.expected_code
 
     # Construct the prompt 
-    if test.test_type == 'chat':
+    if isinstance(prompt_generator, ChatPromptGenerator):
         prompt = prompt_generator.get_prompt(test.user_input, test.test_case_core.notebook_state)
     else:
         prompt = prompt_generator.get_prompt(test.prefix or "", test.suffix or "", test.test_case_core.notebook_state)
@@ -85,8 +85,14 @@ def run_code_gen_test(
     if test.test_type == 'chat':
         actual_code = current_cell_contents_script + "\n" + ai_generated_code
     else:
-        actual_code = current_cell_contents_script + (test.prefix or "") + ai_generated_code + (test.suffix or "")
+        # We always add a newline between the current_cell_contents and the prefix. 
+        # But we don't add a newline between the prefix -> ai_generated_code -> suffix, 
+        # because the inline code completion can occur in the middle of a line. 
+        actual_code = current_cell_contents_script + "\n" + (test.prefix or "") + ai_generated_code + (test.suffix or "")
 
+    print(f"Prompt: \n{prompt}")
+    print(f"Ai_generated_code: \n{ai_generated_code}")
+    print(f"Actual code: \n{actual_code}")
 
     # Execute the code and check if they produce the same results
     try:

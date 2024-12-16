@@ -8,7 +8,7 @@ FUNCTION_TESTS = [
         name="create_my_sum_function_from_comment",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK,
-            workflow_tags=["function_declaration"],
+            workflow_tags=["function"],
             expected_code="""
 # Return the sum of two numbers
 def my_sum(a, b):
@@ -25,7 +25,7 @@ x = my_sum(1, 2)
         name='finish_my_sum_function_implementation',
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK,
-            workflow_tags=["function_declaration"],
+            workflow_tags=["function"],
             expected_code="""
 def my_sum(a, b):
     return a + b
@@ -44,7 +44,7 @@ x = my_sum(1, 2)
     InlineCodeCompletionTestCase(
         name="number_first_owner_function_prefix",
         test_case_core=NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION,
-        prefix=""""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+        prefix="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
     df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
     return len(df)
 
@@ -58,7 +58,7 @@ num_ford = """,
     InlineCodeCompletionTestCase(
         name="number_first_owner_function_prefixsuffix",
         test_case_core=NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION,
-        prefix=""""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+        prefix="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
     df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
     return len(df)
     
@@ -72,13 +72,12 @@ num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
     InlineCodeCompletionTestCase(
         name="number_first_owner_function_prefix_suffix_finish_variable_declaration",
         test_case_core=NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION,
-        prefix=""""def get_number_of_first_owner_vehicles_by_brand(df, brand):
+        prefix="""def get_number_of_first_owner_vehicles_by_brand(df, brand):
     df = df[(df['Brand'].str.contains(brand, na=False, regex=False)) & (df['Owner'].str.contains('first', na=False, regex=False))]
     return len(df)
     
 """,
         suffix="""get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'BMW')
-
 num_toyota = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Toyota')
 num_ford = get_number_of_first_owner_vehicles_by_brand(used_cars_df, 'Ford')""",
         type_tags=['code_completion'],
