@@ -15,6 +15,7 @@ def get_open_ai_completion(prompt: str):
     )
 
     response_content = response.choices[0].message.content
+
     return get_code_block_from_message(response_content)
 
 
@@ -30,4 +31,4 @@ def get_code_block_from_message(message: str) -> str:
     if "```python" not in message:
         return message
     
-    return message.split('```python')[1].split('```')[0]
+    return message.split('```python\n')[1].split('\n```')[0]
