@@ -151,7 +151,7 @@ def get_open_ai_completion(
                             -1
                         ]
                         .strip()
-                        .split("\n")[0]
+                        .split("\n")[0],
                         "error_type": last_message_content.split("Error Type:")[-1]
                         .strip()
                         .split("\n")[0]
