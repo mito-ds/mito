@@ -141,7 +141,7 @@ def get_open_ai_completion(
         else:
             # If they DO have an Open AI key, use it to get a completion
             response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
-            log_ai_completion_success(input_location, last_message_content, response)
+            log_ai_completion_success(USER_KEY, input_location, last_message_content, response)
             return response
     except Exception as e:
         key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY

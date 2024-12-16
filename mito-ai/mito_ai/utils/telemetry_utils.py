@@ -130,7 +130,10 @@ def log(
 
 
 def log_ai_completion_success(
-    input_location: str, last_message_content: str, response: Dict[str, Any]
+    key_type: str, 
+    input_location: str, 
+    last_message_content: str, 
+    response: Dict[str, Any]
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -160,7 +163,7 @@ def log_ai_completion_success(
         log(
             "smart_debug_success",
             params={
-                KEY_TYPE_PARAM: USER_KEY,
+                KEY_TYPE_PARAM: key_type,
                 "code_cell_input": code_cell_input,
                 "error_message": error_message,
                 "error_type": error_type,
@@ -171,7 +174,7 @@ def log_ai_completion_success(
         log(
             "code_explain_success",
             params={
-                KEY_TYPE_PARAM: USER_KEY,
+                KEY_TYPE_PARAM: key_type,
                 "code_cell_input": code_cell_input,
                 "response": response,
             },
@@ -181,7 +184,7 @@ def log_ai_completion_success(
         log(
             "sidebar_success",
             params={
-                KEY_TYPE_PARAM: USER_KEY,
+                KEY_TYPE_PARAM: key_type,
                 "user_input": user_input,
                 "code_cell_input": code_cell_input,
                 "response": response,
@@ -191,7 +194,7 @@ def log_ai_completion_success(
         log(
             f"{input_location}_success",
             params={
-                KEY_TYPE_PARAM: USER_KEY,
+                KEY_TYPE_PARAM: key_type,
                 "response": response,
                 "note": "This input_location has not been accounted for in `telemetry_utils.py`.",
             },
