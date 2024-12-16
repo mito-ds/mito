@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Any, Dict, Optional
 import requests
 from .version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
@@ -126,3 +127,72 @@ def log(
 
     # TODO: Eventually we want to hook this up to the mito log uploader 
     # so enterprises can log usage if they want to.
+
+
+def log_ai_completion_success(
+    input_location: str, last_message_content: str, response: Dict[str, Any]
+) -> None:
+    """
+    Logs AI completion success based on the input location.
+
+    Args:
+        input_location: The location where the AI completion was triggered
+        last_message_content: The last message sent to the AI
+        response: The response received from the AI
+    """
+
+    code_cell_input = json.dumps(
+        last_message_content.split("Code in the active code cell:")[-1]
+        .strip()
+        .split("```python")[1]
+        .strip()
+        .split("```")[0]
+    )
+
+    if input_location == "smartDebug":
+        error_message = (
+            last_message_content.split("Error Message:")[-1]
+            .split("ERROR ANALYSIS:")[0]
+            .strip()
+        )
+        error_type = error_message.split(": ")[0]
+
+        log(
+            "smart_debug_success",
+            params={
+                KEY_TYPE_PARAM: USER_KEY,
+                "code_cell_input": code_cell_input,
+                "error_message": error_message,
+                "error_type": error_type,
+                "response": response,
+            },
+        )
+    elif input_location == "codeExplain":
+        log(
+            "code_explain_success",
+            params={
+                KEY_TYPE_PARAM: USER_KEY,
+                "code_cell_input": code_cell_input,
+                "response": response,
+            },
+        )
+    elif input_location == "sidebar":
+        user_input = last_message_content.split("Your task: ")[-1]
+        log(
+            "sidebar_success",
+            params={
+                KEY_TYPE_PARAM: USER_KEY,
+                "user_input": user_input,
+                "code_cell_input": code_cell_input,
+                "response": response,
+            },
+        )
+    else:
+        log(
+            f"{input_location}_success",
+            params={
+                KEY_TYPE_PARAM: USER_KEY,
+                "response": response,
+                "note": "This input_location has not been accounted for in `telemetry_utils.py`.",
+            },
+        )

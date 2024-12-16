@@ -4,7 +4,6 @@
 # Copyright (c) Saga Inc.
 
 import os
-import json
 import requests
 from typing import Any, Dict, List
 from .db import get_user_field, set_user_field
@@ -13,6 +12,7 @@ from .version_utils import is_pro
 from .create import initialize_user
 from .telemetry_utils import (
     log,
+    log_ai_completion_success,
     KEY_TYPE_PARAM,
     MITO_SERVER_KEY,
     USER_KEY,
@@ -141,78 +141,7 @@ def get_open_ai_completion(
         else:
             # If they DO have an Open AI key, use it to get a completion
             response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
-
-            if input_location == "smartDebug":
-                code_cell_input = (
-                    last_message_content.split("Code in the active code cell:")[-1]
-                    .strip()
-                    .split("```python")[1]
-                    .strip()
-                    .split("```")[0]
-                )
-                error_message = (
-                    last_message_content.split("Error Message:")[-1]
-                    .split("ERROR ANALYSIS:")[0]
-                    .strip()
-                )
-                error_type = (
-                    last_message_content.split("Error Message:")[-1]
-                    .split("ERROR ANALYSIS:")[0]
-                    .split(": ")[0]
-                )
-                log(
-                    "smart_debug_success",
-                    params={
-                        KEY_TYPE_PARAM: USER_KEY,
-                        "code_cell_input": json.dumps(code_cell_input),
-                        "error_message": error_message,
-                        "error_type": error_type,
-                        "response": response,
-                    },
-                )
-            elif input_location == "codeExplain":
-                code_cell_input = (
-                    last_message_content.split("Code in the active code cell:")[-1]
-                    .strip()
-                    .split("```python")[1]
-                    .strip()
-                    .split("```")[0]
-                )
-                log(
-                    "code_explain_success",
-                    params={
-                        KEY_TYPE_PARAM: USER_KEY,
-                        "code_cell_input": json.dumps(code_cell_input),
-                        "response": response,
-                    },
-                )
-            elif input_location == "sidebar":
-                user_input = last_message_content.split("Your task: ")[-1]
-                code_cell_input = (
-                    last_message_content.split("Code in the active code cell:")[-1]
-                    .strip()
-                    .split("```python")[1]
-                    .strip()
-                    .split("```")[0]
-                )
-                log(
-                    "sidebar_success",
-                    params={
-                        KEY_TYPE_PARAM: USER_KEY,
-                        "user_input": user_input,
-                        "code_cell_input": json.dumps(code_cell_input),
-                        "response": response,
-                    },
-                )
-            else:
-                log(
-                    f"{input_location}_success",
-                    params={
-                        KEY_TYPE_PARAM: USER_KEY,
-                        "response": response,
-                        "note": "This input_location has not been accounted for in open_ai_utils.py. Please add it to the codebase.",
-                    },
-                )
+            log_ai_completion_success(input_location, last_message_content, response)
             return response
     except Exception as e:
         key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
