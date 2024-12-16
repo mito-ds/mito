@@ -1,9 +1,10 @@
 import json
+import logging
 import time
 import traceback
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Dict, List
+from typing import Any
 
 import tornado
 import tornado.ioloop
@@ -11,6 +12,7 @@ from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
 
+from .logger import get_logger
 from .models import (
     CompletionError,
     CompletionItem,
@@ -24,8 +26,6 @@ from .utils.create import initialize_user
 __all__ = ["CompletionHandler"]
 
 
-
-
 # This handler is responsible for the mito-ai/chat-completions endpoint.
 # It takes a message from the user, sends it to the OpenAI API, and returns the response.
 # Important: Because this is a server extension, print statements are sent to the
@@ -37,6 +37,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
+
+    @property
+    def log(self) -> logging.Logger:
+        """Use Mito AI logger"""
+        return get_logger()
 
     async def pre_get(self) -> None:
         """Handles websocket authentication/authorization."""
@@ -102,9 +107,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         )
         if request.stream:
             reply = CompletionStreamChunk(
-                chunk=CompletionItem(
-                    insertText="", isIncomplete=True
-                ),
+                chunk=CompletionItem(content="", isIncomplete=True),
                 parent_id=request.message_id,
                 done=True,
                 error=error,

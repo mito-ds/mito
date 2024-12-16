@@ -118,7 +118,7 @@ export class CompletionWebsocketClient implements IDisposable {
 
   private _onMessage(message: CompleterMessage): void {
     switch (message.type) {
-      case 'stream': {
+      case 'chunk': {
         this._stream.emit(message);
         break;
       }

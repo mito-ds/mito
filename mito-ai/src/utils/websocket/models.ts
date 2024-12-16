@@ -1,15 +1,25 @@
-import type { IInlineCompletionItem } from '@jupyterlab/completer';
+import type {
+  IInlineCompletionError,
+  IInlineCompletionItem
+} from '@jupyterlab/completer';
 import type OpenAI from 'openai';
 
-export type ConnectionMessage = {
-  type: 'connection';
-  client_id: string;
-};
-
+/**
+ * Completion error type.
+ */
 export type CompletionError = {
+  /**
+   * The type of the error.
+   */
   type: string;
+  /**
+   * The title of the error.
+   */
   title: string;
-  traceback: string;
+  /**
+   * The traceback of the error.
+   */
+  traceback?: string;
 };
 
 /**
@@ -19,7 +29,7 @@ export interface ICompletionRequest {
   /**
    * The type of the message.
    */
-  type: string;
+  type: 'inline_completion' | 'chat';
   /**
    * The message ID.
    */
@@ -35,17 +45,41 @@ export interface ICompletionRequest {
 }
 
 /**
+ * A completion suggestion.
+ */
+export interface ICompletionItem {
+  /**
+   * The completion text.
+   */
+  content: string;
+  /**
+   * Token passed to identify the completion when streaming updates.
+   */
+  token?: string;
+  /**
+   * Whether generation of `insertText` is still ongoing. If your provider supports streaming,
+   * you can set this to true, which will result in the provider's `stream()` method being called
+   * with `token` which has to be set for incomplete completions.
+   */
+  isIncomplete?: boolean;
+  /**
+   * This field is marked when an error occurs during a stream or fetch request.
+   */
+  error?: IInlineCompletionError;
+}
+
+/**
  * Mito AI completion reply.
  */
 export interface ICompletionReply {
   /**
    * The type of the message.
    */
-  type: 'inline_completion';
+  type: 'reply';
   /**
    * Completion items.
    */
-  items: IInlineCompletionItem[];
+  items: ICompletionItem[];
   /**
    * The parent message ID.
    */
@@ -63,11 +97,11 @@ export interface ICompletionStreamChunk {
   /**
    * The type of the message.
    */
-  type: 'stream';
+  type: 'chunk';
   /**
    * Completion item.
    */
-  chunk: IInlineCompletionItem;
+  chunk: ICompletionItem;
   /**
    * Whether the completion is done or not.
    */
@@ -84,6 +118,11 @@ export interface ICompletionStreamChunk {
 
 /**
  * Inline completion stream chunk.
+ * 
+ * For the inline completer, it must contain a field `response` that is an `IInlineCompletionItem`.
+ * But we extend it for our internal code to get metadata information from the chunk;
+ * in particular, the `done` and `error` fields. But we drop the `chunk` field to
+ * avoid confusion with the `response` field.
  */
 export interface InlineCompletionStreamChunk
   extends Omit<ICompletionStreamChunk, 'chunk'> {

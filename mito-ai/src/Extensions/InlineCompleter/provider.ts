@@ -21,12 +21,12 @@ import type OpenAI from 'openai';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
-} from '../../utils/client';
+} from '../../utils/websocket/websocketClient';
 import type {
   CompletionError,
   ICompletionStreamChunk,
   InlineCompletionStreamChunk
-} from '../../utils/models';
+} from '../../utils/websocket/models';
 
 /**
  * Mito AI inline completer
@@ -210,7 +210,7 @@ export class MitoAIInlineCompleter
       return {
         items: result.items.map(item => ({
           ...item,
-          insertText: this._cleanCompletion(item.insertText)
+          insertText: this._cleanCompletion(item.content)
         }))
       };
     } finally {
@@ -356,7 +356,7 @@ interactive outputs.`
           label: 'Show Traceback',
           callback: () => {
             showErrorMessage('Inline completion failed on the server side', {
-              message: error.traceback
+              message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
             });
           }
         }
@@ -393,7 +393,7 @@ interactive outputs.`
     }
 
     let fullCompletion = this._fullCompletionMap.get(this._currentStream) ?? '';
-    fullCompletion += chunk.chunk.insertText;
+    fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
     // Clean suggestion

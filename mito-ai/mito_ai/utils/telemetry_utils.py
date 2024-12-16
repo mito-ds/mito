@@ -84,7 +84,7 @@ def identify() -> None:
 def log(
         log_event: str, 
         params: Optional[Dict[str, Any]]=None, 
-        error: Optional[Exception]=None, 
+        error: Optional[BaseException]=None, 
     ) -> None:
     """
     This function is the entry point for all logging. 

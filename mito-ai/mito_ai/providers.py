@@ -77,8 +77,11 @@ class OpenAIProvider(LoggingConfigurable):
         return bool(self.api_key)
 
     @property
-    def client(self) -> AsyncOpenAI:
+    def _openAI_client(self) -> Optional[AsyncOpenAI]:
         """Get the asynchronous OpenAI client."""
+        if not self.api_key:
+            return None
+
         if not self._client or self._client.is_closed():
             self._client = AsyncOpenAI(api_key=self.api_key)
 
@@ -100,9 +103,11 @@ class OpenAIProvider(LoggingConfigurable):
             The completion
         """
         try:
-            if self.api_key:
-                self.log.debug("Requesting completion from OpenAI API with personal key.")
-                completion = await self.client.chat.completions.create(
+            if self._openAI_client:
+                self.log.debug(
+                    "Requesting completion from OpenAI API with personal key."
+                )
+                completion = await self._openAI_client.chat.completions.create(
                     model=self.model,
                     max_completion_tokens=self.max_completion_tokens,
                     messages=request.messages,
@@ -127,8 +132,7 @@ class OpenAIProvider(LoggingConfigurable):
                             parent_id=request.message_id,
                             items=[
                                 CompletionItem(
-                                    insertText=completion.choices[0].message.content
-                                    or "",
+                                    content=completion.choices[0].message.content or "",
                                     isIncomplete=False,
                                 )
                             ],
@@ -177,7 +181,7 @@ class OpenAIProvider(LoggingConfigurable):
                     parent_id=request.message_id,
                     items=[
                         CompletionItem(
-                            insertText=ai_response,
+                            content=ai_response,
                             isIncomplete=False,
                         )
                     ],
@@ -205,9 +209,7 @@ class OpenAIProvider(LoggingConfigurable):
         # Acknowledge the request
         yield CompletionReply(
             items=[
-                CompletionItem(
-                    insertText="", isIncomplete=True, token=request.message_id
-                )
+                CompletionItem(content="", isIncomplete=True, token=request.message_id)
             ],
             parent_id=request.message_id,
         )
@@ -216,7 +218,7 @@ class OpenAIProvider(LoggingConfigurable):
         try:
             stream: AsyncStream[
                 ChatCompletionChunk
-            ] = await self.client.chat.completions.create(
+            ] = await self._openAI_client.chat.completions.create(
                 model=self.model,
                 stream=True,
                 max_completion_tokens=self.max_completion_tokens,
@@ -235,7 +237,7 @@ class OpenAIProvider(LoggingConfigurable):
                 yield CompletionStreamChunk(
                     parent_id=request.message_id,
                     chunk=CompletionItem(
-                        insertText=chunk.choices[0].delta.content or "",
+                        content=chunk.choices[0].delta.content or "",
                         isIncomplete=True,
                         token=request.message_id,
                     ),
@@ -245,7 +247,7 @@ class OpenAIProvider(LoggingConfigurable):
                 yield CompletionStreamChunk(
                     parent_id=request.message_id,
                     chunk=CompletionItem(
-                        insertText="",
+                        content="",
                         isIncomplete=True,
                         error=CompletionItemError(
                             message=f"Failed to parse chunk completion: {e!r}"
