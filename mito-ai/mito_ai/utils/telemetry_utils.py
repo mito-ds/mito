@@ -87,7 +87,8 @@ def chunk_param(param: str, param_name: str, chunk_size: int=250) -> Dict[str, s
     
     Args:
         param: The string to be chunked
-        param_name: The name of the param to be chunked
+        param_name: The name of the param to be chunked (used as prefix for the chunked keys)
+        chunk_size: The number of characters in each chunk
 
     Returns:
         dict: A dictionary with keys 'response_part_1', 'response_part_2', etc.
