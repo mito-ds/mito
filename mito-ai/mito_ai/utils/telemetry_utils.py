@@ -81,6 +81,31 @@ def identify() -> None:
         except Exception as e:
             pass
 
+def chunk_response(response: str) -> Dict[str, str]:
+    """
+    Split a response string into chunks of 250 characters.
+    
+    Args:
+        response: The string to be chunked
+        
+    Returns:
+        dict: A dictionary with keys 'response_part_1', 'response_part_2', etc.
+    """
+
+    chunk_size = 250
+    chunks = {}
+
+    if not response:
+        return {}
+    
+    num_chunks = (len(response) + chunk_size - 1) // chunk_size
+
+    for i in range(num_chunks):
+        start = i * chunk_size
+        end = min(start + chunk_size, len(response))
+        chunks[f'response_part_{i + 1}'] = response[start:end]
+
+    return chunks
 
 def log(
         log_event: str, 
@@ -128,12 +153,11 @@ def log(
     # TODO: Eventually we want to hook this up to the mito log uploader 
     # so enterprises can log usage if they want to.
 
-
 def log_ai_completion_success(
-    key_type: str, 
-    input_location: str, 
-    last_message_content: str, 
-    response: Dict[str, Any]
+    key_type: str,
+    input_location: str,
+    last_message_content: str,
+    response: Dict[str, Any],
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -152,6 +176,16 @@ def log_ai_completion_success(
         .split("```")[0]
     )
 
+    response_chunks = chunk_response(response["completion"])
+
+    base_params = {
+        KEY_TYPE_PARAM: key_type,
+        "code_cell_input": code_cell_input,
+    }
+
+    for chunk_key, chunk_value in response_chunks.items():
+        base_params[chunk_key] = chunk_value
+
     if input_location == "smartDebug":
         error_message = (
             last_message_content.split("Error Message:")[-1]
@@ -160,42 +194,24 @@ def log_ai_completion_success(
         )
         error_type = error_message.split(": ")[0]
 
-        log(
-            "mito_ai_smart_debug_success",
-            params={
-                KEY_TYPE_PARAM: key_type,
-                "code_cell_input": code_cell_input,
-                "error_message": error_message,
-                "error_type": error_type,
-                "response": response,
-            },
-        )
+        final_params = base_params
+        final_params["error_message"] = error_message
+        final_params["error_type"] = error_type
+
+        log("mito_ai_smart_debug_success", params=final_params)
     elif input_location == "codeExplain":
-        log(
-            "mito_ai_code_explain_success",
-            params={
-                KEY_TYPE_PARAM: key_type,
-                "code_cell_input": code_cell_input,
-                "response": response,
-            },
-        )
+        final_params = base_params
+
+        log("mito_ai_code_explain_success", params=final_params)
     elif input_location == "chat":
-        user_input = last_message_content.split("Your task: ")[-1]
-        log(
-            "mito_ai_chat_success",
-            params={
-                KEY_TYPE_PARAM: key_type,
-                "user_input": user_input,
-                "code_cell_input": code_cell_input,
-                "response": response,
-            },
-        )
+        final_params = base_params
+        final_params["user_input"] = last_message_content.split("Your task: ")[-1]
+
+        log("mito_ai_chat_success", params=final_params)
     else:
-        log(
-            f"mito_ai_{input_location}_success",
-            params={
-                KEY_TYPE_PARAM: key_type,
-                "response": response,
-                "note": "This input_location has not been accounted for in `telemetry_utils.py`.",
-            },
+        final_params = base_params
+        final_params["note"] = (
+            "This input_location has not been accounted for in `telemetry_utils.py`."
         )
+
+        log(f"mito_ai_{input_location}_success", params=final_params)
