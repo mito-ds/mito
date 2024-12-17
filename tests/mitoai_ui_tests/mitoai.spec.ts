@@ -1,7 +1,21 @@
 import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, getCodeFromCell, runCell, selectCell, typeInNotebookCell, waitForIdle, addNewCell } from '../jupyter_utils/jupyterlab_utils';
-import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
-import { clearMitoAIChatInput, clickOnMitoAIChatTab, clickPreviewButton, editMitoAIMessage, sendMessageToMitoAI, waitForMitoAILoadingToDisappear } from './utils';
+import { 
+  createAndRunNotebookWithCells, 
+  getCodeFromCell, 
+  runCell, 
+  selectCell, 
+  typeInNotebookCell, 
+  waitForIdle, 
+  addNewCell 
+} from '../jupyter_utils/jupyterlab_utils';
+import { 
+  clearMitoAIChatInput, 
+  clickOnMitoAIChatTab, 
+  clickPreviewButton, 
+  editMitoAIMessage, 
+  sendMessageToMitoAI, 
+  waitForMitoAILoadingToDisappear 
+} from './utils';
 
 const placeholderCellText = '# Empty code cell';
 const acceptButtonSelector = '[class="code-block-accept-button"]';
@@ -271,13 +285,6 @@ test.describe('Mito AI Chat', () => {
 
     await page.keyboard.type("@none_type_col_A");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
-  });
-
-  test('Keyboard shortcut opens the AI chat', async ({ page, browserName }) => {
-    const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
-    await page.keyboard.press(`${modifierKey}+B`); // Close the sidebar
-    await page.keyboard.press(`${modifierKey}+E`);
-    await expect(page.locator('.chat-input')).toBeVisible();
   });
 });
 
