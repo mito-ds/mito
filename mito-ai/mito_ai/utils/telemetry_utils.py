@@ -81,29 +81,29 @@ def identify() -> None:
         except Exception as e:
             pass
 
-def chunk_response(response: str) -> Dict[str, str]:
+def chunk_param(param: str, param_name: str, chunk_size: int=250) -> Dict[str, str]:
     """
-    Split a response string into chunks of 250 characters.
+    Split a string into chunks of 250 characters.
     
     Args:
-        response: The string to be chunked
-        
+        param: The string to be chunked
+        param_name: The name of the param to be chunked
+
     Returns:
         dict: A dictionary with keys 'response_part_1', 'response_part_2', etc.
     """
 
-    chunk_size = 250
     chunks = {}
 
-    if not response:
+    if not param:
         return {}
     
-    num_chunks = (len(response) + chunk_size - 1) // chunk_size
+    num_chunks = (len(param) + chunk_size - 1) // chunk_size
 
     for i in range(num_chunks):
         start = i * chunk_size
-        end = min(start + chunk_size, len(response))
-        chunks[f'response_part_{i + 1}'] = response[start:end]
+        end = min(start + chunk_size, len(param))
+        chunks[f'{param_name}_part_{i + 1}'] = param[start:end]
 
     return chunks
 
@@ -168,6 +168,11 @@ def log_ai_completion_success(
         response: The response received from the AI
     """
 
+    # Params that every log has
+    base_params = {
+        KEY_TYPE_PARAM: key_type,
+    }
+
     code_cell_input = json.dumps(
         last_message_content.split("Code in the active code cell:")[-1]
         .strip()
@@ -176,12 +181,12 @@ def log_ai_completion_success(
         .split("```")[0]
     )
 
-    response_chunks = chunk_response(response["completion"])
+    # Chunk certain params to work around mixpanel's 255 character limit
+    code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
+    response_chunks = chunk_param(response["completion"], "response")
 
-    base_params = {
-        KEY_TYPE_PARAM: key_type,
-        "code_cell_input": code_cell_input,
-    }
+    for chunk_key, chunk_value in code_cell_input_chunks.items():
+        base_params[chunk_key] = chunk_value
 
     for chunk_key, chunk_value in response_chunks.items():
         base_params[chunk_key] = chunk_value
