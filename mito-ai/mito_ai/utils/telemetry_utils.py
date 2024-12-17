@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Any, Dict, Optional
 import requests
 from .version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
@@ -80,6 +81,32 @@ def identify() -> None:
         except Exception as e:
             pass
 
+def chunk_param(param: str, param_name: str, chunk_size: int=250) -> Dict[str, str]:
+    """
+    Split a string into chunks of 250 characters.
+    
+    Args:
+        param: The string to be chunked
+        param_name: The name of the param to be chunked (used as prefix for the chunked keys)
+        chunk_size: The number of characters in each chunk
+
+    Returns:
+        dict: A dictionary with keys 'response_part_1', 'response_part_2', etc.
+    """
+
+    chunks = {}
+
+    if not param:
+        return {}
+    
+    num_chunks = (len(param) + chunk_size - 1) // chunk_size
+
+    for i in range(num_chunks):
+        start = i * chunk_size
+        end = min(start + chunk_size, len(param))
+        chunks[f'{param_name}_part_{i + 1}'] = param[start:end]
+
+    return chunks
 
 def log(
         log_event: str, 
@@ -126,3 +153,72 @@ def log(
 
     # TODO: Eventually we want to hook this up to the mito log uploader 
     # so enterprises can log usage if they want to.
+
+def log_ai_completion_success(
+    key_type: str,
+    prompt_type: str,
+    last_message_content: str,
+    response: Dict[str, Any],
+) -> None:
+    """
+    Logs AI completion success based on the input location.
+
+    Args:
+        key_type: The type of key that was used to get the AI completion
+        prompt_type: The type of prompt that was sent to the AI
+        last_message_content: The last message sent to the AI
+        response: The response received from the AI
+    """
+
+    # Params that every log has
+    base_params = {
+        KEY_TYPE_PARAM: key_type,
+    }
+
+    code_cell_input = json.dumps(
+        last_message_content.split("Code in the active code cell:")[-1]
+        .strip()
+        .split("```python")[1]
+        .strip()
+        .split("```")[0]
+    )
+
+    # Chunk certain params to work around mixpanel's 255 character limit
+    code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
+    response_chunks = chunk_param(response["completion"], "response")
+
+    for chunk_key, chunk_value in code_cell_input_chunks.items():
+        base_params[chunk_key] = chunk_value
+
+    for chunk_key, chunk_value in response_chunks.items():
+        base_params[chunk_key] = chunk_value
+
+    if prompt_type == "smartDebug":
+        error_message = (
+            last_message_content.split("Error Message:")[-1]
+            .split("ERROR ANALYSIS:")[0]
+            .strip()
+        )
+        error_type = error_message.split(": ")[0]
+
+        final_params = base_params
+        final_params["error_message"] = error_message
+        final_params["error_type"] = error_type
+
+        log("mito_ai_smart_debug_success", params=final_params)
+    elif prompt_type == "codeExplain":
+        final_params = base_params
+
+        log("mito_ai_code_explain_success", params=final_params)
+    elif prompt_type == "chat":
+        final_params = base_params
+        final_params["user_input"] = last_message_content.split("Your task: ")[-1]
+
+        log("mito_ai_chat_success", params=final_params)
+    else:
+        final_params = base_params
+        final_params["note"] = (
+            "This input_location has not been accounted for in `telemetry_utils.py`."
+        )
+
+        log(f"mito_ai_{prompt_type}_success", params=final_params)

@@ -6,6 +6,7 @@ import { createBasicPrompt } from "../../prompts/BasicPrompt";
 import { createErrorPrompt, removeInnerThoughtsFromMessage } from "../../prompts/SmartDebugPrompt";
 import { createExplainCodePrompt } from "../../prompts/ExplainCodePrompt";
 
+type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'system'
 
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -15,6 +16,7 @@ export interface IDisplayOptimizedChatHistory {
 
 export interface IAIOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    promptType: PromptType
     codeCellID: string | undefined
 }
 
@@ -103,6 +105,7 @@ export class ChatHistoryManager {
         this.history.aiOptimizedChatHistory.push(
             {
                 message: aiOptimizedMessage, 
+                promptType: 'chat',
                 codeCellID: activeCellID
             }
         )
@@ -120,6 +123,7 @@ export class ChatHistoryManager {
         // Update the message at the specified index
         this.history.aiOptimizedChatHistory[index] = {
             message: aiOptimizedMessage, 
+            promptType: 'chat',
             codeCellID: activeCellID
         };
         
@@ -151,6 +155,7 @@ export class ChatHistoryManager {
         this.history.aiOptimizedChatHistory.push(
             {
                 message: {role: 'user', content: aiOptimizedPrompt}, 
+                promptType: 'smartDebug',
                 codeCellID: activeCellID
             }
         );
@@ -173,17 +178,22 @@ export class ChatHistoryManager {
         this.history.aiOptimizedChatHistory.push(
             {
                 message: {role: 'user', content: aiOptimizedPrompt}, 
+                promptType: 'codeExplain',
                 codeCellID: activeCellID
             }
         );
     }
 
-    addAIMessageFromResponse(messageContent: string | null, messageType: 'default' | 'smartDebug', mitoAIConnectionError: boolean=false): void {
+    addAIMessageFromResponse(
+        messageContent: string | null, 
+        promptType: PromptType, 
+        mitoAIConnectionError: boolean=false
+    ): void {
         if (messageContent === null) {
             return
         }
 
-        if (messageType === 'smartDebug') {
+        if (promptType === 'smartDebug') {
             messageContent = removeInnerThoughtsFromMessage(messageContent)
         }
 
@@ -191,10 +201,14 @@ export class ChatHistoryManager {
             role: 'assistant',
             content: messageContent
         }
-        this._addAIMessage(aiMessage, mitoAIConnectionError)
+        this._addAIMessage(aiMessage, promptType, mitoAIConnectionError)
     }
 
-    _addAIMessage(aiMessage: OpenAI.Chat.ChatCompletionMessageParam, mitoAIConnectionError: boolean=false): void {
+    _addAIMessage(
+        aiMessage: OpenAI.Chat.ChatCompletionMessageParam, 
+        promptType: PromptType, 
+        mitoAIConnectionError: boolean=false
+    ): void {
         const activeCellID = getActiveCellID(this.notebookTracker)
 
         this.history.displayOptimizedChatHistory.push(
@@ -207,6 +221,7 @@ export class ChatHistoryManager {
         this.history.aiOptimizedChatHistory.push(
             {
                 message: aiMessage, 
+                promptType: promptType,
                 codeCellID: activeCellID,
             }
         );
@@ -224,6 +239,7 @@ export class ChatHistoryManager {
         });
         this.history.aiOptimizedChatHistory.push({
             message: systemMessage, 
+            promptType: 'system',
             codeCellID: undefined
         });
     }

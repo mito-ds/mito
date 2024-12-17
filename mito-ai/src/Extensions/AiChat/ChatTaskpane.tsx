@@ -113,7 +113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug')
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
     }
 
     const sendExplainCodeMessage = () => {
@@ -154,9 +154,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendChatInputMessage(newContent, messageIndex)
     };
 
-    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager, messageType: 'default' | 'smartDebug' = 'default') => {
-
+    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager) => {
         setLoadingAIResponse(true)
+
+        const aiOptimizedHistory = newChatHistoryManager.getAIOptimizedHistory()
+        const promptType = aiOptimizedHistory[aiOptimizedHistory.length - 1]?.promptType
 
         let aiRespone = undefined
 
@@ -164,18 +166,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const apiResponse = await requestAPI('mito_ai/completion', {
                 method: 'POST',
                 body: JSON.stringify({
-                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message)
+                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message),
+                    promptType: promptType
                 })
             });
 
             if (apiResponse.type === 'success') {
                 const aiMessage = apiResponse.response;
-                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, messageType);
+                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, promptType);
                 setChatHistoryManager(newChatHistoryManager);
                 
                 aiRespone = aiMessage
             } else {
-                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, messageType, true)
+                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, promptType, true)
                 setChatHistoryManager(newChatHistoryManager);
             }
         } catch (error) {

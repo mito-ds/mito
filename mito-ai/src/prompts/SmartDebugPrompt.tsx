@@ -20,7 +20,7 @@ Defined Variables:
     }})
 }}
 
-Code in active cell:
+Code in the active code cell:
 \`\`\`python
 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 \`\`\`
@@ -52,7 +52,7 @@ Defined Variables:
     }})
 }}
 
-Code in active cell:
+Code in the active code cell:
 \`\`\`python
 df['date'] = pd.to_datetime(df['date'])
 \`\`\`
@@ -118,7 +118,7 @@ Here is your task.
 Defined Variables:
 ${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
 
-Code in active cell:
+Code in the active code cell:
 \`\`\`python
 ${activeCellCode}
 \`\`\`
