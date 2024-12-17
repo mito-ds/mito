@@ -15,13 +15,13 @@ test.describe('Mito AI Shortcuts', () => {
         await waitForIdle(page);
     });
     
-    test.only('Open the AI chat pane', async ({ page }) => {
+    test('Open the AI chat pane', async ({ page }) => {
         await page.keyboard.press(`${modifierKey}+B`); // Close the sidebar
         await page.keyboard.press(`${modifierKey}+E`);
         await expect(page.locator('.chat-input')).toBeVisible();
     });
 
-    test.only('Preview AI generated code', async ({ page }) => {
+    test('Accept AI generated code', async ({ page }) => {
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
@@ -30,13 +30,6 @@ test.describe('Mito AI Shortcuts', () => {
         // Code diffs should be visible after the user clicks preview
         await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
         await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
-    });
-
-    test.only('Accept AI generated code', async ({ page }) => {
-        await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
-
-        // Preview the code
-        await page.keyboard.press(`${modifierKey}+Y`);
 
         // Accept the code
         await page.keyboard.press(`${modifierKey}+Y`);
@@ -49,7 +42,7 @@ test.describe('Mito AI Shortcuts', () => {
         expect(code).toContain('df["C"] = [7, 8, 9]');
     });
 
-    test.only('Reject AI generated code', async ({ page }) => {
+    test('Reject AI generated code', async ({ page }) => {
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
