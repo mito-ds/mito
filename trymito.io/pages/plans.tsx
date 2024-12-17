@@ -246,9 +246,17 @@ const TRANSFORMATION_FEATURES: Feature[] = [
     }
   },
   {
-    feature: 'Excel-Style Formulas',
+    feature: 'Basic Excel Formulas (ie: LEFT)',
     planSupport: {
       'Open Source': true,
+      'Pro': true,
+      'Enterprise': true 
+    }
+  },
+  {
+    feature: 'Advanced Excel Formulas (ie: SUMIF)',
+    planSupport: {
+      'Open Source': false,
       'Pro': true,
       'Enterprise': true 
     }

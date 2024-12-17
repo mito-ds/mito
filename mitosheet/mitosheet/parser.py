@@ -239,7 +239,7 @@ def check_common_errors(
         )
 
     for sheet_name in df_names:
-        if safe_contains(formula, f'{sheet_name}!', column_headers) and not safe_contains_function(formula, 'VLOOKUP', column_headers):
+        if safe_contains(formula, f'{sheet_name}!', column_headers) and not (safe_contains_function(formula, 'VLOOKUP', column_headers) or safe_contains_function(formula, 'SUMIF', column_headers)):
             raise make_invalid_formula_error(
                 formula,
                 f'Cross-sheet references are only allowed in calls to VLOOKUP',

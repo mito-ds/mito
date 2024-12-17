@@ -9,12 +9,18 @@ to run specific tests on specific versions of pandas or Python
 """
 
 import os
+from mitosheet.user.utils import is_pro
 import pytest
 import pandas as pd
 import sys
 from mitosheet.ai.ai_utils import is_open_ai_credentials_available
 
 from mitosheet.utils import is_flask_installed, is_prev_version, is_snowflake_connector_python_installed, is_snowflake_credentials_available, is_streamlit_installed, is_dash_installed
+
+pro_only = pytest.mark.skipif(
+    not is_pro(), 
+    reason='This test only runs on the pro version of Mito'
+)
 
 pandas_pre_1_only = pytest.mark.skipif(
     not pd.__version__.startswith('0.'), 
