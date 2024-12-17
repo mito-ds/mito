@@ -104,7 +104,9 @@ def _get_ai_completion_from_mito_server(
     return res.json()
 
 
-def get_open_ai_completion(messages: List[Dict[str, Any]], prompt_type: str) -> Dict[str, Any]:
+def get_open_ai_completion(
+    messages: List[Dict[str, Any]], prompt_type: str
+) -> Dict[str, Any]:
 
     initialize_user()
 
@@ -139,9 +141,15 @@ def get_open_ai_completion(messages: List[Dict[str, Any]], prompt_type: str) -> 
         else:
             # If they DO have an Open AI key, use it to get a completion
             response = _get_ai_completion_with_key(ai_completion_data, OPENAI_API_KEY)
-            log_ai_completion_success(USER_KEY, prompt_type, last_message_content, response)
+            log_ai_completion_success(
+                USER_KEY, prompt_type, last_message_content, response
+            )
             return response
     except Exception as e:
         key_type = MITO_SERVER_KEY if OPENAI_API_KEY is None else USER_KEY
-        log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+        log(
+            MITO_AI_COMPLETION_ERROR,
+            params={KEY_TYPE_PARAM: key_type, "prompt_type": prompt_type},
+            error=e,
+        )
         raise e
