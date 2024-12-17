@@ -161,7 +161,7 @@ def log_ai_completion_success(
         error_type = error_message.split(": ")[0]
 
         log(
-            "smart_debug_success",
+            "mito_ai_smart_debug_success",
             params={
                 KEY_TYPE_PARAM: key_type,
                 "code_cell_input": code_cell_input,
@@ -172,7 +172,7 @@ def log_ai_completion_success(
         )
     elif input_location == "codeExplain":
         log(
-            "code_explain_success",
+            "mito_ai_code_explain_success",
             params={
                 KEY_TYPE_PARAM: key_type,
                 "code_cell_input": code_cell_input,
@@ -182,7 +182,7 @@ def log_ai_completion_success(
     elif input_location == "sidebar":
         user_input = last_message_content.split("Your task: ")[-1]
         log(
-            "sidebar_success",
+            "mito_ai_sidebar_success",
             params={
                 KEY_TYPE_PARAM: key_type,
                 "user_input": user_input,
@@ -192,7 +192,7 @@ def log_ai_completion_success(
         )
     else:
         log(
-            f"{input_location}_success",
+            f"mito_ai_{input_location}_success",
             params={
                 KEY_TYPE_PARAM: key_type,
                 "response": response,
