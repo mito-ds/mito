@@ -23,7 +23,6 @@ test.describe('Mito AI Shortcuts', () => {
 
     test.only('Preview AI generated code', async ({ page }) => {
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
-        await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
         await page.keyboard.press(`${modifierKey}+Y`);
@@ -34,7 +33,6 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test.only('Accept AI generated code', async ({ page }) => {
-        await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
@@ -52,9 +50,6 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test.only('Reject AI generated code', async ({ page }) => {
-        await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
-        await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
-
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
