@@ -147,7 +147,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager, 'sidebar')
+        await _sendMessageAndSaveResponse(newChatHistoryManager, 'chat')
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
@@ -156,7 +156,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const _sendMessageAndSaveResponse = async (
         newChatHistoryManager: ChatHistoryManager, 
-        inputLocation: 'sidebar' | 'smartDebug' | 'codeExplain'
+        inputLocation: 'chat' | 'smartDebug' | 'codeExplain'
     ) => {
 
         setLoadingAIResponse(true)

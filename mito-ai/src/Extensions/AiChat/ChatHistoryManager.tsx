@@ -180,7 +180,7 @@ export class ChatHistoryManager {
 
     addAIMessageFromResponse(
         messageContent: string | null, 
-        inputLocation: 'sidebar' | 'smartDebug' | 'codeExplain', 
+        inputLocation: 'chat' | 'smartDebug' | 'codeExplain', 
         mitoAIConnectionError: boolean=false
     ): void {
         if (messageContent === null) {

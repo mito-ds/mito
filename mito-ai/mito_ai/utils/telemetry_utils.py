@@ -179,10 +179,10 @@ def log_ai_completion_success(
                 "response": response,
             },
         )
-    elif input_location == "sidebar":
+    elif input_location == "chat":
         user_input = last_message_content.split("Your task: ")[-1]
         log(
-            "mito_ai_sidebar_success",
+            "mito_ai_chat_success",
             params={
                 KEY_TYPE_PARAM: key_type,
                 "user_input": user_input,
