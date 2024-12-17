@@ -36,11 +36,11 @@ class OpenAICompletionHandler(APIHandler):
         # Retrieve the message from the request
         data = self.get_json_body()
         messages = data.get("messages", "")
-        input_location = data.get("input_location", "")
-        
+        prompt_type = data.get("promptType", "")
+
         try:
             # Query OpenAI API
-            response = get_open_ai_completion(messages, input_location)
+            response = get_open_ai_completion(messages, prompt_type)
             self.finish(json.dumps(response))
         except PermissionError as e:
             # Raise a PermissionError when the user has

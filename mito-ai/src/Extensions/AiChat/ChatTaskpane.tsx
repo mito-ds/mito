@@ -113,7 +113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager, 'smartDebug')
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
     }
 
     const sendExplainCodeMessage = () => {
@@ -126,7 +126,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
         
         // Step 2: Send the message to the AI
-        _sendMessageAndSaveResponse(newChatHistoryManager, 'codeExplain')
+        _sendMessageAndSaveResponse(newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -147,19 +147,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager, 'chat')
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
         sendChatInputMessage(newContent, messageIndex)
     };
 
-    const _sendMessageAndSaveResponse = async (
-        newChatHistoryManager: ChatHistoryManager, 
-        inputLocation: 'chat' | 'smartDebug' | 'codeExplain'
-    ) => {
-
+    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager) => {
         setLoadingAIResponse(true)
+
+        const aiOptimizedHistory = newChatHistoryManager.getAIOptimizedHistory()
+        const promptType = aiOptimizedHistory[aiOptimizedHistory.length - 1]?.promptType
 
         let aiRespone = undefined
 
@@ -168,18 +167,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 method: 'POST',
                 body: JSON.stringify({
                     messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message),
-                    input_location: inputLocation
+                    promptType: promptType
                 })
             });
 
             if (apiResponse.type === 'success') {
                 const aiMessage = apiResponse.response;
-                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, inputLocation);
+                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, promptType);
                 setChatHistoryManager(newChatHistoryManager);
                 
                 aiRespone = aiMessage
             } else {
-                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, inputLocation, true)
+                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, promptType, true)
                 setChatHistoryManager(newChatHistoryManager);
             }
         } catch (error) {

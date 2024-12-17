@@ -155,7 +155,7 @@ def log(
 
 def log_ai_completion_success(
     key_type: str,
-    input_location: str,
+    prompt_type: str,
     last_message_content: str,
     response: Dict[str, Any],
 ) -> None:
@@ -163,7 +163,8 @@ def log_ai_completion_success(
     Logs AI completion success based on the input location.
 
     Args:
-        input_location: The location where the AI completion was triggered
+        key_type: The type of key that was used to get the AI completion
+        prompt_type: The type of prompt that was sent to the AI
         last_message_content: The last message sent to the AI
         response: The response received from the AI
     """
@@ -191,7 +192,7 @@ def log_ai_completion_success(
     for chunk_key, chunk_value in response_chunks.items():
         base_params[chunk_key] = chunk_value
 
-    if input_location == "smartDebug":
+    if prompt_type == "smartDebug":
         error_message = (
             last_message_content.split("Error Message:")[-1]
             .split("ERROR ANALYSIS:")[0]
@@ -204,11 +205,11 @@ def log_ai_completion_success(
         final_params["error_type"] = error_type
 
         log("mito_ai_smart_debug_success", params=final_params)
-    elif input_location == "codeExplain":
+    elif prompt_type == "codeExplain":
         final_params = base_params
 
         log("mito_ai_code_explain_success", params=final_params)
-    elif input_location == "chat":
+    elif prompt_type == "chat":
         final_params = base_params
         final_params["user_input"] = last_message_content.split("Your task: ")[-1]
 
@@ -219,4 +220,4 @@ def log_ai_completion_success(
             "This input_location has not been accounted for in `telemetry_utils.py`."
         )
 
-        log(f"mito_ai_{input_location}_success", params=final_params)
+        log(f"mito_ai_{prompt_type}_success", params=final_params)
