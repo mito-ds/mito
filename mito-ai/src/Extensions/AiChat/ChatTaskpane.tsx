@@ -10,7 +10,13 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
-import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_REJECT_LATEST_CODE, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
+import { 
+    COMMAND_MITO_AI_PREVIEW_LATEST_CODE, 
+    COMMAND_MITO_AI_APPLY_LATEST_CODE, 
+    COMMAND_MITO_AI_REJECT_LATEST_CODE, 
+    COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, 
+    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE 
+} from '../../commands';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
@@ -285,29 +291,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             to the active code cell. Do this inside of the useEffect so that we only register the command
             the first time we create the chat. Registering the command when it is already created causes
             errors.
-        */
+        */        
+        app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_LATEST_CODE, {
+            execute: () => {
+                previewAICode()
+            }
+        });
+
         app.commands.addCommand(COMMAND_MITO_AI_APPLY_LATEST_CODE, {
             execute: () => {
                 acceptAICode()
             }
-        })
+        });
 
         app.commands.addCommand(COMMAND_MITO_AI_REJECT_LATEST_CODE, {
             execute: () => {
                 rejectAICode()
             }
-        })
-
-        app.commands.addKeyBinding({
-            command: COMMAND_MITO_AI_APPLY_LATEST_CODE,
-            keys: ['Accel Y'],
-            selector: 'body',
-        });
-
-        app.commands.addKeyBinding({
-            command: COMMAND_MITO_AI_REJECT_LATEST_CODE,
-            keys: ['Accel D'],
-            selector: 'body',
         });
 
         /* 
@@ -320,14 +320,38 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     sendDebugErrorMessage(args.input.toString())
                 }
             }
-        })
+        });
 
         app.commands.addCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, {
             execute: () => {
                 sendExplainCodeMessage()
             }
-        })
-    }, [])
+        });
+    }, []);
+
+    useEffect(() => {
+        // Register keyboard shortcuts 
+        const accelYDisposable = app.commands.addKeyBinding({
+            command: codeReviewStatus === 'chatPreview' ? 
+                COMMAND_MITO_AI_PREVIEW_LATEST_CODE : 
+                COMMAND_MITO_AI_APPLY_LATEST_CODE,
+            keys: ['Accel Y'],
+            selector: 'body',
+        });
+
+        const accelDDisposable = app.commands.addKeyBinding({
+            command: COMMAND_MITO_AI_REJECT_LATEST_CODE,
+            keys: ['Accel D'],
+            selector: 'body',
+        });
+
+        // Clean up the key bindings when the component unmounts or when codeReviewStatus changes
+        // This prevents keyboard shortcuts from persisting when they shouldn't.
+        return () => {
+            accelYDisposable.dispose();
+            accelDDisposable.dispose();
+        };
+    }, [codeReviewStatus]);
 
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
