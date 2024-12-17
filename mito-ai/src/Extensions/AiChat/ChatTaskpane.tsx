@@ -283,6 +283,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     useEffect(() => {
+        /* 
+            Add a new command to the JupyterLab command registry that applies the latest AI generated code
+            to the active code cell. Do this inside of the useEffect so that we only register the command
+            the first time we create the chat. Registering the command when it is already created causes
+            errors.
+        */        
         app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_LATEST_CODE, {
             execute: () => {
                 previewAICode()
