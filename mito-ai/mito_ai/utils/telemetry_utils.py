@@ -1,7 +1,5 @@
-import os
 import json
 from typing import Any, Dict, Optional
-import requests
 from .version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
 from .schema import UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from .db import get_user_field
@@ -159,6 +157,7 @@ def log_ai_completion_success(
     prompt_type: str,
     last_message_content: str,
     response: Dict[str, Any],
+    num_usages: Optional[int] = None
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -192,6 +191,10 @@ def log_ai_completion_success(
 
     for chunk_key, chunk_value in response_chunks.items():
         base_params[chunk_key] = chunk_value
+
+    # Log number of usages (for mito server)
+    if num_usages is not None:
+        base_params[MITO_SERVER_NUM_USAGES] = str(num_usages)
 
     if prompt_type == "smartDebug":
         error_message = (

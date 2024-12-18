@@ -130,12 +130,12 @@ def get_open_ai_completion(
             set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages)
 
             # Log the successful completion
-            log(
-                MITO_AI_COMPLETION_SUCCESS,
-                params={
-                    KEY_TYPE_PARAM: MITO_SERVER_KEY,
-                    MITO_SERVER_NUM_USAGES: __num_usages,
-                },
+            log_ai_completion_success(
+                MITO_SERVER_KEY,
+                prompt_type,
+                last_message_content,
+                response,
+                __num_usages,
             )
             return response
         else:
