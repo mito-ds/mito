@@ -219,7 +219,13 @@ def log_ai_completion_success(
         log("mito_ai_code_explain_success", params=final_params)
     elif prompt_type == "chat":
         final_params = base_params
-        final_params["user_input"] = last_message_content.split("Your task: ")[-1]
+
+        # Chunk the user input
+        user_input = last_message_content.split("Your task: ")[-1]
+        user_input_chunks = chunk_param(user_input, "user_input")
+        
+        for chunk_key, chunk_value in user_input_chunks.items():
+            final_params[chunk_key] = chunk_value
 
         log("mito_ai_chat_success", params=final_params)
     else:
