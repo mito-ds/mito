@@ -112,7 +112,7 @@
 
 .chat-input {
     outline: none;
-    border: none;
+    border: 1px solid var(--purple-700);
     resize: none;
     width: 100%;
     padding: 10px;
