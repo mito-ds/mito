@@ -426,6 +426,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 />
             </div>
             <div className="chat-messages">
+                {displayOptimizedChatHistory.length <= 1 &&
+                    <div className="chat-empty-message">
+                        <p>Ask your personal Python expert anything! <br /> Use @ to quickly reference a variable.</p>
+                    </div>
+                }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     return (
                         <ChatMessage
@@ -457,7 +462,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-input-container">
                 <ChatInput
                     initialContent={''}
-                    placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
+                    placeholder={displayOptimizedChatHistory.length < 2 ? "What can I help you with?" : "Follow up on the conversation"}
                     onSave={sendChatInputMessage}
                     onCancel={undefined}
                     isEditing={false}
