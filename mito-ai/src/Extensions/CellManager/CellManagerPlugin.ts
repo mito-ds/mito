@@ -3,6 +3,15 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { Signal } from '@lumino/signaling';
 import { Token } from '@lumino/coreutils';
 
+/*
+    The Cell Manager is a singleton that tracks the active cell in the notebook. 
+
+    Because we want other components to respond to changes in the active cell, we use a signal to
+    broadcast a change in the active cell ID. We use a signal because the CellManager does not share the same React
+    context as the other plugins, we cannot simply use a UseEffect hook to wait for updates to the 
+    active cell. 
+*/
+
 export const ICellManagerTracker = new Token<ICellManager>('mito-ai/ICellManagerTracker');
 
 export interface ICellManager {
@@ -16,34 +25,24 @@ export class CellManager implements ICellManager {
     private _notebookTracker: INotebookTracker;
 
     constructor(notebookTracker: INotebookTracker) {
-        console.log("CellManager constructor");
         this._notebookTracker = notebookTracker;
-        console.log(1)
+
+        // When the active cell changes, call the _onActiveCellChanged function
+        // to update the state of the CellManager. 
         notebookTracker.activeCellChanged.connect(this._onActiveCellChanged, this);
-        console.log(2)
     }
 
     get activeCellID(): string | null {
-        console.log("CellManager get activeCellID");
-        console.log(9)
         return this._activeCellID;
-        console.log(10)
     }
 
     private _onActiveCellChanged(): void {
-        console.log("CellManager _onActiveCellChanged");
         const activeCell = this._notebookTracker.activeCell;
-        console.log(3)
         const newActiveCellID = activeCell ? activeCell.model.id : null;
-        console.log(4)
         if (newActiveCellID !== this._activeCellID) {
-            console.log(5)
             this._activeCellID = newActiveCellID;
-            console.log(6)
             this.activeCellChanged.emit(this._activeCellID);
-            console.log(7)
         }
-        console.log(8)
     }
 }
 
@@ -53,7 +52,7 @@ export const CellManagerPlugin: JupyterFrontEndPlugin<ICellManager> = {
     requires: [INotebookTracker],
     provides: ICellManagerTracker,
     activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker): ICellManager => {
-        console.log("CellManagerPlugin activate");
+        console.log("mito-ai: CellManagerPlugin activate");
         return new CellManager(notebookTracker);
     }
 };

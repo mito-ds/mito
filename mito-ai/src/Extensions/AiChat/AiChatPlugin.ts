@@ -115,6 +115,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     }
 
     // This allows us to force plugin load order
+    console.log("mito-ai: AiChatPlugin activated");
     return tracker;
   }
 };

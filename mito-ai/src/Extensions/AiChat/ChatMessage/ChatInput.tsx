@@ -43,6 +43,31 @@ const ChatInput: React.FC<ChatInputProps> = ({
     // Add state to track active cell
     const [activeCellID, setActiveCellID] = useState<string | null>(cellManager.activeCellID);
 
+    const getNewActiveCellID = (notebookTracker: INotebookTracker) => {
+        return notebookTracker.activeCell?.model.id || null
+    }
+
+    useEffect(() => {
+        // Subscribe to active cell changes
+        const activeCellChangedListener = () => { 
+            const newActiveCellID = getNewActiveCellID(notebookTracker);
+            setActiveCellID(newActiveCellID);
+        };
+    
+        // When the activeCellChanged event occurs, it sometimes gets fired
+        // many times. To avoid a bunch of rerenders, we disconnet the listener 
+        // each time we use it and then recconect when we're done updating the active cell ID
+        notebookTracker.activeCellChanged.connect(activeCellChangedListener);
+    
+        return () => {
+            console.log("DISCONNECTING")
+            notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
+        };
+    }, [notebookTracker, activeCellID]);  
+
+    
+        
+
     useEffect(() => {
         // Subscribe to active cell changes
         const listener = () => { 

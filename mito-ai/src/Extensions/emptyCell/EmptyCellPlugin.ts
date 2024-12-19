@@ -68,5 +68,6 @@ export const localPrompt: JupyterFrontEndPlugin<void> = {
         );
       }
     });
+    console.log("mito-ai: EmptyCellPlugin activated");
   }
 };
