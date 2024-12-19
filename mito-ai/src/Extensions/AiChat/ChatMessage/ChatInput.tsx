@@ -7,6 +7,8 @@ import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import PythonCode from './PythonCode';
+import '../../../../style/ChatInput.css';
+import '../../../../style/ChatDropdown.css';
 
 interface ChatInputProps {
     initialContent: string;
@@ -36,6 +38,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
 
     // Add state to track active cell
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
@@ -174,26 +177,34 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     }, [isDropdownVisible]);
 
-    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID || undefined) || ''
-
     // If there are more than 8 lines, show the first 8 lines and add a "..."
-    const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
-
+    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID || undefined) || ''
+    const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
+        activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
     return (
         <div style={{ position: 'relative' }}>
-            {/* First show the active cell preview */}
-            <PythonCode
-                key={activeCellCodePreview}
-                code={activeCellCodePreview}
-                renderMimeRegistry={renderMimeRegistry}
-            />
-    
+            {/* Show the active cell preview if the text area has focus or the user has started typing */}
+            {activeCellCodePreview.length > 0 
+                && (isFocused || input.length > 0)
+                && <div className='active-cell-preview-container'>
+                    <div className='code-message-part-container'>
+                        <PythonCode
+                            key={activeCellCodePreview}
+                            code={activeCellCodePreview}
+                            renderMimeRegistry={renderMimeRegistry}
+                        />
+                    </div>
+                </div>
+            }
+            
             <textarea
                 ref={textAreaRef}
                 className={classNames("message", "message-user", 'chat-input')}
                 placeholder={placeholder}
                 value={input}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
                 onChange={handleInputChange}
                 onKeyDown={(e) => {
                     // If dropdown is visible, only handle escape to close it
@@ -212,6 +223,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         adjustHeight(true)
                         onSave(input)
                         setInput('')
+                        setIsFocused(false)
                     }
                     // Escape key cancels editing
                     if (e.key === 'Escape') {
