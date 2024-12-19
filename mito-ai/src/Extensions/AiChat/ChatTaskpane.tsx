@@ -428,7 +428,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages">
                 {displayOptimizedChatHistory.length <= 1 &&
                     <div className="chat-empty-message">
-                        <p>Ask your personal Python expert anything! <br /> Use @ to quickly reference a variable.</p>
+                        <p>
+                            Ask your personal Python expert anything! 
+                            <br />
+                            Hint: 
+                            {[
+                                " Use @ to reference variables.",
+                                " Use CTRL + E to chat with Mito AI.",
+                                " Use CTRL + Y to preview code suggestions."
+                            ][Math.floor(Math.random() * 3)]}
+                        </p>
                     </div>
                 }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
