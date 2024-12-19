@@ -14,6 +14,7 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import { ICellManager } from '../../CellManager/CellManagerPlugin';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -31,6 +32,7 @@ interface IChatMessageProps {
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string) => void
     variableManager?: IVariableManager
+    cellManager: ICellManager
     codeReviewStatus: CodeReviewStatus
 }
 
@@ -50,6 +52,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     rejectAICode,
     onUpdateMessage,
     variableManager,
+    cellManager,
     codeReviewStatus
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
@@ -88,6 +91,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     variableManager={variableManager}
                     notebookTracker={notebookTracker}
                     renderMimeRegistry={renderMimeRegistry}
+                    cellManager={cellManager}
                 />
             </div>
         );

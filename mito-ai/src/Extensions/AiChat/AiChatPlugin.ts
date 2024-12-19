@@ -10,6 +10,8 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
+import { ICellManager, ICellManagerTracker } from '../CellManager/CellManagerPlugin';
+
 
 /**
  * Initialization data for the mito-ai extension.
@@ -22,7 +24,8 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IVariableManager
+    IVariableManager,
+    ICellManagerTracker
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -32,6 +35,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     palette: ICommandPalette,
     rendermime: IRenderMimeRegistry,
     variableManager: IVariableManager,
+    cellManager: ICellManager,
     restorer: ILayoutRestorer | null
   ) => {
     // Define a widget creator function,
@@ -42,7 +46,8 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         app,
         notebookTracker,
         rendermime,
-        variableManager
+        variableManager,
+        cellManager
       );
       return chatWidget;
     };

@@ -3,10 +3,11 @@ import { classNames } from '../../../utils/classNames';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../VariableManager/VariableInspector';
-import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
+import { getCellCodeByID } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import PythonCode from './PythonCode';
+import { ICellManager } from '../../CellManager/CellManagerPlugin';
 
 interface ChatInputProps {
     initialContent: string;
@@ -15,6 +16,7 @@ interface ChatInputProps {
     onCancel?: () => void;
     isEditing: boolean;
     variableManager?: IVariableManager;
+    cellManager: ICellManager;
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
 }
@@ -30,12 +32,30 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onCancel,
     isEditing,
     variableManager,
+    cellManager,
     notebookTracker,
-    renderMimeRegistry
+    renderMimeRegistry,
 }) => {
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // Add state to track active cell
+    const [activeCellID, setActiveCellID] = useState<string | null>(cellManager.activeCellID);
+
+    useEffect(() => {
+        // Subscribe to active cell changes
+        const listener = () => { 
+            setActiveCellID(cellManager.activeCellID);
+        };
+
+        notebookTracker.activeCellChanged.connect(listener);
+
+        return () => {
+            notebookTracker.activeCellChanged.disconnect(listener);
+        };
+    }, [cellManager]);
+
 
     // State for the variable dropdown 
     const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -152,11 +172,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     }, [isDropdownVisible]);
 
-    const activeCellID = getActiveCellID(notebookTracker)
-    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
+    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID || undefined) || ''
 
     // If there are more than 8 lines, show the first 8 lines and add a "..."
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
+
 
     return (
         <div style={{ position: 'relative' }}>
@@ -166,7 +186,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 code={activeCellCodePreview}
                 renderMimeRegistry={renderMimeRegistry}
             />
-
+    
             <textarea
                 ref={textAreaRef}
                 className={classNames("message", "message-user", 'chat-input')}
