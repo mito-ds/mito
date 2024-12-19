@@ -57,7 +57,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         notebookTracker.activeCellChanged.connect(activeCellChangedListener);
     
         return () => {
-            console.log("DISCONNECTING")
             notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
         };
     }, [notebookTracker, activeCellID]);  
@@ -183,7 +182,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
     return (
-        <div style={{ position: 'relative' }}>
+        <div 
+            style={{ position: 'relative' }}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => {
+                setTimeout(() => {
+                    setIsFocused(false)
+                }, 150)
+            }}
+        >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
             {activeCellCodePreview.length > 0 
                 && (isFocused || input.length > 0)
@@ -203,8 +210,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 className={classNames("message", "message-user", 'chat-input')}
                 placeholder={placeholder}
                 value={input}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
                 onChange={handleInputChange}
                 onKeyDown={(e) => {
                     // If dropdown is visible, only handle escape to close it
@@ -240,7 +245,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }
-            {isDropdownVisible && (
+            {isDropdownVisible && isFocused && (
                 <ChatDropdown
                     options={expandedVariables}
                     onSelect={handleOptionSelect}
