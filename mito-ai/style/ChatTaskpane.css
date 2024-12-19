@@ -69,6 +69,20 @@
     align-items: center;
 }
 
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.chat-input-container {
+    position: sticky;
+    bottom: 0;
+    background-color: var(--chat-background-color);
+    padding: 10px 0;
+    margin-top: auto;
+}
+
 .chat-input {
     outline: none;
     border: none;

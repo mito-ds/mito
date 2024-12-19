@@ -448,20 +448,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         />
                     )
                 }).filter(message => message !== null)}
+                {loadingAIResponse &&
+                    <div className="chat-loading-message">
+                        Loading AI Response <LoadingDots />
+                    </div>
+                }
             </div>
-            {loadingAIResponse &&
-                <div className="chat-loading-message">
-                    Loading AI Response <LoadingDots />
-                </div>
-            }
-            <ChatInput
-                initialContent={''}
-                placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
-                onSave={sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                variableManager={variableManager}
-            />
+            <div className="chat-input-container">
+                <ChatInput
+                    initialContent={''}
+                    placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
+                    onSave={sendChatInputMessage}
+                    onCancel={undefined}
+                    isEditing={false}
+                    variableManager={variableManager}
+                />
+            </div>
         </div>
     );
 };
