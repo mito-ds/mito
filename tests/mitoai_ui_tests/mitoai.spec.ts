@@ -286,5 +286,33 @@ test.describe('Mito AI Chat', () => {
     await page.keyboard.type("@none_type_col_A");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
   });
+
+  test('Active cell preview is displayed and updated when active cell changes', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)']);
+    await waitForIdle(page);
+
+    await selectCell(page, 0);
+
+    await clickOnMitoAIChatTab(page);
+    await page.locator('.chat-input').fill('Test');
+
+    // The active cell preview should show the code from the first cell
+    const activeCellPreview = await page.locator('.active-cell-preview-container').textContent();
+    expect.soft(activeCellPreview).toContain('print(1)');
+
+    // After changing the selected cell, the active cell preview should update
+    await selectCell(page, 1);
+    const activeCellPreview2 = await page.locator('.active-cell-preview-container').textContent();
+    expect.soft(activeCellPreview2).toContain('print(2)');
+
+    await page.locator('.chat-input').fill('print hello world');
+    await page.keyboard.press('Enter');
+    await waitForMitoAILoadingToDisappear(page);
+
+    // After sending the message, the active cell preview should disappear
+    expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
+  });
 });
+
+
 
