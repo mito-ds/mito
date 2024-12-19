@@ -434,8 +434,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             Hint: 
                             {[
                                 " Use @ to reference variables.",
-                                " Use CTRL + E to chat with Mito AI.",
-                                " Use CTRL + Y to preview code suggestions."
+                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
+                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
                             ][Math.floor(Math.random() * 3)]}
                         </p>
                     </div>
