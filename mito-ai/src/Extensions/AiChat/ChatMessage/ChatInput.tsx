@@ -34,16 +34,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
-    const adjustHeight = () => {
+    const adjustHeight = (resetHeight: boolean = false) => {
         const textarea = textAreaRef?.current;
-        if (!textarea) {
-            return
-        }
-        textarea.style.minHeight = 'auto';
+        if (!textarea) return;
 
-        // The height should be 40 at minimum to support the placeholder
-        const minHeight = textarea.scrollHeight < 40 ? 40 : textarea.scrollHeight
-        textarea.style.height = `${minHeight}px`;
+        textarea.style.minHeight = 'auto';
+        textarea.style.height = !textarea.value || resetHeight
+            ? '40px' 
+            : `${Math.max(40, textarea.scrollHeight)}px`;
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -166,6 +164,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     // shift + enter to add a new line.
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
+                        adjustHeight(true)
                         onSave(input)
                         setInput('')
                     }

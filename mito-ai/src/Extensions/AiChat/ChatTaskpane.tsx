@@ -426,6 +426,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 />
             </div>
             <div className="chat-messages">
+                {displayOptimizedChatHistory.length <= 1 &&
+                    <div className="chat-empty-message">
+                        <p className="long-message">
+                            Ask your personal Python expert anything! 
+                            <br />
+                            Hint: 
+                            {[
+                                " Use @ to reference variables.",
+                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
+                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
+                            ][Math.floor(Math.random() * 3)]}
+                        </p>
+                        <p className="short-message">
+                            Ask me anything!
+                        </p>
+                    </div>
+                }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     return (
                         <ChatMessage
@@ -448,20 +465,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         />
                     )
                 }).filter(message => message !== null)}
+                {loadingAIResponse &&
+                    <div className="chat-loading-message">
+                        Loading AI Response <LoadingDots />
+                    </div>
+                }
             </div>
-            {loadingAIResponse &&
-                <div className="chat-loading-message">
-                    Loading AI Response <LoadingDots />
-                </div>
-            }
-            <ChatInput
-                initialContent={''}
-                placeholder={displayOptimizedChatHistory.length < 2 ? "Ask your personal Python expert anything!" : "Follow up on the conversation"}
-                onSave={sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                variableManager={variableManager}
-            />
+            <div className="chat-input-container">
+                <ChatInput
+                    initialContent={''}
+                    placeholder={displayOptimizedChatHistory.length < 2 ? "What can I help you with?" : "Follow up on the conversation"}
+                    onSave={sendChatInputMessage}
+                    onCancel={undefined}
+                    isEditing={false}
+                    variableManager={variableManager}
+                />
+            </div>
         </div>
     );
 };

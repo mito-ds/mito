@@ -69,6 +69,47 @@
     align-items: center;
 }
 
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.chat-empty-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    color: var(--muted-text-color);
+    padding: 20px;
+    /* Add container query support */
+    container-type: inline-size;
+}
+
+.chat-empty-message .short-message {
+    display: none;
+}
+
+/* Use container query instead of media query */
+@container (max-width: 300px) {
+    .chat-empty-message .long-message {
+        display: none;
+    }
+    
+    .chat-empty-message .short-message {
+        display: block;
+    }
+}
+
+.chat-input-container {
+    position: sticky;
+    bottom: 0;
+    background-color: var(--chat-background-color);
+    padding: 10px 0;
+    margin-top: auto;
+}
+
 .chat-input {
     outline: none;
     border: none;
