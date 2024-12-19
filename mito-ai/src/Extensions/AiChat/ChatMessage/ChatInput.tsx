@@ -183,7 +183,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div 
-            style={{ position: 'relative' }}
             onFocus={() => setIsFocused(true)}
             onBlur={() => {
                 setTimeout(() => {
@@ -205,54 +204,64 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 </div>
             }
             
-            <textarea
-                ref={textAreaRef}
-                className={classNames("message", "message-user", 'chat-input')}
-                placeholder={placeholder}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={(e) => {
-                    // If dropdown is visible, only handle escape to close it
-                    if (isDropdownVisible) {
+            {/* 
+                Create a relative container for the text area and the dropdown so that when we 
+                render the dropdown, it is relative to the text area instead of the entire 
+                div. We do this so that the dropdown sits on top of (ie: covering) the code 
+                preview instead of sitting higher up the taskpane.
+            */}
+            <div style={{ position: 'relative' }}>
+                <textarea
+                    ref={textAreaRef}
+                    className={classNames("message", "message-user", 'chat-input')}
+                    placeholder={placeholder}
+                    value={input}
+                    onChange={handleInputChange}
+                    onKeyDown={(e) => {
+                        // If dropdown is visible, only handle escape to close it
+                        if (isDropdownVisible) {
+                            if (e.key === 'Escape') {
+                                e.preventDefault();
+                                setDropdownVisible(false);
+                            }
+                            return;
+                        }
+
+                        // Enter key sends the message, but we still want to allow 
+                        // shift + enter to add a new line.
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            adjustHeight(true)
+                            onSave(input)
+                            setInput('')
+                            setIsFocused(false)
+                        }
+                        // Escape key cancels editing
                         if (e.key === 'Escape') {
                             e.preventDefault();
-                            setDropdownVisible(false);
+                            if (onCancel) {
+                                onCancel();
+                            }
                         }
-                        return;
-                    }
+                    }}
+                />
+                {isDropdownVisible && isFocused && (
+                    <ChatDropdown
+                        options={expandedVariables}
+                        onSelect={handleOptionSelect}
+                        filterText={dropdownFilter}
+                        position={showDropdownAbove ? "above" : "below"}
+                    />
+                )}
 
-                    // Enter key sends the message, but we still want to allow 
-                    // shift + enter to add a new line.
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        adjustHeight(true)
-                        onSave(input)
-                        setInput('')
-                        setIsFocused(false)
-                    }
-                    // Escape key cancels editing
-                    if (e.key === 'Escape') {
-                        e.preventDefault();
-                        if (onCancel) {
-                            onCancel();
-                        }
-                    }
-                }}
-            />
+            </div>
+            
             {isEditing &&
                 <div className="message-edit-buttons">
                     <button onClick={() => onSave(input)}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }
-            {isDropdownVisible && isFocused && (
-                <ChatDropdown
-                    options={expandedVariables}
-                    onSelect={handleOptionSelect}
-                    filterText={dropdownFilter}
-                    position={showDropdownAbove ? "above" : "below"}
-                />
-            )}
         </div>
     )
 };
