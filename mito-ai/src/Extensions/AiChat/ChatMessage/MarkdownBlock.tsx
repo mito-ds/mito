@@ -4,10 +4,10 @@ import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 
 interface IMarkdownCodeProps {
     markdown: string;
-    rendermime: IRenderMimeRegistry;
+    renderMimeRegistry: IRenderMimeRegistry;
 }
 
-const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, rendermime }) => {
+const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry }) => {
     const [renderedContent, setRenderedContent] = useState<JSX.Element | null>(null);
 
 
@@ -17,7 +17,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, rendermime }) =
                 data: { ['text/markdown']: markdown },
             });
 
-            const renderer = rendermime.createRenderer('text/markdown');
+            const renderer = renderMimeRegistry.createRenderer('text/markdown');
             await renderer.renderModel(model);
 
             const node = renderer.node;
@@ -25,7 +25,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, rendermime }) =
         };
 
         renderMarkdown();
-    }, [markdown, rendermime]);
+    }, [markdown, renderMimeRegistry]);
 
     return (
         <div>{renderedContent || <div></div>} </div>

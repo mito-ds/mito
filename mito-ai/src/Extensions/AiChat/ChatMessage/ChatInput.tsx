@@ -3,6 +3,10 @@ import { classNames } from '../../../utils/classNames';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../VariableManager/VariableInspector';
+import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import PythonCode from './PythonCode';
 
 interface ChatInputProps {
     initialContent: string;
@@ -11,6 +15,8 @@ interface ChatInputProps {
     onCancel?: () => void;
     isEditing: boolean;
     variableManager?: IVariableManager;
+    notebookTracker: INotebookTracker;
+    renderMimeRegistry: IRenderMimeRegistry;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -23,14 +29,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onSave,
     onCancel,
     isEditing,
-    variableManager
+    variableManager,
+    notebookTracker,
+    renderMimeRegistry
 }) => {
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // State for the variable dropdown 
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [showDropdownAbove, setShowDropdownAbove] = useState(false);
-    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
@@ -142,8 +152,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     }, [isDropdownVisible]);
 
+    const activeCellID = getActiveCellID(notebookTracker)
+    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
+
+    // If there are more than 8 lines, show the first 8 lines and add a "..."
+    const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
+
     return (
         <div style={{ position: 'relative' }}>
+            {/* First show the active cell preview */}
+            <PythonCode
+                key={activeCellCodePreview}
+                code={activeCellCodePreview}
+                renderMimeRegistry={renderMimeRegistry}
+            />
+
             <textarea
                 ref={textAreaRef}
                 className={classNames("message", "message-user", 'chat-input')}
