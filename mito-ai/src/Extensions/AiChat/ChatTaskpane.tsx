@@ -68,6 +68,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 3. applied: state where the user has applied the code to the code cell
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
 
+    // Add this ref for the chat messages container
+    const chatMessagesRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         /* 
             Why we use a ref (chatHistoryManagerRef) instead of directly accessing the state (chatHistoryManager):
@@ -152,8 +155,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.addChatInputMessage(input)
         }
 
-        // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager)
+        // Step 2: Scroll to the bottom of the chat messages container
+        // Add a small delay to ensure the new message is rendered
+        setTimeout(() => {
+            chatMessagesRef.current?.scrollTo({
+                top: chatMessagesRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 100);
+
+        // Step 3: Send the message to the AI
+        await _sendMessageAndSaveResponse(newChatHistoryManager)     
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
@@ -425,7 +437,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     onClick={() => {clearChatHistory()}}
                 />
             </div>
-            <div className="chat-messages">
+            <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length <= 1 &&
                     <div className="chat-empty-message">
                         <p className="long-message">
