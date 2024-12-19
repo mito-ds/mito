@@ -39,13 +39,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const [isFocused, setIsFocused] = useState(false);
-
-    // Add state to track active cell
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
+    const [isDropdownVisible, setDropdownVisible] = useState(false);
+    const [dropdownFilter, setDropdownFilter] = useState('');
+    const [showDropdownAbove, setShowDropdownAbove] = useState(false);
 
-
+    // Update the active cell ID when the active cell changes
     useEffect(() => {
-        // Subscribe to active cell changes
         const activeCellChangedListener = () => { 
             const newActiveCellID = getActiveCellID(notebookTracker);
             setActiveCellID(newActiveCellID);
@@ -60,11 +60,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
         };
     }, [notebookTracker, activeCellID]);  
-
-    // State for the variable dropdown 
-    const [isDropdownVisible, setDropdownVisible] = useState(false);
-    const [dropdownFilter, setDropdownFilter] = useState('');
-    const [showDropdownAbove, setShowDropdownAbove] = useState(false);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
