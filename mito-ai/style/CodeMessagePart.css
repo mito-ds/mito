@@ -4,7 +4,7 @@
 
     background-color: var(--chat-background-color);
     border-radius: 3px;
-    border: 1px solid var(--chat-user-message-font-color);
+    border: 1px solid var(--grey-300);
     overflow: hidden;
 }
 
@@ -16,7 +16,7 @@
 
     width: 100%;
     background-color: var(--chat-user-message-background-color);
-    border-bottom: 1px solid var(--chat-user-message-font-color);
+    border-bottom: 1px solid var(--grey-300);;
     font-size: 0.8em;
 }
 
@@ -29,7 +29,7 @@
 .code-message-part-toolbar button {
     background-color: var(--chat-user-message-background-color);
     border: none;
-    border-left: 1px solid var(--chat-user-message-font-color);
+    border-left: 1px solid var(--grey-300);;
     border-radius: 0px;
 
     font-size: 0.8em;

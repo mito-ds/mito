@@ -15,7 +15,7 @@ interface ICodeBlockProps {
     code: string,
     codeCellID: string | undefined,
     role: 'user' | 'assistant'
-    rendermime: IRenderMimeRegistry
+    renderMimeRegistry: IRenderMimeRegistry
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     isLastAiMessage: boolean,
@@ -31,7 +31,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     code,
     codeCellID,
     role,
-    rendermime,
+    renderMimeRegistry,
     notebookTracker,
     app,
     isLastAiMessage,
@@ -54,7 +54,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
             <div className='code-message-part-container'>
                 <PythonCode
                     code={code}
-                    rendermime={rendermime}
+                    renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
         )
@@ -97,7 +97,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                 </div>
                 <PythonCode
                     code={code}
-                    rendermime={rendermime}
+                    renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
         )

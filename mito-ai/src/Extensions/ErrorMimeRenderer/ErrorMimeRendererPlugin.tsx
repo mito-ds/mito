@@ -45,6 +45,7 @@ const ErrorMimeRendererPlugin: JupyterFrontEndPlugin<void> = {
                 }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
+        console.log("mito-ai: ErrorMimeRendererPlugin activated");
     }
 };
   

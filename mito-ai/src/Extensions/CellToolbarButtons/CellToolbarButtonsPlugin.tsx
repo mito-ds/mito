@@ -38,6 +38,7 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             },
             isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE)
         });
+        console.log("mito-ai: CellToolbarButtonsPlugin activated");
     }
 };
 
