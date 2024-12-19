@@ -29,7 +29,6 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
-import { ICellManager } from '../CellManager/CellManagerPlugin';
 
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
@@ -43,7 +42,6 @@ interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
     variableManager: IVariableManager
-    cellManager: ICellManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
 }
@@ -54,7 +52,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     renderMimeRegistry,
     variableManager,
-    cellManager,
     app,
     operatingSystem
 }) => {
@@ -465,7 +462,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
                             variableManager={variableManager}
-                            cellManager={cellManager}
                             codeReviewStatus={codeReviewStatus}
                         />
                     )
@@ -486,7 +482,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     variableManager={variableManager}
                     notebookTracker={notebookTracker}
                     renderMimeRegistry={renderMimeRegistry}
-                    cellManager={cellManager}
                 />
             </div>
         </div>

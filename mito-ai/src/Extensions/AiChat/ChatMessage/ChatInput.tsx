@@ -3,11 +3,10 @@ import { classNames } from '../../../utils/classNames';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../VariableManager/VariableInspector';
-import { getCellCodeByID } from '../../../utils/notebook';
+import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import PythonCode from './PythonCode';
-import { ICellManager } from '../../CellManager/CellManagerPlugin';
 
 interface ChatInputProps {
     initialContent: string;
@@ -16,7 +15,6 @@ interface ChatInputProps {
     onCancel?: () => void;
     isEditing: boolean;
     variableManager?: IVariableManager;
-    cellManager: ICellManager;
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
 }
@@ -32,7 +30,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onCancel,
     isEditing,
     variableManager,
-    cellManager,
     notebookTracker,
     renderMimeRegistry,
 }) => {
@@ -41,16 +38,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
     // Add state to track active cell
-    const [activeCellID, setActiveCellID] = useState<string | null>(cellManager.activeCellID);
+    const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
 
-    const getNewActiveCellID = (notebookTracker: INotebookTracker) => {
-        return notebookTracker.activeCell?.model.id || null
-    }
 
     useEffect(() => {
         // Subscribe to active cell changes
         const activeCellChangedListener = () => { 
-            const newActiveCellID = getNewActiveCellID(notebookTracker);
+            const newActiveCellID = getActiveCellID(notebookTracker);
             setActiveCellID(newActiveCellID);
         };
     
@@ -64,23 +58,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
         };
     }, [notebookTracker, activeCellID]);  
-
-    
-        
-
-    useEffect(() => {
-        // Subscribe to active cell changes
-        const listener = () => { 
-            setActiveCellID(cellManager.activeCellID);
-        };
-
-        notebookTracker.activeCellChanged.connect(listener);
-
-        return () => {
-            notebookTracker.activeCellChanged.disconnect(listener);
-        };
-    }, [cellManager]);
-
 
     // State for the variable dropdown 
     const [isDropdownVisible, setDropdownVisible] = useState(false);

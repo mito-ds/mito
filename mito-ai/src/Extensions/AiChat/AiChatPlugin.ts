@@ -10,7 +10,6 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
-import { ICellManager, ICellManagerTracker } from '../CellManager/CellManagerPlugin';
 
 
 /**
@@ -25,7 +24,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     ICommandPalette,
     IRenderMimeRegistry,
     IVariableManager,
-    ICellManagerTracker
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -35,7 +33,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     palette: ICommandPalette,
     rendermime: IRenderMimeRegistry,
     variableManager: IVariableManager,
-    cellManager: ICellManager,
     restorer: ILayoutRestorer | null
   ) => {
     // Define a widget creator function,
@@ -47,7 +44,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         notebookTracker,
         rendermime,
         variableManager,
-        cellManager
       );
       return chatWidget;
     };
