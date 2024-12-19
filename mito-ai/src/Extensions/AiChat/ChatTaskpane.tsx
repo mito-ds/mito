@@ -428,7 +428,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages">
                 {displayOptimizedChatHistory.length <= 1 &&
                     <div className="chat-empty-message">
-                        <p>
+                        <p className="long-message">
                             Ask your personal Python expert anything! 
                             <br />
                             Hint: 
@@ -437,6 +437,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
                                 ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
                             ][Math.floor(Math.random() * 3)]}
+                        </p>
+                        <p className="short-message">
+                            Ask me anything!
                         </p>
                     </div>
                 }
