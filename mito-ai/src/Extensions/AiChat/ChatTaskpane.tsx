@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell } from '../../utils/notebook';
+import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell, getActiveCellID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -225,16 +225,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-        const originalCellCode = getCellCodeByID(notebookTracker, codeCellID) || ''
+        const codeCellID = getActiveCellID(notebookTracker)
+        const activeCellCode = getCellCodeByID(notebookTracker, codeCellID)
+
+        if (codeCellID === undefined || activeCellCode === undefined) {
+            return
+        }
 
         // Extract the code from the AI's message and then calculate the code diffs
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(originalCellCode, aiGeneratedCodeCleaned)
+        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
 
         // Store the original code so that we can revert to it if the user rejects the AI's code
-        originalCodeBeforeDiff.current = originalCellCode
+        originalCodeBeforeDiff.current = activeCellCode
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
@@ -255,6 +259,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const acceptAICode = () => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
+        const activeCellID = getActiveCellID(notebookTracker)
 
         if (!lastAIMessage) {
             return
@@ -269,7 +274,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Use the codeCellID to accept the code so the code is applied to the correct cell
         // even if the user switches cells.
-        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, lastAIMessage.codeCellID)
+        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, activeCellID)
 
         // Do not reset `isApplyingCode` or `codeWasAccepted` here. Once accepted, there is no need to
         // show the "Apply" button again since users can only accept the code once.
