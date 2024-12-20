@@ -199,7 +199,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 div. We do this so that the dropdown sits on top of (ie: covering) the code 
                 preview instead of sitting higher up the taskpane.
             */}
-            <div style={{ position: 'relative', height: 'min-content', lineHeight: 0, fontSize: 0 }}>
+            <div style={{ position: 'relative', height: 'min-content'}}>
                 <textarea
                     ref={textAreaRef}
                     className={classNames("message", "message-user", 'chat-input')}
