@@ -165,7 +165,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }, 100);
 
         // Step 3: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager)     
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
+
+        // Step 4: Scroll so that the top of the last AI message is visible
+        setTimeout(() => {
+            const aiMessages = chatMessagesRef.current?.getElementsByClassName('message message-assistant');
+            if (aiMessages && aiMessages.length > 0) {
+                const lastAiMessage = aiMessages[aiMessages.length - 1];
+                lastAiMessage.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
