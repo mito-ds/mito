@@ -26,9 +26,9 @@ const PythonCode: React.FC<IPythonCodeProps> = ({ code, renderMimeRegistry }) =>
   }, [code, renderMimeRegistry]) // Add dependencies to useEffect
 
   if (node) {
-    return <div className='code-message-part-python-code' ref={(el) => el && el.appendChild(node)} />
+    return <div className='code-block-python-code' ref={(el) => el && el.appendChild(node)} />
   } else {
-    return <div className='code-message-part-python-code' />
+    return <div className='code-block-python-code' />
   }
 };
 

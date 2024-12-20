@@ -159,6 +159,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div 
+            className={classNames("chat-input-container")}
             onFocus={() => setIsFocused(true)}
             onBlur={() => {
                 setTimeout(() => {
@@ -170,7 +171,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {activeCellCodePreview.length > 0 
                 && (isFocused || input.length > 0)
                 && <div className='active-cell-preview-container'>
-                    <div className='code-message-part-container'>
+                    <div className='code-block-container'>
                         <PythonCode
                             key={activeCellCodePreview}
                             code={activeCellCodePreview}

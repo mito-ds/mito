@@ -184,7 +184,7 @@ test.describe('Mito AI Chat', () => {
 
     // Since the active cell is empty, there should only be one code message part container.
     // It should be in the AI response message, which means that it is not in the user's message.
-    const codeMessagePartContainersCount = await page.locator('.code-message-part-container').count();
+    const codeMessagePartContainersCount = await page.locator('.code-block-container').count();
     expect(codeMessagePartContainersCount).toBe(1);
   });
 

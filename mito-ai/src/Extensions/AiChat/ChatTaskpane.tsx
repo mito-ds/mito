@@ -493,18 +493,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
-            <div className="chat-input-container">
-                <ChatInput
-                    initialContent={''}
-                    placeholder={displayOptimizedChatHistory.length < 2 ? "What can I help you with?" : "Follow up on the conversation"}
-                    onSave={sendChatInputMessage}
-                    onCancel={undefined}
-                    isEditing={false}
-                    variableManager={variableManager}
-                    notebookTracker={notebookTracker}
-                    renderMimeRegistry={renderMimeRegistry}
-                />
-            </div>
+            <ChatInput
+                initialContent={''}
+                placeholder={displayOptimizedChatHistory.length < 2 ? "What can I help you with?" : "Follow up on the conversation"}
+                onSave={sendChatInputMessage}
+                onCancel={undefined}
+                isEditing={false}
+                variableManager={variableManager}
+                notebookTracker={notebookTracker}
+                renderMimeRegistry={renderMimeRegistry}
+            />
         </div>
     );
 };

@@ -51,7 +51,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 
     if (role === 'user') {
         return (
-            <div className='code-message-part-container'>
+            <div className='code-block-container'>
                 <PythonCode
                     code={code}
                     renderMimeRegistry={renderMimeRegistry}
@@ -62,8 +62,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 
     if (role === 'assistant') {
         return (
-            <div className='code-message-part-container'>
-                <div className='code-message-part-toolbar'>
+            <div className='code-block-container'>
+                <div className='code-block-toolbar'>
                     <div className='code-location'>
                         {notebookName}
                     </div>

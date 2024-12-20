@@ -3,13 +3,18 @@
     position: sticky;
     bottom: 0;
     background-color: var(--chat-background-color);
-    padding: 10px 0;
+    margin: 10px 0;
     margin-top: auto;
+    border: 1px solid var(--purple-500);
+}
+
+.chat-input-container:focus {
+    border: 1px solid var(--purple-700);
 }
 
 .chat-input {
     outline: none;
-    border: 1px solid var(--purple-500);
+    border: none;
     resize: none;
     width: 100%;
     padding: 10px;
@@ -21,10 +26,6 @@
         See the adjustHeight function for more detail.
     */
     flex-shrink: 0 !important;
-}
-
-.chat-input:focus {
-    border: 1px solid var(--purple-700);
 }
 
 .active-cell-preview-container {
