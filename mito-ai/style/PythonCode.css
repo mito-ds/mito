@@ -1,4 +1,4 @@
-.code-message-part-python-code pre {
+.code-block-python-code pre {
     flex-grow: 1;
     height: 100%;
     width: 100%;
@@ -8,11 +8,11 @@
     overflow-x: auto;
 }
 
-.code-message-part-python-code code {
+.code-block-python-code code {
     white-space: pre !important;
 }
 
-.code-message-part-python-code .jp-RenderedHTMLCommon > *:last-child {
+.code-block-python-code .jp-RenderedHTMLCommon > *:last-child {
     /* 
         Remove the default Jupyter ending margin 
         so that the rendered code is flush with the bottom

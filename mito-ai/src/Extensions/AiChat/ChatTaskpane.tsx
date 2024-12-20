@@ -30,6 +30,7 @@ import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
 
+
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -39,7 +40,7 @@ const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variabl
 
 interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
-    rendermime: IRenderMimeRegistry
+    renderMimeRegistry: IRenderMimeRegistry
     variableManager: IVariableManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
@@ -49,7 +50,7 @@ export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
-    rendermime,
+    renderMimeRegistry,
     variableManager,
     app,
     operatingSystem
@@ -472,7 +473,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             messageIndex={index}
                             notebookTracker={notebookTracker}
-                            rendermime={rendermime}
+                            renderMimeRegistry={renderMimeRegistry}
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
@@ -492,16 +493,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
-            <div className="chat-input-container">
-                <ChatInput
-                    initialContent={''}
-                    placeholder={displayOptimizedChatHistory.length < 2 ? "What can I help you with?" : "Follow up on the conversation"}
-                    onSave={sendChatInputMessage}
-                    onCancel={undefined}
-                    isEditing={false}
-                    variableManager={variableManager}
-                />
-            </div>
+            <ChatInput
+                initialContent={''}
+                placeholder={displayOptimizedChatHistory.length < 2 ? "What can I help you with?" : "Follow up on the conversation"}
+                onSave={sendChatInputMessage}
+                onCancel={undefined}
+                isEditing={false}
+                variableManager={variableManager}
+                notebookTracker={notebookTracker}
+                renderMimeRegistry={renderMimeRegistry}
+            />
         </div>
     );
 };

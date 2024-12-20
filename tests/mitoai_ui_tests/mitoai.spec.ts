@@ -184,7 +184,7 @@ test.describe('Mito AI Chat', () => {
 
     // Since the active cell is empty, there should only be one code message part container.
     // It should be in the AI response message, which means that it is not in the user's message.
-    const codeMessagePartContainersCount = await page.locator('.code-message-part-container').count();
+    const codeMessagePartContainersCount = await page.locator('.code-block-container').count();
     expect(codeMessagePartContainersCount).toBe(1);
   });
 
@@ -250,7 +250,7 @@ test.describe('Mito AI Chat', () => {
     // So we need to type it character by character instead
     await page.locator('.chat-input').click();
     await page.keyboard.type("Edit column @ap");
-    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
+    await expect.soft(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
   });
 
@@ -286,5 +286,37 @@ test.describe('Mito AI Chat', () => {
     await page.keyboard.type("@none_type_col_A");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
   });
+
+  test('Active cell preview is displayed and updated when active cell changes', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)']);
+    await waitForIdle(page);
+
+    await selectCell(page, 0);
+
+    await clickOnMitoAIChatTab(page);
+
+    // The active cell preview should not be visible before the user focusses on the chat input
+    await expect.soft(page.locator('.active-cell-preview-container')).not.toBeVisible();
+    
+    // The active cell preview should show the code from the first cell
+    await page.locator('.chat-input').fill('Test');
+    const activeCellPreview = await page.locator('.active-cell-preview-container').textContent();
+    expect.soft(activeCellPreview).toContain('print(1)');
+
+    // After changing the selected cell, the active cell preview should update
+    await selectCell(page, 1);
+    const activeCellPreview2 = await page.locator('.active-cell-preview-container').textContent();
+    expect.soft(activeCellPreview2).toContain('print(2)');
+
+    await page.locator('.chat-input').fill('print hello world');
+    await page.keyboard.press('Enter');
+    await waitForMitoAILoadingToDisappear(page);
+
+    // After sending the message, the active cell preview should disappear
+    expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
+  });
+
 });
+
+
 

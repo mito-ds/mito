@@ -39,6 +39,7 @@ export const VariableManagerPlugin: JupyterFrontEndPlugin<IVariableManager> = {
     requires: [INotebookTracker],
     provides: IVariableManager,
     activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker): IVariableManager => {
+        console.log("mito-ai: VariableManagerPlugin activated");
         return new VariableManager(notebookTracker);
     }
 };

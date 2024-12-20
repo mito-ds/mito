@@ -15,7 +15,6 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     onSelect,
     filterText,
     maxDropdownItems = 10,
-    position = 'below'
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -75,7 +74,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     }
 
     return (
-        <div className={`chat-dropdown ${position}`}>
+        <div className={`chat-dropdown`}>
             <ul className="chat-dropdown-list" >
                 {filteredOptions.length === 0 && (
                     <li className="chat-dropdown-item">No variables found</li>

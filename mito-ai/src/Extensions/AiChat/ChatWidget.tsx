@@ -29,7 +29,7 @@ export function buildChatWidget(
         <ChatTaskpane 
             app={app}
             notebookTracker={notebookTracker}
-            rendermime={rendermime}
+            renderMimeRegistry={rendermime}
             variableManager={variableManager}
             operatingSystem={operatingSystem}
         />
