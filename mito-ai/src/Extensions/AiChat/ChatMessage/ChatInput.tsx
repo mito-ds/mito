@@ -35,6 +35,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     notebookTracker,
     renderMimeRegistry,
 }) => {
+
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -43,11 +44,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
 
+    console.log('ChatInput rendering, activeCellID:', activeCellID);
+
+
     // Update the active cell ID when the active cell changes
     useEffect(() => {
         const activeCellChangedListener = () => { 
             const newActiveCellID = getActiveCellID(notebookTracker);
-            setActiveCellID(newActiveCellID);
+            console.log('Cell change detected', {
+                current: activeCellID,
+                new: newActiveCellID,
+                areEqual: activeCellID === newActiveCellID
+            });
+
+            // Only update if actually changed
+            if (newActiveCellID !== activeCellID) {
+                setActiveCellID(newActiveCellID);
+            }
         };
     
         // When the activeCellChanged event occurs, it sometimes gets fired
@@ -153,7 +166,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, [variableManager?.variables]);
 
     // If there are more than 8 lines, show the first 8 lines and add a "..."
-    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID || undefined) || ''
+    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
@@ -173,7 +186,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 && <div className='active-cell-preview-container'>
                     <div className='code-block-container'>
                         <PythonCode
-                            key={activeCellCodePreview}
                             code={activeCellCodePreview}
                             renderMimeRegistry={renderMimeRegistry}
                         />

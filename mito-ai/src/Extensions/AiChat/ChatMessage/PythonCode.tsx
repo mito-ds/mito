@@ -23,10 +23,25 @@ const PythonCode: React.FC<IPythonCodeProps> = ({ code, renderMimeRegistry }) =>
 
     const node = renderer.node
     setNode(node)
+
+    // Clean up function to remove the node when component unmounts or code changes
+    return () => {
+      if (node && node.parentNode) {
+        node.parentNode.removeChild(node);
+      }
+    };
   }, [code, renderMimeRegistry]) // Add dependencies to useEffect
 
   if (node) {
-    return <div className='code-block-python-code' ref={(el) => el && el.appendChild(node)} />
+    return <div className='code-block-python-code' ref={(el) => {
+      if (el) {
+        // Clear any existing content first
+        while (el.firstChild) {
+          el.removeChild(el.firstChild);
+        }
+        el.appendChild(node);
+      }
+    }} />
   } else {
     return <div className='code-block-python-code' />
   }
