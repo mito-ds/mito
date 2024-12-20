@@ -175,9 +175,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             className={classNames("chat-input-container")}
             onFocus={() => setIsFocused(true)}
             onBlur={() => {
-                setTimeout(() => {
-                    setIsFocused(false)
-                }, 150)
+                setIsFocused(false)
             }}
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
@@ -234,7 +232,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         }
                     }}
                 />
-                {isDropdownVisible && isFocused && (
+                {isDropdownVisible  && (
                     <ChatDropdown
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
