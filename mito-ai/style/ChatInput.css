@@ -5,11 +5,8 @@
     background-color: var(--chat-background-color);
     margin: 10px 0;
     margin-top: auto;
-    border: 1px solid var(--purple-500);
-}
-
-.chat-input-container:focus {
-    border: 1px solid var(--purple-700);
+    border-radius: 3px;
+    border: 1px solid var(--grey-300);
 }
 
 .chat-input {

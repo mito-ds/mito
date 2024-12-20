@@ -44,11 +44,14 @@
 
 .message {
     height: min-content;
-    margin-bottom: 10px;
     box-sizing: border-box;
     padding: 10px;
     width: 100%;
     font-size: 14px;
+}
+
+.message:not(.chat-input) {
+    margin-bottom: 20px;
 }
 
 .message-user {
