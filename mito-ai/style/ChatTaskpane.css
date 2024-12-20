@@ -122,6 +122,7 @@
 .message-edit-buttons {
     display: flex;
     gap: 8px;
+    padding: 5px;
 }
 
 .message-edit-buttons button {

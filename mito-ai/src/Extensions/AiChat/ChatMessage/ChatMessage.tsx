@@ -75,21 +75,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     if (isEditing) {
         return (
-            <div className={classNames(
-                "message",
-                { "message-user": message.role === 'user' },
-            )}>
-                <ChatInput
-                    initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
-                    placeholder={"Edit your message"}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                    isEditing={isEditing}
-                    variableManager={variableManager}
-                    notebookTracker={notebookTracker}
-                    renderMimeRegistry={renderMimeRegistry}
-                />
-            </div>
+            <ChatInput
+                initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
+                placeholder={"Edit your message"}
+                onSave={handleSave}
+                onCancel={handleCancel}
+                isEditing={isEditing}
+                variableManager={variableManager}
+                notebookTracker={notebookTracker}
+                renderMimeRegistry={renderMimeRegistry}
+            />
         );
     }
 

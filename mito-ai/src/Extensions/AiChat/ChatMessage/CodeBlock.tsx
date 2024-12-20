@@ -6,7 +6,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
-import '../../../../style/CodeMessagePart.css'
+import '../../../../style/CodeBlock.css'
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import { CodeReviewStatus } from '../ChatTaskpane';
 
