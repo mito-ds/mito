@@ -49,18 +49,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // Update the active cell ID when the active cell changes
     useEffect(() => {
+        // Debounce the cell change updates to prevent rapid re-renders
+        let timeoutId: NodeJS.Timeout;
+        
         const activeCellChangedListener = () => { 
-            const newActiveCellID = getActiveCellID(notebookTracker);
-            console.log('Cell change detected', {
-                current: activeCellID,
-                new: newActiveCellID,
-                areEqual: activeCellID === newActiveCellID
-            });
-
-            // Only update if actually changed
-            if (newActiveCellID !== activeCellID) {
-                setActiveCellID(newActiveCellID);
+            // Clear any pending timeout
+            if (timeoutId) {
+                clearTimeout(timeoutId);
             }
+
+            // Set a new timeout to update the state
+            timeoutId = setTimeout(() => {
+                const newActiveCellID = getActiveCellID(notebookTracker);
+                console.log('Cell change detected', {
+                    current: activeCellID,
+                    new: newActiveCellID,
+                    areEqual: activeCellID === newActiveCellID
+                });
+                
+                // Only update if actually changed
+                if (newActiveCellID !== activeCellID) {
+                    setActiveCellID(newActiveCellID);
+                }
+            }, 100); // Small delay to batch rapid updates
         };
     
         // When the activeCellChanged event occurs, it sometimes gets fired
@@ -69,9 +80,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
         notebookTracker.activeCellChanged.connect(activeCellChangedListener);
     
         return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
             notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
         };
-    }, [notebookTracker, activeCellID]);  
+    }, [notebookTracker, activeCellID]);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
