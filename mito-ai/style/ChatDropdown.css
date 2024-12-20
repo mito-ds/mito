@@ -1,24 +1,16 @@
 
 .chat-dropdown {
+    /* Position the dropdown in the right place*/
     position: absolute;
-    width: 100%;
     z-index: 9999;
-}
-
-.chat-dropdown.above {
     bottom: 100%;
     margin-bottom: 5px;
-}
 
-.chat-dropdown.below {
-    top: 100%;
-    margin-top: 5px;
-}
-
-.chat-dropdown {
+    /* Style the dropdown */
     display: flex;
     justify-content: space-evenly;
     align-items: baseline;
+    width: 100%;
 }
 
 .chat-dropdown-list {

@@ -42,7 +42,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [showDropdownAbove, setShowDropdownAbove] = useState(false);
 
     // Update the active cell ID when the active cell changes
     useEffect(() => {
@@ -72,6 +71,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             ? '80px' 
             : `${Math.max(80, textarea.scrollHeight)}px`;
     };
+
+    useEffect(() => {
+        adjustHeight();
+    }, [textAreaRef?.current?.value]);
 
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = event.target.value;
@@ -127,10 +130,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }, 0);
     };
 
-    useEffect(() => {
-        adjustHeight();
-    }, [textAreaRef?.current?.value]);
-
     // Update the expandedVariables arr when the variable manager changes
     useEffect(() => {
         const expandedVariables: ExpandedVariable[] = [
@@ -152,24 +151,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         ];
         setExpandedVariables(expandedVariables);
     }, [variableManager?.variables]);
-
-    const calculateDropdownPosition = () => {
-        if (!textAreaRef.current) return;
-
-        const textarea = textAreaRef.current;
-        const textareaRect = textarea.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const spaceBelow = windowHeight - textareaRect.bottom;
-
-        // If space below is less than 200px (typical dropdown height), show above
-        setShowDropdownAbove(spaceBelow < 200);
-    };
-
-    useEffect(() => {
-        if (isDropdownVisible) {
-            calculateDropdownPosition();
-        }
-    }, [isDropdownVisible]);
 
     // If there are more than 8 lines, show the first 8 lines and add a "..."
     const activeCellCode = getCellCodeByID(notebookTracker, activeCellID || undefined) || ''
@@ -245,7 +226,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
                         filterText={dropdownFilter}
-                        position={showDropdownAbove ? "above" : "below"}
                     />
                 )}
 
