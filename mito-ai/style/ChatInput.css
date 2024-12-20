@@ -9,7 +9,7 @@
 
 .chat-input {
     outline: none;
-    border: none;
+    border: 1px solid var(--purple-500);
     resize: none;
     width: 100%;
     padding: 10px;
@@ -21,6 +21,10 @@
         See the adjustHeight function for more detail.
     */
     flex-shrink: 0 !important;
+}
+
+.chat-input:focus {
+    border: 1px solid var(--purple-700);
 }
 
 .active-cell-preview-container {
