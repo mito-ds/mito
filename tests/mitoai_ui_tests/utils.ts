@@ -54,3 +54,13 @@ export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
     await page.getByRole('button', { name: 'Preview Code in Notebook' }).click();
     await waitForIdle(page);
 }
+
+export const clickAcceptButton = async (page: IJupyterLabPageFixture) => {
+    await page.locator('[class="code-block-accept-button"]').click();
+    await waitForIdle(page);
+}
+
+export const clickDenyButton = async (page: IJupyterLabPageFixture) => {
+    await page.locator('[class="code-block-deny-button"]').click();
+    await waitForIdle(page);
+}

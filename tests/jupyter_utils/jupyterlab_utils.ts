@@ -16,7 +16,7 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
         // Add a short delay to ensure that the cell is created and the decoration placeholder extension
         // has a chance to process
         await page.waitForTimeout(100);
-        await page.notebook.setCell(i, 'code', cellContents[i]);
+        await page.notebook.setCell(i, 'code', '\n'+cellContents[i]);
         await page.notebook.runCell(i);
     }
     await waitForIdle(page)
