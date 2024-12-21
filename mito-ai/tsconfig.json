@@ -9,11 +9,7 @@
     "lib": [
       "dom",
       "DOM.Iterable",
-      "ES2018",
-      "ES2020.BigInt",
-      "ES2020.Intl",
-      "ES2020.String",
-      "ES2022.Error",
+      "ES2022",
     ],
     "module": "esnext",
     "moduleResolution": "node",
