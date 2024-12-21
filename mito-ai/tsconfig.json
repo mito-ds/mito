@@ -6,6 +6,11 @@
     "esModuleInterop": true,
     "incremental": true,
     "jsx": "react",
+    "lib": [
+      "dom",
+      "DOM.Iterable",
+      "ES2022",
+    ],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -19,7 +24,9 @@
     "strict": true,
     "strictNullChecks": true,
     "target": "ES2018",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src/**/*.ts",

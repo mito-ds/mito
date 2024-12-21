@@ -5,7 +5,6 @@ import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell } from '../../u
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
-import { requestAPI } from '../../utils/handler';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -17,7 +16,7 @@ import {
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, 
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE 
 } from '../../commands';
-import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
@@ -29,6 +28,7 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
+import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -43,6 +43,7 @@ interface IChatTaskpaneProps {
     variableManager: IVariableManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
+    websocketClient: CompletionWebsocketClient;
 }
 
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
@@ -52,7 +53,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     rendermime,
     variableManager,
     app,
-    operatingSystem
+    operatingSystem,
+    websocketClient
 }) => {
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, variableManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
@@ -70,6 +72,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      // Check that the websocket client is ready
+      // and display the error if it is not.
+      websocketClient.ready.catch(error => {
+        const newChatHistoryManager = getDefaultChatHistoryManager(
+          notebookTracker,
+          variableManager
+        );
+        newChatHistoryManager.addAIMessageFromResponse(
+          (error as any).hint ? (error as any).hint : `${error}`,
+          'chat',
+          true
+        );
+        setChatHistoryManager(newChatHistoryManager);
+      });
+    }, [websocketClient]);
 
     useEffect(() => {
         /* 
@@ -125,7 +144,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(newChatHistoryManager)
     }
 
-    const sendExplainCodeMessage = () => {
+    const sendExplainCodeMessage = async () => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -135,7 +154,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
         
         // Step 2: Send the message to the AI
-        _sendMessageAndSaveResponse(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -187,37 +206,51 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const aiOptimizedHistory = newChatHistoryManager.getAIOptimizedHistory()
         const promptType = aiOptimizedHistory[aiOptimizedHistory.length - 1]?.promptType
 
-        let aiRespone = undefined
-
         try {
-            const apiResponse = await requestAPI('mito_ai/completion', {
-                method: 'POST',
-                body: JSON.stringify({
-                    messages: newChatHistoryManager.getAIOptimizedHistory().map(historyItem => historyItem.message),
-                    promptType: promptType
-                })
+            await websocketClient.ready;
+
+            const aiResponse = await websocketClient.sendMessage({
+              message_id: UUID.uuid4(),
+              messages: newChatHistoryManager
+                .getAIOptimizedHistory()
+                .map(historyItem => historyItem.message),
+              type: promptType,
+              stream: false
             });
 
-            if (apiResponse.type === 'success') {
-                const aiMessage = apiResponse.response;
-                newChatHistoryManager.addAIMessageFromResponse(aiMessage.content, promptType);
-                setChatHistoryManager(newChatHistoryManager);
-                
-                aiRespone = aiMessage
+            if (aiResponse.error) {
+              console.error('Error calling OpenAI API:', aiResponse.error);
+              newChatHistoryManager.addAIMessageFromResponse(
+                aiResponse.error.hint
+                  ? aiResponse.error.hint
+                  : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
+                promptType,
+                true
+              );
+              setChatHistoryManager(newChatHistoryManager);
             } else {
-                newChatHistoryManager.addAIMessageFromResponse(apiResponse.errorMessage, promptType, true)
-                setChatHistoryManager(newChatHistoryManager);
-            }
+              newChatHistoryManager.addAIMessageFromResponse(
+                aiResponse.items[0].content || '',
+                promptType
+              );
+              setChatHistoryManager(newChatHistoryManager);
+            }      
         } catch (error) {
+            newChatHistoryManager.addAIMessageFromResponse(
+              (error as any).hint ? (error as any).hint : `${error}`,
+              promptType,
+              true
+            );
+            setChatHistoryManager(newChatHistoryManager);
             console.error('Error calling OpenAI API:', error);
         } finally {
             // Reset states to allow future messages to show the "Apply" button
-            setCodeReviewStatus('chatPreview')
-
-            setLoadingAIResponse(false)
-            return aiRespone
+            setCodeReviewStatus('chatPreview');
+    
+            setLoadingAIResponse(false);
         }
     }
+    
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
         if (!aiMessage) {

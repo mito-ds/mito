@@ -70,6 +70,8 @@
     "@jupyterlab/notebook": "^4.1.0",
     "@jupyterlab/services": "^7.1.0",
     "@jupyterlab/settingregistry": "^4.1.0",
+    "@jupyterlab/statusbar": "^4.1.0",
+    "@jupyterlab/ui-components": "^4.1.0",
     "@lumino/commands": "^2.0.0",
     "@lumino/coreutils": "^2.0.0",
     "@lumino/disposable": "^2.0.0",

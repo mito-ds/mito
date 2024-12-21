@@ -109,7 +109,7 @@ def chunk_param(param: str, param_name: str, chunk_size: int=250) -> Dict[str, s
 def log(
         log_event: str, 
         params: Optional[Dict[str, Any]]=None, 
-        error: Optional[Exception]=None, 
+        error: Optional[BaseException]=None, 
     ) -> None:
     """
     This function is the entry point for all logging. 

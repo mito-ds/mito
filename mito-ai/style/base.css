@@ -4,39 +4,42 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 
+@import url('icons.css');
+@import url('statusItem.css');
+
 :root {
-    --chat-background-color: #F3F3F3;
-    --chat-user-message-background-color: #FFFFFF;
-    --chat-user-message-font-color: #474747;
-    --chat-assistant-message-font-color: #0E1119;
-    --item-selected-color: #E9E0FD;
-    --muted-text-color: #888;
+  --chat-background-color: #f3f3f3;
+  --chat-user-message-background-color: #ffffff;
+  --chat-user-message-font-color: #474747;
+  --chat-assistant-message-font-color: #0e1119;
+  --item-selected-color: #e9e0fd;
+  --muted-text-color: #888;
 
-    --green-700: #15803d;
-    --green-600: #65a30d;
-    --green-500: #84cc16;
-    --green-400: #a3e635;
-    --green-300: #bef264;
+  --green-700: #15803d;
+  --green-600: #65a30d;
+  --green-500: #84cc16;
+  --green-400: #a3e635;
+  --green-300: #bef264;
 
-    --red-700: #b91c1c;
-    --red-600: #dc2626;
-    --red-500: #ef4444;
-    --red-400: #f87171;
-    --red-300: #fca5a5;
+  --red-700: #b91c1c;
+  --red-600: #dc2626;
+  --red-500: #ef4444;
+  --red-400: #f87171;
+  --red-300: #fca5a5;
 
-    --yellow-300: #fde047;
+  --yellow-300: #fde047;
 
-    --grey-900: #222934;
-    --grey-800: #5F6B7A;
-    --grey-700: #8795A7;
-    --grey-500: #B8C4CE;
-    --grey-400: #CFD6DE;
-    --grey-300: #E1E7EB;
-    --grey-200: #F8F9FA;
+  --grey-900: #222934;
+  --grey-800: #5f6b7a;
+  --grey-700: #8795a7;
+  --grey-500: #b8c4ce;
+  --grey-400: #cfd6de;
+  --grey-300: #e1e7eb;
+  --grey-200: #f8f9fa;
 
-    --purple-700: #844AF7;
-    --purple-600: #9D6CFF;
-    --purple-500: #BA9BF8;
-    --purple-400: #D0B9FE;
-    --purple-300: #E9E0FD;
+  --purple-700: #844af7;
+  --purple-600: #9d6cff;
+  --purple-500: #ba9bf8;
+  --purple-400: #d0b9fe;
+  --purple-300: #e9e0fd;
 }
