@@ -3,10 +3,11 @@ import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Awaitable, Optional
+from typing import Any, Awaitable, Dict, Optional
 
 import tornado
 import tornado.ioloop
+import tornado.web
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
@@ -187,7 +188,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         message = asdict(reply)
         super().write_message(message)
 
-    def _send_error(self, change: dict[str, Optional[CompletionError]]) -> None:
+    def _send_error(self, change: Dict[str, Optional[CompletionError]]) -> None:
         """Send an error message to the client."""
         error = change["new"]
 

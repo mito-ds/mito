@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import os
-from typing import Any, AsyncGenerator, List, Optional, Union
+from typing import Any, AsyncGenerator, Dict, List, Optional, Union
 
 import openai
 from openai._streaming import AsyncStream
@@ -51,7 +53,7 @@ class OpenAIProvider(LoggingConfigurable):
         return self._validate_api_key({"value": default_key})
 
     @validate("api_key")
-    def _validate_api_key(self, changes: dict[str, Any]) -> str:
+    def _validate_api_key(self, changes: Dict[str, Any]) -> str:
         """"""
         api_key = changes["value"]
         if not api_key:
@@ -113,7 +115,7 @@ class OpenAIProvider(LoggingConfigurable):
 
     @validate("max_completion_tokens")
     def _validate_max_completion_tokens(
-        self, proposal: dict[str, Any]
+        self, proposal: Dict[str, Any]
     ) -> Optional[int]:
         max_completion_tokens = proposal["value"]
         if max_completion_tokens is not None and max_completion_tokens < 1:
@@ -127,7 +129,7 @@ class OpenAIProvider(LoggingConfigurable):
     )
 
     @validate("model")
-    def _validate_model(self, proposal: dict[str, Any]) -> str:
+    def _validate_model(self, proposal: Dict[str, Any]) -> str:
         model = proposal["value"]
         if self._models is None:
             # Force the validation of the API key to get the models
@@ -146,7 +148,7 @@ class OpenAIProvider(LoggingConfigurable):
     )
 
     @validate("temperature")
-    def _validate_temperature(self, proposal: dict[str, Any]) -> float:
+    def _validate_temperature(self, proposal: Dict[str, Any]) -> float:
         temperature = proposal["value"]
         if temperature < 0 or temperature > 2:
             raise TraitError(
