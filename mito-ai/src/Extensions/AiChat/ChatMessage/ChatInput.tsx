@@ -9,6 +9,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import PythonCode from './PythonCode';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
+import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 
 interface ChatInputProps {
     initialContent: string;
@@ -47,45 +48,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
     console.log('ChatInput rendering, activeCellID:', activeCellID);
 
 
-    // Update the active cell ID when the active cell changes
-    useEffect(() => {
-        // Debounce the cell change updates to prevent rapid re-renders
-        let timeoutId: NodeJS.Timeout;
-        
-        const activeCellChangedListener = () => { 
-            // Clear any pending timeout
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
+    // Debounce the active cell ID change to avoid multiple rerenders. 
+    // We use this to avoid a flickering screen when the active cell changes. 
+    const debouncedSetActiveCellID = useDebouncedFunction((newID: string | undefined) => {
+        setActiveCellID(newID);
+    }, 100);
 
-            // Set a new timeout to update the state
-            timeoutId = setTimeout(() => {
-                const newActiveCellID = getActiveCellID(notebookTracker);
-                console.log('Cell change detected', {
-                    current: activeCellID,
-                    new: newActiveCellID,
-                    areEqual: activeCellID === newActiveCellID
-                });
-                
-                // Only update if actually changed
-                if (newActiveCellID !== activeCellID) {
-                    setActiveCellID(newActiveCellID);
-                }
-            }, 100); // Small delay to batch rapid updates
+    useEffect(() => {
+        const activeCellChangedListener = () => { 
+            const newActiveCellID = getActiveCellID(notebookTracker);
+            debouncedSetActiveCellID(newActiveCellID);
         };
-    
-        // When the activeCellChanged event occurs, it sometimes gets fired
-        // many times. To avoid a bunch of rerenders, we disconnet the listener 
-        // each time we use it and then recconect when we're done updating the active cell ID
+
+        // Connect the listener once when the component mounts
         notebookTracker.activeCellChanged.connect(activeCellChangedListener);
     
+        // Cleanup: disconnect the listener when the component unmounts
         return () => {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
             notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
         };
-    }, [notebookTracker, activeCellID]);
+    
+    }, [notebookTracker, activeCellID, debouncedSetActiveCellID]);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
