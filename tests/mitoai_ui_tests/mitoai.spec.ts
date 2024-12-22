@@ -26,7 +26,7 @@ test.describe.configure({ mode: 'parallel' });
 test.describe('Mito AI Chat', () => {
 
   test('Preview and Accept AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'], true);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
@@ -48,7 +48,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Reject AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'], true);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
@@ -64,7 +64,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Edit Message', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'], true);
     await waitForIdle(page);
 
     // Send the first message
@@ -100,7 +100,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print("cell 0")']);
+    await createAndRunNotebookWithCells(page, ['print("cell 0")'], true);
     await waitForIdle(page);
 
     // Send a first message in cell 1
@@ -125,7 +125,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Accept code from a different cell', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await createAndRunNotebookWithCells(page, ['print(1)'], true);
     await waitForIdle(page);
 
     // Send the first message
@@ -151,7 +151,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Reject code from a different cell', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await createAndRunNotebookWithCells(page, ['print(1)'], true);
     await waitForIdle(page);
 
     // Send the first message
@@ -177,7 +177,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, []);
+    await createAndRunNotebookWithCells(page, [], true);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Add print (1)');
@@ -189,7 +189,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Test fix error button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(3']);
+    await createAndRunNotebookWithCells(page, ['print(3'], true);
     await waitForIdle(page);
 
     await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
@@ -198,7 +198,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Errors have fix with AI button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1']);
+    await createAndRunNotebookWithCells(page, ['print(1'], true);
     await waitForIdle(page);
 
     await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
@@ -220,7 +220,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Code cells have Explain Code button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await createAndRunNotebookWithCells(page, ['print(1)'], true);
     await waitForIdle(page);
 
     await selectCell(page, 0);
@@ -232,7 +232,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Test explain code button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await createAndRunNotebookWithCells(page, ['print(1)'], true);
     await waitForIdle(page);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
@@ -241,7 +241,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'], true);
     await waitForIdle(page);
 
     await clickOnMitoAIChatTab(page);
@@ -258,10 +258,11 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(
       page,
       [
-        '\nimport pandas as pd',
+        'import pandas as pd',
         'timestamp_df = pd.DataFrame({"timestamp_col_A": [pd.to_datetime("2020-01-01"), pd.to_datetime("2020-01-02"), pd.to_datetime("2020-01-03")]}, dtype=object)',
         'none_type_df = pd.DataFrame({"none_type_col_A": [None, None, None]})'
-      ]
+      ],
+      true
     );
 
     await waitForIdle(page);
@@ -288,7 +289,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Active cell preview is displayed and updated when active cell changes', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)']);
+    await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)'], true);
     await waitForIdle(page);
 
     await selectCell(page, 0);
@@ -300,11 +301,18 @@ test.describe('Mito AI Chat', () => {
     
     // The active cell preview should show the code from the first cell
     await page.locator('.chat-input').fill('Test');
+
+    // Wait for half a second for the cell preview to update
+    await page.waitForTimeout(500);
+    
     const activeCellPreview = await page.locator('.active-cell-preview-container').textContent();
     expect.soft(activeCellPreview).toContain('print(1)');
 
     // After changing the selected cell, the active cell preview should update
     await selectCell(page, 1);
+    // Wait for half a second for the cell preview to update
+    await page.waitForTimeout(500);
+
     const activeCellPreview2 = await page.locator('.active-cell-preview-container').textContent();
     expect.soft(activeCellPreview2).toContain('print(2)');
 

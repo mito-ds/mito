@@ -200,7 +200,7 @@ test.describe("default manual inline completion", () => {
     await page.goto(`tree/${tmpPath}`);
     const filename = "inline-completer.ipynb";
     await page.notebook.createNew(filename);
-    await page.notebook.setCell(0, "code", "def fib");
+    await page.notebook.setCell(0, "code", "\ndef fib");
     // Ensure the cell is focused with the cursor at the end of the content
     await (await page.notebook.getCellLocator(0))!.click();
     await page.keyboard.press("Alt+\\");
