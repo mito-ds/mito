@@ -82,7 +82,7 @@ test.describe("default inline completion", () => {
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content === "def fib") &&
+          payload.messages.find((message) => message.content === "\ndef fib") &&
           payload.stream
         ) {
           let counter = -1;
@@ -118,21 +118,21 @@ test.describe("default inline completion", () => {
     // before it grabs the text content.
     await (await page.notebook.getCellLocator(0))!
       .getByRole("textbox")
-      .fill("def fib");
+      .fill("\ndef fib");
 
     await replyDone.promise;
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
     expect
       .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
-      .toHaveText("def fib(n):\n    pass\n");
+      .toHaveText("\ndef fib(n):\n    pass\n");
 
     await page.keyboard.press("Tab");
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
     expect(
       (await page.notebook.getCellLocator(0))!.getByRole("textbox")
-    ).toHaveText("def fib(n):\n    pass\n");
+    ).toHaveText("\ndef fib(n):\n    pass\n");
   });
 });
 
