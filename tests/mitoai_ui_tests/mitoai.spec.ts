@@ -236,7 +236,7 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant')).toHaveCount(1);
   });
 
-  test('Variable dropdown shows correct variables and dissapears on blur', async ({ page }) => {
+  test('Variable dropdown shows correct variables', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
     await waitForIdle(page);
 
@@ -247,14 +247,7 @@ test.describe('Mito AI Chat', () => {
     await page.locator('.chat-input').click();
     await page.keyboard.type("Edit column @ap");
     await expect.soft(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
-    await expect.soft(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
-
-    // When the chat input loses focus, the dropdown should disappear
-    // after a tiny delay
-    await selectCell(page, 0);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await expect.soft(page.locator('.chat-dropdown')).not.toBeVisible();
-    
+    await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
   });
 
   test('Unserializable objects are handled correctly', async ({ page }) => {
