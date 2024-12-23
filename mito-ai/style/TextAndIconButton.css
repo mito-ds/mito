@@ -22,19 +22,19 @@
 }
 
 .text-and-icon-button.green {
-    background-color: var(--green-300);
+    background-color: var(--green-400);
     color: var(--green-900);
 }
 
 .text-and-icon-button.green:hover {
-    background-color: var(--green-400);
+    background-color: var(--green-300);
 }
 
 .text-and-icon-button.red {
-    background-color: var(--red-300);
+    background-color: var(--red-400);
     color: var(--red-900);
 }
 
 .text-and-icon-button.red:hover {
-    background-color: var(--red-400);
+    background-color: var(--red-300);
 }

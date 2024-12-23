@@ -145,13 +145,13 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     <div className='chat-message-buttons'>
                                         <TextButton 
                                             onClick={() => {acceptAICode()}}
-                                            text={`Accept code ${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}`}
+                                            text={`Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`}
                                             title={'Accept the Ai generated code'}
                                             variant='green'
                                         />
                                         <TextButton 
                                             onClick={() => {rejectAICode()}}
-                                            text={`Reject code ${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}`}
+                                            text={`Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`}
                                             title={'Reject the Ai generated code and revert to the previous version of the code cell'}
                                             variant='red'
                                         />
