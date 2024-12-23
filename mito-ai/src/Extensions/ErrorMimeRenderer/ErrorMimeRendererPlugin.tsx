@@ -87,8 +87,15 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
 
         // Apply styling for warnings
         if (!isErrorMessage) {
-            originalNode.style.background = 'var(--jp-warn-color3)';
+            // Find the pre element inside originalNode and apply styles to it as well
+            const preElement = originalNode.querySelector('pre');
+            if (preElement) {
+                preElement.style.background = 'var(--jp-warn-color3)';
+                preElement.style.color = 'var(--md-grey-900)';
+            }
         }
+
+
 
         // Append the original error/warning rendered node
         this.node.appendChild(originalNode);
