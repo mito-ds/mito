@@ -1,6 +1,5 @@
 import { expect, galata, test } from "@jupyterlab/galata";
 import { PromiseDelegate } from "@lumino/coreutils";
-import { waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 const GHOST_SELECTOR = ".jp-GhostText";
 
@@ -10,7 +9,7 @@ test.describe("first time setup", () => {
     request,
   }) => {
     await page
-      .getByRole("button", { name: "Enable" })
+      .getByText(/Thanks for installing the Mito AI extension/)
       .waitFor();
     await page.getByRole("button", { name: "Enable" }).click();
 
@@ -83,7 +82,7 @@ test.describe("default inline completion", () => {
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content === "\ndef fib") &&
+          payload.messages.find((message) => message.content === "def fib") &&
           payload.stream
         ) {
           let counter = -1;
@@ -119,21 +118,21 @@ test.describe("default inline completion", () => {
     // before it grabs the text content.
     await (await page.notebook.getCellLocator(0))!
       .getByRole("textbox")
-      .fill("\ndef fib");
+      .fill("def fib");
 
     await replyDone.promise;
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
     expect
       .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
-      .toHaveText("\ndef fib(n):\n    pass\n");
+      .toHaveText("def fib(n):\n    pass\n");
 
     await page.keyboard.press("Tab");
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
     expect(
       (await page.notebook.getCellLocator(0))!.getByRole("textbox")
-    ).toHaveText("\ndef fib(n):\n    pass\n");
+    ).toHaveText("def fib(n):\n    pass\n");
   });
 });
 
@@ -154,7 +153,7 @@ test.describe("default manual inline completion", () => {
             enabled: true,
             timeout: 5000,
             debouncerDelay: 250,
-            triggerKind: "any", // TODO: Figure out how to do manual trigger on mac
+            triggerKind: "manual",
           },
         },
       },
@@ -170,7 +169,7 @@ test.describe("default manual inline completion", () => {
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content === "\ndef fib") &&
+          payload.messages.find((message) => message.content === "def fib") &&
           payload.stream
         ) {
           let counter = -1;
@@ -201,7 +200,7 @@ test.describe("default manual inline completion", () => {
     await page.goto(`tree/${tmpPath}`);
     const filename = "inline-completer.ipynb";
     await page.notebook.createNew(filename);
-    await page.notebook.setCell(0, "code", "\ndef fib");
+    await page.notebook.setCell(0, "code", "def fib");
     // Ensure the cell is focused with the cursor at the end of the content
     await (await page.notebook.getCellLocator(0))!.click();
     await page.keyboard.press("Alt+\\");
@@ -211,14 +210,14 @@ test.describe("default manual inline completion", () => {
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
     expect
       .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
-      .toHaveText("\ndef fib(n):\n    pass\n");
+      .toHaveText("def fib(n):\n    pass\n");
 
     await page.keyboard.press("Tab");
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
     expect(
       (await page.notebook.getCellLocator(0))!.getByRole("textbox")
-    ).toHaveText("\ndef fib(n):\n    pass\n");
+    ).toHaveText("def fib(n):\n    pass\n");
   });
 });
 
