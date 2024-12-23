@@ -346,15 +346,18 @@ export class MitoAIInlineCompleter
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
     // Clean suggestion
-    let cleanedCompletion = fullCompletion.slice(0);
+    let cleanedCompletion = fullCompletion
+    // Remove opening ```python
+    .replace(/^```python\n?/, '')
+    // Remove closing ```
+    .replace(/```$/, '')
+    
     if (this._currentPrefix) {
       if (
         cleanedCompletion.startsWith(this._currentPrefix) ||
         this._currentPrefix.startsWith(cleanedCompletion)
       ) {
         cleanedCompletion = cleanedCompletion.slice(this._currentPrefix.length);
-      } else if (!['\n', ' '].includes(cleanedCompletion[0])) {
-        cleanedCompletion = '\n' + cleanedCompletion;
       }
     }
 

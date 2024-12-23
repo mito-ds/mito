@@ -15,6 +15,7 @@ from .models import (
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
 )
+from .utils import inline_prompt
 
 __all__ = ["OpenAIProvider"]
 
@@ -84,36 +85,11 @@ class OpenAIProvider(LoggingConfigurable):
         self, request: InlineCompletionRequest
     ) -> List[ChatCompletionMessageParam]:
         inputs = request.to_template_inputs()
-        messages = [
-            {
-                "role": "system",
-                "content": self._templates.get_template("completion-system").render(),
-            },
-            {
-                "role": "user",
-                "content": self._templates.get_template("completion-human").render(
-                    inputs
-                ),
-            },
-            {
-                "role": "user",
-                "content": """Complete the following code responding only with additional code, 
-code comments or docstrings, and with no markdown formatting.""",
-            },
-            {"role": "user", "content": inputs["prefix"]},
+        prompt = inline_prompt.generate_prompt(inputs["prefix"], inputs["suffix"])
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": COMPLETION_SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
         ]
-
-        if inputs.get("suffix"):
-            messages.extend(
-                [
-                    {
-                        "role": "user",
-                        "content": "The new code appears before the following snippet.",
-                    },
-                    {"role": "user", "content": inputs["suffix"]},
-                ]
-            )
-
         return messages
 
     def get_token(self, request: InlineCompletionRequest) -> str:
