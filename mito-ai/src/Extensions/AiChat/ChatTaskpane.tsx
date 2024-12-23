@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell } from '../../utils/notebook';
+import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell, getActiveCellID } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -47,6 +47,11 @@ interface IChatTaskpaneProps {
     websocketClient: CompletionWebsocketClient;
 }
 
+interface ICellStateBeforeDiff {
+    codeCellID: string
+    code: string
+}
+
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
@@ -63,7 +68,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
 
     const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
-    const originalCodeBeforeDiff = useRef<string | undefined>(undefined)
+    
+    // Store the original cell before diff so that we can revert to it if the user rejects the AI's code
+    const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined)
 
     // Three possible states:
     // 1. chatPreview: state where the user has not yet pressed the apply button.
@@ -258,21 +265,28 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        const codeCellID = chatHistoryManager.getCodeCellIDOfMostRecentAIMessage() || ''
-        const originalCellCode = getCellCodeByID(notebookTracker, codeCellID) || ''
+        const codeCellID = getActiveCellID(notebookTracker)
+        const activeCellCode = getCellCodeByID(notebookTracker, codeCellID)
+
+        if (codeCellID === undefined || activeCellCode === undefined) {
+            return
+        }
 
         // Extract the code from the AI's message and then calculate the code diffs
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(originalCellCode, aiGeneratedCodeCleaned)
+        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
 
-        // Store the original code so that we can revert to it if the user rejects the AI's code
-        originalCodeBeforeDiff.current = originalCellCode
+        // Store the code cell ID where we write the code diffs so that we can
+        // accept or reject the code diffs to the correct cell
+        cellStateBeforeDiff.current = {codeCellID: codeCellID, code: activeCellCode}
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
         writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
         setUnifiedDiffLines(unifiedDiffs)
+
+        
 
         // Briefly highlight the code cell to draw the user's attention to it
         highlightCodeCell(notebookTracker, codeCellID)
@@ -289,7 +303,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
 
-        if (!lastAIMessage) {
+        if (!lastAIMessage || !cellStateBeforeDiff.current) {
             return
         }
 
@@ -300,36 +314,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         setCodeReviewStatus('applied')
 
-        // Use the codeCellID to accept the code so the code is applied to the correct cell
-        // even if the user switches cells.
-        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, lastAIMessage.codeCellID)
-
-        // Do not reset `isApplyingCode` or `codeWasAccepted` here. Once accepted, there is no need to
-        // show the "Apply" button again since users can only accept the code once.
-        // These states are reset in `_sendMessageAndSaveResponse`.
+        // Write to the cell that has the code diffs
+        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellStateBeforeDiff.current.codeCellID)
     }
 
     const rejectAICode = (focusOnCell?: boolean) => {
-        const latestChatHistoryManager = chatHistoryManagerRef.current;
-        const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
-
-        if (!lastAIMessage) {
-            return
-        }
-
-        const originalDiffedCode = originalCodeBeforeDiff.current
-        if (originalDiffedCode === undefined) {
+        if (cellStateBeforeDiff.current === undefined) {
             return
         }
 
         setCodeReviewStatus('chatPreview')
-
-        writeCodeToCellAndTurnOffDiffs(originalDiffedCode, lastAIMessage.codeCellID, focusOnCell)
+        writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID, focusOnCell)
     }
 
     const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined, focusOnCell?: boolean) => {
         setUnifiedDiffLines(undefined)
-        originalCodeBeforeDiff.current = undefined
+        cellStateBeforeDiff.current = undefined
 
         if (codeCellID !== undefined) {
             writeCodeToCellByID(notebookTracker, code, codeCellID, focusOnCell)

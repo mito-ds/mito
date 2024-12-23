@@ -10,6 +10,8 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import { 
   clearMitoAIChatInput, 
+  clickAcceptButton, 
+  clickDenyButton, 
   clickOnMitoAIChatTab, 
   clickPreviewButton, 
   editMitoAIMessage, 
@@ -18,8 +20,6 @@ import {
 } from './utils';
 
 const placeholderCellText = '# Empty code cell';
-const acceptButtonSelector = '[class="code-block-accept-button"]';
-const denyButtonSelector = '[class="code-block-deny-button"]'
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -40,7 +40,7 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
     await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
 
-    await page.locator(acceptButtonSelector).click();
+    await clickAcceptButton(page);
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -54,8 +54,7 @@ test.describe('Mito AI Chat', () => {
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
-
-    await page.locator(denyButtonSelector).click();
+    await clickDenyButton(page);
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -71,19 +70,19 @@ test.describe('Mito AI Chat', () => {
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
-    await page.locator(acceptButtonSelector).click();
+    await clickAcceptButton(page);
     await waitForIdle(page);
 
     // Send the second message
     await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
     await clickPreviewButton(page);
-    await page.locator(acceptButtonSelector).click();
+    await clickAcceptButton(page);
     await waitForIdle(page);
 
     // Edit the first message
     await editMitoAIMessage(page, 'Write the code df["C_edited"] = [7, 8, 9]', 0);
     await clickPreviewButton(page);
-    await page.locator(acceptButtonSelector).click();
+    await clickAcceptButton(page);
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -112,7 +111,7 @@ test.describe('Mito AI Chat', () => {
     // Send a second message in cell 2
     await sendMessageToMitoAI(page, 'Write the code x = 2');
     await clickPreviewButton(page);
-    await page.locator(acceptButtonSelector).click();
+    await clickAcceptButton(page);
     await waitForIdle(page);
 
 
@@ -124,54 +123,51 @@ test.describe('Mito AI Chat', () => {
     expect(codeInCell2).not.toContain('x = 1'); // Make sure the first msg does not show up in the second cell
   });
 
-  test('Accept code from a different cell', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)'], true);
+  test('Always write code to the preview cell', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print("hello world")', '# this should not be overwritten']);
     await waitForIdle(page);
 
-    // Send the first message
+    // Send the first message with the first cell active
+    selectCell(page, 0);
     await sendMessageToMitoAI(page, 'Write the code x = 1');
 
-    // Create a new cell w/o accepting the first message
-    await addNewCell(page);
-
-    // Type/run new cell
-    await typeInNotebookCell(page, 2, '# this should not be overwritten', true);
-
-    // Accept the first message
+    // Preview the changes
     await clickPreviewButton(page);
-    await page.locator(acceptButtonSelector).click();
+
+    // Select the second cell and accept the changes
+    selectCell(page, 1);
+    await clickAcceptButton(page);
     await waitForIdle(page);
 
-    const codeInCell1 = await getCodeFromCell(page, 1);
+    const codeInCell1 = await getCodeFromCell(page, 0);
     expect(codeInCell1).toContain('x = 1');
 
-    const codeInCell2 = await getCodeFromCell(page, 2);
+    const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
     expect(codeInCell2).toContain('# this should not be overwritten');
   });
 
-  test('Reject code from a different cell', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)'], true);
+  test('Reject reverts preview cell to original code', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print("hello world")', '# this should not be overwritten']);
     await waitForIdle(page);
 
-    // Send the first message
+    // Send the first message with the first cell active
+    selectCell(page, 0);
     await sendMessageToMitoAI(page, 'Write the code x = 1');
 
-    // Create a new cell w/o accepting the first message
-    await addNewCell(page);
-
-    // Type/run new cell
-    await typeInNotebookCell(page, 2, '# this should not be overwritten', true);
-
-    // Reject the first message
+    // Preview the changes
     await clickPreviewButton(page);
-    await page.locator(denyButtonSelector).click();
+
+    // Select the second cell and accept the changes
+    selectCell(page, 1);
+    await clickDenyButton(page);
     await waitForIdle(page);
 
-    const codeInCell1 = await getCodeFromCell(page, 1);
+    const codeInCell1 = await getCodeFromCell(page, 0);
+    expect(codeInCell1).toContain('print("hello world")');
     expect(codeInCell1).not.toContain('x = 1');
 
-    const codeInCell2 = await getCodeFromCell(page, 2);
+    const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
     expect(codeInCell2).toContain('# this should not be overwritten');
   });
@@ -212,7 +208,7 @@ test.describe('Mito AI Chat', () => {
 
     await clickPreviewButton(page);
 
-    await page.locator(acceptButtonSelector).click();
+    await clickAcceptButton(page);
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 0);
