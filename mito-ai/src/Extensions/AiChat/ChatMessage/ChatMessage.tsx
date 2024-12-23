@@ -21,7 +21,7 @@ interface IChatMessageProps {
     messageIndex: number
     mitoAIConnectionError: boolean
     notebookTracker: INotebookTracker
-    rendermime: IRenderMimeRegistry
+    renderMimeRegistry: IRenderMimeRegistry
     app: JupyterFrontEnd
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
@@ -40,7 +40,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     messageIndex,
     mitoAIConnectionError,
     notebookTracker,
-    rendermime,
+    renderMimeRegistry,
     app,
     isLastAiMessage,
     operatingSystem,
@@ -75,19 +75,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     if (isEditing) {
         return (
-            <div className={classNames(
-                "message",
-                { "message-user": message.role === 'user' },
-            )}>
-                <ChatInput
-                    initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
-                    placeholder={"Edit your message"}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                    isEditing={isEditing}
-                    variableManager={variableManager}
-                />
-            </div>
+            <ChatInput
+                initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
+                placeholder={"Edit your message"}
+                onSave={handleSave}
+                onCancel={handleCancel}
+                isEditing={isEditing}
+                variableManager={variableManager}
+                notebookTracker={notebookTracker}
+                renderMimeRegistry={renderMimeRegistry}
+            />
         );
     }
 
@@ -108,7 +105,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 code={messagePart}
                                 codeCellID={codeCellID}
                                 role={message.role}
-                                rendermime={rendermime}
+                                renderMimeRegistry={renderMimeRegistry}
                                 notebookTracker={notebookTracker}
                                 app={app}
                                 isLastAiMessage={isLastAiMessage}
@@ -136,7 +133,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
                                 <MarkdownBlock
                                     markdown={messagePart}
-                                    rendermime={rendermime}
+                                    renderMimeRegistry={renderMimeRegistry}
                                 />
                             </p>
                             {message.role === 'user' && (

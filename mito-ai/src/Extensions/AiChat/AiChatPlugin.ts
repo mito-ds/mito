@@ -11,6 +11,7 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 
+
 /**
  * Initialization data for the mito-ai extension.
  */
@@ -22,7 +23,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IVariableManager
+    IVariableManager,
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -42,7 +43,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         app,
         notebookTracker,
         rendermime,
-        variableManager
+        variableManager,
       );
       return chatWidget;
     };
@@ -113,6 +114,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     }
 
     // This allows us to force plugin load order
+    console.log("mito-ai: AiChatPlugin activated");
     return tracker;
   }
 };

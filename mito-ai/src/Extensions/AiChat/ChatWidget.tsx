@@ -31,7 +31,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
     protected options: {
       app: JupyterFrontEnd;
       notebookTracker: INotebookTracker;
-      rendermime: IRenderMimeRegistry;
+      renderMimeRegistry: IRenderMimeRegistry;
       variableManager: IVariableManager;
       operatingSystem: OperatingSystem;
     }
@@ -82,7 +82,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
       <ChatTaskpane
         app={this.options.app}
         notebookTracker={this.options.notebookTracker}
-        rendermime={this.options.rendermime}
+        renderMimeRegistry={this.options.renderMimeRegistry}
         variableManager={this.options.variableManager}
         operatingSystem={this.options.operatingSystem}
         websocketClient={this.websocketClient}
@@ -108,7 +108,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
 export function buildChatWidget(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
-  rendermime: IRenderMimeRegistry,
+  renderMimeRegistry: IRenderMimeRegistry,
   variableManager: IVariableManager
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
@@ -118,7 +118,7 @@ export function buildChatWidget(
   const chatWidget = new ChatWidget({
     app,
     notebookTracker,
-    rendermime,
+    renderMimeRegistry,
     variableManager,
     operatingSystem
   });
