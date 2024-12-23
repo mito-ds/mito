@@ -78,6 +78,14 @@
     padding-bottom: 10px;
 }
 
+.chat-message-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding: 5px;
+    flex-wrap: wrap;
+}
+
 .chat-empty-message {
     display: flex;
     justify-content: center;

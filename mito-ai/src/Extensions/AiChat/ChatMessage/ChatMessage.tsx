@@ -123,7 +123,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 />
 
                                 {isLastAiMessage && codeReviewStatus === 'chatPreview' && 
-                                    <>
+                                    <div className='chat-message-buttons'>
                                         <TextAndIconButton 
                                             onClick={() => {previewAICode()}}
                                             text={'Overwrite Active Cell'}
@@ -136,7 +136,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
                                         />
-                                    </>
+                                    </div>
                                 }
                             </>
                         )
