@@ -41,15 +41,12 @@ interface IChatMessageProps {
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
-    codeCellID,
     messageIndex,
     mitoAIConnectionError,
     notebookTracker,
     renderMimeRegistry,
-    app,
     isLastAiMessage,
     operatingSystem,
-    setDisplayCodeDiff,
     previewAICode,
     acceptAICode,
     rejectAICode,
@@ -109,18 +106,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 <CodeBlock
                                     key={index + messagePart}
                                     code={messagePart}
-                                    codeCellID={codeCellID}
                                     role={message.role}
                                     renderMimeRegistry={renderMimeRegistry}
-                                    notebookTracker={notebookTracker}
-                                    app={app}
-                                    isLastAiMessage={isLastAiMessage}
-                                    operatingSystem={operatingSystem}
-                                    setDisplayCodeDiff={setDisplayCodeDiff}
-                                    previewAICode={previewAICode}
-                                    acceptAICode={acceptAICode}
-                                    rejectAICode={rejectAICode}
-                                    codeReviewStatus={codeReviewStatus}
                                 />
 
                                 {isLastAiMessage && codeReviewStatus === 'chatPreview' && 
