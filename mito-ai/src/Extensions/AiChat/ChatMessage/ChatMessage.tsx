@@ -18,6 +18,7 @@ import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
+import TextButton from '../../../components/TextButton';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -129,14 +130,33 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             text={'Overwrite Active Cell'}
                                             icon={PlayButtonIcon}
                                             title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
+                                            variant='green'
                                         />
                                         <TextAndIconButton 
                                             onClick={() => {copyToClipboard(messagePart)}}
                                             text={'Copy'}
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
+                                            variant='green'
                                         />
                                     </div>
+                                }
+                                {isLastAiMessage && codeReviewStatus === 'codeCellPreview' && 
+                                    <div className='chat-message-buttons'>
+                                        <TextButton 
+                                            onClick={() => {acceptAICode()}}
+                                            text={`Accept code ${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'}`}
+                                            title={'Accept the Ai generated code'}
+                                            variant='green'
+                                        />
+                                        <TextButton 
+                                            onClick={() => {rejectAICode()}}
+                                            text={`Reject code ${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'}`}
+                                            title={'Reject the Ai generated code and revert to the previous version of the code cell'}
+                                            variant='red'
+                                        />
+                                    </div>
+
                                 }
                             </>
                         )

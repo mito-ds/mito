@@ -62,29 +62,9 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     <div className='code-location'>
                         {notebookName}
                     </div>
-                    {isLastAiMessage && codeCellID !== undefined && (
-                        <>
-                            {codeReviewStatus === 'codeCellPreview' && (
-                                <>
-                                    <button
-                                        className='code-block-accept-button'
-                                        onClick={() => { acceptAICode(codeCellID); }}
-                                        title={`Accept code (${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'})`}
-                                    >
-                                        {operatingSystem === 'mac' ? 'Accept ⌘+Y' : 'Accept CTRL+Y'}
-                                    </button>
-                                    <button
-                                        className='code-block-deny-button'
-                                        onClick={() => { rejectAICode(codeCellID); }}
-                                        title={`Deny code (${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'})`}
-                                    >
-                                        {operatingSystem === 'mac' ? 'Deny ⌘+D' : 'Deny CTRL+D'}
-                                    </button>
-                                </>
-                            )} 
-                            <button onClick={() => {copyToClipboard(code)}}>Copy</button>
-                        </>
-                    )}
+                    {isLastAiMessage && 
+                        <button onClick={() => {copyToClipboard(code)}}>Copy</button>
+                    }
                 </div>
                 <PythonCode
                     code={code}
