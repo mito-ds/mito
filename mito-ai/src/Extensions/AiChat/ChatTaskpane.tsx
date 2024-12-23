@@ -376,9 +376,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Important: To add a button to the cell toolbar, the command must start with "toolbar-button:"
         // and the command must match the command in the schema/chat.json file.
         const acceptCodeDisposable = app.commands.addCommand('toolbar-button:accept-code', {
-            label: 'Accept Code',
+            label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
+            className: 'text-and-icon-button green',
             caption: 'Accept Code',
             execute: () => {acceptAICode()},
+            isVisible: () => notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+        });
+
+        const rejectCodeDisposable = app.commands.addCommand('toolbar-button:reject-code', {
+            label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
+            className: 'text-and-icon-button red',
+            caption: 'Reject Code',
+            execute: () => {rejectAICode()},
             isVisible: () => notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
         });
 
@@ -388,6 +397,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             accelYDisposable.dispose();
             accelDDisposable.dispose();
             acceptCodeDisposable.dispose();
+            rejectCodeDisposable.dispose();
         };
     }, [codeReviewStatus]);
 
