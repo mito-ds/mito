@@ -4,6 +4,9 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 
+@import url('icons.css');
+@import url('statusItem.css');
+
 :root {
     --chat-background-color: #F3F3F3;
     --chat-user-message-background-color: #FFFFFF;
