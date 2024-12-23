@@ -74,7 +74,7 @@ test.describe("default inline completion", () => {
     },
   });
 
-  test.only("should display inline completion", async ({ page, tmpPath }) => {
+  test("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
@@ -161,7 +161,7 @@ test.describe("default manual inline completion", () => {
     },
   });
 
-  test.only("should display inline completion", async ({ page, tmpPath }) => {
+  test("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
