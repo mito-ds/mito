@@ -81,12 +81,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
     // 3. applied: state where the user has applied the code to the code cell
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
-    const codeReviewStatusRef = useRef(codeReviewStatus);
-
-    useEffect(() => {
-        codeReviewStatusRef.current = codeReviewStatus;
-    }, [codeReviewStatus]);
-
 
 
     // Add this ref for the chat messages container
@@ -266,10 +260,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
         setUnifiedDiffLines(unifiedDiffs)
 
-        
-
         // Briefly highlight the code cell to draw the user's attention to it
         highlightCodeCell(notebookTracker, codeCellID)
+
+
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
@@ -277,6 +271,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
+
+        // Then make the code preview the active cell
+        notebookTracker.activeCell?.node.focus()
     }
 
     const acceptAICode = () => {
@@ -396,17 +393,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-and-icon-button green',
             caption: 'Accept Code',
             execute: () => {acceptAICode()},
-            isVisible: () => {
-                try {
-                    // For some reason, this is crashing the cell toolbar completely. 
-                    // Especially on chrome! 
-                    console.log("codeReviewStatus", codeReviewStatusRef.current)
-                    return codeReviewStatusRef.current === 'codeCellPreview'
-                } catch (e) {
-                    console.error('Error in accept code isVisible:', e)
-                    return false
-                }
-            }
+            // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
+            // and it will only be set when the codeReviewStatus is 'codeCellPreview'
+            isVisible: () => notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
         });
 
         const rejectCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:reject-code', {
@@ -414,14 +403,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-and-icon-button red',
             caption: 'Reject Code',
             execute: () => {rejectAICode()},
-            isVisible: () => {
-                try {
-                    return codeReviewStatusRef.current === 'codeCellPreview'
-                } catch (e) {
-                    console.error('Error in reject code isVisible:', e)
-                    return false
-                }
-            }
+            isVisible: () => notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
         });
 
         // Clean up only when component unmounts
@@ -429,7 +411,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             acceptCodeCellToolbarButtonDisposable.dispose();
             rejectCodeCellToolbarButtonDisposable.dispose();
         };
-    }, []); 
+    /* 
+        We need to reload the toolbar buttons when the codeReviewStatus changes
+        because the cell we are writing the diffs to are already active. Therefore, 
+        unless we reload the toolbar buttons, the isVisible function will not be rerun
+        unless the user switches active cells first. 
+    */
+    }, [codeReviewStatus]); 
 
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
