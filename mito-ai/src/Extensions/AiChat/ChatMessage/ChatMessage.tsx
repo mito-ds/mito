@@ -14,6 +14,8 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import TextAndIconButton from '../../../components/TextAndIconButton';
+import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -99,23 +101,34 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     // Make sure that there is actually code in the message. 
                     // An empty code will look like this '```python  ```'
                     if (messagePart.length > 14) {
-                        return (
-                            <CodeBlock
-                                key={index + messagePart}
-                                code={messagePart}
-                                codeCellID={codeCellID}
-                                role={message.role}
-                                renderMimeRegistry={renderMimeRegistry}
-                                notebookTracker={notebookTracker}
-                                app={app}
-                                isLastAiMessage={isLastAiMessage}
-                                operatingSystem={operatingSystem}
-                                setDisplayCodeDiff={setDisplayCodeDiff}
-                                previewAICode={previewAICode}
-                                acceptAICode={acceptAICode}
-                                rejectAICode={rejectAICode}
-                                codeReviewStatus={codeReviewStatus}
-                            />
+                        return ( 
+                            <>
+                                <CodeBlock
+                                    key={index + messagePart}
+                                    code={messagePart}
+                                    codeCellID={codeCellID}
+                                    role={message.role}
+                                    renderMimeRegistry={renderMimeRegistry}
+                                    notebookTracker={notebookTracker}
+                                    app={app}
+                                    isLastAiMessage={isLastAiMessage}
+                                    operatingSystem={operatingSystem}
+                                    setDisplayCodeDiff={setDisplayCodeDiff}
+                                    previewAICode={previewAICode}
+                                    acceptAICode={acceptAICode}
+                                    rejectAICode={rejectAICode}
+                                    codeReviewStatus={codeReviewStatus}
+                                />
+
+                                {isLastAiMessage && codeReviewStatus === 'chatPreview' && 
+                                    <TextAndIconButton 
+                                        onClick={() => {previewAICode()}}
+                                        text={'Overwrite Active Cell'}
+                                        icon={PlayButtonIcon}
+                                        title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
+                                    />
+                                }
+                            </>
                         )
                     }
                 } else {

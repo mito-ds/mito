@@ -1,0 +1,29 @@
+.text-and-icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: var(--green-300);
+    color: var(--green-800);
+    font-size: 14px;
+}
+
+.text-and-icon-button:hover {
+    background-color: var(--green-400);
+}
+
+.text-and-icon-button__icon {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.text-and-icon-button__icon > svg {
+    height: 100%;
+    width: auto;
+}
+

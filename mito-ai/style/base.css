@@ -12,11 +12,13 @@
     --item-selected-color: #E9E0FD;
     --muted-text-color: #888;
 
-    --green-700: #15803d;
-    --green-600: #65a30d;
-    --green-500: #84cc16;
-    --green-400: #a3e635;
-    --green-300: #bef264;
+    --green-900: #155239;
+    --green-800: #1A7741;
+    --green-700: #239D58;
+    --green-600: #39C172;
+    --green-500: #74D99E;
+    --green-400: #A8EEC1;
+    --green-300: #E3FCEC;
 
     --red-700: #b91c1c;
     --red-600: #dc2626;

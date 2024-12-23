@@ -69,10 +69,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     </div>
                     {isLastAiMessage && codeCellID !== undefined && (
                         <>
-                            {codeReviewStatus === 'chatPreview' && (
-                                <button onClick={() => { previewAICode() }}>Preview Code in Notebook</button>
-                            )}
-
                             {codeReviewStatus === 'codeCellPreview' && (
                                 <>
                                     <button
@@ -90,7 +86,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                                         {operatingSystem === 'mac' ? 'Deny ⌘+D' : 'Deny CTRL+D'}
                                     </button>
                                 </>
-                            )}
+                            )} 
+                            <button onClick={copyCodeToClipboard}>Copy</button>
                         </>
                     )}
                     <button onClick={copyCodeToClipboard}>Copy</button>
