@@ -8,6 +8,10 @@
     border-radius: 3px;
     cursor: pointer;
     font-size: 14px;
+
+    /* Make sure the button grows large enough so that the text does not wrap */
+    min-width: 100px;
+    width: fit-content;
 }
 
 .text-and-icon-button__icon {
