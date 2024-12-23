@@ -16,6 +16,8 @@ import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
+import CopyIcon from '../../../icons/CopyIcon';
+import copyToClipboard from '../../../utils/copyToClipboard';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -121,12 +123,20 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 />
 
                                 {isLastAiMessage && codeReviewStatus === 'chatPreview' && 
-                                    <TextAndIconButton 
-                                        onClick={() => {previewAICode()}}
-                                        text={'Overwrite Active Cell'}
-                                        icon={PlayButtonIcon}
-                                        title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
-                                    />
+                                    <>
+                                        <TextAndIconButton 
+                                            onClick={() => {previewAICode()}}
+                                            text={'Overwrite Active Cell'}
+                                            icon={PlayButtonIcon}
+                                            title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
+                                        />
+                                        <TextAndIconButton 
+                                            onClick={() => {copyToClipboard(messagePart)}}
+                                            text={'Copy'}
+                                            icon={CopyIcon}
+                                            title={'Copy the Ai generated code to your clipboard'}
+                                        />
+                                    </>
                                 }
                             </>
                         )

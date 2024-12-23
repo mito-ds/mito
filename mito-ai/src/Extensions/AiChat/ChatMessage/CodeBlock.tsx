@@ -3,12 +3,12 @@ import PythonCode from './PythonCode';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getNotebookName } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import '../../../../style/CodeBlock.css'
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import copyToClipboard from '../../../utils/copyToClipboard';
 
 
 interface ICodeBlockProps {
@@ -43,11 +43,6 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     codeReviewStatus
 }): JSX.Element => {
     const notebookName = getNotebookName(notebookTracker)
-
-    const copyCodeToClipboard = () => {
-        const codeWithoutMarkdown = removeMarkdownCodeFormatting(code)
-        navigator.clipboard.writeText(codeWithoutMarkdown)
-    }
 
     if (role === 'user') {
         return (
@@ -87,10 +82,9 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                                     </button>
                                 </>
                             )} 
-                            <button onClick={copyCodeToClipboard}>Copy</button>
+                            <button onClick={() => {copyToClipboard(code)}}>Copy</button>
                         </>
                     )}
-                    <button onClick={copyCodeToClipboard}>Copy</button>
                 </div>
                 <PythonCode
                     code={code}
