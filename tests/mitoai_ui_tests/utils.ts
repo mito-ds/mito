@@ -55,12 +55,36 @@ export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
     await waitForIdle(page);
 }
 
-export const clickAcceptButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Accept code' }).click();
+export const clickAcceptButton = async (
+    page: IJupyterLabPageFixture, 
+    // Express the useCellToolbar option like this so that they are keyword arguments in the tests
+    // and are therefore easy to read! 
+    { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
+) => {
+    if (useCellToolbar) {
+        // Click the button inside of the cell toolbar
+        await page.locator('.jp-Cell-inputWrapper').click();
+        await page.locator('.lm-Widget.jp-Toolbar.jp-cell-menu.jp-cell-toolbar').getByRole('button', { name: 'Accept code' }).click();
+    } else {
+        await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
+    }
     await waitForIdle(page);
 }
 
-export const clickDenyButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Reject code' }).click();
+export const clickDenyButton = async (
+    page: IJupyterLabPageFixture,
+    // Express the useCellToolbar option like this so that they are keyword arguments in the tests
+    // and are therefore easy to read!  
+    { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
+) => {
+    if (useCellToolbar) {
+        // Click the button inside of the cell toolbar
+        // First, click on the text in the active cell to make sure the cell toolbar is visible 
+        await page.locator('.jp-Cell-inputWrapper').click();
+
+        await page.locator('.lm-Widget.jp-Toolbar.jp-cell-menu.jp-cell-toolbar').getByRole('button', { name: 'Reject code' }).click();
+    } else {
+        await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
+    }
     await waitForIdle(page);
 }

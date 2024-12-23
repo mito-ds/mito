@@ -81,6 +81,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
     // 3. applied: state where the user has applied the code to the code cell
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
+    const codeReviewStatusRef = useRef(codeReviewStatus);
+
+    useEffect(() => {
+        codeReviewStatusRef.current = codeReviewStatus;
+    }, [codeReviewStatus]);
+
+
 
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -373,33 +380,56 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             selector: 'body',
         });
 
-        // Important: To add a button to the cell toolbar, the command must start with "toolbar-button:"
-        // and the command must match the command in the schema/chat.json file.
-        const acceptCodeDisposable = app.commands.addCommand('toolbar-button:accept-code', {
-            label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
-            className: 'text-and-icon-button green',
-            caption: 'Accept Code',
-            execute: () => {acceptAICode()},
-            isVisible: () => notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
-        });
-
-        const rejectCodeDisposable = app.commands.addCommand('toolbar-button:reject-code', {
-            label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
-            className: 'text-and-icon-button red',
-            caption: 'Reject Code',
-            execute: () => {rejectAICode()},
-            isVisible: () => notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
-        });
 
         // Clean up the key bindings when the component unmounts or when codeReviewStatus changes
         // This prevents keyboard shortcuts from persisting when they shouldn't.
         return () => {
             accelYDisposable.dispose();
             accelDDisposable.dispose();
-            acceptCodeDisposable.dispose();
-            rejectCodeDisposable.dispose();
         };
     }, [codeReviewStatus]);
+
+    useEffect(() => {
+        // Register once when component mounts
+        const acceptCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:accept-code', {
+            label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
+            className: 'text-and-icon-button green',
+            caption: 'Accept Code',
+            execute: () => {acceptAICode()},
+            isVisible: () => {
+                try {
+                    // For some reason, this is crashing the cell toolbar completely. 
+                    // Especially on chrome! 
+                    console.log("codeReviewStatus", codeReviewStatusRef.current)
+                    return codeReviewStatusRef.current === 'codeCellPreview'
+                } catch (e) {
+                    console.error('Error in accept code isVisible:', e)
+                    return false
+                }
+            }
+        });
+
+        const rejectCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:reject-code', {
+            label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
+            className: 'text-and-icon-button red',
+            caption: 'Reject Code',
+            execute: () => {rejectAICode()},
+            isVisible: () => {
+                try {
+                    return codeReviewStatusRef.current === 'codeCellPreview'
+                } catch (e) {
+                    console.error('Error in reject code isVisible:', e)
+                    return false
+                }
+            }
+        });
+
+        // Clean up only when component unmounts
+        return () => {
+            acceptCodeCellToolbarButtonDisposable.dispose();
+            rejectCodeCellToolbarButtonDisposable.dispose();
+        };
+    }, []); 
 
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());

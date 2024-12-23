@@ -25,7 +25,7 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('Mito AI Chat', () => {
 
-  test('Preview and Accept AI Generated Code', async ({ page }) => {
+  test.only('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
@@ -47,7 +47,24 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
-  test('Reject AI Generated Code', async ({ page }) => {
+  test.only("Accept using cell toolbar button", async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+
+    await clickPreviewButton(page);
+    await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
+    await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
+
+    await clickAcceptButton(page, { useCellToolbar: true });
+    await waitForIdle(page);
+
+    const code = await getCodeFromCell(page, 1);
+    expect(code).toContain('df["C"] = [7, 8, 9]');
+  });
+
+  test.only('Reject AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
@@ -60,6 +77,17 @@ test.describe('Mito AI Chat', () => {
     const code = await getCodeFromCell(page, 1);
     expect(code).not.toContain('df["C"] = [7, 8, 9]');
     expect(code?.trim()).toBe("")
+  });
+
+  test.only("Reject using cell toolbar button", async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+
+    await clickPreviewButton(page);
+    await clickDenyButton(page, { useCellToolbar: true });
+    await waitForIdle(page);
   });
 
   test('Edit Message', async ({ page }) => {
