@@ -51,16 +51,16 @@ export const editMitoAIMessage = async (
 }
 
 export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Preview Code in Notebook' }).click();
+    await page.getByRole('button', { name: 'Overwrite Active Cell' }).click();
     await waitForIdle(page);
 }
 
 export const clickAcceptButton = async (page: IJupyterLabPageFixture) => {
-    await page.locator('[class="code-block-accept-button"]').click();
+    await page.getByRole('button', { name: 'Accept code' }).click();
     await waitForIdle(page);
 }
 
 export const clickDenyButton = async (page: IJupyterLabPageFixture) => {
-    await page.locator('[class="code-block-deny-button"]').click();
+    await page.getByRole('button', { name: 'Reject code' }).click();
     await waitForIdle(page);
 }
