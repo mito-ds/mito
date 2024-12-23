@@ -8,8 +8,8 @@
     "jupyter.lab.toolbars": {
       "Cell": [
         {
-          "name": "explain-code",
-          "command": "toolbar-button:explain-code"
+          "name": "accept-code",
+          "command": "toolbar-button:accept-code"
         }
       ]
     }

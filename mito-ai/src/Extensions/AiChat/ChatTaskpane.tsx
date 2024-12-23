@@ -29,7 +29,13 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
+import { LabIcon } from '@jupyterlab/ui-components';
+import LightbulbIcon from '../../../src/icons/LightbulbIcon.svg'
 
+export const lightBulbIcon = new LabIcon({
+    name: 'lightbulb-icon',
+    svgstr: LightbulbIcon
+});
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -367,11 +373,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             selector: 'body',
         });
 
+        // Important: To add a button to the cell toolbar, the command must start with "toolbar-button:"
+        // and the command must match the command in the schema/chat.json file.
+        const acceptCodeDisposable = app.commands.addCommand('toolbar-button:accept-code', {
+            label: 'Accept Code',
+            caption: 'Accept Code',
+            execute: () => {acceptAICode()},
+            isVisible: () => notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+        });
+
         // Clean up the key bindings when the component unmounts or when codeReviewStatus changes
         // This prevents keyboard shortcuts from persisting when they shouldn't.
         return () => {
             accelYDisposable.dispose();
             accelDDisposable.dispose();
+            acceptCodeDisposable.dispose();
         };
     }, [codeReviewStatus]);
 
