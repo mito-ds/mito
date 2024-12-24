@@ -31,26 +31,17 @@ export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
     code: string | undefined, 
     codeCellID: string,
-    focusOnCell?: boolean
 ): void => {
     if (code === undefined) {
         return;
     }
 
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
-    const activeCell = getActiveCell(notebookTracker)
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
     
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
-    }
-
-    // Return focus to the cell if requested
-    if (focusOnCell) {
-        cell?.node.focus()
-    } else {
-        activeCell?.node.focus()
     }
 }
 

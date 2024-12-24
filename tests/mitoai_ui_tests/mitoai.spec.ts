@@ -10,7 +10,8 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import { 
   clearMitoAIChatInput, 
-  clickAcceptButton, 
+  clickAcceptButtonInTaskpane, 
+  clickAcceptButtonInCellToolbar, 
   clickDenyButton, 
   clickOnMitoAIChatTab, 
   clickPreviewButton, 
@@ -40,11 +41,33 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.cm-codeDiffRemovedStripe')).toBeVisible();
     await expect(page.locator('.cm-codeDiffInsertedStripe')).toBeVisible();
 
-    await clickAcceptButton(page);
+    await clickAcceptButtonInTaskpane(page);
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
     expect(code).toContain('df["C"] = [7, 8, 9]');
+  });
+
+  test.only("Accept using cell toolbar button", async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+
+    await clickPreviewButton(page);
+
+    await page.waitForTimeout(3000);
+
+    const countAcceptButtons = await page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Accept code' }).count();
+    expect(countAcceptButtons).toBe(2);
+
+
+    // await page.waitForTimeout(1000);
+    // await clickAcceptButtonInCellToolbar(page, 1);
+    // await waitForIdle(page);
+
+    // const code = await getCodeFromCell(page, 1);
+    // expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
   test('Reject AI Generated Code', async ({ page }) => {
@@ -62,6 +85,17 @@ test.describe('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
+  test("Reject using cell toolbar button", async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+    await waitForIdle(page);
+
+    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+
+    await clickPreviewButton(page);
+    await clickDenyButton(page, { useCellToolbar: true });
+    await waitForIdle(page);
+  });
+
   test('Edit Message', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
@@ -70,19 +104,19 @@ test.describe('Mito AI Chat', () => {
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
-    await clickAcceptButton(page);
+    await clickAcceptButtonInTaskpane(page);
     await waitForIdle(page);
 
     // Send the second message
     await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
     await clickPreviewButton(page);
-    await clickAcceptButton(page);
+    await clickAcceptButtonInTaskpane(page);
     await waitForIdle(page);
 
     // Edit the first message
     await editMitoAIMessage(page, 'Write the code df["C_edited"] = [7, 8, 9]', 0);
     await clickPreviewButton(page);
-    await clickAcceptButton(page);
+    await clickAcceptButtonInTaskpane(page);
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 1);
@@ -111,7 +145,7 @@ test.describe('Mito AI Chat', () => {
     // Send a second message in cell 2
     await sendMessageToMitoAI(page, 'Write the code x = 2');
     await clickPreviewButton(page);
-    await clickAcceptButton(page);
+    await clickAcceptButtonInTaskpane(page);
     await waitForIdle(page);
 
 
@@ -136,7 +170,7 @@ test.describe('Mito AI Chat', () => {
 
     // Select the second cell and accept the changes
     selectCell(page, 1);
-    await clickAcceptButton(page);
+    await clickAcceptButtonInTaskpane(page);
     await waitForIdle(page);
 
     const codeInCell1 = await getCodeFromCell(page, 0);
@@ -199,7 +233,7 @@ test.describe('Mito AI Chat', () => {
 
     await clickPreviewButton(page);
 
-    await clickAcceptButton(page);
+    await clickAcceptButtonInTaskpane(page);
     await waitForIdle(page);
 
     const code = await getCodeFromCell(page, 0);

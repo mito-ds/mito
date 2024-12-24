@@ -16,7 +16,7 @@ import { IChatTracker } from './token';
  * Initialization data for the mito-ai extension.
  */
 const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
-  id: 'mito_ai:plugin',
+  id: 'mito_ai:chat',
   description: 'AI chat for JupyterLab',
   autoStart: true,
   requires: [

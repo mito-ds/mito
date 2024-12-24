@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell, getActiveCellID } from '../../utils/notebook';
+import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -77,6 +77,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
     // 3. applied: state where the user has applied the code to the code cell
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
+
 
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -277,16 +278,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
         const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
 
+
         // Store the code cell ID where we write the code diffs so that we can
         // accept or reject the code diffs to the correct cell
         cellStateBeforeDiff.current = {codeCellID: codeCellID, code: activeCellCode}
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID)
         setUnifiedDiffLines(unifiedDiffs)
-
-        
 
         // Briefly highlight the code cell to draw the user's attention to it
         highlightCodeCell(notebookTracker, codeCellID)
@@ -295,6 +295,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
     const previewAICode = () => {
+        console.log('PREVIEWING CODE')
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
     }
@@ -318,21 +319,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellStateBeforeDiff.current.codeCellID)
     }
 
-    const rejectAICode = (focusOnCell?: boolean) => {
+    const rejectAICode = () => {
         if (cellStateBeforeDiff.current === undefined) {
             return
         }
 
         setCodeReviewStatus('chatPreview')
-        writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID, focusOnCell)
+        writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID)
     }
 
-    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined, focusOnCell?: boolean) => {
+    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined) => {
         setUnifiedDiffLines(undefined)
         cellStateBeforeDiff.current = undefined
 
         if (codeCellID !== undefined) {
-            writeCodeToCellByID(notebookTracker, code, codeCellID, focusOnCell)
+            writeCodeToCellByID(notebookTracker, code, codeCellID)
         }
     }
 
@@ -400,6 +401,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             selector: 'body',
         });
 
+
         // Clean up the key bindings when the component unmounts or when codeReviewStatus changes
         // This prevents keyboard shortcuts from persisting when they shouldn't.
         return () => {
@@ -407,6 +409,56 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             accelDDisposable.dispose();
         };
     }, [codeReviewStatus]);
+
+    useEffect(() => {
+        console.log('!!!Registering toolbar buttons. unifiedDiffLines:', unifiedDiffLines);
+
+        // Register once when component mounts
+        const acceptCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:accept-code', {
+            label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
+            className: 'text-and-icon-button green',
+            caption: 'Accept Code',
+            execute: () => {acceptAICode()},
+            // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
+            // and it will only be set when the codeReviewStatus is 'codeCellPreview'
+            isVisible: () => {
+                try {
+                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+                } catch (error) {
+                    console.error('Error getting active cell ID:', error);
+                    return false;
+                }
+            }        
+        });
+
+        const rejectCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:reject-code', {
+            label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
+            className: 'text-and-icon-button red',
+            caption: 'Reject Code',
+            execute: () => {rejectAICode()},
+            isVisible: () => {
+                try {
+                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+                } catch (error) {
+                    console.error('Error getting active cell ID:', error);
+                    return false;
+                }
+            }
+        });
+
+        // Clean up only when component unmounts
+        return () => {
+            console.log('!!DISPOSING TOOLBAR BUTTONS. Triggered by unifiedDiffLines:', unifiedDiffLines);
+            acceptCodeCellToolbarButtonDisposable.dispose();
+            rejectCodeCellToolbarButtonDisposable.dispose();
+        };
+    /* 
+        We need to reload the toolbar buttons when the codeReviewStatus changes
+        because the cell we are writing the diffs to are already active. Therefore, 
+        unless we reload the toolbar buttons, the isVisible function will not be rerun
+        unless the user switches active cells first. 
+    */
+    }, [cellStateBeforeDiff.current]); 
 
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
