@@ -5,10 +5,7 @@ export const runCell = async (page: IJupyterLabPageFixture, cellIndex: number) =
     await waitForIdle(page);
 }
 
-export const createAndRunNotebookWithCells = async (
-    page: IJupyterLabPageFixture, 
-    cellContents: string[],
-) => {
+export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture, cellContents: string[]) => {
     const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
     await page.notebook.createNew(randomFileName);
 
@@ -16,41 +13,73 @@ export const createAndRunNotebookWithCells = async (
     await waitForIdle(page);
 
     for (let i = 0; i < cellContents.length; i++) {
+        // Add a short delay to ensure that the cell is created and the decoration placeholder extension
+        // has a chance to process
+        await page.waitForTimeout(100);
 
+        await page.notebook.enterCellEditingMode(i);
 
-        await page.notebook.addCell('code', cellContents[i]);
-        await mitoSetCell(page, i, cellContents[i]);
+        // Give the cell a chance to enter editing mode and be ready for typing. 
+        // This is a crucial step that prevents the typing from not registering!
+        await page.waitForTimeout(100);
 
-        // await page.notebook.enterCellEditingMode(i);
-        // // timeout for 100ms 
-        // await page.waitForTimeout(100);
+        await page.keyboard.type(cellContents[i], {delay: 50});
 
-        // The setCell utility isn't working for some reason. The workaround was 
-        // to add a \n in front of the cell contents, however, just typing the cell 
-        // contents also works and doesn't require the \n which is an extra burden on 
-        // expecting the cell contents. There is some discussion of a similar issue here: 
-        // https://github.com/jupyterlab/jupyterlab/issues/15252
-        // await page.keyboard.type(cellContents[i]);
+        await page.notebook.leaveCellEditingMode(i);
 
-        //Check if the cell now contains the cell contents
-        // const cellInput = await page.notebook.getCellTextInput(i);
-
-        // Sometimes the cell input doesn't get updated.
-        // If that happens, try again.
-        // if (cellInput !== cellContents[i]) {
-        //     await page.notebook.enterCellEditingMode(i);
-        //     await page.keyboard.type("\n\n");
-        //     await page.keyboard.press('Backspace');
-        //     await page.keyboard.press('Backspace');
-        //     await page.keyboard.type(cellContents[i]);
-        // }
-
-        // await leaveCellEditingMode(cellIndex);
+        await page.notebook.runCell(i);
     }
-
-    await page.notebook.runCellByCell();
     await waitForIdle(page)
 }
+
+// export const createAndRunNotebookWithCells = async (
+//     page: IJupyterLabPageFixture, 
+//     cellContents: string[],
+// ) => {
+//     const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
+//     await page.notebook.createNew(randomFileName);
+
+//     await page.waitForTimeout(3000);
+
+//     // Wait for the kernel to be ready before setting cells
+//     await waitForIdle(page);
+
+//     for (let i = 0; i < cellContents.length; i++) {
+
+
+//         await page.notebook.addCell('code', '');
+//         await mitoSetCell(page, i, cellContents[i]);
+
+//         // await page.notebook.enterCellEditingMode(i);
+//         // // timeout for 100ms 
+//         // await page.waitForTimeout(100);
+
+//         // The setCell utility isn't working for some reason. The workaround was 
+//         // to add a \n in front of the cell contents, however, just typing the cell 
+//         // contents also works and doesn't require the \n which is an extra burden on 
+//         // expecting the cell contents. There is some discussion of a similar issue here: 
+//         // https://github.com/jupyterlab/jupyterlab/issues/15252
+//         // await page.keyboard.type(cellContents[i]);
+
+//         //Check if the cell now contains the cell contents
+//         // const cellInput = await page.notebook.getCellTextInput(i);
+
+//         // Sometimes the cell input doesn't get updated.
+//         // If that happens, try again.
+//         // if (cellInput !== cellContents[i]) {
+//         //     await page.notebook.enterCellEditingMode(i);
+//         //     await page.keyboard.type("\n\n");
+//         //     await page.keyboard.press('Backspace');
+//         //     await page.keyboard.press('Backspace');
+//         //     await page.keyboard.type(cellContents[i]);
+//         // }
+
+//         // await leaveCellEditingMode(cellIndex);
+//     }
+
+//     await page.notebook.runCellByCell();
+//     await waitForIdle(page)
+// }
 
 export const mitoSetCell = async (
     page: IJupyterLabPageFixture,
