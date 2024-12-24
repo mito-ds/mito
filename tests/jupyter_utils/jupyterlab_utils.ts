@@ -1,4 +1,4 @@
-import { IJupyterLabPageFixture } from "@jupyterlab/galata";
+import { expect, IJupyterLabPageFixture } from "@jupyterlab/galata";
 
 export const runCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
     await page.notebook.runCell(cellIndex);
@@ -8,7 +8,6 @@ export const runCell = async (page: IJupyterLabPageFixture, cellIndex: number) =
 export const createAndRunNotebookWithCells = async (
     page: IJupyterLabPageFixture, 
     cellContents: string[],
-    addNewLineToCell: boolean = false
 ) => {
     const randomFileName = `$test_file_${Math.random().toString(36).substring(2, 15)}.ipynb`;
     await page.notebook.createNew(randomFileName);
@@ -17,26 +16,65 @@ export const createAndRunNotebookWithCells = async (
     await waitForIdle(page);
 
     for (let i = 0; i < cellContents.length; i++) {
-        // Check if the cell exists 
-        const cellCount = await page.notebook.getCellCount();
-        if (cellCount <= i) {
-            await page.notebook.addCell('code', '');
-        }
 
-        await page.notebook.enterCellEditingMode(i);
+
+        await page.notebook.addCell('code', cellContents[i]);
+        await mitoSetCell(page, i, cellContents[i]);
+
+        // await page.notebook.enterCellEditingMode(i);
+        // // timeout for 100ms 
+        // await page.waitForTimeout(100);
 
         // The setCell utility isn't working for some reason. The workaround was 
         // to add a \n in front of the cell contents, however, just typing the cell 
         // contents also works and doesn't require the \n which is an extra burden on 
         // expecting the cell contents. There is some discussion of a similar issue here: 
         // https://github.com/jupyterlab/jupyterlab/issues/15252
-        await page.keyboard.type(cellContents[i]);
+        // await page.keyboard.type(cellContents[i]);
 
-        await page.notebook.runCell(i);
+        //Check if the cell now contains the cell contents
+        // const cellInput = await page.notebook.getCellTextInput(i);
+
+        // Sometimes the cell input doesn't get updated.
+        // If that happens, try again.
+        // if (cellInput !== cellContents[i]) {
+        //     await page.notebook.enterCellEditingMode(i);
+        //     await page.keyboard.type("\n\n");
+        //     await page.keyboard.press('Backspace');
+        //     await page.keyboard.press('Backspace');
+        //     await page.keyboard.type(cellContents[i]);
+        // }
+
+        // await leaveCellEditingMode(cellIndex);
     }
+
+    await page.notebook.runCellByCell();
     await waitForIdle(page)
 }
 
+export const mitoSetCell = async (
+    page: IJupyterLabPageFixture,
+    cellIndex: number,
+    source: string
+  ): Promise<boolean> => {
+
+    const cell = await page.notebook.getCell(cellIndex);
+    await cell?.dblclick();
+    await page.notebook.enterCellEditingMode(cellIndex);
+
+    await page.keyboard.press('Control+A');
+    // give CodeMirror time to style properly
+
+    // Type slower like a user would
+    await page.keyboard.type(source, {delay: 200}) 
+
+    await page.notebook.leaveCellEditingMode(cellIndex);
+
+    // give CodeMirror time to style properly
+    await page.waitForTimeout(500);
+
+    return true;
+}
 
 export const waitForIdle = async (page: IJupyterLabPageFixture) => {
     const idleLocator = page.locator('#jp-main-statusbar >> text=Idle');
