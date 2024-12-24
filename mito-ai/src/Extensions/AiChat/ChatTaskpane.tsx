@@ -28,15 +28,8 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
-
-import { LabIcon } from '@jupyterlab/ui-components';
-import LightbulbIcon from '../../../src/icons/LightbulbIcon.svg'
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 
-export const lightBulbIcon = new LabIcon({
-    name: 'lightbulb-icon',
-    svgstr: LightbulbIcon
-});
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -303,6 +296,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
     const previewAICode = () => {
+        console.log('PREVIEWING CODE')
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
     }
@@ -418,6 +412,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [codeReviewStatus]);
 
     useEffect(() => {
+        console.log('!!!Registering toolbar buttons. unifiedDiffLines:', unifiedDiffLines);
+        console.log('Stack trace:', new Error().stack);
+
         // Register once when component mounts
         const acceptCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:accept-code', {
             label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
@@ -439,6 +436,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Clean up only when component unmounts
         return () => {
+            console.log('!!DISPOSING TOOLBAR BUTTONS. Triggered by unifiedDiffLines:', unifiedDiffLines);
+            console.log('Stack trace:', new Error().stack);
             acceptCodeCellToolbarButtonDisposable.dispose();
             rejectCodeCellToolbarButtonDisposable.dispose();
         };
@@ -448,7 +447,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         unless we reload the toolbar buttons, the isVisible function will not be rerun
         unless the user switches active cells first. 
     */
-    }, [codeReviewStatus]); 
+    }, []); 
+
+    // Force a refresh of the toolbar when unifiedDiffLines changes
+    useEffect(() => {
+        app.commands.notifyCommandChanged('toolbar-button:accept-code');
+        app.commands.notifyCommandChanged('toolbar-button:reject-code');
+    }, [cellStateBeforeDiff.current]);
 
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
