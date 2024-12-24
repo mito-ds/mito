@@ -416,7 +416,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Register once when component mounts
         const acceptCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:accept-code', {
             label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
-            className: 'text-and-icon-button',
+            className: 'text-and-icon-button green',
             caption: 'Accept Code',
             execute: () => {acceptAICode()},
             // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
@@ -433,7 +433,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const rejectCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:reject-code', {
             label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
-            className: 'text-and-icon-button',
+            className: 'text-and-icon-button red',
             caption: 'Reject Code',
             execute: () => {rejectAICode()},
             isVisible: () => {
