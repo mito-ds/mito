@@ -7,12 +7,15 @@ export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixtu
 }
 
 export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
+    await page.waitForTimeout(1000);
+
     // Click the AI Chat tab if it's not already selected
     const aiChatTab = await page.getByRole('tab', { name: 'AI Chat for your JupyterLab' });
     const isSelected = await aiChatTab.getAttribute('aria-selected');
     if (isSelected !== 'true') {
         await aiChatTab.getByRole('img').click();
     }
+    await page.waitForTimeout(1000);
 }
 
 export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {

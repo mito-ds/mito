@@ -26,7 +26,7 @@ test.describe.configure({ mode: 'parallel' });
 test.describe('Mito AI Chat', () => {
 
   test('Preview and Accept AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'], true);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
@@ -48,7 +48,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Reject AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'], true);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
@@ -63,7 +63,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Edit Message', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'], true);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     // Send the first message
@@ -99,7 +99,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print("cell 0")'], true);
+    await createAndRunNotebookWithCells(page, ['print("cell 0")']);
     await waitForIdle(page);
 
     // Send a first message in cell 1
@@ -173,7 +173,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, [], true);
+    await createAndRunNotebookWithCells(page, []);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Add print (1)');
@@ -185,24 +185,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Test fix error button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(3'], true);
-    await waitForIdle(page);
-
-    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
-    await waitForIdle(page);
-    await expect(page.locator('.message-assistant')).toHaveCount(1);
-  });
-
-  test('Test no fix error button for warnings', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import warnings', 'warnings.warn("This is a warning")']);
-    await waitForIdle(page);
-
-    // Ensure that the "Fix Error in AI Chat" button is not visible
-    expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
-  });
-
-  test('Errors have fix with AI button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1'], true);
+    await createAndRunNotebookWithCells(page, ['print(1']);
     await waitForIdle(page);
 
     await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
@@ -223,21 +206,19 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('print(1)');
   });
 
-  test('Code cells have Explain Code button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)'], true);
+  test('Test no fix error button for warnings', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import warnings', 'warnings.warn("This is a warning")']);
     await waitForIdle(page);
 
-    await selectCell(page, 0);
-    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
-
-    // Check that the message "Explain this code" exists in the AI chat
-    await expect(page.getByText('Explain this code')).toBeVisible();
-
+    // Ensure that the "Fix Error in AI Chat" button is not visible
+    expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
   });
 
   test('Test explain code button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)'], true);
+    await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
+
+    await selectCell(page, 0);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     await waitForIdle(page);
@@ -245,14 +226,14 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'], true);
+    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await clickOnMitoAIChatTab(page);
+    await page.locator('.chat-input').click();
 
     // The fill() command doesn't trigger input events that the dropdown relies on
     // So we need to type it character by character instead
-    await page.locator('.chat-input').click();
     await page.keyboard.type("Edit column @ap");
     await expect.soft(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
@@ -265,8 +246,7 @@ test.describe('Mito AI Chat', () => {
         'import pandas as pd',
         'timestamp_df = pd.DataFrame({"timestamp_col_A": [pd.to_datetime("2020-01-01"), pd.to_datetime("2020-01-02"), pd.to_datetime("2020-01-03")]}, dtype=object)',
         'none_type_df = pd.DataFrame({"none_type_col_A": [None, None, None]})'
-      ],
-      true
+      ]
     );
 
     await waitForIdle(page);
@@ -293,7 +273,7 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Active cell preview is displayed and updated when active cell changes', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)'], true);
+    await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)']);
     await waitForIdle(page);
 
     await selectCell(page, 0);
