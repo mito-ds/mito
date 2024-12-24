@@ -62,9 +62,7 @@ export const clickAcceptButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        // Click the button inside of the cell toolbar
-        await page.locator('.jp-Cell-inputWrapper').click();
-        await page.locator('.lm-Widget.jp-Toolbar.jp-cell-menu.jp-cell-toolbar').getByRole('button', { name: 'Accept code' }).click();
+        await page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Accept code' }).click();
     } else {
         await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
     }
@@ -78,11 +76,9 @@ export const clickDenyButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        // Click the button inside of the cell toolbar
-        // First, click on the text in the active cell to make sure the cell toolbar is visible 
-        await page.locator('.jp-Cell-inputWrapper').click();
-
-        await page.locator('.lm-Widget.jp-Toolbar.jp-cell-menu.jp-cell-toolbar').getByRole('button', { name: 'Reject code' }).click();
+        // sleep for 1 second to make sure the cell toolbar is visible
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Reject code' }).click();
     } else {
         await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
     }

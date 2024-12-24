@@ -271,9 +271,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
-
-        // Then make the code preview the active cell
-        notebookTracker.activeCell?.node.focus()
     }
 
     const acceptAICode = () => {
