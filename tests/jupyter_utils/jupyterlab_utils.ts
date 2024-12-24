@@ -21,7 +21,7 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
 
         // Give the cell a chance to enter editing mode and be ready for typing. 
         // This is a crucial step that prevents the typing from not registering!
-        await page.waitForTimeout(100);
+        await page.waitForTimeout(500);
 
         await page.keyboard.type(cellContents[i], {delay: 50});
         await page.notebook.leaveCellEditingMode(i);
