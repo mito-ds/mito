@@ -5,11 +5,12 @@ import {
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { buildChatWidget } from './ChatWidget';
+import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
+
 
 /**
  * Initialization data for the mito-ai extension.
@@ -22,7 +23,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IVariableManager
+    IVariableManager,
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -42,7 +43,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         app,
         notebookTracker,
         rendermime,
-        variableManager
+        variableManager,
       );
       return chatWidget;
     };
@@ -101,15 +102,19 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     });
 
     // Track and restore the widget state
-    const tracker = new WidgetTracker({
+    const tracker = new WidgetTracker<ChatWidget>({
       namespace: widget.id
     });
+    if (!tracker.has(widget)) {
+      tracker.add(widget);
+    }
 
     if (restorer) {
       restorer.add(widget, 'mito_ai');
     }
 
     // This allows us to force plugin load order
+    console.log("mito-ai: AiChatPlugin activated");
     return tracker;
   }
 };

@@ -6,7 +6,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { removeMarkdownCodeFormatting } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
-import '../../../../style/CodeMessagePart.css'
+import '../../../../style/CodeBlock.css'
 import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import { CodeReviewStatus } from '../ChatTaskpane';
 
@@ -15,7 +15,7 @@ interface ICodeBlockProps {
     code: string,
     codeCellID: string | undefined,
     role: 'user' | 'assistant'
-    rendermime: IRenderMimeRegistry
+    renderMimeRegistry: IRenderMimeRegistry
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     isLastAiMessage: boolean,
@@ -31,7 +31,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     code,
     codeCellID,
     role,
-    rendermime,
+    renderMimeRegistry,
     notebookTracker,
     app,
     isLastAiMessage,
@@ -51,10 +51,10 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 
     if (role === 'user') {
         return (
-            <div className='code-message-part-container'>
+            <div className='code-block-container'>
                 <PythonCode
                     code={code}
-                    rendermime={rendermime}
+                    renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
         )
@@ -62,8 +62,8 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 
     if (role === 'assistant') {
         return (
-            <div className='code-message-part-container'>
-                <div className='code-message-part-toolbar'>
+            <div className='code-block-container'>
+                <div className='code-block-toolbar'>
                     <div className='code-location'>
                         {notebookName}
                     </div>
@@ -97,7 +97,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                 </div>
                 <PythonCode
                     code={code}
-                    rendermime={rendermime}
+                    renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
         )

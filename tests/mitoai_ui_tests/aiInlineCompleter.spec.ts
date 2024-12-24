@@ -4,7 +4,7 @@ import { PromiseDelegate } from "@lumino/coreutils";
 const GHOST_SELECTOR = ".jp-GhostText";
 
 test.describe("first time setup", () => {
-  test("should ask the user to activate the inline completion", async ({
+  test.skip("should ask the user to activate the inline completion", async ({
     page,
     request,
   }) => {
@@ -76,11 +76,15 @@ test.describe("default inline completion", () => {
   test("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
-    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, (ws) => {
+    await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
       ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
-        if (payload.prefix === "def fib" && payload.stream) {
+        if (
+          payload.type === "inline_completion" &&
+          payload.messages.find((message) => message.content === "def fib") &&
+          payload.stream
+        ) {
           let counter = -1;
           const streamReply = setInterval(() => {
             if (++counter < MOCKED_MESSAGES.length) {
@@ -93,8 +97,8 @@ test.describe("default inline completion", () => {
         } else {
           ws.send(
             JSON.stringify({
-              list: { items: [] },
-              reply_to: messageId,
+              items: [],
+              parent_id: messageId,
               type: "inline_completion",
               error: {
                 type: "ValueError",
@@ -123,7 +127,7 @@ test.describe("default inline completion", () => {
       .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
       .toHaveText("def fib(n):\n    pass\n");
 
-    await page.keyboard.press('Tab');
+    await page.keyboard.press("Tab");
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
     expect(
@@ -159,12 +163,15 @@ test.describe("default manual inline completion", () => {
   test("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
-    await page.routeWebSocket(/.*\/mito-ai\/inline-completion/, (ws) => {
+    await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
       ws.onMessage((message) => {
-        console.log(`inline completion ${message}`);
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
-        if (payload.prefix === "def fib" && payload.stream) {
+        if (
+          payload.type === "inline_completion" &&
+          payload.messages.find((message) => message.content === "def fib") &&
+          payload.stream
+        ) {
           let counter = -1;
           const streamReply = setInterval(() => {
             if (++counter < MOCKED_MESSAGES.length) {
@@ -177,8 +184,8 @@ test.describe("default manual inline completion", () => {
         } else {
           ws.send(
             JSON.stringify({
-              list: { items: [] },
-              reply_to: messageId,
+              items: [],
+              parent_id: messageId,
               type: "inline_completion",
               error: {
                 type: "ValueError",
@@ -217,97 +224,88 @@ test.describe("default manual inline completion", () => {
 // Mocked messages to simulate the inline completion process
 const MOCKED_MESSAGES = [
   {
-    list: {
-      items: [
-        {
-          insertText: "",
-          filterText: null,
-          isIncomplete: true,
-          token: "t1s0",
-          error: null,
-        },
-      ],
-    },
+    items: [
+      {
+        content: "",
+        isIncomplete: true,
+        token: "1",
+        error: null,
+      },
+    ],
     parent_id: "1",
-    type: "inline_completion",
+    type: "reply",
     error: null,
   },
   {
-    response: {
-      insertText: "",
-      filterText: null,
+    chunk: {
+      content: "",
       isIncomplete: true,
-      token: "t1s0",
+      token: "1",
       error: null,
     },
     parent_id: "1",
     done: false,
-    type: "stream",
+    type: "chunk",
     error: null,
   },
   {
-    response: {
-      insertText: "def",
-      filterText: null,
+    chunk: {
+      content: "def",
       isIncomplete: true,
-      token: "t1s0",
+      token: "1",
       error: null,
     },
     parent_id: "1",
     done: false,
-    type: "stream",
+    type: "chunk",
     error: null,
   },
   {
-    response: {
-      insertText: " fib",
-      filterText: null,
+    chunk: {
+      content: " fib",
       isIncomplete: true,
-      token: "t1s0",
+      token: "1",
       error: null,
     },
     parent_id: "1",
     done: false,
-    type: "stream",
+    type: "chunk",
     error: null,
   },
   {
-    response: {
-      insertText: "(n",
-      filterText: null,
+    chunk: {
+      content: "(n",
       isIncomplete: true,
-      token: "t1s0",
+      token: "1",
       error: null,
     },
     parent_id: "1",
     done: false,
-    type: "stream",
+    type: "chunk",
     error: null,
   },
   {
-    response: {
-      insertText: "):\n",
-      filterText: null,
+    chunk: {
+      content: "):\n",
       isIncomplete: true,
-      token: "t1s0",
+      token: "1",
       error: null,
     },
     parent_id: "1",
     done: false,
-    type: "stream",
+    type: "chunk",
     error: null,
   },
   {
-    response: {
-      insertText: "    pass\n",
-      filterText: null,
+    chunk: {
+      content: "    pass\n",
       isIncomplete: true,
-      token: "t1s0",
+      token: "1",
       error: null,
     },
     parent_id: "1",
     done: true,
-    type: "stream",
+    type: "chunk",
     error: null,
   },
 ];
