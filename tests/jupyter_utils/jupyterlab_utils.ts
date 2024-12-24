@@ -23,6 +23,8 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
         // This is a crucial step that prevents the typing from not registering!
         await page.waitForTimeout(500);
 
+        // Even after waiting, sometimes the cell is not ready for typing, but
+        // it does accept the Enter 
         await page.keyboard.press('Enter');
         await page.keyboard.press('Enter');
         await page.keyboard.press('Backspace');

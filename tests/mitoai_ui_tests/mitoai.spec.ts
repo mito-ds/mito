@@ -230,10 +230,10 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
 
     await clickOnMitoAIChatTab(page);
+    await page.locator('.chat-input').click();
 
     // The fill() command doesn't trigger input events that the dropdown relies on
     // So we need to type it character by character instead
-    await page.locator('.chat-input').click();
     await page.keyboard.type("Edit column @ap");
     await expect.soft(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Apples' })).toBeVisible();
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'Bananas' })).not.toBeVisible();
