@@ -14,6 +14,11 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import TextAndIconButton from '../../../components/TextAndIconButton';
+import PlayButtonIcon from '../../../icons/PlayButtonIcon';
+import CopyIcon from '../../../icons/CopyIcon';
+import copyToClipboard from '../../../utils/copyToClipboard';
+import TextButton from '../../../components/TextButton';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -36,15 +41,12 @@ interface IChatMessageProps {
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
-    codeCellID,
     messageIndex,
     mitoAIConnectionError,
     notebookTracker,
     renderMimeRegistry,
-    app,
     isLastAiMessage,
     operatingSystem,
-    setDisplayCodeDiff,
     previewAICode,
     acceptAICode,
     rejectAICode,
@@ -99,23 +101,51 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     // Make sure that there is actually code in the message. 
                     // An empty code will look like this '```python  ```'
                     if (messagePart.length > 14) {
-                        return (
-                            <CodeBlock
-                                key={index + messagePart}
-                                code={messagePart}
-                                codeCellID={codeCellID}
-                                role={message.role}
-                                renderMimeRegistry={renderMimeRegistry}
-                                notebookTracker={notebookTracker}
-                                app={app}
-                                isLastAiMessage={isLastAiMessage}
-                                operatingSystem={operatingSystem}
-                                setDisplayCodeDiff={setDisplayCodeDiff}
-                                previewAICode={previewAICode}
-                                acceptAICode={acceptAICode}
-                                rejectAICode={rejectAICode}
-                                codeReviewStatus={codeReviewStatus}
-                            />
+                        return ( 
+                            <>
+                                <CodeBlock
+                                    key={index + messagePart}
+                                    code={messagePart}
+                                    role={message.role}
+                                    renderMimeRegistry={renderMimeRegistry}
+                                />
+
+                                {isLastAiMessage && codeReviewStatus === 'chatPreview' && 
+                                    <div className='chat-message-buttons'>
+                                        <TextAndIconButton 
+                                            onClick={() => {previewAICode()}}
+                                            text={'Overwrite Active Cell'}
+                                            icon={PlayButtonIcon}
+                                            title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
+                                            variant='green'
+                                        />
+                                        <TextAndIconButton 
+                                            onClick={() => {copyToClipboard(messagePart)}}
+                                            text={'Copy'}
+                                            icon={CopyIcon}
+                                            title={'Copy the Ai generated code to your clipboard'}
+                                            variant='green'
+                                        />
+                                    </div>
+                                }
+                                {isLastAiMessage && codeReviewStatus === 'codeCellPreview' && 
+                                    <div className='chat-message-buttons'>
+                                        <TextButton 
+                                            onClick={() => {acceptAICode()}}
+                                            text={`Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`}
+                                            title={'Accept the Ai generated code'}
+                                            variant='green'
+                                        />
+                                        <TextButton 
+                                            onClick={() => {rejectAICode()}}
+                                            text={`Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`}
+                                            title={'Reject the Ai generated code and revert to the previous version of the code cell'}
+                                            variant='red'
+                                        />
+                                    </div>
+
+                                }
+                            </>
                         )
                     }
                 } else {
