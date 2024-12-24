@@ -8,12 +8,12 @@
 @import url('statusItem.css');
 
 :root {
-    --chat-background-color: #F3F3F3;
-    --chat-user-message-background-color: #FFFFFF;
-    --chat-user-message-font-color: #474747;
+    --chat-background-color: var(--jp-layout-color1);
+    --chat-user-message-background-color: var(--jp-layout-color2);
+    --chat-user-message-font-color: var(--jp-content-font-color1);
     --chat-assistant-message-font-color: #0E1119;
     --item-selected-color: #E9E0FD;
-    --muted-text-color: #888;
+    --muted-text-color: var(--jp-content-font-color2);
 
     --green-900: #155239;
     --green-800: #1A7741;
