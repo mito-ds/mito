@@ -193,6 +193,14 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant')).toHaveCount(1);
   });
 
+  test('Test no fix error button for warnings', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import warnings', 'warnings.warn("This is a warning")']);
+    await waitForIdle(page);
+
+    // Ensure that the "Fix Error in AI Chat" button is not visible
+    expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
+  });
+
   test('Errors have fix with AI button', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1'], true);
     await waitForIdle(page);
