@@ -185,23 +185,6 @@ test.describe('Mito AI Chat', () => {
   });
 
   test('Test fix error button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(3']);
-    await waitForIdle(page);
-
-    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
-    await waitForIdle(page);
-    await expect(page.locator('.message-assistant')).toHaveCount(1);
-  });
-
-  test('Test no fix error button for warnings', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import warnings', 'warnings.warn("This is a warning")']);
-    await waitForIdle(page);
-
-    // Ensure that the "Fix Error in AI Chat" button is not visible
-    expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
-  });
-
-  test('Errors have fix with AI button', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1']);
     await waitForIdle(page);
 
@@ -223,21 +206,19 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('print(1)');
   });
 
-  test('Code cells have Explain Code button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
+  test('Test no fix error button for warnings', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import warnings', 'warnings.warn("This is a warning")']);
     await waitForIdle(page);
 
-    await selectCell(page, 0);
-    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
-
-    // Check that the message "Explain this code" exists in the AI chat
-    await expect(page.getByText('Explain this code')).toBeVisible();
-
+    // Ensure that the "Fix Error in AI Chat" button is not visible
+    expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
   });
 
   test('Test explain code button', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
+
+    await selectCell(page, 0);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     await waitForIdle(page);

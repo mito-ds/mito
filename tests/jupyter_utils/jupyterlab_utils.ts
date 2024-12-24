@@ -26,6 +26,7 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
         await page.keyboard.type(cellContents[i], {delay: 50});
         await page.notebook.leaveCellEditingMode(i);
         await page.notebook.runCell(i);
+        await waitForIdle(page)
     }
     await waitForIdle(page)
 }
