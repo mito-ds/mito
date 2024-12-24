@@ -188,8 +188,7 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
 
     // Ensure that the "Fix Error in AI Chat" button is not visible
-    const fixErrorButton = page.getByRole('button', { name: 'Fix Error in AI Chat' });
-    expect(await fixErrorButton.isVisible()).toBeFalsy();
+    expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
   });
 
   test('Errors have fix with AI button', async ({ page }) => {
