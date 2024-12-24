@@ -14,8 +14,8 @@ import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from '../AiChat/token';
 import { advicePlugin } from './emptyCell';
 
-export const localPrompt: JupyterFrontEndPlugin<void> = {
-  id: 'mito-ai:empty-editor-advice',
+export const emptyCellPlaceholder: JupyterFrontEndPlugin<void> = {
+  id: 'mito-ai:empty-cell-placeholder',
   description: 'Display a default message in an empty code cell.',
   autoStart: true,
   requires: [IChatTracker, IEditorExtensionRegistry],

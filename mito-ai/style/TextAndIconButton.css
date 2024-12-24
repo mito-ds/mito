@@ -30,7 +30,7 @@
 }
 
 .text-and-icon-button.green:hover {
-    background-color: var(--green-300);
+    background-color: var(--green-500);
 }
 
 .text-and-icon-button.red {
@@ -39,5 +39,5 @@
 }
 
 .text-and-icon-button.red:hover {
-    background-color: var(--red-300);
+    background-color: var(--red-500);
 }

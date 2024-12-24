@@ -2,7 +2,7 @@ import AiChatPlugin from './Extensions/AiChat/AiChatPlugin';
 import VariableManagerPlugin from './Extensions/VariableManager/VariableManagerPlugin';
 import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRendererPlugin';
 import CellToolbarButtonsPlugin from './Extensions/CellToolbarButtons/CellToolbarButtonsPlugin';
-import { localPrompt } from './Extensions/emptyCell/EmptyCellPlugin';
+import { emptyCellPlaceholder } from './Extensions/emptyCell/EmptyCellPlugin';
 import { completionPlugin } from './Extensions/InlineCompleter';
 import { statusItem } from './Extensions/status';
 
@@ -13,7 +13,7 @@ export default [
   ErrorMimeRendererPlugin,
   VariableManagerPlugin,
   CellToolbarButtonsPlugin,
-  localPrompt,
+  emptyCellPlaceholder,
   completionPlugin,
   statusItem
 ];
