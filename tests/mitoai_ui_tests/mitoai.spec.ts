@@ -61,7 +61,7 @@ test.describe('Mito AI Chat', () => {
     await closeMitoAIChat(page);
     await page.waitForTimeout(1000);
 
-    expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Accept code' })).toBeVisible();
+    expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Accept' })).toBeVisible();
 
     await clickAcceptButton(page, { useCellToolbar: true });
     await waitForIdle(page);
@@ -100,7 +100,7 @@ test.describe('Mito AI Chat', () => {
     await closeMitoAIChat(page);
     await page.waitForTimeout(1000);
 
-    expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Reject code' })).toBeVisible();
+    expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Reject' })).toBeVisible();
 
     await clickDenyButton(page, { useCellToolbar: true });
     await waitForIdle(page);
