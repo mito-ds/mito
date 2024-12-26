@@ -12,14 +12,13 @@ import {
   clearMitoAIChatInput, 
   clickAcceptButton,
   clickDenyButton, 
-  clickOnMitoAIChatTab, 
   clickPreviewButton, 
+  clickOnMitoAIChatTab,
+  closeMitoAIChat, 
   editMitoAIMessage, 
   sendMessageToMitoAI, 
   waitForMitoAILoadingToDisappear 
 } from './utils';
-
-const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -47,27 +46,27 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
-  test("Accept using cell toolbar button", async ({ page }) => {
-    if (process.platform !== 'darwin') {
-      test.skip();
-    }
+  test.only("Accept using cell toolbar button", async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
-
     await page.waitForTimeout(1000);
 
-    const countAcceptButtons = await page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Accept code' }).count();
-    expect(countAcceptButtons).toBe(1);
-
+    // We need to close the chat taskpane to ensure that 
+    // the cell toolbar has enough space to be visible.
+    // If the screen is too narrow, Jupyter does not show the cell toolbar.
+    await closeMitoAIChat(page);
     await page.waitForTimeout(1000);
+
+    expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Accept code' })).toBeVisible();
+
     await clickAcceptButton(page, { useCellToolbar: true });
     await waitForIdle(page);
 
-    const code = await getCodeFromCell(page, 1);
+    const code = await getCodeFromCell(page, 2);
     expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
@@ -86,19 +85,29 @@ test.describe('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
-  test("Reject using cell toolbar button", async ({ page }) => {
-    if (process.platform !== 'darwin') {
-      test.skip();
-    }
-
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
+  test.only("Reject using cell toolbar button", async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
+    await page.waitForTimeout(1000);
+
+    // We need to close the chat taskpane to ensure that 
+    // the cell toolbar has enough space to be visible.
+    // If the screen is too narrow, Jupyter does not show the cell toolbar.
+    await closeMitoAIChat(page);
+    await page.waitForTimeout(1000);
+
+    expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Reject code' })).toBeVisible();
+
     await clickDenyButton(page, { useCellToolbar: true });
     await waitForIdle(page);
+
+    const code = await getCodeFromCell(page, 2);
+    expect(code).not.toContain('df["C"] = [7, 8, 9]');
+    expect(code?.trim()).toBe("")
   });
 
   test('Edit Message', async ({ page }) => {

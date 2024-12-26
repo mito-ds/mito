@@ -1,4 +1,4 @@
-import { IJupyterLabPageFixture } from "@jupyterlab/galata";
+import { expect, IJupyterLabPageFixture } from "@jupyterlab/galata";
 import { selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixture) => {
@@ -16,6 +16,19 @@ export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
         await aiChatTab.getByRole('img').click();
     }
     await page.waitForTimeout(1000);
+}
+
+export const closeMitoAIChat = async (page: IJupyterLabPageFixture) => {
+    await page.waitForTimeout(1000);
+
+    // Close the Mito AI chat if it's open
+    const aiChat = page.locator('.chat-taskpane');
+    if (await aiChat.isVisible()) {
+        const aiChatTab = page.getByRole('tab', { name: 'AI Chat for your JupyterLab' });
+        await aiChatTab.click();
+    }
+    await page.waitForTimeout(1000);
+    await waitForIdle(page);
 }
 
 export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {
@@ -65,9 +78,9 @@ export const clickAcceptButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        // sleep for 1 second to make sure the cell toolbar is visible
-        await page.waitForTimeout(1000);
-        await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
+        await closeMitoAIChat(page);
+        await page.getByLabel('notebook content').getByText('Accept code').click();
+
     } else {
         await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
     }
@@ -81,11 +94,14 @@ export const clickDenyButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        // sleep for 1 second to make sure the cell toolbar is visible
-        await page.waitForTimeout(1000);
-        await page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Reject code' }).click();
+        await closeMitoAIChat(page);
+        // For some reason, the same selector doesn't work here. It ends up just scrolling the page
+        // up and down a bunch of times until it times out. So instead, we use this selector 
+        await page.getByLabel('notebook content').getByText('Reject code').click();
     } else {
         await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
     }
     await waitForIdle(page);
 }
+
+
