@@ -19,6 +19,7 @@ import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
 import type { Widget } from '@lumino/widgets';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
@@ -56,12 +57,16 @@ export class MitoAIInlineCompleter
     Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>,
     string
   >();
+  private _variableManager: IVariableManager;
 
   constructor({
     languageRegistry,
+    serverSettings,
+    variableManager,
     ...clientOptions
   }: MitoAIInlineCompleter.IOptions) {
     this._languageRegistry = languageRegistry;
+    this._variableManager = variableManager;
     this._client = new CompletionWebsocketClient(clientOptions);
 
     this._client
@@ -194,10 +199,11 @@ export class MitoAIInlineCompleter
       
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
-
+      const variables = this._variableManager.variables;
+      
       const result = await this._client.sendMessage({
         path: context.session?.path,
-        prompt: createInlinePrompt(prefix, suffix),
+        prompt: createInlinePrompt(prefix, suffix, variables),
         message_id: messageId.toString(),
         stream: true,
         cell_id: getActiveCellID(context.widget)
@@ -397,6 +403,7 @@ export namespace MitoAIInlineCompleter {
      * CodeMirror language registry.
      */
     languageRegistry: IEditorLanguageRegistry;
+    variableManager: IVariableManager;
   }
 
   export interface ISettings {

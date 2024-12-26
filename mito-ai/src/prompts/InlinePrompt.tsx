@@ -1,6 +1,9 @@
+import { Variable } from "../Extensions/VariableManager/VariableInspector";
+
 export function createInlinePrompt(
     prefix: string,
-    suffix: string
+    suffix: string,
+    variables: Variable[]
 ): string {
     const prompt = `You are a code completion assistant that lives inside of JupyterLab. Your job is to predict the rest of the code that the user has started to write.
 
@@ -78,6 +81,8 @@ Output:
 IMPORTANT: Notice in Example 3 that the output starts with a newline because the cursor appears at the end of a comment line.
 
 Your Task:
+
+Defined Variables: ${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
 
 Code in the active code cell:
 \`\`\`python
