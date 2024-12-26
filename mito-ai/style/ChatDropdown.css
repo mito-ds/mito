@@ -35,7 +35,7 @@
 
 .chat-dropdown-item:hover,
 .chat-dropdown-item.selected {
-    background-color: var(--item-selected-color);
+    background-color: var(--purple-300);
 }
 
 .chat-dropdown-item:first-child {

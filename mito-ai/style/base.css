@@ -9,10 +9,9 @@
 
 :root {
     --chat-background-color: var(--jp-layout-color1);
-    --chat-user-message-background-color: var(--jp-layout-color2);
+    --chat-user-message-background-color: var(--jp-input-background);
     --chat-user-message-font-color: var(--jp-content-font-color1);
     --chat-assistant-message-font-color: #0E1119;
-    --item-selected-color: #E9E0FD;
     --muted-text-color: var(--jp-content-font-color2);
 
     --green-900: #155239;
