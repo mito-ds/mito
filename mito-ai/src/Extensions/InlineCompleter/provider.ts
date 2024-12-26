@@ -2,7 +2,7 @@ import { Notification, showErrorMessage } from '@jupyterlab/apputils';
 import { IEditorMimeTypeService } from '@jupyterlab/codeeditor';
 import {
   IEditorLanguageRegistry,
-  type IEditorLanguage
+  // type IEditorLanguage
 } from '@jupyterlab/codemirror';
 import {
   InlineCompletionTriggerKind,
@@ -24,7 +24,7 @@ import {
   type ICompletionWebsocketClientOptions
 } from './client';
 import type { CompletionError, InlineCompletionStreamChunk } from './models';
-
+import { createInlinePrompt } from '../../prompts/InlinePrompt';
 /**
  * Mito AI inline completer
  *
@@ -187,22 +187,20 @@ export class MitoAIInlineCompleter
       }
 
       let path = context.session?.path;
-      const cellId = getActiveCellID(context.widget);
       if (!path && context.widget instanceof DocumentWidget) {
         path = context.widget.context.path;
       }
       const messageId = ++this._counter;
-
+      
       const prefix = this._getPrefix(request);
+      const suffix = this._getSuffix(request);
+
       const result = await this._client.sendMessage({
         path: context.session?.path,
-        mime,
-        prefix,
-        suffix: this._getSuffix(request),
-        language: this._resolveLanguage(language),
+        prompt: createInlinePrompt(prefix, suffix),
         message_id: messageId.toString(),
         stream: true,
-        cell_id: cellId
+        cell_id: getActiveCellID(context.widget)
       });
 
       this._currentPrefix = getPrefixLastLine(prefix);
@@ -380,6 +378,7 @@ export class MitoAIInlineCompleter
     }
   }
 
+  /*
   private _resolveLanguage(language: IEditorLanguage | null) {
     if (!language) {
       return 'plain English';
@@ -391,6 +390,7 @@ export class MitoAIInlineCompleter
     }
     return language.name;
   }
+  */
 }
 
 export namespace MitoAIInlineCompleter {

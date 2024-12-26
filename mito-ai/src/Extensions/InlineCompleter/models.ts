@@ -11,14 +11,9 @@ export type ConnectionMessage = {
 export type InlineCompletionRequest = {
   message_id: string;
   path?: string;
-  /* The model has to complete given prefix */
-  prefix: string;
-  /* The model may consider the following suffix */
-  suffix: string;
-  mime: string;
+  prompt: string;  
   /* Whether to stream the response (if streaming is supported by the model) */
   stream: boolean;
-  language?: string;
   cell_id?: string;
 };
 

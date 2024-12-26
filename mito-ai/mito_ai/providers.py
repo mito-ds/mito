@@ -15,7 +15,6 @@ from .models import (
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
 )
-from .utils import inline_prompt
 
 __all__ = ["OpenAIProvider"]
 
@@ -84,11 +83,9 @@ class OpenAIProvider(LoggingConfigurable):
     def _get_messages(
         self, request: InlineCompletionRequest
     ) -> List[ChatCompletionMessageParam]:
-        inputs = request.to_template_inputs()
-        prompt = inline_prompt.generate_prompt(inputs["prefix"], inputs["suffix"])
         messages: List[ChatCompletionMessageParam] = [
             {"role": "system", "content": COMPLETION_SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
+            {"role": "user", "content": request.prompt},
         ]
         return messages
 
