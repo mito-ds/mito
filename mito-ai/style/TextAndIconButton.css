@@ -41,3 +41,8 @@
 .text-and-icon-button.red:hover {
     background-color: var(--red-500);
 }
+
+.text-and-icon-button.small {
+    padding: 2px;
+    font-size: 12px;
+}

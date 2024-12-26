@@ -79,7 +79,7 @@ export const clickAcceptButton = async (
 ) => {
     if (useCellToolbar) {
         await closeMitoAIChat(page);
-        await page.getByLabel('notebook content').getByText('Accept code').click();
+        await page.getByLabel('notebook content').getByText('Accept').click();
 
     } else {
         await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
@@ -97,7 +97,7 @@ export const clickDenyButton = async (
         await closeMitoAIChat(page);
         // For some reason, the same selector doesn't work here. It ends up just scrolling the page
         // up and down a bunch of times until it times out. So instead, we use this selector 
-        await page.getByLabel('notebook content').getByText('Reject code').click();
+        await page.getByLabel('notebook content').getByText('Reject').click();
     } else {
         await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
     }
