@@ -3,7 +3,6 @@ import type {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { Notification } from '@jupyterlab/apputils';
-import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
 import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ConfigSection } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
@@ -29,14 +28,12 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
   autoStart: true,
   requires: [
     ICompletionProviderManager,
-    IEditorLanguageRegistry,
     ISettingRegistry,
     IVariableManager
   ],
   activate: (
     app: JupyterFrontEnd,
     completionManager: ICompletionProviderManager,
-    languageRegistry: IEditorLanguageRegistry,
     settingRegistry: ISettingRegistry,
     variableManager: IVariableManager
   ) => {
@@ -158,7 +155,6 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
 
     // Register the Mito AI inline completer
     const provider = new MitoAIInlineCompleter({
-      languageRegistry,
       serverSettings: app.serviceManager.serverSettings,
       variableManager
     });

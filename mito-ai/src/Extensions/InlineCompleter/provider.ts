@@ -42,7 +42,6 @@ export class MitoAIInlineCompleter
     MitoAIInlineCompleter.DEFAULT_SETTINGS;
   // Store only one inline completion stream
   //   Each new request should invalidate any other suggestions.
-  private _currentPrefix = '';
   private _currentToken = '';
   private _currentStream: Stream<
     MitoAIInlineCompleter,
@@ -197,7 +196,6 @@ export class MitoAIInlineCompleter
         type: 'inline_completion',
       });
 
-      this._currentPrefix = getPrefixLastLine(prefix);
       if (result.items[0]?.token) {
         this._currentToken = result.items[0].token;
         this._currentStream = new Stream<
@@ -222,15 +220,6 @@ export class MitoAIInlineCompleter
       };
     } finally {
       this._completionLock.resolve();
-    }
-
-    function getPrefixLastLine(prefix: string) {
-      for (let index = prefix.length - 1; index >= 0; index--) {
-        if (prefix[index] === '\n') {
-          return prefix.slice(index + 1);
-        }
-      }
-      return prefix;
     }
   }
 
@@ -341,11 +330,8 @@ export class MitoAIInlineCompleter
     let fullCompletion = this._fullCompletionMap.get(this._currentStream) ?? '';
     fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
-
-    let cleanedCompletion = fullCompletion
-      .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
-      .replace(/```$/, '')           // Remove closing code fence
-      .replace(/\n$/, '')            // Remove trailing newline
+    
+    let cleanedCompletion = this._cleanCompletion(fullCompletion);
 
     this._currentStream.emit({
       done: chunk.done,
@@ -362,16 +348,11 @@ export class MitoAIInlineCompleter
   }
 
   private _cleanCompletion(rawCompletion: string) {
-    let cleanedCompletion = rawCompletion;
-    if (this._currentPrefix) {
-      if (
-        cleanedCompletion.startsWith(this._currentPrefix) ||
-        this._currentPrefix.startsWith(cleanedCompletion)
-      ) {
-        cleanedCompletion = cleanedCompletion.slice(this._currentPrefix.length);
-      }
-    }
-    return cleanedCompletion;
+    return rawCompletion
+      .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
+      .replace(/```$/, '')           // Remove closing code fence
+      .replace(/\n$/, '')            // Remove trailing newline
+
   }
 
   private _resetCurrentStream() {
