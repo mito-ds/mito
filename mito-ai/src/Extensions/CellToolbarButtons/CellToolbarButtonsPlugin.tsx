@@ -4,13 +4,7 @@ import {
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
-import { LabIcon } from '@jupyterlab/ui-components';
-import LightbulbIcon from '../../../src/icons/LightbulbIcon.svg'
-
-export const lightBulbIcon = new LabIcon({
-    name: 'lightbulb-icon',
-    svgstr: LightbulbIcon
-});
+import { lightBulbIcon } from '../../icons';
 
 const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/plugin.json file.
@@ -38,6 +32,7 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             },
             isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE)
         });
+        console.log("mito-ai: CellToolbarButtonsPlugin activated");
     }
 };
 

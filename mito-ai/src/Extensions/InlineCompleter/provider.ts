@@ -1,7 +1,5 @@
 import { Notification, showErrorMessage } from '@jupyterlab/apputils';
-import { IEditorMimeTypeService } from '@jupyterlab/codeeditor';
 import {
-  IEditorLanguageRegistry,
   // type IEditorLanguage
 } from '@jupyterlab/codemirror';
 import {
@@ -12,20 +10,23 @@ import {
   type IInlineCompletionList,
   type IInlineCompletionProvider
 } from '@jupyterlab/completer';
-import { DocumentWidget } from '@jupyterlab/docregistry';
-import { NotebookPanel } from '@jupyterlab/notebook';
 import type { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
-import type { Widget } from '@lumino/widgets';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { createInlinePrompt } from '../../prompts/InlinePrompt';
+import type OpenAI from 'openai';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
-} from './client';
-import type { CompletionError, InlineCompletionStreamChunk } from './models';
-import { createInlinePrompt } from '../../prompts/InlinePrompt';
+} from '../../utils/websocket/websocketClient';
+import type {
+  CompletionError,
+  ICompletionStreamChunk,
+  InlineCompletionStreamChunk
+} from '../../utils/websocket/models';
+
 /**
  * Mito AI inline completer
  *
@@ -37,7 +38,6 @@ export class MitoAIInlineCompleter
   private _client: CompletionWebsocketClient;
   private _counter = 0;
   private _isDisposed = false;
-  private _languageRegistry: IEditorLanguageRegistry;
   private _settings: MitoAIInlineCompleter.ISettings =
     MitoAIInlineCompleter.DEFAULT_SETTINGS;
   // Store only one inline completion stream
@@ -60,12 +60,10 @@ export class MitoAIInlineCompleter
   private _variableManager: IVariableManager;
 
   constructor({
-    languageRegistry,
     serverSettings,
     variableManager,
     ...clientOptions
   }: MitoAIInlineCompleter.IOptions) {
-    this._languageRegistry = languageRegistry;
     this._variableManager = variableManager;
     this._client = new CompletionWebsocketClient(clientOptions);
 
@@ -182,36 +180,26 @@ export class MitoAIInlineCompleter
           items: []
         };
       }
-      const mime = request.mimeType ?? IEditorMimeTypeService.defaultMimeType;
-      const language = this._languageRegistry.findByMIME(mime);
-      if (!language) {
-        console.warn(
-          `Could not recognize language for ${mime} - cannot complete`
-        );
-        return { items: [] };
-      }
-
-      let path = context.session?.path;
-      if (!path && context.widget instanceof DocumentWidget) {
-        path = context.widget.context.path;
-      }
       const messageId = ++this._counter;
       
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
       const variables = this._variableManager.variables;
-      
+      const prompt = createInlinePrompt(prefix, suffix, variables);
+      const openAIFormattedMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+        // {"role": "system", "content": COMPLETION_SYSTEM_PROMPT},
+        {"role": "user", "content": prompt},
+    ]
       const result = await this._client.sendMessage({
-        path: context.session?.path,
-        prompt: createInlinePrompt(prefix, suffix, variables),
+        messages: openAIFormattedMessages,
         message_id: messageId.toString(),
         stream: true,
-        cell_id: getActiveCellID(context.widget)
+        type: 'inline_completion',
       });
 
       this._currentPrefix = getPrefixLastLine(prefix);
-      if (result.list.items[0]?.token) {
-        this._currentToken = result.list.items[0].token;
+      if (result.items[0]?.token) {
+        this._currentToken = result.items[0].token;
         this._currentStream = new Stream<
           MitoAIInlineCompleter,
           InlineCompletionStreamChunk
@@ -222,11 +210,16 @@ export class MitoAIInlineCompleter
       if (error) {
         this._notifyCompletionFailure(error);
         throw new Error(
-          `Inline completion failed: ${error.type}\n${error.traceback}`
+          `Inline completion failed: ${error.error_type}\n${error.traceback}`
         );
       }
 
-      return result.list;
+      return {
+        items: result.items.map(item => ({
+          ...item,
+          insertText: this._cleanCompletion(item.content)
+        }))
+      };
     } finally {
       this._completionLock.resolve();
     }
@@ -302,14 +295,14 @@ export class MitoAIInlineCompleter
   }
 
   private _notifyCompletionFailure(error: CompletionError) {
-    Notification.emit(`Inline completion failed: ${error.type}`, 'error', {
+    Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
       autoClose: false,
       actions: [
         {
           label: 'Show Traceback',
           callback: () => {
             showErrorMessage('Inline completion failed on the server side', {
-              message: error.traceback
+              message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
             });
           }
         }
@@ -322,15 +315,15 @@ export class MitoAIInlineCompleter
    */
   private _receiveStreamChunk(
     _emitter: CompletionWebsocketClient,
-    chunk: InlineCompletionStreamChunk
+    chunk: ICompletionStreamChunk
   ) {
     if (chunk.error) {
       this._notifyCompletionFailure(chunk.error);
     }
 
-    const token = chunk.response.token;
+    const token = chunk.chunk.token;
     if (!token) {
-      throw Error('Stream chunks must define `token` in `response`');
+      throw Error('Stream chunks must define `token` in `chunk`.');
     }
 
     if (this._currentToken !== token) {
@@ -346,14 +339,30 @@ export class MitoAIInlineCompleter
     }
 
     let fullCompletion = this._fullCompletionMap.get(this._currentStream) ?? '';
-    fullCompletion += chunk.response.insertText;
+    fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
     let cleanedCompletion = fullCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
       .replace(/```$/, '')           // Remove closing code fence
       .replace(/\n$/, '')            // Remove trailing newline
-    
+
+    this._currentStream.emit({
+      done: chunk.done,
+      error: chunk.error,
+      parent_id: chunk.parent_id,
+      response: {
+        insertText: cleanedCompletion,
+        isIncomplete: !chunk.done,
+        error: chunk.chunk.error,
+        token: chunk.chunk.token
+      },
+      type: chunk.type
+    });
+  }
+
+  private _cleanCompletion(rawCompletion: string) {
+    let cleanedCompletion = rawCompletion;
     if (this._currentPrefix) {
       if (
         cleanedCompletion.startsWith(this._currentPrefix) ||
@@ -362,15 +371,7 @@ export class MitoAIInlineCompleter
         cleanedCompletion = cleanedCompletion.slice(this._currentPrefix.length);
       }
     }
-
-    this._currentStream.emit({
-      ...chunk,
-      response: {
-        ...chunk.response,
-        insertText: cleanedCompletion,
-        isIncomplete: !chunk.done
-      }
-    });
+    return cleanedCompletion;
   }
 
   private _resetCurrentStream() {
@@ -402,7 +403,6 @@ export namespace MitoAIInlineCompleter {
     /**
      * CodeMirror language registry.
      */
-    languageRegistry: IEditorLanguageRegistry;
     variableManager: IVariableManager;
   }
 
@@ -417,10 +417,4 @@ export namespace MitoAIInlineCompleter {
     debouncerDelay: 250,
     enabled: false
   };
-}
-
-function getActiveCellID(widget: Widget): string | undefined {
-  if (widget instanceof NotebookPanel) {
-    return widget.content.activeCell?.model.id;
-  }
 }

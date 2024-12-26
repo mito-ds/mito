@@ -7,12 +7,15 @@ export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixtu
 }
 
 export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
+    await page.waitForTimeout(1000);
+
     // Click the AI Chat tab if it's not already selected
     const aiChatTab = await page.getByRole('tab', { name: 'AI Chat for your JupyterLab' });
     const isSelected = await aiChatTab.getAttribute('aria-selected');
     if (isSelected !== 'true') {
         await aiChatTab.getByRole('img').click();
     }
+    await page.waitForTimeout(1000);
 }
 
 export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {
@@ -51,6 +54,16 @@ export const editMitoAIMessage = async (
 }
 
 export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Preview Code in Notebook' }).click();
+    await page.getByRole('button', { name: 'Overwrite Active Cell' }).click();
+    await waitForIdle(page);
+}
+
+export const clickAcceptButton = async (page: IJupyterLabPageFixture) => {
+    await page.getByRole('button', { name: 'Accept code' }).click();
+    await waitForIdle(page);
+}
+
+export const clickDenyButton = async (page: IJupyterLabPageFixture) => {
+    await page.getByRole('button', { name: 'Reject code' }).click();
     await waitForIdle(page);
 }

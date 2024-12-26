@@ -16,12 +16,27 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
         // Add a short delay to ensure that the cell is created and the decoration placeholder extension
         // has a chance to process
         await page.waitForTimeout(100);
-        await page.notebook.setCell(i, 'code', cellContents[i]);
+
+        await page.notebook.enterCellEditingMode(i);
+
+        // Give the cell a chance to enter editing mode and be ready for typing. 
+        // This is a crucial step that prevents the typing from not registering!
+        await page.waitForTimeout(500);
+
+        // Even after waiting, sometimes the cell is not ready for typing, but
+        // it does accept the Enter 
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Backspace');
+        await page.keyboard.press('Backspace');
+
+        await page.keyboard.type(cellContents[i], {delay: 50});
+        await page.notebook.leaveCellEditingMode(i);
         await page.notebook.runCell(i);
+        await waitForIdle(page)
     }
     await waitForIdle(page)
 }
-
 
 export const waitForIdle = async (page: IJupyterLabPageFixture) => {
     const idleLocator = page.locator('#jp-main-statusbar >> text=Idle');
@@ -60,6 +75,8 @@ export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number
     const cell = await page.notebook.getCell(cellIndex);
     await cell?.click();
 }
+
+
 
 export const addNewCell = async (
     page: IJupyterLabPageFixture,

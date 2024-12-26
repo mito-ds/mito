@@ -1,22 +1,22 @@
-.code-message-part-container {
+.code-block-container {
     display: flex;
     flex-direction: column;
 
     background-color: var(--chat-background-color);
     border-radius: 3px;
-    border: 1px solid var(--chat-user-message-font-color);
+    border: 1px solid var(--grey-300);
     overflow: hidden;
 }
 
-.code-message-part-toolbar {
+.code-block-toolbar {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: end;
 
     width: 100%;
     background-color: var(--chat-user-message-background-color);
-    border-bottom: 1px solid var(--chat-user-message-font-color);
+    border-bottom: 1px solid var(--grey-300);;
     font-size: 0.8em;
 }
 
@@ -26,17 +26,17 @@
     color: var(--chat-user-message-font-color);
 }
 
-.code-message-part-toolbar button {
+.code-block-toolbar button {
     background-color: var(--chat-user-message-background-color);
     border: none;
-    border-left: 1px solid var(--chat-user-message-font-color);
+    border-left: 1px solid var(--grey-300);;
     border-radius: 0px;
 
     font-size: 0.8em;
     color: var(--chat-user-message-font-color);
 }
 
-.code-message-part-toolbar button:hover {
+.code-block-toolbar button:hover {
     background-color: var(--chat-background-color);
     color: var(--chat-assistant-message-font-color);
 }

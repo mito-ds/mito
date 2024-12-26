@@ -7,6 +7,8 @@ import { devices } from '@playwright/test';
 
 module.exports = {
     ...exports,
+    // Fail the build on CI if you accidentally left test.only in the source code.
+    forbidOnly: !!process.env.CI,
     projects: [
         /* Test against desktop browsers */
         {
