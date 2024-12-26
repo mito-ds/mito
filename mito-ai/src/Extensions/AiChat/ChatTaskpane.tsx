@@ -14,7 +14,9 @@ import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE, 
     COMMAND_MITO_AI_REJECT_LATEST_CODE, 
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, 
-    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE 
+    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, 
+    COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
+    COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE
 } from '../../commands';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
@@ -29,7 +31,6 @@ import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-import { IDisposable } from '@lumino/disposable';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -75,13 +76,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
     // 3. applied: state where the user has applied the code to the code cell
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
-
-    const commandDisposables = useRef<{
-        acceptCode?: IDisposable;
-        rejectCode?: IDisposable;
-    }>({});
-    
-
 
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -301,7 +295,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
-        updateCellToolbarButtons(cellStateBeforeDiff)
+        updateCellToolbarButtons()
     }
 
     const acceptAICode = () => {
@@ -338,7 +332,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         if (codeCellID !== undefined) {
             writeCodeToCellByID(notebookTracker, code, codeCellID)
-            updateCellToolbarButtons(cellStateBeforeDiff)
+            updateCellToolbarButtons()
         }
     }
 
@@ -388,6 +382,40 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 sendExplainCodeMessage()
             }
         });
+
+
+        /* 
+            Register the code cell toolbar buttons for accepting and rejecting code.
+        */
+        app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE, {
+            label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
+            className: 'text-and-icon-button green',
+            caption: 'Accept Code',
+            execute: () => {acceptAICode()},
+            // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
+            // and it will only be set when the codeReviewStatus is 'codeCellPreview'
+            isVisible: () => {
+                try {
+                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+                } catch (error) {
+                    return false;
+                }
+            }        
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
+            label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
+            className: 'text-and-icon-button red',
+            caption: 'Reject Code',
+            execute: () => {rejectAICode()},
+            isVisible: () => {
+                try {
+                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+                } catch (error) {
+                    return false;
+                }
+            }
+        });
     }, []);
 
     useEffect(() => {
@@ -415,52 +443,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
     }, [codeReviewStatus]);
 
-    const updateCellToolbarButtons = (cellStateBeforeDiff: React.MutableRefObject<ICellStateBeforeDiff | undefined>) => {
-
-        // Dispose of existing commands if they exist so we can re-register them 
-        commandDisposables.current.acceptCode?.dispose();
-        commandDisposables.current.rejectCode?.dispose();
-
-        // Unregister the previous toolbar buttons if they exist
-        const acceptCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:accept-code', {
-            label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
-            className: 'text-and-icon-button green',
-            caption: 'Accept Code',
-            execute: () => {acceptAICode()},
-            // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
-            // and it will only be set when the codeReviewStatus is 'codeCellPreview'
-            isVisible: () => {
-                try {
-                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
-                } catch (error) {
-                    return false;
-                }
-            }        
-        });
-
-        const rejectCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:reject-code', {
-            label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
-            className: 'text-and-icon-button red',
-            caption: 'Reject Code',
-            execute: () => {rejectAICode()},
-            isVisible: () => {
-                try {
-                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
-                } catch (error) {
-                    return false;
-                }
-            }
-        });
-
-        // Notify JupyterLab that these commands have changed and should be re-evaluated
-        app.commands.notifyCommandChanged('toolbar-button:accept-code');
-        app.commands.notifyCommandChanged('toolbar-button:reject-code');
-
-        // Store the disposables so that we can dispose of them when the component unmounts
-        commandDisposables.current.acceptCode = acceptCodeCellToolbarButtonDisposable;
-        commandDisposables.current.rejectCode = rejectCodeCellToolbarButtonDisposable;
+    const updateCellToolbarButtons = () => {
+        // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.
+        // Without this, the user needs to take some action, like switching to a different cell 
+        // and then switching back in order for the Jupyter to re-evaluate if it should
+        // show the toolbar buttons.
+        app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE);
+        app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
     }
-
 
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
