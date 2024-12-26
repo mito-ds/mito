@@ -29,7 +29,7 @@ import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-
+import { IDisposable } from '@lumino/disposable';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -75,6 +75,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
     // 3. applied: state where the user has applied the code to the code cell
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
+
+    const commandDisposables = useRef<{
+        acceptCode?: IDisposable;
+        rejectCode?: IDisposable;
+    }>({});
+    
 
 
     // Add this ref for the chat messages container
@@ -296,6 +302,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         console.log('PREVIEWING CODE')
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
+        updateCellToolbarButtons(cellStateBeforeDiff)
     }
 
     const acceptAICode = () => {
@@ -332,6 +339,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         if (codeCellID !== undefined) {
             writeCodeToCellByID(notebookTracker, code, codeCellID)
+            updateCellToolbarButtons(cellStateBeforeDiff)
         }
     }
 
@@ -408,9 +416,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
     }, [codeReviewStatus]);
 
-    useEffect(() => {
+    const updateCellToolbarButtons = (cellStateBeforeDiff: React.MutableRefObject<ICellStateBeforeDiff | undefined>) => {
+        console.log("IN HERE 0")
 
-        // Register once when component mounts
+        // Dispose of existing commands if they exist
+        commandDisposables.current.acceptCode?.dispose();
+        commandDisposables.current.rejectCode?.dispose();
+
+        // Unregister the previous toolbar buttons if they exist
         const acceptCodeCellToolbarButtonDisposable = app.commands.addCommand('toolbar-button:accept-code', {
             label: `Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
             className: 'text-and-icon-button green',
@@ -419,7 +432,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
             // and it will only be set when the codeReviewStatus is 'codeCellPreview'
             isVisible: () => {
+                console.log("IN HERE 1")
                 try {
+                    console.log("IN HERE 2", notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID)
                     return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
                 } catch (error) {
                     console.error('Error getting active cell ID:', error);
@@ -434,7 +449,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             caption: 'Reject Code',
             execute: () => {rejectAICode()},
             isVisible: () => {
+                console.log("IN HERE 3")
                 try {
+                    console.log("IN HERE 4", notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID)
                     return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
                 } catch (error) {
                     console.error('Error getting active cell ID:', error);
@@ -443,18 +460,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         });
 
-        // Clean up only when component unmounts
-        return () => {
-            acceptCodeCellToolbarButtonDisposable.dispose();
-            rejectCodeCellToolbarButtonDisposable.dispose();
-        };
-    /* 
-        We need to reload the toolbar buttons when the codeReviewStatus changes
-        because the cell we are writing the diffs to are already active. Therefore, 
-        unless we reload the toolbar buttons, the isVisible function will not be rerun
-        unless the user switches active cells first. 
-    */
-    }, [cellStateBeforeDiff.current]); 
+        // Notify JupyterLab that these commands have changed and should be re-evaluated
+        app.commands.notifyCommandChanged('toolbar-button:accept-code');
+        app.commands.notifyCommandChanged('toolbar-button:reject-code');
+
+        // Store the disposables so that we can dispose of them when the component unmounts
+        commandDisposables.current.acceptCode = acceptCodeCellToolbarButtonDisposable;
+        commandDisposables.current.rejectCode = rejectCodeCellToolbarButtonDisposable;
+    }
+
 
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
