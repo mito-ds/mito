@@ -343,12 +343,10 @@ export class MitoAIInlineCompleter
     fullCompletion += chunk.response.insertText;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
-    // Clean suggestion
     let cleanedCompletion = fullCompletion
-    // Remove opening ```python
-    .replace(/^```python\n?/, '')
-    // Remove closing ```
-    .replace(/```$/, '')
+      .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
+      .replace(/```$/, '')           // Remove closing code fence
+      .replace(/\n$/, '')            // Remove trailing newline
     
     if (this._currentPrefix) {
       if (
