@@ -404,7 +404,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
-            label: `Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`,
+            label: `Reject code ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`,
             className: 'text-and-icon-button red',
             caption: 'Reject Code',
             execute: () => {rejectAICode()},
@@ -430,8 +430,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const accelDDisposable = app.commands.addKeyBinding({
             command: COMMAND_MITO_AI_REJECT_LATEST_CODE,
-            keys: ['Accel D'],
+            keys: ['Accel U'],
             selector: 'body',
+            preventDefault: true,
         });
 
 

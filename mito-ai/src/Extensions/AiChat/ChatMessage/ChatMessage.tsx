@@ -136,7 +136,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         />
                                         <TextButton 
                                             onClick={() => {rejectAICode()}}
-                                            text={`Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`}
+                                            text={`Reject code ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`}
                                             title={'Reject the Ai generated code and revert to the previous version of the code cell'}
                                             variant='red'
                                         />
