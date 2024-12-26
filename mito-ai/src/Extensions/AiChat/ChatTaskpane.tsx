@@ -299,7 +299,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
     const previewAICode = () => {
-        console.log('PREVIEWING CODE')
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
         updateCellToolbarButtons(cellStateBeforeDiff)
@@ -417,9 +416,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [codeReviewStatus]);
 
     const updateCellToolbarButtons = (cellStateBeforeDiff: React.MutableRefObject<ICellStateBeforeDiff | undefined>) => {
-        console.log("IN HERE 0")
 
-        // Dispose of existing commands if they exist
+        // Dispose of existing commands if they exist so we can re-register them 
         commandDisposables.current.acceptCode?.dispose();
         commandDisposables.current.rejectCode?.dispose();
 
@@ -432,12 +430,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
             // and it will only be set when the codeReviewStatus is 'codeCellPreview'
             isVisible: () => {
-                console.log("IN HERE 1")
                 try {
-                    console.log("IN HERE 2", notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID)
                     return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
                 } catch (error) {
-                    console.error('Error getting active cell ID:', error);
                     return false;
                 }
             }        
@@ -449,12 +444,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             caption: 'Reject Code',
             execute: () => {rejectAICode()},
             isVisible: () => {
-                console.log("IN HERE 3")
                 try {
-                    console.log("IN HERE 4", notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID)
                     return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
                 } catch (error) {
-                    console.error('Error getting active cell ID:', error);
                     return false;
                 }
             }
