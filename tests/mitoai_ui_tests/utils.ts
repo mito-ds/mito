@@ -55,25 +55,22 @@ export const editMitoAIMessage = async (
 
 export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
     await page.getByRole('button', { name: 'Overwrite Active Cell' }).click();
-    await page.waitForTimeout(3000);
     await waitForIdle(page);
 }
 
-export const clickAcceptButtonInTaskpane = async (
-    page: IJupyterLabPageFixture, 
+export const clickAcceptButton = async (
+    page: IJupyterLabPageFixture,
+    // Express the useCellToolbar option like this so that they are keyword arguments in the tests
+    // and are therefore easy to read!  
+    { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
-    await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
-    await waitForIdle(page);
-}
-
-export const clickAcceptButtonInCellToolbar = async (
-    page: IJupyterLabPageFixture, 
-    cellIndex: number
-) => {
-    await page.waitForTimeout(3000);
-    await page.notebook.leaveCellEditingMode(cellIndex);
-    const cellToolbar = await page.locator('.jp-cell-toolbar');
-    await cellToolbar.getByRole('button', { name: 'Accept code' }).click();
+    if (useCellToolbar) {
+        // sleep for 1 second to make sure the cell toolbar is visible
+        await page.waitForTimeout(1000);
+        await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
+    } else {
+        await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
+    }
     await waitForIdle(page);
 }
 
@@ -85,7 +82,7 @@ export const clickDenyButton = async (
 ) => {
     if (useCellToolbar) {
         // sleep for 1 second to make sure the cell toolbar is visible
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(1000);
         await page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Reject code' }).click();
     } else {
         await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
