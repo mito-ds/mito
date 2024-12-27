@@ -82,7 +82,8 @@
     display: flex;
     flex-direction: row;
     gap: 8px;
-    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 

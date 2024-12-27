@@ -115,14 +115,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             text={'Overwrite Active Cell'}
                                             icon={PlayButtonIcon}
                                             title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
-                                            variant='green'
+                                            variant='gray'
                                         />
                                         <TextAndIconButton 
                                             onClick={() => {copyToClipboard(messagePart)}}
                                             text={'Copy'}
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
-                                            variant='green'
+                                            variant='gray'
                                         />
                                     </div>
                                 }
