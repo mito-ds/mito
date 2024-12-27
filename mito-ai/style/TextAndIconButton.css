@@ -46,3 +46,12 @@
     padding: 2px;
     font-size: 12px;
 }
+
+.text-and-icon-button.gray {
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-content-font-color1);
+}
+
+.text-and-icon-button.gray:hover {
+    background-color: var(--jp-layout-color3);
+}

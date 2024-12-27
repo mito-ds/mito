@@ -7,7 +7,7 @@ export interface ButtonProps {
     text: string;
     onClick: () => void;
     title: string;
-    variant: 'green' | 'red';
+    variant: 'green' | 'red' | 'gray';
 }
 
 // Text Button is just the basic Button Props, nothing else. 
