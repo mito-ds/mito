@@ -46,7 +46,7 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
-  test.only("Accept using cell toolbar button", async ({ page }) => {
+  test("Accept using cell toolbar button", async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
@@ -79,7 +79,7 @@ test.describe('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
-  test.only("Reject using cell toolbar button", async ({ page }) => {
+  test("Reject using cell toolbar button", async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
