@@ -10,3 +10,21 @@ pre {
   font-size: var(--jp-code-font-size);
   line-height: var(--jp-code-line-height);
 }
+
+/* The border around the main area widget */
+.lm-SplitPanel-child {
+  background-color: var(--jp-layout-color1);
+  border-color: var(--jp-layout-color1);
+}
+
+/* The main area widget */
+.jp-MainAreaWidget {
+  border: none;
+}
+
+/* The horizontal toolbar that contains the .ipynb open notebooks*/
+.lm-DockPanel-tabBar {
+  background-color: var(--jp-layout-color1);
+}
+
+
