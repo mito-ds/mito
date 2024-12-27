@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 
-test.only('Inline completion', async ({ page }) => {
+test('Inline completion', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd']);
     await waitForIdle(page);
 
