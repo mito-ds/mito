@@ -45,9 +45,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
 
-    console.log('ChatInput rendering, activeCellID:', activeCellID);
-
-
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
     const debouncedSetActiveCellID = useDebouncedFunction((newID: string | undefined) => {

@@ -92,11 +92,6 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                             onClick={() => onSelect(option.variable_name, option.parent_df)}
                         >
                             <span className="chat-dropdown-item-type"
-                                style={{
-                                    color: getShortType(option.type) === 'df' ? 'blue'
-                                        : getShortType(option.type) === 'col' ? 'orange'
-                                            : "green"
-                                }}
                                 title={getShortType(option.type)}
                             >
                                 {getShortType(option.type)}

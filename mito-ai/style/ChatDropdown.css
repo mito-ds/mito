@@ -17,7 +17,7 @@
     position: relative;
     border: 0px;
     border-radius: 5px;
-    background-color: white;
+    background-color: var(--jp-layout-color1);
     list-style-type: none;
     padding: 0;
     margin: 0;
@@ -31,11 +31,12 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    color: var(--jp-content-font-color1);
 }
 
 .chat-dropdown-item:hover,
 .chat-dropdown-item.selected {
-    background-color: var(--purple-300);
+    background-color: var(--jp-layout-color3);
 }
 
 .chat-dropdown-item:first-child {
@@ -51,7 +52,7 @@
 }
 
 .chat-dropdown-item-type {
-    color: var(--muted-text-color);
+    color: var(--jp-brand-color1);
     font-family: var(--jp-code-font-family);
     min-width: 35px;
     width: 35px;
