@@ -213,10 +213,11 @@ all of MD as it is not optimized for dense, information rich UIs.
 
   /* Brand/accent */
 
-  --jp-brand-color0: #ec0c4b;
-  --jp-brand-color1: #ed225d; /* This is the main selection color*/
-  --jp-brand-color2: #ee376b;
-  --jp-brand-color3: #ee3b6e;
+  --jp-brand-color0: #844AF7; 
+  --jp-brand-color1: #9D6CFF; /* This is the main selection color*/
+  --jp-brand-color2: #BA9BF8;
+  --jp-brand-color3: #D0B9FE;
+
   --jp-accent-color0: var(--md-green-700);
   --jp-accent-color1: var(--md-green-500);
   --jp-accent-color2: var(--md-green-300);
@@ -365,8 +366,8 @@ all of MD as it is not optimized for dense, information rich UIs.
 
   /* File or activity icons and switch semantic variables */
 
-  --jp-jupyter-icon-color: var(--md-orange-900);
-  --jp-notebook-icon-color: var(--md-orange-700);
+  --jp-jupyter-icon-color: #BA9BF8;
+  --jp-notebook-icon-color: #BA9BF8;
   --jp-json-icon-color: var(--md-orange-700);
   --jp-console-icon-background-color: var(--md-blue-700);
   --jp-console-icon-color: white;
