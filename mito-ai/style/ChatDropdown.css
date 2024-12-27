@@ -52,7 +52,7 @@
 }
 
 .chat-dropdown-item-type {
-    color: var(--muted-text-color);
+    color: var(--jp-brand-color1);
     font-family: var(--jp-code-font-family);
     min-width: 35px;
     width: 35px;
