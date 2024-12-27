@@ -1,8 +1,5 @@
 import { Notification, showErrorMessage } from '@jupyterlab/apputils';
 import {
-  // type IEditorLanguage
-} from '@jupyterlab/codemirror';
-import {
   InlineCompletionTriggerKind,
   type CompletionHandler,
   type IInlineCompletionContext,
