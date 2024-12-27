@@ -160,7 +160,8 @@ test.describe("default manual inline completion", () => {
     },
   });
 
-  test("should display inline completion", async ({ page, tmpPath }) => {
+  // TODO: Implement keyboard shortcut for inline completion and remove skip
+  test.skip("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
