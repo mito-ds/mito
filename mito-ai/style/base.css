@@ -46,3 +46,21 @@
     --purple-400: #D0B9FE;
     --purple-300: #E9E0FD;
 }
+
+
+/* 
+    Jupyter tries to ensure that the cell toolbar does not overlap with the contents of the cell. 
+    There's some algorithm that adds the class `.jp-toolbar-overlap` to the cell toolbar 
+    when it gets too close to the cell contents. 
+
+    However, we don't want to hide the Accept and Reject toolbar buttons! We always want them to be visible.
+    To do this, we change the method for hiding the cell toolbar. Instead of hiding the entire toolbar, 
+    we hide individual buttons, excluding the Accept and Reject buttons.
+*/
+.jp-toolbar-overlap .jp-cell-toolbar {
+    display: flex !important;
+} 
+
+.jp-toolbar-overlap .jp-cell-toolbar > *:not([data-jp-item-name="accept-code"]):not([data-jp-item-name="reject-code"]) {
+    display: none !important;
+}
