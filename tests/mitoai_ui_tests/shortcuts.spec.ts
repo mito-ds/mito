@@ -49,7 +49,7 @@ test.describe('Mito AI Shortcuts', () => {
         await page.keyboard.press(`${modifierKey}+Y`);
 
         // Reject the code
-        await page.keyboard.press(`${modifierKey}+D`);
+        await page.keyboard.press(`${modifierKey}+U`);
 
         // Code diffs should not longer be visible after the user rejects 
         await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();

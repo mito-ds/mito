@@ -1,4 +1,4 @@
-import { IJupyterLabPageFixture } from "@jupyterlab/galata";
+import { expect, IJupyterLabPageFixture } from "@jupyterlab/galata";
 import { selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixture) => {
@@ -16,6 +16,19 @@ export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
         await aiChatTab.getByRole('img').click();
     }
     await page.waitForTimeout(1000);
+}
+
+export const closeMitoAIChat = async (page: IJupyterLabPageFixture) => {
+    await page.waitForTimeout(1000);
+
+    // Close the Mito AI chat if it's open
+    const aiChat = page.locator('.chat-taskpane');
+    if (await aiChat.isVisible()) {
+        const aiChatTab = page.getByRole('tab', { name: 'AI Chat for your JupyterLab' });
+        await aiChatTab.click();
+    }
+    await page.waitForTimeout(1000);
+    await waitForIdle(page);
 }
 
 export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {
@@ -58,12 +71,37 @@ export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
     await waitForIdle(page);
 }
 
-export const clickAcceptButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Accept code' }).click();
+export const clickAcceptButton = async (
+    page: IJupyterLabPageFixture,
+    // Express the useCellToolbar option like this so that they are keyword arguments in the tests
+    // and are therefore easy to read!  
+    { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
+) => {
+    if (useCellToolbar) {
+        await closeMitoAIChat(page);
+        await page.getByLabel('notebook content').getByText('Accept').click();
+
+    } else {
+        await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
+    }
     await waitForIdle(page);
 }
 
-export const clickDenyButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Reject code' }).click();
+export const clickDenyButton = async (
+    page: IJupyterLabPageFixture,
+    // Express the useCellToolbar option like this so that they are keyword arguments in the tests
+    // and are therefore easy to read!  
+    { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
+) => {
+    if (useCellToolbar) {
+        await closeMitoAIChat(page);
+        // For some reason, the same selector doesn't work here. It ends up just scrolling the page
+        // up and down a bunch of times until it times out. So instead, we use this selector 
+        await page.getByLabel('notebook content').getByText('Reject').click();
+    } else {
+        await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
+    }
     await waitForIdle(page);
 }
+
+

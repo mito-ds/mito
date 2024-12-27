@@ -1,17 +1,16 @@
 .text-and-icon-button {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 5px;
     padding: 5px;
     border: none;
     border-radius: 3px;
     cursor: pointer;
     font-size: 14px;
-
     /* Make sure the button grows large enough so that the text does not wrap */
-    width: fit-content;
     white-space: nowrap;
+    width: fit-content;
 }
 
 .text-and-icon-button__icon {
@@ -41,4 +40,9 @@
 
 .text-and-icon-button.red:hover {
     background-color: var(--red-500);
+}
+
+.text-and-icon-button.small {
+    padding: 2px;
+    font-size: 12px;
 }

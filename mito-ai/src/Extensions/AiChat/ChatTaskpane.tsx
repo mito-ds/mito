@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID, highlightCodeCell, getActiveCellID } from '../../utils/notebook';
+import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatHistoryManager } from './ChatHistoryManager';
@@ -14,7 +14,9 @@ import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE, 
     COMMAND_MITO_AI_REJECT_LATEST_CODE, 
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, 
-    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE 
+    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, 
+    COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
+    COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE
 } from '../../commands';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 import ResetIcon from '../../icons/ResetIcon';
@@ -29,7 +31,6 @@ import OpenAI from "openai";
 import ChatInput from './ChatMessage/ChatInput';
 import SupportIcon from '../../icons/SupportIcon';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
 
@@ -66,8 +67,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
-
-    const [unifiedDiffLines, setUnifiedDiffLines] = useState<UnifiedDiffLine[] | undefined>(undefined)
     
     // Store the original cell before diff so that we can revert to it if the user rejects the AI's code
     const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined)
@@ -277,16 +276,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
         const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
 
+
         // Store the code cell ID where we write the code diffs so that we can
         // accept or reject the code diffs to the correct cell
         cellStateBeforeDiff.current = {codeCellID: codeCellID, code: activeCellCode}
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID, true)
-        setUnifiedDiffLines(unifiedDiffs)
-
-        
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID)
+        updateCodeCellsExtensions(unifiedDiffs)
 
         // Briefly highlight the code cell to draw the user's attention to it
         highlightCodeCell(notebookTracker, codeCellID)
@@ -297,6 +295,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
+        updateCellToolbarButtons()
     }
 
     const acceptAICode = () => {
@@ -318,21 +317,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellStateBeforeDiff.current.codeCellID)
     }
 
-    const rejectAICode = (focusOnCell?: boolean) => {
+    const rejectAICode = () => {
         if (cellStateBeforeDiff.current === undefined) {
             return
         }
 
         setCodeReviewStatus('chatPreview')
-        writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID, focusOnCell)
+        writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID)
     }
 
-    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined, focusOnCell?: boolean) => {
-        setUnifiedDiffLines(undefined)
+    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined) => {
+        updateCodeCellsExtensions(undefined)
         cellStateBeforeDiff.current = undefined
 
         if (codeCellID !== undefined) {
-            writeCodeToCellByID(notebookTracker, code, codeCellID, focusOnCell)
+            writeCodeToCellByID(notebookTracker, code, codeCellID)
+            updateCellToolbarButtons()
         }
     }
 
@@ -382,6 +382,40 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 sendExplainCodeMessage()
             }
         });
+
+
+        /* 
+            Register the code cell toolbar buttons for accepting and rejecting code.
+        */
+        app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE, {
+            label: `Accept ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
+            className: 'text-and-icon-button green small',
+            caption: 'Accept Code',
+            execute: () => {acceptAICode()},
+            // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
+            // and it will only be set when the codeReviewStatus is 'codeCellPreview'
+            isVisible: () => {
+                try {
+                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+                } catch (error) {
+                    return false;
+                }
+            }        
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
+            label: `Reject ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`,
+            className: 'text-and-icon-button red small',
+            caption: 'Reject Code',
+            execute: () => {rejectAICode()},
+            isVisible: () => {
+                try {
+                    return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
+                } catch (error) {
+                    return false;
+                }
+            }
+        });
     }, []);
 
     useEffect(() => {
@@ -396,9 +430,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const accelDDisposable = app.commands.addKeyBinding({
             command: COMMAND_MITO_AI_REJECT_LATEST_CODE,
-            keys: ['Accel D'],
+            keys: ['Accel U'],
             selector: 'body',
+            preventDefault: true,
         });
+
 
         // Clean up the key bindings when the component unmounts or when codeReviewStatus changes
         // This prevents keyboard shortcuts from persisting when they shouldn't.
@@ -408,11 +444,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
     }, [codeReviewStatus]);
 
+    const updateCellToolbarButtons = () => {
+        // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.
+        // Without this, the user needs to take some action, like switching to a different cell 
+        // and then switching back in order for the Jupyter to re-evaluate if it should
+        // show the toolbar buttons.
+        app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE);
+        app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
+    }
+
     // Create a WeakMap to store compartments per code cell
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
 
     // Function to update the extensions of code cells
-    const updateCodeCellsExtensions = useCallback(() => {
+    const updateCodeCellsExtensions = ((unifiedDiffLines: UnifiedDiffLine[] | undefined) => {
         const notebook = notebookTracker.currentWidget?.content;
         if (!notebook) {
             return;
@@ -454,12 +499,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         });
-    }, [unifiedDiffLines, notebookTracker]);
-
-
-    useEffect(() => {
-        updateCodeCellsExtensions();
-    }, [unifiedDiffLines, updateCodeCellsExtensions]);
+    });
 
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()    
@@ -510,7 +550,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
-                            setDisplayCodeDiff={setUnifiedDiffLines}
                             previewAICode={previewAICode}
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}

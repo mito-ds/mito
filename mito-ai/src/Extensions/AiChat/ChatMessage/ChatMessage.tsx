@@ -9,7 +9,6 @@ import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } f
 import ErrorIcon from '../../../icons/ErrorIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
-import { UnifiedDiffLine } from '../../../utils/codeDiff';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
@@ -30,7 +29,6 @@ interface IChatMessageProps {
     app: JupyterFrontEnd
     isLastAiMessage: boolean
     operatingSystem: OperatingSystem
-    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
@@ -138,7 +136,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         />
                                         <TextButton 
                                             onClick={() => {rejectAICode()}}
-                                            text={`Reject code ${operatingSystem === 'mac' ? '⌘D' : 'Ctrl+D'}`}
+                                            text={`Reject code ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`}
                                             title={'Reject the Ai generated code and revert to the previous version of the code cell'}
                                             variant='red'
                                         />

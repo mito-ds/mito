@@ -10,6 +10,16 @@
         {
           "name": "explain-code",
           "command": "toolbar-button:explain-code"
+        },
+        {
+          "name": "accept-code",
+          "command": "toolbar-button:accept-code",
+          "rank": 1
+        },
+        {
+          "name": "reject-code",
+          "command": "toolbar-button:reject-code",
+          "rank": 2
         }
       ]
     }
