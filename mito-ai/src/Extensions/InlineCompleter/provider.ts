@@ -33,8 +33,7 @@ import type {
  * It uses a WebSocket connection to request an AI model.
  */
 export class MitoAIInlineCompleter
-  implements IInlineCompletionProvider, IDisposable
-{
+  implements IInlineCompletionProvider, IDisposable {
   private _client: CompletionWebsocketClient;
   private _counter = 0;
   private _isDisposed = false;
@@ -180,15 +179,14 @@ export class MitoAIInlineCompleter
         };
       }
       const messageId = ++this._counter;
-      
+
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
       const variables = this._variableManager.variables;
       const prompt = createInlinePrompt(prefix, suffix, variables);
       const openAIFormattedMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-        // {"role": "system", "content": COMPLETION_SYSTEM_PROMPT},
-        {"role": "user", "content": prompt},
-    ]
+        { "role": "user", "content": prompt },
+      ]
       const result = await this._client.sendMessage({
         messages: openAIFormattedMessages,
         message_id: messageId.toString(),
@@ -330,7 +328,7 @@ export class MitoAIInlineCompleter
     let fullCompletion = this._fullCompletionMap.get(this._currentStream) ?? '';
     fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
-    
+
     let cleanedCompletion = this._cleanCompletion(fullCompletion);
 
     this._currentStream.emit({
