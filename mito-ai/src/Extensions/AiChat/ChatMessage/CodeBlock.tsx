@@ -47,38 +47,53 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     if (role === 'assistant') {
         return (
             <div className='code-block-container'>
-                <div className='code-block-toolbar'>
-                    {codeReviewStatus === 'chatPreview' && isLastAiMessage && 
-                        <IconButton 
-                            icon={<PlayButtonIcon />}
-                            title="Overwrite Active Cell"
-                            onClick={() => {previewAICode()}}
-                        />
+                <>
+                    {/* The code block toolbar for the last AI message */}
+                    {isLastAiMessage && 
+                        <div className='code-block-toolbar'>
+                            {codeReviewStatus === 'chatPreview' && 
+                                <IconButton 
+                                    icon={<PlayButtonIcon />}
+                                    title="Overwrite Active Cell"
+                                    onClick={() => {previewAICode()}}
+                                />
+                            }
+                            {codeReviewStatus === 'codeCellPreview' && 
+                                <IconButton 
+                                    icon={<AcceptIcon />}
+                                    title="Accept AI Generated Code"
+                                    onClick={() => {acceptAICode()}}
+                                    style={{color: 'var(--green-700)'}}
+                                />
+                            }
+                            {codeReviewStatus === 'codeCellPreview' && 
+                                <IconButton 
+                                    icon={<RejectIcon />}
+                                    title="Reject AI Generated Code"
+                                    onClick={() => {rejectAICode()}}
+                                    style={{color: 'var(--red-700)'}}
+                                />
+                            }
+                            {codeReviewStatus !== 'codeCellPreview' && 
+                                <IconButton
+                                    icon={<CopyIcon />}
+                                    title="Copy"
+                                    onClick={() => {copyToClipboard(code)}}
+                                />
+                            }
+                        </div>
                     }
-                    {codeReviewStatus === 'chatPreview' && 
-                        <IconButton
-                            icon={<CopyIcon />}
-                            title="Copy"
-                            onClick={() => {copyToClipboard(code)}}
-                        />
+                    {/* The code block toolbar for every other AI message */}
+                    {!isLastAiMessage && 
+                        <div className='code-block-toolbar'>
+                            <IconButton
+                                icon={<CopyIcon />}
+                                title="Copy"
+                                onClick={() => {copyToClipboard(code)}}
+                            />
+                        </div>
                     }
-                    {codeReviewStatus === 'codeCellPreview' && isLastAiMessage && 
-                        <IconButton
-                            icon={<AcceptIcon />}
-                            title="Accept AI Generated Code"
-                            onClick={() => {acceptAICode()}}
-                            style={{color: 'var(--green-700)'}}
-                        />
-                    }
-                    {codeReviewStatus === 'codeCellPreview' && isLastAiMessage &&
-                        <IconButton
-                            icon={<RejectIcon />}
-                            title="Reject AI Generated Code"
-                            onClick={() => {rejectAICode()}}
-                            style={{color: 'var(--red-700)'}}
-                        />
-                    }
-                </div>
+                </>
                 <PythonCode
                     code={code}
                     renderMimeRegistry={renderMimeRegistry}
