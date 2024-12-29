@@ -6,7 +6,7 @@
 
 .button-green {
     background-color: var(--green-400);
-    color: var(--green-900);
+    color: var(--green-900) !important;
 }
 
 .button-green:hover {
@@ -15,7 +15,7 @@
 
 .button-red {
     background-color: var(--red-400);
-    color: var(--red-900);
+    color: var(--red-900) !important;
 }
 
 .button-red:hover {
@@ -24,7 +24,7 @@
 
 .button-gray {
     background-color: var(--jp-layout-color2);
-    color: var(--jp-content-font-color1);
+    color: var(--jp-content-font-color1) !important;
 }
 
 .button-gray:hover {

@@ -150,21 +150,3 @@
     height: 16px;
     font-size: 12px !important;
 }
-
-.code-block-accept-button {
-    background-color: var(--green-600) !important;
-    color: white !important;
-}
-
-.code-block-accept-button:hover {
-    background-color: var(--green-700) !important;
-}
-
-.code-block-deny-button {
-    background-color: var(--red-600) !important;
-    color: white !important;
-}
-
-.code-block-deny-button:hover {
-    background-color: var(--red-700) !important;
-}

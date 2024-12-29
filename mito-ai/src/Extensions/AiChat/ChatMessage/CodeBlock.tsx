@@ -67,7 +67,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                             icon={<AcceptIcon />}
                             title="Accept AI Generated Code"
                             onClick={() => {acceptAICode()}}
-                            variant='green'
+                            style={{color: 'var(--green-700)'}}
                         />
                     }
                     {codeReviewStatus === 'codeCellPreview' && isLastAiMessage &&
@@ -75,7 +75,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                             icon={<RejectIcon />}
                             title="Reject AI Generated Code"
                             onClick={() => {rejectAICode()}}
-                            variant='red'
+                            style={{color: 'var(--red-700)'}}
                         />
                     }
                 </div>

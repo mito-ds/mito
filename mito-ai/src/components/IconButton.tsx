@@ -7,13 +7,13 @@ interface IconButtonProps {
     icon: React.ReactNode;
     onClick: () => void;
     title: string;
-    variant?: 'green' | 'red';
+    style?: React.CSSProperties;
 }
 
-const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, variant }) => {
+const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, style }) => {
 
     return (
-        <button className={classNames("icon-button", `button-${variant}`)} onClick={onClick} title={title}>
+        <button className={classNames("icon-button")} onClick={onClick} title={title} style={style}>
             {icon}
         </button>
     )
