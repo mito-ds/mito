@@ -389,7 +389,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE, {
             label: `Accept ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
-            className: 'text-and-icon-button green small',
+            className: 'text-and-icon-button button-green small',
             caption: 'Accept Code',
             execute: () => {acceptAICode()},
             // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
@@ -405,7 +405,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
             label: `Reject ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`,
-            className: 'text-and-icon-button red small',
+            className: 'text-and-icon-button button-red small',
             caption: 'Reject Code',
             execute: () => {rejectAICode()},
             isVisible: () => {

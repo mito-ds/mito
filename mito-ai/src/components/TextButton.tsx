@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../style/TextAndIconButton.css';
+import '../../style/button.css';
 import { classNames } from '../utils/classNames';
 
 
@@ -16,7 +17,7 @@ interface TextButtonProps extends ButtonProps {}
 const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant }) => {
 
     return (
-        <button className={classNames("text-and-icon-button", variant)} onClick={onClick} title={title}>
+        <button className={classNames("text-and-icon-button", `button-${variant}`)} onClick={onClick} title={title}>
             {text}
         </button>
     )
