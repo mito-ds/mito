@@ -80,11 +80,10 @@ test.describe("default inline completion", () => {
       console.log("Mocking inline completion request");
       ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
-        console.log('payload', payload);
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content === "def fib") &&
+          payload.messages.find((message) => message.content.includes("def fib")) &&
           payload.stream
         ) {
           let counter = -1;
@@ -172,7 +171,7 @@ test.describe("default manual inline completion", () => {
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content === "def fib") &&
+          payload.messages.find((message) => message.content.includes("def fib")) &&
           payload.stream
         ) {
           let counter = -1;
@@ -242,30 +241,6 @@ const MOCKED_MESSAGES = [
   {
     chunk: {
       content: "",
-      isIncomplete: true,
-      token: "1",
-      error: null,
-    },
-    parent_id: "1",
-    done: false,
-    type: "chunk",
-    error: null,
-  },
-  {
-    chunk: {
-      content: "def",
-      isIncomplete: true,
-      token: "1",
-      error: null,
-    },
-    parent_id: "1",
-    done: false,
-    type: "chunk",
-    error: null,
-  },
-  {
-    chunk: {
-      content: " fib",
       isIncomplete: true,
       token: "1",
       error: null,
