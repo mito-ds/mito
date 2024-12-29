@@ -6,6 +6,9 @@ import copyToClipboard from '../../../utils/copyToClipboard';
 import IconButton from '../../../components/IconButton';
 import CopyIcon from '../../../icons/CopyIcon';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
+import { CodeReviewStatus } from '../ChatTaskpane';
+import AcceptIcon from '../../../icons/AcceptIcon';
+import RejectIcon from '../../../icons/RejectIcon';
 
 
 interface ICodeBlockProps {
@@ -13,7 +16,10 @@ interface ICodeBlockProps {
     role: 'user' | 'assistant'
     renderMimeRegistry: IRenderMimeRegistry
     previewAICode: () => void
+    acceptAICode: () => void
+    rejectAICode: () => void
     isLastAiMessage: boolean
+    codeReviewStatus: CodeReviewStatus
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -21,7 +27,10 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     role,
     renderMimeRegistry,
     previewAICode,
-    isLastAiMessage
+    acceptAICode,
+    rejectAICode,
+    isLastAiMessage,
+    codeReviewStatus,
 }): JSX.Element => {
 
     if (role === 'user') {
@@ -39,18 +48,34 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
         return (
             <div className='code-block-container'>
                 <div className='code-block-toolbar'>
-                    {isLastAiMessage && 
+                    {codeReviewStatus === 'chatPreview' && isLastAiMessage && 
                         <IconButton 
                             icon={<PlayButtonIcon />}
                             title="Overwrite Active Cell"
                             onClick={() => {previewAICode()}}
                         />
                     }
-                    <IconButton
-                        icon={<CopyIcon />}
-                        title="Copy"
-                        onClick={() => {copyToClipboard(code)}}
-                    />
+                    {codeReviewStatus === 'chatPreview' && 
+                        <IconButton
+                            icon={<CopyIcon />}
+                            title="Copy"
+                            onClick={() => {copyToClipboard(code)}}
+                        />
+                    }
+                    {codeReviewStatus === 'codeCellPreview' && isLastAiMessage && 
+                        <IconButton
+                            icon={<AcceptIcon />}
+                            title="Accept AI Generated Code"
+                            onClick={() => {acceptAICode()}}
+                        />
+                    }
+                    {codeReviewStatus === 'codeCellPreview' && isLastAiMessage &&
+                        <IconButton
+                            icon={<RejectIcon />}
+                            title="Reject AI Generated Code"
+                            onClick={() => {rejectAICode()}}
+                        />
+                    }
                 </div>
                 <PythonCode
                     code={code}

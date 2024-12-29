@@ -147,6 +147,7 @@
 }
 
 .code-block-toolbar button {
+    height: 16px;
     font-size: 12px !important;
 }
 
