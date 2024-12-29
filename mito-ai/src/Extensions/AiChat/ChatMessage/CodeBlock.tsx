@@ -13,6 +13,7 @@ interface ICodeBlockProps {
     role: 'user' | 'assistant'
     renderMimeRegistry: IRenderMimeRegistry
     previewAICode: () => void
+    isLastAiMessage: boolean
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -20,6 +21,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     role,
     renderMimeRegistry,
     previewAICode,
+    isLastAiMessage
 }): JSX.Element => {
 
     if (role === 'user') {
@@ -37,11 +39,13 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
         return (
             <div className='code-block-container'>
                 <div className='code-block-toolbar'>
-                    <IconButton 
-                        icon={<PlayButtonIcon />}
-                        title="Overwrite Active Cell"
-                        onClick={() => {previewAICode()}}
-                    />
+                    {isLastAiMessage && 
+                        <IconButton 
+                            icon={<PlayButtonIcon />}
+                            title="Overwrite Active Cell"
+                            onClick={() => {previewAICode()}}
+                        />
+                    }
                     <IconButton
                         icon={<CopyIcon />}
                         title="Copy"
