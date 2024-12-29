@@ -67,7 +67,7 @@ export const editMitoAIMessage = async (
 }
 
 export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Overwrite Active Cell' }).click();
+    await page.locator('.chat-message-buttons').getByRole('button', { name: 'Overwrite Active Cell' }).click();
     await waitForIdle(page);
 }
 
@@ -82,7 +82,7 @@ export const clickAcceptButton = async (
         await page.getByLabel('notebook content').getByText('Accept').click();
 
     } else {
-        await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
+        await page.locator('.chat-message-buttons').getByRole('button', { name: 'Accept code' }).click();
     }
     await waitForIdle(page);
 }
@@ -99,7 +99,7 @@ export const clickDenyButton = async (
         // up and down a bunch of times until it times out. So instead, we use this selector 
         await page.getByLabel('notebook content').getByText('Reject').click();
     } else {
-        await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
+        await page.locator('.chat-message-buttons').getByRole('button', { name: 'Reject code' }).click();
     }
     await waitForIdle(page);
 }
