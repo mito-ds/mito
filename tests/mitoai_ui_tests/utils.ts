@@ -78,7 +78,7 @@ export const clickAcceptButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        await page.getByText('Accept AI edits').click();
+        await page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'Accept' }).click();
     } else {
         await page.locator('.chat-message-buttons').getByRole('button', { name: 'Accept code' }).click();
     }
@@ -92,7 +92,7 @@ export const clickDenyButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        await page.getByText('Reject AI edits').click();
+        await page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'Reject' }).click();
     } else {
         await page.locator('.chat-message-buttons').getByRole('button', { name: 'Reject code' }).click();
     }
