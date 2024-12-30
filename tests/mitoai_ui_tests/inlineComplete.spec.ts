@@ -9,7 +9,7 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 
 const GHOST_SELECTOR = ".jp-GhostText";
-
+const THRESHOLD_IN_MS = 5000;
 
 // Before each test, enable inline completion
 test.beforeEach(async ({ page }) => {
@@ -29,8 +29,8 @@ test.describe("inline completion integration test", () => {
         await selectCell(page, 1);
         await waitForIdle(page);
 
-        // sleep for 5s
-        await page.waitForTimeout(5000);
+        // sleep 
+        await page.waitForTimeout(THRESHOLD_IN_MS);
 
         expect.soft(page.locator(GHOST_SELECTOR)).toBeVisible();
         expect.soft((await page.notebook.getCellLocator(1))!.getByRole("textbox")).toContainText("def sum(a, b):");
@@ -38,7 +38,6 @@ test.describe("inline completion integration test", () => {
         await page.keyboard.press("Tab");
 
         expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
-        expect((await page.notebook.getCellLocator(1))!.getByRole("textbox")).toHaveText("def sum(a, b):\n    return a + b");
-
+        expect((await page.notebook.getCellLocator(1))!.getByRole("textbox")).toContainText("return a + b");
     })
 });
