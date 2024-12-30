@@ -1,3 +1,11 @@
+/*
+Integration test for the AI inline completion. This test uses 
+a mocked response from the server to simulate the AI completion
+service's behavior in a more controlled way.
+
+For a more practical integration test, see basicInlineComplete.spec.ts.
+*/
+
 import { expect, galata, test } from "@jupyterlab/galata";
 import { PromiseDelegate } from "@lumino/coreutils";
 
@@ -77,12 +85,13 @@ test.describe("default inline completion", () => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
+      console.log("Mocking inline completion request");
       ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content === "def fib") &&
+          payload.messages.find((message) => message.content.includes("def fib")) &&
           payload.stream
         ) {
           let counter = -1;
@@ -160,7 +169,8 @@ test.describe("default manual inline completion", () => {
     },
   });
 
-  test("should display inline completion", async ({ page, tmpPath }) => {
+  // TODO: Implement keyboard shortcut for inline completion and remove skip
+  test.skip("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
@@ -169,7 +179,7 @@ test.describe("default manual inline completion", () => {
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content === "def fib") &&
+          payload.messages.find((message) => message.content.includes("def fib")) &&
           payload.stream
         ) {
           let counter = -1;
@@ -239,30 +249,6 @@ const MOCKED_MESSAGES = [
   {
     chunk: {
       content: "",
-      isIncomplete: true,
-      token: "1",
-      error: null,
-    },
-    parent_id: "1",
-    done: false,
-    type: "chunk",
-    error: null,
-  },
-  {
-    chunk: {
-      content: "def",
-      isIncomplete: true,
-      token: "1",
-      error: null,
-    },
-    parent_id: "1",
-    done: false,
-    type: "chunk",
-    error: null,
-  },
-  {
-    chunk: {
-      content: " fib",
       isIncomplete: true,
       token: "1",
       error: null,

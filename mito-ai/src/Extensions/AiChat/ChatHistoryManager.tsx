@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
-import { createBasicPrompt } from "../../prompts/BasicPrompt";
+import { createChatPrompt } from "../../prompts/ChatPrompt";
 import { createErrorPrompt, removeInnerThoughtsFromMessage } from "../../prompts/SmartDebugPrompt";
 import { createExplainCodePrompt } from "../../prompts/ExplainCodePrompt";
 
@@ -92,7 +92,7 @@ export class ChatHistoryManager {
 
         const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
-            content: createBasicPrompt(variables, activeCellCode || '', input)
+            content: createChatPrompt(variables, activeCellCode || '', input)
         };
 
         this.history.displayOptimizedChatHistory.push(
@@ -117,7 +117,7 @@ export class ChatHistoryManager {
 
         const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'user',
-            content: createBasicPrompt(this.variableManager.variables, activeCellCode || '', newContent)
+            content: createChatPrompt(this.variableManager.variables, activeCellCode || '', newContent)
         };
 
         // Update the message at the specified index

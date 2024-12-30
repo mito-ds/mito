@@ -23,3 +23,30 @@
     height: 100%;
     width: auto;
 }
+
+.text-and-icon-button.green {
+    background-color: var(--green-400);
+    color: var(--green-900);
+}
+
+.text-and-icon-button.green:hover {
+    background-color: var(--green-500);
+}
+
+.text-and-icon-button.red {
+    background-color: var(--red-400);
+    color: var(--red-900);
+}
+
+.text-and-icon-button.red:hover {
+    background-color: var(--red-500);
+}
+
+.text-and-icon-button.gray {
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-content-font-color1);
+}
+
+.text-and-icon-button.gray:hover {
+    background-color: var(--jp-layout-color3);
+}

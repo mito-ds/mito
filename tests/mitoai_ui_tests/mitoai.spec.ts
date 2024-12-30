@@ -55,12 +55,6 @@ test.describe('Mito AI Chat', () => {
     await clickPreviewButton(page);
     await page.waitForTimeout(1000);
 
-    // We need to close the chat taskpane to ensure that 
-    // the cell toolbar has enough space to be visible.
-    // If the screen is too narrow, Jupyter does not show the cell toolbar.
-    await closeMitoAIChat(page);
-    await page.waitForTimeout(1000);
-
     expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Accept' })).toBeVisible();
 
     await clickAcceptButton(page, { useCellToolbar: true });
@@ -92,12 +86,6 @@ test.describe('Mito AI Chat', () => {
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
-    await page.waitForTimeout(1000);
-
-    // We need to close the chat taskpane to ensure that 
-    // the cell toolbar has enough space to be visible.
-    // If the screen is too narrow, Jupyter does not show the cell toolbar.
-    await closeMitoAIChat(page);
     await page.waitForTimeout(1000);
 
     expect(page.locator('.jp-cell-toolbar').getByRole('button', { name: 'Reject' })).toBeVisible();
