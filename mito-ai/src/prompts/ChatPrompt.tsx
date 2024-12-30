@@ -1,13 +1,15 @@
 import { Variable } from "../Extensions/VariableManager/VariableInspector";
 
-export function createBasicPrompt(
+export function createChatPrompt(
     variables: Variable[],
     activeCellCode: string,
     input: string
 ): string {
     const prompt = `You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
 
-Respond with the updated active code cell and a short explanation of the changes you made.
+There are two possible types of responses you might give:
+1. Code Update: If the task requires modifying or extending the existing code, respond with the updated active code cell and a short explanation of the changes made. 
+2. Explanation/Information: If the task does not require a code update, provide an explanation, additional information about a package, method, or general programming question, without writing any code. Keep your response concise and to the point.
 
 When responding:
 - Do not use the word "I"
@@ -36,7 +38,6 @@ sales_df = pd.read_csv('./sales.csv')
 Your task: convert the transaction_date column to datetime and then multiply the total_price column by the sales_multiplier.
 
 Output:
-
 \`\`\`python
 import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
@@ -49,10 +50,9 @@ Converted the \`transaction_date\` column to datetime using the built-in pd.to_d
 </Example>
 
 Defined Variables:
-
 ${variables?.map(variable => `${JSON.stringify(variable, null, 2)}\n`).join('')}
-Code in the active code cell:
 
+Code in the active code cell:
 \`\`\`python
 ${activeCellCode}
 \`\`\`
