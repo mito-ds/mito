@@ -57,10 +57,32 @@ export const waitForCodeToBeWritten = async (page: IJupyterLabPageFixture, cellI
     }
 }
 
-export const typeInNotebookCell = async (page: IJupyterLabPageFixture, cellIndex: number, cellValue: string, runAfterTyping?: boolean) => {
+export const typeInNotebookCell = async (
+    page: IJupyterLabPageFixture, 
+    cellIndex: number, 
+    cellValue: string, 
+    runAfterTyping?: boolean,
+    clearCellBeforeTyping: boolean = true
+) => {
+    // First ensure the cell is visible
     await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
+    
+    // Wait for the cell to be actually visible in viewport
+    await page.locator('.jp-Cell-inputArea').nth(cellIndex).waitFor({state: 'visible'});
+    
+    // Enter editing mode and wait for it to be ready
     await page.notebook.enterCellEditingMode(cellIndex);
-    await page.notebook.setCell(cellIndex, 'code', cellValue);
+    await page.waitForTimeout(500); // Give it time to fully enter edit mode
+    
+    // Try using keyboard input instead of setCell
+    const cell = await page.notebook.getCellInput(cellIndex);
+    await cell?.click();
+    if (clearCellBeforeTyping) {
+        await page.keyboard.press('Control+A'); // Select all existing content
+        await page.keyboard.press('Delete');    // Clear it
+    }
+    await page.keyboard.type(cellValue, {delay: 50}); // Type with a small delay
+    
     if (runAfterTyping) {
         await page.notebook.runCell(cellIndex);
     }
