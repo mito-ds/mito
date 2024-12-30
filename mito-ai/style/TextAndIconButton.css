@@ -42,11 +42,6 @@
     background-color: var(--red-500);
 }
 
-.text-and-icon-button.small {
-    padding: 2px;
-    font-size: 12px;
-}
-
 .text-and-icon-button.gray {
     background-color: var(--jp-layout-color2);
     color: var(--jp-content-font-color1);
