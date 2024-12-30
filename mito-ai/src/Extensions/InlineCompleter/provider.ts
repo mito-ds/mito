@@ -1,9 +1,4 @@
 import { Notification, showErrorMessage } from '@jupyterlab/apputils';
-import { IEditorMimeTypeService } from '@jupyterlab/codeeditor';
-import {
-  IEditorLanguageRegistry,
-  type IEditorLanguage
-} from '@jupyterlab/codemirror';
 import {
   InlineCompletionTriggerKind,
   type CompletionHandler,
@@ -12,11 +7,12 @@ import {
   type IInlineCompletionList,
   type IInlineCompletionProvider
 } from '@jupyterlab/completer';
-import { DocumentWidget } from '@jupyterlab/docregistry';
 import type { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { createInlinePrompt } from '../../prompts/InlinePrompt';
 import type OpenAI from 'openai';
 import {
   CompletionWebsocketClient,
@@ -34,17 +30,14 @@ import type {
  * It uses a WebSocket connection to request an AI model.
  */
 export class MitoAIInlineCompleter
-  implements IInlineCompletionProvider, IDisposable
-{
+  implements IInlineCompletionProvider, IDisposable {
   private _client: CompletionWebsocketClient;
   private _counter = 0;
   private _isDisposed = false;
-  private _languageRegistry: IEditorLanguageRegistry;
   private _settings: MitoAIInlineCompleter.ISettings =
     MitoAIInlineCompleter.DEFAULT_SETTINGS;
   // Store only one inline completion stream
   //   Each new request should invalidate any other suggestions.
-  private _currentPrefix = '';
   private _currentToken = '';
   private _currentStream: Stream<
     MitoAIInlineCompleter,
@@ -59,12 +52,14 @@ export class MitoAIInlineCompleter
     Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>,
     string
   >();
+  private _variableManager: IVariableManager;
 
   constructor({
-    languageRegistry,
+    serverSettings,
+    variableManager,
     ...clientOptions
   }: MitoAIInlineCompleter.IOptions) {
-    this._languageRegistry = languageRegistry;
+    this._variableManager = variableManager;
     this._client = new CompletionWebsocketClient(clientOptions);
 
     this._client
@@ -183,14 +178,19 @@ export class MitoAIInlineCompleter
       const messageId = ++this._counter;
 
       const prefix = this._getPrefix(request);
+      const suffix = this._getSuffix(request);
+      const variables = this._variableManager.variables;
+      const prompt = createInlinePrompt(prefix, suffix, variables);
+      const openAIFormattedMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+        { "role": "user", "content": prompt },
+      ]
       const result = await this._client.sendMessage({
+        messages: openAIFormattedMessages,
         message_id: messageId.toString(),
         stream: true,
         type: 'inline_completion',
-        messages: this._getInlineCompletionMessages(request, context, prefix)
       });
 
-      this._currentPrefix = getPrefixLastLine(prefix);
       if (result.items[0]?.token) {
         this._currentToken = result.items[0].token;
         this._currentStream = new Stream<
@@ -215,15 +215,6 @@ export class MitoAIInlineCompleter
       };
     } finally {
       this._completionLock.resolve();
-    }
-
-    function getPrefixLastLine(prefix: string) {
-      for (let index = prefix.length - 1; index >= 0; index--) {
-        if (prefix[index] === '\n') {
-          return prefix.slice(index + 1);
-        }
-      }
-      return prefix;
     }
   }
 
@@ -265,67 +256,6 @@ export class MitoAIInlineCompleter
         this._currentStream?.stop();
       }
     }
-  }
-
-  private _getInlineCompletionMessages(
-    request: CompletionHandler.IRequest,
-    context: IInlineCompletionContext,
-    prefix: string
-  ): OpenAI.Chat.ChatCompletionMessageParam[] {
-    const mime = request.mimeType ?? IEditorMimeTypeService.defaultMimeType;
-    const editorLanguage = this._languageRegistry.findByMIME(mime);
-
-    let path = context.session?.path;
-    if (!path && context.widget instanceof DocumentWidget) {
-      path = context.widget.context.path;
-    }
-    const suffix = this._getSuffix(request);
-
-    const language = editorLanguage
-      ? this._resolveLanguage(editorLanguage)
-      : '';
-    const languageNote = language ? ` and written in ${language}` : '';
-
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-      {
-        role: 'system',
-        content: `
-You are an application built to provide helpful code completion suggestions.
-You should only produce code. Keep comments to minimum, use the
-programming language comment syntax. Produce clean executable code.
-The code is written for a data analysis and code development
-environment which can execute code to produce graphics, tables and
-interactive outputs.`
-      },
-      {
-        role: 'user',
-        content: `The document is called \`${path}\`${languageNote}.`
-      },
-      {
-        role: 'user',
-        content:
-          'Complete the following code responding only with additional code, code comments or docstrings, and with no markdown formatting.'
-      },
-      {
-        role: 'user',
-        content: prefix
-      }
-    ];
-
-    if (suffix) {
-      messages.push(
-        {
-          role: 'user',
-          content: 'The new code appears before the following snippet.'
-        },
-        {
-          role: 'user',
-          content: suffix
-        }
-      );
-    }
-
-    return messages;
   }
 
   /**
@@ -396,8 +326,7 @@ interactive outputs.`
     fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
-    // Clean suggestion
-    let cleanedCompletion = this._cleanCompletion(fullCompletion.slice(0));
+    let cleanedCompletion = this._cleanCompletion(fullCompletion);
 
     this._currentStream.emit({
       done: chunk.done,
@@ -414,18 +343,11 @@ interactive outputs.`
   }
 
   private _cleanCompletion(rawCompletion: string) {
-    let cleanedCompletion = rawCompletion;
-    if (this._currentPrefix) {
-      if (
-        cleanedCompletion.startsWith(this._currentPrefix) ||
-        this._currentPrefix.startsWith(cleanedCompletion)
-      ) {
-        cleanedCompletion = cleanedCompletion.slice(this._currentPrefix.length);
-      } else if (!['\n', ' '].includes(cleanedCompletion[0])) {
-        cleanedCompletion = '\n' + cleanedCompletion;
-      }
-    }
-    return cleanedCompletion;
+    return rawCompletion
+      .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
+      .replace(/```$/, '')           // Remove closing code fence
+      .replace(/\n$/, '')            // Remove trailing newline
+
   }
 
   private _resetCurrentStream() {
@@ -437,6 +359,7 @@ interactive outputs.`
     }
   }
 
+  /*
   private _resolveLanguage(language: IEditorLanguage | null) {
     if (!language) {
       return 'plain English';
@@ -448,6 +371,7 @@ interactive outputs.`
     }
     return language.name;
   }
+  */
 }
 
 export namespace MitoAIInlineCompleter {
@@ -455,7 +379,7 @@ export namespace MitoAIInlineCompleter {
     /**
      * CodeMirror language registry.
      */
-    languageRegistry: IEditorLanguageRegistry;
+    variableManager: IVariableManager;
   }
 
   export interface ISettings {
