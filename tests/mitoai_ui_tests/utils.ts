@@ -67,7 +67,7 @@ export const editMitoAIMessage = async (
 }
 
 export const clickPreviewButton = async (page: IJupyterLabPageFixture) => {
-    await page.getByRole('button', { name: 'Overwrite Active Cell' }).click();
+    await page.locator('.chat-message-buttons').getByRole('button', { name: 'Overwrite Active Cell' }).click();
     await waitForIdle(page);
 }
 
@@ -78,9 +78,9 @@ export const clickAcceptButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        await page.getByText('Accept AI edits').click();
+        await page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'Accept' }).click();
     } else {
-        await page.locator('.chat-taskpane').getByRole('button', { name: 'Accept code' }).click();
+        await page.locator('.chat-message-buttons').getByRole('button', { name: 'Accept code' }).click();
     }
     await waitForIdle(page);
 }
@@ -92,9 +92,9 @@ export const clickDenyButton = async (
     { useCellToolbar = false }: { useCellToolbar?: boolean } = {useCellToolbar: false}
 ) => {
     if (useCellToolbar) {
-        await page.getByText('Reject AI edits').click();
+        await page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'Reject' }).click();
     } else {
-        await page.locator('.chat-taskpane').getByRole('button', { name: 'Reject code' }).click();
+        await page.locator('.chat-message-buttons').getByRole('button', { name: 'Reject code' }).click();
     }
     await waitForIdle(page);
 }

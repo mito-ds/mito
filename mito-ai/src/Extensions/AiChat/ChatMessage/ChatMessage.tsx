@@ -106,6 +106,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     code={messagePart}
                                     role={message.role}
                                     renderMimeRegistry={renderMimeRegistry}
+                                    previewAICode={previewAICode}
+                                    acceptAICode={acceptAICode}
+                                    rejectAICode={rejectAICode}
+                                    isLastAiMessage={isLastAiMessage}
+                                    codeReviewStatus={codeReviewStatus}
                                 />
 
                                 {isLastAiMessage && codeReviewStatus === 'chatPreview' && 

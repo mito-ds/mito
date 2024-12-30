@@ -1,16 +1,19 @@
 import React from 'react';
 import '../../style/IconButton.css';
+import '../../style/button.css';
+import { classNames } from '../utils/classNames';
 
 interface IconButtonProps {
     icon: React.ReactNode;
     onClick: () => void;
     title: string;
+    style?: React.CSSProperties;
 }
 
-const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title }) => {
+const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, style }) => {
 
     return (
-        <button className="icon-button" onClick={onClick} title={title}>
+        <button className={classNames("icon-button")} onClick={onClick} title={title} style={style}>
             {icon}
         </button>
     )
