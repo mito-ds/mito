@@ -10,6 +10,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 
 /**
@@ -53,7 +54,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     // Add an application command
     app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHAT, {
       label: 'Your friendly Python Expert chat bot',
-      execute: () => {
+      execute: (args?: ReadonlyPartialJSONObject) => {
         // In order for the widget to be accessible, the widget must be:
         // 1. Created
         // 2. Added to the widget tracker
@@ -79,6 +80,14 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         // Now that the widget is potentially accessible, activating the
         // widget opens the taskpane
         app.shell.activateById(widget.id);
+
+
+        // If the command is called with focus on chat input set to false, 
+        // don't focus. This is useful when we don't want to active cell 
+        // preview to be displayed when using the smart debugger.
+        if (args?.focusChatInput === false) {
+          return;
+        }
 
         // Set focus on the chat input
         const chatInput: HTMLTextAreaElement | null =
