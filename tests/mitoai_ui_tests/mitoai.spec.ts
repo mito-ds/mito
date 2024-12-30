@@ -220,7 +220,7 @@ test.describe('Mito AI Chat', () => {
     expect(codeMessagePartContainersCount).toBe(1);
   });
 
-  test('Test fix error button', async ({ page }) => {
+  test('Fix error button', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1']);
     await waitForIdle(page);
 
@@ -228,6 +228,9 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
 
     await waitForMitoAILoadingToDisappear(page);
+
+    // Ensure the chat input is not focussed on 
+    await expect(page.locator('.chat-input')).not.toBeFocused();
 
     // No code diffs should be visible before the user clicks preview
     await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
@@ -242,7 +245,7 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('print(1)');
   });
 
-  test('Test no fix error button for warnings', async ({ page }) => {
+  test('No fix error button for warnings', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import warnings', 'warnings.warn("This is a warning")']);
     await waitForIdle(page);
 
@@ -250,7 +253,7 @@ test.describe('Mito AI Chat', () => {
     expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
   });
 
-  test('Test explain code button', async ({ page }) => {
+  test('Explain code button', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
 
