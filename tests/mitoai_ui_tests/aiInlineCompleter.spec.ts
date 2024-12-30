@@ -1,3 +1,11 @@
+/*
+Integration test for the AI inline completion. This test uses 
+a mocked response from the server to simulate the AI completion
+service's behavior in a more controlled way.
+
+For a more practical integration test, see basicInlineComplete.spec.ts.
+*/
+
 import { expect, galata, test } from "@jupyterlab/galata";
 import { PromiseDelegate } from "@lumino/coreutils";
 

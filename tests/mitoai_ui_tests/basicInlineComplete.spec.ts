@@ -1,4 +1,9 @@
-// TODO: DELETE THIS FILE LATER (maybe)
+/*
+Basic integration test for inline completion. These tests are closer
+to the actual user experience of typing in a notebook and seeing
+inline completions. 
+*/
+
 import { expect, galata, test } from '@jupyterlab/galata';
 import {
     createAndRunNotebookWithCells,
