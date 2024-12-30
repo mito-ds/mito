@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.3.6
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: aaron@sagacollab.com
+author_name: Aaron Diamond-Reivich
+has_binder: false
+has_settings: true
+kind: theme
+labextension_name: mitoThemeLight
+project_short_description: A new look for Jupyter Lab
+python_name: mitoThemeLight
+repository: ''
+test: false
+

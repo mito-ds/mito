@@ -1,0 +1,54 @@
+@import url('./variables.css');
+
+/* Set the default typography for monospace elements */
+tt,
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--jp-code-font-family);
+  font-size: var(--jp-code-font-size);
+  line-height: var(--jp-code-line-height);
+}
+
+/* 
+
+Main Area Widget 
+
+*/
+
+/* The parent of the Main Area Widget*/
+#jp-main-dock-panel {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+}
+
+/* The border around the main area widget */
+.lm-SplitPanel-child {
+  background-color: var(--jp-layout-color1);
+  border: none;
+}
+
+/* The main area widget */
+.jp-MainAreaWidget {
+  border: none;
+}
+
+/* The horizontal toolbar that contains the .ipynb open notebooks*/
+.lm-DockPanel-tabBar {
+  background-color: var(--jp-layout-color1);
+}
+
+/* 
+
+Cells 
+
+*/
+
+.jp-CodeMirrorEditor {
+  padding: 5px;
+  border-radius: 5px;
+}
+
+
