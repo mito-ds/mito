@@ -8,7 +8,7 @@ import {
   VDomRenderer
 } from '@jupyterlab/ui-components';
 import React from 'react';
-import { lightBulbIcon } from '../../icons';
+import { NucleusLabIcon } from '../../icons';
 import type {
   ErrorMessage,
   IAICapabilities
@@ -125,7 +125,7 @@ class StatusItem extends ReactWidget {
         small
         title="Mito AI Status"
       >
-        <lightBulbIcon.react tag={'span'} stylesheet={'statusBar'} />
+        <NucleusLabIcon.react tag={'span'} stylesheet={'statusBar'} />
       </Button>
     );
   }
