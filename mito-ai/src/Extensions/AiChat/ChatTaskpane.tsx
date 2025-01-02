@@ -567,7 +567,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             </div>
             <ChatInput
                 initialContent={''}
-                placeholder={displayOptimizedChatHistory.length < 2 ? "What can I help you with?" : "Follow up on the conversation"}
+                placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
                 onSave={sendChatInputMessage}
                 onCancel={undefined}
                 isEditing={false}
