@@ -173,7 +173,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
     async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str) -> None:
         """Handle stream completion request."""
         start = time.time()
-        async for reply in self._llm.stream_completions(request):
+        async for reply in self._llm.stream_completions(request, prompt_type):
             self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")

@@ -318,12 +318,13 @@ This attribute is observed by the websocket provider to push the error to the cl
             raise
 
     async def stream_completions(
-        self, request: CompletionRequest
+        self, request: CompletionRequest, prompt_type: str
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
         Args:
             request: The completion request description.
+            prompt_type: The type of prompt that was sent to the AI (e.g. "chat", "smart_debug", "explain")
         Returns:
             An async generator yielding first an acknowledge completion reply without
             completion and then completion chunks from the third-party provider.
@@ -353,7 +354,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                 temperature=self.temperature,
             )
             # Log the successful completion
-            log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
+            log_ai_completion_success(
+                key_type=USER_KEY,
+                prompt_type=prompt_type,
+                last_message_content=str(request.messages[-1].get('content', '')),
+                response={"completion": "not available for streamed completions"},
+            )
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: USER_KEY}, error=e)
