@@ -102,9 +102,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         try:
             if request.stream and self._llm.can_stream:
-                await self._handle_stream_request(request)
+                await self._handle_stream_request(request, prompt_type=request.type)
             else:
-                await self._handle_request(request)
+                await self._handle_request(request, prompt_type=request.type)
         except Exception as e:
             await self.handle_exception(e, request)
 
@@ -158,22 +158,22 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             )
         self.reply(reply)
 
-    async def _handle_request(self, request: CompletionRequest) -> None:
+    async def _handle_request(self, request: CompletionRequest, prompt_type: str) -> None:
         """Handle completion request.
 
         Args:
             request: The completion request description.
         """
         start = time.time()
-        reply = await self._llm.request_completions(request)
+        reply = await self._llm.request_completions(request, prompt_type)
         self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
-    async def _handle_stream_request(self, request: CompletionRequest) -> None:
+    async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str) -> None:
         """Handle stream completion request."""
         start = time.time()
-        async for reply in self._llm.stream_completions(request):
+        async for reply in self._llm.stream_completions(request, prompt_type):
             self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")

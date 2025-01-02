@@ -228,6 +228,9 @@ def log_ai_completion_success(
             final_params[chunk_key] = chunk_value
 
         log("mito_ai_chat_success", params=final_params)
+    elif prompt_type == "inline_completion":
+        final_params = base_params
+        log("mito_ai_inline_completion_success", params=final_params)
     else:
         final_params = base_params
         final_params["note"] = (
