@@ -98,8 +98,6 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
             }
         }
 
-
-
         // Append the original error/warning rendered node
         this.node.appendChild(originalNode);
     }
@@ -110,7 +108,7 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     */
     openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
         const conciseErrorMessage = this.getErrorString(model);
-        this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT)
+        this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
         this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: conciseErrorMessage });
     }
 
