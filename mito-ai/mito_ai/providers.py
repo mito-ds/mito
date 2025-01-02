@@ -33,6 +33,7 @@ from .utils.telemetry_utils import (
     MITO_SERVER_NUM_USAGES,
     USER_KEY,
     log,
+    log_ai_completion_success,
 )
 
 __all__ = ["OpenAIProvider"]
@@ -215,11 +216,12 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return self._client
 
-    async def request_completions(self, request: CompletionRequest) -> CompletionReply:
+    async def request_completions(self, request: CompletionRequest, prompt_type: str) -> CompletionReply:
         """Get a completion from the OpenAI API.
 
         Args:
             request: The completion request description.
+            prompt_type: The type of prompt that was sent to the AI (e.g. "chat", "smart_debug", "explain")
         Returns:
             The completion
         """
@@ -236,7 +238,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                     temperature=self.temperature,
                 )
                 # Log the successful completion
-                log(MITO_AI_COMPLETION_SUCCESS, params={KEY_TYPE_PARAM: USER_KEY})
+                log_ai_completion_success(
+                    key_type=USER_KEY,
+                    prompt_type=prompt_type,
+                    last_message_content=str(request.messages[-1].get('content', '')),
+                    response={"completion": completion.choices[0].message.content},
+                )
 
                 if len(completion.choices) == 0:
                     return CompletionReply(
@@ -287,12 +294,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                 set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
 
                 # Log the successful completion
-                log(
-                    MITO_AI_COMPLETION_SUCCESS,
-                    params={
-                        KEY_TYPE_PARAM: MITO_SERVER_KEY,
-                        MITO_SERVER_NUM_USAGES: _num_usages,
-                    },
+                log_ai_completion_success(
+                    key_type=MITO_SERVER_KEY,
+                    prompt_type=prompt_type,
+                    last_message_content=str(request.messages[-1].get('content', '')),
+                    response={"completion": ai_response},
+                    num_usages=_num_usages,
                 )
 
                 return CompletionReply(
