@@ -20,6 +20,7 @@ from .version_utils import is_pro
 MITO_AI_URL = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
 OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 500
+OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT = 30 # days
 
 __user_email = None
 __user_id = None
@@ -42,7 +43,7 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
 
     if first_usage_date != "":
         first_use = datetime.strptime(first_usage_date, "%Y-%m-%d")
-        one_month_later = first_use + timedelta(days=30)
+        one_month_later = first_use + timedelta(days=OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT)
         if datetime.now() > one_month_later:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
             raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
