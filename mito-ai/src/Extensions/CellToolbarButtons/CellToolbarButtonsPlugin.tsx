@@ -4,7 +4,7 @@ import {
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
-import { lightBulbIcon } from '../../icons';
+import { lightBulbLabIcon } from '../../icons';
 
 const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/cell-toolbar-buttons.json file.
@@ -20,7 +20,7 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
         // Important: To add a button to the cell toolbar, the command must start with "toolbar-button:"
         // and the command must match the command in the schema/plugin.json file.
         commands.addCommand('toolbar-button:explain-code', {
-            icon: lightBulbIcon,
+            icon: lightBulbLabIcon,
             caption: 'Explain code in AI Chat',
             execute: () => {
                 /* 
