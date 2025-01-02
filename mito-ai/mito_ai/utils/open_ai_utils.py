@@ -5,6 +5,7 @@
 
 import json
 from typing import Any, Dict
+from datetime import datetime, timedelta
 
 from tornado.httpclient import AsyncHTTPClient
 
@@ -24,12 +25,12 @@ __user_email = None
 __user_id = None
 
 
-def check_mito_server_quota(n_counts: int) -> None:
+def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
     """Check whether the user has reached the limit of completions for the free tier or not.
 
     Args:
         n_counts: The number of completions the user has made so far.
-
+        first_usage_date: The date of the user's first usage.
     Raises:
         PermissionError: If the user has reached the limit.
     """
@@ -38,10 +39,24 @@ def check_mito_server_quota(n_counts: int) -> None:
     if not pro and n_counts >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
         log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
         raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
+    
+    if first_usage_date != "":
+        first_use = datetime.strptime(first_usage_date, "%Y-%m-%d")
+        one_month_later = first_use + timedelta(days=30)
+        if datetime.now() > one_month_later:
+            log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
+            raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
+
+    if first_usage_date == "":
+        log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
+        raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
 
 
 async def get_ai_completion_from_mito_server(
-    last_message_content: str, ai_completion_data: Dict[str, Any], n_counts: int
+    last_message_content: str, 
+    ai_completion_data: Dict[str, Any], 
+    n_counts: int, 
+    first_usage_date: str,
 ) -> str:
     global __user_email, __user_id
 
@@ -50,7 +65,7 @@ async def get_ai_completion_from_mito_server(
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
 
-    check_mito_server_quota(n_counts)
+    check_mito_server_quota(n_counts, first_usage_date)
 
     data = {
         "email": __user_email,

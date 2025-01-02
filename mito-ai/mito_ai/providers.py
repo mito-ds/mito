@@ -24,7 +24,7 @@ from .utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
 )
-from .utils.schema import UJ_AI_MITO_API_NUM_USAGES
+from .utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
 from .utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
@@ -38,7 +38,7 @@ from .utils.telemetry_utils import (
 
 __all__ = ["OpenAIProvider"]
 _num_usages = None
-
+_first_usage_date = None
 
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -188,11 +188,25 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         if self._models is None:
             self._validate_api_key({"value": self.api_key})
+
+        # Get the number of usages
         global _num_usages
         if _num_usages is None:
             _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
+
+        # Get the first usage date
+        global _first_usage_date
+        _first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
+        if _first_usage_date is None:
+            from datetime import datetime
+            today = datetime.today().strftime('%Y-%m-%d')
+            try:
+                set_user_field(UJ_MITO_AI_FIRST_USAGE_DATE, today)
+            except Exception as e:
+                self.log.warning("Failed to set first usage date in user.json", exc_info=e)
+
         try:
-            check_mito_server_quota(_num_usages or 0)
+            check_mito_server_quota(_num_usages or 0, _first_usage_date or "")
         except Exception as e:
             self.last_error = CompletionError.from_exception(e)
 
@@ -287,6 +301,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                         "temperature": self.temperature,
                     },
                     _num_usages or 0,
+                    _first_usage_date or "",
                 )
 
                 # Increment the number of usages
