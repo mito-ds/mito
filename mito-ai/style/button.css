@@ -1,0 +1,32 @@
+/* 
+    Classes that can be used for any button, making it easier to keep 
+    the theme consistent. For example, use them to make a textButton or
+    textAndIconButton green.
+*/
+
+.button-green {
+    background-color: var(--green-400);
+    color: var(--green-900) !important;
+}
+
+.button-green:hover {
+    background-color: var(--green-500);
+}
+
+.button-red {
+    background-color: var(--red-400);
+    color: var(--red-900) !important;
+}
+
+.button-red:hover {
+    background-color: var(--red-500);
+}
+
+.button-gray {
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-content-font-color1) !important;
+}
+
+.button-gray:hover {
+    background-color: var(--jp-layout-color3);
+}

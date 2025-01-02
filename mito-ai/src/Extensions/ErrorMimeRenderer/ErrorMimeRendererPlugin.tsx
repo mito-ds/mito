@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
@@ -45,6 +45,7 @@ const ErrorMimeRendererPlugin: JupyterFrontEndPlugin<void> = {
                 }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
+        console.log("mito-ai: ErrorMimeRendererPlugin activated");
     }
 };
   
@@ -64,14 +65,41 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     /**
      * Render the original error message and append the custom prompt.
      */
-    async renderModel(model: IRenderMime.IMimeModel): Promise<void> {    
-        const resolveInChatDiv = document.createElement('div');
-        ReactDOM.render(<ErrorMessage onDebugClick={() => this.openChatInterfaceWithError(model)} />, resolveInChatDiv);
-        this.node.appendChild(resolveInChatDiv);
+    async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
+        // Determine if it's an error or a warning
+        const isErrorMessage = 'application/vnd.jupyter.error' in model.data;
 
-        // Get the original renderer and append it to the output
+        // Create the container for the custom UI elements
+        const resolveInChatDiv = document.createElement('div');
+
+        // Only show the Fix Error in AI Chat button if it is an error, not a warning
+        if (isErrorMessage) {
+            createRoot(resolveInChatDiv).render(
+                <ErrorMessage onDebugClick={() => this.openChatInterfaceWithError(model)} />
+            );
+        }
+
+        // Append the chat container before rendering the original output
+        this.node.appendChild(resolveInChatDiv);
+        
+        // Render the original content
         await this.originalRenderer.renderModel(model);
-        this.node.appendChild(this.originalRenderer.node);
+        const originalNode = this.originalRenderer.node;
+
+        // Apply styling for warnings
+        if (!isErrorMessage) {
+            // Apply background styling to the original node
+            originalNode.style.background = 'var(--jp-warn-color3)';
+
+            // Find the pre element inside originalNode and apply the text color
+            const preElement = originalNode.querySelector('pre');
+            if (preElement) {
+                preElement.style.color = 'var(--md-grey-900)';
+            }
+        }
+
+        // Append the original error/warning rendered node
+        this.node.appendChild(originalNode);
     }
 
     /* 
@@ -80,7 +108,7 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
     */
     openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
         const conciseErrorMessage = this.getErrorString(model);
-        this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT)
+        this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
         this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: conciseErrorMessage });
     }
 

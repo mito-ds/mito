@@ -3,6 +3,13 @@ import { classNames } from '../../../utils/classNames';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../VariableManager/VariableInspector';
+import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import PythonCode from './PythonCode';
+import '../../../../style/ChatInput.css';
+import '../../../../style/ChatDropdown.css';
+import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 
 interface ChatInputProps {
     initialContent: string;
@@ -11,6 +18,8 @@ interface ChatInputProps {
     onCancel?: () => void;
     isEditing: boolean;
     variableManager?: IVariableManager;
+    notebookTracker: INotebookTracker;
+    renderMimeRegistry: IRenderMimeRegistry;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -23,28 +32,56 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onSave,
     onCancel,
     isEditing,
-    variableManager
+    variableManager,
+    notebookTracker,
+    renderMimeRegistry,
 }) => {
+
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
+    const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [showDropdownAbove, setShowDropdownAbove] = useState(false);
-    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // Debounce the active cell ID change to avoid multiple rerenders. 
+    // We use this to avoid a flickering screen when the active cell changes. 
+    const debouncedSetActiveCellID = useDebouncedFunction((newID: string | undefined) => {
+        setActiveCellID(newID);
+    }, 100);
+
+    useEffect(() => {
+        const activeCellChangedListener = () => { 
+            const newActiveCellID = getActiveCellID(notebookTracker);
+            debouncedSetActiveCellID(newActiveCellID);
+        };
+
+        // Connect the listener once when the component mounts
+        notebookTracker.activeCellChanged.connect(activeCellChangedListener);
+    
+        // Cleanup: disconnect the listener when the component unmounts
+        return () => {
+            notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
+        };
+    
+    }, [notebookTracker, activeCellID, debouncedSetActiveCellID]);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
-    const adjustHeight = () => {
+    const adjustHeight = (resetHeight: boolean = false) => {
         const textarea = textAreaRef?.current;
-        if (!textarea) {
-            return
-        }
-        textarea.style.minHeight = 'auto';
+        if (!textarea) return;
 
-        // The height should be 40 at minimum to support the placeholder
-        const minHeight = textarea.scrollHeight < 40 ? 40 : textarea.scrollHeight
-        textarea.style.height = `${minHeight}px`;
+        textarea.style.minHeight = 'auto';
+        textarea.style.height = !textarea.value || resetHeight
+            ? '80px' 
+            : `${Math.max(80, textarea.scrollHeight)}px`;
     };
+
+    useEffect(() => {
+        adjustHeight();
+    }, [textAreaRef?.current?.value]);
 
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = event.target.value;
@@ -100,10 +137,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }, 0);
     };
 
-    useEffect(() => {
-        adjustHeight();
-    }, [textAreaRef?.current?.value]);
-
     // Update the expandedVariables arr when the variable manager changes
     useEffect(() => {
         const expandedVariables: ExpandedVariable[] = [
@@ -126,72 +159,88 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setExpandedVariables(expandedVariables);
     }, [variableManager?.variables]);
 
-    const calculateDropdownPosition = () => {
-        if (!textAreaRef.current) return;
-
-        const textarea = textAreaRef.current;
-        const textareaRect = textarea.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const spaceBelow = windowHeight - textareaRect.bottom;
-
-        // If space below is less than 200px (typical dropdown height), show above
-        setShowDropdownAbove(spaceBelow < 200);
-    };
-
-    useEffect(() => {
-        if (isDropdownVisible) {
-            calculateDropdownPosition();
-        }
-    }, [isDropdownVisible]);
+    // If there are more than 8 lines, show the first 8 lines and add a "..."
+    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
+    const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
+        activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
     return (
-        <div style={{ position: 'relative' }}>
-            <textarea
-                ref={textAreaRef}
-                className={classNames("message", "message-user", 'chat-input')}
-                placeholder={placeholder}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={(e) => {
-                    // If dropdown is visible, only handle escape to close it
-                    if (isDropdownVisible) {
+        <div 
+            className={classNames("chat-input-container")}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => {
+                setIsFocused(false)
+            }}
+        >
+            {/* Show the active cell preview if the text area has focus or the user has started typing */}
+            {activeCellCodePreview.length > 0 
+                && (isFocused || input.length > 0)
+                && <div className='active-cell-preview-container'>
+                    <div className='code-block-container'>
+                        <PythonCode
+                            code={activeCellCodePreview}
+                            renderMimeRegistry={renderMimeRegistry}
+                        />
+                    </div>
+                </div>
+            }
+            
+            {/* 
+                Create a relative container for the text area and the dropdown so that when we 
+                render the dropdown, it is relative to the text area instead of the entire 
+                div. We do this so that the dropdown sits on top of (ie: covering) the code 
+                preview instead of sitting higher up the taskpane.
+            */}
+            <div style={{ position: 'relative', height: 'min-content'}}>
+                <textarea
+                    ref={textAreaRef}
+                    className={classNames("message", "message-user", 'chat-input')}
+                    placeholder={placeholder}
+                    value={input}
+                    onChange={handleInputChange}
+                    onKeyDown={(e) => {
+                        // If dropdown is visible, only handle escape to close it
+                        if (isDropdownVisible) {
+                            if (e.key === 'Escape') {
+                                e.preventDefault();
+                                setDropdownVisible(false);
+                            }
+                            return;
+                        }
+
+                        // Enter key sends the message, but we still want to allow 
+                        // shift + enter to add a new line.
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            adjustHeight(true)
+                            onSave(input)
+                            setInput('')
+                            setIsFocused(false)
+                        }
+                        // Escape key cancels editing
                         if (e.key === 'Escape') {
                             e.preventDefault();
-                            setDropdownVisible(false);
+                            if (onCancel) {
+                                onCancel();
+                            }
                         }
-                        return;
-                    }
-
-                    // Enter key sends the message, but we still want to allow 
-                    // shift + enter to add a new line.
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        onSave(input)
-                        setInput('')
-                    }
-                    // Escape key cancels editing
-                    if (e.key === 'Escape') {
-                        e.preventDefault();
-                        if (onCancel) {
-                            onCancel();
-                        }
-                    }
-                }}
-            />
+                    }}
+                />
+                {isDropdownVisible  && (
+                    <ChatDropdown
+                        options={expandedVariables}
+                        onSelect={handleOptionSelect}
+                        filterText={dropdownFilter}
+                    />
+                )}
+            </div>
+            
             {isEditing &&
                 <div className="message-edit-buttons">
                     <button onClick={() => onSave(input)}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }
-            {isDropdownVisible && (
-                <ChatDropdown
-                    options={expandedVariables}
-                    onSelect={handleOptionSelect}
-                    filterText={dropdownFilter}
-                    position={showDropdownAbove ? "above" : "below"}
-                />
-            )}
         </div>
     )
 };

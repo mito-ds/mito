@@ -1,6 +1,6 @@
 from evals.eval_types import NotebookState
 import pandas as pd
-
+import numpy as np
 
 EMPTY_NOTEBOOK: NotebookState = NotebookState(
   global_vars={},
@@ -58,5 +58,116 @@ july_balances = pd.read_csv('evals/data/monthly_equity/july_balances.csv')
 july_fees = pd.read_csv('evals/data/monthly_equity/july_fees.csv')
 august_balances = pd.read_csv('evals/data/monthly_equity/august_balances.csv')
 august_fees = pd.read_csv('evals/data/monthly_equity/august_fees.csv')
+""", '']
+)
+
+COMPANIES_ACTIVE_MONTHS_NOTEBOOK: NotebookState = NotebookState(
+    global_vars={'df': pd.DataFrame({
+        'company_name': ['Apple', 'Google', 'Microsoft', 'Amazon', 'Apple'],
+        'currently_active': [True, True, True, True, False],
+        'active_in_june': [True, False, True, True, True],
+        'active_in_july': [False, True, True, False, True],
+        'active_in_august': [False, True, False, False, False],
+        'active_in_september': [True, False, True, False, True],
+        'active_in_october': [True, True, False, False, True],
+        'active_in_november': [False, False, False, True, True],
+        'active_in_december': [True, False, False, False, False],
+        'active_in_january': [True, False, True, False, False],
+    })},
+    cell_contents=["""import pandas as pd
+df = pd.DataFrame({
+    'company_name': ['Apple', 'Google', 'Microsoft', 'Amazon', 'Apple'],
+    'currently_active': [True, True, True, True, False],
+    'active_in_june': [True, False, True, True, True],
+    'active_in_july': [False, True, True, False, True],
+    'active_in_august': [False, True, False, False, False],
+    'active_in_september': [True, False, True, False, True],
+    'active_in_october': [True, True, False, False, True],
+    'active_in_november': [False, False, False, True, True],
+    'active_in_december': [True, False, False, False, False],
+    'active_in_january': [True, False, True, False, False],
+})""", '']
+)
+
+
+
+np.random.seed(42)
+stock_df = pd.DataFrame({
+    'date': pd.date_range(start='2023-01-01', periods=100),
+    'ticker': np.random.choice(['AAPL', 'GOOGL', 'MSFT', 'AMZN'], 100),
+    'price': np.random.uniform(100, 1000, 100),
+    'volume': np.random.randint(1000, 1000000, 100),
+    'market_cap': ['$1.5T', '$800B', '$2.1T', '$1.2T'] * 25,
+    'sector': ['Tech', 'Tech', 'Tech', 'Consumer'] * 25,
+    'pe_ratio': np.random.uniform(10, 50, 100),
+    'dividend_yield': ['2.5%', '1.8%', None, '0%'] * 25
+})
+STOCK_MARKET_DATA_NOTEBOOK: NotebookState = NotebookState(
+    global_vars={'stock_df': stock_df.head(5)},
+    cell_contents=["""import pandas as pd
+import numpy as np
+np.random.seed(42)
+stock_df = pd.DataFrame({
+    'date': pd.date_range(start='2023-01-01', periods=100),
+    'ticker': np.random.choice(['AAPL', 'GOOGL', 'MSFT', 'AMZN'], 100),
+    'price': np.random.uniform(100, 1000, 100),
+    'volume': np.random.randint(1000, 1000000, 100),
+    'market_cap': ['$1.5T', '$800B', '$2.1T', '$1.2T'] * 25,
+    'sector': ['Tech', 'Tech', 'Tech', 'Consumer'] * 25,
+    'pe_ratio': np.random.uniform(10, 50, 100),
+    'dividend_yield': ['2.5%', '1.8%', None, '0%'] * 25
+})""", '']
+)
+
+RETURNS_DICT_NOTEBOOK: NotebookState = NotebookState(
+    global_vars={
+        'returns': {
+            '2020': {
+                'current_close': 100,
+                'previous_close': 50,
+            },
+            '2021': {
+                'current_close': 150,
+                'previous_close': 100,
+            },
+            '2022': {
+                'current_close': 200,
+                'previous_close': 150,
+            },
+            '2023': {
+                'current_close': 250,
+                'previous_close': 200,
+            },
+            '2024': {
+                'current_close': 300,
+                'previous_close': 250,
+            },
+        }
+    },
+    cell_contents=["""
+
+returns = {
+    '2020': {
+        'current_close': 100,
+        'previous_close': 50,
+    },
+    '2021': {
+        'current_close': 150,
+        'previous_close': 100,
+    },
+    '2022': {
+        'current_close': 200,
+        'previous_close': 150,
+    },
+    '2023': {
+        'current_close': 250,
+        'previous_close': 200,
+    },
+    '2024': {
+        'current_close': 300,
+        'previous_close': 250,
+    },
+}
+
 """, '']
 )

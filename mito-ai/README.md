@@ -18,6 +18,26 @@ To install the extension, execute:
 pip install mito-ai
 ```
 
+## Configuration
+
+This extension has two AI providers; OpenAI and Mito (calling OpenAI).
+Mito is the fallback but the number of request is limited for free tier.
+To use OpenAI directly, you will to create an API key on https://platform.openai.com/docs/overview.
+Then set the environment variable `OPENAI_API_KEY` with that key.
+
+The OpenAI model can be configured with 3 parameters:
+- `OpenAIProvider.model`: Name of the AI model; default _gpt-4o-mini_.
+- `OpenAIProvider.max_completion_tokens`: Upper bound for the number of completion tokens; default None.
+- `OpenAIProvider.temperature`: Model temperature, a value between 0 and 2; default to 0
+
+You can set those parameters through command line when starting JupyterLab; e.g.
+
+```sh
+jupyter lab --OpenAIProvider.max_completion_tokens 20 --OpenAIProvider.temperature 1.5
+```
+
+> If a value is incorrect, an error message will be displayed in the terminal logs.
+
 ## Uninstall
 
 To remove the extension, execute:
@@ -57,7 +77,7 @@ jlpm build
 jupyter labextension develop . --overwrite
 
 # Start the jupyter server extension for development
-jupyter server extension enable --py mito-ai
+jupyter server extension enable --py mito_ai
 
 # Watch the source directory in one terminal, automatically rebuilding when needed
 # In case of Error: If this command fails because the lib directory was not created (the error will say something like

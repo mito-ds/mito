@@ -1,0 +1,80 @@
+
+.chat-dropdown {
+    /* Position the dropdown in the right place*/
+    position: absolute;
+    z-index: 9999;
+    bottom: 100%;
+    margin-bottom: 5px;
+
+    /* Style the dropdown */
+    display: flex;
+    justify-content: space-evenly;
+    align-items: baseline;
+    width: 100%;
+}
+
+.chat-dropdown-list {
+    position: relative;
+    border: 0px;
+    border-radius: 5px;
+    background-color: var(--jp-layout-color1);
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.chat-dropdown-item {
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--jp-content-font-color1);
+}
+
+.chat-dropdown-item:hover,
+.chat-dropdown-item.selected {
+    background-color: var(--jp-layout-color3);
+}
+
+.chat-dropdown-item:first-child {
+    /* Add rounded corners to the top of the first selected dropdown item */
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.chat-dropdown-item:last-child {
+    /* Add rounded corners to the bottom of the last selected dropdown item */
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.chat-dropdown-item-type {
+    color: var(--jp-brand-color1);
+    font-family: var(--jp-code-font-family);
+    min-width: 35px;
+    width: 35px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-dropdown-item-name {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-dropdown-item-parent-df {
+    color: var(--muted-text-color);
+    font-size: 12px;
+    margin-left: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

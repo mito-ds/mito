@@ -7,7 +7,9 @@ export function createBasicPrompt(
 ): string {
     const prompt = `You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
 
-Respond with the updated active code cell and a short explanation of the changes you made.
+There are two possible types of responses you might give:
+1. Code Update: If the task requires modifying or extending the existing code, respond with the updated active code cell and a short explanation of the changes made. 
+2. Explanation/Information: If the task does not require a code update, provide an explanation, additional information about a package, method, or general programming question, without writing any code. Keep your response concise and to the point.
 
 When responding:
 - Do not use the word "I"

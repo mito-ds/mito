@@ -1,60 +1,44 @@
 import React from 'react';
 import PythonCode from './PythonCode';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { getNotebookName } from '../../../utils/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { removeMarkdownCodeFormatting } from '../../../utils/strings';
-import { JupyterFrontEnd } from '@jupyterlab/application';
-import { OperatingSystem } from '../../../utils/user';
-import '../../../../style/CodeMessagePart.css'
-import { UnifiedDiffLine } from '../../../utils/codeDiff';
+import '../../../../style/CodeBlock.css'
+import copyToClipboard from '../../../utils/copyToClipboard';
+import IconButton from '../../../components/IconButton';
+import CopyIcon from '../../../icons/CopyIcon';
+import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import AcceptIcon from '../../../icons/AcceptIcon';
+import RejectIcon from '../../../icons/RejectIcon';
 
 
 interface ICodeBlockProps {
     code: string,
-    codeCellID: string | undefined,
     role: 'user' | 'assistant'
-    rendermime: IRenderMimeRegistry
-    notebookTracker: INotebookTracker,
-    app: JupyterFrontEnd,
-    isLastAiMessage: boolean,
-    operatingSystem: OperatingSystem,
-    setDisplayCodeDiff: React.Dispatch<React.SetStateAction<UnifiedDiffLine[] | undefined>>;
-    applyAICode: () => void,
-    acceptAICode: (codeCellID: string) => void,
-    rejectAICode: (codeCellID: string) => void,
+    renderMimeRegistry: IRenderMimeRegistry
+    previewAICode: () => void
+    acceptAICode: () => void
+    rejectAICode: () => void
+    isLastAiMessage: boolean
     codeReviewStatus: CodeReviewStatus
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
     code,
-    codeCellID,
     role,
-    rendermime,
-    notebookTracker,
-    app,
-    isLastAiMessage,
-    operatingSystem,
-    setDisplayCodeDiff,
-    applyAICode,
+    renderMimeRegistry,
+    previewAICode,
     acceptAICode,
     rejectAICode,
-    codeReviewStatus
+    isLastAiMessage,
+    codeReviewStatus,
 }): JSX.Element => {
-    const notebookName = getNotebookName(notebookTracker)
-
-    const copyCodeToClipboard = () => {
-        const codeWithoutMarkdown = removeMarkdownCodeFormatting(code)
-        navigator.clipboard.writeText(codeWithoutMarkdown)
-    }
 
     if (role === 'user') {
         return (
-            <div className='code-message-part-container'>
+            <div className='code-block-container'>
                 <PythonCode
                     code={code}
-                    rendermime={rendermime}
+                    renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
         )
@@ -62,42 +46,57 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 
     if (role === 'assistant') {
         return (
-            <div className='code-message-part-container'>
-                <div className='code-message-part-toolbar'>
-                    <div className='code-location'>
-                        {notebookName}
-                    </div>
-                    {isLastAiMessage && codeCellID !== undefined && (
-                        <>
-                            {codeReviewStatus === 'chatPreview' && (
-                                <button onClick={() => { applyAICode() }}>Apply</button>
-                            )}
-
-                            {codeReviewStatus === 'codeCellPreview' && (
-                                <>
-                                    <button
-                                        className='code-block-accept-button'
-                                        onClick={() => { acceptAICode(codeCellID); }}
-                                        title={`Accept code (${operatingSystem === 'mac' ? 'CMD+Y' : 'CTRL+Y'})`}
-                                    >
-                                        {operatingSystem === 'mac' ? 'Accept ⌘+Y' : 'Accept CTRL+Y'}
-                                    </button>
-                                    <button
-                                        className='code-block-deny-button'
-                                        onClick={() => { rejectAICode(codeCellID); }}
-                                        title={`Deny code (${operatingSystem === 'mac' ? 'CMD+D' : 'CTRL+D'})`}
-                                    >
-                                        {operatingSystem === 'mac' ? 'Deny ⌘+D' : 'Deny CTRL+D'}
-                                    </button>
-                                </>
-                            )}
-                        </>
-                    )}
-                    <button onClick={copyCodeToClipboard}>Copy</button>
-                </div>
+            <div className='code-block-container'>
+                <>
+                    {/* The code block toolbar for the last AI message */}
+                    {isLastAiMessage && 
+                        <div className='code-block-toolbar'>
+                            {codeReviewStatus === 'chatPreview' && 
+                                <IconButton 
+                                    icon={<PlayButtonIcon />}
+                                    title="Overwrite Active Cell"
+                                    onClick={() => {previewAICode()}}
+                                />
+                            }
+                            {codeReviewStatus === 'codeCellPreview' && 
+                                <IconButton 
+                                    icon={<AcceptIcon />}
+                                    title="Accept AI Generated Code"
+                                    onClick={() => {acceptAICode()}}
+                                    style={{color: 'var(--green-700)'}}
+                                />
+                            }
+                            {codeReviewStatus === 'codeCellPreview' && 
+                                <IconButton 
+                                    icon={<RejectIcon />}
+                                    title="Reject AI Generated Code"
+                                    onClick={() => {rejectAICode()}}
+                                    style={{color: 'var(--red-700)'}}
+                                />
+                            }
+                            {codeReviewStatus !== 'codeCellPreview' && 
+                                <IconButton
+                                    icon={<CopyIcon />}
+                                    title="Copy"
+                                    onClick={() => {copyToClipboard(code)}}
+                                />
+                            }
+                        </div>
+                    }
+                    {/* The code block toolbar for every other AI message */}
+                    {!isLastAiMessage && 
+                        <div className='code-block-toolbar'>
+                            <IconButton
+                                icon={<CopyIcon />}
+                                title="Copy"
+                                onClick={() => {copyToClipboard(code)}}
+                            />
+                        </div>
+                    }
+                </>
                 <PythonCode
                     code={code}
-                    rendermime={rendermime}
+                    renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
         )

@@ -44,11 +44,14 @@
 
 .message {
     height: min-content;
-    margin-bottom: 10px;
     box-sizing: border-box;
     padding: 10px;
     width: 100%;
     font-size: 14px;
+}
+
+.message:not(.chat-input) {
+    margin-bottom: 20px;
 }
 
 .message-user {
@@ -69,20 +72,46 @@
     align-items: center;
 }
 
-.chat-input {
-    outline: none;
-    border: none;
-    resize: none;
-    width: 100%;
-    padding: 10px;
-    overflow-y: hidden;
-    box-sizing: border-box;
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
 
-    /* 
-        The height of the chat input is set in the ChatTaskpane.tsx file. 
-        See the adjustHeight function for more detail.
-    */
-    flex-shrink: 0 !important;
+.chat-message-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.chat-empty-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    color: var(--muted-text-color);
+    padding: 20px;
+    /* Add container query support */
+    container-type: inline-size;
+}
+
+.chat-empty-message .short-message {
+    display: none;
+}
+
+/* Use container query instead of media query */
+@container (max-width: 300px) {
+    .chat-empty-message .long-message {
+        display: none;
+    }
+    
+    .chat-empty-message .short-message {
+        display: block;
+    }
 }
 
 .chat-loading-message {
@@ -102,6 +131,7 @@
 .message-edit-buttons {
     display: flex;
     gap: 8px;
+    padding: 5px;
 }
 
 .message-edit-buttons button {
@@ -116,108 +146,7 @@
     background: #f0f0f0;
 }
 
-.chat-dropdown {
-    position: absolute;
-    width: 100%;
-    z-index: 9999;
-}
-
-.chat-dropdown.above {
-    bottom: 100%;
-    margin-bottom: 5px;
-}
-
-.chat-dropdown.below {
-    top: 100%;
-    margin-top: 5px;
-}
-
-.chat-dropdown {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: baseline;
-}
-
-.chat-dropdown-list {
-    position: relative;
-    border: 0px;
-    border-radius: 5px;
-    background-color: white;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.chat-dropdown-item {
-    padding: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.chat-dropdown-item:hover,
-.chat-dropdown-item.selected {
-    background-color: var(--item-selected-color);
-}
-
-.chat-dropdown-item:first-child {
-    /* Add rounded corners to the top of the first selected dropdown item */
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-}
-
-.chat-dropdown-item:last-child {
-    /* Add rounded corners to the bottom of the last selected dropdown item */
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-}
-
-.chat-dropdown-item-type {
-    color: var(--muted-text-color);
-    font-family: var(--jp-code-font-family);
-    min-width: 35px;
-    /* Fixed width for type column */
-}
-
-.chat-dropdown-item-name {
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.chat-dropdown-item-parent-df {
-    color: var(--muted-text-color);
-    font-size: 12px;
-    margin-left: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.code-message-part-toolbar button {
+.code-block-toolbar button {
+    height: 16px;
     font-size: 12px !important;
-}
-
-.code-block-accept-button {
-    background-color: var(--green-600) !important;
-    color: white !important;
-}
-
-.code-block-accept-button:hover {
-    background-color: var(--green-700) !important;
-}
-
-.code-block-deny-button {
-    background-color: var(--red-600) !important;
-    color: white !important;
-}
-
-.code-block-deny-button:hover {
-    background-color: var(--red-700) !important;
 }

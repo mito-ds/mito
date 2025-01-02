@@ -5,9 +5,11 @@ on:
     branches: [ dev ]
     paths:
       - 'mito-ai/**'
+      - 'tests/mitoai_ui_tests/**'
   pull_request:
     paths:
       - 'mito-ai/**'
+      - 'tests/mitoai_ui_tests/**'
 jobs:
   test-mitoai-frontend-jupyterlab:
     runs-on: ubuntu-20.04
@@ -47,7 +49,7 @@ jobs:
         source venv/bin/activate
         cd ../mito-ai
         jupyter labextension develop . --overwrite
-        jupyter server extension enable --py mito-ai
+        jupyter server extension enable --py mito_ai
     - name: Start a server and run tests
       run: |
         cd tests

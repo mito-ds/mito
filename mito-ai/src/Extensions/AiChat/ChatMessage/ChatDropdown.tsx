@@ -15,7 +15,6 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     onSelect,
     filterText,
     maxDropdownItems = 10,
-    position = 'below'
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -62,13 +61,20 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     }, [filteredOptions, selectedIndex]);
 
     const getShortType = (type: string) => {
-        return type.includes("DataFrame") ? "df"
-            : type.includes("<class '") ? type.split("'")[1]
-                : type;
+        if (type.includes("DataFrame")) {
+            return "df";
+        }
+        if (type.includes("Series")) {
+            return "s";
+        }
+        if (type.includes("<class '")) {
+            return type.split("'")[1];
+        }
+        return type;
     }
 
     return (
-        <div className={`chat-dropdown ${position}`}>
+        <div className={`chat-dropdown`}>
             <ul className="chat-dropdown-list" >
                 {filteredOptions.length === 0 && (
                     <li className="chat-dropdown-item">No variables found</li>
@@ -86,11 +92,6 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                             onClick={() => onSelect(option.variable_name, option.parent_df)}
                         >
                             <span className="chat-dropdown-item-type"
-                                style={{
-                                    color: getShortType(option.type) === 'df' ? 'blue'
-                                        : getShortType(option.type) === 'col' ? 'orange'
-                                            : "green"
-                                }}
                                 title={getShortType(option.type)}
                             >
                                 {getShortType(option.type)}

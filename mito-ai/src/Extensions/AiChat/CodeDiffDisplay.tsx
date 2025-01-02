@@ -13,8 +13,8 @@ import { deepEqualArrays } from '../../utils/arrays';
 // Defines new styles for this extension
 const baseTheme = EditorView.baseTheme({
   // We need to set some transparency because the stripes are above the selection layer
-  '.cm-codeDiffRemovedStripe': { backgroundColor: 'rgba(250, 212, 212, 0.62)' },
-  '.cm-codeDiffInsertedStripe': { backgroundColor: 'rgba(79, 255, 105, 0.38)' },
+  '.cm-codeDiffRemovedStripe': { backgroundColor: 'color-mix(in srgb, var(--error-color) 30%, transparent)' },
+  '.cm-codeDiffInsertedStripe': { backgroundColor: 'color-mix(in srgb, var(--jp-accent-color2) 35%, transparent)' },
 });
 
 // Resolve step to use in the editor

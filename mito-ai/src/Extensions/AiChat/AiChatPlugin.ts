@@ -5,24 +5,26 @@ import {
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { buildChatWidget } from './ChatWidget';
+import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+
 
 /**
  * Initialization data for the mito-ai extension.
  */
 const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
-  id: 'mito_ai:plugin',
+  id: 'mito_ai:chat',
   description: 'AI chat for JupyterLab',
   autoStart: true,
   requires: [
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IVariableManager
+    IVariableManager,
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -42,7 +44,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         app,
         notebookTracker,
         rendermime,
-        variableManager
+        variableManager,
       );
       return chatWidget;
     };
@@ -52,7 +54,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     // Add an application command
     app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHAT, {
       label: 'Your friendly Python Expert chat bot',
-      execute: () => {
+      execute: (args?: ReadonlyPartialJSONObject) => {
         // In order for the widget to be accessible, the widget must be:
         // 1. Created
         // 2. Added to the widget tracker
@@ -79,6 +81,14 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         // widget opens the taskpane
         app.shell.activateById(widget.id);
 
+
+        // If the command is called with focus on chat input set to false, 
+        // don't focus. This is useful when we don't want to active cell 
+        // preview to be displayed when using the smart debugger.
+        if (args?.focusChatInput === false) {
+          return;
+        }
+
         // Set focus on the chat input
         const chatInput: HTMLTextAreaElement | null =
           widget.node.querySelector('.chat-input');
@@ -101,15 +111,19 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     });
 
     // Track and restore the widget state
-    const tracker = new WidgetTracker({
+    const tracker = new WidgetTracker<ChatWidget>({
       namespace: widget.id
     });
+    if (!tracker.has(widget)) {
+      tracker.add(widget);
+    }
 
     if (restorer) {
       restorer.add(widget, 'mito_ai');
     }
 
     // This allows us to force plugin load order
+    console.log("mito-ai: AiChatPlugin activated");
     return tracker;
   }
 };
