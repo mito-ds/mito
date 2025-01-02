@@ -39,7 +39,7 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
     if not pro and n_counts >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
         log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
         raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-    
+
     if first_usage_date != "":
         first_use = datetime.strptime(first_usage_date, "%Y-%m-%d")
         one_month_later = first_use + timedelta(days=30)
@@ -47,15 +47,11 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
             raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
 
-    if first_usage_date == "":
-        log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-        raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-
 
 async def get_ai_completion_from_mito_server(
-    last_message_content: str, 
-    ai_completion_data: Dict[str, Any], 
-    n_counts: int, 
+    last_message_content: str,
+    ai_completion_data: Dict[str, Any],
+    n_counts: int,
     first_usage_date: str,
 ) -> str:
     global __user_email, __user_id
