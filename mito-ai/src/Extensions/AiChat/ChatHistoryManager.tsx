@@ -11,6 +11,7 @@ type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'system'
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
     type: 'openai message' | 'connection error',
+    mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
 }
 
@@ -187,7 +188,8 @@ export class ChatHistoryManager {
     addAIMessageFromResponse(
         messageContent: string | null, 
         promptType: PromptType, 
-        mitoAIConnectionError: boolean=false
+        mitoAIConnectionError: boolean=false,
+        mitoAIConnectionErrorType: string | null = null
     ): void {
         if (messageContent === null) {
             return
@@ -201,13 +203,14 @@ export class ChatHistoryManager {
             role: 'assistant',
             content: messageContent
         }
-        this._addAIMessage(aiMessage, promptType, mitoAIConnectionError)
+        this._addAIMessage(aiMessage, promptType, mitoAIConnectionError, mitoAIConnectionErrorType)
     }
 
     _addAIMessage(
         aiMessage: OpenAI.Chat.ChatCompletionMessageParam, 
         promptType: PromptType, 
-        mitoAIConnectionError: boolean=false
+        mitoAIConnectionError: boolean=false,
+        mitoAIConnectionErrorType?: string | null
     ): void {
         const activeCellID = getActiveCellID(this.notebookTracker)
 
@@ -215,6 +218,7 @@ export class ChatHistoryManager {
             {
                 message: aiMessage, 
                 type: mitoAIConnectionError ? 'connection error' : 'openai message',
+                mitoAIConnectionErrorType: mitoAIConnectionErrorType,
                 codeCellID: activeCellID
             }
         );

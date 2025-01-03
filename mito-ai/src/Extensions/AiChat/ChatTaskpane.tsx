@@ -232,7 +232,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                   ? aiResponse.error.hint
                   : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
                 promptType,
-                true
+                true,
+                aiResponse.error.title
               );
               setChatHistoryManager(newChatHistoryManager);
             } else {
@@ -544,6 +545,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             message={displayOptimizedChat.message}
                             codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
+                            mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}
                             messageIndex={index}
                             notebookTracker={notebookTracker}
                             renderMimeRegistry={renderMimeRegistry}
