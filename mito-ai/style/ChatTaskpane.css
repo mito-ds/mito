@@ -150,3 +150,15 @@
     height: 16px;
     font-size: 12px !important;
 }
+
+.chat-message-alert {
+    background-color: var(--purple-300);
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid var(--purple-500);
+}
+
+.chat-message-alert a {
+    color: var(--purple-700);
+    text-decoration: underline;
+}
