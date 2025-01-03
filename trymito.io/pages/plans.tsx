@@ -439,7 +439,7 @@ const Plans: NextPage = () => {
                   $20/user per month
                 </p>
                 <p className={plansStyles.plan_description}>
-                  For practitioners or small teams looking to be really effective with Python.
+                  For practitioners or small teams looking to be effective with Python.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -479,7 +479,7 @@ const Plans: NextPage = () => {
                   Contact Us
                 </p>
                 <p className={plansStyles.plan_description}>
-                  For teams looking to embed and customize Python usage in their organization.
+                  For teams that want to connect Mito to custom databases, LLMs, and other internal infrastructure.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -512,6 +512,12 @@ const Plans: NextPage = () => {
                   />
                 </div>
               </div>
+            </section>
+
+            <section>
+                <h2 className={titleStyles.title}>
+                  Get more done with Mito Spreadsheet
+                </h2>
             </section>
 
             <section className={'only-on-mobile'}>
