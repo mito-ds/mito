@@ -65,9 +65,8 @@ const CodeCompletionsCard = () => {
                 <h2>Code Completions</h2>
                 <p>Autocomplete that finishes your thought. No more googling syntax or correcting typos.</p>
             </div>
-            <div className={classNames(featureSquaresStyles.feature_card_image_container, 'only-on-desktop')} >
-                <p>Coming Soon</p>
-                <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FEATURE_SQUARES} />
+            <div className={classNames(featureSquaresStyles.feature_card_image_container)} >
+                <Image src='/features/inline-code-completion.png' alt='Code Completions' height={243} width={464} />
             </div>
         </div>
     )
