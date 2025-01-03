@@ -304,7 +304,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                     _first_usage_date or "",
                 )
 
-                # Increment the number of usages
+                # Increment the number of usages for everything EXCEPT inline completions.
+                # Inline completions are limited to 30 days, not number of usages.
                 if prompt_type != "inline_completion":
                     _num_usages = (_num_usages or 0) + 1
                     set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
