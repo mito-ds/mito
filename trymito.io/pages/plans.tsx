@@ -408,17 +408,12 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      Basic EDA tools
+                      500 AI Chat Completions (or one month trial)
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Automatic Code Generation
-                    </p>
-                  </PlanBullet>
-                  <PlanBullet>
-                    <p>
-                      20 Mito AI Completions
+                      Basic Mito Spreadsheet
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -444,7 +439,7 @@ const Plans: NextPage = () => {
                   $20/user per month
                 </p>
                 <p className={plansStyles.plan_description}>
-                  For practitioners or small teams automating spreadsheet processes.
+                  For practitioners or small teams looking to be effective with Python.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -454,17 +449,17 @@ const Plans: NextPage = () => {
                   </PlanBullet>
                   <PlanBullet>
                     <p>
+                      Unlimited AI Chat Completions
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
                       Turn off private telemetry
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Unlimited AI completions
-                    </p>
-                  </PlanBullet>
-                  <PlanBullet>
-                    <p>
-                      Advanced Features
+                      Advanced Mito Spreadsheet
                     </p>
                   </PlanBullet>
                 </div>
@@ -484,7 +479,7 @@ const Plans: NextPage = () => {
                   Contact Us
                 </p>
                 <p className={plansStyles.plan_description}>
-                  For teams looking to transition from spreadsheets to Python for end-to-end automation.
+                  For teams that want to connect Mito to custom databases, LLMs, and other internal infrastructure.
                 </p>
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
@@ -517,6 +512,12 @@ const Plans: NextPage = () => {
                   />
                 </div>
               </div>
+            </section>
+
+            <section>
+                <h2 className={titleStyles.title}>
+                  Mito Spreadsheet Features
+                </h2>
             </section>
 
             <section className={'only-on-mobile'}>
