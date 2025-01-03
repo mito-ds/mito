@@ -516,7 +516,7 @@ const Plans: NextPage = () => {
 
             <section>
                 <h2 className={titleStyles.title}>
-                  Get more done with Mito Spreadsheet
+                  Mito Spreadsheet Features
                 </h2>
             </section>
 
