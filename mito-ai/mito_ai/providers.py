@@ -206,7 +206,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 self.log.warning("Failed to set first usage date in user.json", exc_info=e)
 
         try:
-            check_mito_server_quota(_num_usages or 0, _first_usage_date or "")
+            # Check the count-based limit for non-inline completions.
+            # Inline completions will be checked when the user sends an inline completion.
+            check_mito_server_quota(_num_usages or 0, _first_usage_date or "", False)
         except Exception as e:
             self.last_error = CompletionError.from_exception(e)
 
@@ -302,6 +304,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     },
                     _num_usages or 0,
                     _first_usage_date or "",
+                    prompt_type == "inline_completion",
                 )
 
                 # Increment the number of usages for everything EXCEPT inline completions.
