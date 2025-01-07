@@ -63,31 +63,27 @@ const Home: NextPage = () => {
                 <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
               </div>
             </div>
-            
-            <iframe 
-              className='only-on-desktop-inline-block'
-              src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=0fcb71cc-fbe5-4744-a5dd-208e5f4edaf2&hideEmbedTopBar=true" 
-              width="640" 
-              height="414" 
-              allow="fullscreen"
-              allowFullScreen
-              style={{
-                borderRadius: '10px', 
-                border: '3px solid var(--color-light-purple)',
-              }}
-            />
 
-            <div id='video' className='only-on-mobile'>
+            <div
+              style={{
+                position: 'relative',
+                paddingBottom: '64.63195691202873%',
+                height: 0,
+                width: '100%',
+              }}>
               <iframe 
-                src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=0fcb71cc-fbe5-4744-a5dd-208e5f4edaf2&hideEmbedTopBar=true" 
-                allow="fullscreen"
-                allowFullScreen
-                style={{
+                src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=d0a543a3-cb0c-456b-89ff-a61a35f1e540&hideEmbedTopBar=true" 
+                frameBorder="0" 
+                allowFullScreen 
+                style={{ 
+                  position: 'absolute', 
+                  top: 0, 
+                  left: 0, 
                   width: '100%', 
+                  height: '100%',
                   borderRadius: '10px',
-                  border: '3px solid var(--color-light-purple)',
                 }}
-              />
+              ></iframe>
             </div>
           </section>
 
