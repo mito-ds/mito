@@ -9,4 +9,3 @@ INLINE_CODE_COMPLETION_PROMPT_GENERATORS = [
     prod_prompt_v2,
     prod_prompt_v3,
 ]
-
