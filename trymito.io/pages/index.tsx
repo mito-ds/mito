@@ -21,7 +21,7 @@ import { classNames } from '../utils/classNames';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
-
+import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 const Home: NextPage = () => {
 
   useEffect(() => {
@@ -64,26 +64,17 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            <div
-              style={{
-                position: 'relative',
-                paddingBottom: '64.63195691202873%',
-                height: 0,
-                width: '100%',
-              }}>
-              <iframe 
-                src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=d0a543a3-cb0c-456b-89ff-a61a35f1e540&hideEmbedTopBar=true" 
-                frameBorder="0" 
-                allowFullScreen 
-                style={{ 
-                  position: 'absolute', 
-                  top: 0, 
-                  left: 0, 
-                  width: '100%', 
-                  height: '100%',
-                  borderRadius: '10px',
-                }}
-              ></iframe>
+            <div className={classNames(spreadsheetAutomationStyles.video_wrapper)}>
+              <div className={spreadsheetAutomationStyles.video_container}>
+                <iframe 
+                  className={spreadsheetAutomationStyles.video}
+                  src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=d0a543a3-cb0c-456b-89ff-a61a35f1e540&hideEmbedTopBar=true" 
+                  title="Mito Demo" 
+                  frameBorder={0}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                /> 
+              </div>
             </div>
           </section>
 
