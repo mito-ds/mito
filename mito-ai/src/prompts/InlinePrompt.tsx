@@ -14,8 +14,9 @@ CRITICAL FORMATTING RULES:
 2. If the cursor appears at the end of a function definition, ALWAYS start your code with a newline character
 3. If the cursor appears in the middle of existing code or in an incomplete line of code, do NOT add any newline characters
 4. Your response must preserve correct Python indentation and spacing
+5. Your response should NOT contain any of the code that the user has already written. 
 
-Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent.
+Your job is to complete the current line of code. Only return the code that the user has not yet written.
 
 <Example 1>
 Defined Variables: {{
