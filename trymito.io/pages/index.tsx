@@ -64,16 +64,30 @@ const Home: NextPage = () => {
               </div>
             </div>
             
-            <iframe
+            <iframe 
               className='only-on-desktop-inline-block'
-              src="https://mito-for-st-demo.streamlit.app/?embed=true"
-              height="750"
-              style={{width: '80%', border: 'none'}}
-            ></iframe>
+              src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=0fcb71cc-fbe5-4744-a5dd-208e5f4edaf2&hideEmbedTopBar=true" 
+              width="640" 
+              height="414" 
+              allow="fullscreen"
+              allowFullScreen
+              style={{
+                borderRadius: '10px', 
+                border: '3px solid var(--color-light-purple)',
+              }}
+            />
+
             <div id='video' className='only-on-mobile'>
-              <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                <source src="/demo.mp4" />
-              </video>
+              <iframe 
+                src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=0fcb71cc-fbe5-4744-a5dd-208e5f4edaf2&hideEmbedTopBar=true" 
+                allow="fullscreen"
+                allowFullScreen
+                style={{
+                  width: '100%', 
+                  borderRadius: '10px',
+                  border: '3px solid var(--color-light-purple)',
+                }}
+              />
             </div>
           </section>
 
