@@ -3,10 +3,10 @@ import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import CodeBlock from './CodeBlock';
+import AlertBlock from './AlertBlock';
 import MarkdownBlock from './MarkdownBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
-import ErrorIcon from '../../../icons/ErrorIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
@@ -24,6 +24,7 @@ interface IChatMessageProps {
     codeCellID: string | undefined
     messageIndex: number
     mitoAIConnectionError: boolean
+    mitoAIConnectionErrorType: string | null
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
     app: JupyterFrontEnd
@@ -41,6 +42,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
     messageIndex,
     mitoAIConnectionError,
+    mitoAIConnectionErrorType,
     notebookTracker,
     renderMimeRegistry,
     isLastAiMessage,
@@ -163,11 +165,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     }
                                 }}
                             >
-                                {mitoAIConnectionError && <span style={{ marginRight: '4px' }}><ErrorIcon /></span>}
-                                <MarkdownBlock
-                                    markdown={messagePart}
-                                    renderMimeRegistry={renderMimeRegistry}
-                                />
+                                {mitoAIConnectionError ? (
+                                    <AlertBlock content={messagePart} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+                                ) : (
+                                    <MarkdownBlock
+                                        markdown={messagePart}
+                                        renderMimeRegistry={renderMimeRegistry}
+                                    />
+                                )}
                             </p>
                             {message.role === 'user' && (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
