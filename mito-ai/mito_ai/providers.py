@@ -193,7 +193,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self.api_key:
             return AICapabilities(
                 configuration={
-                    "max_completion_tokens": "nawaz",
                     "model": self.model,
                     "temperature": self.temperature,
                 },
