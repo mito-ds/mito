@@ -31,16 +31,19 @@ Defined Variables: {{
 Code in the active code cell:
 \`\`\`python
 import pandas as pd
-sales_df = pd.read_csv('./sales.<cursor>
+sales_df = pd.read_csv('./sales.csv')
+
+# Multiply the total_price column by the loan_multiplier<cursor>
 \`\`\`
 
 Output:
 \`\`\`python
-csv')
+
+sales_df['total_price'] = sales_df['total_price'] * loan_multiplier
 \`\`\`
 </Example 1>
 
-IMPORTANT: Notice in Example 1 that the output does NOT contain the line's previous code. It only contains the code required to complete the user's intent.
+IMPORTANT: Notice in Example 1 that the output starts with a newline because the cursor was at the end of a comment. This newline is REQUIRED to maintain proper Python formatting.
 
 <Example 2>
 Defined Variables: {{
@@ -52,13 +55,12 @@ Defined Variables: {{
 
 Code in the active code cell:
 \`\`\`python
-# filter df by age greater than 25
-filtered_df = df[df['age'] <cursor> 25]
+df['age'] = df[df['age'] > 23<cursor>]
 \`\`\`
 
 Output:
 \`\`\`python
->
+]
 \`\`\`
 </Example 2>
 
@@ -74,8 +76,6 @@ Code in the active code cell:
 
 Output:
 \`\`\`python
-
-x = 1
 \`\`\`
 </Example 3>
 
