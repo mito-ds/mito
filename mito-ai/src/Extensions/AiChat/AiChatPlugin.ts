@@ -3,16 +3,16 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { ICommandPalette, WidgetTracker, ToolbarButton } from '@jupyterlab/apputils';
+import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { addIcon, markdownIcon } from '@jupyterlab/ui-components';
+import { addIcon } from '@jupyterlab/ui-components';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_WRITE_MARKDOWN_DOC } from '../../commands';
 import { IChatTracker } from './token';
-import { getMarkdownDocumentation } from '../../utils/notebook';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+import MarkdownButtonWidget from './MarkdownButtonWidget';
 
 
 /**
@@ -138,13 +138,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
       notebookPanel.toolbar.insertItem(
         10, // Position of the button in the toolbar
         'writeMarkdownDoc', // Name of the toolbar item
-        new ToolbarButton({
-          icon: markdownIcon, // Use your custom icon here
-          tooltip: 'Write Markdown Documentation for Selected Cells', // Tooltip text
-          onClick: async () => {
-            await getMarkdownDocumentation(notebookTracker);
-          }
-        })
+        new MarkdownButtonWidget({ app, notebookTracker })
       );
     });
     
