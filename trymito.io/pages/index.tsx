@@ -21,7 +21,7 @@ import { classNames } from '../utils/classNames';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
-
+import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 const Home: NextPage = () => {
 
   useEffect(() => {
@@ -63,17 +63,18 @@ const Home: NextPage = () => {
                 <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
               </div>
             </div>
-            
-            <iframe
-              className='only-on-desktop-inline-block'
-              src="https://mito-for-st-demo.streamlit.app/?embed=true"
-              height="750"
-              style={{width: '80%', border: 'none'}}
-            ></iframe>
-            <div id='video' className='only-on-mobile'>
-              <video className={homeStyles.video} autoPlay loop disablePictureInPicture playsInline webkit-playsinline="true" muted>
-                <source src="/demo.mp4" />
-              </video>
+
+            <div className={classNames(spreadsheetAutomationStyles.video_wrapper)}>
+              <div className={spreadsheetAutomationStyles.video_container}>
+                <iframe 
+                  className={spreadsheetAutomationStyles.video}
+                  src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=d0a543a3-cb0c-456b-89ff-a61a35f1e540&hideEmbedTopBar=true" 
+                  title="Mito Demo" 
+                  frameBorder={0}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                /> 
+              </div>
             </div>
           </section>
 
