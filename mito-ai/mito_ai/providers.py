@@ -189,6 +189,17 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self._models is None:
             self._validate_api_key({"value": self.api_key})
 
+        # If the user has an OpenAI API key, then we don't need to check the Mito server quota.
+        if self.api_key:
+            return AICapabilities(
+                configuration={
+                    "max_completion_tokens": "nawaz",
+                    "model": self.model,
+                    "temperature": self.temperature,
+                },
+                provider="OpenAI (user key)",
+            )
+
         # Get the number of usages
         global _num_usages
         if _num_usages is None:
@@ -216,7 +227,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 "model": self.model,
                 "temperature": self.temperature,
             },
-            provider="OpenAI (user key)" if self.api_key else "Mito server",
+            provider="Mito server",
         )
 
     @property
