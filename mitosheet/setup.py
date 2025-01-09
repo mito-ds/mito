@@ -87,7 +87,8 @@ setup_args = dict(
         'plotly>=4.14.3',
         'chardet>=3.0.4',
         # For XLSX, reading - we don't fix so works on all python versions
-        'openpyxl'
+        'openpyxl',
+        'packaging'
     ],
     extras_require = {
         'test': [

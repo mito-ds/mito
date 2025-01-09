@@ -3,7 +3,7 @@
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modified BSD License.
-from distutils.version import LooseVersion
+from packaging.version import Version
 import pandas as pd
 import pytest
 import json
@@ -61,7 +61,7 @@ def test_sheet_json_holds_timed_deltas():
 
     # Check if we're on pandas 2.0, and if so, use the mixed format
     # to parse the dates.
-    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+    if Version(pd.__version__) < Version('2.0'):
         format = None
     else:
         format = 'mixed'
