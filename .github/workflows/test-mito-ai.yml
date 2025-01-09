@@ -47,10 +47,6 @@ jobs:
     - name: Install dependencies
       run: |
         cd tests
-        # For Python 3.12, upgrade setuptools first
-        if [ "${{ matrix.python-version }}" = "3.12" ]; then
-          python -m pip install --upgrade pip setuptools>=68.0.0
-        fi
         bash mac-setup.sh
     - name: Setup JupyterLab
       run: |
