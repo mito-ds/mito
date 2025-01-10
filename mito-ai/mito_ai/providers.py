@@ -302,6 +302,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 global _num_usages
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
+
+                print(request)
                 # If they don't have an Open AI key, use the mito server to get a completion
                 ai_response = await get_ai_completion_from_mito_server(
                     request.messages[-1].get("content", ""),
@@ -320,6 +322,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                     _num_usages = (_num_usages or 0) + 1
                     set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
 
+                self.log.debug(f"BEFORE!")
+
                 # Log the successful completion
                 log_ai_completion_success(
                     key_type=MITO_SERVER_KEY,
@@ -327,6 +331,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     last_message_content=str(request.messages[-1].get('content', '')),
                     response={"completion": ai_response},
                     num_usages=_num_usages,
+                    logger=self.log,
                 )
 
                 return CompletionReply(

@@ -53,16 +53,15 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
             message_id: UUID.uuid4(),
             messages: openAIFormattedMessages,
             type: 'inline_completion',
-            stream: true
+            stream: false
         });
 
         console.log('Received response from OpenAI API');
         console.log(aiResponse);
 
-        const errorMessage = aiResponse.error?.hint ? aiResponse.error.hint : `${aiResponse.error?.error_type}: ${aiResponse.error?.title}`;
-        if (errorMessage) {
+        if (aiResponse.error) {
             console.error('Error calling OpenAI API:', aiResponse.error);
-            throw new OpenAIError(errorMessage);
+            throw new OpenAIError(aiResponse.error.hint ? aiResponse.error.hint : `${aiResponse.error.error_type}: ${aiResponse.error.title}`);
         } else {
             console.log('Successfully called OpenAI API:', aiResponse);
             const aiMessage = aiResponse.items[0].content || '';
