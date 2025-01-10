@@ -2,8 +2,7 @@ import os
 from datetime import datetime
 from unittest.mock import patch
 from mito_ai.providers import OpenAIProvider
-
-CHAT_LIMIT = 500
+from mito_ai.utils.open_ai_utils import OPEN_SOURCE_AI_COMPLETIONS_LIMIT
 
 
 def test_os_user_mito_server_below_limit():
@@ -37,7 +36,7 @@ def test_os_user_mito_server_above_limit():
 
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", CHAT_LIMIT + 1),
+        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
         patch("mito_ai.providers._first_usage_date", today),
     ):
         capabilities = llm.capabilities
@@ -76,7 +75,7 @@ def test_os_user_openai_key_set_above_limit():
     today = datetime.now().strftime("%Y-%m-%d")
 
     with (
-        patch("mito_ai.providers._num_usages", CHAT_LIMIT + 1),
+        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
         patch("mito_ai.providers._first_usage_date", today),
     ):
         capabilities = llm.capabilities
@@ -117,7 +116,7 @@ def test_pro_user_mito_server_above_limit():
 
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", CHAT_LIMIT + 1),
+        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
         patch("mito_ai.providers._first_usage_date", today),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
@@ -157,7 +156,7 @@ def test_pro_user_openai_key_set_above_limit():
     today = datetime.now().strftime("%Y-%m-%d")
 
     with (
-        patch("mito_ai.providers._num_usages", CHAT_LIMIT + 1),
+        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
         patch("mito_ai.providers._first_usage_date", today),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
