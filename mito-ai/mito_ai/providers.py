@@ -179,19 +179,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         return bool(self.api_key)
 
-    # DELETE THIS
-    @property
-    def get_num_usages(self) -> int:
-        global _num_usages
-        return _num_usages or 0
-
-    @property
-    def get_first_usage_date(self) -> str:
-        global _first_usage_date
-        return _first_usage_date or ""
-
-    # DELETE END
-
     @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities.
