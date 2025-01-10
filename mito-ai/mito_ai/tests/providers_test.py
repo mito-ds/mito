@@ -9,6 +9,11 @@ CHAT_LIMIT = 500
 
 
 def test_os_user_mito_server_below_limit():
+    """
+    Open source user, with no OpenAI API key set (Mito server), below both limits.
+    No error should be thrown.
+    """
+
     llm = OpenAIProvider()
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -24,6 +29,11 @@ def test_os_user_mito_server_below_limit():
 
 
 def test_os_user_mito_server_above_limit():
+    """
+    Open source user, with no OpenAI API key set (Mito server), above chat limit.
+    An error should be thrown.
+    """
+
     llm = OpenAIProvider()
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -40,6 +50,11 @@ def test_os_user_mito_server_above_limit():
 
 
 def test_os_user_openai_key_set_below_limit():
+    """
+    Open source user, with OpenAI API key set, below both limits.
+    No error should be thrown.
+    """
+
     llm = OpenAIProvider()
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -54,6 +69,11 @@ def test_os_user_openai_key_set_below_limit():
 
 
 def test_os_user_openai_key_set_above_limit():
+    """
+    Open source user, with OpenAI API key set, above chat limit.
+    No error should be thrown, since the user is using their own key.
+    """
+
     llm = OpenAIProvider()
     today = datetime.now().strftime("%Y-%m-%d")
 
