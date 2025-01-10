@@ -35,6 +35,10 @@ jobs:
       run: |
         cd mito-ai
         pip install -e ".[test, deploy]"
+        jlpm install
+        jlpm build
+        jupyter labextension develop . --overwrite
+        jupyter server extension enable --py mito_ai
     - name: Run tests
       run: |
         cd mito-ai
