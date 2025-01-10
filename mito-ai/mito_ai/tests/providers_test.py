@@ -1,8 +1,6 @@
-import pytest
+import os
 from datetime import datetime
 from unittest.mock import patch
-import os
-from unittest.mock import mock_open
 from mito_ai.providers import OpenAIProvider
 
 CHAT_LIMIT = 500
