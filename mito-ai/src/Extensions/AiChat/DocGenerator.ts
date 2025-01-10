@@ -4,6 +4,7 @@ import { UUID } from '@lumino/coreutils';
 import { getSelectedCodeCellIds } from '../../utils/notebook';
 import { insertMarkdownBeforeCell, findCellIndexById, getCellCodeByID, writeToCell } from '../../utils/notebook';
 import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import type OpenAI from 'openai';
 
 const LOADING_MARKDOWN = '> *`⏳ Generating documentation... please wait`*';
 
@@ -37,29 +38,22 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
     });
     
     try {
-        // Add timeout to the request
-        // const timeoutDuration = 30000; // 30 seconds
-        // const timeoutPromise = new Promise((_, reject) => {
-        //     setTimeout(() => reject(new Error('Request timed out')), timeoutDuration);
-        // });
-
-        // const fetchPromise = requestAPI('mito_ai/completion', {
-        //     method: 'POST',
-        //     body: JSON.stringify({
-        //         messages: [{role: 'user', content: "Write markdown documentation for the following code:\n" + combinedCode}]
-        //     })
-        // });
 
         await websocketClient.ready;
 
         console.log('Sending message to OpenAI API');
 
+        const prompt = "Write markdown documentation for the following code:\n" + combinedCode;
+
+        const openAIFormattedMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+            { "role": "user", "content": prompt },
+          ]
+
         const aiResponse = await websocketClient.sendMessage({
             message_id: UUID.uuid4(),
-            messages: [{role: 'user', 
-                content: "Write markdown documentation for the following code:\n" + combinedCode}],
-            type: 'codeExplain',
-            stream: false
+            messages: openAIFormattedMessages,
+            type: 'inline_completion',
+            stream: true
         });
 
         console.log('Received response from OpenAI API');
