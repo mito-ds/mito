@@ -37,7 +37,10 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
     """
     pro = is_pro()
 
-    if not pro and n_counts >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
+    if pro:
+        return
+
+    if n_counts >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
         log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
         raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
 
