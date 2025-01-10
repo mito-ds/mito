@@ -331,7 +331,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     last_message_content=str(request.messages[-1].get('content', '')),
                     response={"completion": ai_response},
                     num_usages=_num_usages,
-                    logger=self.log,
                 )
 
                 return CompletionReply(

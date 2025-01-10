@@ -160,7 +160,6 @@ def log_ai_completion_success(
     last_message_content: str,
     response: Dict[str, Any],
     num_usages: Optional[int] = None,
-    logger: logging.Logger = None
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -177,8 +176,10 @@ def log_ai_completion_success(
         KEY_TYPE_PARAM: key_type,
     }
 
-    logger.debug(f"HERE 1")
-
+    # Not all prompts will contain this phrase, so we check to make sure it exists
+    # before parsing on it. TODO: If we move to creating the prompts on the backend,
+    # then we can send over info like `code_cell_input` as a standalone param instead 
+    # of trying to parse it out from the message, which is not as robust.
     code_cell_input = ''
     if "Code in the active code cell:" in last_message_content:
 
@@ -190,15 +191,10 @@ def log_ai_completion_success(
             .split("```")[0]
         )
 
-    logger.debug(f"HERE 2")
-
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
-    logger.debug(f"HERE 3")
     full_prompt_chunks = chunk_param(last_message_content, "full_prompt")
-    logger.debug(f"HERE 4")
     response_chunks = chunk_param(response["completion"], "response")
-    logger.debug(f"HERE 5")
 
     for chunk_key, chunk_value in code_cell_input_chunks.items():
         base_params[chunk_key] = chunk_value
@@ -212,8 +208,6 @@ def log_ai_completion_success(
     # Log number of usages (for mito server)
     if num_usages is not None:
         base_params[MITO_SERVER_NUM_USAGES] = str(num_usages)
-
-    logger.debug(f"HERE 6")
 
     if prompt_type == "smartDebug":
         error_message = (
@@ -244,13 +238,10 @@ def log_ai_completion_success(
 
         log("mito_ai_chat_success", params=final_params)
     elif prompt_type == "inline_completion":
-        logger.debug(f"HERE 7", base_params)
-
 
         final_params = base_params
 
         log("mito_ai_inline_completion_success", params=final_params)
-        logger.debug(f"HERE 8")
     else:
         final_params = base_params
         final_params["note"] = (
