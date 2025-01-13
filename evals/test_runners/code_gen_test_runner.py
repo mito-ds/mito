@@ -88,6 +88,21 @@ def run_code_gen_test(
         # We always add a newline between the current_cell_contents and the prefix. 
         # But we don't add a newline between the prefix -> ai_generated_code -> suffix, 
         # because the inline code completion can occur in the middle of a line. 
+
+        def strip_last_line_of_prefix_from_ai_generated_code(prefix: str, ai_generated_code: str) -> str:
+            # Remove the last line of the prefix
+            prefix_lines = prefix.split("\n")
+            last_prefix_line = prefix_lines[-1]
+
+            # If the ai_generated_code starts with the prefix_line, remove it
+            if ai_generated_code.startswith(last_prefix_line):
+                ai_generated_code = ai_generated_code[len(last_prefix_line):]
+
+            return ai_generated_code
+
+
+        ai_generated_code = strip_last_line_of_prefix_from_ai_generated_code(test.prefix or "", ai_generated_code)
+
         actual_code = current_cell_contents_script + "\n" + (test.prefix or "") + ai_generated_code + (test.suffix or "")
 
     # Execute the code and check if they produce the same results
