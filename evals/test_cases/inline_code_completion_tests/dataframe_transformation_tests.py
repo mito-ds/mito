@@ -37,7 +37,7 @@ DATAFRAME_TRANSFORMATION_TESTS = [
     InlineCodeCompletionTestCase(
         name="complete_condition_from_data_understanding",
         test_case_core=FILTER_ANNUAL_INCOME_AND_LOAN_CONDITION,
-        prefix="loans_df = loans_df[loans_df['annual_income'] > 100000 & loans_df['loan_condition'] == 'Bad ",
+        prefix="loans_df = loans_df[(loans_df['annual_income'] > 100000) & (loans_df['loan_condition'] == Bad ",
         suffix="",
         type_tags=['code_completion'],
     ),
