@@ -263,8 +263,8 @@ weighted_average_interest_rate = total_weighted_interest_rates / total_loan_bala
     InlineCodeCompletionTestCase(
         name="separate_data_by_column_value_prefix",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
-        prefix="""loans_df_low = loans_df[loans_df['income_category'] == 'Low']
-loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']""",
+        prefix="""low_df = loans_df[loans_df['income_category'] == 'Low']
+medium_df = loans_df[loans_df['income_category'] == 'Medium']""",
         suffix="",
         type_tags=['code_completion'],
     ),
@@ -274,17 +274,17 @@ loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']""",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
         prefix="""""",
         suffix="""
-loans_df_medium = loans_df[loans_df['income_category'] == 'Medium']
-loans_df_high = loans_df[loans_df['income_category'] == 'High']""",
+medium_df = loans_df[loans_df['income_category'] == 'Medium']
+high_df = loans_df[loans_df['income_category'] == 'High']""",
         type_tags=['code_completion'],
     ),
 
     InlineCodeCompletionTestCase(
         name="separate_data_by_column_value_prefix_and_suffix",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
-        prefix="""loans_df_low = loans_df[loans_df['income_category'] == 'Low']""",
+        prefix="""low_df = loans_df[loans_df['income_category'] == 'Low']""",
         suffix="""
-loans_df_high = loans_df[loans_df['income_category'] == 'High']
+low_df = loans_df[loans_df['income_category'] == 'High']
 """,
         type_tags=['code_completion'],
     ),
