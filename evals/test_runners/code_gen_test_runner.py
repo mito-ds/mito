@@ -131,11 +131,6 @@ def debug_failed_test_case(
     print(f"Actual Code: {actual_code}")
     print(f"Expected Code: {expected_code}")
     print(f"Equal Globals: {equal_globals}")
-    if not equal_globals:
-        expected_globals_to_compare = get_globals_to_compare(expected_globals, test.test_case_core.variables_to_compare)
-        actual_globals_to_compare = get_globals_to_compare(actual_globals, test.test_case_core.variables_to_compare)
-        pprint.pprint(f"Expected Globals: {expected_globals_to_compare}")
-        pprint.pprint(f"Actual Globals: {actual_globals_to_compare}")
     print(f"Equal Outputs: {equal_outputs}")
     if not equal_outputs:
         print(f"Expected Output: {expected_output}")
