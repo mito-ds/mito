@@ -255,7 +255,7 @@ weighted_average_interest_rate = total_weighted_interest_rates / total_loan_bala
     InlineCodeCompletionTestCase(
         name="separate_data_by_column_value_comment",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
-        prefix="""# Create a new dataframe for each income category. ie: loans_df_low, loans_df_medium, etc.""",
+        prefix="""# Create a new dataframe for each income category. ie: low_df, medium_df, etc.""",
         suffix="",
         type_tags=['comment_following'],
     ),
