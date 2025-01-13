@@ -284,7 +284,7 @@ high_df = loans_df[loans_df['income_category'] == 'High']""",
         test_case_core=SEPARATE_DATA_BY_COLUMN_VALUE,
         prefix="""low_df = loans_df[loans_df['income_category'] == 'Low']""",
         suffix="""
-low_df = loans_df[loans_df['income_category'] == 'High']
+high_df = loans_df[loans_df['income_category'] == 'High']
 """,
         type_tags=['code_completion'],
     ),
