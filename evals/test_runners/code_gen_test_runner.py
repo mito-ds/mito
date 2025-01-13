@@ -65,7 +65,7 @@ def run_code_gen_test(
         test: Union[ChatTestCase, InlineCodeCompletionTestCase], 
         prompt_generator: Union[ChatPromptGenerator, InlineCodeCompletionPromptGenerator]
 ) -> TestCaseResult:
-    print(f"\nRunning test: {test.name}")
+    print(f"\n\033[1mRunning test: {test.name}\033[0m")
 
     # Get the script from the cells
     current_cell_contents_script = get_script_from_cells(test.test_case_core.notebook_state.cell_contents)
