@@ -98,6 +98,9 @@ setup(
             'twine==5.1.1',
             "setuptools==56.0.0"
         ],
+        'test': [
+            'pytest==8.3.4',
+        ],
     },
     keywords=["AI", "Jupyter", "Mito"],
     entry_points={
