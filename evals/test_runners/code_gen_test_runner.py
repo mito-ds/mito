@@ -85,24 +85,28 @@ def run_code_gen_test(
     if test.test_type == 'chat':
         actual_code = current_cell_contents_script + "\n" + ai_generated_code
     else:
-        # We always add a newline between the current_cell_contents and the prefix. 
-        # But we don't add a newline between the prefix -> ai_generated_code -> suffix, 
-        # because the inline code completion can occur in the middle of a line. 
-
+        
         def strip_last_line_of_prefix_from_ai_generated_code(prefix: str, ai_generated_code: str) -> str:
             # Remove the last line of the prefix
             prefix_lines = prefix.split("\n")
             last_prefix_line = prefix_lines[-1]
 
             # If the ai_generated_code starts with the prefix_line, remove it
-            if ai_generated_code.startswith(last_prefix_line):
+            # This is actually not enough. This only handles the case where the entire last line of the prefix
+            # is repeated. However, in an eval like `convert_annual_income_to_float_no_comment`, the test fails
+            # because the AI repeats the last two letters of prefix, writing out the code 'flfloat' instead of 'float'.
+            if ai_generated_code.startswith(last_prefix_line) and last_prefix_line != "":
+                print(f"STRIPPING {last_prefix_line} from {ai_generated_code}")
                 ai_generated_code = ai_generated_code[len(last_prefix_line):]
+                print(f"RESULT: {ai_generated_code}")
 
             return ai_generated_code
 
-
         ai_generated_code = strip_last_line_of_prefix_from_ai_generated_code(test.prefix or "", ai_generated_code)
 
+        # We always add a newline between the current_cell_contents and the prefix. 
+        # But we don't add a newline between the prefix -> ai_generated_code -> suffix, 
+        # because the inline code completion can occur in the middle of a line. 
         actual_code = current_cell_contents_script + "\n" + (test.prefix or "") + ai_generated_code + (test.suffix or "")
 
     # Execute the code and check if they produce the same results
