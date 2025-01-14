@@ -107,7 +107,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             message: The message received on the WebSocket.
         """
         # first, verify that the message is an `CompletionRequest`.
-        self.log.info("Message received: %s", message)
+        self.log.debug("Message received: %s", message)
         try:
             parsed_message = json.loads(message)
             request = CompletionRequest(**parsed_message)
@@ -122,15 +122,16 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.full_message_history = []
             return
         
+        message_metadata = request.metadata
         message_chain = []
 
-        # Inline completion does has its own temporary message chain
-        #   that should not be saved into the full message history
+        # Inline completion has its own temporary message chain
+        #   that should be used separately from the full message history
         if message_type == "inline_completion":
             prompt = create_inline_prompt(
-                prefix=request.metadata.get("prefix", ""), # type: ignore
-                suffix=request.metadata.get("suffix", ""), # type: ignore
-                variables=request.metadata.get("variables", []), # type: ignore
+                prefix=message_metadata.prefix or "",
+                suffix=message_metadata.suffix or "",
+                variables=message_metadata.variables or [],
             )
 
             message_chain = [
@@ -143,7 +144,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     "content": prompt
                 }
             ]
-        
         else:
             if message_type == "chat":
                 if len(self.full_message_history) == 0:
@@ -154,9 +154,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                         }
                     )
                 prompt = create_chat_prompt(
-                    variables=request.metadata.get("variables", []), # type: ignore
-                    active_cell_code=request.metadata.get("activeCellCode", ""), # type: ignore
-                    input=request.metadata.get("input", ""), # type: ignore
+                    variables=message_metadata.variables or [],
+                    active_cell_code=message_metadata.activeCellCode or "",
+                    input=message_metadata.input or "",
                 )
             
             elif message_type == "codeExplain":
@@ -179,9 +179,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                         }
                     )
                 prompt = create_error_prompt(
-                    errorMessage=request.metadata.get("errorMessage", ""), # type: ignore
-                    active_cell_code=request.metadata.get("activeCellCode", ""), # type: ignore
-                    variables=request.metadata.get("variables", []), # type: ignore
+                    errorMessage=message_metadata.errorMessage or "",
+                    active_cell_code=message_metadata.activeCellCode or "",
+                    variables=message_metadata.variables or [],
                 )
             else:
                 self.log.error(f"Invalid message type: {message_type}")

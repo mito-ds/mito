@@ -1,5 +1,7 @@
+from typing import List
+
 def create_chat_prompt(
-    variables: list, 
+    variables: List[str],
     active_cell_code: str, 
     input: str
 ) -> str:
@@ -100,7 +102,7 @@ This code creates a function called `multiply` that takes two arguments `x` and 
 def create_inline_prompt(
         prefix: str,
         suffix: str,
-        variables: list,
+        variables: List[str],
 ):
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     prompt = f"""Your Task:
@@ -200,7 +202,7 @@ IMPORTANT: Notice in Example 3 that the output starts with a newline because the
 def create_error_prompt(
     errorMessage: str,
     active_cell_code: str,
-    variables: list
+    variables: List[str],
 ):
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     prompt = f"""Defined Variables:
