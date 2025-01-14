@@ -127,7 +127,7 @@ Output:
 
         last_prefix_line = prefix.split("\n")[-1]
         if output.startswith(last_prefix_line) and last_prefix_line != "":
-        # Remove the last line of the prefix if it is the same as the first line of the output
+            # Remove the last line of the prefix if it is the same as the first line of the output
             output = output[len(last_prefix_line):]
 
         first_suffix_line = suffix.split("\n")[0]
