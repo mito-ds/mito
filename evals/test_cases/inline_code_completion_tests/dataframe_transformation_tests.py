@@ -291,26 +291,6 @@ high_df = loans_df[loans_df['income_category'] == 'High']
     ),
 
     InlineCodeCompletionTestCase(
-        name="nba_players_follow_prefix_pattern",
-        test_case_core=CodeGenTestCaseCore(
-            notebook_state=NBA_PLAYERS_NOTEBOOK,
-            expected_code="""
-lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
-nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
-warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
-bucks_players = nba_players_df[nba_players_df['team'] == 'Milwaukee Bucks']
-""",
-            workflow_tags=["df_transformation", "pandas"],
-        ),
-        prefix="""
-lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
-nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
-warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
-buck""",
-        suffix="""""",
-        type_tags=['code_completion'],
-    ),
-        InlineCodeCompletionTestCase(
         name="nba_players_follow_prefix_pattern_bucks",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=NBA_PLAYERS_NOTEBOOK,
@@ -321,12 +301,34 @@ warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warrio
 bucks_players = nba_players_df[nba_players_df['team'] == 'Milwaukee Bucks']
 """,
             workflow_tags=["df_transformation", "pandas"],
+            variables_to_compare=["lakers_players", "nets_players", "warriors_players", "bucks_players"],
         ),
         prefix="""
 lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
 nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
 warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
+buck""",
+        suffix="""""",
+        type_tags=['code_completion'],
+    ),
+        InlineCodeCompletionTestCase(
+        name="nba_players_follow_prefix_pattern_clippers",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=NBA_PLAYERS_NOTEBOOK,
+            expected_code="""
+lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
+nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
+warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
+clippers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Clippers']
 """,
+            workflow_tags=["df_transformation", "pandas"],
+            variables_to_compare=["lakers_players", "nets_players", "warriors_players", "clippers_players"],
+        ),
+        prefix="""
+lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
+nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
+warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
+clip""",
         suffix="""""",
         type_tags=['code_completion'],
     ),
@@ -341,6 +343,7 @@ warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warrio
 mavericks_players = nba_players_df[nba_players_df['team'] == 'Dallas Mavericks']
 """,
             workflow_tags=["df_transformation", "pandas"],
+            variables_to_compare=["lakers_players", "nets_players", "warriors_players", "mavericks_players"],
         ),
         prefix="""
 lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
@@ -360,12 +363,32 @@ nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
 warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
 """,
             workflow_tags=["df_transformation", "pandas"],
+            variables_to_compare=["lakers_players", "nets_players", "warriors_players"],
         ),
         prefix="""
 lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
 nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
 warr""",
         suffix="""""",
+        type_tags=['code_completion'],
+    ),
+    InlineCodeCompletionTestCase(
+        name="nba_players_follow_suffix_pattern_warriors",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=NBA_PLAYERS_NOTEBOOK,
+            expected_code="""
+lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
+nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
+warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
+""",
+            workflow_tags=["df_transformation", "pandas"],
+            variables_to_compare=["lakers_players", "nets_players", "warriors_players"],
+        ),
+        prefix="""
+lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
+nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
+""",
+        suffix="""nba_players_df[nba_players_df['team'] == 'Golden State Warriors']""",
         type_tags=['code_completion'],
     ),
 ]

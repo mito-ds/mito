@@ -82,27 +82,11 @@ def run_code_gen_test(
     ai_generated_code = get_open_ai_completion(prompt)
 
     # Construct the actual code
-    if test.test_type == 'chat':
+    if isinstance(prompt_generator, ChatPromptGenerator):
         actual_code = current_cell_contents_script + "\n" + ai_generated_code
     else:
-        
-        def strip_last_line_of_prefix_from_ai_generated_code(prefix: str, ai_generated_code: str) -> str:
-            # Remove the last line of the prefix
-            prefix_lines = prefix.split("\n")
-            last_prefix_line = prefix_lines[-1]
-
-            # If the ai_generated_code starts with the prefix_line, remove it
-            # This is actually not enough. This only handles the case where the entire last line of the prefix
-            # is repeated. However, in an eval like `convert_annual_income_to_float_no_comment`, the test fails
-            # because the AI repeats the last two letters of prefix, writing out the code 'flfloat' instead of 'float'.
-            if ai_generated_code.startswith(last_prefix_line) and last_prefix_line != "":
-                print(f"STRIPPING {last_prefix_line} from {ai_generated_code}")
-                ai_generated_code = ai_generated_code[len(last_prefix_line):]
-                print(f"RESULT: {ai_generated_code}")
-
-            return ai_generated_code
-
-        ai_generated_code = strip_last_line_of_prefix_from_ai_generated_code(test.prefix or "", ai_generated_code)
+        # Run the post-processing function
+        ai_generated_code = prompt_generator.post_process_output(ai_generated_code, test.prefix or "", test.suffix or "")
 
         # We always add a newline between the current_cell_contents and the prefix. 
         # But we don't add a newline between the prefix -> ai_generated_code -> suffix, 
