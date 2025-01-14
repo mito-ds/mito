@@ -30,7 +30,6 @@ export interface IChatMessageMetadata {
 export interface IOutgoingMessage {
     promptType: 'chat' | 'smartDebug' | 'codeExplain' | 'system';
     metadata: IChatMessageMetadata;
-    newChat?: boolean;
   }
 
 export interface IChatHistory {

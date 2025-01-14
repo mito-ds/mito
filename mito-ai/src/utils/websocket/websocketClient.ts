@@ -46,7 +46,7 @@ export interface ICompletionRequest {
   /**
    * The metadata containing structured data for backend prompt generation.
    */
-  metadata?: IChatMessageMetadata; // Add this field
+  metadata: IChatMessageMetadata;
   /**
    * Whether to stream the completion or not.
    */

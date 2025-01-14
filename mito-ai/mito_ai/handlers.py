@@ -260,9 +260,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             request: The completion request description.
         """
-        start = time.time()        
-
-        # Call provider with the newly built request
+        start = time.time()
         reply = await self._llm.request_completions(request, prompt_type)
 
         self.full_message_history.append(
