@@ -349,30 +349,22 @@ export class MitoAIInlineCompleter
       .replace(/```$/, '')           // Remove closing code fence
       .replace(/\n$/, '')            // Remove trailing newline
 
-    console.log("IN CLEANING")
-    console.log('prefix', prefix)
-    console.log('suffix', suffix)
-
     if (prefix) {
       // Remove duplicate prefix content
       const lastPrefixLine = prefix.split('\n').slice(-1)[0];
       if (cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
-        console.log(`Removing Prefix: ${lastPrefixLine} from ${cleanedCompletion}`)
         cleanedCompletion = cleanedCompletion.slice(lastPrefixLine.length);
       }
-
     }
 
     if (suffix) {
       // Remove duplicate suffix content
       const firstSuffixLine = suffix.split('\n')[0];
       if (cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
-        console.log(`Removing Suffix: ${firstSuffixLine} from ${cleanedCompletion}`)
         cleanedCompletion = cleanedCompletion.slice(0, -firstSuffixLine.length);
       }
     }
 
-    console.log(cleanedCompletion)
     return cleanedCompletion;
   }
 
