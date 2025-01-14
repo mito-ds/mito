@@ -179,6 +179,7 @@ export class MitoAIInlineCompleter
 
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
+
       const variables = this._variableManager.variables;
       const prompt = createInlinePrompt(prefix, suffix, variables);
       const openAIFormattedMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
@@ -210,7 +211,7 @@ export class MitoAIInlineCompleter
       return {
         items: result.items.map(item => ({
           ...item,
-          insertText: this._cleanCompletion(item.content)
+          insertText: this._cleanCompletion(item.content, prefix, suffix)
         }))
       };
     } finally {
@@ -342,13 +343,40 @@ export class MitoAIInlineCompleter
     });
   }
 
-  private _cleanCompletion(rawCompletion: string) {
-    return rawCompletion
+  private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string) {
+    let cleanedCompletion = rawCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
       .replace(/```$/, '')           // Remove closing code fence
       .replace(/\n$/, '')            // Remove trailing newline
 
+    console.log("IN CLEANING")
+    console.log('prefix', prefix)
+    console.log('suffix', suffix)
+
+    if (prefix) {
+      // Remove duplicate prefix content
+      const lastPrefixLine = prefix.split('\n').slice(-1)[0];
+      if (cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
+        console.log(`Removing Prefix: ${lastPrefixLine} from ${cleanedCompletion}`)
+        cleanedCompletion = cleanedCompletion.slice(lastPrefixLine.length);
+      }
+
+    }
+
+    if (suffix) {
+      // Remove duplicate suffix content
+      const firstSuffixLine = suffix.split('\n')[0];
+      if (cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
+        console.log(`Removing Suffix: ${firstSuffixLine} from ${cleanedCompletion}`)
+        cleanedCompletion = cleanedCompletion.slice(0, -firstSuffixLine.length);
+      }
+    }
+
+    console.log(cleanedCompletion)
+    return cleanedCompletion;
   }
+
+
 
   private _resetCurrentStream() {
     this._currentToken = '';
