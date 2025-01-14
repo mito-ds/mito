@@ -267,7 +267,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.reply(reply)
 
     async def _handle_request(self, request: CompletionRequest, prompt_type: str) -> None:
-        self.log.info("Handling request: %s", request)
         """Handle completion request.
 
         Args:
@@ -275,7 +274,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         start = time.time()        
 
-        self.log.info("Request to LLM: %s", request)
         # Call provider with the newly built request
         reply = await self._llm.request_completions(request, prompt_type)
 
