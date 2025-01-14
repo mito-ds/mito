@@ -13,6 +13,8 @@ FUNCTION_TESTS = [
 # Return the sum of two numbers
 def my_sum(a, b):
     return a + b
+    
+x = my_sum(1, 2)
 """,
         ),
         prefix="""# Return the sum of two numbers""",

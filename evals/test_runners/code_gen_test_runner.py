@@ -1,3 +1,4 @@
+import pprint
 from typing import Dict, List, Literal, Optional, Union
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
 from evals.asserts.equal_outputs import assert_equal_outputs
@@ -8,12 +9,11 @@ from evals.test_cases.chat_tests import CHAT_TESTS
 from evals.test_cases.inline_code_completion_tests import INLINE_CODE_COMPLETION_TESTS
 from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
-from evals.asserts.equal_globals import assert_equal_globals
+from evals.asserts.equal_globals import assert_equal_globals, get_globals_to_compare
 
 def run_chat_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
     _run_code_gen_tests('chat', CHAT_TESTS, CHAT_PROMPT_GENERATORS, test_name, prompt_name, tags)
 
-    
 def run_inline_code_completion_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
     _run_code_gen_tests('inline_code_completion', INLINE_CODE_COMPLETION_TESTS, INLINE_CODE_COMPLETION_PROMPT_GENERATORS, test_name, prompt_name, tags)
 
@@ -65,7 +65,7 @@ def run_code_gen_test(
         test: Union[ChatTestCase, InlineCodeCompletionTestCase], 
         prompt_generator: Union[ChatPromptGenerator, InlineCodeCompletionPromptGenerator]
 ) -> TestCaseResult:
-    print(f"Running test: {test.name}")
+    print(f"\n\033[1mRunning test: {test.name}\033[0m")
 
     # Get the script from the cells
     current_cell_contents_script = get_script_from_cells(test.test_case_core.notebook_state.cell_contents)
@@ -97,6 +97,9 @@ def run_code_gen_test(
     except Exception as e:
         # Fail early if we can't execute the code
         print(f"Failed to execute code with error: {e}")
+        print(f"AI Generated Code: {ai_generated_code}")
+        print(f"Actual Code: {actual_code}")
+        print(f"Expected Code: {expected_code}")
         return TestCaseResult(test=test, passed=False)
 
     equal_globals = assert_equal_globals(expected_globals, actual_globals, test.test_case_core.variables_to_compare)
@@ -104,5 +107,31 @@ def run_code_gen_test(
 
     passed = equal_globals and equal_outputs
 
+    if not passed:
+        debug_failed_test_case(test, ai_generated_code, actual_code, expected_code, equal_globals, equal_outputs, expected_globals, actual_globals, expected_output, actual_output)
+
     return TestCaseResult(test=test, passed=passed)
 
+
+def debug_failed_test_case(
+        test: Union[ChatTestCase, InlineCodeCompletionTestCase],
+        ai_generated_code: str, 
+        actual_code: str,
+        expected_code: str, 
+        equal_globals: bool, 
+        equal_outputs: bool, 
+        expected_globals: Dict[str, str],
+        actual_globals: Dict[str, str],
+        expected_output: str,
+        actual_output: str,
+    ) -> None:
+
+
+    print(f"AI Generated Code: {ai_generated_code}")
+    print(f"Actual Code: {actual_code}")
+    print(f"Expected Code: {expected_code}")
+    print(f"Equal Globals: {equal_globals}")
+    print(f"Equal Outputs: {equal_outputs}")
+    if not equal_outputs:
+        print(f"Expected Output: {expected_output}")
+        print(f"Actual Output: {actual_output}")
