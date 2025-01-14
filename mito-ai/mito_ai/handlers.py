@@ -3,7 +3,7 @@ import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Awaitable, Dict, Optional
+from typing import Any, Awaitable, Dict, Optional, Union, List
 
 import tornado
 import tornado.ioloop
@@ -11,6 +11,7 @@ import tornado.web
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
+from openai.types.chat import ChatCompletionMessageParam
 
 from .logger import get_logger
 from .models import (
@@ -22,6 +23,16 @@ from .models import (
     ErrorMessage,
 )
 from .providers import OpenAIProvider
+from .prompt_builders import (
+    create_chat_prompt,
+    create_chat_preamble,
+    create_inline_prompt,
+    create_inline_preamble,
+    create_explain_code_prompt,
+    create_explain_code_preamble,
+    create_error_prompt,
+    create_error_preamble
+)
 from .utils.create import initialize_user
 
 __all__ = ["CompletionHandler"]
@@ -38,6 +49,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
+        self.full_message_history = []
 
     @property
     def log(self) -> logging.Logger:
@@ -85,6 +97,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Stop observing the provider error
         self._llm.unobserve(self._send_error, "last_error")
 
+        # Clear the message history
+        self.full_message_history = []
+
     async def on_message(self, message: str) -> None:
         """Handle incoming messages on the WebSocket.
 
@@ -92,14 +107,101 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             message: The message received on the WebSocket.
         """
         # first, verify that the message is an `CompletionRequest`.
-        self.log.debug("Message received: %s", message)
+        self.log.info("Message received: %s", message)
         try:
             parsed_message = json.loads(message)
             request = CompletionRequest(**parsed_message)
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
+        
+        message_type = request.type
 
+        # Clear history if the type is "clear_history"
+        if message_type == "clear_history":
+            self.full_message_history = []
+            return
+        
+        message_chain = []
+
+        # Inline completion does has its own temporary message chain
+        #   that should not be saved into the full message history
+        if message_type == "inline_completion":
+            prompt = create_inline_prompt(
+                prefix=request.metadata.get("prefix", ""), # type: ignore
+                suffix=request.metadata.get("suffix", ""), # type: ignore
+                variables=request.metadata.get("variables", []), # type: ignore
+            )
+
+            message_chain = [
+                {
+                    "role": "system",
+                    "content": create_inline_preamble()
+                },
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            ]
+        
+        else:
+            if message_type == "chat":
+                if len(self.full_message_history) == 0:
+                    self.full_message_history.append(
+                        {
+                            "role": "system", 
+                            "content": create_chat_preamble()
+                        }
+                    )
+                prompt = create_chat_prompt(
+                    variables=request.metadata.get("variables", []), # type: ignore
+                    active_cell_code=request.metadata.get("activeCellCode", ""), # type: ignore
+                    input=request.metadata.get("input", ""), # type: ignore
+                )
+            
+            elif message_type == "codeExplain":
+                if len(self.full_message_history) == 0:
+                    self.full_message_history.append(
+                        {
+                            "role": "system", 
+                            "content": create_explain_code_preamble()
+                        }
+                    )
+                prompt = create_explain_code_prompt(
+                    active_cell_code=request.metadata.get("activeCellCode", ""), # type: ignore
+                )
+            elif message_type == "smartDebug":
+                if len(self.full_message_history) == 0:
+                    self.full_message_history.append(
+                        {
+                            "role": "system", 
+                            "content": create_error_preamble()
+                        }
+                    )
+                prompt = create_error_prompt(
+                    errorMessage=request.metadata.get("errorMessage", ""), # type: ignore
+                    active_cell_code=request.metadata.get("activeCellCode", ""), # type: ignore
+                    variables=request.metadata.get("variables", []), # type: ignore
+                )
+            else:
+                self.log.error(f"Invalid message type: {message_type}")
+        
+            self.full_message_history.append(
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            )
+            message_chain = self.full_message_history
+            
+        
+        request = CompletionRequest(
+            type=request.type,
+            message_id=request.message_id,
+            messages=message_chain,
+            metadata=request.metadata,
+        )
+        
         try:
             if request.stream and self._llm.can_stream:
                 await self._handle_stream_request(request, prompt_type=request.type)
@@ -159,13 +261,24 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.reply(reply)
 
     async def _handle_request(self, request: CompletionRequest, prompt_type: str) -> None:
+        self.log.info("Handling request: %s", request)
         """Handle completion request.
 
         Args:
             request: The completion request description.
         """
-        start = time.time()
+        start = time.time()        
+
+        self.log.info("Request to LLM: %s", request)
+        # Call provider with the newly built request
         reply = await self._llm.request_completions(request, prompt_type)
+
+        self.full_message_history.append(
+            {
+                "role": "assistant", 
+                "content": reply.items[0].content
+            }
+        )
         self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")

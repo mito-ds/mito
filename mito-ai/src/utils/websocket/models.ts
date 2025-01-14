@@ -2,7 +2,6 @@ import type {
   IInlineCompletionError,
   IInlineCompletionItem
 } from '@jupyterlab/completer';
-import type OpenAI from 'openai';
 
 /**
  * AI capabilities.
@@ -50,28 +49,6 @@ export type ErrorMessage = CompletionError & {
    */
   type: 'error';
 };
-
-/**
- * Mito AI completion request.
- */
-export interface ICompletionRequest {
-  /**
-   * The type of the message.
-   */
-  type: string;
-  /**
-   * The message ID.
-   */
-  message_id: string;
-  /**
-   * The chat completion messages history.
-   */
-  messages: OpenAI.Chat.ChatCompletionMessageParam[];
-  /**
-   * Whether to stream the completion or not.
-   */
-  stream: boolean;
-}
 
 /**
  * A completion suggestion.

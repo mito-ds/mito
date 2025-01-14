@@ -4,7 +4,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ChatHistoryManager } from './ChatHistoryManager';
+import { ChatHistoryManager, IOutgoingMessage } from './ChatHistoryManager';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -147,6 +147,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         newChatHistoryManager.addDebugErrorMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager)
 
+        // Notify the backend to clear the prompt history
+        websocketClient.sendMessage({
+            message_id: UUID.uuid4(),
+            type: 'clear_history',
+            stream: false,
+            metadata: {}
+        });
+
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(newChatHistoryManager)
     }
@@ -159,6 +167,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
         newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
+
+        // Notify the backend to clear the prompt history
+        websocketClient.sendMessage({
+            message_id: UUID.uuid4(),
+            type: 'clear_history',
+            stream: false,
+            metadata: {}
+        });
         
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(newChatHistoryManager)
@@ -210,19 +226,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager) => {
         setLoadingAIResponse(true)
 
-        const aiOptimizedHistory = newChatHistoryManager.getAIOptimizedHistory()
-        const promptType = aiOptimizedHistory[aiOptimizedHistory.length - 1]?.promptType
+        const outgoingMessage = newChatHistoryManager.getOutgoingMessage();
+        if (Object.keys(outgoingMessage).length === 0) {
+            console.error("No outgoing message found. Cannot send to backend.");
+            return;
+        }
+        
+        const { promptType, metadata } = outgoingMessage as IOutgoingMessage;
 
         try {
             await websocketClient.ready;
 
             const aiResponse = await websocketClient.sendMessage({
               message_id: UUID.uuid4(),
-              messages: newChatHistoryManager
-                .getAIOptimizedHistory()
-                .map(historyItem => historyItem.message),
               type: promptType,
-              stream: false
+              stream: false,
+              metadata
             });
 
             if (aiResponse.error) {
@@ -338,7 +357,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const clearChatHistory = () => {
-        setChatHistoryManager(getDefaultChatHistoryManager(notebookTracker, variableManager))
+        // Reset frontend chat history
+        setChatHistoryManager(getDefaultChatHistoryManager(notebookTracker, variableManager));
+
+        // Notify the backend to clear the prompt history
+        websocketClient.sendMessage({
+            message_id: UUID.uuid4(),
+            type: 'clear_history',
+            stream: false,
+            metadata: {}
+        });
     }
 
     useEffect(() => {

@@ -12,8 +12,6 @@ import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { createInlinePrompt } from '../../prompts/InlinePrompt';
-import type OpenAI from 'openai';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
@@ -23,6 +21,7 @@ import type {
   ICompletionStreamChunk,
   InlineCompletionStreamChunk
 } from '../../utils/websocket/models';
+import { IChatMessageMetadata } from '../AiChat/ChatHistoryManager';
 
 /**
  * Mito AI inline completer
@@ -180,15 +179,16 @@ export class MitoAIInlineCompleter
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
       const variables = this._variableManager.variables;
-      const prompt = createInlinePrompt(prefix, suffix, variables);
-      const openAIFormattedMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-        { "role": "user", "content": prompt },
-      ]
+      const metadata: IChatMessageMetadata = {
+        variables: variables,
+        prefix: prefix,
+        suffix: suffix
+      }
       const result = await this._client.sendMessage({
-        messages: openAIFormattedMessages,
+        type: 'inline_completion',
+        metadata: metadata,
         message_id: messageId.toString(),
         stream: true,
-        type: 'inline_completion',
       });
 
       if (result.items[0]?.token) {

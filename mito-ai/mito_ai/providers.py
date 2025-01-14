@@ -249,10 +249,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         Returns:
             The completion
         """
+        self.log.info("Running request_completions")
         self.last_error = None
         try:
             if self._openAI_client:
-                self.log.debug(
+                self.log.info(
                     "Requesting completion from OpenAI API with personal key."
                 )
                 completion = await self._openAI_client.chat.completions.create(
@@ -298,7 +299,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                         )
 
             else:
-                self.log.debug("Requesting completion from Mito server.")
+                self.log.info("Requesting completion from Mito server.")
                 global _num_usages
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)

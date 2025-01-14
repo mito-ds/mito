@@ -6,9 +6,9 @@ import { Signal, Stream, type IStream } from '@lumino/signaling';
 import type {
   CompleterMessage,
   ICompletionReply,
-  ICompletionRequest,
   ICompletionStreamChunk
 } from './models';
+import { IChatMessageMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
 
 const SERVICE_URL = 'mito-ai/completions';
 
@@ -29,6 +29,28 @@ export class MitoAIError extends Error {
       this.stack = `${this.stack}\nCaused by: ${options.cause.stack}`;
     }
   }
+}
+
+/**
+ * Mito AI completion request.
+ */
+export interface ICompletionRequest {
+  /**
+   * The type of the message.
+   */
+  type: string;
+  /**
+   * The message ID.
+   */
+  message_id: string;
+  /**
+   * The metadata containing structured data for backend prompt generation.
+   */
+  metadata?: IChatMessageMetadata; // Add this field
+  /**
+   * Whether to stream the completion or not.
+   */
+  stream: boolean;
 }
 
 /**
