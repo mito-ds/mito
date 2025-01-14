@@ -346,8 +346,7 @@ mavericks_players = nba_players_df[nba_players_df['team'] == 'Dallas Mavericks']
 lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
 nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
 warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warriors']
-mav
-""",
+mav""",
         suffix="""""",
         type_tags=['code_completion'],
     ),
@@ -365,8 +364,7 @@ warriors_players = nba_players_df[nba_players_df['team'] == 'Golden State Warrio
         prefix="""
 lakers_players = nba_players_df[nba_players_df['team'] == 'Los Angeles Lakers']
 nets_players = nba_players_df[nba_players_df['team'] == 'Brooklyn Nets']
-warr
-""",
+warr""",
         suffix="""""",
         type_tags=['code_completion'],
     ),
