@@ -21,6 +21,8 @@ from .models import (
     CompletionRequest,
     CompletionStreamChunk,
     ErrorMessage,
+    MessageRequest,
+    MessageMetadata
 )
 from .providers import OpenAIProvider
 from .prompt_builders import (
@@ -110,7 +112,12 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.log.debug("Message received: %s", message)
         try:
             parsed_message = json.loads(message)
-            request = CompletionRequest(**parsed_message)
+
+            metadata_dict = parsed_message.get('metadata', {})
+            message_metadata = MessageMetadata(**metadata_dict)
+            parsed_message['metadata'] = message_metadata
+
+            request = MessageRequest(**parsed_message)
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
@@ -199,7 +206,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             type=request.type,
             message_id=request.message_id,
             messages=message_chain,
-            metadata=request.metadata,
         )
         
         try:
