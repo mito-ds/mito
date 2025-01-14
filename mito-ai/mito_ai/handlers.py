@@ -3,7 +3,7 @@ import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Awaitable, Dict, Optional, Union, List
+from typing import Any, Awaitable, Dict, Optional, Literal
 
 import tornado
 import tornado.ioloop
@@ -21,8 +21,10 @@ from .models import (
     CompletionRequest,
     CompletionStreamChunk,
     ErrorMessage,
-    MessageRequest,
-    MessageMetadata
+    ChatMessageMetadata,
+    SmartDebugMessageMetadata,
+    CodeExplainMessageMetadata,
+    InlineCompletionMessageMetadata,
 )
 from .providers import OpenAIProvider
 from .prompt_builders import (
@@ -114,32 +116,27 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
 
             metadata_dict = parsed_message.get('metadata', {})
-            message_metadata = MessageMetadata(**metadata_dict)
-            parsed_message['metadata'] = message_metadata
-
-            request = MessageRequest(**parsed_message)
+            message_type: Literal['clear_history', 'chat', 'inline_completion', 'codeExplain', 'smartDebug'] = parsed_message.get('type')
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
         
-        message_type = request.type
+        # Raise exception if message type is not one of the expected types
+        if message_type not in ["clear_history", "chat", "smartDebug", "codeExplain", "inline_completion"]:
+            self.log.error(f"Invalid message type: {message_type}")
+            return
 
         # Clear history if the type is "clear_history"
         if message_type == "clear_history":
             self.full_message_history = []
             return
         
-        message_metadata = request.metadata
         message_chain = []
 
         # Inline completion has its own temporary message chain
         #   that should be used separately from the full message history
         if message_type == "inline_completion":
-            prompt = create_inline_prompt(
-                prefix=message_metadata.prefix or "",
-                suffix=message_metadata.suffix or "",
-                variables=message_metadata.variables or [],
-            )
+            prompt = InlineCompletionMessageMetadata(**metadata_dict).prompt
 
             message_chain = [
                 {
@@ -153,6 +150,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             ]
         else:
             if message_type == "chat":
+                prompt = ChatMessageMetadata(**metadata_dict).prompt
+
                 if len(self.full_message_history) == 0:
                     self.full_message_history.append(
                         {
@@ -160,13 +159,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                             "content": create_chat_preamble()
                         }
                     )
-                prompt = create_chat_prompt(
-                    variables=message_metadata.variables or [],
-                    active_cell_code=message_metadata.activeCellCode or "",
-                    input=message_metadata.input or "",
-                )
-            
+
             elif message_type == "codeExplain":
+                prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
                 if len(self.full_message_history) == 0:
                     self.full_message_history.append(
                         {
@@ -174,10 +169,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                             "content": create_explain_code_preamble()
                         }
                     )
-                prompt = create_explain_code_prompt(
-                    active_cell_code=request.metadata.get("activeCellCode", ""), # type: ignore
-                )
+                
             elif message_type == "smartDebug":
+                prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
                 if len(self.full_message_history) == 0:
                     self.full_message_history.append(
                         {
@@ -185,13 +179,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                             "content": create_error_preamble()
                         }
                     )
-                prompt = create_error_prompt(
-                    errorMessage=message_metadata.errorMessage or "",
-                    active_cell_code=message_metadata.activeCellCode or "",
-                    variables=message_metadata.variables or [],
-                )
-            else:
-                self.log.error(f"Invalid message type: {message_type}")
         
             self.full_message_history.append(
                 {
@@ -203,9 +190,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             
         
         request = CompletionRequest(
-            type=request.type,
-            message_id=request.message_id,
+            type=message_type,
+            message_id=parsed_message.get('message_id'),
             messages=message_chain,
+            stream=parsed_message.get('stream', False)
         )
         
         try:
