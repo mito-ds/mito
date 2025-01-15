@@ -347,7 +347,10 @@ export class MitoAIInlineCompleter
     let cleanedCompletion = rawCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
       .replace(/```$/, '')           // Remove closing code fence
-      .replace(/\n$/, '')            // Remove trailing newline
+      .replace(/\n$/, '')    
+      
+    console.log('prefix', prefix)
+    console.log('suffix', suffix)
 
     if (prefix) {
       // Remove duplicate prefix content
