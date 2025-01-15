@@ -188,7 +188,7 @@ export class MitoAIInlineCompleter
       const result = await this._client.sendMessage({
         messages: openAIFormattedMessages,
         message_id: messageId.toString(),
-        stream: true,
+        stream: false,
         type: 'inline_completion',
       });
 
