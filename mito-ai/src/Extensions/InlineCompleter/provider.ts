@@ -208,6 +208,7 @@ export class MitoAIInlineCompleter
         );
       }
 
+      console.log('calling _cleanCompletion from fetch')
       return {
         items: result.items.map(item => ({
           ...item,
@@ -327,6 +328,7 @@ export class MitoAIInlineCompleter
     fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
+    console.log('calling _cleanCompletion from stream')
     let cleanedCompletion = this._cleanCompletion(fullCompletion);
 
     this._currentStream.emit({
