@@ -37,6 +37,15 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     settingRegistry: ISettingRegistry,
     variableManager: IVariableManager
   ) => {
+    // Explicitly add a keyboard binding for the inline-completer:accept command.
+    // This should be automatically set by the inline-completer extension,
+    // but we've seen some users not have the tab key set as the default key binding.
+    app.commands.addKeyBinding({
+      command: 'inline-completer:accept',
+      keys: ['Tab'],  
+      selector: '.jp-Notebook'  // Only active in notebooks
+    });
+
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
       console.warn(
