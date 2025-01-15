@@ -2,9 +2,7 @@ import OpenAI from "openai";
 import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
-import { createChatPrompt } from "../../prompts/ChatPrompt";
-import { createErrorPrompt, removeInnerThoughtsFromMessage } from "../../prompts/SmartDebugPrompt";
-import { createExplainCodePrompt } from "../../prompts/ExplainCodePrompt";
+import { Variable } from "../VariableManager/VariableInspector";
 
 type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'system'
 
@@ -15,17 +13,28 @@ export interface IDisplayOptimizedChatHistory {
     codeCellID: string | undefined
 }
 
-export interface IAIOptimizedChatHistory {
-    message: OpenAI.Chat.ChatCompletionMessageParam
-    promptType: PromptType
-    codeCellID: string | undefined
+export interface IChatMessageMetadata {
+    variables?: Variable[];
+    activeCellCode?: string;   
+    input?: string;
+    errorMessage?: string;     
+    prefix?: string;
+    suffix?: string;
 }
 
+/**
+ * Outgoing message from the user to the AI,
+ * specifying the promptType and the metadata
+ * your backend will use to build a prompt.
+ */
+export interface IOutgoingMessage {
+    promptType: 'chat' | 'smartDebug' | 'codeExplain' | 'system';
+    metadata: IChatMessageMetadata;
+  }
+
 export interface IChatHistory {
-    // The AI optimized chat history is what we actually send to the AI. It includes
-    // things like: instructions on how to respond, the code context, etc. 
-    // Much of this, we don't want to display to the user because its extra clutter. 
-    aiOptimizedChatHistory: IAIOptimizedChatHistory[]
+    // The metadata store for outgoing messages. It will be built into prompt and sent to the AI on the backend.
+    outgoingMessage: IOutgoingMessage | {};
 
     // The display optimized chat history is what we display to the user. Each message
     // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -38,10 +47,7 @@ export interface IChatHistory {
 /* 
     The ChatHistoryManager is responsible for managing the AI chat history.
 
-    It keeps track of two types of messages:
-    1. aiOptimizedChatHistory: Messages sent to the AI that include things like: instructions on how to respond, the code context, etc. 
-    2. displayOptimizedChatHistory: Messages displayed in the chat interface that only display info the user wants to see, 
-    like their original input.
+    It keeps track of messages displayed in the chat interface that only display info the user wants to see, like their original input.
 
     TODO: In the future, we should make this its own extension that provides an interface for adding new messages to the chat history,
     creating new chats, etc. Doing so would allow us to easily append new messages from other extensions without having to do so 
@@ -57,7 +63,7 @@ export class ChatHistoryManager {
     constructor(variableManager: IVariableManager, notebookTracker: INotebookTracker, initialHistory?: IChatHistory) {
         // Initialize the history
         this.history = initialHistory || {
-            aiOptimizedChatHistory: [],
+            outgoingMessage: {},
             displayOptimizedChatHistory: []
         };
 
@@ -76,8 +82,8 @@ export class ChatHistoryManager {
         return { ...this.history };
     }
 
-    getAIOptimizedHistory(): IAIOptimizedChatHistory[] {
-        return this.history.aiOptimizedChatHistory;
+    getOutgoingMessage(): IOutgoingMessage | {}{
+        return this.history.outgoingMessage;
     }
 
     getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
@@ -85,16 +91,19 @@ export class ChatHistoryManager {
     }
 
     addChatInputMessage(input: string): void {
-
-
         const variables = this.variableManager.variables
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
 
-        const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'user',
-            content: createChatPrompt(variables, activeCellCode || '', input)
-        };
+        const metadata: IChatMessageMetadata = {
+            variables,
+            activeCellCode,
+            input
+        }
+        this.history.outgoingMessage = {
+            promptType: 'chat',
+            metadata,
+        }
 
         this.history.displayOptimizedChatHistory.push(
             {
@@ -103,30 +112,23 @@ export class ChatHistoryManager {
                 codeCellID: activeCellID
             }
         );
-        this.history.aiOptimizedChatHistory.push(
-            {
-                message: aiOptimizedMessage, 
-                promptType: 'chat',
-                codeCellID: activeCellID
-            }
-        )
     }
 
     updateMessageAtIndex(index: number, newContent: string): void {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const aiOptimizedMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'user',
-            content: createChatPrompt(this.variableManager.variables, activeCellCode || '', newContent)
-        };
+        const metadata: IChatMessageMetadata = {
+            variables: this.variableManager.variables,
+            activeCellCode,
+            input: newContent
+        }
 
-        // Update the message at the specified index
-        this.history.aiOptimizedChatHistory[index] = {
-            message: aiOptimizedMessage, 
+        // Update the outgoing message
+        this.history.outgoingMessage = {
             promptType: 'chat',
-            codeCellID: activeCellID
-        };
+            metadata,
+        }
         
         this.history.displayOptimizedChatHistory[index] = { 
             message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
@@ -134,8 +136,6 @@ export class ChatHistoryManager {
             codeCellID: activeCellID
         }
 
-        // Remove all messages after the index we're updating
-        this.history.aiOptimizedChatHistory = this.history.aiOptimizedChatHistory.slice(0, index + 1);
         this.history.displayOptimizedChatHistory = this.history.displayOptimizedChatHistory.slice(0, index + 1);
     }
 
@@ -144,19 +144,20 @@ export class ChatHistoryManager {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const aiOptimizedPrompt = createErrorPrompt(errorMessage, activeCellCode, this.variableManager.variables)
+        const metadata: IChatMessageMetadata = {
+            variables: this.variableManager.variables,
+            activeCellCode,
+            errorMessage
+        }
+        this.history.outgoingMessage = {
+            promptType: 'smartDebug',
+            metadata,
+        }
 
         this.history.displayOptimizedChatHistory.push(
             {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
-            }
-        );
-        this.history.aiOptimizedChatHistory.push(
-            {
-                message: {role: 'user', content: aiOptimizedPrompt}, 
-                promptType: 'smartDebug',
                 codeCellID: activeCellID
             }
         );
@@ -167,19 +168,20 @@ export class ChatHistoryManager {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const aiOptimizedPrompt = createExplainCodePrompt(activeCellCode || '')
+        // const aiOptimizedPrompt = createExplainCodePrompt(activeCellCode || '')
+        const metadata: IChatMessageMetadata = {
+            variables: this.variableManager.variables,
+            activeCellCode
+        }
+        this.history.outgoingMessage = {
+            promptType: 'codeExplain',
+            metadata,
+        }
 
         this.history.displayOptimizedChatHistory.push(
             {
                 message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
-            }
-        );
-        this.history.aiOptimizedChatHistory.push(
-            {
-                message: {role: 'user', content: aiOptimizedPrompt}, 
-                promptType: 'codeExplain',
                 codeCellID: activeCellID
             }
         );
@@ -203,15 +205,7 @@ export class ChatHistoryManager {
             role: 'assistant',
             content: messageContent
         }
-        this._addAIMessage(aiMessage, promptType, mitoAIConnectionError, mitoAIConnectionErrorType)
-    }
 
-    _addAIMessage(
-        aiMessage: OpenAI.Chat.ChatCompletionMessageParam, 
-        promptType: PromptType, 
-        mitoAIConnectionError: boolean=false,
-        mitoAIConnectionErrorType?: string | null
-    ): void {
         const activeCellID = getActiveCellID(this.notebookTracker)
 
         this.history.displayOptimizedChatHistory.push(
@@ -220,13 +214,6 @@ export class ChatHistoryManager {
                 type: mitoAIConnectionError ? 'connection error' : 'openai message',
                 mitoAIConnectionErrorType: mitoAIConnectionErrorType,
                 codeCellID: activeCellID
-            }
-        );
-        this.history.aiOptimizedChatHistory.push(
-            {
-                message: aiMessage, 
-                promptType: promptType,
-                codeCellID: activeCellID,
             }
         );
     }
@@ -239,11 +226,6 @@ export class ChatHistoryManager {
         this.history.displayOptimizedChatHistory.push({
             message: systemMessage, 
             type: 'openai message',
-            codeCellID: undefined
-        });
-        this.history.aiOptimizedChatHistory.push({
-            message: systemMessage, 
-            promptType: 'system',
             codeCellID: undefined
         });
     }
@@ -280,4 +262,27 @@ ${activeCellCode}
 \`\`\`
 
 ${input}`};
+}
+
+const removeInnerThoughtsFromMessage = (messageContent: string) => {
+    /* 
+    The smart debug prompt thinks to itself before returning the solution. We don't need to save the inner thoughts. 
+    We remove them before saving the message in the chat history
+    */
+
+    if (messageContent === null) {
+        return ''
+    }
+
+    const SOLUTION_STRING = 'SOLUTION:'
+
+    // Get the message after the SOLUTION section
+    const solutionIndex = messageContent.indexOf(SOLUTION_STRING)
+    if (solutionIndex === -1) {
+        return messageContent
+    }
+
+    const solutionText = messageContent.split(SOLUTION_STRING)[1].trim()
+
+    return solutionText
 }
