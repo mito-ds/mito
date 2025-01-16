@@ -208,7 +208,6 @@ export class MitoAIInlineCompleter
         );
       }
 
-      console.log('calling _cleanCompletion from fetch')
       return {
         items: result.items.map(item => ({
           ...item,
@@ -328,7 +327,6 @@ export class MitoAIInlineCompleter
     fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
-    console.log('calling _cleanCompletion from stream')
     let cleanedCompletion = this._cleanCompletion(fullCompletion);
 
     this._currentStream.emit({
@@ -347,26 +345,21 @@ export class MitoAIInlineCompleter
 
   private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string) {
 
-
-    console.log('rawCompletion', rawCompletion)
     let cleanedCompletion = rawCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
       .replace(/```$/, '')           // Remove closing code fence
       .replace(/\n$/, '')    
-      
-    console.log('prefix', prefix)
-    console.log('suffix', suffix)
 
+    // Remove duplicate prefix content
     if (prefix) {
-      // Remove duplicate prefix content
       const lastPrefixLine = prefix.split('\n').slice(-1)[0];
       if (cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
         cleanedCompletion = cleanedCompletion.slice(lastPrefixLine.length);
       }
     }
 
+    // Remove duplicate suffix content
     if (suffix) {
-      // Remove duplicate suffix content
       const firstSuffixLine = suffix.split('\n')[0];
       if (cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
         cleanedCompletion = cleanedCompletion.slice(0, -firstSuffixLine.length);
