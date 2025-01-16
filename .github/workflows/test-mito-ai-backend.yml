@@ -49,6 +49,6 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: mitoai-backend-report-${{ matrix.python-version }}
+        name: mitoai-backend-report-${{ matrix.python-version }}-${{ github.run_id }}
         path: mito-ai/tests/pytest-report/
         retention-days: 14
