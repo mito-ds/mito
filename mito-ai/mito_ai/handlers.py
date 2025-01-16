@@ -28,12 +28,6 @@ from .models import (
     InlineCompletionMessageMetadata,
 )
 from .providers import OpenAIProvider
-from .prompt_builders import (
-    create_chat_preamble,
-    create_inline_preamble,
-    create_explain_code_preamble,
-    create_error_preamble
-)
 from .utils.create import initialize_user
 
 __all__ = ["CompletionHandler"]
@@ -227,6 +221,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             request: The completion request description.
         """
+        self.log.info(f"Handling completion request: {json.dumps(request.messages, indent=4)}")
         start = time.time()
         reply = await self._llm.request_completions(request, prompt_type)
         self.reply(reply)
