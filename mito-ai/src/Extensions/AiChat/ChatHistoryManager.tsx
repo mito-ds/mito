@@ -28,7 +28,7 @@ export interface IChatMessageMetadata {
  * your backend will use to build a prompt.
  */
 export interface IOutgoingMessage {
-    promptType: 'chat' | 'smartDebug' | 'codeExplain' | 'system';
+    promptType: 'chat' | 'smartDebug' | 'codeExplain';
     metadata: IChatMessageMetadata;
   }
 
