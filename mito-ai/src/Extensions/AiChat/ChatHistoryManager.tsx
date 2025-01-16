@@ -146,8 +146,8 @@ export class ChatHistoryManager {
 
         const metadata: IChatMessageMetadata = {
             variables: this.variableManager.variables,
-            activeCellCode,
-            errorMessage
+            activeCellCode: activeCellCode,
+            errorMessage: errorMessage
         }
         this.history.outgoingMessage = {
             promptType: 'smartDebug',
