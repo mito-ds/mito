@@ -33,10 +33,7 @@ import SupportIcon from '../../icons/SupportIcon';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
-
-    const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
-    chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
-    return chatHistoryManager
+    return new ChatHistoryManager(variableManager, notebookTracker)
 }
 
 interface IChatTaskpaneProps {
