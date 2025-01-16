@@ -140,17 +140,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
+        const newChatHistoryManager = clearChatHistory()
         const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager)
-
-        // Notify the backend to clear the prompt history
-        websocketClient.sendMessage({
-            message_id: UUID.uuid4(),
-            type: 'clear_history',
-            stream: false,
-            metadata: {}
-        });
 
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
@@ -161,17 +153,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the explain code message
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
+        const newChatHistoryManager = clearChatHistory()
         const outgoingMessage = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
 
-        // Notify the backend to clear the prompt history
-        websocketClient.sendMessage({
-            message_id: UUID.uuid4(),
-            type: 'clear_history',
-            stream: false,
-            metadata: {}
-        });
+        
         
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
@@ -349,7 +335,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const clearChatHistory = () => {
         // Reset frontend chat history
-        setChatHistoryManager(getDefaultChatHistoryManager(notebookTracker, variableManager));
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
+        setChatHistoryManager(newChatHistoryManager);
 
         // Notify the backend to clear the prompt history
         websocketClient.sendMessage({
@@ -358,6 +345,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: false,
             metadata: {}
         });
+
+        return newChatHistoryManager
     }
 
     useEffect(() => {
