@@ -346,6 +346,9 @@ export class MitoAIInlineCompleter
   }
 
   private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string) {
+
+
+    console.log('rawCompletion', rawCompletion)
     let cleanedCompletion = rawCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
       .replace(/```$/, '')           // Remove closing code fence

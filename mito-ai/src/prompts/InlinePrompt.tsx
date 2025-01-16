@@ -12,7 +12,7 @@ You're given the current code cell, the user's cursor position, and the variable
 CRITICAL FORMATTING RULES:
 1. Include a new line character at the start of your response if you want the code you are writing to be added on the line after the cursor. For example, if the cursor is at the end of a comment, you should start your response with a newline character so that the code you write is not added to the comment.
 2. If you are finishing a line of code that the user started, return the full line of code with no newline character at the start or end.
-3. Your response must preserve correct Python indentation and spacing
+3. Your response must preserve correct Python indentation and spacing. For example, if you're completing a line of indented code, you must preserve the indentation.
 
 Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent.
 
@@ -104,6 +104,27 @@ Output:
 </Example 4>
 
 IMPORTANT: Notice in Example 4 that the output is empty becuase the user's intent is already complete.
+
+<Example 5>
+Defined Variables: {{}}
+
+Code in the active code cell:
+\`\`\`python
+def even_and_odd():
+    for i in range(10):
+        if i % 2 == 0:
+            print(f"Even: {i}")
+        else:
+            pri<cursor>
+\`\`\`
+
+Output:
+\`\`\`python
+            print(f"Odd: {i}")
+\`\`\`
+</Example 5>
+
+IMPORTANT: Notice in Example 5 that the output is indented several times because the code must be executed as part of the else block.
 
 Your Task:
 
