@@ -229,22 +229,34 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         start = time.time()
         reply = await self._llm.request_completions(request, prompt_type)
-
+        self.reply(reply)
         self.full_message_history.append(
             {
                 "role": "assistant", 
                 "content": reply.items[0].content
             }
         )
-        self.reply(reply)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
     async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str) -> None:
         """Handle stream completion request."""
         start = time.time()
+
+        # Use a string buffer to accumulate the full response from streaming chunks
+        accumulated_response = ""
         async for reply in self._llm.stream_completions(request, prompt_type):
+            if isinstance(reply, CompletionStreamChunk):
+                accumulated_response += reply.chunk.content
+
             self.reply(reply)
+        
+        self.full_message_history.append(
+            {
+                "role": "assistant", 
+                "content": reply.items[0].content
+            }
+        )
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 
