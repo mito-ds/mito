@@ -168,7 +168,6 @@ export class ChatHistoryManager {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        // const aiOptimizedPrompt = createExplainCodePrompt(activeCellCode || '')
         const metadata: IChatMessageMetadata = {
             variables: this.variableManager.variables,
             activeCellCode
