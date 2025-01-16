@@ -253,7 +253,7 @@ jobs:
       - name: Run automation
         run: python {automation_base_folder}/automation.py {current_timestamp_variable}
       - name: Upload results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: results-{current_timestamp_variable}
           path: {automation_base_folder}/runs/{current_timestamp_variable}
