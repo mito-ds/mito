@@ -15,6 +15,7 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from .logger import get_logger
 from .models import (
+    AllIncomingMessageTypes,
     CompletionError,
     CompletionItem,
     CompletionReply,
@@ -112,7 +113,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
 
             metadata_dict = parsed_message.get('metadata', {})
-            message_type: Literal['clear_history', 'chat', 'inline_completion', 'codeExplain', 'smartDebug'] = parsed_message.get('type')
+            message_type: AllIncomingMessageTypes = parsed_message.get('type')
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
