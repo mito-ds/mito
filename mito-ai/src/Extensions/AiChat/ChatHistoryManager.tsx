@@ -60,7 +60,6 @@ export class ChatHistoryManager {
     constructor(variableManager: IVariableManager, notebookTracker: INotebookTracker, initialHistory?: IChatHistory) {
         // Initialize the history
         this.history = initialHistory || {
-            outgoingMessage: {},
             displayOptimizedChatHistory: []
         };
 
