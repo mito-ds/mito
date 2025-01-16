@@ -81,7 +81,7 @@ test.describe("default inline completion", () => {
     },
   });
 
-  test("should display inline completion", async ({ page, tmpPath }) => {
+  test.only("should display inline completion", async ({ page, tmpPath }) => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
@@ -89,13 +89,15 @@ test.describe("default inline completion", () => {
       ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
+        console.log(payload)
         if (
           payload.type === "inline_completion" &&
           payload.messages.find((message) => message.content.includes("print")) &&
           payload.stream == false
         ) {
           // Send the fetch message back to the client
-          ws.send(JSON.stringify(MOCKED_FETCH_MESSAGE));
+          ws.send(JSON.stringify(MOCKED_FETCH_RESULT));
+          replyDone.resolve();
         } else {
           ws.send(
             JSON.stringify({
@@ -123,8 +125,8 @@ test.describe("default inline completion", () => {
       .fill("print('hel");
 
     await replyDone.promise;
-
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
+
     expect
       .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
       .toHaveText("print('hello')");
@@ -132,6 +134,7 @@ test.describe("default inline completion", () => {
     await page.keyboard.press("Tab");
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
+
     expect(
       (await page.notebook.getCellLocator(0))!.getByRole("textbox")
     ).toHaveText("print('hello')");
@@ -224,17 +227,17 @@ test.describe("default manual inline completion", () => {
   });
 });
 
-const MOCKED_FETCH_MESSAGE = {
-  error: null,
-  items: [
-    {
-      content: "```python\nprint('hello')\n```",
-      isIncomplete: false,
-      token: null,
-    },
-  ],
-  parent_id: "2",
+const MOCKED_FETCH_RESULT = {
+  items: [{
+    content: "```python\nprint('hello')```",
+    error: null,
+    insertText: "lo')",
+    isIncomplete: false,  
+    token: null
+  }],
+  parent_id: "1",
   type: "reply",
+  error: null,
 };
 
 // Mocked messages to simulate the inline completion process
