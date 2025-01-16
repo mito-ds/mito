@@ -37,15 +37,6 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     settingRegistry: ISettingRegistry,
     variableManager: IVariableManager
   ) => {
-    // Explicitly add a keyboard binding for the inline-completer:accept command.
-    // This should be automatically set by the inline-completer extension,
-    // but we've seen some users not have the tab key set as the default key binding.
-    app.commands.addKeyBinding({
-      command: 'inline-completer:accept',
-      keys: ['Tab'],  
-      selector: '.jp-Notebook'  // Only active in notebooks
-    });
-
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
       console.warn(
@@ -119,6 +110,25 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
                           providers
                         );
                         updateConfig();
+
+                        const acceptBinding = app.commands.keyBindings.find(binding => binding.command === 'inline-completer:accept')
+
+                        if (acceptBinding?.keys.length === 1 && acceptBinding?.keys[0] !== 'Tab') {
+                          Notification.info(
+                            `🚀 Mito AI Tip: Your current key binding for accepting code suggestions is ${acceptBinding?.keys}. You can change this in Settings > Keyboard Shortcuts.`,
+                            {
+                            autoClose: false,
+                            actions: [
+                              {
+                                label: 'Got it',
+                                displayType: 'accent',
+                                callback: () => {
+                                  // Do nothing
+                                }
+                              }
+                            ]
+                          })
+                        }
                       }
                     },
                     {
