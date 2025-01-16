@@ -59,7 +59,7 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ matrix.use-mito-ai-server && '' || secrets.OPENAI_API_KEY }}
     - name: Upload test-results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: mitoai-jupyterlab-playwright-report-${{ matrix.python-version }}
