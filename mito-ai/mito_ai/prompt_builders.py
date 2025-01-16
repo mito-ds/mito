@@ -6,21 +6,7 @@ def create_chat_prompt(
     input: str
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
-    prompt = f"""Defined Variables:
-{variables_str}
-
-Code in the active code cell:
-```python
-{active_cell_code}
-```
-
-Your task: {input}
-"""
-    
-    return prompt
-
-def create_chat_preamble():
-    system_prompt = f"""You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
+    prompt = f"""You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
 
 There are two possible types of responses you might give:
 1. Code Update: If the task requires modifying or extending the existing code, respond with the updated active code cell and a short explanation of the changes made. 
@@ -63,23 +49,22 @@ sales_df['total_price'] = sales_df['total_price'] * sales_multiplier
 Converted the `transaction_date` column to datetime using the built-in pd.to_datetime function and multiplied the `total_price` column by the `sales_multiplier` variable.
 
 </Example>
-"""
-    
-    return system_prompt
 
-def create_explain_code_prompt(active_cell_code: str):
-    prompt = f"""Code in the active code cell:
+Defined Variables:
+{variables_str}
 
+Code in the active code cell:
 ```python
 {active_cell_code}
 ```
 
-Output: 
+Your task: {input}
 """
+    
     return prompt
 
-def create_explain_code_preamble():
-    system_prompt = f"""Explain the code in the active code cell to me like I have a basic understanding of Python. Don't explain each line, but instead explain the overall logic of the code.
+def create_explain_code_prompt(active_cell_code: str):
+    prompt = f"""Explain the code in the active code cell to me like I have a basic understanding of Python. Don't explain each line, but instead explain the overall logic of the code.
 
 <Example>
 
@@ -95,9 +80,16 @@ Output:
 This code creates a function called `multiply` that takes two arguments `x` and `y`, and returns the product of `x` and `y`.
 
 </Example>
+
+Code in the active code cell:
+
+```python
+{active_cell_code}
+```
+
+Output: 
 """
-    
-    return system_prompt
+    return prompt
     
 def create_inline_prompt(
         prefix: str,
@@ -105,21 +97,7 @@ def create_inline_prompt(
         variables: List[str],
 ):
     variables_str = '\n'.join([f"{variable}" for variable in variables])
-    prompt = f"""Your Task:
-
-Defined Variables: {variables_str}
-
-Code in the active code cell:
-```python
-${prefix}<cursor>${suffix}
-```
-
-Output:
-"""
-    return prompt
-
-def create_inline_preamble():
-    system_prompt = f"""You are a code completion assistant that lives inside of JupyterLab. Your job is to predict the rest of the code that the user has started to write.
+    prompt = f"""You are a code completion assistant that lives inside of JupyterLab. Your job is to predict the rest of the code that the user has started to write.
 
 You're given the current code cell, the user's cursor position, and the variables defined in the notebook. The user's cursor is signified by the symbol <cursor>.
 
@@ -195,9 +173,18 @@ Output:
 
 IMPORTANT: Notice in Example 3 that the output starts with a newline because the cursor appears at the end of a comment line.
 
+Your Task:
+
+Defined Variables: {variables_str}
+
+Code in the active code cell:
+```python
+${prefix}<cursor>${suffix}
+```
+
+Output:
 """
-    
-    return system_prompt
+    return prompt
 
 def create_error_prompt(
     errorMessage: str,
@@ -205,27 +192,7 @@ def create_error_prompt(
     variables: List[str],
 ):
     variables_str = '\n'.join([f"{variable}" for variable in variables])
-    prompt = f"""Defined Variables:
-{variables_str}
-
-Code in the active code cell:
-```python
-{active_cell_code}
-```
-
-Error Message:
-${errorMessage}
-
-ERROR ANALYSIS:
-
-INTENT ANALYSIS:
-
-SOLUTION:
-"""
-    return prompt
-
-def create_error_preamble():
-    system_prompt = f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
+    prompt = f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
 
 <Example 1>
 Defined Variables:
@@ -333,6 +300,22 @@ Solution Requirements:
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
 
 Here is your task. 
+
+Defined Variables:
+{variables_str}
+
+Code in the active code cell:
+```python
+{active_cell_code}
+```
+
+Error Message:
+${errorMessage}
+
+ERROR ANALYSIS:
+
+INTENT ANALYSIS:
+
+SOLUTION:
 """
-    
-    return system_prompt
+    return prompt

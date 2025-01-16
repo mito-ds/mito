@@ -113,83 +113,53 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
 
             metadata_dict = parsed_message.get('metadata', {})
-            message_type: AllIncomingMessageTypes = parsed_message.get('type')
+            type: AllIncomingMessageTypes = parsed_message.get('type')
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
-        
-        # Raise exception if message type is not one of the expected types
-        if message_type not in ["clear_history", "chat", "smartDebug", "codeExplain", "inline_completion"]:
-            self.log.error(f"Invalid message type: {message_type}")
-            return
 
         # Clear history if the type is "clear_history"
-        if message_type == "clear_history":
+        if type == "clear_history":
             self.full_message_history = []
             return
         
-        message_chain = []
+        messages = []
+
+        # Generate new message based on message type
+        if type == "inline_completion":
+            prompt = InlineCompletionMessageMetadata(**metadata_dict).prompt
+        elif type == "chat":
+            prompt = ChatMessageMetadata(**metadata_dict).prompt
+        elif type == "codeExplain":
+            prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
+        elif type == "smartDebug":
+            prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
+
+        new_message = [
+            {
+                "role": "user", 
+                "content": prompt
+            }
+        ]
 
         # Inline completion has its own temporary message chain
         #   that should be used separately from the full message history
-        if message_type == "inline_completion":
-            prompt = InlineCompletionMessageMetadata(**metadata_dict).prompt
-
-            message_chain = [
-                {
-                    "role": "system",
-                    "content": create_inline_preamble()
-                },
-                {
-                    "role": "user", 
-                    "content": prompt
-                }
-            ]
+        if type == "inline_completion":
+            messages = new_message
         else:
-            if message_type == "chat":
-                prompt = ChatMessageMetadata(**metadata_dict).prompt
-
-                if len(self.full_message_history) == 0:
-                    self.full_message_history.append(
-                        {
-                            "role": "system", 
-                            "content": create_chat_preamble()
-                        }
-                    )
-
-            elif message_type == "codeExplain":
-                prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
-                if len(self.full_message_history) == 0:
-                    self.full_message_history.append(
-                        {
-                            "role": "system", 
-                            "content": create_explain_code_preamble()
-                        }
-                    )
-                
-            elif message_type == "smartDebug":
-                prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
-                if len(self.full_message_history) == 0:
-                    self.full_message_history.append(
-                        {
-                            "role": "system", 
-                            "content": create_error_preamble()
-                        }
-                    )
-        
             self.full_message_history.append(
                 {
                     "role": "user", 
                     "content": prompt
                 }
             )
-            message_chain = self.full_message_history
+            messages = self.full_message_history
             
         
         request = CompletionRequest(
-            type=message_type,
+            type=type,
             message_id=parsed_message.get('message_id'),
-            messages=message_chain,
+            messages=messages,
             stream=parsed_message.get('stream', False)
         )
         
