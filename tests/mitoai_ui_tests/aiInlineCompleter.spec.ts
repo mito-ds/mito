@@ -85,11 +85,9 @@ test.describe("default inline completion", () => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
-      console.log("Mocking inline completion request");
       ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
-        console.log(payload)
         if (
           payload.type === "inline_completion" &&
           payload.messages.find((message) => message.content.includes("print")) &&
