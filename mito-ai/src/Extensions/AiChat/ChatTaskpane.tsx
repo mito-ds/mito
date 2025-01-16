@@ -141,7 +141,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Clear the chat history, and add the new error message
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
-        newChatHistoryManager.addDebugErrorMessage(errorMessage)
+        const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager)
 
         // Notify the backend to clear the prompt history
@@ -153,7 +153,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
     }
 
     const sendExplainCodeMessage = async () => {
@@ -162,7 +162,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
-        newChatHistoryManager.addExplainCodeMessage()
+        const outgoingMessage = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
 
         // Notify the backend to clear the prompt history
@@ -174,7 +174,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
         
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -188,10 +188,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
+        var outgoingMessage: IOutgoingMessage;
         if (messageIndex !== undefined) {
-            newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
+            outgoingMessage = newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
         } else {
-            newChatHistoryManager.addChatInputMessage(input)
+            outgoingMessage = newChatHistoryManager.addChatInputMessage(input)
         }
 
         // Step 2: Scroll to the bottom of the chat messages container
@@ -204,7 +205,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }, 100);
 
         // Step 3: Send the message to the AI
-        await _sendMessageAndSaveResponse(newChatHistoryManager)
+        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
 
         // Step 4: Scroll so that the top of the last AI message is visible
         setTimeout(() => {
@@ -220,16 +221,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendChatInputMessage(newContent, messageIndex)
     };
 
-    const _sendMessageAndSaveResponse = async (newChatHistoryManager: ChatHistoryManager) => {
-        setLoadingAIResponse(true)
-
-        const outgoingMessage = newChatHistoryManager.getOutgoingMessage();
-        if (Object.keys(outgoingMessage).length === 0) {
-            console.error("No outgoing message found. Cannot send to backend.");
-            return;
-        }
-        
-        const { promptType, metadata } = outgoingMessage as IOutgoingMessage;
+    const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager) => {
+        setLoadingAIResponse(true)        
+        const { promptType, metadata } = outgoingMessage;
 
         try {
             await websocketClient.ready;
@@ -238,7 +232,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
               message_id: UUID.uuid4(),
               type: promptType,
               stream: false,
-              metadata
+              metadata: metadata
             });
 
             if (aiResponse.error) {

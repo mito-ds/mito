@@ -33,9 +33,6 @@ export interface IOutgoingMessage {
   }
 
 export interface IChatHistory {
-    // The metadata store for outgoing messages. It will be built into prompt and sent to the AI on the backend.
-    outgoingMessage: IOutgoingMessage | {};
-
     // The display optimized chat history is what we display to the user. Each message
     // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
     // displayOptimizedChatHistory, we also include connection error messages so that we can 
@@ -82,15 +79,11 @@ export class ChatHistoryManager {
         return { ...this.history };
     }
 
-    getOutgoingMessage(): IOutgoingMessage | {}{
-        return this.history.outgoingMessage;
-    }
-
     getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
         return this.history.displayOptimizedChatHistory;
     }
 
-    addChatInputMessage(input: string): void {
+    addChatInputMessage(input: string): IOutgoingMessage {
         const variables = this.variableManager.variables
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
@@ -100,10 +93,6 @@ export class ChatHistoryManager {
             activeCellCode,
             input
         }
-        this.history.outgoingMessage = {
-            promptType: 'chat',
-            metadata,
-        }
 
         this.history.displayOptimizedChatHistory.push(
             {
@@ -112,9 +101,14 @@ export class ChatHistoryManager {
                 codeCellID: activeCellID
             }
         );
+
+        return {
+            promptType: 'chat',
+            metadata,
+        }
     }
 
-    updateMessageAtIndex(index: number, newContent: string): void {
+    updateMessageAtIndex(index: number, newContent: string): IOutgoingMessage {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
@@ -122,12 +116,6 @@ export class ChatHistoryManager {
             variables: this.variableManager.variables,
             activeCellCode,
             input: newContent
-        }
-
-        // Update the outgoing message
-        this.history.outgoingMessage = {
-            promptType: 'chat',
-            metadata,
         }
         
         this.history.displayOptimizedChatHistory[index] = { 
@@ -137,9 +125,14 @@ export class ChatHistoryManager {
         }
 
         this.history.displayOptimizedChatHistory = this.history.displayOptimizedChatHistory.slice(0, index + 1);
+
+        return {
+            promptType: 'chat',
+            metadata,
+        }
     }
 
-    addDebugErrorMessage(errorMessage: string): void {
+    addDebugErrorMessage(errorMessage: string): IOutgoingMessage {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -149,10 +142,6 @@ export class ChatHistoryManager {
             activeCellCode: activeCellCode,
             errorMessage: errorMessage
         }
-        this.history.outgoingMessage = {
-            promptType: 'smartDebug',
-            metadata,
-        }
 
         this.history.displayOptimizedChatHistory.push(
             {
@@ -161,9 +150,14 @@ export class ChatHistoryManager {
                 codeCellID: activeCellID
             }
         );
+
+        return {
+            promptType: 'smartDebug',
+            metadata,
+        }
     }
 
-    addExplainCodeMessage(): void {
+    addExplainCodeMessage(): IOutgoingMessage {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -171,10 +165,6 @@ export class ChatHistoryManager {
         const metadata: IChatMessageMetadata = {
             variables: this.variableManager.variables,
             activeCellCode
-        }
-        this.history.outgoingMessage = {
-            promptType: 'codeExplain',
-            metadata,
         }
 
         this.history.displayOptimizedChatHistory.push(
@@ -184,6 +174,11 @@ export class ChatHistoryManager {
                 codeCellID: activeCellID
             }
         );
+
+        return {
+            promptType: 'codeExplain',
+            metadata,
+        }
     }
 
     addAIMessageFromResponse(
