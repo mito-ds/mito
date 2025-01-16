@@ -41,6 +41,77 @@ x = my_sum(1, 2)
 """,
         type_tags=["code_completion"],
     ),
+
+    InlineCodeCompletionTestCase(
+        name="indented_code_location_finder_function_else_block",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            workflow_tags=["function"],
+            expected_code="""
+def location_finder(x):
+    if x == 'NY':
+        print("You are in NY")
+    elif x == 'PA':
+        print("You are in PA")
+""",
+        ),
+        prefix="""
+def location_finder(x):
+    if x == 'NY':
+        print("You are in NY")
+    elif x == 'PA':
+        print("You are""",
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+        InlineCodeCompletionTestCase(
+        name="indented_code_location_finder_function_else_clause",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            workflow_tags=["function"],
+            expected_code="""
+def location_finder(x):
+    if x == 'NY':
+        print("You are in NY")
+    elif x == 'PA':
+        print("You are in PA")
+""",
+        ),
+        prefix="""
+def location_finder(x):
+    # Handle the NY Case
+    if x == 'NY':
+        print("You are in NY")
+    # Handle the PA Case
+    elif x""",
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="indented_code_location_finder_function_continue_after_else_clause",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            workflow_tags=["function"],
+            expected_code="""
+def location_finder(x):
+    if x == 'NY':
+        print("You are in NY")
+    elif x == 'PA':
+        print("You are in PA")
+""",
+        ),
+        prefix="""
+def location_finder(x):
+    # Handle the NY Case
+    if x == 'NY':
+        print("You are in NY")
+    # Handle the PA Case
+    elif x == 'PA':""",
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
     
     # NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION
     InlineCodeCompletionTestCase(
