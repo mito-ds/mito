@@ -4,6 +4,7 @@ import {
 } from '@jupyterlab/application';
 import { IEditorServices } from '@jupyterlab/codeeditor';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { NotebookContentFactory } from './contentfactory';
 
 /**
  * Initialization data for the mito-sql-cell extension.
@@ -17,7 +18,10 @@ const plugin: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
   autoStart: true,
   activate: (app: JupyterFrontEnd, editorServices: IEditorServices) => {
     const editorFactory = editorServices.factoryService.newInlineEditor;
-    return new NotebookPanel.ContentFactory({ editorFactory });
+    return new NotebookContentFactory({
+      editorFactory,
+      sqlSources: { sources: ['db1', 'db2'] }
+    });
   }
 };
 
