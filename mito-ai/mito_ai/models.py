@@ -37,6 +37,15 @@ class ChatMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
+    
+    @property
+    def display_message(self) -> str:
+        return f"""```python
+{self.activeCellCode}
+```
+
+{self.input}
+"""
 
 @dataclass(frozen=True)
 class SmartDebugMessageMetadata:
@@ -47,6 +56,15 @@ class SmartDebugMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
+    
+    @property
+    def display_message(self) -> str:
+        return f"""```python
+{self.activeCellCode}
+```
+
+{self.errorMessage}
+"""
 
 @dataclass(frozen=True)
 class CodeExplainMessageMetadata:
@@ -56,6 +74,15 @@ class CodeExplainMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_explain_code_prompt(self.activeCellCode or '')
+    
+    @property
+    def display_message(self) -> str:
+        return f"""```python
+{self.activeCellCode}
+```
+
+Explain this code
+"""
 
 @dataclass(frozen=True)
 class InlineCompletionMessageMetadata:
