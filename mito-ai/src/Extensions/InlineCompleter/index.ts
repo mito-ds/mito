@@ -21,8 +21,8 @@ interface IMitoAIConfig {
   };
 }
 
-const JUPYTERLAB_INLINE_COMPLETER_ID =
-  '@jupyterlab/completer-extension:inline-completer';
+const JUPYTERLAB_INLINE_COMPLETER_ID = '@jupyterlab/completer-extension:inline-completer';
+const JUPYTERLAB_SHORTCUTS_ID = '@jupyterlab/shortcuts-extension:shortcuts';
 export const completionPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:inline-completion',
   autoStart: true,
@@ -71,6 +71,13 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
               )
             ).composite as any;
 
+            let shortcuts = (
+              await settingRegistry.get(
+                JUPYTERLAB_SHORTCUTS_ID,
+                'shortcuts'
+              )
+            ).composite as any;
+
             const updateConfig = () => {
               // Set the settingsChecked flag to true to store
               // that the user has acknowledge the notification.
@@ -109,12 +116,20 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
                           'providers',
                           providers
                         );
-                        // Set the Tab key as the shortcut for accepting Mito AI suggestions
-                        app.commands.addKeyBinding({
+
+                        // For some reason, it seems that unless the Tab shortcut is registered first, 
+                        // Jupyter does not accept it. So we try removing the existing shortcut.
+                        shortcuts = shortcuts.filter((shortcut: {command: string}) => shortcut.command !== 'inline-completer:accept');
+                        shortcuts.push({
                           command: 'inline-completer:accept',
                           keys: ['Tab'],
                           selector: '.jp-mod-inline-completer-active'
-                        });                    
+                        });
+                        await settingRegistry.set(
+                          JUPYTERLAB_SHORTCUTS_ID,
+                          'shortcuts',
+                          shortcuts
+                        );
                         updateConfig();
                       }
                     },
