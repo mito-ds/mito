@@ -243,7 +243,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """Handle stream completion request."""
         start = time.time()
 
-        # Use a string buffer to accumulate the full response from streaming chunks
+        # Use a string buffer to accumulate the full response from streaming chunks.
+        # We need to accumulate the response on the backend so that we can save it to
+        # the full_message_history
         accumulated_response = ""
         async for reply in self._llm.stream_completions(request, prompt_type):
             if isinstance(reply, CompletionStreamChunk):
