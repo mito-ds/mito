@@ -132,6 +132,23 @@ Output:
 
 IMPORTANT: Notice in Example 5 that the output is indented several times because the code must be executed as part of the else block.
 
+<Example 6>
+Defined Variables: {{}}
+
+Code in the active code cell:
+```python
+days_in_week <cursor>
+```
+
+Output:
+```python
+days_in_week = 7
+```
+</Example 6>
+
+IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, the output continues the existing line of code and does not start with a new line character.
+
+
 Your Task:
 
 Defined Variables: {notebook_state.global_vars}
