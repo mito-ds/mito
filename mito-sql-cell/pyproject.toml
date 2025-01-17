@@ -23,8 +23,18 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+    "jupyter_server>=2.4.0,<3"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
+
+[project.optional-dependencies]
+test = [
+    "coverage",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-jupyter[server]>=0.6.0"
+]
 
 [tool.hatch.version]
 source = "nodejs"
@@ -38,6 +48,7 @@ artifacts = ["mito_sql_cell/labextension"]
 [tool.hatch.build.targets.wheel.shared-data]
 "mito_sql_cell/labextension" = "share/jupyter/labextensions/mito-sql-cell"
 "install.json" = "share/jupyter/labextensions/mito-sql-cell/install.json"
+"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 
 [tool.hatch.build.hooks.version]
 path = "mito_sql_cell/_version.py"
