@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 from copy import deepcopy
-from distutils.version import LooseVersion
+from packaging.version import Version
 from typing import Any, Collection, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -124,7 +124,7 @@ class PivotCodeChunk(CodeChunk):
         # a series from the above function call. Thus, we need to move it to a df for
         # all our other code run properly on it. This code should only run in early 
         # versions of pandas
-        self.was_series = LooseVersion(pd.__version__) <= LooseVersion('1.0.0')
+        self.was_series = Version(pd.__version__) <= Version('1.0.0')
 
         self.old_df_name = self.prev_state.df_names[self.sheet_index]
         self.new_df_name = new_df_name
