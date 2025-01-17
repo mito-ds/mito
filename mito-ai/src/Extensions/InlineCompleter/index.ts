@@ -111,9 +111,9 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
                         );
                         updateConfig();
 
-                        const acceptBinding = app.commands.keyBindings.find(binding => binding.command === 'inline-completer:accept')
+                        const hasTabShortcut = app.commands.keyBindings.find(binding => binding.command === 'inline-completer:accept' && binding.keys.length === 1 && binding.keys[0] === 'Tab')
 
-                        if (acceptBinding?.keys.length === 1 && acceptBinding?.keys[0] !== 'Tab') {
+                        if (!hasTabShortcut) {
                           Notification.info(
                             `🚀 Mito AI Tip: Your current key binding for accepting code suggestions is ${acceptBinding?.keys}. You can change this in Settings > Keyboard Shortcuts.`,
                             {
