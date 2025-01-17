@@ -1,13 +1,13 @@
 import { CellChange, ISharedCodeCell } from '@jupyter/ydoc';
 import { Cell, CodeCell, ICellHeader } from '@jupyterlab/cells';
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { ReactiveToolbar } from '@jupyterlab/ui-components';
-import { Message } from '@lumino/messaging';
+import { VDomModel, VDomRenderer } from '@jupyterlab/ui-components';
 import { ISignal, Signal } from '@lumino/signaling';
-import { PanelLayout, SingletonLayout, Widget } from '@lumino/widgets';
+import { PanelLayout } from '@lumino/widgets';
+import * as React from 'react';
 import { IMitoCodeCell, MAGIC, MagicLine } from './common';
-import { DatabaseSelect, VariableName } from './widgets';
 import type { ISqlSources } from './sources';
+import { Option, Select, TextField, Toolbar } from '@jupyter/react-components';
 
 /**
  * The class of the header.
@@ -95,10 +95,9 @@ class MitoCodeCell extends CodeCell implements IMitoCodeCell {
   protected initializeDOM(): void {
     super.initializeDOM();
     this._header = (this.layout as PanelLayout).widgets.find(
-      widget => widget instanceof CellHeader
-    ) as CellHeader;
+      widget => widget instanceof MitoCellHeader
+    ) as MitoCellHeader;
 
-    this._header.createToolbar(this);
     this._checkSource();
   }
 
@@ -147,7 +146,7 @@ class MitoCodeCell extends CodeCell implements IMitoCodeCell {
     }
   };
 
-  private _header: CellHeader | undefined = undefined;
+  private _header: MitoCellHeader | undefined = undefined;
   private _sqlSources: ISqlSources;
   private _isSQL = false;
   private _databaseChanged = new Signal<IMitoCodeCell, string>(this);
@@ -191,7 +190,7 @@ export class CellContentFactory
    */
   createCellHeader(): ICellHeader {
     const sqlSources = this._sqlSources;
-    return new CellHeader({ sqlSources });
+    return new MitoCellHeader({ sqlSources });
   }
 
   private _sqlSources: ISqlSources;
@@ -212,39 +211,59 @@ export namespace CellContentFactory {
   }
 }
 
+class SqlModel extends VDomModel {
+  private _database = '';
+  private _variableName = '';
+
+  get database(): string {
+    return this._database;
+  }
+  set database(v: string) {
+    if (v !== this._database) {
+      this._database = v;
+      this.stateChanged.emit();
+    }
+  }
+
+  get variableName(): string {
+    return this._variableName;
+  }
+  set variableName(v: string) {
+    if (v !== this._variableName) {
+      this._variableName = v;
+      this.stateChanged.emit();
+    }
+  }
+}
+
 /**
  * The cell header widget.
  */
-export class CellHeader extends Widget implements ICellHeader {
+export class MitoCellHeader
+  extends VDomRenderer<SqlModel | null>
+  implements ICellHeader
+{
   /**
    * Creates a cell header.
    */
   constructor(options: { sqlSources: ISqlSources }) {
     super();
-    this.layout = new SingletonLayout();
     this._sqlSources = options.sqlSources;
-    this._toolbar = new ReactiveToolbar();
+    this.addClass(HEADER_CLASS);
   }
 
-  /**
-   * Set the cell model to the header.
-   *
-   * It adds a listener on the cell content to display or not the toolbar.
-   */
-  createToolbar(cell: MitoCodeCell) {
-    const databaseSelect = new DatabaseSelect({
-      cellModel: cell?.model,
-      sqlSources: this._sqlSources,
-      databaseChanged: cell.databaseChanged
-    });
-
-    this._toolbar.addItem('select', databaseSelect);
-
-    const variableName = new VariableName({
-      cell,
-      variableChanged: cell.variableChanged
-    });
-    this._toolbar.addItem('variable', variableName);
+  protected render(): JSX.Element | null {
+    return this.model ? (
+      <Toolbar>
+        <Select scale='xsmall'>
+          {this._sqlSources.sources.map(s => (
+            <Option>{s}</Option>
+          ))}
+        </Select>
+        <span>saved to</span>
+        <TextField placeholder="Variable">{this.model.variableName}</TextField>
+      </Toolbar>
+    ) : null;
   }
 
   /**
@@ -254,21 +273,12 @@ export class CellHeader extends Widget implements ICellHeader {
    */
   setCellSql(status: boolean) {
     if (status) {
-      this.addClass(HEADER_CLASS);
-      (this.layout as SingletonLayout).widget = this._toolbar;
+      this.model = new SqlModel();
     } else {
       this.removeClass(HEADER_CLASS);
-      (this.layout as SingletonLayout).removeWidget(this._toolbar);
+      this.model = null;
     }
   }
 
-  /**
-   * Triggered before the widget is detached.
-   */
-  protected onBeforeDetach(msg: Message): void {
-    (this.layout as SingletonLayout).removeWidget(this._toolbar);
-  }
-
   private _sqlSources: ISqlSources;
-  private _toolbar: ReactiveToolbar;
 }
