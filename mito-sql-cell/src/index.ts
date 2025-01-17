@@ -4,12 +4,13 @@ import {
 } from '@jupyterlab/application';
 import { IEditorServices } from '@jupyterlab/codeeditor';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { cellTypeSwitcher } from './celltypeselector';
 import { NotebookContentFactory } from './contentfactory';
 
 /**
- * Initialization data for the mito-sql-cell extension.
+ * Plugin using a custom cell widget for SQL cells.
  */
-const plugin: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
+const contentFactory: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
   id: 'mito-sql-cell:notebook-content-factory',
   description:
     'Plugin providing the notebook content factory with a special treatment for SQL cells.',
@@ -25,4 +26,4 @@ const plugin: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
   }
 };
 
-export default plugin;
+export default [cellTypeSwitcher, contentFactory];

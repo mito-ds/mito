@@ -2065,7 +2065,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/apputils@npm:^4.4.4":
+"@jupyterlab/apputils@npm:^4.0.0, @jupyterlab/apputils@npm:^4.4.4":
   version: 4.4.4
   resolution: "@jupyterlab/apputils@npm:4.4.4"
   dependencies:
@@ -2386,7 +2386,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/nbformat@npm:^3.0.0 || ^4.0.0-alpha.21 || ^4.0.0, @jupyterlab/nbformat@npm:^4.3.4":
+"@jupyterlab/nbformat@npm:^3.0.0 || ^4.0.0-alpha.21 || ^4.0.0, @jupyterlab/nbformat@npm:^4.0.0, @jupyterlab/nbformat@npm:^4.3.4":
   version: 4.3.4
   resolution: "@jupyterlab/nbformat@npm:4.3.4"
   dependencies:
@@ -2624,7 +2624,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/translation@npm:^4.3.4":
+"@jupyterlab/translation@npm:^4.0.0, @jupyterlab/translation@npm:^4.3.4":
   version: 4.3.4
   resolution: "@jupyterlab/translation@npm:4.3.4"
   dependencies:
@@ -7238,13 +7238,16 @@ __metadata:
     "@jupyter/react-components": "*"
     "@jupyter/ydoc": "*"
     "@jupyterlab/application": ^4.0.0
+    "@jupyterlab/apputils": ^4.0.0
     "@jupyterlab/builder": ^4.0.0
     "@jupyterlab/cells": ^4.0.0
     "@jupyterlab/codeeditor": ^4.0.0
     "@jupyterlab/coreutils": ^6.0.0
+    "@jupyterlab/nbformat": ^4.0.0
     "@jupyterlab/notebook": ^4.0.0
     "@jupyterlab/services": ^7.0.0
     "@jupyterlab/testutils": ^4.0.0
+    "@jupyterlab/translation": ^4.0.0
     "@jupyterlab/ui-components": ^4.0.0
     "@lumino/messaging": ^2.0.0
     "@lumino/signaling": ^2.0.0
