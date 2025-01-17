@@ -52,4 +52,95 @@ print('Hi')""",
         type_tags=["comment_following"],
     ),
 
+    InlineCodeCompletionTestCase(
+        name="finish_today_variable_with_equals",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+import datetime
+
+# Get today's date with just the date component using datetime.datetime.today().date()
+today_date = datetime.datetime.today().date()
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+import datetime
+
+# Get today's date with just the date component using datetime.datetime.today().date()
+today_date = """,
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="finish_today_variable_without_equals",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+import datetime
+
+# Get today's date with just the date component using datetime.datetime.today().date()
+today_date = datetime.datetime.today().date()
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+import datetime
+
+# Get today's date with just the date component using datetime.datetime.today().date()
+today_date """,
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name="print_after_15th_cursor_at_end_of_comment",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+import datetime
+
+today_date = datetime.datetime.today().date()
+
+# If today is after the 15th of the month print 'After 15th'
+if today_date.day > 15:
+    print('After 15th')
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+import datetime
+
+today_date = datetime.datetime.today().date()
+
+# If today is after the 15th of the month print 'After 15th'""",
+        suffix="""""",
+        type_tags=["comment_following"],
+    ),
+            InlineCodeCompletionTestCase(
+        name="print_after_2pm_cursor_after_comment",
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+import datetime
+
+today_date = datetime.datetime.today().date()
+
+# If today is after the 15th of the month print 'After 15th'
+if today_date.day > 15:
+    print('After 15th')
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+import datetime
+
+today_date = datetime.datetime.today().date()
+
+# If today is after the 15th of the month print 'After 15th'
+""",
+        suffix="""""",
+        type_tags=["comment_following"],
+    ),
 ]
