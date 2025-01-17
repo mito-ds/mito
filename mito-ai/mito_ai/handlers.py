@@ -44,7 +44,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
-        self.full_message_history = []
+        self.llm_message_history = []
+        self.display_message_history = []
 
     @property
     def log(self) -> logging.Logger:
@@ -93,7 +94,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._llm.unobserve(self._send_error, "last_error")
 
         # Clear the message history
-        self.full_message_history = []
+        self.llm_message_history = []
 
     async def on_message(self, message: str) -> None:
         """Handle incoming messages on the WebSocket.
@@ -114,7 +115,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear history if the type is "clear_history"
         if type == "clear_history":
-            self.full_message_history = []
+            self.llm_message_history = []
             return
         
         messages = []
@@ -128,7 +129,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
             if metadata.index is not None:
                 # Clear the chat history after the specified index (inclusive)
-                self.full_message_history = self.full_message_history[:metadata.index]
+                self.llm_message_history = self.llm_message_history[:metadata.index]
 
         elif type == "codeExplain":
             prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
@@ -147,13 +148,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == "inline_completion":
             messages = new_message
         else:
-            self.full_message_history.append(
+            self.llm_message_history.append(
                 {
                     "role": "user", 
                     "content": prompt
                 }
             )
-            messages = self.full_message_history
+            messages = self.llm_message_history
             
         
         request = CompletionRequest(
@@ -230,7 +231,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         start = time.time()
         reply = await self._llm.request_completions(request, prompt_type)
         self.reply(reply)
-        self.full_message_history.append(
+        self.llm_message_history.append(
             {
                 "role": "assistant", 
                 "content": reply.items[0].content
@@ -251,7 +252,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
             self.reply(reply)
         
-        self.full_message_history.append(
+        self.llm_message_history.append(
             {
                 "role": "assistant", 
                 "content": reply.items[0].content
