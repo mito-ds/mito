@@ -5,7 +5,7 @@ author_email: aaron@sagacollab.com
 author_name: Saga Inc.
 has_binder: false
 has_settings: false
-kind: frontend
+kind: server
 labextension_name: mito-sql-cell
 project_short_description: JupyterLab extension adding support for SQL cells.
 python_name: mito_sql_cell

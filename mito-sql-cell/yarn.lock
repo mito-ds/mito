@@ -2251,7 +2251,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/coreutils@npm:^6.3.4":
+"@jupyterlab/coreutils@npm:^6.0.0, @jupyterlab/coreutils@npm:^6.3.4":
   version: 6.3.4
   resolution: "@jupyterlab/coreutils@npm:6.3.4"
   dependencies:
@@ -2498,7 +2498,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/services@npm:^7.3.4":
+"@jupyterlab/services@npm:^7.0.0, @jupyterlab/services@npm:^7.3.4":
   version: 7.3.4
   resolution: "@jupyterlab/services@npm:7.3.4"
   dependencies:
@@ -7241,7 +7241,9 @@ __metadata:
     "@jupyterlab/builder": ^4.0.0
     "@jupyterlab/cells": ^4.0.0
     "@jupyterlab/codeeditor": ^4.0.0
+    "@jupyterlab/coreutils": ^6.0.0
     "@jupyterlab/notebook": ^4.0.0
+    "@jupyterlab/services": ^7.0.0
     "@jupyterlab/testutils": ^4.0.0
     "@jupyterlab/ui-components": ^4.0.0
     "@lumino/messaging": ^2.0.0
@@ -7258,6 +7260,7 @@ __metadata:
     eslint-config-prettier: ^8.8.0
     eslint-plugin-prettier: ^5.0.0
     jest: ^29.2.0
+    mkdirp: ^1.0.3
     npm-run-all2: ^7.0.1
     prettier: ^3.0.0
     rimraf: ^5.0.1
@@ -7273,7 +7276,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"mkdirp@npm:^1.0.4":
+"mkdirp@npm:^1.0.3, mkdirp@npm:^1.0.4":
   version: 1.0.4
   resolution: "mkdirp@npm:1.0.4"
   bin:
