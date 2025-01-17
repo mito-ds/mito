@@ -135,31 +135,22 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         elif type == "smartDebug":
             prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
 
-        new_message = [
-            {
-                "role": "user", 
-                "content": prompt
-            }
-        ]
+        new_message = {
+            "role": "user", 
+            "content": prompt
+        }
 
-        # Inline completion has its own temporary message chain
-        #   that should be used separately from the full message history
+        # Inline completion uses its own websocket
+        #   so we can reuse the full_message_history variable
         if type == "inline_completion":
-            messages = new_message
+            self.full_message_history = [new_message]
         else:
-            self.full_message_history.append(
-                {
-                    "role": "user", 
-                    "content": prompt
-                }
-            )
-            messages = self.full_message_history
-            
-        
+            self.full_message_history.append(new_message)
+
         request = CompletionRequest(
             type=type,
             message_id=parsed_message.get('message_id'),
-            messages=messages,
+            messages=self.full_message_history,
             stream=parsed_message.get('stream', False)
         )
         
@@ -230,12 +221,16 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         start = time.time()
         reply = await self._llm.request_completions(request, prompt_type)
         self.reply(reply)
-        self.full_message_history.append(
-            {
-                "role": "assistant", 
-                "content": reply.items[0].content
-            }
-        )
+
+        # Save to the message history
+        # Inline completion is ephemeral and does not need to be saved
+        if request.type != "inline_completion":
+            self.full_message_history.append(
+                {
+                    "role": "assistant", 
+                    "content": reply.items[0].content
+                }
+            )
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
@@ -253,12 +248,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
             self.reply(reply)
         
-        self.full_message_history.append(
-            {
-                "role": "assistant", 
-                "content": reply.items[0].content
-            }
-        )
+        if request.type != "inline_completion":
+            self.full_message_history.append(
+                {
+                    "role": "assistant", 
+                    "content": reply.items[0].content
+                }
+            )
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 
