@@ -123,7 +123,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == "inline_completion":
             prompt = InlineCompletionMessageMetadata(**metadata_dict).prompt
         elif type == "chat":
-            prompt = ChatMessageMetadata(**metadata_dict).prompt
+            metadata = ChatMessageMetadata(**metadata_dict)
+            prompt = metadata.prompt
+
+            if metadata.index is not None:
+                # Clear the chat history after the specified index (inclusive)
+                self.full_message_history = self.full_message_history[:metadata.index]
+
         elif type == "codeExplain":
             prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
         elif type == "smartDebug":
@@ -221,7 +227,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             request: The completion request description.
         """
-        self.log.info(f"Handling completion request: {json.dumps(request.messages, indent=4)}")
         start = time.time()
         reply = await self._llm.request_completions(request, prompt_type)
         self.reply(reply)

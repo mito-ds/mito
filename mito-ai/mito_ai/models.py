@@ -32,6 +32,7 @@ class ChatMessageMetadata:
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     input: Optional[str] = None
+    index: Optional[int] = None
 
     @property
     def prompt(self) -> str:

@@ -20,6 +20,7 @@ export interface IChatMessageMetadata {
     errorMessage?: string;     
     prefix?: string;
     suffix?: string;
+    index?: number;
 }
 
 /**
@@ -103,7 +104,7 @@ export class ChatHistoryManager {
 
         return {
             promptType: 'chat',
-            metadata,
+            metadata: metadata,
         }
     }
 
@@ -113,8 +114,9 @@ export class ChatHistoryManager {
 
         const metadata: IChatMessageMetadata = {
             variables: this.variableManager.variables,
-            activeCellCode,
-            input: newContent
+            activeCellCode: activeCellCode,
+            input: newContent,
+            index: index
         }
         
         this.history.displayOptimizedChatHistory[index] = { 
@@ -127,7 +129,7 @@ export class ChatHistoryManager {
 
         return {
             promptType: 'chat',
-            metadata,
+            metadata: metadata,
         }
     }
 
