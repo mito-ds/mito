@@ -95,6 +95,106 @@ today_date """,
     ),
 
     InlineCodeCompletionTestCase(
+        name='finish_total_variable_before_equals',
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum = x + y + z
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum""",
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+        InlineCodeCompletionTestCase(
+        name='finish_total_variable_before_equals_with_space',
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum = x + y + z
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum """,
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name='finish_total_variable_at_equals',
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum = x + y + z
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum =""",
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+    InlineCodeCompletionTestCase(
+        name='finish_total_variable_after_equals_space',
+        test_case_core=CodeGenTestCaseCore(
+            notebook_state=EMPTY_NOTEBOOK,
+            expected_code="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum = x + y + z
+""",
+            workflow_tags=["misc"],
+        ),
+        prefix="""
+x = 10
+y = 20
+z = 30
+
+# Sum of x, y, and z
+total_sum = """,
+        suffix="""""",
+        type_tags=["code_completion"],
+    ),
+
+    InlineCodeCompletionTestCase(
         name="print_after_15th_cursor_at_end_of_comment",
         test_case_core=CodeGenTestCaseCore(
             notebook_state=EMPTY_NOTEBOOK,
