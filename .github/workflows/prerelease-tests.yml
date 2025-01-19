@@ -54,7 +54,7 @@ jobs:
           uses: actions/upload-artifact@v4
           if: failure()
           with:
-            name: jupyterlab-playwright-report-${{ matrix.python-version }}
+            name: jupyterlab-playwright-report-${{ matrix.python-version }}-${{ github.run_id }}
             path: tests/playwright-report/
             retention-days: 14    
 
@@ -157,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: streamlit-playwright-report
+          name: streamlit-playwright-report-${{ matrix.python-version }}-${{ github.run_id }}
           path: tests/playwright-report/
           retention-days: 14
     

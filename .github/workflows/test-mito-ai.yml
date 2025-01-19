@@ -67,6 +67,6 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: mitoai-jupyterlab-playwright-report-${{ matrix.python-version }}
+        name: mitoai-jupyterlab-playwright-report-${{ matrix.python-version }}-${{ matrix.use-mito-ai-server }}-${{ github.run_id }}
         path: tests/playwright-report/
         retention-days: 14

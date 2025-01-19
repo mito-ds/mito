@@ -155,6 +155,7 @@ percent_changes = []
         suffix="""
     current_close = returns[year]['current_close']
     previous_close = returns[year]['previous_close']
+    percent_changes.append(calculate_percent_change(current_close, previous_close))
 """,
         type_tags=["code_completion"],
     ),
