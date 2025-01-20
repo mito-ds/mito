@@ -85,24 +85,17 @@ test.describe("default inline completion", () => {
     const replyDone = new PromiseDelegate<void>();
     // Mock completion request with code prefix 'def fib'
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
-      console.log("Mocking inline completion request");
       ws.onMessage((message) => {
         const payload = JSON.parse(message as string);
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.metadata.prefix.includes("def fib") &&
-          payload.stream
+          payload.messages.find((message) => message.content.includes("print")) &&
+          payload.stream == false
         ) {
-          let counter = -1;
-          const streamReply = setInterval(() => {
-            if (++counter < MOCKED_MESSAGES.length) {
-              ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
-            } else {
-              clearInterval(streamReply);
-              replyDone.resolve();
-            }
-          }, 100);
+          // Send the fetch message back to the client
+          ws.send(JSON.stringify(MOCKED_FETCH_RESULT));
+          replyDone.resolve();
         } else {
           ws.send(
             JSON.stringify({
@@ -127,21 +120,22 @@ test.describe("default inline completion", () => {
     // before it grabs the text content.
     await (await page.notebook.getCellLocator(0))!
       .getByRole("textbox")
-      .fill("def fib");
+      .fill("print('hel");
 
     await replyDone.promise;
-
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(1);
+
     expect
       .soft((await page.notebook.getCellLocator(0))!.getByRole("textbox"))
-      .toHaveText("def fib(n):\n    pass\n");
+      .toHaveText("print('hello')");
 
     await page.keyboard.press("Tab");
 
     expect.soft(page.locator(GHOST_SELECTOR)).toHaveCount(0);
+
     expect(
       (await page.notebook.getCellLocator(0))!.getByRole("textbox")
-    ).toHaveText("def fib(n):\n    pass\n");
+    ).toHaveText("print('hello')");
   });
 });
 
@@ -184,8 +178,8 @@ test.describe("default manual inline completion", () => {
         ) {
           let counter = -1;
           const streamReply = setInterval(() => {
-            if (++counter < MOCKED_MESSAGES.length) {
-              ws.send(JSON.stringify(MOCKED_MESSAGES[counter]));
+            if (++counter < MOCKED_STREAM_MESSAGES.length) {
+              ws.send(JSON.stringify(MOCKED_STREAM_MESSAGES[counter]));
             } else {
               clearInterval(streamReply);
               replyDone.resolve();
@@ -231,8 +225,21 @@ test.describe("default manual inline completion", () => {
   });
 });
 
+const MOCKED_FETCH_RESULT = {
+  items: [{
+    content: "```python\nprint('hello')```",
+    error: null,
+    insertText: "lo')",
+    isIncomplete: false,  
+    token: null
+  }],
+  parent_id: "1",
+  type: "reply",
+  error: null,
+};
+
 // Mocked messages to simulate the inline completion process
-const MOCKED_MESSAGES = [
+const MOCKED_STREAM_MESSAGES = [
   {
     items: [
       {

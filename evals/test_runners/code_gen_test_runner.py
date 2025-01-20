@@ -82,9 +82,12 @@ def run_code_gen_test(
     ai_generated_code = get_open_ai_completion(prompt)
 
     # Construct the actual code
-    if test.test_type == 'chat':
+    if isinstance(prompt_generator, ChatPromptGenerator):
         actual_code = current_cell_contents_script + "\n" + ai_generated_code
     else:
+        # Run the post-processing function
+        ai_generated_code = prompt_generator.post_process_output(ai_generated_code, test.prefix or "", test.suffix or "")
+
         # We always add a newline between the current_cell_contents and the prefix. 
         # But we don't add a newline between the prefix -> ai_generated_code -> suffix, 
         # because the inline code completion can occur in the middle of a line. 

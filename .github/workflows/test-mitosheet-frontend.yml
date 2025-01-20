@@ -6,11 +6,13 @@ on:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
+      - '.github/workflows/test-mitosheet-frontend.yml'
       - '!tests/mitoai_ui_tests/**'
   pull_request:
     paths:
       - 'mitosheet/**'
       - 'tests/**'
+      - '.github/workflows/test-mitosheet-frontend.yml'
       - '!tests/mitoai_ui_tests/**'
 jobs:
   test-mitosheet-frontend-jupyterlab:
@@ -18,7 +20,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.8', '3.10', '3.11']
+        python-version: ['3.8', '3.10', '3.12']
       fail-fast: false
 
     steps:
@@ -57,10 +59,10 @@ jobs:
         jupyter lab --config jupyter_server_test_config.py &
         npm run test:jupyterlab
     - name: Upload test-results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: jupyterlab-playwright-report-${{ matrix.python-version }}
+        name: jupyterlab-playwright-report-${{ matrix.python-version }}-${{ github.run_id }}
         path: tests/playwright-report/
         retention-days: 14
 
@@ -108,10 +110,10 @@ jobs:
         jupyter notebook --config jupyter_notebook_config.py &
         npm run test:notebook
     - name: Upload test-results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: jupyternotebook-playwright-report-${{ matrix.python-version }}
+        name: jupyternotebook-playwright-report-${{ matrix.python-version }}-${{ github.run_id }}
         path: tests/playwright-report/
         retention-days: 14
 
@@ -225,7 +227,7 @@ jobs:
         Start-Job { streamlit run streamlit_test.py --server.port 8555 } -WorkingDirectory (Get-Location)
         npm run test -- --project="${{ matrix.project.test-name }}" streamlit_ui_tests/${{matrix.testfiles}}
     - name: Upload test-results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: test-results-${{matrix.testfiles}}-${{ matrix.os }}-python${{ matrix.python-version }}-${{ matrix.project.test-name }}
@@ -237,7 +239,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.10', '3.12']
       fail-fast: false
 
     steps:

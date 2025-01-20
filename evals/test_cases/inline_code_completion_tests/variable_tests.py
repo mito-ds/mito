@@ -84,8 +84,7 @@ d = 4 # set d to 4""",
             workflow_tags=["variable_declaration"],
         ),
         prefix="""
-a
-""",
+a""",
         suffix="""
 b = 2 # set b to 2
 c = 3 # set c to 3

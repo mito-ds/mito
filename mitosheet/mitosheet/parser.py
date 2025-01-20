@@ -9,7 +9,7 @@ as well as the original dataframe, and returns the current state
 of the sheet as a dataframe
 """
 import datetime
-from distutils.version import LooseVersion
+from packaging.version import Version
 import re
 import warnings
 from typing import Any, List, Optional, Set, Tuple, Union
@@ -317,7 +317,7 @@ def get_row_offset(index: pd.Index, formula_label: Union[str, bool, int, float, 
 def is_number_index(index: pd.Index) -> bool:
     with warnings.catch_warnings():
         # Check pandas version is < 2.0
-        if LooseVersion(pd.__version__) < LooseVersion('2.0.0'):
+        if Version(pd.__version__) < Version('2.0.0'):
             warnings.simplefilter("ignore")
             if isinstance(index, pd.RangeIndex) or isinstance(index, pd.Int64Index) or isinstance(index, pd.UInt64Index) or isinstance(index, pd.Float64Index):
                 return True

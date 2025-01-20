@@ -114,6 +114,10 @@ class InlineCodeCompletionPromptGenerator():
 
     def get_prompt(self, prefix: str, suffix: str, notebook_state: NotebookState) -> str:
         raise NotImplementedError("Subclasses must implement this method")
+ 
+    def post_process_output(self, output: str, prefix: str, suffix: str) -> str:
+        # Default implementation returns the output unchanged
+        return output
 
 class DebugPromptGenerator():
 
@@ -121,3 +125,4 @@ class DebugPromptGenerator():
 
     def get_prompt(self, error_message: str, notebook_state: NotebookState) -> str:
         raise NotImplementedError("Subclasses must implement this method")
+    

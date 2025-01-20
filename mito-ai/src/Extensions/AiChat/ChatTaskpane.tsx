@@ -215,10 +215,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             await websocketClient.ready;
 
             const aiResponse = await websocketClient.sendMessage({
-              message_id: UUID.uuid4(),
               type: promptType,
-              stream: false,
-              metadata: metadata
+              message_id: UUID.uuid4(),
+              metadata: metadata,
+              stream: false
             });
 
             if (aiResponse.error) {
@@ -340,10 +340,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Notify the backend to clear the prompt history
         websocketClient.sendMessage({
-            message_id: UUID.uuid4(),
             type: 'clear_history',
+            message_id: UUID.uuid4(),
+            metadata: {},
             stream: false,
-            metadata: {}
         });
 
         return newChatHistoryManager

@@ -9,7 +9,7 @@ Contains all functions that can be used in a sheet that operate on dates.
 NOTE: This file is alphabetical order!
 """
 from datetime import datetime
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import pandas as pd
 
@@ -559,7 +559,7 @@ def WEEK(arg: DatetimeRestrictedInputType) -> IntFunctionReturnType:
         return arg.week
 
     # Handle if we're on pandas version < 1.1, where isocalendar() is not available
-    if LooseVersion(pd.__version__) < LooseVersion('1.1'):
+    if Version(pd.__version__) < Version('1.1'):
         return arg.dt.week
     
     return arg.dt.isocalendar().week

@@ -7,14 +7,14 @@
 Contains tests for the WEEK function.
 """
 
-from distutils.version import LooseVersion
+from packaging.version import Version
 import pytest
 import pandas as pd
 
 from mitosheet.public.v3.sheet_functions.date_functions import WEEK
 
 # Because isocalendar() exists only on 1.1 or later, we case on that verison here
-if LooseVersion(pd.__version__) < LooseVersion('1.1'):
+if Version(pd.__version__) < Version('1.1'):
     int_dtype = 'int64'
     nan_dtype = 'float64'
 else:
