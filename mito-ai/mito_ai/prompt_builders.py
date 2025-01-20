@@ -239,7 +239,7 @@ Defined Variables: {variables_str}
 
 Code in the active code cell:
 ```python
-${prefix}<cursor>${suffix}
+{prefix}<cursor>{suffix}
 ```
 
 Output:
@@ -370,7 +370,7 @@ Code in the active code cell:
 ```
 
 Error Message:
-${errorMessage}
+{errorMessage}
 
 ERROR ANALYSIS:
 
