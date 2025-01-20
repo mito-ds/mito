@@ -57,12 +57,14 @@
         "watch:labextension": "jupyter labextension watch ."
     },
     "dependencies": {
+        "@codemirror/view": "^6.9.6",
         "@jupyter/react-components": "*",
         "@jupyter/ydoc": "*",
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/apputils": "^4.0.0",
         "@jupyterlab/cells": "^4.0.0",
         "@jupyterlab/codeeditor": "^4.0.0",
+        "@jupyterlab/codemirror": "^4.0.0",
         "@jupyterlab/coreutils": "^6.0.0",
         "@jupyterlab/nbformat": "^4.0.0",
         "@jupyterlab/notebook": "^4.0.0",
