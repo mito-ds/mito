@@ -30,12 +30,13 @@ test.describe("inline completion integration test", () => {
 
         await typeInNotebookCell(page, 1, 'def sum(a, b):');
         await waitForIdle(page);
+        await page.waitForTimeout(10000);
 
         await selectCell(page, 1);
         await waitForIdle(page);
 
         // sleep 
-        await page.waitForTimeout(THRESHOLD_IN_MS);
+        await page.waitForTimeout(10000);
 
         expect.soft(page.locator(GHOST_SELECTOR)).toBeVisible();
         expect.soft((await page.notebook.getCellLocator(1))!.getByRole("textbox")).toContainText("def sum(a, b):");
