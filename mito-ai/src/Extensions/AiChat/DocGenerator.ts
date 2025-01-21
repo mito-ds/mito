@@ -145,6 +145,8 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
         } else if (error.response?.status === 500) {
             errorMessage = new ServerError().message;
         } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+            // NOTE: `Fail to fetch` error occurs when configurations is not set or properly defined
+            // for InlineCompleter extension.
             errorMessage = new ConnectionError().message;
         } else if (error instanceof OpenAIError) {
             errorMessage = new OpenAIError().message;
