@@ -5,7 +5,6 @@ from .schema import UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ
 from .db import get_user_field
 from .._version import __version__
 from .utils import is_running_test
-import logging
 
 
 import analytics
@@ -159,7 +158,7 @@ def log_ai_completion_success(
     prompt_type: str,
     last_message_content: str,
     response: Dict[str, Any],
-    num_usages: Optional[int] = None,
+    num_usages: Optional[int] = None
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -176,20 +175,13 @@ def log_ai_completion_success(
         KEY_TYPE_PARAM: key_type,
     }
 
-    # Not all prompts will contain this phrase, so we check to make sure it exists
-    # before parsing on it. TODO: If we move to creating the prompts on the backend,
-    # then we can send over info like `code_cell_input` as a standalone param instead 
-    # of trying to parse it out from the message, which is not as robust.
-    code_cell_input = ''
-    if "Code in the active code cell:" in last_message_content:
-
-        code_cell_input = json.dumps(
-            last_message_content.split("Code in the active code cell:")[-1]
-            .strip()
-            .split("```python")[1]
-            .strip()
-            .split("```")[0]
-        )
+    code_cell_input = json.dumps(
+        last_message_content.split("Code in the active code cell:")[-1]
+        .strip()
+        .split("```python")[1]
+        .strip()
+        .split("```")[0]
+    )
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
