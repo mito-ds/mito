@@ -150,10 +150,7 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
             errorMessage = new OpenAIError().message;
         }
 
-        // Add error details for debugging (only in development)
-        const errorDetails = process.env.NODE_ENV === 'development' 
-            ? `\n\n<details><summary>Error Details</summary>\n\n\`\`\`\n${error.toString()}\n\`\`\`\n</details>`
-            : '';
+        const errorDetails = `\n\n<details><summary>Error Details</summary>\n\n\`\`\`\n${error.toString()}\n\`\`\`\n</details>`;
 
         if (loadingCell) {
             writeToCell(
