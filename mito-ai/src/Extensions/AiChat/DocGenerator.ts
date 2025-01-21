@@ -8,6 +8,68 @@ import type OpenAI from 'openai';
 
 const LOADING_MARKDOWN = '> *`⏳ Generating documentation... please wait`*';
 
+function simpleDocGenPrompt(combinedCode: string): string {
+    return `Please provide a concise markdown documentation for the following code. 
+    Please use the markdown format as provided in the examples.
+
+    If the provided code contains a function or a class, please use only the Approach 1. 
+
+    If the provided code contains a variable, please use only the Approach 2. 
+
+    If the provided code contains a logic, please use only the Approach 3. 
+
+    If the provided code contains function calls, please use only the Approach 4. 
+
+
+Approach 1: 
+-----------   
+    
+Title of the documentation must be chosen depending on the code,  
+If it is a function, just use the functon or a class please use the class name or 
+function name as the title. And use the following format:
+
+### Title
+- Title of the documentation
+
+### Overview
+- Briefly describe what the code does.
+
+### Parameters
+- List and describe the parameters, if any.
+
+### Returns
+- Describe the return value, if any.
+
+### Example
+- Provide a simple example of how to use the code.
+
+Approach 2:
+-----------
+
+Just use the variable name as the title.
+Just explain what it is doing in a few words using markdown format.
+
+Approach 3:
+-----------
+
+Just summarize the logic in a few words and pick a title depending on that summary using markdown format. 
+
+Approach 4:
+-----------
+
+Please explain the logic, don't use separate sections for parameters and returns. Just output the 
+overall logic in a few words using markdown format.
+
+Input
+-----
+
+Here is the code to document:
+
+\`\`\`typescript
+${combinedCode}
+\`\`\``;
+}
+
 // Function to get combined code from selected cells
 export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker, websocketClient: CompletionWebsocketClient): Promise<void> => {
     const selectedCellIndices = getSelectedCodeCellIds(notebookTracker);
@@ -43,7 +105,7 @@ export const getMarkdownDocumentation = async (notebookTracker: INotebookTracker
 
         console.log('Sending message to OpenAI API');
 
-        const prompt = "Write markdown documentation for the following code:\n" + combinedCode;
+        const prompt = simpleDocGenPrompt(combinedCode);
 
         const openAIFormattedMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
             { "role": "user", "content": prompt },
