@@ -108,14 +108,7 @@ export function findCellIndexById(notebook: Notebook, targetCellId: string): num
       return -1;
     }
   
-    for (let index = 0; index < notebook.widgets.length; index++) {
-      const cell = notebook.widgets[index];
-      if (cell && cell.model && cell.model.id === targetCellId) {
-        return index;
-      }
-    }
-  
-    return -1;
+    return notebook.widgets.findIndex(cell => cell?.model?.id === targetCellId);
 }
 
 export function writeToCell(cell: ICellModel | undefined, code: string): void {
