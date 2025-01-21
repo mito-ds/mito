@@ -7,7 +7,7 @@
 Contains tests for One Hot Encoding
 """
 
-from distutils.version import LooseVersion
+from packaging.version import Version
 from typing import List
 import pandas as pd
 import pytest
@@ -21,7 +21,7 @@ from mitosheet.utils import get_new_id
 def change_to_one_hot_encoding_columns(df: pd.DataFrame, column_headers: List[ColumnHeader]) -> pd.DataFrame:
     for column_header in column_headers:
         # If pandas < 2.0, we encode as uint 8
-        if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+        if Version(pd.__version__) < Version('2.0'):
             df[column_header] = df[column_header].astype('uint8')
         else:
             # otherwise, change to a bool

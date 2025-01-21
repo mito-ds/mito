@@ -6,6 +6,11 @@ import { Variable } from "../VariableManager/VariableInspector";
 
 type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'system'
 
+// The display optimized chat history is what we display to the user. Each message
+// is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
+// displayOptimizedChatHistory, we also include connection error messages so that we can 
+// display them in the chat interface. For example, if the user does not have an API key set, 
+// we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
     type: 'openai message' | 'connection error',
@@ -31,15 +36,6 @@ export interface IChatMessageMetadata {
 export interface IOutgoingMessage {
     promptType: 'chat' | 'smartDebug' | 'codeExplain';
     metadata: IChatMessageMetadata;
-  }
-
-export interface IChatHistory {
-    // The display optimized chat history is what we display to the user. Each message
-    // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
-    // displayOptimizedChatHistory, we also include connection error messages so that we can 
-    // display them in the chat interface. For example, if the user does not have an API key set, 
-    // we add a message to the chat ui that tells them to set an API key.
-    displayOptimizedChatHistory: IDisplayOptimizedChatHistory[]
 }
 
 /* 
@@ -54,15 +50,13 @@ export interface IChatHistory {
     Whenever, the chatHistoryManager is updated, it should automatically send a message to the AI. 
 */
 export class ChatHistoryManager {
-    private history: IChatHistory;
+    private displayOptimizedChatHistory: IDisplayOptimizedChatHistory[];
     private variableManager: IVariableManager;
     private notebookTracker: INotebookTracker;
 
-    constructor(variableManager: IVariableManager, notebookTracker: INotebookTracker, initialHistory?: IChatHistory) {
+    constructor(variableManager: IVariableManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatHistory[]) {
         // Initialize the history
-        this.history = initialHistory || {
-            displayOptimizedChatHistory: []
-        };
+        this.displayOptimizedChatHistory = initialHistory || [];
 
         // Save the variable manager
         this.variableManager = variableManager;
@@ -72,15 +66,11 @@ export class ChatHistoryManager {
     }
 
     createDuplicateChatHistoryManager(): ChatHistoryManager {
-        return new ChatHistoryManager(this.variableManager, this.notebookTracker, this.history);
-    }
-
-    getHistory(): IChatHistory {
-        return { ...this.history };
+        return new ChatHistoryManager(this.variableManager, this.notebookTracker, this.displayOptimizedChatHistory);
     }
 
     getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
-        return this.history.displayOptimizedChatHistory;
+        return this.displayOptimizedChatHistory;
     }
 
     addChatInputMessage(input: string): IOutgoingMessage {
@@ -94,7 +84,7 @@ export class ChatHistoryManager {
             input
         }
 
-        this.history.displayOptimizedChatHistory.push(
+        this.displayOptimizedChatHistory.push(
             {
                 message: getDisplayedOptimizedUserMessage(input, activeCellCode), 
                 type: 'openai message',
@@ -119,13 +109,13 @@ export class ChatHistoryManager {
             index: index
         }
         
-        this.history.displayOptimizedChatHistory[index] = { 
+        this.displayOptimizedChatHistory[index] = { 
             message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
             type: 'openai message',
             codeCellID: activeCellID
         }
 
-        this.history.displayOptimizedChatHistory = this.history.displayOptimizedChatHistory.slice(0, index + 1);
+        this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
 
         return {
             promptType: 'chat',
@@ -144,7 +134,7 @@ export class ChatHistoryManager {
             errorMessage: errorMessage
         }
 
-        this.history.displayOptimizedChatHistory.push(
+        this.displayOptimizedChatHistory.push(
             {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
@@ -168,7 +158,7 @@ export class ChatHistoryManager {
             activeCellCode
         }
 
-        this.history.displayOptimizedChatHistory.push(
+        this.displayOptimizedChatHistory.push(
             {
                 message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), 
                 type: 'openai message',
@@ -203,7 +193,7 @@ export class ChatHistoryManager {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
 
-        this.history.displayOptimizedChatHistory.push(
+        this.displayOptimizedChatHistory.push(
             {
                 message: aiMessage, 
                 type: mitoAIConnectionError ? 'connection error' : 'openai message',
@@ -211,6 +201,18 @@ export class ChatHistoryManager {
                 codeCellID: activeCellID
             }
         );
+    }
+
+    addSystemMessage(message: string): void {
+        const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+            role: 'system',
+            content: message
+        }
+        this.displayOptimizedChatHistory.push({
+            message: systemMessage, 
+            type: 'openai message',
+            codeCellID: undefined
+        });
     }
 
     getLastAIMessageIndex = (): number | undefined => {

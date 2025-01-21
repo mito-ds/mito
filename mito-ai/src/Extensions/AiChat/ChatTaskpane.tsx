@@ -33,7 +33,9 @@ import SupportIcon from '../../icons/SupportIcon';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
-    return new ChatHistoryManager(variableManager, notebookTracker)
+    const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
+    chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
+    return chatHistoryManager
 }
 
 interface IChatTaskpaneProps {
@@ -156,8 +158,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = clearChatHistory()
         const outgoingMessage = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
-
-        
         
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
@@ -215,10 +215,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             await websocketClient.ready;
 
             const aiResponse = await websocketClient.sendMessage({
-              message_id: UUID.uuid4(),
               type: promptType,
-              stream: false,
-              metadata: metadata
+              message_id: UUID.uuid4(),
+              metadata: metadata,
+              stream: false
             });
 
             if (aiResponse.error) {
@@ -340,10 +340,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Notify the backend to clear the prompt history
         websocketClient.sendMessage({
-            message_id: UUID.uuid4(),
             type: 'clear_history',
+            message_id: UUID.uuid4(),
+            metadata: {},
             stream: false,
-            metadata: {}
         });
 
         return newChatHistoryManager

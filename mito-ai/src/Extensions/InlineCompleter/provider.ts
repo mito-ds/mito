@@ -178,6 +178,7 @@ export class MitoAIInlineCompleter
 
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
+
       const variables = this._variableManager.variables;
       const metadata: IChatMessageMetadata = {
         variables: variables,
@@ -186,9 +187,9 @@ export class MitoAIInlineCompleter
       }
       const result = await this._client.sendMessage({
         type: 'inline_completion',
-        metadata: metadata,
         message_id: messageId.toString(),
-        stream: true,
+        metadata: metadata,
+        stream: false,
       });
 
       if (result.items[0]?.token) {
@@ -210,7 +211,7 @@ export class MitoAIInlineCompleter
       return {
         items: result.items.map(item => ({
           ...item,
-          insertText: this._cleanCompletion(item.content)
+          insertText: this._cleanCompletion(item.content, prefix, suffix)
         }))
       };
     } finally {
@@ -342,13 +343,33 @@ export class MitoAIInlineCompleter
     });
   }
 
-  private _cleanCompletion(rawCompletion: string) {
-    return rawCompletion
+  private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string) {
+
+    let cleanedCompletion = rawCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
       .replace(/```$/, '')           // Remove closing code fence
-      .replace(/\n$/, '')            // Remove trailing newline
+      .replace(/\n$/, '')    
 
+    // Remove duplicate prefix content
+    if (prefix) {
+      const lastPrefixLine = prefix.split('\n').slice(-1)[0];
+      if (cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
+        cleanedCompletion = cleanedCompletion.slice(lastPrefixLine.length);
+      }
+    }
+
+    // Remove duplicate suffix content
+    if (suffix) {
+      const firstSuffixLine = suffix.split('\n')[0];
+      if (cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
+        cleanedCompletion = cleanedCompletion.slice(0, -firstSuffixLine.length);
+      }
+    }
+
+    return cleanedCompletion;
   }
+
+
 
   private _resetCurrentStream() {
     this._currentToken = '';

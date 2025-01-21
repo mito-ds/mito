@@ -97,15 +97,14 @@ def create_inline_prompt(
         variables: List[str],
 ):
     variables_str = '\n'.join([f"{variable}" for variable in variables])
-    prompt = f"""You are a code completion assistant that lives inside of JupyterLab. Your job is to predict the rest of the code that the user has started to write.
+    prompt = f"""You are a coding assistant that lives inside of JupyterLab. Your job is to help the user write code.
 
 You're given the current code cell, the user's cursor position, and the variables defined in the notebook. The user's cursor is signified by the symbol <cursor>.
 
 CRITICAL FORMATTING RULES:
-1. If the cursor appears at the end of a complete line (especially after a comment), ALWAYS start your code with a newline character
-2. If the cursor appears at the end of a function definition, ALWAYS start your code with a newline character
-3. If the cursor appears in the middle of existing code or in an incomplete line of code, do NOT add any newline characters
-4. Your response must preserve correct Python indentation and spacing
+1. Include a new line character at the start of your response if you want the code you are writing to be added on the line after the cursor. For example, if the cursor is at the end of a comment, you should start your response with a newline character so that the code you write is not added to the comment.
+2. If you are finishing a line of code that the user started, return the full line of code with no newline character at the start or end.
+3. Your response must preserve correct Python indentation and spacing. For example, if you're completing a line of indented code, you must preserve the indentation.
 
 Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent.
 
@@ -147,12 +146,12 @@ Defined Variables: {{
 
 Code in the active code cell:
 ```python
-df['age'] = df[df['age'] > 23<cursor>]
+df['age'] = df[<cursor>['age'] > 23]
 ```
 
 Output:
 ```python
-]
+df['age'] = df[df['age'] > 23]
 ```
 </Example 2>
 
@@ -163,15 +162,76 @@ Defined Variables: {{}}
 
 Code in the active code cell:
 ```python
-# Create a variable x and set it equal to 1<cursor>
+voters = pd.read_csv('./voters.csv')
+
+# Create a variable for pennsylvania voters, ohio voters, california voters, and texas voters
+pa_voters = voters[voters['state'] == 'PA']
+ohio_voters<cursor>
+```
+
+Output:
+```python
+ohio_voters = voters[voters['state'] == 'OH']
+ca_voters = voters[voters['state'] == 'CA']
+tx_voters = voters[voters['state'] == 'TX']
+```
+</Example 3>
+
+IMPORTANT: Notice in Example 3 that output does not start with a newline character because it wasnts to continue the line of code that the user started. Also notice the output contains three lines of code because that is the minimal code to achieve the user's intent.
+
+<Example 4>
+Defined Variables: {{}}
+
+Code in the active code cell:
+```python
+# Display the first 5 rows of the dataframe
+df.head()
+<cursor>
 ```
 
 Output:
 ```python
 ```
-</Example 3>
+</Example 4>
 
-IMPORTANT: Notice in Example 3 that the output starts with a newline because the cursor appears at the end of a comment line.
+IMPORTANT: Notice in Example 4 that the output is empty becuase the user's intent is already complete.
+
+<Example 5>
+Defined Variables: {{}}
+
+Code in the active code cell:
+```python
+def even_and_odd():
+    for i in range(10):
+        if i % 2 == 0:
+            print(f"Even: {{i}}")
+        else:
+            pri<cursor>
+```
+
+Output:
+```python
+            print(f"Odd: {{i}}")
+```
+</Example 5>
+
+IMPORTANT: Notice in Example 5 that the output is indented several times because the code must be executed as part of the else block.
+
+<Example 6>
+Defined Variables: {{}}
+
+Code in the active code cell:
+```python
+days_in_week <cursor>
+```
+
+Output:
+```python
+days_in_week = 7
+```
+</Example 6>
+
+IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, the output continues the existing line of code and does not start with a new line character.
 
 Your Task:
 
@@ -179,7 +239,7 @@ Defined Variables: {variables_str}
 
 Code in the active code cell:
 ```python
-${prefix}<cursor>${suffix}
+{prefix}<cursor>{suffix}
 ```
 
 Output:
@@ -310,7 +370,7 @@ Code in the active code cell:
 ```
 
 Error Message:
-${errorMessage}
+{errorMessage}
 
 ERROR ANALYSIS:
 

@@ -87,7 +87,8 @@ setup_args = dict(
         'plotly>=4.14.3',
         'chardet>=3.0.4',
         # For XLSX, reading - we don't fix so works on all python versions
-        'openpyxl'
+        'openpyxl',
+        'packaging'
     ],
     extras_require = {
         'test': [
@@ -101,7 +102,7 @@ setup_args = dict(
         'deploy': [
             'wheel==0.42.0', 
             'twine==5.1.1',
-            "setuptools==56.0.0"
+            'setuptools==68.0.0'
         ],
         'streamlit': [
             'streamlit>=1.24,<1.32',

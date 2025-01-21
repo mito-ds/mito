@@ -7,14 +7,14 @@
 Contains tests for the DAY function.
 """
 
-from distutils.version import LooseVersion
+from packaging.version import Version
 import pytest
 import pandas as pd
 
 from mitosheet.public.v3.sheet_functions.date_functions import DAY
 
 # Handle dtypes if we're on pandas < 2.0
-if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+if Version(pd.__version__) < Version('2.0'):
     dtype = 'int64'
 else:
     dtype = 'int32'
