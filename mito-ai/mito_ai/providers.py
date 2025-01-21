@@ -320,7 +320,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     _num_usages = (_num_usages or 0) + 1
                     set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
 
-
                 # Log the successful completion
                 log_ai_completion_success(
                     key_type=MITO_SERVER_KEY,
