@@ -171,3 +171,62 @@ returns = {
 
 """, '']
 )
+
+
+nba_players_df = pd.DataFrame({
+    'player_name': [
+        'LeBron James', 'Kevin Durant', 'Stephen Curry', 'Giannis Antetokounmpo',
+        'Kawhi Leonard', 'James Harden', 'Luka Dončić', 'Damian Lillard',
+        'Joel Embiid', 'Nikola Jokić', 'Anthony Davis', 'Chris Paul',
+        'Jayson Tatum', 'Zion Williamson', 'Devin Booker'
+    ],
+    'team': [
+        'Los Angeles Lakers', 'Brooklyn Nets', 'Golden State Warriors', 'Milwaukee Bucks',
+        'Los Angeles Clippers', 'Brooklyn Nets', 'Dallas Mavericks', 'Portland Trail Blazers',
+        'Philadelphia 76ers', 'Denver Nuggets', 'Los Angeles Lakers', 'Phoenix Suns',
+        'Boston Celtics', 'New Orleans Pelicans', 'Phoenix Suns'
+    ],
+    'position': [
+        'SF', 'PF', 'PG', 'PF',
+        'SF', 'SG', 'PG', 'PG',
+        'C', 'C', 'PF', 'PG',
+        'SF', 'PF', 'SG'
+    ],
+    'points_per_game': [
+        25.0, 27.0, 29.0, 28.0,
+        24.0, 25.0, 28.0, 27.0,
+        33.0, 26.0, 22.0, 18.0,
+        26.0, 22.0, 25.0
+    ]
+})
+
+NBA_PLAYERS_NOTEBOOK: NotebookState = NotebookState(
+    global_vars={'nba_players_df': nba_players_df.head(5)},
+    cell_contents=["""import pandas as pd
+nba_players_df = pd.DataFrame({
+    'player_name': [
+        'LeBron James', 'Kevin Durant', 'Stephen Curry', 'Giannis Antetokounmpo',
+        'Kawhi Leonard', 'James Harden', 'Luka Dončić', 'Damian Lillard',
+        'Joel Embiid', 'Nikola Jokić', 'Anthony Davis', 'Chris Paul',
+        'Jayson Tatum', 'Zion Williamson', 'Devin Booker'
+    ],
+    'team': [
+        'Los Angeles Lakers', 'Brooklyn Nets', 'Golden State Warriors', 'Milwaukee Bucks',
+        'Los Angeles Clippers', 'Brooklyn Nets', 'Dallas Mavericks', 'Portland Trail Blazers',
+        'Philadelphia 76ers', 'Denver Nuggets', 'Los Angeles Lakers', 'Phoenix Suns',
+        'Boston Celtics', 'New Orleans Pelicans', 'Phoenix Suns'
+    ],
+    'position': [
+        'SF', 'PF', 'PG', 'PF',
+        'SF', 'SG', 'PG', 'PG',
+        'C', 'C', 'PF', 'PG',
+        'SF', 'PF', 'SG'
+    ],
+    'points_per_game': [
+        25.0, 27.0, 29.0, 28.0,
+        24.0, 25.0, 28.0, 27.0,
+        33.0, 26.0, 22.0, 18.0,
+        26.0, 22.0, 25.0
+    ]
+})""", '']
+)

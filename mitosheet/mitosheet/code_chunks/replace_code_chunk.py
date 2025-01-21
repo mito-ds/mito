@@ -5,7 +5,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 import re
-from distutils.version import LooseVersion
+from packaging.version import Version
 from typing import List, Tuple, Any
 from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.types import ColumnID
@@ -66,7 +66,7 @@ class ReplaceCodeChunk(CodeChunk):
             f'{df_name_with_selected_columns} = {df_name_with_selected_columns}.astype(str).replace("(?i){search_value}", "{replace_value}", regex=True).astype({df_name_with_selected_columns}.dtypes.to_dict())',
         ]
 
-        if (any(df.dtypes == 'timedelta') and LooseVersion(pd.__version__) < LooseVersion("1.4")):
+        if (any(df.dtypes == 'timedelta') and Version(pd.__version__) < Version("1.4")):
             raise MitoError(
                 'version_error',
                 'Pandas version error',

@@ -56,12 +56,12 @@ Defined Variables: {{
 
 Code in the active code cell:
 ```python
-df['age'] = df[df['age'] > 23<cursor>]
+df['age'] = df[<cursor>['age'] > 23]
 ```
 
 Output:
 ```python
-]
+df
 ```
 </Example 2>
 
@@ -77,6 +77,8 @@ Code in the active code cell:
 
 Output:
 ```python
+
+x=1
 ```
 </Example 3>
 

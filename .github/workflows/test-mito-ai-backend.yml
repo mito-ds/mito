@@ -1,0 +1,54 @@
+name: Test - Mito AI Backend
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-ai/**'
+  pull_request:
+    paths:
+      - 'mito-ai/**'
+jobs:
+  test-mitoai-backend:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+      fail-fast: false
+
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.7.0
+      with:
+        access_token: ${{ github.token }}
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: |
+          mito-ai/setup.py
+          tests/requirements.txt
+    - name: Install dependencies
+      run: |
+        cd mito-ai
+        pip install -e ".[test, deploy]"
+        jlpm install
+        jlpm build
+        jupyter labextension develop . --overwrite
+        jupyter server extension enable --py mito_ai
+    - name: Run tests
+      run: |
+        cd mito-ai
+        pytest
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    - name: Upload test-results
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: mitoai-backend-report-${{ matrix.python-version }}-${{ github.run_id }}
+        path: mito-ai/tests/pytest-report/
+        retention-days: 14

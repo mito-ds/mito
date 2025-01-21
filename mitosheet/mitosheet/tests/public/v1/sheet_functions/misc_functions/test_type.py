@@ -7,7 +7,7 @@
 Contains tests for the TYPE function.
 """
 
-from distutils.version import LooseVersion
+from packaging.version import Version
 import pytest
 import pandas as pd
 import numpy as np
@@ -42,7 +42,7 @@ def test_TYPE_works_on_timedeltas():
 
     # Check if we're on pandas 2.0, and if so, use the mixed format
     # to parse the dates.
-    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+    if Version(pd.__version__) < Version('2.0'):
         format = None
     else:
         format = 'mixed'

@@ -7,7 +7,7 @@
 Utilities to help with type functions
 """
 
-from distutils.version import LooseVersion
+from packaging.version import Version
 from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
@@ -76,7 +76,7 @@ def get_to_datetime_params(string_series: pd.Series) -> Dict[str, Any]:
     
 
     # If pandas < 2.0, we can use infer_datetime_format
-    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+    if Version(pd.__version__) < Version('2.0'):
         return {
             'infer_datetime_format': True
         }
@@ -104,7 +104,7 @@ def get_datetime_format(string_series: pd.Series) -> Optional[str]:
     non_null_inputs = string_series[~string_series.isna()]
 
     # If we're on a older verison of pandas, we just check if infer_datetime_format=True works
-    if LooseVersion(pd.__version__) < LooseVersion('2.0'):
+    if Version(pd.__version__) < Version('2.0'):
         converted = pd.to_datetime(non_null_inputs, errors='coerce', infer_datetime_format=True)
         if converted.isna().sum() == 0:
             return None
