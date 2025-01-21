@@ -174,13 +174,16 @@ def log_ai_completion_success(
         KEY_TYPE_PARAM: key_type,
     }
 
-    code_cell_input = json.dumps(
-        last_message_content.split("Code in the active code cell:")[-1]
-        .strip()
-        .split("```python")[1]
-        .strip()
-        .split("```")[0]
-    )
+    code_cell_input = ''
+    if "Code in the active code cell:" in last_message_content:
+
+        code_cell_input = json.dumps(
+            last_message_content.split("Code in the active code cell:")[-1]
+            .strip()
+            .split("```python")[1]
+            .strip()
+            .split("```")[0]
+        )
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")

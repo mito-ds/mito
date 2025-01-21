@@ -5,11 +5,11 @@ import {
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { addIcon } from '@jupyterlab/ui-components';
+// import { addIcon } from '@jupyterlab/ui-components';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_WRITE_MARKDOWN_DOC } from '../../commands';
+import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import MarkdownButtonWidget from './MarkdownButtonWidget';
@@ -124,13 +124,13 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
       restorer.add(widget, 'mito_ai');
     }
 
-    app.commands.addCommand(COMMAND_MITO_AI_WRITE_MARKDOWN_DOC, {
-      label: 'Write markdown documentation for selected cells',
-      icon: addIcon, // Use an appropriate icon from JupyterLab's icon set
-      execute: () => {
+    // app.commands.addCommand(COMMAND_MITO_AI_WRITE_MARKDOWN_DOC, {
+    //   label: 'Write markdown documentation for selected cells',
+    //   icon: addIcon, // Use an appropriate icon from JupyterLab's icon set
+    //   execute: () => {
         
-      }
-    });
+    //   }
+    // });
 
     // Add the command to the notebook toolbar
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
