@@ -6,7 +6,6 @@ from .db import get_user_field
 from .._version import __version__
 from .utils import is_running_test
 
-
 import analytics
 WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 analytics.write_key = WRITE_KEY
@@ -230,9 +229,7 @@ def log_ai_completion_success(
 
         log("mito_ai_chat_success", params=final_params)
     elif prompt_type == "inline_completion":
-
         final_params = base_params
-
         log("mito_ai_inline_completion_success", params=final_params)
     else:
         final_params = base_params
