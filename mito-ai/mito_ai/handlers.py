@@ -142,16 +142,16 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         }
 
         # Inline completion uses its own websocket
-        #   so we can reuse the full_message_history variable
+        #   so we can reuse the llm_message_history variable
         if type == "inline_completion":
-            self.full_message_history = [new_message]
+            self.llm_message_history = [new_message]
         else:
-            self.full_message_history.append(new_message)
+            self.llm_message_history.append(new_message)
 
         request = CompletionRequest(
             type=type,
             message_id=parsed_message.get('message_id'),
-            messages=self.full_message_history,
+            messages=self.llm_message_history,
             stream=parsed_message.get('stream', False)
         )
         
@@ -226,7 +226,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Save to the message history
         # Inline completion is ephemeral and does not need to be saved
         if request.type != "inline_completion":
-            self.full_message_history.append(
+            self.llm_message_history.append(
                 {
                     "role": "assistant", 
                     "content": reply.items[0].content
@@ -241,7 +241,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Use a string buffer to accumulate the full response from streaming chunks.
         # We need to accumulate the response on the backend so that we can save it to
-        # the full_message_history
+        # the llm_message_history
         accumulated_response = ""
         async for reply in self._llm.stream_completions(request, prompt_type):
             if isinstance(reply, CompletionStreamChunk):
@@ -250,7 +250,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.reply(reply)
         
         if request.type != "inline_completion":
-            self.full_message_history.append(
+            self.llm_message_history.append(
                 {
                     "role": "assistant", 
                     "content": reply.items[0].content
