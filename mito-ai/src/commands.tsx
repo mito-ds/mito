@@ -9,4 +9,3 @@ export const COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE = `${MITO_AI}:send-explai
 export const COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE = `${MITO_AI}:send-debug-error-message`
 export const COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE = `toolbar-button:accept-code`
 export const COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE = `toolbar-button:reject-code`
-export const COMMAND_MITO_AI_WRITE_MARKDOWN_DOC = `${MITO_AI}:write-markdown-doc`
