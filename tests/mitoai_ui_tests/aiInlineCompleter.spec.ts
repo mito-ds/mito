@@ -90,7 +90,7 @@ test.describe("default inline completion", () => {
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content.includes("print")) &&
+          payload.metadata.prefix.includes("print") &&
           payload.stream == false
         ) {
           // Send the fetch message back to the client
@@ -173,7 +173,7 @@ test.describe("default manual inline completion", () => {
         const messageId = payload.number;
         if (
           payload.type === "inline_completion" &&
-          payload.messages.find((message) => message.content.includes("def fib")) &&
+          payload.metadata.prefix.includes("def fib") &&
           payload.stream
         ) {
           let counter = -1;
