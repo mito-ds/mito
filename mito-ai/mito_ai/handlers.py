@@ -27,6 +27,7 @@ from .models import (
     CodeExplainMessageMetadata,
     InlineCompletionMessageMetadata,
 )
+from .prompt_builders import remove_inner_thoughts_from_message
 from .providers import OpenAIProvider
 from .utils.create import initialize_user
 
@@ -95,6 +96,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear the message history
         self.llm_message_history = []
+        self.display_message_history = []
 
     async def on_message(self, message: str) -> None:
         """Handle incoming messages on the WebSocket.
@@ -116,6 +118,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Clear history if the type is "clear_history"
         if type == "clear_history":
             self.llm_message_history = []
+            self.display_message_history = []
             return
         
         messages = []
@@ -126,15 +129,21 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         elif type == "chat":
             metadata = ChatMessageMetadata(**metadata_dict)
             prompt = metadata.prompt
+            display_message = metadata.display_message
 
             if metadata.index is not None:
                 # Clear the chat history after the specified index (inclusive)
                 self.llm_message_history = self.llm_message_history[:metadata.index]
+                self.display_message_history = self.display_message_history[:metadata.index]
 
         elif type == "codeExplain":
-            prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
+            metadata = CodeExplainMessageMetadata(**metadata_dict)
+            prompt = metadata.prompt
+            display_message = metadata.display_message
         elif type == "smartDebug":
-            prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
+            metadata = SmartDebugMessageMetadata(**metadata_dict)
+            prompt = metadata.prompt
+            display_message = metadata.display_message
 
         new_message = {
             "role": "user", 
@@ -147,6 +156,12 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.llm_message_history = [new_message]
         else:
             self.llm_message_history.append(new_message)
+            self.display_message_history.append({
+                "role": "user", 
+                "content": display_message
+            })
+        self.log.info(f"LLM message history: {json.dumps(self.llm_message_history, indent=2)}")
+        self.log.info(f"Display message history: {json.dumps(self.display_message_history, indent=2)}")
 
         request = CompletionRequest(
             type=type,
@@ -226,22 +241,28 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Save to the message history
         # Inline completion is ephemeral and does not need to be saved
         if request.type != "inline_completion":
-            self.llm_message_history.append(
-                {
-                    "role": "assistant", 
-                    "content": reply.items[0].content
-                }
-            )
+            response = reply.items[0].content if reply.items else ""
+
+            if request.type == "smartDebug":
+                response = remove_inner_thoughts_from_message(response)
+
+            message = {
+                "role": "assistant", 
+                "content": response
+            }
+            self.llm_message_history.append(message)
+            self.display_message_history.append(message)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")
-
+        self.log.info(f"LLM message history: {json.dumps(self.llm_message_history, indent=2)}")
+        self.log.info(f"Display message history: {json.dumps(self.display_message_history, indent=2)}")
     async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str) -> None:
         """Handle stream completion request."""
         start = time.time()
 
         # Use a string buffer to accumulate the full response from streaming chunks.
         # We need to accumulate the response on the backend so that we can save it to
-        # the llm_message_history
+        # the message history after the streaming is complete.
         accumulated_response = ""
         async for reply in self._llm.stream_completions(request, prompt_type):
             if isinstance(reply, CompletionStreamChunk):
@@ -250,12 +271,12 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.reply(reply)
         
         if request.type != "inline_completion":
-            self.llm_message_history.append(
-                {
-                    "role": "assistant", 
-                    "content": reply.items[0].content
-                }
-            )
+            message = {
+                "role": "assistant", 
+                "content": accumulated_response
+            }
+            self.llm_message_history.append(message)
+            self.display_message_history.append(message)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 

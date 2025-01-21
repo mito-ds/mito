@@ -40,12 +40,13 @@ class ChatMessageMetadata:
     
     @property
     def display_message(self) -> str:
-        return f"""```python
+        cell_code_block = f"""```python
 {self.activeCellCode}
 ```
 
-{self.input}
 """
+        
+        return f"{cell_code_block if self.activeCellCode else ''}{self.input}"
 
 @dataclass(frozen=True)
 class SmartDebugMessageMetadata:
@@ -59,12 +60,12 @@ class SmartDebugMessageMetadata:
     
     @property
     def display_message(self) -> str:
-        return f"""```python
+        cell_code_block = f"""```python
 {self.activeCellCode}
 ```
 
-{self.errorMessage}
 """
+        return f"{cell_code_block if self.activeCellCode else ''}{self.errorMessage}"
 
 @dataclass(frozen=True)
 class CodeExplainMessageMetadata:
@@ -77,12 +78,13 @@ class CodeExplainMessageMetadata:
     
     @property
     def display_message(self) -> str:
-        return f"""```python
+        cell_code_block = f"""```python
 {self.activeCellCode}
 ```
 
-Explain this code
 """
+        
+        return f"{cell_code_block if self.activeCellCode else ''}Explain this code"
 
 @dataclass(frozen=True)
 class InlineCompletionMessageMetadata:
