@@ -79,10 +79,51 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
+    const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
+        await websocketClient.ready;
+        
+        const aiResponse = await websocketClient.sendMessage({
+            type: 'fetch_history',
+            message_id: UUID.uuid4(),
+            metadata: {},
+            stream: false
+        });
+
+        const items = (aiResponse as any).items ?? [];
+
+        return items.map((item: any) => ({
+            role: item.role,
+            content: item.content
+        }));
+    };
+
     useEffect(() => {
       // Check that the websocket client is ready
       // and display the error if it is not.
-      websocketClient.ready.catch(error => {
+      websocketClient.ready
+      .then(async () => {
+        // 1. Fetch or load the initial chat history
+        const history = await fetchInitialChatHistory();
+
+        // 2. Create a fresh ChatHistoryManager and add the initial messages
+        const newChatHistoryManager = getDefaultChatHistoryManager(
+            notebookTracker,
+            variableManager
+        );
+
+        // 3. Add messages to the ChatHistoryManager
+        history.forEach(item => {
+            if (item.role === 'user' && typeof item.content === 'string') {
+                newChatHistoryManager.addChatInputMessage(item.content);
+            } else if (item.role === 'assistant' && typeof item.content === 'string') {
+                newChatHistoryManager.addAIMessageFromResponse(item.content, 'chat');
+            }
+        });
+
+        // 4. Update the state with the new ChatHistoryManager
+        setChatHistoryManager(newChatHistoryManager);
+      })
+      .catch(error => {
         const newChatHistoryManager = getDefaultChatHistoryManager(
           notebookTracker,
           variableManager
@@ -220,6 +261,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
               metadata: metadata,
               stream: false
             });
+            console.log('Chat completion websocket result:', aiResponse);
 
             if (aiResponse.error) {
               console.error('Error calling OpenAI API:', aiResponse.error);
@@ -233,10 +275,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
               );
               setChatHistoryManager(newChatHistoryManager);
             } else {
-              newChatHistoryManager.addAIMessageFromResponse(
-                aiResponse.items[0].content || '',
-                promptType
-              );
+              aiResponse.items.forEach((item: any) => {
+                console.log('Message to add to the history:', item);
+                newChatHistoryManager.addAIMessageFromResponse(
+                    item.content || '', 
+                    promptType
+                );
+              });
               setChatHistoryManager(newChatHistoryManager);
             }      
         } catch (error) {

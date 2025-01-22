@@ -198,3 +198,14 @@ class CompletionStreamChunk:
     """Message type."""
     error: Optional[CompletionError] = None
     """Completion error."""
+
+@dataclass(frozen=True)
+class HistoryReply:
+    """Message sent from model to client with the chat history."""
+
+    parent_id: str
+    """Message UID."""
+    items: List[ChatCompletionMessageParam]
+    """List of chat messages."""
+    type: Literal["reply"] = "reply"
+    """Message type."""
