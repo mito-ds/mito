@@ -83,6 +83,7 @@ class GlobalMessageHistory:
         with self._lock:
             self._llm_history = []
             self._display_history = []
+            self._save_to_disk()
 
     def append_message(self, llm_message: Dict[str, str], display_message: Dict[str, str]) -> None:
         with self._lock:
@@ -296,21 +297,34 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         start = time.time()
         reply = await self._llm.request_completions(request, prompt_type)
-        self.reply(reply)
 
         # Save to the message history
         # Inline completion is ephemeral and does not need to be saved
         if request.type != "inline_completion":
             response = reply.items[0].content if reply.items else ""
 
-            if request.type == "smartDebug":
-                response = remove_inner_thoughts_from_message(response)
-
-            message = {
+            llm_message = {
                 "role": "assistant", 
                 "content": response
             }
-            message_history.append_message(message, message)
+            display_message = {
+                "role": "assistant", 
+                "content": response
+            }
+
+            if request.type == "smartDebug":
+                # Remove inner thoughts from the response
+                response = remove_inner_thoughts_from_message(response)
+                display_message["content"] = response
+
+                # Modify reply so the display message in the frontend is also have inner thoughts removed
+                reply.items[0] = CompletionItem(content=response, isIncomplete=reply.items[0].isIncomplete)
+
+            message_history.append_message(llm_message, display_message)
+
+
+        self.reply(reply)
+        
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")
         self.log.info(f"LLM message history: {json.dumps(message_history.get_histories()[0], indent=2)}")
