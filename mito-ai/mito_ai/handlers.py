@@ -33,12 +33,13 @@ from .models import (
 from .prompt_builders import remove_inner_thoughts_from_message
 from .providers import OpenAIProvider
 from .utils.create import initialize_user
+from .utils.schema import MITO_FOLDER
 
 __all__ = ["CompletionHandler"]
 
 # Global message history with thread-safe access
 class GlobalMessageHistory:
-    def __init__(self, save_file: str = "message_history.json"):
+    def __init__(self, save_file: str = os.path.join(MITO_FOLDER, "message_history.json")):
         self._lock = Lock()
         self._llm_history: List[Dict[str, str]] = []
         self._display_history: List[Dict[str, str]] = []
