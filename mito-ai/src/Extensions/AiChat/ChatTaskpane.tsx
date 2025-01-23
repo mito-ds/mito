@@ -112,13 +112,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         );
 
         // 3. Add messages to the ChatHistoryManager
-        history.forEach(item => {
-            if (item.role === 'user' && typeof item.content === 'string') {
-                newChatHistoryManager.addChatInputMessage(item.content);
-            } else if (item.role === 'assistant' && typeof item.content === 'string') {
-                newChatHistoryManager.addAIMessageFromResponse(item.content, 'chat');
-            }
-        });
+        history.forEach(item => {newChatHistoryManager.addChatMessageFromHistory(item)});
 
         // 4. Update the state with the new ChatHistoryManager
         setChatHistoryManager(newChatHistoryManager);
@@ -557,7 +551,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()    
-
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">

@@ -73,6 +73,16 @@ export class ChatHistoryManager {
         return this.displayOptimizedChatHistory;
     }
 
+    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam) {
+        this.displayOptimizedChatHistory.push(
+            {
+                message: message, 
+                type: 'openai message',
+                codeCellID: undefined
+            }
+        );
+    }
+
     addChatInputMessage(input: string): IOutgoingMessage {
         const variables = this.variableManager.variables
         const activeCellCode = getActiveCellCode(this.notebookTracker)
@@ -238,9 +248,10 @@ export class ChatHistoryManager {
 const getDisplayedOptimizedUserMessage = (input: string, activeCellCode?: string): OpenAI.Chat.ChatCompletionMessageParam => {
     return {
         role: 'user',
-        content: `\`\`\`python
+        content: activeCellCode ? `\`\`\`python
 ${activeCellCode}
 \`\`\`
 
-${input}`};
+${input}` : input
+    };
 }
