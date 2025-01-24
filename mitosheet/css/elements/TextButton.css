@@ -79,8 +79,8 @@ a.text-button {
 }
 
 .text-button-variant-default {
-    background-color: var(--jp-layout-color3);
-    color: var(--jp-ui-font-color1) !important;
+    background-color: var(--mito-background-default);
+    color: var(--mito-text) !important;
 }
 
 .text-button-variant-light {
@@ -94,7 +94,7 @@ a.text-button {
 }
 
 .text-button-variant-default:hover:not(.text-button-disabled) {
-    background-color: var(--jp-layout-color1);
+    background-color: var(--mito-background-default-hover);
 }
 
 /* Style the LIGHT text button when it is hovered and not disabled */
