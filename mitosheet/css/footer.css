@@ -116,8 +116,8 @@
     /* The selected sheet tab does not need a border */
     border: 0px;  
     box-sizing: border-box;
-    background-color: var(--mito-highlight);
-    color: var(--mito-background); 
+    background-color: var(--mito-background-default);
+    color: var(--mito-text); 
 }
 
 .tab-content {
