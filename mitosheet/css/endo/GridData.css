@@ -30,11 +30,11 @@
 
 /* We make selected cells look different on even and odd rows */
 .mito-grid-row-even .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
-    background-color: var(--mito-highlight-very-light);
+    background-color: color-mix(in srgb, var(--mito-highlight) 25%, transparent);
 }
 .mito-grid-row-odd .mito-grid-cell-selected:not(.mito-grid-cell-conditional-format-background-color):not(.recon) {
-    background-color: var(--mito-highlight-light);
-}
+    background-color: color-mix(in srgb, var(--mito-highlight-medium) 50%, transparent);
+}   
 
 .mito-grid-cell-hidden {
     visibility: hidden;
