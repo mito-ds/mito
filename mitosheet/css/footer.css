@@ -32,7 +32,7 @@
 }
 
 .footer-add-button:hover {
-    background-color: var(--jp-layout-color2);
+    background-color: var(--mito-background-off);
 }
 
 .footer-tab-bar {
@@ -76,7 +76,7 @@
 
 .tab {
     /* Set background color and border of sheet tab*/
-    background: var(--mito-background-highlight);
+    background: var(--mito-background);
     color: var(--mito-text);
 
     /* 
@@ -116,7 +116,7 @@
     /* The selected sheet tab does not need a border */
     border: 0px;  
     box-sizing: border-box;
-    background-color: var(--mito-background-default);
+    background-color: var(--mito-background-off);
     color: var(--mito-text); 
 }
 
