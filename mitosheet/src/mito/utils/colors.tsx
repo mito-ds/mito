@@ -36,7 +36,7 @@ const TOOLBAR_HOVER_VARIABLE_NAME = '--mito-toolbar-hover';
 const DEFAULT_BACKGROUND = 'var(--jp-layout-color1)';
 const DEFAULT_BACKGROUND_OFF = 'var(--jp-layout-color2)';
 const DEFAULT_BACKGROUND_HIGHLIGHT = 'var(--jp-input-background)';
-const TOOLBAR_HOVER_BACKGROUND = 'var(--mito-pretty-light-gray)';
+const TOOLBAR_HOVER_BACKGROUND = 'var(--jp-layout-color3)';
 
 const getHighlightTheme = (primaryColor: string | undefined): React.CSSProperties => {
     if (primaryColor === undefined) {
