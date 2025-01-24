@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import time
@@ -31,6 +32,19 @@ from .providers import OpenAIProvider
 from .utils.create import initialize_user
 
 __all__ = ["CompletionHandler"]
+
+
+# This handler is responsible for the mito-ai/upload endpoint.
+# The user uploads a file, which is sent in the request body. 
+# The server then responds with the full path to the file.
+class FileUploadHandler(JupyterHandler):
+    def post(self):
+        uploaded_file = self.request.files['file'][0]
+        filename = uploaded_file['filename']
+        file_path = os.path.abspath(os.path.join(os.getcwd(), filename))
+
+        # Return the file path to the frontend
+        self.finish({'file_path': file_path})
 
 
 # This handler is responsible for the mito-ai/completions endpoint.

@@ -1,5 +1,5 @@
 from jupyter_server.utils import url_path_join
-from .handlers import CompletionHandler
+from .handlers import CompletionHandler, FileUploadHandler
 from .providers import OpenAIProvider
 
 try:
@@ -45,6 +45,10 @@ def _load_jupyter_server_extension(server_app):
             url_path_join(base_url, "mito-ai", "completions"),
             CompletionHandler,
             {"llm": open_ai_provider},
+        ),
+        (
+            url_path_join(base_url, "mito-ai", "upload"),
+            FileUploadHandler,
         ),
     ]
     web_app.add_handlers(host_pattern, handlers)
