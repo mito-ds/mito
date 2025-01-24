@@ -273,14 +273,12 @@
 /* The button in the toolbar that lets the user upgrade or tells them they are pro */
 .mito-plan-button {
   border-radius: 3px;
-  background-color: var(--mito-highlight);
   font-size: 12px;
   text-align: center;
   justify-content: center;
   display: flex;
   flex-direction: column;
   padding: 0px 5px;
-  color: var(--mito-background);
   height: 18px;
 }
 

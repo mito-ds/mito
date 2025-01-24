@@ -26,7 +26,7 @@ const GetSupportButton = (props: GetSupportButtonProps): JSX.Element => {
     return (
         <TextButton 
             className={classNames(props.className, 'cursor-pointer')}
-            variant='dark'
+            variant='default'
             width={props.width || 'hug-contents'}
             href={props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL === DEFAULT_SUPPORT_EMAIL ? DISCORD_INVITE_LINK : `mailto:${props.userProfile.mitoConfig.MITO_CONFIG_SUPPORT_EMAIL}?subject=Mito support request`}
             target='_blank'
