@@ -1,13 +1,11 @@
 
 .control-panel-taskpane-tab-container {
-
     width: 100%;
     display: flex;
     justify-content: space-around;
-
     box-sizing: border-box;
-
     width: inherit;
+    cursor: pointer;
 }
 
 .control-panel-taskpane-tab {
@@ -22,8 +20,8 @@
 
 /* When the taskpane tab is selected, turn it purple. */
 .control-panel-taskpane-tab.selected {
-    background-color: var(--mito-highlight);
-    color: var(--mito-background); 
+    background-color: var(--mito-background-default);
+    color: var(--mito-text); 
 }
 
 /* When the taskpane tab is not selected, turn it light blue */
