@@ -15,7 +15,7 @@ interface TextButtonProps {
     /** 
         * @param variant - Color style of the button
     */
-    variant: 'light' | 'dark';
+    variant: 'light' | 'dark' | 'default';
 
     /** 
         * @param [onClick] - Function to be called when button is pressed

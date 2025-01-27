@@ -21,7 +21,6 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: var(--mito-background-highlight);
   border-bottom: 1px solid var(--mito-text-light);
 }
 
@@ -183,6 +182,7 @@
 }
 
 .mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container,
+.mito-toolbar-top .mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container,
 .mito-toolbar-button-container-enabled.horizontal-align-content:hover {
   background-color: var(--mito-toolbar-hover);
 }
@@ -274,14 +274,12 @@
 /* The button in the toolbar that lets the user upgrade or tells them they are pro */
 .mito-plan-button {
   border-radius: 3px;
-  background-color: var(--mito-highlight);
   font-size: 12px;
   text-align: center;
   justify-content: center;
   display: flex;
   flex-direction: column;
   padding: 0px 5px;
-  color: var(--mito-background);
   height: 18px;
 }
 
@@ -347,10 +345,6 @@
 
 .mito-toolbar-tabbar-right a {
   margin-right: 3px;
-}
-
-.mito-toolbar-top .mito-toolbar-button-container-enabled.vertical-align-content:hover .mito-toolbar-button-icon-container {
-  background-color: var(--mito-highlight-medium);
 }
 
 .mito-toolbar-top svg path {
