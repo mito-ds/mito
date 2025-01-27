@@ -78,6 +78,11 @@ a.text-button {
     width: 100%;
 }
 
+.text-button-variant-default {
+    background-color: var(--mito-background-default);
+    color: var(--mito-text) !important;
+}
+
 .text-button-variant-light {
     background-color: var(--mito-highlight-very-light);
     color: var(--mito-highlight);
@@ -86,6 +91,10 @@ a.text-button {
 .text-button-variant-dark {
     background-color: var(--mito-highlight);
     color: var(--mito-background); 
+}
+
+.text-button-variant-default:hover:not(.text-button-disabled) {
+    background-color: var(--mito-background-default-hover);
 }
 
 /* Style the LIGHT text button when it is hovered and not disabled */
