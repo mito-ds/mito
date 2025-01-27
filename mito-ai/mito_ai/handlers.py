@@ -221,8 +221,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             message_history.append_message(new_llm_message, new_display_message)
             llm_history, display_history = message_history.get_histories()
 
-        self.log.info(f"LLM message history: {json.dumps(llm_history, indent=2)}")
-        self.log.info(f"Display message history: {json.dumps(display_history, indent=2)}")
+            self.log.info(f"LLM message history: {json.dumps(llm_history, indent=2)}")
+            self.log.info(f"Display message history: {json.dumps(display_history, indent=2)}")
 
         request = CompletionRequest(
             type=type,
