@@ -1,0 +1,386 @@
+{
+    "DuckDB": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "duckdb"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "duckdb"
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Path to database",
+                    "default": ":memory:"
+                }
+            },
+            "required": [
+                "connectionName",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "SQLite": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "sqlite"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "sqlite"
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Path to database",
+                    "default": ":memory:"
+                }
+            },
+            "required": [
+                "connectionName",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "PostgreSQL": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "postgresql"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "postgresql"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 5432
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "MySQL": {
+        "driver": "mysql+pymysql",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "mysql+pymysql"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "mysql"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 3306
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "MariaDB": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "mysql+pymysql"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "mariadb"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 3306
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "Snowflake": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "snowflake"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "snowflake"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 443
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "Oracle": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "oracle+oracledb"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "oracle"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 1521
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "MSSQL": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "mssql+pyodbc"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "mssql"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 1433
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "Redshift": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "redshift+redshift_connector"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Connection alias",
+                    "default": "redshift"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 5439
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    }
+}
