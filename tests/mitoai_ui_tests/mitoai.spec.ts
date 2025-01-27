@@ -6,7 +6,7 @@ import {
   selectCell, 
   typeInNotebookCell, 
   waitForIdle, 
-  addNewCell 
+  addNewCell
 } from '../jupyter_utils/jupyterlab_utils';
 import { 
   clearMitoAIChatInput, 
@@ -17,7 +17,8 @@ import {
   closeMitoAIChat, 
   editMitoAIMessage, 
   sendMessageToMitoAI, 
-  waitForMitoAILoadingToDisappear 
+  waitForMitoAILoadingToDisappear,
+  clearMitoAIChatHistory
 } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
@@ -27,6 +28,8 @@ test.describe('Mito AI Chat', () => {
   test('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
+
+    await clearMitoAIChatHistory(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
@@ -211,6 +214,8 @@ test.describe('Mito AI Chat', () => {
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
     await createAndRunNotebookWithCells(page, []);
     await waitForIdle(page);
+
+    await clearMitoAIChatHistory(page);
 
     await sendMessageToMitoAI(page, 'Add print (1)');
 
