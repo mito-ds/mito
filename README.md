@@ -39,7 +39,7 @@ Mito is an open source tool (look around...), and will always be built by and fo
 
 Mito is an open source tool (look around...), and will always be built by and for our community. See our [plans page](https://www.trymito.io/plans) for more detail about our features, and consider purchasing Mito Pro to help fund development.
 
-## ⚡️ Install Mitoe
+## ⚡️ Install Mito
 To get started, open a terminal, command prompt, or Anaconda Prompt. Then, run the command
 ```
 python -m pip install mito-ai mitosheet
