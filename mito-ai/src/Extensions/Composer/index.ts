@@ -1,11 +1,12 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ILauncher } from '@jupyterlab/launcher';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 const ComposerPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito-ai:composer',
     autoStart: true,
-    requires: [ILauncher],
-    activate: (app: JupyterFrontEnd, launcher: ILauncher) => {
+    requires: [ILauncher, IDocumentManager],
+    activate: (app: JupyterFrontEnd, launcher: ILauncher, docManager: IDocumentManager) => {
         console.log('ComposerPlugin activated');
 
         // Add the launcher item
@@ -20,6 +21,8 @@ const ComposerPlugin: JupyterFrontEndPlugin<void> = {
             label: 'Mito AI Composer',
             execute: () => {
                 console.log('Mito AI Composer clicked!');
+                // Create a new notebook
+                docManager.createNew('composer_temp.ipynb');
             }
         });
     }
