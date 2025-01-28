@@ -255,7 +255,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
               metadata: metadata,
               stream: false
             });
-            console.log('Chat completion websocket result:', aiResponse);
 
             if (aiResponse.error) {
               console.error('Error calling OpenAI API:', aiResponse.error);
@@ -270,7 +269,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
               setChatHistoryManager(newChatHistoryManager);
             } else {
               aiResponse.items.forEach((item: any) => {
-                console.log('Message to add to the history:', item);
                 newChatHistoryManager.addAIMessageFromResponse(
                     item.content || '', 
                     promptType
