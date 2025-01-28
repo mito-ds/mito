@@ -330,7 +330,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
-        updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
+        updateCodeDiffStripes(chatHistoryManagerRef.current.getLastAIMessage()?.message)
         updateCellToolbarButtons()
     }
 
