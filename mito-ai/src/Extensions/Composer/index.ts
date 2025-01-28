@@ -1,6 +1,9 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+// import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
+import { MainAreaWidget } from '@jupyterlab/apputils';
+import ComposerWidget from './ComposerWidget';
 
 const ComposerPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito-ai:composer',
@@ -20,9 +23,14 @@ const ComposerPlugin: JupyterFrontEndPlugin<void> = {
         app.commands.addCommand('mito-ai:open-composer', {
             label: 'Mito AI Composer',
             execute: () => {
-                console.log('Mito AI Composer clicked!');
                 // Create a new notebook
-                docManager.createNew('composer_temp.ipynb');
+                // docManager.createNew('composer_temp.ipynb');
+                // // Open the chat widget
+                // app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT);
+                const content = new ComposerWidget();
+                const widget = new MainAreaWidget<ComposerWidget>({ content });
+                widget.title.label = 'Mito Composer';
+                app.shell.add(widget, 'main');
             }
         });
     }
