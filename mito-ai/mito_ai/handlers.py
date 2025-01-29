@@ -139,8 +139,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
             if type == "chat":
                 metadata = ChatMessageMetadata(**metadata_dict)
-                if metadata.index is not None:
-                    message_history.truncate_histories(metadata.index)
+                if metadata.index is not None:                    
+                    # Index is 1-based on frontend due to presense of system message
+                    message_history.truncate_histories(metadata.index-1) 
                     ai_optimized_history, display_history = message_history.get_histories()
                 prompt = metadata.prompt
                 display_message = metadata.display_message
