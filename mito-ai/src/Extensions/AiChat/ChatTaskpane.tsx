@@ -19,7 +19,7 @@ import {
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE
 } from '../../commands';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
-import ResetIcon from '../../icons/ResetIcon';
+import NewChatIcon from '../../icons/NewChatIcon';
 import IconButton from '../../components/IconButton';
 import { OperatingSystem } from '../../utils/user';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
@@ -560,8 +560,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }}
                 />
                 <IconButton
-                    icon={<ResetIcon />}
-                    title="Clear the chat history"
+                    icon={<NewChatIcon />}
+                    title="Start New Chat"
                     onClick={() => {clearChatHistory()}}
                 />
             </div>
