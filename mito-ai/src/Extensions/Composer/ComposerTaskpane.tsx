@@ -9,6 +9,7 @@ interface ComposerComponentProps {
 const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Element => {
     // const [dataset, setDataset] = useState<string | null>(null);
     const [input, setInput] = useState<string | null>(null);
+    const [aiResponse, setAiResponse] = useState<any>(null);
 
     const handleFileUpload = async (event: Event) => {
         const target = event.target as HTMLInputElement;
@@ -36,7 +37,7 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
     const handleSubmit = async () => {
         await websocketClient.ready;
 
-        const aiResponse = await websocketClient.sendMessage({
+        const response = await websocketClient.sendMessage({
             type: "composer",
             message_id: UUID.uuid4(),
             metadata: {
@@ -45,7 +46,7 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
             stream: false
         });
 
-        console.log(aiResponse);
+        setAiResponse(response);
     }
 
     useEffect(() => {
@@ -62,6 +63,15 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
             <textarea id="prompt" placeholder="Enter your prompt here" onChange={(e) => setInput(e.target.value)}></textarea>
             <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" />
             <button onClick={handleSubmit}>Submit</button>
+            
+            {aiResponse && (
+                <div style={{ marginTop: '20px' }}>
+                    <h2>AI Response:</h2>
+                    <pre style={{ whiteSpace: 'pre-wrap' }}>
+                        {JSON.stringify(aiResponse, null, 2)}
+                    </pre>
+                </div>
+            )}
         </div>
     );
 };

@@ -174,13 +174,20 @@ def log_ai_completion_success(
         KEY_TYPE_PARAM: key_type,
     }
 
-    code_cell_input = json.dumps(
-        last_message_content.split("Code in the active code cell:")[-1]
-        .strip()
-        .split("```python")[1]
-        .strip()
-        .split("```")[0]
-    )
+    # TODO: Figure out a better way to get the current code cell input.
+    # This solution is liable to break if we change the prompt.
+    try:
+        code_cell_input = json.dumps(
+            last_message_content.split("Code in the active code cell:")[-1]
+            .strip()
+            .split("```python")[1]
+            .strip()
+            .split("```")[0]
+        )
+    except Exception as e:
+        # Agent requests don't have code cell input
+        print("e", e)
+        code_cell_input = ""
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
