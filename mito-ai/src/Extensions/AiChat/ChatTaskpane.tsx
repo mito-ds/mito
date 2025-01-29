@@ -96,38 +96,43 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     useEffect(() => {
-      // Check that the websocket client is ready
-      // and display the error if it is not.
-      websocketClient.ready
-      .then(async () => {
-        // 1. Fetch or load the initial chat history
-        const history = await fetchInitialChatHistory();
-
-        // 2. Create a fresh ChatHistoryManager and add the initial messages
-        const newChatHistoryManager = getDefaultChatHistoryManager(
-            notebookTracker,
-            variableManager
-        );
-
-        // 3. Add messages to the ChatHistoryManager
-        history.forEach(item => {newChatHistoryManager.addChatMessageFromHistory(item)});
-
-        // 4. Update the state with the new ChatHistoryManager
-        setChatHistoryManager(newChatHistoryManager);
-      })
-      .catch(error => {
-        const newChatHistoryManager = getDefaultChatHistoryManager(
-          notebookTracker,
-          variableManager
-        );
-        newChatHistoryManager.addAIMessageFromResponse(
-          (error as any).hint ? (error as any).hint : `${error}`,
-          'chat',
-          true
-        );
-        setChatHistoryManager(newChatHistoryManager);
-      });
-    }, [websocketClient]);
+        const initializeChatHistory = async () => {
+          try {
+            // 1. Check that the websocket client is ready
+            await websocketClient.ready;
+      
+            // 2. Fetch or load the initial chat history
+            const history = await fetchInitialChatHistory();
+      
+            // 3. Create a fresh ChatHistoryManager and add the initial messages
+            const newChatHistoryManager = getDefaultChatHistoryManager(
+              notebookTracker,
+              variableManager
+            );
+      
+            // 4. Add messages to the ChatHistoryManager
+            history.forEach(item => {
+              newChatHistoryManager.addChatMessageFromHistory(item);
+            });
+      
+            // 5. Update the state with the new ChatHistoryManager
+            setChatHistoryManager(newChatHistoryManager);
+          } catch (error) {
+            const newChatHistoryManager = getDefaultChatHistoryManager(
+              notebookTracker,
+              variableManager
+            );
+            newChatHistoryManager.addAIMessageFromResponse(
+              (error as any).hint ? (error as any).hint : `${error}`,
+              'chat',
+              true
+            );
+            setChatHistoryManager(newChatHistoryManager);
+          }
+        };
+      
+        initializeChatHistory();
+      }, [websocketClient]);
 
     useEffect(() => {
         /* 
