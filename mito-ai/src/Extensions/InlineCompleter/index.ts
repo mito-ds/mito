@@ -29,13 +29,13 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
   requires: [
     ICompletionProviderManager,
     ISettingRegistry,
-    IVariableManager
+    IVariableManager,
   ],
   activate: (
     app: JupyterFrontEnd,
     completionManager: ICompletionProviderManager,
     settingRegistry: ISettingRegistry,
-    variableManager: IVariableManager
+    variableManager: IVariableManager,
   ) => {
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
@@ -92,57 +92,41 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
             };
 
             if (!providers['mito-ai']['enabled']) {
-              Notification.info(
-                'Thanks for installing the Mito AI extension. Do you want to enable the Mito AI inline completer?',
-                {
-                  autoClose: false,
-                  actions: [
-                    {
-                      label: 'Enable',
-                      displayType: 'accent',
-                      callback: async () => {
-                        if (
-                          providers['@jupyterlab/inline-completer:history']?.[
-                            'enabled'
-                          ] !== false
-                        ) {
-                          providers['@jupyterlab/inline-completer:history'][
-                            'enabled'
-                          ] = false;
-                        }
-                        providers['mito-ai']['enabled'] = true;
-                        await settingRegistry.set(
-                          JUPYTERLAB_INLINE_COMPLETER_ID,
-                          'providers',
-                          providers
-                        );
 
-                        // For some reason, it seems that unless the Tab shortcut is registered first, 
-                        // Jupyter does not accept it. So we try removing the existing shortcut.
-                        shortcuts = shortcuts.filter((shortcut: {command: string}) => shortcut.command !== 'inline-completer:accept');
-                        shortcuts.push({
-                          command: 'inline-completer:accept',
-                          keys: ['Tab'],
-                          selector: '.jp-mod-inline-completer-active'
-                        });
-                        await settingRegistry.set(
-                          JUPYTERLAB_SHORTCUTS_ID,
-                          'shortcuts',
-                          shortcuts
-                        );
-                        updateConfig();
-                      }
-                    },
-                    {
-                      label: 'Not now',
-                      callback: () => {
-                        updateConfig();
-                      }
-                    }
-                  ]
+              /* The first time the user installs Mito AI, we take a few actions*/ 
+
+              // 1. Dispaly welcome notification
+              Notification.info(
+                'Mito AI is now enabled!',
+                {
+                  autoClose: 10000
                 }
               );
-            } else {
+
+              // 2. Disable the default inline completer
+              if (providers['@jupyterlab/inline-completer:history']?.['enabled'] !== false) {
+                providers['@jupyterlab/inline-completer:history']['enabled'] = false;
+              }
+
+              // 3. Enable the Mito AI inline completer
+              providers['mito-ai']['enabled'] = true;
+              await settingRegistry.set(JUPYTERLAB_INLINE_COMPLETER_ID, 'providers', providers);
+
+              // 4. Set Tab as the accept button for autocomplete.
+              // For some reason, it seems that unless the Tab shortcut is registered first, 
+              // Jupyter does not accept it. So we try removing the existing shortcut.
+              shortcuts = shortcuts.filter((shortcut: {command: string}) => shortcut.command !== 'inline-completer:accept');
+              shortcuts.push({
+                command: 'inline-completer:accept',
+                keys: ['Tab'],
+                selector: '.jp-mod-inline-completer-active'
+              });
+              await settingRegistry.set(
+                JUPYTERLAB_SHORTCUTS_ID,
+                'shortcuts',
+                shortcuts
+              );
+
               updateConfig();
             }
           };
