@@ -4,16 +4,16 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import { Signal, ISignal } from '@lumino/signaling';
 import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import type { CompleterMessage, ErrorMessage, IAICapabilities } from '../../utils/websocket/models';
-import ComposerComponent from './ComposerTaskpane';
+import AgentComponent from './AgentTaskpane';
 
-export class ComposerWidget extends ReactWidget {
+export class AgentWidget extends ReactWidget {
     protected websocketClient: CompletionWebsocketClient;
     private _capabilitiesChanged = new Signal<this, IAICapabilities>(this);
     private _lastErrorChanged = new Signal<this, ErrorMessage>(this);
 
     constructor(protected options: { app: JupyterFrontEnd }) {
         super();
-        this.addClass('mito-composer');
+        this.addClass('mito-agent');
 
         // Create the websocket client
         this.websocketClient = new CompletionWebsocketClient({
@@ -24,7 +24,7 @@ export class ComposerWidget extends ReactWidget {
 
         // Initialize the websocket client
         this.websocketClient.initialize().catch((error: any) => {
-            console.error('Failed to initialize the websocketClient for the Mito AI Composer', error);
+            console.error('Failed to initialize the websocketClient for the Mito AI Agent', error);
         });
     }
 
@@ -59,12 +59,12 @@ export class ComposerWidget extends ReactWidget {
     }
 
     render(): JSX.Element {
-        return <ComposerComponent websocketClient={this.websocketClient} />;
+        return <AgentComponent websocketClient={this.websocketClient} />;
     }
 }
 
-export function buildComposerWidget(app: JupyterFrontEnd): ComposerWidget {
-    const composerWidget = new ComposerWidget({ app });
-    composerWidget.id = 'mito-composer';
-    return composerWidget;
+export function buildAgentWidget(app: JupyterFrontEnd): AgentWidget {
+    const agentWidget = new AgentWidget({ app });
+    agentWidget.id = 'mito-agent';
+    return agentWidget;
 }

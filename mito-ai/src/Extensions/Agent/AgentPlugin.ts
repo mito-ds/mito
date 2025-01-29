@@ -2,10 +2,10 @@ import { ILayoutRestorer, JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyte
 import { WidgetTracker } from '@jupyterlab/apputils';
 import { ILauncher } from '@jupyterlab/launcher';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
-import { ComposerWidget, buildComposerWidget } from './ComposerWidget';
+import { AgentWidget, buildAgentWidget } from './AgentWidget';
 
-const ComposerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
-    id: 'mito-ai:composer',
+const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
+    id: 'mito-ai:agent',
     description: 'Agentic workflows for JupyterLab',
     autoStart: true,
     requires: [ILauncher],
@@ -15,23 +15,23 @@ const ComposerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         launcher: ILauncher,
         restorer: ILayoutRestorer | null
     ) => {
-        console.log('ComposerPlugin activated');
+        console.log('AgentPlugin activated');
 
         // Define a widget creator function,
         // then call it to make a new widget
         const newWidget = () => {
             // Create a blank content widget inside of a MainAreaWidget
-            const composerWidget = buildComposerWidget(
+            const agentWidget = buildAgentWidget(
                 app,
             );
-            return composerWidget;
+            return agentWidget;
         };
 
         let widget = newWidget();
 
         // Add the command to the command registry
-        app.commands.addCommand('mito-ai:open-composer', {
-            label: 'Mito AI Composer',
+        app.commands.addCommand('mito-ai:open-agent', {
+            label: 'Mito AI Agent',
             execute: (args?: ReadonlyPartialJSONObject) => {
                 // In order for the widget to be accessible, the widget must be:
                 // 1. Created
@@ -77,13 +77,13 @@ const ComposerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
 
         // Add the launcher item
         launcher.add({
-            command: 'mito-ai:open-composer',
+            command: 'mito-ai:open-agent',
             category: 'Notebook',
             rank: 1,
         });
 
         // Track and restore the widget state
-        const tracker = new WidgetTracker<ComposerWidget>({
+        const tracker = new WidgetTracker<AgentWidget>({
             namespace: widget.id,
         });
         if (!tracker.has(widget)) {
@@ -95,10 +95,10 @@ const ComposerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         }
 
         // This allows us to force plugin load order
-        console.log("mito-ai: ComposerPlugin activated");
+        console.log("mito-ai: AgentPlugin activated");
         return tracker;
 
     }
 };
 
-export default ComposerPlugin;
+export default AgentPlugin;

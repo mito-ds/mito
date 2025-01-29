@@ -28,7 +28,7 @@ from .models import (
     SmartDebugMessageMetadata,
     CodeExplainMessageMetadata,
     InlineCompletionMessageMetadata,
-    ComposerMessageMetadata,
+    AgentMessageMetadata,
 )
 from .providers import OpenAIProvider
 from .utils.create import initialize_user
@@ -150,9 +150,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
         elif type == "smartDebug":
             prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
-        elif type == "composer":
-            prompt = ComposerMessageMetadata(**metadata_dict).prompt
-            response_format = ComposerMessageMetadata(**metadata_dict).response_format
+        elif type == "agent":
+            prompt = AgentMessageMetadata(**metadata_dict).prompt
+            response_format = AgentMessageMetadata(**metadata_dict).response_format
 
         new_message = {
             "role": "user", 
@@ -177,7 +177,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             if request.stream and self._llm.can_stream:
                 await self._handle_stream_request(request, prompt_type=request.type)
             else:
-                if type == "composer":
+                if type == "agent":
                     await self._handle_request(request, prompt_type=request.type, response_format=response_format)
                 else:
                     await self._handle_request(request, prompt_type=request.type)

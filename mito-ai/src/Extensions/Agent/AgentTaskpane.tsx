@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { UUID } from '@lumino/coreutils';
 import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 
-interface ComposerComponentProps {
+interface AgentComponentProps {
     websocketClient: CompletionWebsocketClient;
 }
 
-const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Element => {
+const AgentComponent = ({ websocketClient }: AgentComponentProps): JSX.Element => {
     // const [dataset, setDataset] = useState<string | null>(null);
     const [input, setInput] = useState<string | null>(null);
     const [actions, setActions] = useState<string[] | null>(null);
@@ -39,7 +39,7 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
         await websocketClient.ready;
 
         const response = await websocketClient.sendMessage({
-            type: "composer",
+            type: "agent",
             message_id: UUID.uuid4(),
             metadata: {
                 input: input || ""
@@ -67,7 +67,7 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
 
     return (
         <div>
-            <h1>Composer</h1>
+            <h1>Agent</h1>
             <textarea id="prompt" placeholder="Enter your prompt here" onChange={(e) => setInput(e.target.value)}></textarea>
             <input type="file" id="fileInput" accept={fileTypes.join(',')} />
             <button onClick={handleSubmit}>Submit</button>
@@ -90,4 +90,4 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
     );
 };
 
-export default ComposerComponent;
+export default AgentComponent;

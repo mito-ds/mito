@@ -279,7 +279,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     )
 
                 # Log the successful completion
-                if prompt_type == "composer":
+                if prompt_type == "agent":
                     pass # TODO: Add logging for agents 
                 else:
                     log_ai_completion_success(

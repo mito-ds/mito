@@ -380,7 +380,7 @@ SOLUTION:
 """
     return prompt
 
-def create_composer_prompt(dataset: str, input: str):
+def create_agent_prompt(dataset: str, input: str):
     return f"""You are an expert data science assistant working in a Jupyter notebook environment. Your task is to break a problem into the essential, actionable steps required to write Python code for solving it. 
 
 You have access to the following Python packages:

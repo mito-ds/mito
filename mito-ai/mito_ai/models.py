@@ -12,10 +12,10 @@ from .prompt_builders import (
     create_inline_prompt,
     create_explain_code_prompt,
     create_error_prompt,
-    create_composer_prompt,
+    create_agent_prompt,
 )
 
-CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'composer']
+CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent']
 AllIncomingMessageTypes = Literal['clear_history', CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)
@@ -70,13 +70,13 @@ class InlineCompletionMessageMetadata:
         return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
 
 @dataclass(frozen=True)
-class ComposerMessageMetadata:
+class AgentMessageMetadata:
     dataset: Optional[str] = None
     input: Optional[str] = None
 
     @property
     def prompt(self) -> str:
-        return create_composer_prompt(self.dataset or '', self.input or '')
+        return create_agent_prompt(self.dataset or '', self.input or '')
 
     @property
     def response_format(self) -> Type[BaseModel]:
