@@ -27,7 +27,7 @@ const ComposerPlugin: JupyterFrontEndPlugin<void> = {
                 // docManager.createNew('composer_temp.ipynb');
                 // // Open the chat widget
                 // app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT);
-                const content = new ComposerWidget();
+                const content = new ComposerWidget({ app });
                 const widget = new MainAreaWidget<ComposerWidget>({ content });
                 widget.title.label = 'Mito Composer';
                 app.shell.add(widget, 'main');
