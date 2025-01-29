@@ -1,11 +1,9 @@
-import os
 import json
 import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
 from typing import Any, Awaitable, Dict, Optional, List
-from threading import Lock
 
 import tornado
 import tornado.ioloop
@@ -13,9 +11,9 @@ import tornado.web
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
-from openai.types.chat import ChatCompletionMessageParam
 
 from .logger import get_logger
+from .message_history import GlobalMessageHistory
 from .models import (
     AllIncomingMessageTypes,
     CompletionError,
@@ -33,69 +31,8 @@ from .models import (
 from .prompt_builders import remove_inner_thoughts_from_message
 from .providers import OpenAIProvider
 from .utils.create import initialize_user
-from .utils.schema import MITO_FOLDER
 
 __all__ = ["CompletionHandler"]
-
-# Global message history with thread-safe access
-class GlobalMessageHistory:
-    def __init__(self, save_file: str = os.path.join(MITO_FOLDER, "message_history.json")):
-        self._lock = Lock()
-        self._llm_history: List[Dict[str, str]] = []
-        self._display_history: List[Dict[str, str]] = []
-        self._save_file = save_file
-
-        # Load from disk on startup
-        self._load_from_disk()
-    
-    def _load_from_disk(self):
-        """Load existing history from disk, if it exists."""
-        if os.path.exists(self._save_file):
-            try:
-                with open(self._save_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    self._llm_history = data.get("llm_history", [])
-                    self._display_history = data.get("display_history", [])
-            except Exception as e:
-                print(f"Error loading history file: {e}")
-    
-    def _save_to_disk(self):
-        """Save current history to disk."""
-        data = {
-            "llm_history": self._llm_history,
-            "display_history": self._display_history,
-        }
-        # Using a temporary file and rename for safer "atomic" writes
-        tmp_file = f"{self._save_file}.tmp"
-        try:
-            with open(tmp_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-            os.replace(tmp_file, self._save_file)
-        except Exception as e:
-            # log or handle error
-            print(f"Error saving history file: {e}")
-
-    def get_histories(self) -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
-        with self._lock:
-            return self._llm_history[:], self._display_history[:]
-
-    def clear_histories(self) -> None:
-        with self._lock:
-            self._llm_history = []
-            self._display_history = []
-            self._save_to_disk()
-
-    def append_message(self, llm_message: Dict[str, str], display_message: Dict[str, str]) -> None:
-        with self._lock:
-            self._llm_history.append(llm_message)
-            self._display_history.append(display_message)
-            self._save_to_disk()
-
-    def truncate_histories(self, index: int) -> None:
-        with self._lock:
-            self._llm_history = self._llm_history[:index]
-            self._display_history = self._display_history[:index]
-            self._save_to_disk()
 
 # Global history instance
 message_history = GlobalMessageHistory()
@@ -221,9 +158,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             message_history.append_message(new_llm_message, new_display_message)
             llm_history, display_history = message_history.get_histories()
 
-            self.log.info(f"LLM message history: {json.dumps(llm_history, indent=2)}")
-            self.log.info(f"Display message history: {json.dumps(display_history, indent=2)}")
-
         request = CompletionRequest(
             type=type,
             message_id=parsed_message.get('message_id'),
@@ -327,8 +261,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")
-        self.log.info(f"LLM message history: {json.dumps(message_history.get_histories()[0], indent=2)}")
-        self.log.info(f"Display message history: {json.dumps(message_history.get_histories()[1], indent=2)}")
     async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str) -> None:
         """Handle stream completion request."""
         start = time.time()
@@ -360,7 +292,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 It must be a dataclass instance.
         """
         message = asdict(reply)
-        self.log.info(f"Replying with: {json.dumps(message)}")
         super().write_message(message)
 
     def _send_error(self, change: Dict[str, Optional[CompletionError]]) -> None:
