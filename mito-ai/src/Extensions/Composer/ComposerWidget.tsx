@@ -6,7 +6,7 @@ import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient
 import type { CompleterMessage, ErrorMessage, IAICapabilities } from '../../utils/websocket/models';
 import ComposerComponent from './ComposerTaskpane';
 
-class ComposerWidget extends ReactWidget {
+export class ComposerWidget extends ReactWidget {
     protected websocketClient: CompletionWebsocketClient;
     private _capabilitiesChanged = new Signal<this, IAICapabilities>(this);
     private _lastErrorChanged = new Signal<this, ErrorMessage>(this);
@@ -68,5 +68,3 @@ export function buildComposerWidget(app: JupyterFrontEnd): ComposerWidget {
     composerWidget.id = 'mito-composer';
     return composerWidget;
 }
-
-export default ComposerWidget;
