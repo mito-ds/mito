@@ -19,9 +19,9 @@ class GlobalMessageHistory:
     Thread safety is crucial to prevent data corruption and race conditions 
     when multiple threads access or modify the message histories concurrently.
 
-    We store two types of messages: LLM messages and display messages.
-    We store display_messages to be able to restore them in the frontend when 
-    the extension loads. We store LLM messages to keep the conversation context
+    We store two types of messages: AI-optimized and display-optimized messages.
+    We store display_history to be able to restore them in the frontend when 
+    the extension loads. We store ai_optimized_history to keep the conversation context
     for continuing the conversation.
 
     The JSON file structure for storing the histories is as follows:
