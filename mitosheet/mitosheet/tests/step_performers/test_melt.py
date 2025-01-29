@@ -78,6 +78,7 @@ def test_melt(input_dfs, sheet_index, id_vars, value_vars, output_dfs):
         else:
             # For non-melted or empty dataframes, compare directly
             assert actual.equals(expected)
+            
 
 def test_melt_with_empty_values_is_empty():
     mito = create_mito_wrapper(pd.DataFrame({'product_id': [1, 2], 'description': ["a cat", "a bat"], pd.to_datetime('1-1-2020'): [0, 1], pd.to_datetime('1-2-2020'): [0, 2]}))
