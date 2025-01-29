@@ -9,7 +9,8 @@ interface ComposerComponentProps {
 const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Element => {
     // const [dataset, setDataset] = useState<string | null>(null);
     const [input, setInput] = useState<string | null>(null);
-    const [aiResponse, setAiResponse] = useState<any>(null);
+    const [actions, setActions] = useState<string[] | null>(null);
+    const fileTypes = [".csv", ".xlsx", ".xls"];
 
     const handleFileUpload = async (event: Event) => {
         const target = event.target as HTMLInputElement;
@@ -46,7 +47,14 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
             stream: false
         });
 
-        setAiResponse(response);
+        // Extract actions from the response
+        try {
+            const content = JSON.parse(response.items[0].content);
+            const actions = content.actions;
+            setActions(actions);
+        } catch (error) {
+            console.error('Error parsing response:', error);
+        }
     }
 
     useEffect(() => {
@@ -61,15 +69,21 @@ const ComposerComponent = ({ websocketClient }: ComposerComponentProps): JSX.Ele
         <div>
             <h1>Composer</h1>
             <textarea id="prompt" placeholder="Enter your prompt here" onChange={(e) => setInput(e.target.value)}></textarea>
-            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" />
+            <input type="file" id="fileInput" accept={fileTypes.join(',')} />
             <button onClick={handleSubmit}>Submit</button>
             
-            {aiResponse && (
+            {actions && (
                 <div style={{ marginTop: '20px' }}>
-                    <h2>AI Response:</h2>
-                    <pre style={{ whiteSpace: 'pre-wrap' }}>
-                        {JSON.stringify(aiResponse, null, 2)}
-                    </pre>
+                    {actions && (
+                        <div>
+                            <h3>Actions:</h3>
+                            <ul>
+                                {actions.map((action: string, index: number) => (
+                                    <li key={index}>{action}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

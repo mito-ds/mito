@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import traceback
 from dataclasses import dataclass
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Type
 
+from pydantic import BaseModel
 from openai.types.chat import ChatCompletionMessageParam
 
 from .prompt_builders import (
@@ -77,6 +78,11 @@ class ComposerMessageMetadata:
     def prompt(self) -> str:
         return create_composer_prompt(self.dataset or '', self.input or '')
 
+    @property
+    def response_format(self) -> Type[BaseModel]:
+        class PlanofAttack(BaseModel):
+            actions: List[str]
+        return PlanofAttack
 @dataclass(frozen=True)
 class CompletionRequest:
     """Message send by the client to request an AI chat response."""
