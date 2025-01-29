@@ -27,7 +27,7 @@ class GlobalMessageHistory:
     The JSON file structure for storing the histories is as follows:
     {
       "chat_history_version": 1,
-      "llm_history": [
+      "ai_optimized_history": [
         {
           "role": "user",
           "content": "..."
@@ -54,7 +54,7 @@ class GlobalMessageHistory:
 
     Attributes:
         _lock (Lock): Ensures thread-safe access.
-        _llm_history (List[Dict[str, str]]): Stores LLM messages.
+        _ai_optimized_history (List[Dict[str, str]]): Stores LLM messages.
         _display_history (List[Dict[str, str]]): Stores display messages.
         _save_file (str): Path to the file where histories are saved.
 
@@ -63,14 +63,14 @@ class GlobalMessageHistory:
             Returns copies of the LLM and display histories.
         clear_histories() -> None:
             Clears both histories and saves the changes to disk.
-        append_message(llm_message: Dict[str, str], display_message: Dict[str, str]) -> None:
+        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
             Appends new messages to the histories and saves to disk.
         truncate_histories(index: int) -> None:
             Truncates both histories at the given index and saves to disk.
     """
     def __init__(self, save_file: str = os.path.join(MITO_FOLDER, "message_history.json")):
         self._lock = Lock()
-        self._llm_history: List[Dict[str, str]] = []
+        self._ai_optimized_history: List[Dict[str, str]] = []
         self._display_history: List[Dict[str, str]] = []
         self._save_file = save_file
 
@@ -87,7 +87,7 @@ class GlobalMessageHistory:
                     # Check version
                     file_version = data.get("chat_history_version", 0)
                     if file_version == CHAT_HISTORY_VERSION:
-                        self._llm_history = data.get("llm_history", [])
+                        self._ai_optimized_history = data.get("ai_optimized_history", [])
                         self._display_history = data.get("display_history", [])
                     else:
                         # If versions don't match, delete the file
@@ -104,7 +104,7 @@ class GlobalMessageHistory:
         """Save current history to disk."""
         data = {
             "chat_history_version": CHAT_HISTORY_VERSION,
-            "llm_history": self._llm_history,
+            "ai_optimized_history": self._ai_optimized_history,
             "display_history": self._display_history,
         }
         # Using a temporary file and rename for safer "atomic" writes
@@ -119,22 +119,22 @@ class GlobalMessageHistory:
 
     def get_histories(self) -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
         with self._lock:
-            return self._llm_history[:], self._display_history[:]
+            return self._ai_optimized_history[:], self._display_history[:]
 
     def clear_histories(self) -> None:
         with self._lock:
-            self._llm_history = []
+            self._ai_optimized_history = []
             self._display_history = []
             self._save_to_disk()
 
-    def append_message(self, llm_message: Dict[str, str], display_message: Dict[str, str]) -> None:
+    def append_message(self, ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
         with self._lock:
-            self._llm_history.append(llm_message)
+            self._ai_optimized_history.append(ai_optimized_message)
             self._display_history.append(display_message)
             self._save_to_disk()
 
     def truncate_histories(self, index: int) -> None:
         with self._lock:
-            self._llm_history = self._llm_history[:index]
+            self._ai_optimized_history = self._ai_optimized_history[:index]
             self._display_history = self._display_history[:index]
             self._save_to_disk()

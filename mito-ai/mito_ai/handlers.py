@@ -132,16 +132,16 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Generate new message based on message type
         if type == "inline_completion":
             prompt = InlineCompletionMessageMetadata(**metadata_dict).prompt
-            new_llm_message = {"role": "user", "content": prompt}
-            llm_history = [new_llm_message]  # Inline completion uses its own history
+            new_ai_optimized_message = {"role": "user", "content": prompt}
+            ai_optimized_history = [new_ai_optimized_message]  # Inline completion uses its own history
         else:
-            llm_history, display_history = message_history.get_histories()
+            ai_optimized_history, display_history = message_history.get_histories()
 
             if type == "chat":
                 metadata = ChatMessageMetadata(**metadata_dict)
                 if metadata.index is not None:
                     message_history.truncate_histories(metadata.index)
-                    llm_history, display_history = message_history.get_histories()
+                    ai_optimized_history, display_history = message_history.get_histories()
                 prompt = metadata.prompt
                 display_message = metadata.display_message
             elif type == "codeExplain":
@@ -153,15 +153,15 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 prompt = metadata.prompt
                 display_message = metadata.display_message
 
-            new_llm_message = {"role": "user", "content": prompt}
+            new_ai_optimized_message = {"role": "user", "content": prompt}
             new_display_message = {"role": "user", "content": display_message}
-            message_history.append_message(new_llm_message, new_display_message)
-            llm_history, display_history = message_history.get_histories()
+            message_history.append_message(new_ai_optimized_message, new_display_message)
+            ai_optimized_history, display_history = message_history.get_histories()
 
         request = CompletionRequest(
             type=type,
             message_id=parsed_message.get('message_id'),
-            messages=llm_history,
+            messages=ai_optimized_history,
             stream=parsed_message.get('stream', False)
         )
         
@@ -237,7 +237,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if request.type != "inline_completion":
             response = reply.items[0].content if reply.items else ""
 
-            llm_message = {
+            ai_optimized_message = {
                 "role": "assistant", 
                 "content": response
             }
@@ -254,7 +254,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 # Modify reply so the display message in the frontend is also have inner thoughts removed
                 reply.items[0] = CompletionItem(content=response, isIncomplete=reply.items[0].isIncomplete)
 
-            message_history.append_message(llm_message, display_message)
+            message_history.append_message(ai_optimized_message, display_message)
 
 
         self.reply(reply)
