@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import time
+import uuid
 from dataclasses import asdict
 from http import HTTPStatus
 from typing import Any, Awaitable, Dict, Optional, List
@@ -30,72 +31,222 @@ from .models import (
     InlineCompletionMessageMetadata,
     HistoryReply
 )
-from .prompt_builders import remove_inner_thoughts_from_message
+from .prompt_builders import remove_inner_thoughts_from_message, create_chat_name_prompt
 from .providers import OpenAIProvider
 from .utils.create import initialize_user
 from .utils.schema import MITO_FOLDER
 
 __all__ = ["CompletionHandler"]
 
-# Global message history with thread-safe access
-class GlobalMessageHistory:
-    def __init__(self, save_file: str = os.path.join(MITO_FOLDER, "message_history.json")):
-        self._lock = Lock()
-        self._llm_history: List[Dict[str, str]] = []
-        self._display_history: List[Dict[str, str]] = []
-        self._save_file = save_file
+async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider) -> str:
+    prompt = create_chat_name_prompt(user_message, assistant_message)
 
-        # Load from disk on startup
-        self._load_from_disk()
+    request = CompletionRequest(
+        type="chat_name_generation",
+        message_id=str(uuid.uuid4()),
+        messages=[{"role": "user", "content": prompt}],
+        stream=False
+    )
+
+    reply = await llm_provider.request_completions(
+        request=request,
+        prompt_type="chat_name_generation"
+    )
+
+    if not reply or not reply.items:
+        # if something went wrong or no completion returned
+        return "Untitled Chat"
+
+    return reply.items[0].content.strip()
     
-    def _load_from_disk(self):
-        """Load existing history from disk, if it exists."""
-        if os.path.exists(self._save_file):
+
+class ChatThread:
+    """
+    Holds metadata + two lists of messages: LLM and display messages.
+    """
+    def __init__(
+        self,
+        thread_id: str,
+        creation_ts: float,
+        last_interaction_ts: float,
+        name: str,
+        llm_history: Optional[List[Dict[str, str]]] = None,
+        display_history: Optional[List[Dict[str, str]]] = None,
+    ):
+        self.thread_id = thread_id
+        self.creation_ts = creation_ts
+        self.last_interaction_ts = last_interaction_ts
+        self.name = name  # short name for the thread
+        self.llm_history = llm_history or []
+        self.display_history = display_history or []
+
+class GlobalMessageHistory:
+    """
+    A thread-safe manager for multiple chat threads.
+    Each chat thread is stored in a separate JSON file in `.mito/ai-chats/<thread_id>.json`.
+    """
+    def __init__(self, chats_dir: str = os.path.join(MITO_FOLDER, "ai-chats")):
+        self._lock = Lock()
+        self._chats_dir = chats_dir
+        os.makedirs(self._chats_dir, exist_ok=True)
+
+        # In-memory cache of all chat threads loaded from disk
+        self._chat_threads: Dict[str, ChatThread] = {}
+
+        # Load existing threads from disk on startup
+        self._load_all_threads_from_disk()
+    
+    def _load_all_threads_from_disk(self):
+        """
+        Loads each .json file in `self._chats_dir` into self._chat_threads.
+        """
+        for file_name in os.listdir(self._chats_dir):
+            if not file_name.endswith(".json"):
+                continue
+            path = os.path.join(self._chats_dir, file_name)
             try:
-                with open(self._save_file, "r", encoding="utf-8") as f:
+                with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    self._llm_history = data.get("llm_history", [])
-                    self._display_history = data.get("display_history", [])
+                    thread = ChatThread(
+                        thread_id=data["thread_id"],
+                        creation_ts=data["creation_ts"],
+                        last_interaction_ts=data["last_interaction_ts"],
+                        name=data["name"],
+                        llm_history=data.get("llm_history", []),
+                        display_history=data.get("display_history", []),
+                    )
+                    self._chat_threads[thread.thread_id] = thread
             except Exception as e:
-                print(f"Error loading history file: {e}")
+                print(f"Error loading chat thread from {path}: {e}")
     
-    def _save_to_disk(self):
-        """Save current history to disk."""
+    def _save_thread_to_disk(self, thread: ChatThread):
+        """
+        Saves the given ChatThread to a JSON file `<thread_id>.json` in `self._chats_dir`.
+        """
+        path = os.path.join(self._chats_dir, f"{thread.thread_id}.json")
         data = {
-            "llm_history": self._llm_history,
-            "display_history": self._display_history,
+            "thread_id": thread.thread_id,
+            "creation_ts": thread.creation_ts,
+            "last_interaction_ts": thread.last_interaction_ts,
+            "name": thread.name,
+            "llm_history": thread.llm_history,
+            "display_history": thread.display_history,
         }
-        # Using a temporary file and rename for safer "atomic" writes
-        tmp_file = f"{self._save_file}.tmp"
+        tmp_file = path + ".tmp"
         try:
             with open(tmp_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
-            os.replace(tmp_file, self._save_file)
+            os.replace(tmp_file, path)
         except Exception as e:
-            # log or handle error
-            print(f"Error saving history file: {e}")
+            print(f"Error saving chat thread {thread.thread_id}: {e}")
+
+    def _get_newest_thread_id(self) -> Optional[str]:
+        """
+        Returns the thread_id of the thread with the latest 'last_interaction_ts'.
+        If no threads exist, return None.
+        """
+        if not self._chat_threads:
+            return None
+        return max(self._chat_threads, key=lambda tid: self._chat_threads[tid].last_interaction_ts)
+
+    def _update_last_interaction(self, thread: ChatThread):
+        thread.last_interaction_ts = time.time()
+
+    def create_new_thread(self) -> str:
+        """
+        Creates a new empty chat thread and saves it immediately.
+        """
+        with self._lock:
+            thread_id = str(uuid.uuid4())
+            now = time.time()
+            new_thread = ChatThread(
+                thread_id=thread_id,
+                creation_ts=now,
+                last_interaction_ts=now,
+                name="",  # we'll fill this in once we have at least user & assistant messages
+            )
+            self._chat_threads[thread_id] = new_thread
+            self._save_thread_to_disk(new_thread)
+            return thread_id
 
     def get_histories(self) -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+        """
+        For backward compatibility: returns the LLM and display history of the newest thread.
+        """
         with self._lock:
-            return self._llm_history[:], self._display_history[:]
+            thread_id = self._get_newest_thread_id()
+            if not thread_id:
+                return [], []
+            # If history is requested, that is also considered an interaction
+            self._update_last_interaction(self._chat_threads[thread_id])
+            self._save_thread_to_disk(self._chat_threads[thread_id])
+            return (
+                self._chat_threads[thread_id].llm_history[:],
+                self._chat_threads[thread_id].display_history[:],
+            )
 
     def clear_histories(self) -> None:
-        with self._lock:
-            self._llm_history = []
-            self._display_history = []
-            self._save_to_disk()
+        """
+        Instead of truly clearing, we create a new thread so that the old one is retained.
+        """
+        self.create_new_thread()  # not returning the ID here because the old code doesn't expect it
 
-    def append_message(self, llm_message: Dict[str, str], display_message: Dict[str, str]) -> None:
+    async def append_message(self, llm_message: Dict[str, str], display_message: Dict[str, str], llm_provider) -> None:
+        """
+        Appends the messages to the newest thread. If there are no threads yet, create one.
+        We also detect if we should set a short name for the thread.
+        """
         with self._lock:
-            self._llm_history.append(llm_message)
-            self._display_history.append(display_message)
-            self._save_to_disk()
+            # Use the newest thread
+            thread_id = self._get_newest_thread_id()
+        if not thread_id:
+            thread_id = self.create_new_thread()
+
+        with self._lock:
+            thread = self._chat_threads[thread_id]
+            # Add message
+            thread.llm_history.append(llm_message)
+            thread.display_history.append(display_message)
+
+            # Update timestamps
+            self._update_last_interaction(thread)
+
+            # If we haven't assigned a name yet and we have at least two messages
+            # (the first user message and the first assistant message), we can set the name
+            if not thread.name:
+                # We look for first user msg and first assistant msg
+                user_message = None
+                assistant_message = None
+                for msg in thread.display_history:
+                    if msg["role"] == "user" and user_message is None:
+                        user_message = msg["content"]
+                    elif msg["role"] == "assistant" and assistant_message is None:
+                        assistant_message = msg["content"]
+                    if user_message and assistant_message:
+                        # We have what we need to name this thread
+                        thread.name = await generate_short_chat_name(
+                            user_message,
+                            assistant_message,
+                            llm_provider
+                        )
+                        break
+
+            self._save_thread_to_disk(thread)
+
 
     def truncate_histories(self, index: int) -> None:
+        """
+        For the newest thread, truncate messages at the given index.
+        """
         with self._lock:
-            self._llm_history = self._llm_history[:index]
-            self._display_history = self._display_history[:index]
-            self._save_to_disk()
+            thread_id = self._get_newest_thread_id()
+            if not thread_id:
+                return
+            thread = self._chat_threads[thread_id]
+            thread.llm_history = thread.llm_history[:index]
+            thread.display_history = thread.display_history[:index]
+            self._update_last_interaction(thread)
+            self._save_thread_to_disk(thread)
 
 # Global history instance
 message_history = GlobalMessageHistory()
@@ -218,7 +369,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
             new_llm_message = {"role": "user", "content": prompt}
             new_display_message = {"role": "user", "content": display_message}
-            message_history.append_message(new_llm_message, new_display_message)
+            await message_history.append_message(new_llm_message, new_display_message, self._llm)
             llm_history, display_history = message_history.get_histories()
 
             self.log.info(f"LLM message history: {json.dumps(llm_history, indent=2)}")
@@ -320,7 +471,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 # Modify reply so the display message in the frontend is also have inner thoughts removed
                 reply.items[0] = CompletionItem(content=response, isIncomplete=reply.items[0].isIncomplete)
 
-            message_history.append_message(llm_message, display_message)
+            await message_history.append_message(llm_message, display_message, self._llm)
 
 
         self.reply(reply)
@@ -348,7 +499,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 "role": "assistant", 
                 "content": accumulated_response
             }
-            message_history.append_message(message, message)
+            await message_history.append_message(message, message, self._llm)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 
