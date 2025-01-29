@@ -200,7 +200,7 @@ class CompletionStreamChunk:
     """Completion error."""
 
 @dataclass(frozen=True)
-class HistoryReply:
+class FetchHistoryReply:
     """Message sent from model to client with the chat history."""
 
     parent_id: str

@@ -26,7 +26,7 @@ from .models import (
     SmartDebugMessageMetadata,
     CodeExplainMessageMetadata,
     InlineCompletionMessageMetadata,
-    HistoryReply
+    FetchHistoryReply
 )
 from .prompt_builders import remove_inner_thoughts_from_message
 from .providers import OpenAIProvider
@@ -119,7 +119,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         
         if type == "fetch_history":
             _, display_history = message_history.get_histories()
-            reply = HistoryReply(
+            reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
             )
