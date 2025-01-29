@@ -19,6 +19,11 @@ class GlobalMessageHistory:
     Thread safety is crucial to prevent data corruption and race conditions 
     when multiple threads access or modify the message histories concurrently.
 
+    We store two types of messages: LLM messages and display messages.
+    We store display_messages to be able to restore them in the frontend when 
+    the extension loads. We store LLM messages to keep the conversation context
+    for continuing the conversation.
+
     The JSON file structure for storing the histories is as follows:
     {
       "chat_history_version": 1,
@@ -43,6 +48,9 @@ class GlobalMessageHistory:
         }
       ]
     }
+
+    JSON schema is chosen to match what is stored in the memory, so it is 
+    easy to serialize/deserialize.
 
     Attributes:
         _lock (Lock): Ensures thread-safe access.
