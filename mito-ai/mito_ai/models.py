@@ -14,7 +14,7 @@ from .prompt_builders import (
 )
 
 CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug']
-AllIncomingMessageTypes = Literal['clear_history', CompletionIncomingMessageTypes]
+AllIncomingMessageTypes = Literal['start_new_chat', CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)
 class AICapabilities:

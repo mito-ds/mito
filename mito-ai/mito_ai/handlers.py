@@ -326,8 +326,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.log.error("Invalid completion request.", exc_info=e)
             return
 
-        # Clear history if the type is "clear_history"
-        if type == "clear_history":
+        # Clear history if the type is "start_new_chat"
+        if type == "start_new_chat":
             message_history.clear_histories()
             return
         

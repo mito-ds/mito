@@ -177,7 +177,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = clearChatHistory()
+        const newChatHistoryManager = startNewChat()
         const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager)
 
@@ -190,7 +190,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the explain code message
-        const newChatHistoryManager = clearChatHistory()
+        const newChatHistoryManager = startNewChat()
         const outgoingMessage = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
         
@@ -370,14 +370,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const clearChatHistory = () => {
+    const startNewChat = () => {
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
         setChatHistoryManager(newChatHistoryManager);
 
-        // Notify the backend to clear the prompt history
+        // Notify the backend to request a new chat thread
         websocketClient.sendMessage({
-            type: 'clear_history',
+            type: 'start_new_chat',
             message_id: UUID.uuid4(),
             metadata: {},
             stream: false,
@@ -562,7 +562,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <IconButton
                     icon={<NewChatIcon />}
                     title="Start New Chat"
-                    onClick={() => {clearChatHistory()}}
+                    onClick={() => {startNewChat()}}
                 />
             </div>
             <div className="chat-messages" ref={chatMessagesRef}>
