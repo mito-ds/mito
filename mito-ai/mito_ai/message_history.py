@@ -5,17 +5,44 @@ from typing import Dict, List
 
 from .utils.schema import MITO_FOLDER
 
+CHAT_HISTORY_VERSION = 1 # Increment this if the schema changes
+
 class GlobalMessageHistory:
     """
-    Manages a global message history with thread-safe access.
+    Manages a global message history with thread-safe access and persistence.
 
     This class ensures thread-safe operations for reading, writing, and 
     modifying message histories using a Lock object. It supports loading 
     from and saving to disk, appending new messages, clearing histories, 
-    and truncating histories.
+    and truncating histories. The histories are stored on disk for persistence.
 
     Thread safety is crucial to prevent data corruption and race conditions 
     when multiple threads access or modify the message histories concurrently.
+
+    The JSON file structure for storing the histories is as follows:
+    {
+      "chat_history_version": 1,
+      "llm_history": [
+        {
+          "role": "user",
+          "content": "..."
+        },
+        {
+          "role": "assistant",
+          "content": "..."
+        }
+      ],
+      "display_history": [
+        {
+          "role": "user",
+          "content": "..."
+        },
+        {
+          "role": "assistant",
+          "content": "..."
+        }
+      ]
+    }
 
     Attributes:
         _lock (Lock): Ensures thread-safe access.
@@ -48,14 +75,27 @@ class GlobalMessageHistory:
             try:
                 with open(self._save_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    self._llm_history = data.get("llm_history", [])
-                    self._display_history = data.get("display_history", [])
+
+                    # Check version
+                    file_version = data.get("chat_history_version", 0)
+                    if file_version == CHAT_HISTORY_VERSION:
+                        self._llm_history = data.get("llm_history", [])
+                        self._display_history = data.get("display_history", [])
+                    else:
+                        # If versions don't match, delete the file
+                        print(
+                            f"Warning: Incompatible chat history version ({file_version}). "
+                            f"Expected version {CHAT_HISTORY_VERSION}. Deleting file."
+                        )
+                        f.close()
+                        os.remove(self._save_file)
             except Exception as e:
                 print(f"Error loading history file: {e}")
     
     def _save_to_disk(self):
         """Save current history to disk."""
         data = {
+            "chat_history_version": CHAT_HISTORY_VERSION,
             "llm_history": self._llm_history,
             "display_history": self._display_history,
         }
