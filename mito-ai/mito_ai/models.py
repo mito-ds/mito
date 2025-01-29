@@ -71,18 +71,20 @@ class InlineCompletionMessageMetadata:
 
 @dataclass(frozen=True)
 class AgentMessageMetadata:
-    dataset: Optional[str] = None
+    fileType: Optional[str] = None
+    columnSamples: Optional[List[str]] = None
     input: Optional[str] = None
 
     @property
     def prompt(self) -> str:
-        return create_agent_prompt(self.dataset or '', self.input or '')
+        return create_agent_prompt(self.fileType or '', self.columnSamples or [], self.input or '')
 
     @property
     def response_format(self) -> Type[BaseModel]:
         class PlanofAttack(BaseModel):
             actions: List[str]
         return PlanofAttack
+
 @dataclass(frozen=True)
 class CompletionRequest:
     """Message send by the client to request an AI chat response."""

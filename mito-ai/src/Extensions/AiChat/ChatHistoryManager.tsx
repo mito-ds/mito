@@ -26,6 +26,8 @@ export interface IChatMessageMetadata {
     prefix?: string;
     suffix?: string;
     index?: number;
+    columnSamples?: Array<{name: string, samples: string[]}>;
+    fileType?: string;
 }
 
 /**
