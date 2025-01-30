@@ -12,6 +12,7 @@ interface AgentComponentProps {
 const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Element => {
     const [input, setInput] = useState<string | null>(null);
     const [actions, setActions] = useState<string[] | null>(null);
+    const [dependencies, setDependencies] = useState<string[] | null>(null);
     const [columnSamples, setColumnSamples] = useState<Array<{ name: string, samples: string[] }>>([]);
     const [fileType, setFileType] = useState<string | null>(null);
     const fileTypes = [".csv"];
@@ -67,6 +68,9 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
             const content = JSON.parse(response.items[0].content);
             const actions = content.actions;
             setActions(actions);
+
+            const dependencies = content.dependencies;
+            setDependencies(dependencies);
         } catch (error) {
             console.error('Error parsing response:', error);
         }
@@ -148,6 +152,13 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
                             <ul>
                                 {actions.map((action: string, index: number) => (
                                     <li key={index}>{action}</li>
+                                ))}
+                            </ul>
+
+                            <h3>Dependencies:</h3>
+                            <ul>
+                                {dependencies?.map((dependency: string, index: number) => (
+                                    <li key={index}>{dependency}</li>
                                 ))}
                             </ul>
                         </div>

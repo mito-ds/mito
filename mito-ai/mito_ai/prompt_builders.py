@@ -395,7 +395,10 @@ You have access to the following Python packages:
 
 {file_sample_snippet if file_type else ''}
 
-Given the dataset (if provided) and the question below, break the problem into the **smallest possible number of clear, high-level tasks** necessary to achieve the solution. **Do not include any code or specific implementation details.** Focus only on describing the high-level steps required to solve the problem:
+Given the dataset (if provided) and the question below:
+1. Break the problem into the **smallest possible number of clear, high-level tasks** necessary to achieve the solution. 
+2. **Do not include any code or specific implementation details.** Focus only on describing the high-level steps required to solve the problem.
+3. Additionally, provide a list of python packages that are required to complete the actions. 
 
 {input}
 """
