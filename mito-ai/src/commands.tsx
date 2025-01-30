@@ -1,5 +1,6 @@
 const MITO_AI = 'mito_ai'
 
+// Chat
 export const COMMAND_MITO_AI_OPEN_CHAT = `${MITO_AI}:open-chat`
 export const COMMAND_MITO_AI_PREVIEW_LATEST_CODE = `${MITO_AI}:preview-latest-code`
 export const COMMAND_MITO_AI_APPLY_LATEST_CODE = `${MITO_AI}:apply-latest-code`
@@ -10,3 +11,6 @@ export const COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE = `${MITO_AI}:send-debug-e
 export const COMMAND_MITO_AI_SEND_CHAT_MESSAGE = `${MITO_AI}:send-chat-message`
 export const COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE = `toolbar-button:accept-code`
 export const COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE = `toolbar-button:reject-code`
+
+// Agent
+export const COMMAND_MITO_AI_OPEN_AGENT = `${MITO_AI}:open-agent`

@@ -3,7 +3,7 @@ import { WidgetTracker } from '@jupyterlab/apputils';
 import { ILauncher } from '@jupyterlab/launcher';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { AgentWidget, buildAgentWidget } from './AgentWidget';
-
+import { COMMAND_MITO_AI_OPEN_AGENT } from '../../commands';
 const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     id: 'mito-ai:agent',
     description: 'Agentic workflows for JupyterLab',
@@ -30,7 +30,7 @@ const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         let widget = newWidget();
 
         // Add the command to the command registry
-        app.commands.addCommand('mito-ai:open-agent', {
+        app.commands.addCommand(COMMAND_MITO_AI_OPEN_AGENT, {
             label: 'Mito AI Agent',
             execute: (args?: ReadonlyPartialJSONObject) => {
                 // In order for the widget to be accessible, the widget must be:
@@ -77,7 +77,7 @@ const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
 
         // Add the launcher item
         launcher.add({
-            command: 'mito-ai:open-agent',
+            command: COMMAND_MITO_AI_OPEN_AGENT,
             category: 'Notebook',
             rank: 1,
         });
