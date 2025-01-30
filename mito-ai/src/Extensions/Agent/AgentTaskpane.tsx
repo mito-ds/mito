@@ -82,23 +82,6 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
         }
     }
 
-    // const testMe = async () => {
-    //     // First send the chat message
-    //     await app.commands.execute(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
-    //         input: "create an array of numbers from 1 to 5"
-    //     });
-
-    //     // Wait a brief moment for the response to be processed.x
-    //     // You need to have a notebook open for this to work.
-    //     setTimeout(async () => {
-    //         // Preview the code
-    //         await app.commands.execute(COMMAND_MITO_AI_PREVIEW_LATEST_CODE);
-
-    //         // Then apply the code
-    //         await app.commands.execute(COMMAND_MITO_AI_APPLY_LATEST_CODE);
-    //     }, 1000); // Adjust timeout as needed
-    // }
-
     const executeActions = async () => {
         if (!actions) return;
 
