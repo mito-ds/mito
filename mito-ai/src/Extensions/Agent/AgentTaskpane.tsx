@@ -92,6 +92,11 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
     const executeActions = async () => {
         if (!actions) return;
 
+        // TODO: 
+        // 1. Clear the chat message histry (or start a new chat thread in the future).
+        // 2. Switch over to the ChatTaskpane.
+        // 3. Remove the AgentTaskpane icon.
+
         for (const action of actions) {
             // Send the action to the chat and wait for response
             const success = await app.commands.execute(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
@@ -108,16 +113,12 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
                 setTimeout(async () => {
                     // Preview the code
                     await app.commands.execute(COMMAND_MITO_AI_PREVIEW_LATEST_CODE);
-
                     // Then apply the code
                     await app.commands.execute(COMMAND_MITO_AI_APPLY_LATEST_CODE);
-
                     // Run the cell
                     await app.commands.execute("notebook:run-cell");
-
                     // Add new cell 
                     await app.commands.execute("notebook:insert-cell-below");
-                    
                     resolve();
                 }, 1000);
             });
