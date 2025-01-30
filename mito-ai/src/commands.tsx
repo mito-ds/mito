@@ -7,6 +7,6 @@ export const COMMAND_MITO_AI_REJECT_LATEST_CODE = `${MITO_AI}:reject-latest-code
 export const COMMAND_MITO_AI_SEND_MESSAGE = `${MITO_AI}:send-message`
 export const COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE = `${MITO_AI}:send-explain-code-message`
 export const COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE = `${MITO_AI}:send-debug-error-message`
-
+export const COMMAND_MITO_AI_SEND_CHAT_MESSAGE = `${MITO_AI}:send-chat-message`
 export const COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE = `toolbar-button:accept-code`
 export const COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE = `toolbar-button:reject-code`

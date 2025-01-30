@@ -59,7 +59,7 @@ export class AgentWidget extends ReactWidget {
     }
 
     render(): JSX.Element {
-        return <AgentComponent websocketClient={this.websocketClient} />;
+        return <AgentComponent websocketClient={this.websocketClient} app={this.options.app} />;
     }
 }
 

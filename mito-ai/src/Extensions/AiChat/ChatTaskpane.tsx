@@ -14,7 +14,8 @@ import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE, 
     COMMAND_MITO_AI_REJECT_LATEST_CODE, 
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, 
-    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, 
+    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
+    COMMAND_MITO_AI_SEND_CHAT_MESSAGE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE
 } from '../../commands';
@@ -389,6 +390,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, {
             execute: () => {
                 sendExplainCodeMessage()
+            }
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (args?.input) {
+                    sendChatInputMessage(args.input.toString())
+                }
             }
         });
 

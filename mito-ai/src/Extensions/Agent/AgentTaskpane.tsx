@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { UUID } from '@lumino/coreutils';
 import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { COMMAND_MITO_AI_SEND_CHAT_MESSAGE } from '../../commands';
 
 interface AgentComponentProps {
     websocketClient: CompletionWebsocketClient;
+    app: JupyterFrontEnd;
 }
 
-const AgentComponent = ({ websocketClient }: AgentComponentProps): JSX.Element => {
+const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Element => {
     const [input, setInput] = useState<string | null>(null);
     const [actions, setActions] = useState<string[] | null>(null);
     const [columnSamples, setColumnSamples] = useState<Array<{ name: string, samples: string[] }>>([]);
@@ -69,6 +72,12 @@ const AgentComponent = ({ websocketClient }: AgentComponentProps): JSX.Element =
         }
     }
 
+    const testMe = async () => {
+        await app.commands.execute(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
+            input: "create an array of numbers from 1 to 10"
+        });
+    }
+
     useEffect(() => {
         const fileInput = document.getElementById('fileInput');
         if (fileInput) {
@@ -80,6 +89,7 @@ const AgentComponent = ({ websocketClient }: AgentComponentProps): JSX.Element =
     return (
         <div>
             <h1>Agent</h1>
+            <button onClick={testMe}>Test me</button>
             <textarea id="prompt" placeholder="Enter your prompt here" onChange={(e) => setInput(e.target.value)}></textarea>
             <input type="file" id="fileInput" accept={fileTypes.join(',')} />
             <button onClick={handleSubmit}>Submit</button>
