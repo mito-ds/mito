@@ -352,6 +352,25 @@ test.describe('Mito AI Chat', () => {
     expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
   });
 
+  test('Restore message history', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await waitForIdle(page);
+
+    await clearMitoAIChatHistory(page);
+    await waitForIdle(page);
+
+    await selectCell(page, 0);
+
+    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
+    await waitForIdle(page);
+    await page.waitForTimeout(2000);
+
+    await page.reload();
+    await waitForIdle(page);
+
+    await expect(page.locator('.message-user')).toHaveCount(1);
+    await expect(page.locator('.message-assistant')).toHaveCount(1);
+  });
 });
 
 
