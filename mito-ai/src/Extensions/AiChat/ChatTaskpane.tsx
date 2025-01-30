@@ -394,10 +394,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
-            execute: (args?: ReadonlyPartialJSONObject) => {
+            execute: async (args?: ReadonlyPartialJSONObject) => {
                 if (args?.input) {
-                    sendChatInputMessage(args.input.toString())
+                    await sendChatInputMessage(args.input.toString())
+                    return true
                 }
+                return false
             }
         });
 

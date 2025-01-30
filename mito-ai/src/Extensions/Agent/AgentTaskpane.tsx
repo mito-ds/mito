@@ -72,21 +72,56 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
         }
     }
 
-    const testMe = async () => {
-        // First send the chat message
-        await app.commands.execute(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
-            input: "create an array of numbers from 1 to 5"
-        });
+    // const testMe = async () => {
+    //     // First send the chat message
+    //     await app.commands.execute(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
+    //         input: "create an array of numbers from 1 to 5"
+    //     });
 
-        // Wait a brief moment for the response to be processed.x
-        // You need to have a notebook open for this to work.
-        setTimeout(async () => {
-            // Preview the code
-            await app.commands.execute(COMMAND_MITO_AI_PREVIEW_LATEST_CODE);
-            
-            // Then apply the code
-            await app.commands.execute(COMMAND_MITO_AI_APPLY_LATEST_CODE);
-        }, 1000); // Adjust timeout as needed
+    //     // Wait a brief moment for the response to be processed.x
+    //     // You need to have a notebook open for this to work.
+    //     setTimeout(async () => {
+    //         // Preview the code
+    //         await app.commands.execute(COMMAND_MITO_AI_PREVIEW_LATEST_CODE);
+
+    //         // Then apply the code
+    //         await app.commands.execute(COMMAND_MITO_AI_APPLY_LATEST_CODE);
+    //     }, 1000); // Adjust timeout as needed
+    // }
+
+    const executeActions = async () => {
+        if (!actions) return;
+
+        for (const action of actions) {
+            // Send the action to the chat and wait for response
+            const success = await app.commands.execute(COMMAND_MITO_AI_SEND_CHAT_MESSAGE, {
+                input: action
+            });
+
+            if (!success) {
+                console.error('Failed to send chat message:', action);
+                break; // break out of the loop
+            }
+
+            // Wait for the response to be processed, then preview and apply
+            await new Promise<void>((resolve) => {
+                setTimeout(async () => {
+                    // Preview the code
+                    await app.commands.execute(COMMAND_MITO_AI_PREVIEW_LATEST_CODE);
+
+                    // Then apply the code
+                    await app.commands.execute(COMMAND_MITO_AI_APPLY_LATEST_CODE);
+
+                    // Run the cell
+                    await app.commands.execute("notebook:run-cell");
+
+                    // Add new cell 
+                    await app.commands.execute("notebook:insert-cell-below");
+                    
+                    resolve();
+                }, 1000);
+            });
+        }
     }
 
     useEffect(() => {
@@ -100,7 +135,6 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
     return (
         <div>
             <h1>Agent</h1>
-            <button onClick={testMe}>Test me</button>
             <textarea id="prompt" placeholder="Enter your prompt here" onChange={(e) => setInput(e.target.value)}></textarea>
             <input type="file" id="fileInput" accept={fileTypes.join(',')} />
             <button onClick={handleSubmit}>Submit</button>
@@ -117,6 +151,7 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
                             </ul>
                         </div>
                     )}
+                    <button onClick={executeActions}>Execute Actions</button>
                 </div>
             )}
         </div>
