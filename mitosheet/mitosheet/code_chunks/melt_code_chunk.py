@@ -38,11 +38,13 @@ class MeltCodeChunk(CodeChunk):
         if self.include_value_vars:
             param_string += f', value_vars={get_column_header_list_as_transpiled_code(value_vars)}'
 
-        # First melt the dataframe, then convert dtypes to preserve datetime and other types
-        return [
-            f'{self.new_df_name} = {self.df_name}.melt({param_string})',
-            f'{self.new_df_name}["variable"] = pd.to_datetime({self.new_df_name}["variable"])'
-        ], []
+        code = [f'{self.new_df_name} = {self.df_name}.melt({param_string})']
+        
+        # Only convert to datetime if any of the value_vars are themselves datetime objects
+        if any(isinstance(col, pd.Timestamp) for col in value_vars):
+            code.append(f'{self.new_df_name}["variable"] = pd.to_datetime({self.new_df_name}["variable"])')
+
+        return code, []
     
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.prev_state.dfs)]
