@@ -116,7 +116,7 @@ def test_switch_roles_updates_defaults():
                 'roles': ['NO_PYTEST_TABLE_ACCESS', 'READONLY'],
                 'warehouses': ['SYSTEM$STREAMLIT_NOTEBOOK_WH'],
                 'databases': ['SNOWFLAKE', 'SNOWFLAKE_SAMPLE_DATA'],    
-                'schemas': ['ALERT', 'CORE', 'CORTEX', 'IMAGES', 'INFORMATION_SCHEMA', 'ML', 'NOTIFICATION'],
+                'schemas': ['ALERT', 'CORE', 'CORTEX', 'IMAGES', 'INFORMATION_SCHEMA', 'LOCAL', 'ML', 'NOTIFICATION'],
                 'tables_and_views': [],
                 'columns': []
         },
