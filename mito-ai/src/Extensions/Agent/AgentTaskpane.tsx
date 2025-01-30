@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { UUID } from '@lumino/coreutils';
 import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { COMMAND_MITO_AI_SEND_CHAT_MESSAGE, COMMAND_MITO_AI_PREVIEW_LATEST_CODE, COMMAND_MITO_AI_APPLY_LATEST_CODE } from '../../commands';
+import {
+    COMMAND_MITO_AI_SEND_CHAT_MESSAGE,
+    COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
+    COMMAND_MITO_AI_APPLY_LATEST_CODE,
+    COMMAND_MITO_AI_OPEN_CHAT,
+} from '../../commands';
 
 interface AgentComponentProps {
     websocketClient: CompletionWebsocketClient;
@@ -99,8 +104,10 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
 
         // TODO: 
         // 1. Clear the chat message histry (or start a new chat thread in the future).
-        // 2. Switch over to the ChatTaskpane.
-        // 3. Remove the AgentTaskpane icon.
+        // 2. Remove the AgentTaskpane icon.
+
+        // Open the chat taskpane
+        await app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT);
 
         for (const action of actions) {
             // Send the action to the chat and wait for response
