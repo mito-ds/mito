@@ -6,8 +6,9 @@ import { ISignal, Signal } from '@lumino/signaling';
 import { PanelLayout } from '@lumino/widgets';
 import * as React from 'react';
 import { IMitoCodeCell, MAGIC, MagicLine } from './common';
-import type { ISqlSources } from './sources';
+import type { ISqlSources } from './tokens';
 import { Option, Select, TextField, Toolbar } from '@jupyter/react-components';
+import { find, map } from '@lumino/algorithm';
 
 /**
  * The class of the header.
@@ -136,7 +137,8 @@ class MitoCodeCell extends CodeCell implements IMitoCodeCell {
         if (this._checkSource()) {
           const databaseURL = MagicLine.getDatabaseUrl(this.model);
           const databaseAlias =
-            this._sqlSources.sources.find(db => db === databaseURL) ?? ' - ';
+            find(this._sqlSources, db => db.connectionName === databaseURL)
+              ?.connectionName ?? ' - ';
           this._databaseChanged.emit(databaseAlias);
 
           const variable = MagicLine.getVariable(this.model);
@@ -250,14 +252,17 @@ export class MitoCellHeader
     super();
     this._sqlSources = options.sqlSources;
     this.addClass(HEADER_CLASS);
+    this._sqlSources.changed.connect(this.update, this);
   }
 
   protected render(): JSX.Element | null {
     return this.model ? (
       <Toolbar>
-        <Select scale='xsmall'>
-          {this._sqlSources.sources.map(s => (
-            <Option>{s}</Option>
+        <Select scale="xsmall" value={this.model.database}>
+          {map(this._sqlSources, s => (
+            <Option key={s.connectionName} value={s.connectionName}>
+              {s.connectionName}
+            </Option>
           ))}
         </Select>
         <span>saved to</span>
@@ -265,6 +270,18 @@ export class MitoCellHeader
       </Toolbar>
     ) : null;
   }
+
+  onDatabaseChange = (event: any) => {
+    if (this.model) {
+      this.model.database = event.target.value;
+    }
+  };
+
+  onVariableChange = (event: any) => {
+    if (this.model) {
+      this.model.variableName = event.target.value;
+    }
+  };
 
   /**
    * Set the cell as SQL or not, and displaying the toolbar header.
@@ -275,7 +292,6 @@ export class MitoCellHeader
     if (status) {
       this.model = new SqlModel();
     } else {
-      this.removeClass(HEADER_CLASS);
       this.model = null;
     }
   }
