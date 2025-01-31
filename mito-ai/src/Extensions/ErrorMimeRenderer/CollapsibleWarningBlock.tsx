@@ -8,7 +8,7 @@ export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProp
     const [isExpanded, setIsExpanded] = useState(false);
     const [lastMessage, setLastMessage] = useState('');
 
-    const extractError = (message: string) => {
+    const extractWarning = (message: string) => {
         // Split message into lines
         const lines = message.split('\n');
 
@@ -32,7 +32,7 @@ export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProp
     }
 
     useEffect(() => {
-        const lastMessage = extractError(message);
+        const lastMessage = extractWarning(message);
         setLastMessage(lastMessage || '');
     }, [message]);
 
