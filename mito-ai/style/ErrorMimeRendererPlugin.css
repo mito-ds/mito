@@ -38,3 +38,14 @@
     margin: 0;
 }
 
+.output-block {
+    padding: 10px;
+}
+
+.collapse-button {
+    background-color: transparent;
+    border: none;
+    color: var(--jp-warn-color0);
+    padding: 0;
+    cursor: pointer;
+}

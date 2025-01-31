@@ -40,7 +40,7 @@ export const OutputBlock = ({ message }: OutputBlockProps) => {
         <div className="output-block">
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <pre style={{ margin: 0, display: 'inline' }}>{lastMessage}</pre>
-                <button onClick={() => setIsExpanded(!isExpanded)}>
+                <button className="collapse-button" onClick={() => setIsExpanded(!isExpanded)}>
                     {isExpanded ? 'Show Less' : 'Show More'}
                 </button>
             </span>
