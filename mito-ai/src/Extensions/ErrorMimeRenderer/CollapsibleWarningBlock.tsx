@@ -45,7 +45,11 @@ export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProp
                 <pre style={{ margin: 0, display: 'inline' }}>{lastMessage}</pre>
             </span>
 
-            {isExpanded && <pre style={{ marginTop: '10px' }}>{message}</pre>}
+            {isExpanded &&
+                <div className="output-block-expanded">
+                    <pre style={{ marginTop: '10px' }}>{message}</pre>
+                </div>
+            }
         </div>
     );
 }
