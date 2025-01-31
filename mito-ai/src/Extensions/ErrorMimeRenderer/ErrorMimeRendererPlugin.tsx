@@ -7,7 +7,7 @@ import { Widget } from '@lumino/widgets';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE } from '../../commands';
 import MagicWandIcon from '../../icons/MagicWand';
 import '../../../style/ErrorMimeRendererPlugin.css'
-import { OutputBlock } from './OutputBlock';
+import { CollapsibleWarningBlock } from './CollapsibleWarningBlock';
 
 interface ErrorMessageProps {
     onDebugClick: () => void;
@@ -100,7 +100,7 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
 
             // Render the OutputBlock component
             createRoot(originalNode).render(
-                <OutputBlock message={String(model.data['application/vnd.jupyter.stderr'] || '')} />
+                <CollapsibleWarningBlock message={String(model.data['application/vnd.jupyter.stderr'] || '')} />
             );
         }
 

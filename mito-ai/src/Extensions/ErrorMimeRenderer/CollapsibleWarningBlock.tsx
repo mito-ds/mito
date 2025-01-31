@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-interface OutputBlockProps {
+interface CollapsibleWarningBlockProps {
     message: string;
 }
 
-export const OutputBlock = ({ message }: OutputBlockProps) => {
+export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [lastMessage, setLastMessage] = useState('');
 
