@@ -312,6 +312,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Write to the cell that has the code diffs
         writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellStateBeforeDiff.current.codeCellID)
+
+        // Focus on the active cell after the code is written
+        const notebook = notebookTracker.currentWidget?.content;
+        const activeCell = notebook?.activeCell;
+        if (activeCell) {
+            activeCell.activate();
+        }
     }
 
     const rejectAICode = () => {
