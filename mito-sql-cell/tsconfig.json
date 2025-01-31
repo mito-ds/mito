@@ -20,5 +20,5 @@
     "strictNullChecks": true,
     "target": "ES2018"
   },
-  "include": ["src/*"]
+  "include": ["src/*", "src/databases/templates.json"]
 }
