@@ -42,10 +42,14 @@
     padding: 10px;
 }
 
+.output-block pre {
+    color: var(--yellow-900)!important;
+}
+
 .collapse-button {
     background-color: transparent;
     border: none;
-    color: var(--jp-warn-color0);
+    color: var(--yellow-900);
     padding: 0;
     cursor: pointer;
 }
