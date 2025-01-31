@@ -40,6 +40,8 @@
 
 .output-block {
     padding: 10px;
+    background-color: var(--yellow-500);
+    border-radius: 3px;
 }
 
 .output-block pre {

@@ -89,9 +89,9 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
 
         // Apply styling for warnings
         if (!isErrorMessage) {
-            // Apply background styling to the original node
-            originalNode.style.background = 'var(--yellow-500)';
-            originalNode.style.borderRadius = '3px';
+            // Strip styling, use ErrorMimeRendererPlugin.css
+            originalNode.style.background = 'transparent';
+            originalNode.style.padding = '0px';
 
             // Render the OutputBlock component
             createRoot(originalNode).render(
