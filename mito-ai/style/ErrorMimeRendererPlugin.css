@@ -38,3 +38,20 @@
     margin: 0;
 }
 
+.output-block {
+    padding: 10px;
+    background-color: var(--yellow-500);
+    border-radius: 3px;
+}
+
+.output-block pre {
+    color: var(--yellow-900)!important;
+}
+
+.collapse-button {
+    background-color: transparent;
+    border: none;
+    color: var(--yellow-900);
+    padding: 0;
+    cursor: pointer;
+}
