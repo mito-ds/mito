@@ -28,11 +28,11 @@ test.describe("Mito AI status item", () => {
         },
     });
 
-    test("should show upgrade to pro notification", async ({page, tmpPath}) => {
+    test("should show upgrade to pro notification", async ({ page, tmpPath }) => {
         const replyDone = new PromiseDelegate<void>();
-
+        
+        // Set up WebSocket route BEFORE navigating to the page
         await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
-            
             ws.onMessage((message) => {
                 const payload = JSON.parse(message as string);
                 const messageId = payload.number;
@@ -41,11 +41,11 @@ test.describe("Mito AI status item", () => {
                     payload.metadata.prefix.includes("print") &&
                     payload.stream == false
                 ) {
-                    // Send the fetch message back to the client
+                    // Send the error response in the exact format expected
                     ws.send(JSON.stringify({
-                        type: "inline_completion",
-                        parent_id: '1',
                         items: [],
+                        parent_id: messageId,
+                        type: "inline_completion",
                         error: {
                             type: "error",
                             error_type: "builtins.PermissionError",
@@ -62,12 +62,10 @@ test.describe("Mito AI status item", () => {
         const filename = "notifications.ipynb";
         await page.notebook.createNew(filename);
 
-        console.log("HERE Filling cell");
         await (await page.notebook.getCellLocator(0))!
             .getByRole("textbox")
             .fill("print('hel");
 
-        console.log("HERE Waiting for reply");
         await replyDone.promise;
 
         await expect(page.locator(".jp-toast-message")).toBeVisible();
