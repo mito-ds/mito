@@ -295,6 +295,12 @@ export class MitoAIInlineCompleter
           callback: () => {
             window.open(STRIPE_PAYMENT_LINK, '_blank');
           }
+        },
+        {
+          label: "Learn more",
+          callback: () => {
+            window.open("https://www.trymito.io/plans", '_blank');
+          }
         }
       ]
     });
