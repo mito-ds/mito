@@ -14,6 +14,7 @@ const AgentComponent = ({ websocketClient, app }: AgentComponentProps): JSX.Elem
         <div>
             <h1>Agent</h1>
             <textarea id="prompt" placeholder="Enter your prompt here" onChange={(e) => setInput(e.target.value)}></textarea>
+            <input placeholder="Enter your CSV file path" />
         </div>
     );
 };

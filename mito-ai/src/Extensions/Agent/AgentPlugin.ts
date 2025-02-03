@@ -4,6 +4,8 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { AgentWidget, buildAgentWidget } from './AgentWidget';
 import { COMMAND_MITO_AI_OPEN_AGENT } from '../../commands';
+import { MainAreaWidget } from '@jupyterlab/apputils';
+import InstructionsWidget from './InstructionsWidget';
 
 const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     id: 'mito-ai:agent',
@@ -16,8 +18,6 @@ const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         launcher: ILauncher,
         restorer: ILayoutRestorer | null
     ) => {
-        console.log('mito-ai: AgentPlugin activated');
-
         // Define a widget creator function,
         // then call it to make a new widget
         const newWidget = () => {
@@ -28,7 +28,19 @@ const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
             return agentWidget;
         };
 
+        // Add a function to create the instructions widget
+        const createInstructionsWidget = () => {
+            // You'll need to create and import this component
+            const content = new InstructionsWidget();
+            const widget = new MainAreaWidget({ content });
+            widget.id = 'mito-ai-instructions';
+            widget.title.label = 'Mito AI Instructions';
+            widget.title.closable = true;
+            return widget;
+        };
+
         let widget = newWidget();
+        let instructionsWidget: MainAreaWidget<InstructionsWidget> | null = null;
 
         // Add the command to the command registry
         app.commands.addCommand(COMMAND_MITO_AI_OPEN_AGENT, {
@@ -56,10 +68,18 @@ const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
                     app.shell.add(widget, 'left', { rank: 2000 });
                 }
 
+                // Handle the instructions widget
+                if (!instructionsWidget || instructionsWidget.isDisposed) {
+                    instructionsWidget = createInstructionsWidget();
+                }
+                if (!instructionsWidget.isAttached) {
+                    app.shell.add(instructionsWidget, 'main');
+                }
+
                 // Now that the widget is potentially accessible, activating the
                 // widget opens the taskpane
                 app.shell.activateById(widget.id);
-
+                app.shell.activateById(instructionsWidget.id);
 
                 // If the command is called with focus on chat input set to false, 
                 // don't focus. This is useful when we don't want to active cell 
