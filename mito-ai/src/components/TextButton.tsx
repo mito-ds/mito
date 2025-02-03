@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/TextAndIconButton.css';
+import '../../style/TextButton.css';
 import '../../style/button.css';
 import { classNames } from '../utils/classNames';
 
@@ -19,7 +19,7 @@ const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant, 
 
     return (
         <button className={classNames(
-            "text-button", 
+            "text-button-mito-ai", 
             "button-base",
             `button-${variant}`,
             `button-width-${width}`
