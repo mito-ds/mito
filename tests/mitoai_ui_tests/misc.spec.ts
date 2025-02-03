@@ -10,7 +10,7 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 
 
-test.only('Make sure collapsed warnings can be read', async ({ page }) => {
+test('Make sure collapsed warnings can be read', async ({ page }) => {
     const warningMessage = 'This is a warning message.';
 
     await createAndRunNotebookWithCells(page, [`import warnings\nwarnings.warn("${warningMessage}")`]);
