@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface CollapsibleWarningBlockProps {
     message: string;
@@ -6,17 +6,9 @@ interface CollapsibleWarningBlockProps {
 
 export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [warningCount, setWarningCount] = useState(0);
 
-    const countWarnings = (message: string) => {
-        const lines = message.split('\n');
-        const warningCount = lines.filter(line => line.includes("Warning: ")).length;
-        setWarningCount(warningCount);
-    }
-
-    useEffect(() => {
-        countWarnings(message);
-    }, [message]);
+    const lines = message.split('\n');
+    const warningCount = lines.filter(line => line.includes("Warning: ")).length;
 
     return (
         <div className="output-block">
