@@ -125,7 +125,7 @@ class StatusItem extends ReactWidget {
         small
         title="Mito AI Status"
       >
-        <NucleusLabIcon.react tag={'span'} stylesheet={'statusBar'} />
+        Mito AI &nbsp; <NucleusLabIcon.react tag={'span'} stylesheet={'statusBar'} />
       </Button>
     );
   }
