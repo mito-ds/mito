@@ -288,7 +288,7 @@ export class MitoAIInlineCompleter
   }
 
   private _notifyFreeTierLimitReached() {
-    Notification.emit(`Your Mito AI free trial ended. Upgrade to Mito Pro to access advanced models and continue using Mito AI. Or supply your own key.`, 'error', {
+    Notification.emit(`Your Mito AI free trial ended. Upgrade to Mito Pro to access advanced models and continue using Mito AI or supply your own key.`, 'error', {
       autoClose: false,
       actions: [
         {
