@@ -10,6 +10,7 @@ import PythonCode from './PythonCode';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
+import AutoResizingTextArea from '../../../components/AutoResizingTextArea';
 
 interface ChatInputProps {
     initialContent: string;
@@ -39,7 +40,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
-    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const [isFocused, setIsFocused] = useState(false);
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -67,27 +67,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     
     }, [notebookTracker, activeCellID, debouncedSetActiveCellID]);
 
-    // TextAreas cannot automatically adjust their height based on the content that they contain, 
-    // so instead we re-adjust the height as the content changes here. 
-    const adjustHeight = (resetHeight: boolean = false) => {
-        const textarea = textAreaRef?.current;
-        if (!textarea) return;
-
-        textarea.style.minHeight = 'auto';
-        textarea.style.height = !textarea.value || resetHeight
-            ? '80px' 
-            : `${Math.max(80, textarea.scrollHeight)}px`;
-    };
-
-    useEffect(() => {
-        adjustHeight();
-    }, [textAreaRef?.current?.value]);
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const value = event.target.value;
+    const handleInputChange = (value: string) => {
         setInput(value);
 
-        const cursorPosition = event.target.selectionStart;
+        const textArea = document.activeElement as HTMLTextAreaElement;
+        const cursorPosition = textArea.selectionStart;
         const textBeforeCursor = value.slice(0, cursorPosition);
         const words = textBeforeCursor.split(/\s+/);
         const currentWord = words[words.length - 1];
@@ -103,9 +87,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const handleOptionSelect = (variableName: string, parentDf?: string) => {
-        const textarea = textAreaRef.current;
-        if (!textarea) return;
-
+        const textarea = document.activeElement as HTMLTextAreaElement;
         const cursorPosition = textarea.selectionStart;
         const textBeforeCursor = input.slice(0, cursorPosition);
         const atIndex = textBeforeCursor.lastIndexOf("@");
@@ -129,11 +111,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
         // After updating the input value, set the cursor position after the inserted variable name
         // We use setTimeout to ensure this happens after React's state update
         setTimeout(() => {
-            if (textarea) {
-                const newCursorPosition = atIndex + variableNameWithBackticks.length;
-                textarea.focus();
-                textarea.setSelectionRange(newCursorPosition, newCursorPosition);
-            }
+            const newCursorPosition = atIndex + variableNameWithBackticks.length;
+            textarea.focus();
+            textarea.setSelectionRange(newCursorPosition, newCursorPosition);
         }, 0);
     };
 
@@ -185,19 +165,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 </div>
             }
             
-            {/* 
-                Create a relative container for the text area and the dropdown so that when we 
-                render the dropdown, it is relative to the text area instead of the entire 
-                div. We do this so that the dropdown sits on top of (ie: covering) the code 
-                preview instead of sitting higher up the taskpane.
-            */}
             <div style={{ position: 'relative', height: 'min-content'}}>
-                <textarea
-                    ref={textAreaRef}
-                    className={classNames("message", "message-user", 'chat-input')}
+                <AutoResizingTextArea
+                    initialContent={input}
                     placeholder={placeholder}
-                    value={input}
                     onChange={handleInputChange}
+                    onSave={(content) => {
+                        onSave(content);
+                        setInput('');
+                        setIsFocused(false);
+                    }}
+                    onCancel={onCancel}
                     onKeyDown={(e) => {
                         // If dropdown is visible, only handle escape to close it
                         if (isDropdownVisible) {
@@ -205,28 +183,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                 e.preventDefault();
                                 setDropdownVisible(false);
                             }
+                            // Prevent default key handling when dropdown is visible
+                            e.preventDefault();
                             return;
-                        }
-
-                        // Enter key sends the message, but we still want to allow 
-                        // shift + enter to add a new line.
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            adjustHeight(true)
-                            onSave(input)
-                            setInput('')
-                            setIsFocused(false)
-                        }
-                        // Escape key cancels editing
-                        if (e.key === 'Escape') {
-                            e.preventDefault();
-                            if (onCancel) {
-                                onCancel();
-                            }
                         }
                     }}
                 />
-                {isDropdownVisible  && (
+                {isDropdownVisible && (
                     <ChatDropdown
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
