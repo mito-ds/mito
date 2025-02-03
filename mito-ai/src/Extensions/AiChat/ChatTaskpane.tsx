@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
+import '../../../style/button.css';
+import '../../../style/TextButton.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -405,7 +407,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE, {
             label: `Accept ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
-            className: 'text-button button-green small',
+            className: 'text-button-mito-ai button-base button-green',
             caption: 'Accept Code',
             execute: () => {acceptAICode()},
             // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
@@ -421,7 +423,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
             label: `Reject ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`,
-            className: 'text-button button-red small',
+            className: 'text-button-mito-ai button-base button-red',
             caption: 'Reject Code',
             execute: () => {rejectAICode()},
             isVisible: () => {

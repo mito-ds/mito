@@ -11,7 +11,7 @@
     font-size: 14px;
     /* Make sure the button grows large enough so that the text does not wrap */
     white-space: nowrap;
-    padding: 5px;
+    padding: 5px 10px;
 }
 
 .button-green {
