@@ -25,7 +25,7 @@ test.describe("Mito AI status item", () => {
     },
   });
 
-  test.only("should show the AI provider capabilities", async ({
+  test("should show the AI provider capabilities", async ({
     page,
     tmpPath,
   }) => {
@@ -57,7 +57,7 @@ test.describe("Mito AI status item", () => {
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Mito server")
   });
 
-  test.only("should show upgrade to pro message and button", async ({ page, tmpPath }) => {
+  test("should show upgrade to pro message and button", async ({ page, tmpPath }) => {
     // Mock provider capabilities
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
       // Send capabilities after a delay to simulate a real server
@@ -84,7 +84,7 @@ test.describe("Mito AI status item", () => {
     await expect(page.locator(".mito-ai-status-popup").locator(".button-base")).toContainText("Upgrade to Pro")
   })
 
-  test.only("should show the latest error", async ({ page, tmpPath }) => {
+  test("should show the latest error", async ({ page, tmpPath }) => {
 
     // Mock provider sending an error
     await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
@@ -126,7 +126,7 @@ test.describe("Mito AI status item", () => {
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Try again with a valid API key")
   });
 
-  test.only("should show error if server endpoint returns 404", async ({
+  test("should show error if server endpoint returns 404", async ({
     page,
     tmpPath,
   }) => {
