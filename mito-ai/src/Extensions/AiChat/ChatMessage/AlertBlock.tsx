@@ -1,5 +1,4 @@
 import React from 'react';
-import ErrorIcon from '../../../icons/ErrorIcon';
 import TextButton from '../../../components/TextButton';
 
 
@@ -16,7 +15,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
         return (
             <div className="chat-message-alert">
                 <p>
-                    ⚠ Your Mito AI free trial has ended. To continue using Mito AI, upgrade to <a href="https://www.trymito.io/plans" target="_blank">Mito Pro</a> and get access to:
+                    Your Mito AI free trial has ended. To continue using Mito AI, upgrade to <a href="https://www.trymito.io/plans" target="_blank">Mito Pro</a> and get access to:
                 </p>
                 <ul>
                     <li>Unlimited AI Completions</li>
@@ -31,7 +30,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
                     onClick={() => {
                         window.open("https://www.trymito.io/plans", '_blank');
                     }}
-                    variant="gray"
+                    variant="purple"
                     width="block"
                 />
             </div>
@@ -40,7 +39,6 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
 
     return (
         <div className="chat-message-alert">
-            <span style={{ marginRight: '4px' }}><ErrorIcon /></span>
             {content}
         </div>
     );

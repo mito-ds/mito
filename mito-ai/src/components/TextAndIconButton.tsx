@@ -14,7 +14,7 @@ const TextAndIconButton: React.FC<TextAndIconButtonProps> = ({ text, icon: Icon,
     return (
         <button className={classNames(
                 'text-and-icon-button',
-                'button',
+                'button-base',
                 `button-${variant}`,
                 `button-width-fit-contents`
             )} onClick={onClick} title={title}>

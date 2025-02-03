@@ -4,7 +4,7 @@
     textAndIconButton green.
 */
 
-.button {
+.button-base {
     border: none;
     border-radius: 3px;
     cursor: pointer;
@@ -39,6 +39,15 @@
 
 .button-gray:hover {
     background-color: var(--jp-layout-color3);
+}
+
+.button-purple {
+    background-color: var(--purple-700);
+    color: white !important;
+}
+
+.button-purple:hover {
+    background-color: var(--purple-600);
 }
 
 .button-width-block {

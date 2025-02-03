@@ -8,7 +8,7 @@ export interface ButtonProps {
     text: string;
     onClick: () => void;
     title: string;
-    variant: 'green' | 'red' | 'gray';
+    variant: 'green' | 'red' | 'gray' | 'purple';
     width: 'block' | 'fit-contents';
 }
 
@@ -20,7 +20,7 @@ const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant, 
     return (
         <button className={classNames(
             "text-button", 
-            "button",
+            "button-base",
             `button-${variant}`,
             `button-width-${width}`
         )} onClick={onClick} title={title}>
