@@ -323,7 +323,11 @@ export class MitoAIInlineCompleter
     _emitter: CompletionWebsocketClient,
     chunk: ICompletionStreamChunk
   ) {
-    if (chunk.error) {
+
+    if (chunk.error?.title === "mito_server_free_tier_limit_reached") {
+      this._notifyFreeTierLimitReached();
+      this._displayed_free_tier_limit_reached_notification = true;
+    } else if (chunk.error) {
       this._notifyCompletionFailure(chunk.error);
     }
 
