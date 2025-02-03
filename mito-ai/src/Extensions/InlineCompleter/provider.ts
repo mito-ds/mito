@@ -23,6 +23,7 @@ import type {
 } from '../../utils/websocket/models';
 import { IChatMessageMetadata } from '../AiChat/ChatHistoryManager';
 import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
+import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 
 /**
  * Mito AI inline completer
@@ -203,7 +204,7 @@ export class MitoAIInlineCompleter
       }
 
       const error = result.error;
-      if (error?.title === "mito_server_free_tier_limit_reached") {
+      if (error?.title === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
         if (!this._displayed_free_tier_limit_reached_notification) {
           this._notifyFreeTierLimitReached();
           this._displayed_free_tier_limit_reached_notification = true;
@@ -330,7 +331,7 @@ export class MitoAIInlineCompleter
     chunk: ICompletionStreamChunk
   ) {
 
-    if (chunk.error?.title === "mito_server_free_tier_limit_reached") {
+    if (chunk.error?.title === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
       this._notifyFreeTierLimitReached();
       this._displayed_free_tier_limit_reached_notification = true;
     } else if (chunk.error) {

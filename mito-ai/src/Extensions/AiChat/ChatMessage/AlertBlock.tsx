@@ -1,5 +1,6 @@
 import React from 'react';
 import TextButton from '../../../components/TextButton';
+import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../../utils/errors';
 
 
 interface IAlertBlockProps {
@@ -11,7 +12,7 @@ interface IAlertBlockProps {
 
 const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionErrorType }) => {
 
-    if (mitoAIConnectionErrorType === "mito_server_free_tier_limit_reached") {
+    if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
         return (
             <div className="chat-message-alert">
                 <p>
