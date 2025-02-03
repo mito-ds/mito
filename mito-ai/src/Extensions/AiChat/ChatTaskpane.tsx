@@ -79,6 +79,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
+    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+
     useEffect(() => {
       // Check that the websocket client is ready
       // and display the error if it is not.
@@ -206,6 +208,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
         sendChatInputMessage(newContent, messageIndex)
     };
+
+    const sendAgentMessage = async (message: string) => {
+        console.log('Sending agent message: ', message)
+    }
 
     const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager) => {
         setLoadingAIResponse(true)        
@@ -525,6 +531,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-taskpane-header">
                 <IconButton
                     icon={<SupportIcon />}
+                    title="Enter Agent Mode"
+                    onClick={() => { setAgentModeEnabled(!agentModeEnabled) }}
+                />
+                <IconButton
+                    icon={<SupportIcon />}
                     title="Get Help"
                     onClick={() => {
                         window.open('mailto:founders@sagacollab.com?subject=Mito AI Chat Support', '_blank');
@@ -585,13 +596,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <ChatInput
                 initialContent={''}
                 placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
-                onSave={sendChatInputMessage}
+                onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
                 onCancel={undefined}
                 isEditing={false}
                 variableManager={variableManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
             />
+            {agentModeEnabled &&
+                <div className="agent-mode-container">
+                    <input placeholder="Enter your CSV file path" className="chat-input chat-input-container"/>
+                </div>
+            }
         </div>
     );
 };
