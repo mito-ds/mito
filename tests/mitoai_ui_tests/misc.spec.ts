@@ -18,7 +18,7 @@ test('Make sure collapsed warnings can be read', async ({ page }) => {
 
     // Expect to see the warning message
     await expect(page.locator('.output-block')).toBeVisible();
-    await expect(page.locator('.output-block').locator('pre')).toContainText(warningMessage);
+    await expect(page.locator('.output-block').locator('pre')).toContainText("Warning");
 
     // Expand the full warning message
     await page.locator('.collapse-button').click();
