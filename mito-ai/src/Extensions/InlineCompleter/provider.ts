@@ -22,6 +22,7 @@ import type {
   InlineCompletionStreamChunk
 } from '../../utils/websocket/models';
 import { IChatMessageMetadata } from '../AiChat/ChatHistoryManager';
+import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
 
 /**
  * Mito AI inline completer
@@ -144,6 +145,7 @@ export class MitoAIInlineCompleter
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    console.log("HERE")
     if (!this.isEnabled()) {
       return Promise.reject('Mito AI completion is disabled.');
     }
@@ -201,7 +203,11 @@ export class MitoAIInlineCompleter
       }
 
       const error = result.error;
-      if (error) {
+      console.log("HERE")
+      console.log(error)
+      if (error?.title === "mito_server_free_tier_limit_reached") {
+        this._notifyFreeTierLimitReached();
+      } else if (error) {
         this._notifyCompletionFailure(error);
         throw new Error(
           `Inline completion failed: ${error.error_type}\n${error.traceback}`
@@ -277,6 +283,20 @@ export class MitoAIInlineCompleter
    */
   private _getSuffix(request: CompletionHandler.IRequest): string {
     return request.text.slice(request.offset);
+  }
+
+  private _notifyFreeTierLimitReached() {
+    Notification.emit(`Your Mito AI free trial ended. Upgrade to Mito Pro to access advanced models and continue using Mito AI. Or supply your own key.`, 'error', {
+      autoClose: false,
+      actions: [
+        {
+          label: 'Upgrade to Mito Pro',
+          callback: () => {
+            window.open(STRIPE_PAYMENT_LINK, '_blank');
+          }
+        }
+      ]
+    });
   }
 
   private _notifyCompletionFailure(error: CompletionError) {
