@@ -67,28 +67,29 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
      * Render the original error message and append the custom prompt.
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        // Determine if it's an error or a warning
+        // Determine if it's an error or a warning. 
+        // An error has:     'application/vnd.jupyter.error' 
+        // A warning has:    'application/vnd.jupyter.stderr'
         const isErrorMessage = 'application/vnd.jupyter.error' in model.data;
 
         // Create the container for the custom UI elements
         const resolveInChatDiv = document.createElement('div');
+
+        const originalNode = this.originalRenderer.node;
 
         // Only show the Fix Error in AI Chat button if it is an error, not a warning
         if (isErrorMessage) {
             createRoot(resolveInChatDiv).render(
                 <ErrorMessage onDebugClick={() => this.openChatInterfaceWithError(model)} />
             );
-        }
 
-        // Append the chat container before rendering the original output
-        this.node.appendChild(resolveInChatDiv);
-        
-        // Render the original content
-        await this.originalRenderer.renderModel(model);
-        const originalNode = this.originalRenderer.node;
-
-        // Apply styling for warnings
-        if (!isErrorMessage) {
+            // Append the chat container before rendering the original output
+            this.node.appendChild(resolveInChatDiv);
+            
+            // Render the original content
+            await this.originalRenderer.renderModel(model);
+        } else {
+            // Apply styling for warnings
             // Strip styling, use ErrorMimeRendererPlugin.css
             originalNode.style.background = 'transparent';
             originalNode.style.padding = '0px';
