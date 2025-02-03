@@ -34,25 +34,25 @@ export class MitoAIInlineCompleter
   private _client: CompletionWebsocketClient;
   private _counter = 0;
   private _isDisposed = false;
-  private _settings: MitoAIInlineCompleter.ISettings =
-    MitoAIInlineCompleter.DEFAULT_SETTINGS;
+  private _settings: MitoAIInlineCompleter.ISettings = MitoAIInlineCompleter.DEFAULT_SETTINGS;
+  
   // Store only one inline completion stream
-  //   Each new request should invalidate any other suggestions.
+  // Each new request should invalidate any other suggestions.
   private _currentToken = '';
-  private _currentStream: Stream<
-    MitoAIInlineCompleter,
-    InlineCompletionStreamChunk
-  > | null = null;
+  private _currentStream: Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk> | null = null;
+  
   /**
    * Block processing chunks while waiting for the acknowledge request
    * that will provide the unique completion token.
    */
   private _completionLock = new PromiseDelegate<void>();
-  private _fullCompletionMap = new WeakMap<
-    Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>,
-    string
-  >();
+  private _fullCompletionMap = new WeakMap<Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>, string>();
   private _variableManager: IVariableManager;
+
+  // We only want to display the free tier limit reached notification once 
+  // per session to avoid spamming the user. 
+  private _displayed_free_tier_limit_reached_notification = false;
+
 
   constructor({
     serverSettings,
@@ -203,10 +203,11 @@ export class MitoAIInlineCompleter
       }
 
       const error = result.error;
-      console.log("HERE")
-      console.log(error)
       if (error?.title === "mito_server_free_tier_limit_reached") {
-        this._notifyFreeTierLimitReached();
+        if (!this._displayed_free_tier_limit_reached_notification) {
+          this._notifyFreeTierLimitReached();
+          this._displayed_free_tier_limit_reached_notification = true;
+        }
       } else if (error) {
         this._notifyCompletionFailure(error);
         throw new Error(
