@@ -134,6 +134,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
         elif type == "smartDebug":
             prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
+        elif type == "agent":
+            print("Agent message: ", metadata_dict)
 
         new_message = {
             "role": "user", 

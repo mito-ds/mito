@@ -211,6 +211,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const sendAgentMessage = async (message: string) => {
         console.log('Sending agent message: ', message)
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
+        // Step 1: Clear the chat history, and add the new error message
+        const newChatHistoryManager = clearChatHistory()
+        const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
+        setChatHistoryManager(newChatHistoryManager)
+        console.log('outgoingMessage: ', outgoingMessage)
+
+        // Step 2: Send the message to the AI
+        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
     }
 
     const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager) => {
