@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import '../../../style/taskpane.css';
 import '../../../style/ChatTaskpane.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
@@ -521,7 +522,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()    
 
     return (
-        <div className="chat-taskpane">
+        <div className="taskpane chat-taskpane">
             <div className="chat-taskpane-header">
                 <IconButton
                     icon={<SupportIcon />}

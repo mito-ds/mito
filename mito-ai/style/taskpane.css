@@ -1,0 +1,25 @@
+/* 
+These are genereal styles that can be found across all of the taskpanes. 
+However, individual taskpanes may require their own styles, for example, ChatTaskpane.css
+*/
+
+.taskpane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--chat-background-color) !important;
+    --jp-sidebar-min-width: 350px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: scroll;
+
+    /* 
+        Don't set padding on top from the taskpane so we can instead
+        set the padding on the chat-taskpane-header instead to make 
+        sure the sticky header covers all of the content behind it. 
+    */
+    padding-top: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
