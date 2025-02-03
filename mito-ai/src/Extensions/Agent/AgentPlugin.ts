@@ -1,4 +1,3 @@
-
 import { ILayoutRestorer, JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { WidgetTracker } from '@jupyterlab/apputils';
 import { ILauncher } from '@jupyterlab/launcher';
@@ -17,7 +16,7 @@ const AgentPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         launcher: ILauncher,
         restorer: ILayoutRestorer | null
     ) => {
-        console.log('AgentPlugin activated');
+        console.log('mito-ai: AgentPlugin activated');
 
         // Define a widget creator function,
         // then call it to make a new widget
