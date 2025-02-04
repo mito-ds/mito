@@ -54,7 +54,7 @@ class SmartDebugMessageBuilder:
     
     @property
     def model(self) -> str:
-        return "o3-mini"
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
 class CodeExplainMessageBuilder:
@@ -67,7 +67,7 @@ class CodeExplainMessageBuilder:
     
     @property
     def model(self) -> str:
-        return "o3-mini"
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
 class InlineCompletionMessageBuilder:
