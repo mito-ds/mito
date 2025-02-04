@@ -93,11 +93,11 @@ async def get_ai_completion_from_mito_server(
     return content.get("completion", "")
 
 
-def get_open_ai_completion_function_params(model: str, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+def get_open_ai_completion_function_params(model: str, messages: List[Dict[str, Any]], stream: bool) -> Dict[str, Any]:
     
     completion_function_params = {
         "model": model,
-        "stream": True,
+        "stream": stream,
         "messages": messages,
     }
     
