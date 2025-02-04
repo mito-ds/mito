@@ -216,21 +216,15 @@ This attribute is observed by the websocket provider to push the error to the cl
         self.last_error = None
         try:
             if self._openAI_sync_client:
-                self.log.debug("HERE!")
-                self.log.debug(
-                    "Requesting completion from OpenAI API with personal key."
-                )
+                self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
                 # Validate that the model is supported. If not fall back to gpt-4o-mini
                 if model not in self.models:
                     model = "gpt-4o-mini"
 
-                self.log.debug(f"Requesting completion from OpenAI API with model: {model}")
                 completion_function_params = get_open_ai_completion_function_params(model, request.messages, stream=False)
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-                
-                self.log.debug(f"Completion: {completion.choices[0].message.content}")
-                
+                                
                 # Log the successful completion
                 log_ai_completion_success(
                     key_type=USER_KEY,
@@ -238,40 +232,19 @@ This attribute is observed by the websocket provider to push the error to the cl
                     last_message_content=str(request.messages[-1].get('content', '')),
                     response={"completion": completion.choices[0].message.content},
                 )
-                
 
-                # Just perform an extra safe check here to make sure that the completion is not empty.
-                if len(completion.choices) == 0:
-                    return CompletionReply(
-                        items=[],
-                        parent_id=request.message_id,
-                        error=CompletionError(
-                            error_type="NoCompletion",
-                            title="No completion returned from the OpenAI API.",
-                            traceback="",
-                        ),
-                    )
-                else:
-                    try:
-                        return CompletionReply(
-                            parent_id=request.message_id,
-                            items=[
-                                CompletionItem(
-                                    content=completion.choices[0].message.content or "",
-                                    isIncomplete=False,
-                                )
-                            ],
+                return CompletionReply(
+                    parent_id=request.message_id,
+                    items=[
+                        CompletionItem(
+                            content=completion.choices[0].message.content or "",
+                            isIncomplete=False,
                         )
-                    except BaseException as e:
-                        return CompletionReply(
-                            items=[],
-                            parent_id=request.message_id,
-                            error=CompletionError.from_exception(e),
-                        )
-
+                    ],
+                )
             else:
                 # If they don't have an Open AI key, use the mito server to get a completion
-                self.log.debug("Requesting completion from Mito server.")
+                self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 global _num_usages
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
@@ -285,7 +258,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
 
                 # Increment the number of usages for everything EXCEPT inline completions.
-                # Inline completions are limited to 30 days, not number of usages.
                 if prompt_type != "inline_completion":
                     _num_usages = (_num_usages or 0) + 1
                     set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
@@ -308,11 +280,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                         )
                     ],
                 )
+
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
-            raise
+
 
     async def stream_completions(
         self, request: CompletionRequest, prompt_type: str, model: str

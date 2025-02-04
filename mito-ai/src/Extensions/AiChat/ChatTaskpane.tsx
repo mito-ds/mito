@@ -581,7 +581,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }).filter(message => message !== null)}
                 {loadingAIResponse &&
                     <div className="chat-loading-message">
-                        Loading AI Response <LoadingDots />
+                        Thinking <LoadingDots />
                     </div>
                 }
             </div>
