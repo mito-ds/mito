@@ -16,16 +16,16 @@ from openai.types.chat import ChatCompletionMessageParam
 from .logger import get_logger
 from .models import (
     AllIncomingMessageTypes,
+    CodeExplainMessageBuilder,
     CompletionError,
     CompletionItem,
     CompletionReply,
     CompletionRequest,
     CompletionStreamChunk,
     ErrorMessage,
-    ChatMessageMetadata,
-    SmartDebugMessageMetadata,
-    CodeExplainMessageMetadata,
-    InlineCompletionMessageMetadata,
+    ChatMessageBuilder,
+    InlineCompletionMessageBuilder,
+    SmartDebugMessageBuilder,
 )
 from .providers import OpenAIProvider
 from .utils.create import initialize_user
@@ -121,11 +121,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Generate new message based on message type
         if type == "inline_completion":
-            inlineCompletionPromptBuilder = InlineCompletionMessageMetadata(**metadata_dict)
+            inlineCompletionPromptBuilder = InlineCompletionMessageBuilder(**metadata_dict)
             prompt = inlineCompletionPromptBuilder.prompt
             model = inlineCompletionPromptBuilder.model
         elif type == "chat":
-            chatMessagePromptBuilder = ChatMessageMetadata(**metadata_dict)
+            chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
             prompt = chatMessagePromptBuilder.prompt
             model = chatMessagePromptBuilder.model
 
@@ -134,11 +134,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 self.full_message_history = self.full_message_history[:chatMessagePromptBuilder.index]
 
         elif type == "codeExplain":
-            codeExplainPromptBuilder = CodeExplainMessageMetadata(**metadata_dict)
+            codeExplainPromptBuilder = CodeExplainMessageBuilder(**metadata_dict)
             prompt = codeExplainPromptBuilder.prompt
             model = codeExplainPromptBuilder.model
         elif type == "smartDebug":
-            smartDebugPromptBuilder = SmartDebugMessageMetadata(**metadata_dict)
+            smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
             prompt = smartDebugPromptBuilder.prompt
             model = smartDebugPromptBuilder.model
         else:

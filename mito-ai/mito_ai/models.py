@@ -28,7 +28,7 @@ class AICapabilities:
     """Message type."""
 
 @dataclass(frozen=True)
-class ChatMessageMetadata:
+class ChatMessageBuilder:
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     input: Optional[str] = None
@@ -43,7 +43,7 @@ class ChatMessageMetadata:
         return "o3-mini"
 
 @dataclass(frozen=True)
-class SmartDebugMessageMetadata:
+class SmartDebugMessageBuilder:
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     errorMessage: Optional[str] = None
@@ -57,7 +57,7 @@ class SmartDebugMessageMetadata:
         return "o3-mini"
 
 @dataclass(frozen=True)
-class CodeExplainMessageMetadata:
+class CodeExplainMessageBuilder:
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
 
@@ -70,7 +70,7 @@ class CodeExplainMessageMetadata:
         return "o3-mini"
 
 @dataclass(frozen=True)
-class InlineCompletionMessageMetadata:
+class InlineCompletionMessageBuilder:
     prefix: Optional[str] = None
     suffix: Optional[str] = None
     variables: Optional[List[str]] = None
