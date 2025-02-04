@@ -39,8 +39,12 @@ class ChatMessageBuilder:
         return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
     
     @property
-    def model(self) -> str:
+    def pro_model(self) -> str:
         return "o3-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
 class SmartDebugMessageBuilder:
@@ -53,7 +57,11 @@ class SmartDebugMessageBuilder:
         return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
     
     @property
-    def model(self) -> str:
+    def pro_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    @property
+    def os_model(self) -> str:
         return "gpt-4o-mini"
 
 @dataclass(frozen=True)
@@ -66,7 +74,11 @@ class CodeExplainMessageBuilder:
         return create_explain_code_prompt(self.activeCellCode or '')
     
     @property
-    def model(self) -> str:
+    def pro_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    @property
+    def os_model(self) -> str:
         return "gpt-4o-mini"
 
 @dataclass(frozen=True)
@@ -80,7 +92,11 @@ class InlineCompletionMessageBuilder:
         return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
     
     @property
-    def model(self) -> str:
+    def pro_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    @property
+    def os_model(self) -> str:
         return "gpt-4o-mini"
 
 @dataclass(frozen=True)

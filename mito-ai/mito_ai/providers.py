@@ -9,8 +9,8 @@ from openai.types.chat import ChatCompletionChunk
 from traitlets import CFloat, CInt, Instance, TraitError, Unicode, default, validate, List
 from traitlets.config import LoggingConfigurable
 
-from .logger import get_logger
-from .models import (
+from mito_ai.logger import get_logger
+from mito_ai.models import (
     AICapabilities,
     CompletionError,
     CompletionItem,
@@ -19,14 +19,15 @@ from .models import (
     CompletionRequest,
     CompletionStreamChunk,
 )
-from .utils.db import get_user_field, set_user_field
-from .utils.open_ai_utils import (
+from mito_ai.utils.db import get_user_field, set_user_field
+from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,
 )
-from .utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
-from .utils.telemetry_utils import (
+
+from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
+from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
     MITO_SERVER_KEY,
@@ -63,7 +64,7 @@ class OpenAIProvider(LoggingConfigurable):
 
 This attribute is observed by the websocket provider to push the error to the client.""",
     )
-    
+
     def __init__(self, **kwargs) -> None:
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None

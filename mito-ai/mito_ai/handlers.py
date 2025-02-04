@@ -13,8 +13,8 @@ from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
 from openai.types.chat import ChatCompletionMessageParam
 
-from .logger import get_logger
-from .models import (
+from mito_ai.logger import get_logger
+from mito_ai.models import (
     AllIncomingMessageTypes,
     CodeExplainMessageBuilder,
     CompletionError,
@@ -27,8 +27,9 @@ from .models import (
     InlineCompletionMessageBuilder,
     SmartDebugMessageBuilder,
 )
-from .providers import OpenAIProvider
-from .utils.create import initialize_user
+from mito_ai.providers import OpenAIProvider
+from mito_ai.utils.create import initialize_user
+from mito_ai.utils.version_utils import is_pro
 
 __all__ = ["CompletionHandler"]
 
@@ -45,6 +46,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
         self.full_message_history = []
+        self.is_pro = is_pro()
 
     @property
     def log(self) -> logging.Logger:
@@ -123,11 +125,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == "inline_completion":
             inlineCompletionPromptBuilder = InlineCompletionMessageBuilder(**metadata_dict)
             prompt = inlineCompletionPromptBuilder.prompt
-            model = inlineCompletionPromptBuilder.model
+            model = inlineCompletionPromptBuilder.pro_model if self.is_pro else inlineCompletionPromptBuilder.os_model
         elif type == "chat":
             chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
             prompt = chatMessagePromptBuilder.prompt
-            model = chatMessagePromptBuilder.model
+            model = chatMessagePromptBuilder.pro_model if self.is_pro else chatMessagePromptBuilder.os_model
 
             if chatMessagePromptBuilder.index is not None:
                 # Clear the chat history after the specified index (inclusive)
@@ -136,11 +138,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         elif type == "codeExplain":
             codeExplainPromptBuilder = CodeExplainMessageBuilder(**metadata_dict)
             prompt = codeExplainPromptBuilder.prompt
-            model = codeExplainPromptBuilder.model
+            model = codeExplainPromptBuilder.pro_model if self.is_pro else codeExplainPromptBuilder.os_model
         elif type == "smartDebug":
             smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
             prompt = smartDebugPromptBuilder.prompt
-            model = smartDebugPromptBuilder.model
+            model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
         else:
             raise ValueError(f"Invalid message type: {type}")
 
