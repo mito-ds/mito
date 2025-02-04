@@ -47,6 +47,25 @@ class OpenAIProvider(LoggingConfigurable):
         config=True,
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
+    
+    max_completion_tokens = CInt(
+        None,
+        allow_none=True,
+        config=True,
+        help="An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
+    )
+    
+    model = Unicode(
+        "gpt-4o-mini", config=True, help="OpenAI model to use for completions"
+    )
+    
+    last_error = Instance(
+        CompletionError,
+        allow_none=True,
+        help="""Last error encountered when using the OpenAI provider.
+
+This attribute is observed by the websocket provider to push the error to the client.""",
+    )
 
     @default("api_key")
     def _api_key_default(self):
@@ -107,13 +126,6 @@ class OpenAIProvider(LoggingConfigurable):
             self.log.debug("User OpenAI API key validated.")
             return api_key
 
-    max_completion_tokens = CInt(
-        None,
-        allow_none=True,
-        config=True,
-        help="An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
-    )
-
     @validate("max_completion_tokens")
     def _validate_max_completion_tokens(
         self, proposal: Dict[str, Any]
@@ -124,10 +136,6 @@ class OpenAIProvider(LoggingConfigurable):
                 f"Invalid max_completion_tokens {max_completion_tokens}; must be greater than 0."
             )
         return max_completion_tokens
-
-    model = Unicode(
-        "gpt-4o-mini", config=True, help="OpenAI model to use for completions"
-    )
 
     @validate("model")
     def _validate_model(self, proposal: Dict[str, Any]) -> str:
@@ -141,29 +149,6 @@ class OpenAIProvider(LoggingConfigurable):
                 f"Invalid model {model!r}; possible values are {self._models}"
             )
         return model
-
-    temperature = CFloat(
-        0,
-        config=True,
-        help="What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
-    )
-
-    @validate("temperature")
-    def _validate_temperature(self, proposal: Dict[str, Any]) -> float:
-        temperature = proposal["value"]
-        if temperature < 0 or temperature > 2:
-            raise TraitError(
-                f"Invalid temperature {temperature}; must be between 0 and 2."
-            )
-        return temperature
-
-    last_error = Instance(
-        CompletionError,
-        allow_none=True,
-        help="""Last error encountered when using the OpenAI provider.
-
-This attribute is observed by the websocket provider to push the error to the client.""",
-    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(log=get_logger(), **kwargs)
@@ -194,7 +179,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             return AICapabilities(
                 configuration={
                     "model": self.model,
-                    "temperature": self.temperature,
                 },
                 provider="OpenAI (user key)",
             )
@@ -224,7 +208,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             configuration={
                 "max_completion_tokens": self.max_completion_tokens,
                 "model": self.model,
-                "temperature": self.temperature,
             },
             provider="Mito server",
         )
@@ -259,7 +242,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     model=self.model,
                     max_completion_tokens=self.max_completion_tokens,
                     messages=request.messages,
-                    temperature=self.temperature,
                 )
                 # Log the successful completion
                 log_ai_completion_success(
@@ -308,7 +290,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     {
                         "model": self.model,
                         "messages": request.messages,
-                        "temperature": self.temperature,
                     },
                     _num_usages or 0,
                     _first_usage_date or "",
@@ -378,7 +359,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 stream=True,
                 max_completion_tokens=self.max_completion_tokens,
                 messages=request.messages,
-                temperature=self.temperature,
             )
             # Log the successful completion
             log_ai_completion_success(

@@ -76,10 +76,6 @@ class StatusPopUp extends VDomRenderer<StatusModel> {
                   'max_completion_tokens'
                 ] ?? 'undefined'}
               </li>
-              <li>
-                Temperature:{' '}
-                {this.model.capabilities.configuration['temperature']}
-              </li>
             </ul>
           </>
         )}

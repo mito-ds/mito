@@ -39,7 +39,6 @@ test.describe("Mito AI status item", () => {
               configuration: {
                 max_completion_tokens: 20,
                 model: "a-powerful-model",
-                temperature: 0.7,
               },
               provider: "Mito server",
               type: "ai_capabilities",
@@ -54,7 +53,7 @@ test.describe("Mito AI status item", () => {
     await page.getByRole("button", { name: "Mito AI Status" }).click();
 
     await expect(page.locator(".mito-ai-status-popup")).toHaveText(
-      "Mito AI StatusProvider: Mito serverConfiguration:Model: a-powerful-modelMax tokens: 20Temperature: 0.7"
+      "Mito AI StatusProvider: Mito serverConfiguration:Model: a-powerful-modelMax tokens: 20"
     );
   });
 
@@ -82,7 +81,6 @@ test.describe("Mito AI status item", () => {
               configuration: {
                 max_completion_tokens: 20,
                 model: "a-powerful-model",
-                temperature: 0.7,
               },
               provider: "Mito server",
               type: "ai_capabilities",
@@ -97,7 +95,7 @@ test.describe("Mito AI status item", () => {
     await page.getByRole("button", { name: "Mito AI Status" }).click();
 
     await expect(page.locator(".mito-ai-status-popup")).toHaveText(
-      "Mito AI StatusProvider: Mito serverConfiguration:Model: a-powerful-modelMax tokens: 20Temperature: 0.7Last error:Type: openai.AuthenticationErrorTitle: Bad OpenAI API keyHint: Try again with a valid API key"
+      "Mito AI StatusProvider: Mito serverConfiguration:Model: a-powerful-modelMax tokens: 20Last error:Type: openai.AuthenticationErrorTitle: Bad OpenAI API keyHint: Try again with a valid API key"
     );
   });
 
