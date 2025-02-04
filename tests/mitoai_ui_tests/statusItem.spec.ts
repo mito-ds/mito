@@ -37,7 +37,6 @@ test.describe("Mito AI status item", () => {
           ws.send(
             JSON.stringify({
               configuration: {
-                max_completion_tokens: 20,
                 model: "a-powerful-model",
               },
               provider: "Mito server",
@@ -105,7 +104,6 @@ test.describe("Mito AI status item", () => {
           ws.send(
             JSON.stringify({
               configuration: {
-                max_completion_tokens: 20,
                 model: "a-powerful-model",
               },
               provider: "Mito server",

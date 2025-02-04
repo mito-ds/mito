@@ -48,13 +48,6 @@ class OpenAIProvider(LoggingConfigurable):
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
     
-    max_completion_tokens = CInt(
-        None,
-        allow_none=True,
-        config=True,
-        help="An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
-    )
-    
     models = List(['gpt-4o-mini', 'o3-mini'])
     
     last_error = Instance(
@@ -133,17 +126,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.log.debug("User OpenAI API key validated.")
             return api_key
 
-    @validate("max_completion_tokens")
-    def _validate_max_completion_tokens(
-        self, proposal: Dict[str, Any]
-    ) -> Optional[int]:
-        max_completion_tokens = proposal["value"]
-        if max_completion_tokens is not None and max_completion_tokens < 1:
-            raise TraitError(
-                f"Invalid max_completion_tokens {max_completion_tokens}; must be greater than 0."
-            )
-        return max_completion_tokens
-
     @property
     def can_stream(self) -> bool:
         """Whether the provider supports streaming completions.
@@ -194,7 +176,6 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return AICapabilities(
             configuration={
-                "max_completion_tokens": self.max_completion_tokens,
                 "model": self.models,
             },
             provider="Mito server",
@@ -232,7 +213,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     model = "gpt-4o-mini"
 
                 self.log.debug(f"Requesting completion from OpenAI API with model: {model}")
-                completion_function_params = get_open_ai_completion_function_params(model, self.max_completion_tokens, request.messages)
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages)
                 completion = await self._openAI_client.chat.completions.create(**completion_function_params)
                 # Log the successful completion
                 log_ai_completion_success(
@@ -277,7 +258,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
                 
-                completion_function_params = get_open_ai_completion_function_params(model, self.max_completion_tokens, request.messages)
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages)
                 ai_response = await get_ai_completion_from_mito_server(
                     request.messages[-1].get("content", ""),
                     completion_function_params,
@@ -346,7 +327,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         # Send the completion request to the OpenAI API and returns a stream of completion chunks
         try:
-            completion_function_params = get_open_ai_completion_function_params(model, self.max_completion_tokens, request.messages)
+            completion_function_params = get_open_ai_completion_function_params(model, request.messages)
             stream: AsyncStream[
                 ChatCompletionChunk
             ] = await self._openAI_client.chat.completions.create(**completion_function_params)

@@ -25,10 +25,8 @@ Mito is the fallback but the number of request is limited for free tier.
 To use OpenAI directly, you will to create an API key on https://platform.openai.com/docs/overview.
 Then set the environment variable `OPENAI_API_KEY` with that key.
 
-The OpenAI model can be configured with 3 parameters:
+The OpenAI model can be configured with 1 parameters:
 - `OpenAIProvider.model`: Name of the AI model; default _gpt-4o-mini_.
-- `OpenAIProvider.max_completion_tokens`: Upper bound for the number of completion tokens; default None.
-- `OpenAIProvider.temperature`: Model temperature, a value between 0 and 2; default to 0
 
 You can set those parameters through command line when starting JupyterLab; e.g.
 

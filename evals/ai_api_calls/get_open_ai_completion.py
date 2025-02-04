@@ -5,24 +5,23 @@ from openai import OpenAI
 def get_open_ai_completion(prompt: str, model: str) -> str:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
+        
+    completion_function_params = {
+        "model": model,
+        "stream": True,
+        "messages": [
+            {"role": "system", "content": "You are an expert Python programmer."},
+            {"role": "user", "content": prompt}
+        ],
+    }
     
+    # o3-mini will error if we try setting the temperature
     if model == "gpt-4o-mini":
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are an expert Python programmer."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.0
-        )
-    else:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are an expert Python programmer."},
-                {"role": "user", "content": prompt}
-            ]
-        )
+        completion_function_params["temperature"] = 0.0
+
+    response = client.chat.completions.create(
+        **completion_function_params
+    )
 
     response_content = response.choices[0].message.content
 
