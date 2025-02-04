@@ -163,7 +163,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             if request.stream and self._llm.can_stream:
                 await self._handle_stream_request(request, prompt_type=request.type)
             else:
-                await self._handle_request(request, prompt_type=request.type, response_format=response_format)
+                await self._handle_request(
+                    request,
+                    prompt_type=request.type,
+                    response_format=(
+                        response_format if request.type == "agent" else None
+                    ),
+                )
         except Exception as e:
             await self.handle_exception(e, request)
 
