@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union
+from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk
+from pydantic import BaseModel
 from traitlets import CFloat, CInt, Instance, TraitError, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
 
@@ -240,7 +241,12 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return self._client
 
-    async def request_completions(self, request: CompletionRequest, prompt_type: str) -> CompletionReply:
+    async def request_completions(
+        self,
+        request: CompletionRequest,
+        prompt_type: str,
+        response_format: Optional[Type[BaseModel]] = None,
+    ) -> CompletionReply:
         """Get a completion from the OpenAI API.
 
         Args:
@@ -255,19 +261,31 @@ This attribute is observed by the websocket provider to push the error to the cl
                 self.log.debug(
                     "Requesting completion from OpenAI API with personal key."
                 )
-                completion = await self._openAI_client.chat.completions.create(
-                    model=self.model,
-                    max_completion_tokens=self.max_completion_tokens,
-                    messages=request.messages,
-                    temperature=self.temperature,
-                )
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type=USER_KEY,
-                    prompt_type=prompt_type,
-                    last_message_content=str(request.messages[-1].get('content', '')),
-                    response={"completion": completion.choices[0].message.content},
-                )
+                if response_format:
+                    completion = await self._openAI_client.beta.chat.completions.parse(
+                        model=self.model,
+                        messages=request.messages,
+                        temperature=self.temperature,
+                        response_format=response_format,
+                    )
+                else:
+                    completion = await self._openAI_client.chat.completions.create(
+                        model=self.model,
+                        max_completion_tokens=self.max_completion_tokens,
+                        messages=request.messages,
+                        temperature=self.temperature,
+                    )
+
+                if prompt_type == "agent:planning":
+                    pass # TODO: Add logging for agents 
+                else:
+                    # Log the successful completion
+                    log_ai_completion_success(
+                        key_type=USER_KEY,
+                        prompt_type=prompt_type,
+                        last_message_content=str(request.messages[-1].get('content', '')),
+                        response={"completion": completion.choices[0].message.content},
+                    )
 
                 if len(completion.choices) == 0:
                     return CompletionReply(

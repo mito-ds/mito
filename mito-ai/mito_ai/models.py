@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import traceback
 from dataclasses import dataclass
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Type
 
+from pydantic import BaseModel
 from openai.types.chat import ChatCompletionMessageParam
 
 from .prompt_builders import (
@@ -11,9 +12,10 @@ from .prompt_builders import (
     create_inline_prompt,
     create_explain_code_prompt,
     create_error_prompt,
+    create_agent_prompt,
 )
 
-CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug']
+CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning']
 AllIncomingMessageTypes = Literal['clear_history', CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)
@@ -66,6 +68,24 @@ class InlineCompletionMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
+
+@dataclass(frozen=True)
+class AgentMessageMetadata:
+    fileType: Optional[str] = None
+    columnSamples: Optional[List[str]] = None
+    input: Optional[str] = None
+
+    @property
+    def prompt(self) -> str:
+        return create_agent_prompt(self.fileType or '', self.columnSamples or [], self.input or '')
+
+    @property
+    def response_format(self) -> Type[BaseModel]:
+        class PlanOfAttack(BaseModel):
+            actions: List[str]
+            dependencies: List[str]
+        return PlanOfAttack
+
 
 @dataclass(frozen=True)
 class CompletionRequest:
