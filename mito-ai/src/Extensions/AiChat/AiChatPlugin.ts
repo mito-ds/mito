@@ -11,6 +11,7 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+import MarkdownButtonWidget from './MarkdownButtonWidget';
 
 
 /**
@@ -121,6 +122,17 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     if (restorer) {
       restorer.add(widget, 'mito_ai');
     }
+
+    // Add the command to the notebook toolbar
+    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
+      // Add a ToolbarButton to the notebook toolbar
+      notebookPanel.toolbar.insertItem(
+        10, // Position of the button in the toolbar
+        'writeMarkdownDoc', // Name of the toolbar item
+        new MarkdownButtonWidget({ app, notebookTracker })
+      );
+    });
+    
 
     // This allows us to force plugin load order
     console.log("mito-ai: AiChatPlugin activated");
