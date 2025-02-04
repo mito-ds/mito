@@ -79,7 +79,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
-    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+    // TODO: RE-ADD setAgentModeEnabled when we need to call it. 
+    const [agentModeEnabled, _] = useState<boolean>(false)
 
     useEffect(() => {
       // Check that the websocket client is ready
@@ -540,11 +541,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                <IconButton
+                {/* <IconButton
                     icon={<SupportIcon />}
                     title="Enter Agent Mode"
                     onClick={() => { setAgentModeEnabled(!agentModeEnabled) }}
-                />
+                /> */}
                 <IconButton
                     icon={<SupportIcon />}
                     title="Get Help"
