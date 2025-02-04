@@ -81,10 +81,10 @@ class AgentMessageMetadata:
 
     @property
     def response_format(self) -> Type[BaseModel]:
-        class PlanofAttack(BaseModel):
+        class PlanOfAttack(BaseModel):
             actions: List[str]
             dependencies: List[str]
-        return PlanofAttack
+        return PlanOfAttack
 
 
 @dataclass(frozen=True)
