@@ -15,7 +15,7 @@ from .prompt_builders import (
     create_agent_prompt,
 )
 
-CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent']
+CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning']
 AllIncomingMessageTypes = Literal['clear_history', CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)

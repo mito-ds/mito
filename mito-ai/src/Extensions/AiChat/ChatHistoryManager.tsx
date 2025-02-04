@@ -4,7 +4,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { Variable } from "../VariableManager/VariableInspector";
 
-export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent';
+export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning';
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -34,7 +34,7 @@ export interface IChatMessageMetadata {
  * your backend will use to build a prompt.
  */
 export interface IOutgoingMessage {
-    promptType: 'chat' | 'smartDebug' | 'codeExplain' | 'agent';
+    promptType: 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning';
     metadata: IChatMessageMetadata;
 }
 
@@ -137,7 +137,7 @@ export class ChatHistoryManager {
         )
 
         return {
-            promptType: 'agent',
+            promptType: 'agent:planning',
             metadata: metadata,
         }
     }

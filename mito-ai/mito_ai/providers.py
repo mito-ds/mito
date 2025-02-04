@@ -276,7 +276,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                         temperature=self.temperature,
                     )
 
-                if prompt_type == "agent":
+                if prompt_type == "agent:planning":
                     pass # TODO: Add logging for agents 
                 else:
                     # Log the successful completion

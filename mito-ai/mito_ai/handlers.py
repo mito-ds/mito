@@ -136,7 +136,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             prompt = CodeExplainMessageMetadata(**metadata_dict).prompt
         elif type == "smartDebug":
             prompt = SmartDebugMessageMetadata(**metadata_dict).prompt
-        elif type == "agent":
+        elif type == "agent:planning":
             prompt = AgentMessageMetadata(**metadata_dict).prompt
             response_format = AgentMessageMetadata(**metadata_dict).response_format
 
@@ -158,7 +158,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             messages=self.full_message_history,
             stream=parsed_message.get('stream', False)
         )
-        
+
         try:
             if request.stream and self._llm.can_stream:
                 await self._handle_stream_request(request, prompt_type=request.type)
@@ -166,9 +166,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 await self._handle_request(
                     request,
                     prompt_type=request.type,
-                    response_format=(
-                        response_format if request.type == "agent" else None
-                    ),
+                    response_format=response_format if type == "agent:planning" else None,
                 )
         except Exception as e:
             await self.handle_exception(e, request)
