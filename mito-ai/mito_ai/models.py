@@ -37,6 +37,10 @@ class ChatMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
+    
+    @property
+    def model(self) -> str:
+        return "o3-mini"
 
 @dataclass(frozen=True)
 class SmartDebugMessageMetadata:
@@ -47,6 +51,10 @@ class SmartDebugMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
+    
+    @property
+    def model(self) -> str:
+        return "o3-mini"
 
 @dataclass(frozen=True)
 class CodeExplainMessageMetadata:
@@ -56,6 +64,10 @@ class CodeExplainMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_explain_code_prompt(self.activeCellCode or '')
+    
+    @property
+    def model(self) -> str:
+        return "o3-mini"
 
 @dataclass(frozen=True)
 class InlineCompletionMessageMetadata:
@@ -66,6 +78,10 @@ class InlineCompletionMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
+    
+    @property
+    def model(self) -> str:
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
 class CompletionRequest:

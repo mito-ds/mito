@@ -6,7 +6,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, Union
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk
-from traitlets import CFloat, CInt, Instance, TraitError, Unicode, default, validate
+from traitlets import CFloat, CInt, Instance, TraitError, Unicode, default, validate, List
 from traitlets.config import LoggingConfigurable
 
 from .logger import get_logger
@@ -28,9 +28,7 @@ from .utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
 from .utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
-    MITO_AI_COMPLETION_SUCCESS,
     MITO_SERVER_KEY,
-    MITO_SERVER_NUM_USAGES,
     USER_KEY,
     log,
     log_ai_completion_success,
@@ -55,9 +53,7 @@ class OpenAIProvider(LoggingConfigurable):
         help="An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
     )
     
-    model = Unicode(
-        "gpt-4o-mini", config=True, help="OpenAI model to use for completions"
-    )
+    models = List(['gpt-4o-mini', 'o3-mini'])
     
     last_error = Instance(
         CompletionError,
@@ -66,6 +62,12 @@ class OpenAIProvider(LoggingConfigurable):
 
 This attribute is observed by the websocket provider to push the error to the client.""",
     )
+    
+    def __init__(self, **kwargs) -> None:
+        super().__init__(log=get_logger(), **kwargs)
+        self.last_error = None
+        self._client: Optional[openai.AsyncOpenAI] = None
+        self._models: Optional[List[str]] = None
 
     @default("api_key")
     def _api_key_default(self):
@@ -85,6 +87,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         client = openai.OpenAI(api_key=api_key)
         models = []
         try:
+            # Make an http request to OpenAI to get the models available
+            # for this API key.
+            # And then handle the exceptions if they are thrown.
             for model in client.models.list():
                 models.append(model.id)
             self._models = models
@@ -137,25 +142,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
         return max_completion_tokens
 
-    @validate("model")
-    def _validate_model(self, proposal: Dict[str, Any]) -> str:
-        model = proposal["value"]
-        if self._models is None:
-            # Force the validation of the API key to get the models
-            self._validate_api_key({"value": self.api_key})
-
-        if self._models is not None and model not in self._models:
-            raise TraitError(
-                f"Invalid model {model!r}; possible values are {self._models}"
-            )
-        return model
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(log=get_logger(), **kwargs)
-        self.last_error = None
-        self._client: Optional[openai.AsyncOpenAI] = None
-        self._models: Optional[List[str]] = None
-
     @property
     def can_stream(self) -> bool:
         """Whether the provider supports streaming completions.
@@ -178,7 +164,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self.api_key:
             return AICapabilities(
                 configuration={
-                    "model": self.model,
+                    "model": self.models,
                 },
                 provider="OpenAI (user key)",
             )
@@ -207,7 +193,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         return AICapabilities(
             configuration={
                 "max_completion_tokens": self.max_completion_tokens,
-                "model": self.model,
+                "model": self.models,
             },
             provider="Mito server",
         )
@@ -223,7 +209,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return self._client
 
-    async def request_completions(self, request: CompletionRequest, prompt_type: str) -> CompletionReply:
+    async def request_completions(self, request: CompletionRequest, prompt_type: str, model: str) -> CompletionReply:
         """Get a completion from the OpenAI API.
 
         Args:
@@ -238,8 +224,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                 self.log.debug(
                     "Requesting completion from OpenAI API with personal key."
                 )
+                
+                # Validate that the model is supported. If not fall back to gpt-4o-mini
+                if model not in self.models:
+                    model = "gpt-4o-mini"
+
+                self.log.debug(f"Requesting completion from OpenAI API with model: {model}")
                 completion = await self._openAI_client.chat.completions.create(
-                    model=self.model,
+                    model=model,
                     max_completion_tokens=self.max_completion_tokens,
                     messages=request.messages,
                 )
@@ -288,7 +280,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 ai_response = await get_ai_completion_from_mito_server(
                     request.messages[-1].get("content", ""),
                     {
-                        "model": self.model,
+                        "model": model, # We know that the model is supported by the mito server
                         "messages": request.messages,
                     },
                     _num_usages or 0,
@@ -326,7 +318,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             raise
 
     async def stream_completions(
-        self, request: CompletionRequest, prompt_type: str
+        self, request: CompletionRequest, prompt_type: str, model: str
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
@@ -349,13 +341,17 @@ This attribute is observed by the websocket provider to push the error to the cl
             ],
             parent_id=request.message_id,
         )
+        
+        # Validate that the model is supported. If not fall back to gpt-4o-mini
+        if model not in self.models:
+            model = "gpt-4o-mini"
 
         # Send the completion request to the OpenAI API and returns a stream of completion chunks
         try:
             stream: AsyncStream[
                 ChatCompletionChunk
             ] = await self._openAI_client.chat.completions.create(
-                model=self.model,
+                model=model,
                 stream=True,
                 max_completion_tokens=self.max_completion_tokens,
                 messages=request.messages,
