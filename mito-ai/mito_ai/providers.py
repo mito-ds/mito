@@ -23,6 +23,7 @@ from .utils.db import get_user_field, set_user_field
 from .utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
+    get_open_ai_completion_function_params,
 )
 from .utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
 from .utils.telemetry_utils import (
@@ -230,11 +231,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                     model = "gpt-4o-mini"
 
                 self.log.debug(f"Requesting completion from OpenAI API with model: {model}")
-                completion = await self._openAI_client.chat.completions.create(
-                    model=model,
-                    max_completion_tokens=self.max_completion_tokens,
-                    messages=request.messages,
-                )
+                completion_function_params = get_open_ai_completion_function_params(model, self.max_completion_tokens, request.messages)
+                completion = await self._openAI_client.chat.completions.create(**completion_function_params)
                 # Log the successful completion
                 log_ai_completion_success(
                     key_type=USER_KEY,
@@ -272,17 +270,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                         )
 
             else:
+                # If they don't have an Open AI key, use the mito server to get a completion
                 self.log.debug("Requesting completion from Mito server.")
                 global _num_usages
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-                # If they don't have an Open AI key, use the mito server to get a completion
+                
+                completion_function_params = get_open_ai_completion_function_params(model, self.max_completion_tokens, request.messages)
                 ai_response = await get_ai_completion_from_mito_server(
                     request.messages[-1].get("content", ""),
-                    {
-                        "model": model, # We know that the model is supported by the mito server
-                        "messages": request.messages,
-                    },
+                    completion_function_params,
                     _num_usages or 0,
                     _first_usage_date or "",
                 )
@@ -348,14 +345,10 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         # Send the completion request to the OpenAI API and returns a stream of completion chunks
         try:
+            completion_function_params = get_open_ai_completion_function_params(model, self.max_completion_tokens, request.messages)
             stream: AsyncStream[
                 ChatCompletionChunk
-            ] = await self._openAI_client.chat.completions.create(
-                model=model,
-                stream=True,
-                max_completion_tokens=self.max_completion_tokens,
-                messages=request.messages,
-            )
+            ] = await self._openAI_client.chat.completions.create(**completion_function_params)
             # Log the successful completion
             log_ai_completion_success(
                 key_type=USER_KEY,

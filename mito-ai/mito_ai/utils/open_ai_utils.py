@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 
 from tornado.httpclient import AsyncHTTPClient
@@ -91,3 +91,19 @@ async def get_ai_completion_from_mito_server(
     content = json.loads(res.body)
 
     return content.get("completion", "")
+
+
+def get_open_ai_completion_function_params(model: str, max_completion_tokens: Optional[int], messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+    
+    completion_function_params = {
+        "model": model,
+        "stream": True,
+        "max_completion_tokens": max_completion_tokens,
+        "messages": messages,
+    }
+    
+    # o3-mini will error if we try setting the temperature
+    if model == "gpt-4o-mini":
+        completion_function_params["temperature"] = 0.0
+
+    return completion_function_params
