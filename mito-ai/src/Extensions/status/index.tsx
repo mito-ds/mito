@@ -9,11 +9,11 @@ import {
 } from '@jupyterlab/ui-components';
 import React from 'react';
 import { NucleusLabIcon } from '../../icons';
-import type {
-  ErrorMessage,
-  IAICapabilities
-} from '../../utils/websocket/models';
+import type { ErrorMessage, IAICapabilities } from '../../utils/websocket/models';
 import { IChatTracker, type IChatWidget } from '../AiChat/token';
+import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
+import TextButton from '../../components/TextButton';
+import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
 
 /**
  * Mito AI status model
@@ -61,25 +61,40 @@ class StatusModel extends VDomModel {
  */
 class StatusPopUp extends VDomRenderer<StatusModel> {
   protected render(): JSX.Element {
+
+    let status_paragraph = <p className='mito-ai-status-ready'>Ready</p>
+    if (this.model.lastError?.title == FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
+      status_paragraph = <p className='mito-ai-status-error'>Free Trial Expired</p>
+    }
+
     return (
       <div className="mito-ai-status-popup">
-        <h4>Mito AI Status</h4>
-        <p>Provider: {this.model.capabilities?.provider ?? 'None'}</p>
-        {this.model.capabilities && (
+        <h3>Mito AI Status</h3>
+        <div className='mito-ai-status-popup-table-row'>
+          <p>Status:</p>
+          {status_paragraph}
+        </div>
+        <div className='mito-ai-status-popup-table-row'>
+          <p>Provider:</p>
+          <p>{this.model.capabilities?.provider ?? 'None'}</p>
+        </div>
+        {this.model.lastError?.title == FREE_TIER_LIMIT_REACHED_ERROR_TITLE && (
           <>
-            <p>Configuration:</p>
-            <ul>
-              <li>Model: {this.model.capabilities.configuration['model']}</li>
-              <li>
-                Max tokens:{' '}
-                {this.model.capabilities.configuration[
-                  'max_completion_tokens'
-                ] ?? 'undefined'}
-              </li>
-            </ul>
+            <p>
+              ⚠️ Your Mito AI free trial has ended. Upgrade to <a href="https://www.trymito.io/plans" target="_blank">Mito Pro</a> or supply your own Open AI Key to get access to more advanced models and continue using Mito AI.
+            </p>
+            <TextButton
+              title="Upgrade to Pro"
+              text="Upgrade to Pro"
+              onClick={() => {
+                window.open(STRIPE_PAYMENT_LINK, '_blank');
+              }}
+              variant='gray'
+              width='block'
+            />
           </>
         )}
-        {this.model.lastError && (
+        {this.model.lastError && this.model.lastError.title !== FREE_TIER_LIMIT_REACHED_ERROR_TITLE && (
           <>
             <p>Last error:</p>
             <ul>
@@ -121,7 +136,7 @@ class StatusItem extends ReactWidget {
         small
         title="Mito AI Status"
       >
-        <NucleusLabIcon.react tag={'span'} stylesheet={'statusBar'} />
+        Mito AI &nbsp; <NucleusLabIcon.react tag={'span'} stylesheet={'statusBar'} />
       </Button>
     );
   }

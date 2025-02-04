@@ -34,9 +34,30 @@
 
 .mito-ai-status-popup {
   padding: 4px 12px;
+  padding-bottom: 40px;
   background-color: var(--jp-layout-color1);
   box-shadow: var(--jp-toolbar-box-shadow);
   z-index: 2;
   font-size: var(--jp-ui-font-size1);
-  max-width: 400px;
+  min-width: 150px;
+  max-width: 300px;
+}
+
+.mito-ai-status-popup-table-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mito-ai-status-popup-table-row > p {
+  margin: 4px;
+}
+
+.mito-ai-status-ready {
+  color: var(--jp-success-color1);
+}
+
+.mito-ai-status-error {
+  color: var(--jp-warn-color1);
 }
