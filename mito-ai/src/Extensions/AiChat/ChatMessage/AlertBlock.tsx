@@ -1,6 +1,7 @@
 import React from 'react';
 import TextButton from '../../../components/TextButton';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../../utils/errors';
+import { STRIPE_PAYMENT_LINK } from '../../../utils/stripe';
 
 
 interface IAlertBlockProps {
@@ -29,7 +30,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
                     title="Upgrade to Pro"
                     text="Upgrade to Pro"
                     onClick={() => {
-                        window.open("https://www.trymito.io/plans", '_blank');
+                        window.open(STRIPE_PAYMENT_LINK, '_blank');
                     }}
                     variant="purple"
                     width="block"
