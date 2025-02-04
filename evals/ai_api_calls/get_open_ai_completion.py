@@ -2,17 +2,27 @@ import os
 from typing import Any, Dict, Optional
 from openai import OpenAI
 
-def get_open_ai_completion(prompt: str):
+def get_open_ai_completion(prompt: str, model: str) -> str:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are an expert Python programmer."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.0
-    )
+    
+    if model == "gpt-4o-mini":
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are an expert Python programmer."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.0
+        )
+    else:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are an expert Python programmer."},
+                {"role": "user", "content": prompt}
+            ]
+        )
 
     response_content = response.choices[0].message.content
 

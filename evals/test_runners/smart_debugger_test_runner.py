@@ -10,7 +10,7 @@ from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
 
 
-def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
+def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]], model: Optional[str]):
 
     tests_to_run = SMART_DEBUG_TESTS
     if test_name:
@@ -38,19 +38,21 @@ def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], 
     
     print(f"Collected {len(prompt_generators_to_test)} prompts")
 
+    # Get the default model if no model is provided
+    model = prompt_generators_to_test[0].get_default_model() if model is None else model
 
     # Mapping from prompt name to test results for each prompt we test
     test_case_results: Dict[str, List[TestCaseResult]] = {}
     for prompt_generator in prompt_generators_to_test:
         test_case_results[prompt_generator.prompt_name] = []
         for test in tests_to_run:
-            test_case_result = run_smart_debug_test(test, prompt_generator)
+            test_case_result = run_smart_debug_test(test, prompt_generator, model)
             test_case_results[prompt_generator.prompt_name].append(test_case_result)
 
-    print_test_case_result_tables(test_case_results)
+    print_test_case_result_tables("smart_debug", test_case_results, model)
 
 
-def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPromptGenerator) -> TestCaseResult:
+def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPromptGenerator, model: Optional[str]) -> TestCaseResult:
     print(f"Running test: {test.name}")
                 
     # Create a copy of the notebook state that includes the invalid code.
@@ -79,7 +81,7 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     # Make sure to use the invalid_notebook_state so that the prompt can include the 
     # invalid code in the prompt. 
     prompt = prompt_generator.get_prompt(error_message, invalid_notebook_state)
-    ai_generated_code = get_open_ai_completion(prompt)
+    ai_generated_code = get_open_ai_completion(prompt, model)
     actual_code = script_without_invalid_code + "\n" + ai_generated_code
 
     # Get the expected code script 
