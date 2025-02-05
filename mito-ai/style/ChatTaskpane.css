@@ -48,6 +48,7 @@
     padding: 10px;
     width: 100%;
     font-size: 14px;
+    border-radius: 5px;
 }
 
 .message:not(.chat-input) {
@@ -57,11 +58,14 @@
 .message-user {
     background-color: var(--chat-user-message-background-color);
     color: var(--chat-user-message-font-color);
-    border-radius: 5px;
 }
 
 .message-assistant {
     color: var(--chat-assistant-message-font-color);
+}
+
+.message-agent {
+    background-color: var(--purple-300);
 }
 
 .markdown-message-part * .jp-RenderedHTMLCommon :not(pre) > code {
