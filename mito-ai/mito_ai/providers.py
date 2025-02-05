@@ -230,7 +230,10 @@ This attribute is observed by the websocket provider to push the error to the cl
                     model = "gpt-4o-mini"
 
                 completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
+                
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
+                
+                print(f"completion: {completion}")
                                 
                 if prompt_type == "agent:planning":
                     pass # TODO: Add logging for agents 
@@ -260,6 +263,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
                 
                 completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
+                
                 ai_response = await get_ai_completion_from_mito_server(
                     request.messages[-1].get("content", ""),
                     completion_function_params,

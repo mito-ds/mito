@@ -90,8 +90,13 @@ async def get_ai_completion_from_mito_server(
     # The lambda function returns a dictionary with a completion entry in it,
     # so we just return that.
     content = json.loads(res.body)
-
-    return content.get("completion", "")
+    
+    if "completion" in content:
+        return content["completion"]
+    elif "error" in content:
+        raise Exception(f"{content['error']}")
+    else:
+        raise Exception(f"No completion found in response: {content}")
 
 
 def get_open_ai_completion_function_params(
@@ -105,7 +110,8 @@ def get_open_ai_completion_function_params(
         "model": model,
         "stream": stream,
         "messages": messages,
-        "response_format": response_format
+        "response_format": response_format,
+        "timeout": 60,
     }
     
     # o3-mini will error if we try setting the temperature
