@@ -294,7 +294,17 @@ export class MitoAIInlineCompleter
         {
           label: 'Upgrade to Mito Pro',
           callback: () => {
-            window.open(STRIPE_PAYMENT_LINK, '_blank');
+            // We create and submit a form programmatically instead of using window.open()
+            // because the Stripe endpoint requires a POST request, which window.open() 
+            // cannot do (it only makes GET requests). This approach allows us to make
+            // a proper POST request that will create a Stripe checkout session.
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = STRIPE_PAYMENT_LINK;
+            form.target = '_blank';
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
           }
         },
         {

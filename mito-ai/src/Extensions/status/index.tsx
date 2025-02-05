@@ -86,9 +86,7 @@ class StatusPopUp extends VDomRenderer<StatusModel> {
             <TextButton
               title="Upgrade to Pro"
               text="Upgrade to Pro"
-              onClick={() => {
-                window.open(STRIPE_PAYMENT_LINK, '_blank');
-              }}
+              action={STRIPE_PAYMENT_LINK}
               variant='gray'
               width='block'
             />
