@@ -59,8 +59,12 @@ class OpenAIProvider(LoggingConfigurable):
 This attribute is observed by the websocket provider to push the error to the client.""",
     )
     
-    timeout = 100
-    max_retries = 3
+    
+    # Consider the request a failure if it takes longer than 45 seconds.
+    # We will try a total of 3 times. Once on the initial request, 
+    # and then twice more if the first request fails.
+    timeout = 45
+    max_retries = 2
 
     def __init__(self, **kwargs) -> None:
         super().__init__(log=get_logger(), **kwargs)
