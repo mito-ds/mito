@@ -295,7 +295,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             reply: The completion reply object.
                 It must be a dataclass instance.
         """
-        print(f"reply: {reply}")
         message = asdict(reply)
         super().write_message(message)
 
