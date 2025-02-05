@@ -81,6 +81,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
+    // TODO: RE-ADD setAgentModeEnabled when we need to call it. 
+    const [agentModeEnabled, _] = useState<boolean>(false)
+
     useEffect(() => {
         // Check that the websocket client is ready
         // and display the error if it is not.
@@ -208,6 +211,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
         sendChatInputMessage(newContent, messageIndex)
     };
+
+    const sendAgentMessage = async (message: string) => {
+        console.log('Sending agent message: ', message)
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
+        // Step 1: Clear the chat history, and add the new error message
+        const newChatHistoryManager = clearChatHistory()
+        const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
+        setChatHistoryManager(newChatHistoryManager)
+        console.log('outgoingMessage: ', outgoingMessage)
+
+        // Step 2: Send the message to the AI
+        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
+    }
 
     const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager) => {
         setLoadingAIResponse(true)
@@ -526,6 +544,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
+                {/* <IconButton
+                    icon={<SupportIcon />}
+                    title="Enter Agent Mode"
+                    onClick={() => { setAgentModeEnabled(!agentModeEnabled) }}
+                /> */}
                 <IconButton
                     icon={<SupportIcon />}
                     title="Get Help"
@@ -588,13 +611,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <ChatInput
                 initialContent={''}
                 placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
-                onSave={sendChatInputMessage}
+                onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
                 onCancel={undefined}
                 isEditing={false}
                 variableManager={variableManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
             />
+            {agentModeEnabled &&
+                <div className="agent-mode-container">
+                    <input placeholder="Enter your CSV file path" className="chat-input chat-input-container"/>
+                </div>
+            }
         </div>
     );
 };

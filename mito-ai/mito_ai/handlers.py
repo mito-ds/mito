@@ -3,11 +3,12 @@ import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Awaitable, Dict, Optional, Literal
+from typing import Any, Awaitable, Dict, Optional, Literal, Type
 
 import tornado
 import tornado.ioloop
 import tornado.web
+from pydantic import BaseModel
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
@@ -26,6 +27,7 @@ from mito_ai.models import (
     ChatMessageBuilder,
     InlineCompletionMessageBuilder,
     SmartDebugMessageBuilder,
+    AgentMessageMetadata,
 )
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
@@ -143,6 +145,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
             prompt = smartDebugPromptBuilder.prompt
             model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
+        elif type == "agent:planning":
+            prompt = AgentMessageMetadata(**metadata_dict).prompt
+            response_format = AgentMessageMetadata(**metadata_dict).response_format
         else:
             raise ValueError(f"Invalid message type: {type}")
 
@@ -164,12 +169,17 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             messages=self.full_message_history,
             stream=parsed_message.get('stream', False)
         )
-        
+
         try:
             if request.stream and self._llm.can_stream:
                 await self._handle_stream_request(request, prompt_type=request.type, model=model)
             else:
-                await self._handle_request(request, prompt_type=request.type, model=model)
+                await self._handle_request(
+                    request,
+                    prompt_type=request.type,
+                    model=model
+                    response_format=response_format if type == "agent:planning" else None,
+                )
         except Exception as e:
             await self.handle_exception(e, request)
 
@@ -223,14 +233,20 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             )
         self.reply(reply)
 
-    async def _handle_request(self, request: CompletionRequest, prompt_type: str, model: str) -> None:
+    async def _handle_request(
+        self,
+        request: CompletionRequest,
+        prompt_type: str,
+        model: str,
+        response_format: Optional[Type[BaseModel]] = None,
+    ) -> None:
         """Handle completion request.
 
         Args:
             request: The completion request description.
         """
         start = time.time()
-        reply = await self._llm.request_completions(request, prompt_type, model)
+        reply = await self._llm.request_completions(request, prompt_type, model, response_format)
         self.reply(reply)
 
         # Save to the message history

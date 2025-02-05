@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union
+from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk
-from traitlets import CFloat, CInt, Instance, TraitError, Unicode, default, validate, List
+from traitlets import  Instance, Unicode, default, validate, List
+from pydantic import BaseModel
 from traitlets.config import LoggingConfigurable
 
 from mito_ai.logger import get_logger
@@ -204,7 +205,13 @@ This attribute is observed by the websocket provider to push the error to the cl
             
         return self._sync_client
 
-    async def request_completions(self, request: CompletionRequest, prompt_type: str, model: str) -> CompletionReply:
+    async def request_completions(
+        self,
+        request: CompletionRequest,
+        prompt_type: str,
+        model: str,
+        response_format: Optional[Type[BaseModel]] = None
+    ) -> CompletionReply:
         """Get a completion from the OpenAI API.
 
         Args:
@@ -222,16 +229,19 @@ This attribute is observed by the websocket provider to push the error to the cl
                 if model not in self.models:
                     model = "gpt-4o-mini"
 
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, stream=False)
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                                 
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type=USER_KEY,
-                    prompt_type=prompt_type,
-                    last_message_content=str(request.messages[-1].get('content', '')),
-                    response={"completion": completion.choices[0].message.content},
-                )
+                if prompt_type == "agent:planning":
+                    pass # TODO: Add logging for agents 
+                else:
+                    # Log the successful completion
+                    log_ai_completion_success(
+                        key_type=USER_KEY,
+                        prompt_type=prompt_type,
+                        last_message_content=str(request.messages[-1].get('content', '')),
+                        response={"completion": completion.choices[0].message.content}
+                    )
 
                 return CompletionReply(
                     parent_id=request.message_id,
@@ -240,7 +250,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                             content=completion.choices[0].message.content or "",
                             isIncomplete=False,
                         )
-                    ],
+                    ]
                 )
             else:
                 # If they don't have an Open AI key, use the mito server to get a completion
@@ -249,7 +259,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
                 
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, stream=False)
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
                 ai_response = await get_ai_completion_from_mito_server(
                     request.messages[-1].get("content", ""),
                     completion_function_params,
@@ -319,9 +329,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Send the completion request to the OpenAI API and returns a stream of completion chunks
         try:
             completion_function_params = get_open_ai_completion_function_params(model, request.messages, stream=True)
-            stream: AsyncStream[
-                ChatCompletionChunk
-            ] = await self._openAI_async_client.chat.completions.create(**completion_function_params)
+            stream: AsyncStream[ChatCompletionChunk] = await self._openAI_async_client.chat.completions.create(**completion_function_params)
+            
             # Log the successful completion
             log_ai_completion_success(
                 key_type=USER_KEY,
