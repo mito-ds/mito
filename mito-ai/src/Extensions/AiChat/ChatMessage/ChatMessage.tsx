@@ -123,6 +123,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             icon={PlayButtonIcon}
                                             title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
                                             variant='gray'
+                                            width='fit-contents'
                                         />
                                         <TextAndIconButton 
                                             onClick={() => {copyToClipboard(messagePart)}}
@@ -130,6 +131,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
                                             variant='gray'
+                                            width='fit-contents'
                                         />
                                     </div>
                                 }
@@ -140,12 +142,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             text={`Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`}
                                             title={'Accept the Ai generated code'}
                                             variant='green'
+                                            width='fit-contents'
                                         />
                                         <TextButton 
                                             onClick={() => {rejectAICode()}}
                                             text={`Reject code ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`}
                                             title={'Reject the Ai generated code and revert to the previous version of the code cell'}
                                             variant='red'
+                                            width='fit-contents'
                                         />
                                     </div>
 

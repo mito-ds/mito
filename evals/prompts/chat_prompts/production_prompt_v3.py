@@ -4,7 +4,7 @@ __all__ = ['production_prompt_v3_generator']
 
 class _ProductionPromptV3(ChatPromptGenerator):
     prompt_name = "production_prompt_v3"
-
+    
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
 
         return f"""You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.

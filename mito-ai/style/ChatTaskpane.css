@@ -137,13 +137,14 @@
 .message-edit-buttons button {
     padding: 4px 12px;
     border-radius: 4px;
-    border: 1px solid #ccc;
-    background: white;
+    background-color: var(--jp-layout-color1);
+    color: var(--jp-content-font-color1);
+    border: 1px solid var(--jp-border-color1);
     cursor: pointer;
 }
 
 .message-edit-buttons button:hover {
-    background: #f0f0f0;
+    background-color: var(--jp-layout-color2);
 }
 
 .code-block-toolbar button {

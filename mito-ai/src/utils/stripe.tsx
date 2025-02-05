@@ -1,0 +1,1 @@
+export const STRIPE_PAYMENT_LINK = "https://jl76z192i0.execute-api.us-east-1.amazonaws.com/Prod/create_checkout_session/"

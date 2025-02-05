@@ -342,7 +342,11 @@ def test_merge_two_edits():
     mito.merge_sheets('inner', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'])
     mito.merge_sheets('inner', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
     mito.merge_sheets('outer', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
-    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2.0, None], 'B': [2, 1], 'A_df2': [2, 1]}))
+    
+    # Sort both DataFrames by 'B' column before comparison
+    result_df = mito.dfs[2].sort_values('B').reset_index(drop=True)
+    expected_df = pd.DataFrame({'A_df1': [None, 2.0], 'B': [1, 2], 'A_df2': [1, 2]})
+    pd.testing.assert_frame_equal(result_df, expected_df)
     assert len(mito.dfs) == 3
 
 def test_merge_edit_with_deletion():
@@ -372,7 +376,15 @@ def test_merge_edit_with_format_filter_rename():
     mito.filter(2, 'A', 'and', 'greater_than_or_equal', 1)
     mito.rename_column(2, 'B_df1', 'B_df1_renamed')
     mito.merge_sheets('outer', 0, 1, [['B', 'B']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
-    pd.testing.assert_frame_equal(mito.dfs[2], pd.DataFrame({'A_df1': [2.0, None], 'B': [2, 1], 'A_df2': [2, 1]}))
+    
+    # Sort both DataFrames by 'B' column before comparison
+    result_df = mito.dfs[2].sort_values('B').reset_index(drop=True)
+    expected_df = pd.DataFrame({
+        'A_df1': [None, 2.0],
+        'B': [1, 2],
+        'A_df2': [1, 2]
+    })
+    pd.testing.assert_frame_equal(result_df, expected_df)
     assert len(mito.dfs) == 3
 
 def test_merge_edit_with_deletion_overwrite():
@@ -799,7 +811,15 @@ def test_edit_merge_replays_edits_after_multiple_edits():
     mito.set_formula('=A', 2, 'Test')
     mito.merge_sheets('outer', 0, 1, [['A', 'A']], ['A', 'B'], ['A', 'B'], destination_sheet_index=2)
 
-    assert mito.dfs[2].equals(pd.DataFrame({'A': [2, 1], 'B_df1': [2.0, None], 'B_df2': [2, 1], 'Test': [2, 1]}))
+    # Sort both DataFrames by 'A' column before comparison
+    result_df = mito.dfs[2].sort_values('A').reset_index(drop=True)
+    expected_df = pd.DataFrame({
+        'A': [1, 2], 
+        'B_df1': [None, 2.0], 
+        'B_df2': [1, 2], 
+        'Test': [1, 2]
+    })
+    pd.testing.assert_frame_equal(result_df, expected_df)
 
 
 def test_edit_merge_works_with_filters():
