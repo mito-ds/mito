@@ -616,6 +616,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     return (
                         <ChatMessage
                             message={displayOptimizedChat.message}
+                            messageType={displayOptimizedChat.type}
                             codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}

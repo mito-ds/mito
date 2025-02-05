@@ -21,6 +21,7 @@ import TextButton from '../../../components/TextButton';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    messageType: string
     codeCellID: string | undefined
     messageIndex: number
     mitoAIConnectionError: boolean
@@ -40,6 +41,7 @@ interface IChatMessageProps {
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
+    messageType,
     messageIndex,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
@@ -60,6 +62,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
+    const editable = messageType === 'openai message:agent' || message.role === 'user'
+
     const messageContentParts = splitStringWithCodeBlocks(message);
 
     const handleEditClick = () => {
@@ -67,7 +71,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        onUpdateMessage(messageIndex, content);
+        if (messageType === 'openai message:agent') {
+            // If the message is part of the agent planning, 
+            //do nothing untill the user accepts the plan.
+        } else {
+            onUpdateMessage(messageIndex, content);
+        }
         setIsEditing(false);
     };
 
@@ -178,7 +187,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
-                            {message.role === 'user' && (
+                            {editable && (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                                     <button
                                         className="message-edit-button"
