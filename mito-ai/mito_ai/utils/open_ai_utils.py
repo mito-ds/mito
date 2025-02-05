@@ -54,8 +54,10 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
 
 
 async def get_ai_completion_from_mito_server(
-    last_message_content: str,
     ai_completion_data: Dict[str, Any],
+    timeout: int,
+    max_retries: int,
+    last_message_content: str,
     n_counts: int,
     first_usage_date: str,
 ) -> str:
@@ -69,6 +71,8 @@ async def get_ai_completion_from_mito_server(
     check_mito_server_quota(n_counts, first_usage_date)
 
     data = {
+        "timeout": timeout,
+        "max_retries": max_retries,
         "email": __user_email,
         "user_id": __user_id,
         "data": ai_completion_data,

@@ -278,8 +278,10 @@ This attribute is observed by the websocket provider to push the error to the cl
                 completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
                 
                 ai_response = await get_ai_completion_from_mito_server(
-                    request.messages[-1].get("content", ""),
                     completion_function_params,
+                    self.timeout,
+                    self.max_retries,
+                    request.messages[-1].get("content", ""),
                     _num_usages or 0,
                     _first_usage_date or "",
                 )
