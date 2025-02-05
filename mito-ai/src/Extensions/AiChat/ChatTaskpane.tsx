@@ -185,6 +185,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } else {
             outgoingMessage = newChatHistoryManager.addChatInputMessage(input)
         }
+        setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Scroll to the bottom of the chat messages container
         // Add a small delay to ensure the new message is rendered
