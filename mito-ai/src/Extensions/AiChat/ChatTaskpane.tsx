@@ -197,7 +197,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
-
+        
         // Step 4: Scroll so that the top of the last AI message is visible
         setTimeout(() => {
             const aiMessages = chatMessagesRef.current?.getElementsByClassName('message message-assistant');
@@ -206,6 +206,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 lastAiMessage.scrollIntoView({ behavior: 'smooth' });
             }
         }, 100);
+
+        return true
     }
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
@@ -255,7 +257,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } else {
                 console.log('Mito AI: aiResponse', aiResponse)
                 const content = aiResponse.items[0].content || '';
-                
+
                 if (promptType === 'agent:planning') {
                     // If the user is in agent mode, the ai response is a JSON object
                     // which we need to parse. 
@@ -307,6 +309,34 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         setChatHistoryManager(newChatHistoryManager);
+    }
+
+    const executeAgentPlan = async () => {
+        // Get the plan from the chat history
+        const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent')
+
+        // Clear the chat history
+        const newChatHistoryManager = clearChatHistory()
+        setChatHistoryManager(newChatHistoryManager)
+        
+        // Loop through each message in the plan and send it to the AI
+        for (const agentMessage of plan) {
+            const success = await sendChatInputMessage(agentMessage.message.content as string)
+
+            // If the message fails, break out of the loop
+            if (!success) {
+                break
+            }
+
+            await new Promise<void>((resolve) => {
+                setTimeout(async () => {
+                    await previewAICode()
+                    await acceptAICode()
+                    await app.commands.execute("notebook:run-cell-and-select-next");
+                    resolve();
+                }, 1000);
+            });
+        }
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
@@ -641,21 +671,32 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
-            <ChatInput
-                initialContent={''}
-                placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
-                onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                variableManager={variableManager}
-                notebookTracker={notebookTracker}
-                renderMimeRegistry={renderMimeRegistry}
-            />
-            {agentModeEnabled &&
-                <div className="agent-mode-container">
-                    <input placeholder="Enter your CSV file path" className="chat-input chat-input-container"/>
-                </div>
-            }
+            {agentModeEnabled && displayOptimizedChatHistory.length >= 2 ? (
+                <button
+                    className="button-base button-purple"
+                    onClick={executeAgentPlan}
+                >
+                    Let's go!
+                </button>
+            ) : (
+                <>
+                    <ChatInput
+                        initialContent={''}
+                        placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
+                        onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
+                        onCancel={undefined}
+                        isEditing={false}
+                        variableManager={variableManager}
+                        notebookTracker={notebookTracker}
+                        renderMimeRegistry={renderMimeRegistry}
+                    />
+                    {agentModeEnabled &&
+                        <div className="agent-mode-container">
+                            <input placeholder="Enter your CSV file path" className="chat-input chat-input-container" />
+                        </div>
+                    }
+                </>
+            )}
         </div>
     );
 };
