@@ -286,17 +286,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const handleAgentResponse = (agentResponse: any, newChatHistoryManager: ChatHistoryManager) => {
-        // TODO: create an interface for agentResponse
+    const handleAgentResponse = (
+        agentResponse: { actions: string[], dependencies: string[] }, newChatHistoryManager: ChatHistoryManager
+    ) => {
+        // If there are dependencies, we need to add them to the top of the chat history 
+        if (agentResponse.dependencies.length > 0) {
+            newChatHistoryManager.addAIMessageFromResponse(
+                `Install the following dependencies: ${agentResponse.dependencies.join(', ')}`,
+                'agent:planning'
+            )
+        }
 
         // Loop through each action in the agent response 
         // and add it to the chat history.
-        agentResponse.actions.forEach((action: any) => {
+        agentResponse.actions.forEach((action: string) => {
             newChatHistoryManager.addAIMessageFromResponse(
                 action,
                 'agent:planning'
             );
         });
+
         setChatHistoryManager(newChatHistoryManager);
     }
 
