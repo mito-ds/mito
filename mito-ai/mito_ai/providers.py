@@ -295,6 +295,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+            raise
 
 
     async def stream_completions(
