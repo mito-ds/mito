@@ -102,7 +102,7 @@ class InlineCompletionMessageBuilder:
         return "gpt-4o-mini"
 
 @dataclass(frozen=True)
-class AgentMessageMetadata:
+class AgentMessageBuilder:
     fileType: Optional[str] = None
     columnSamples: Optional[List[str]] = None
     input: Optional[str] = None
@@ -110,6 +110,14 @@ class AgentMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_agent_prompt(self.fileType or '', self.columnSamples or [], self.input or '')
+    
+    @property
+    def pro_model(self) -> str:
+        return "o3-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
 
     @property
     def response_format(self) -> Type[BaseModel]:
@@ -117,6 +125,7 @@ class AgentMessageMetadata:
             actions: List[str]
             dependencies: List[str]
         return PlanOfAttack
+    
 
 
 @dataclass(frozen=True)

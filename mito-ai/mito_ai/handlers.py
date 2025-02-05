@@ -27,7 +27,7 @@ from mito_ai.models import (
     ChatMessageBuilder,
     InlineCompletionMessageBuilder,
     SmartDebugMessageBuilder,
-    AgentMessageMetadata,
+    AgentMessageBuilder,
 )
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
@@ -122,6 +122,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
         
         messages = []
+        response_format = None
 
         # Generate new message based on message type
         if type == "inline_completion":
@@ -146,8 +147,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             prompt = smartDebugPromptBuilder.prompt
             model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
         elif type == "agent:planning":
-            prompt = AgentMessageMetadata(**metadata_dict).prompt
-            response_format = AgentMessageMetadata(**metadata_dict).response_format
+            agentMessageBuilder = AgentMessageBuilder(**metadata_dict)
+            prompt = agentMessageBuilder.prompt
+            model = agentMessageBuilder.pro_model if self.is_pro else agentMessageBuilder.os_model
+            response_format = agentMessageBuilder.response_format
         else:
             raise ValueError(f"Invalid message type: {type}")
 
@@ -177,8 +180,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 await self._handle_request(
                     request,
                     prompt_type=request.type,
-                    model=model
-                    response_format=response_format if type == "agent:planning" else None,
+                    model=model,
+                    response_format=response_format
                 )
         except Exception as e:
             await self.handle_exception(e, request)
