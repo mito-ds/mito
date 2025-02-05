@@ -9,8 +9,6 @@ interface IAlertBlockProps {
     mitoAIConnectionErrorType: string | null;
 }
 
-
-
 const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionErrorType }) => {
 
     if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
@@ -21,6 +19,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
                 </p>
                 <ul>
                     <li>Unlimited AI Completions</li>
+                    <li>Advanced reasoning with o3 models</li>
                     <li>All Mito Spreadsheet Pro features</li>
                 </ul>
                 <p>

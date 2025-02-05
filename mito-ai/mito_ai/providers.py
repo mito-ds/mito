@@ -6,12 +6,12 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk
+from traitlets import  Instance, Unicode, default, validate, List
 from pydantic import BaseModel
-from traitlets import CFloat, CInt, Instance, TraitError, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
 
-from .logger import get_logger
-from .models import (
+from mito_ai.logger import get_logger
+from mito_ai.models import (
     AICapabilities,
     CompletionError,
     CompletionItem,
@@ -20,18 +20,18 @@ from .models import (
     CompletionRequest,
     CompletionStreamChunk,
 )
-from .utils.db import get_user_field, set_user_field
-from .utils.open_ai_utils import (
+from mito_ai.utils.db import get_user_field, set_user_field
+from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
+    get_open_ai_completion_function_params,
 )
-from .utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
-from .utils.telemetry_utils import (
+
+from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
+from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
-    MITO_AI_COMPLETION_SUCCESS,
     MITO_SERVER_KEY,
-    MITO_SERVER_NUM_USAGES,
     USER_KEY,
     log,
     log_ai_completion_success,
@@ -48,6 +48,23 @@ class OpenAIProvider(LoggingConfigurable):
         config=True,
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
+    
+    models = List(['gpt-4o-mini', 'o3-mini'])
+    
+    last_error = Instance(
+        CompletionError,
+        allow_none=True,
+        help="""Last error encountered when using the OpenAI provider.
+
+This attribute is observed by the websocket provider to push the error to the client.""",
+    )
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(log=get_logger(), **kwargs)
+        self.last_error = None
+        self._async_client: Optional[openai.AsyncOpenAI] = None
+        self._sync_client: Optional[openai.OpenAI] = None
+        self._models: Optional[List[str]] = None
 
     @default("api_key")
     def _api_key_default(self):
@@ -67,6 +84,9 @@ class OpenAIProvider(LoggingConfigurable):
         client = openai.OpenAI(api_key=api_key)
         models = []
         try:
+            # Make an http request to OpenAI to get the models available
+            # for this API key.
+            # And then handle the exceptions if they are thrown.
             for model in client.models.list():
                 models.append(model.id)
             self._models = models
@@ -108,70 +128,6 @@ class OpenAIProvider(LoggingConfigurable):
             self.log.debug("User OpenAI API key validated.")
             return api_key
 
-    max_completion_tokens = CInt(
-        None,
-        allow_none=True,
-        config=True,
-        help="An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
-    )
-
-    @validate("max_completion_tokens")
-    def _validate_max_completion_tokens(
-        self, proposal: Dict[str, Any]
-    ) -> Optional[int]:
-        max_completion_tokens = proposal["value"]
-        if max_completion_tokens is not None and max_completion_tokens < 1:
-            raise TraitError(
-                f"Invalid max_completion_tokens {max_completion_tokens}; must be greater than 0."
-            )
-        return max_completion_tokens
-
-    model = Unicode(
-        "gpt-4o-mini", config=True, help="OpenAI model to use for completions"
-    )
-
-    @validate("model")
-    def _validate_model(self, proposal: Dict[str, Any]) -> str:
-        model = proposal["value"]
-        if self._models is None:
-            # Force the validation of the API key to get the models
-            self._validate_api_key({"value": self.api_key})
-
-        if self._models is not None and model not in self._models:
-            raise TraitError(
-                f"Invalid model {model!r}; possible values are {self._models}"
-            )
-        return model
-
-    temperature = CFloat(
-        0,
-        config=True,
-        help="What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
-    )
-
-    @validate("temperature")
-    def _validate_temperature(self, proposal: Dict[str, Any]) -> float:
-        temperature = proposal["value"]
-        if temperature < 0 or temperature > 2:
-            raise TraitError(
-                f"Invalid temperature {temperature}; must be between 0 and 2."
-            )
-        return temperature
-
-    last_error = Instance(
-        CompletionError,
-        allow_none=True,
-        help="""Last error encountered when using the OpenAI provider.
-
-This attribute is observed by the websocket provider to push the error to the client.""",
-    )
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(log=get_logger(), **kwargs)
-        self.last_error = None
-        self._client: Optional[openai.AsyncOpenAI] = None
-        self._models: Optional[List[str]] = None
-
     @property
     def can_stream(self) -> bool:
         """Whether the provider supports streaming completions.
@@ -194,8 +150,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self.api_key:
             return AICapabilities(
                 configuration={
-                    "model": self.model,
-                    "temperature": self.temperature,
+                    "model": self.models,
                 },
                 provider="OpenAI (user key)",
             )
@@ -223,29 +178,39 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return AICapabilities(
             configuration={
-                "max_completion_tokens": self.max_completion_tokens,
-                "model": self.model,
-                "temperature": self.temperature,
+                "model": self.models,
             },
             provider="Mito server",
         )
 
     @property
-    def _openAI_client(self) -> Optional[openai.AsyncOpenAI]:
+    def _openAI_async_client(self) -> Optional[openai.AsyncOpenAI]:
         """Get the asynchronous OpenAI client."""
         if not self.api_key:
             return None
 
-        if not self._client or self._client.is_closed():
-            self._client = openai.AsyncOpenAI(api_key=self.api_key)
+        if not self._async_client or self._async_client.is_closed():
+            self._async_client = openai.AsyncOpenAI(api_key=self.api_key)
 
-        return self._client
+        return self._async_client
+    
+    @property
+    def _openAI_sync_client(self) -> Optional[openai.OpenAI]:
+        """Get the synchronous OpenAI client."""
+        if not self.api_key:
+            return None
+
+        if not self._sync_client or self._sync_client.is_closed():
+            self._sync_client = openai.OpenAI(api_key=self.api_key)
+            
+        return self._sync_client
 
     async def request_completions(
         self,
         request: CompletionRequest,
         prompt_type: str,
-        response_format: Optional[Type[BaseModel]] = None,
+        model: str,
+        response_format: Optional[Type[BaseModel]] = None
     ) -> CompletionReply:
         """Get a completion from the OpenAI API.
 
@@ -257,25 +222,16 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         self.last_error = None
         try:
-            if self._openAI_client:
-                self.log.debug(
-                    "Requesting completion from OpenAI API with personal key."
-                )
-                if response_format:
-                    completion = await self._openAI_client.beta.chat.completions.parse(
-                        model=self.model,
-                        messages=request.messages,
-                        temperature=self.temperature,
-                        response_format=response_format,
-                    )
-                else:
-                    completion = await self._openAI_client.chat.completions.create(
-                        model=self.model,
-                        max_completion_tokens=self.max_completion_tokens,
-                        messages=request.messages,
-                        temperature=self.temperature,
-                    )
+            if self._openAI_sync_client:
+                self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
+                
+                # Validate that the model is supported. If not fall back to gpt-4o-mini
+                if model not in self.models:
+                    model = "gpt-4o-mini"
 
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
+                completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
+                                
                 if prompt_type == "agent:planning":
                     pass # TODO: Add logging for agents 
                 else:
@@ -284,56 +240,34 @@ This attribute is observed by the websocket provider to push the error to the cl
                         key_type=USER_KEY,
                         prompt_type=prompt_type,
                         last_message_content=str(request.messages[-1].get('content', '')),
-                        response={"completion": completion.choices[0].message.content},
+                        response={"completion": completion.choices[0].message.content}
                     )
 
-                if len(completion.choices) == 0:
-                    return CompletionReply(
-                        items=[],
-                        parent_id=request.message_id,
-                        error=CompletionError(
-                            error_type="NoCompletion",
-                            title="No completion returned from the OpenAI API.",
-                            traceback="",
-                        ),
-                    )
-                else:
-                    try:
-                        return CompletionReply(
-                            parent_id=request.message_id,
-                            items=[
-                                CompletionItem(
-                                    content=completion.choices[0].message.content or "",
-                                    isIncomplete=False,
-                                )
-                            ],
+                return CompletionReply(
+                    parent_id=request.message_id,
+                    items=[
+                        CompletionItem(
+                            content=completion.choices[0].message.content or "",
+                            isIncomplete=False,
                         )
-                    except BaseException as e:
-                        return CompletionReply(
-                            items=[],
-                            parent_id=request.message_id,
-                            error=CompletionError.from_exception(e),
-                        )
-
+                    ]
+                )
             else:
-                self.log.debug("Requesting completion from Mito server.")
+                # If they don't have an Open AI key, use the mito server to get a completion
+                self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 global _num_usages
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-                # If they don't have an Open AI key, use the mito server to get a completion
+                
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
                 ai_response = await get_ai_completion_from_mito_server(
                     request.messages[-1].get("content", ""),
-                    {
-                        "model": self.model,
-                        "messages": request.messages,
-                        "temperature": self.temperature,
-                    },
+                    completion_function_params,
                     _num_usages or 0,
                     _first_usage_date or "",
                 )
 
                 # Increment the number of usages for everything EXCEPT inline completions.
-                # Inline completions are limited to 30 days, not number of usages.
                 if prompt_type != "inline_completion":
                     _num_usages = (_num_usages or 0) + 1
                     set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
@@ -356,14 +290,15 @@ This attribute is observed by the websocket provider to push the error to the cl
                         )
                     ],
                 )
+
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
-            raise
+
 
     async def stream_completions(
-        self, request: CompletionRequest, prompt_type: str
+        self, request: CompletionRequest, prompt_type: str, model: str
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
@@ -386,18 +321,16 @@ This attribute is observed by the websocket provider to push the error to the cl
             ],
             parent_id=request.message_id,
         )
+        
+        # Validate that the model is supported. If not fall back to gpt-4o-mini
+        if model not in self.models:
+            model = "gpt-4o-mini"
 
         # Send the completion request to the OpenAI API and returns a stream of completion chunks
         try:
-            stream: AsyncStream[
-                ChatCompletionChunk
-            ] = await self._openAI_client.chat.completions.create(
-                model=self.model,
-                stream=True,
-                max_completion_tokens=self.max_completion_tokens,
-                messages=request.messages,
-                temperature=self.temperature,
-            )
+            completion_function_params = get_open_ai_completion_function_params(model, request.messages, stream=True)
+            stream: AsyncStream[ChatCompletionChunk] = await self._openAI_async_client.chat.completions.create(**completion_function_params)
+            
             # Log the successful completion
             log_ai_completion_success(
                 key_type=USER_KEY,

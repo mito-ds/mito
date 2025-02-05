@@ -108,6 +108,9 @@ class ChatPromptGenerator():
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
         raise NotImplementedError("Subclasses must implement this method")
     
+    def get_default_model(self) -> str:
+        return "o3-mini"
+    
 class InlineCodeCompletionPromptGenerator():
 
     prompt_name: str
@@ -118,6 +121,9 @@ class InlineCodeCompletionPromptGenerator():
     def post_process_output(self, output: str, prefix: str, suffix: str) -> str:
         # Default implementation returns the output unchanged
         return output
+    
+    def get_default_model(self) -> str:
+        return "gpt-4o-mini"
 
 class DebugPromptGenerator():
 
@@ -125,4 +131,7 @@ class DebugPromptGenerator():
 
     def get_prompt(self, error_message: str, notebook_state: NotebookState) -> str:
         raise NotImplementedError("Subclasses must implement this method")
+    
+    def get_default_model(self) -> str:
+        return "gpt-4o-mini"
     

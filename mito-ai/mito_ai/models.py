@@ -30,7 +30,7 @@ class AICapabilities:
     """Message type."""
 
 @dataclass(frozen=True)
-class ChatMessageMetadata:
+class ChatMessageBuilder:
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     input: Optional[str] = None
@@ -39,9 +39,17 @@ class ChatMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
+    
+    @property
+    def pro_model(self) -> str:
+        return "o3-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
-class SmartDebugMessageMetadata:
+class SmartDebugMessageBuilder:
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     errorMessage: Optional[str] = None
@@ -49,18 +57,34 @@ class SmartDebugMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
+    
+    @property
+    def pro_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
-class CodeExplainMessageMetadata:
+class CodeExplainMessageBuilder:
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
 
     @property
     def prompt(self) -> str:
         return create_explain_code_prompt(self.activeCellCode or '')
+    
+    @property
+    def pro_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
-class InlineCompletionMessageMetadata:
+class InlineCompletionMessageBuilder:
     prefix: Optional[str] = None
     suffix: Optional[str] = None
     variables: Optional[List[str]] = None
@@ -68,9 +92,17 @@ class InlineCompletionMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
+    
+    @property
+    def pro_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
 
 @dataclass(frozen=True)
-class AgentMessageMetadata:
+class AgentMessageBuilder:
     fileType: Optional[str] = None
     columnSamples: Optional[List[str]] = None
     input: Optional[str] = None
@@ -78,6 +110,14 @@ class AgentMessageMetadata:
     @property
     def prompt(self) -> str:
         return create_agent_prompt(self.fileType or '', self.columnSamples or [], self.input or '')
+    
+    @property
+    def pro_model(self) -> str:
+        return "o3-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
 
     @property
     def response_format(self) -> Type[BaseModel]:
@@ -85,6 +125,7 @@ class AgentMessageMetadata:
             actions: List[str]
             dependencies: List[str]
         return PlanOfAttack
+    
 
 
 @dataclass(frozen=True)
