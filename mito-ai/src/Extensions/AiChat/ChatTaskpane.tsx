@@ -254,11 +254,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setChatHistoryManager(newChatHistoryManager);
             } else {
                 console.log('Mito AI: aiResponse', aiResponse)
-                newChatHistoryManager.addAIMessageFromResponse(
-                    aiResponse.items[0].content || '',
-                    promptType
-                );
-                setChatHistoryManager(newChatHistoryManager);
+                const content = aiResponse.items[0].content || '';
+                
+                if (promptType === 'agent:planning') {
+                    // If the user is in agent mode, the ai response is a JSON object
+                    // which we need to parse. 
+                    const agentResponse = JSON.parse(content);
+                    handleAgentResponse(agentResponse, newChatHistoryManager);
+                } else {
+                    // For all other prompt types, we can just add the content to the chat history
+                    newChatHistoryManager.addAIMessageFromResponse(
+                        content,
+                        promptType
+                    );
+                    setChatHistoryManager(newChatHistoryManager);
+                }
             }
         } catch (error) {
             newChatHistoryManager.addAIMessageFromResponse(
@@ -276,6 +286,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
+    const handleAgentResponse = (agentResponse: any, newChatHistoryManager: ChatHistoryManager) => {
+        // TODO: create an interface for agentResponse
+
+        // Loop through each action in the agent response 
+        // and add it to the chat history.
+        agentResponse.actions.forEach((action: any) => {
+            newChatHistoryManager.addAIMessageFromResponse(
+                action,
+                'agent:planning'
+            );
+        });
+        setChatHistoryManager(newChatHistoryManager);
+    }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
         if (!aiMessage) {
