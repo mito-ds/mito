@@ -58,6 +58,9 @@ class OpenAIProvider(LoggingConfigurable):
 
 This attribute is observed by the websocket provider to push the error to the client.""",
     )
+    
+    timeout = 100
+    max_retries = 3
 
     def __init__(self, **kwargs) -> None:
         super().__init__(log=get_logger(), **kwargs)
@@ -190,7 +193,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             return None
 
         if not self._async_client or self._async_client.is_closed():
-            self._async_client = openai.AsyncOpenAI(api_key=self.api_key)
+            self._async_client = openai.AsyncOpenAI(
+                api_key=self.api_key,
+                max_retries=self.max_retries,
+                timeout=self.timeout
+            )
 
         return self._async_client
     
@@ -201,7 +208,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             return None
 
         if not self._sync_client or self._sync_client.is_closed():
-            self._sync_client = openai.OpenAI(api_key=self.api_key)
+            self._sync_client = openai.OpenAI(
+                api_key=self.api_key,
+                max_retries=self.max_retries,
+                timeout=self.timeout
+            )
             
         return self._sync_client
 
@@ -220,6 +231,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         Returns:
             The completion
         """
+        TIMEOUT = 100
         self.last_error = None
         try:
             if self._openAI_sync_client:
@@ -229,8 +241,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 if model not in self.models:
                     model = "gpt-4o-mini"
 
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format, TIMEOUT)
                 
+                print("Sending message")
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                 
                 print(f"completion: {completion}")
@@ -296,6 +309,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
 
         except BaseException as e:
+            print(e)
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
@@ -343,6 +357,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 last_message_content=str(request.messages[-1].get('content', '')),
                 response={"completion": "not available for streamed completions"},
             )
+            
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: USER_KEY}, error=e)
