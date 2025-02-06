@@ -17,6 +17,8 @@ from .telemetry_utils import (
     log,
 )
 from .version_utils import is_pro
+from openai.types.chat import ChatCompletionMessageParam
+
 
 MITO_AI_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
@@ -54,7 +56,7 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
 
 
 async def get_ai_completion_from_mito_server(
-    last_message_content: str,
+    last_message_content: str | None,
     ai_completion_data: Dict[str, Any],
     n_counts: int,
     first_usage_date: str,
@@ -72,7 +74,7 @@ async def get_ai_completion_from_mito_server(
         "email": __user_email,
         "user_id": __user_id,
         "data": ai_completion_data,
-        "user_input": last_message_content,  # We add this just for logging purposes
+        "user_input": last_message_content or "",  # We add this just for logging purposes
     }
 
     headers = {
@@ -96,7 +98,7 @@ async def get_ai_completion_from_mito_server(
 
 def get_open_ai_completion_function_params(
     model: str, 
-    messages: List[Dict[str, Any]], 
+    messages: List[ChatCompletionMessageParam], 
     stream: bool,
     response_format: Optional[Type[BaseModel]] = None
 ) -> Dict[str, Any]:
