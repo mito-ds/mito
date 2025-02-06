@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type, Dict, Any, Union, cast, runtime_checkable, Protocol, get_args
-import json
+from typing import List, Literal, Optional, Type, Union
 
 from pydantic import BaseModel
 from openai.types.chat import ChatCompletionMessageParam
 
-from .prompt_builders import (
+from mito_ai.prompt_builders import (
     create_chat_prompt,
     create_inline_prompt,
     create_explain_code_prompt,
@@ -21,14 +20,18 @@ IncomingMessageTypes = Union[Literal['clear_history'], CompletionIncomingMessage
 
 @dataclass(frozen=True)
 class AICapabilities:
-    """AI provider capabilities"""
+    """
+    AI provider capabilities
+    """
 
+    # Configuration schema.
     configuration: dict
-    """Configuration schema."""
+
+    # AI provider name.
     provider: str
-    """AI provider name."""
+
+    # Message type.
     type: str = "ai_capabilities"
-    """Message type."""
 
 @dataclass(frozen=True)
 class ChatMessageBuilder:
@@ -142,7 +145,7 @@ class CompletionRequest:
     message_id: str
 
     # Chat messages.
-    messages: List[Dict[str, Any]] = field(default_factory=list)
+    messages: List[ChatCompletionMessageParam] = field(default_factory=list)
 
     # Whether to stream the response (if supported by the model).
     stream: bool = False
