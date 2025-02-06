@@ -1,38 +1,43 @@
-import React, { useEffect, useRef, useState } from 'react';
-import '../../../style/ChatTaskpane.css';
-import '../../../style/button.css';
-import '../../../style/TextButton.css';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
-import ChatMessage from './ChatMessage/ChatMessage';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ChatHistoryManager, IOutgoingMessage } from './ChatHistoryManager';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import LoadingDots from '../../components/LoadingDots';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { CodeCell } from '@jupyterlab/cells';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
+import { Compartment, StateEffect } from '@codemirror/state';
+import OpenAI from "openai";
+import React, { useEffect, useRef, useState } from 'react';
+
+import '../../../style/button.css';
+import '../../../style/ChatTaskpane.css';
+import '../../../style/TextButton.css';
+import ChatIcon from '../../icons/ChatIcon';
+import ResetIcon from '../../icons/ResetIcon';
+import RobotHeadIcon from '../../icons/RobotHeadIcon';
+import SupportIcon from '../../icons/SupportIcon';
+import ChatInput from './ChatMessage/ChatInput';
+import ChatMessage from './ChatMessage/ChatMessage';
+import { ChatHistoryManager, IOutgoingMessage } from './ChatHistoryManager';
+import { codeDiffStripesExtension } from './CodeDiffDisplay';
+import DropdownMenu from '../../components/DropdownMenu';
+import IconButton from '../../components/IconButton';
+import LoadingDots from '../../components/LoadingDots';
+import TextAndIconButton from '../../components/TextAndIconButton';
 import {
-    COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
+    COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
+    COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
+    COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
-    COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
-    COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE
 } from '../../commands';
-import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
-import ResetIcon from '../../icons/ResetIcon';
-import IconButton from '../../components/IconButton';
-import { OperatingSystem } from '../../utils/user';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { CodeCell } from '@jupyterlab/cells';
-import { StateEffect, Compartment } from '@codemirror/state';
-import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import OpenAI from "openai";
-import ChatInput from './ChatMessage/ChatInput';
-import SupportIcon from '../../icons/SupportIcon';
+import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
+import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -197,7 +202,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
-        
+
         // Step 4: Scroll so that the top of the last AI message is visible
         setTimeout(() => {
             const aiMessages = chatMessagesRef.current?.getElementsByClassName('message message-assistant');
@@ -318,7 +323,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Clear the chat history
         const newChatHistoryManager = clearChatHistory()
         setChatHistoryManager(newChatHistoryManager)
-        
+
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
             const success = await sendChatInputMessage(agentMessage.message.content as string)
@@ -603,26 +608,56 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
+    const agentMenuItems = [
+        {
+            label: 'Chat',
+            onClick: () => {
+                setAgentModeEnabled(false);
+            },
+            icon: ChatIcon,
+            iconColor: 'var(--jp-ui-font-color1)'
+        },
+        {
+            label: 'Agent',
+            onClick: () => {
+                setAgentModeEnabled(true);
+            },
+            icon: RobotHeadIcon,
+            iconColor: 'var(--jp-ui-font-color1)'
+        }
+    ];
+
     return (
         <div className="chat-taskpane">
-            <div className="chat-taskpane-header">
-                <IconButton
-                    icon={<SupportIcon />}
-                    title="Enter Agent Mode"
-                    onClick={() => { setAgentModeEnabled(!agentModeEnabled) }}
+            <div className="chat-taskpane-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <DropdownMenu
+                    trigger={
+                        <TextAndIconButton
+                            text={agentModeEnabled ? 'Agent ▾' : 'Chat ▾'}
+                            icon={agentModeEnabled ? RobotHeadIcon : ChatIcon}
+                            title={'Enter Agent Mode'}
+                            variant='purple'
+                            width='fit-contents'
+                            iconPosition='left'
+                            onClick={() => { }}
+                        />
+                    }
+                    items={agentMenuItems}
                 />
-                <IconButton
-                    icon={<SupportIcon />}
-                    title="Get Help"
-                    onClick={() => {
-                        window.open('mailto:founders@sagacollab.com?subject=Mito AI Chat Support', '_blank');
-                    }}
-                />
-                <IconButton
-                    icon={<ResetIcon />}
-                    title="Clear the chat history"
-                    onClick={() => { clearChatHistory() }}
-                />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <IconButton
+                        icon={<SupportIcon />}
+                        title="Get Help"
+                        onClick={() => {
+                            window.open('mailto:founders@sagacollab.com?subject=Mito AI Chat Support', '_blank');
+                        }}
+                    />
+                    <IconButton
+                        icon={<ResetIcon />}
+                        title="Clear the chat history"
+                        onClick={() => { clearChatHistory() }}
+                    />
+                </div>
             </div>
             <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length <= 1 &&
