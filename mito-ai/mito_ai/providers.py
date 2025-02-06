@@ -63,6 +63,7 @@ This attribute is observed by the websocket provider to push the error to the cl
     # Consider the request a failure if it takes longer than 45 seconds.
     # We will try a total of 3 times. Once on the initial request, 
     # and then twice more if the first request fails.
+    # Note that max_retries cannot be set to None. If we want to disable it, set it to 0.
     timeout = 45
     max_retries = 2
 
