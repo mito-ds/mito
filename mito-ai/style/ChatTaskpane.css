@@ -68,6 +68,10 @@
     background-color: var(--purple-300);
 }
 
+.message-agent .jp-RenderedHTMLCommon {
+    color: var(--grey-900) !important;
+}
+
 .markdown-message-part * .jp-RenderedHTMLCommon :not(pre) > code {
     background-color: var(--purple-300);
     color: var(--purple-700);
@@ -130,6 +134,7 @@
 .message-edit-button {
     background-color: rgba(255, 255, 255, 0);
     border: none;
+    color: var(--grey-900) !important;
 }
 
 .message-edit-buttons {

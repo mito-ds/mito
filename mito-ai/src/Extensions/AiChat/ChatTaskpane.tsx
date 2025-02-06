@@ -726,9 +726,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         renderMimeRegistry={renderMimeRegistry}
                     />
                     {agentModeEnabled &&
-                        <div className="agent-mode-container">
-                            <input placeholder="Enter your CSV file path" className="chat-input chat-input-container" />
-                        </div>
+                        <>
+                            <div className="agent-mode-container">
+                                <input placeholder="Enter your CSV file path" className="chat-input chat-input-container" />
+                            </div>
+                            <button
+                                className="button-base button-purple"
+                                onClick={() => { console.log('REPLACE_ME') }}
+                            >
+                                Create plan
+                            </button>
+                        </>
                     }
                 </>
             )}
