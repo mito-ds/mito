@@ -46,6 +46,7 @@ class OpenAIProvider(LoggingConfigurable):
 
     api_key = Unicode(
         config=True,
+        allow_none=True,
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
     
@@ -68,18 +69,19 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @default("api_key")
     def _api_key_default(self):
-        default_key = os.environ.get("OPENAI_API_KEY", "")
+        print("Running default")
+        default_key = os.environ.get("OPENAI_API_KEY")
         return self._validate_api_key({"value": default_key})
 
     @validate("api_key")
-    def _validate_api_key(self, changes: Dict[str, Any]) -> str:
+    def _validate_api_key(self, changes: Dict[str, Any]) -> Optional[str]:
         """"""
         api_key = changes["value"]
         if not api_key:
             self.log.debug(
                 "No OpenAI API key provided; following back to Mito server API."
             )
-            return ""
+            return None
 
         client = openai.OpenAI(api_key=api_key)
         models = []
@@ -99,14 +101,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                 e,
                 hint="You're missing the OPENAI_API_KEY environment variable. Run the following code in your terminal to set the environment variable and then relaunch the jupyter server `export OPENAI_API_KEY=<your-api-key>`",
             )
-            return ""
+            return None
         except openai.PermissionDeniedError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
                 exc_info=e,
             )
             self.last_error = CompletionError.from_exception(e)
-            return ""
+            return None
         except openai.InternalServerError as e:
             self.log.debug(
                 "Unable to get OpenAI models due to OpenAI error.", exc_info=e
@@ -123,7 +125,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 exec_info=e,
             )
             self.last_error = CompletionError.from_exception(e)
-            return ""
+            return None
         else:
             self.log.debug("User OpenAI API key validated.")
             return api_key
