@@ -3,11 +3,12 @@ Helpers for accessing the user.json file
 """
 import os
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union, Final, TypeVar, cast
 from .schema import MITO_FOLDER
 
 # The path of the user.json file
-USER_JSON_PATH = os.path.join(MITO_FOLDER, 'user.json')
+USER_JSON_PATH: Final[str] = os.path.join(MITO_FOLDER, 'user.json')
+
 
 def get_user_field(field: str) -> Optional[Any]:
     """
@@ -22,7 +23,7 @@ def get_user_field(field: str) -> Optional[Any]:
     
 def set_user_field(field: str, value: Any) -> None:
     """
-    Updates the value of a specific feild in user.json
+    Updates the value of a specific field in user.json
     """
     with open(USER_JSON_PATH, 'r') as user_file_old:
         old_user_json = json.load(user_file_old)

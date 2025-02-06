@@ -96,7 +96,11 @@ setup(
             'wheel==0.42.0', 
             'twine==5.1.1',
             'setuptools==68.0.0'
-            
+        ],
+        'dev': [
+            'mypy>=1.8.0',
+            'types-setuptools>=69.0.0',
+            'types-tornado>=5.1.1',
         ],
         'test': [
             'pytest==8.3.4',

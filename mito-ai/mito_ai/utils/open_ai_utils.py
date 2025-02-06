@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 
 import json
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, Final, cast
 from datetime import datetime, timedelta
 
 from pydantic import BaseModel
@@ -18,13 +18,13 @@ from .telemetry_utils import (
 )
 from .version_utils import is_pro
 
-MITO_AI_URL = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+MITO_AI_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
-OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 500
-OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT = 30 # days
+OPEN_SOURCE_AI_COMPLETIONS_LIMIT: Final[int] = 500
+OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT: Final[int] = 30 # days
 
-__user_email = None
-__user_id = None
+__user_email: Optional[str] = None
+__user_id: Optional[str] = None
 
 
 def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
