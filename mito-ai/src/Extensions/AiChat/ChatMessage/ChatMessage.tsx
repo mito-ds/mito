@@ -34,7 +34,7 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, isAgentMessage?: boolean) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -71,12 +71,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        if (messageType === 'openai message:agent') {
-            // If the message is part of the agent planning, 
-            //do nothing untill the user accepts the plan.
-        } else {
-            onUpdateMessage(messageIndex, content);
-        }
+        onUpdateMessage(
+            messageIndex, 
+            content, 
+            messageType === 'openai message:agent' ? true : false
+        )
         setIsEditing(false);
     };
 

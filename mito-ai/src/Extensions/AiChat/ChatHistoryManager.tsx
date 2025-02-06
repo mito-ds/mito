@@ -98,7 +98,7 @@ export class ChatHistoryManager {
         }
     }
 
-    updateMessageAtIndex(index: number, newContent: string): IOutgoingMessage {
+    updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IOutgoingMessage {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
@@ -111,11 +111,14 @@ export class ChatHistoryManager {
         
         this.displayOptimizedChatHistory[index] = { 
             message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
-            type: 'openai message',
+            type: isAgentMessage ? 'openai message:agent' : 'openai message',
             codeCellID: activeCellID
         }
 
-        this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        // Only slice the history if it's not an agent message
+        if (!isAgentMessage) {
+            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        }
 
         return {
             promptType: 'chat',

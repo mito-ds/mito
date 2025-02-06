@@ -215,8 +215,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return true
     }
 
-    const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
-        sendChatInputMessage(newContent, messageIndex)
+    const handleUpdateMessage = async (messageIndex: number, newContent: string, isAgentMessage: boolean = false) => {
+        if (isAgentMessage) {
+            // Update the agent message locally without sending it to the AI
+            const newChatHistoryManager = getDuplicateChatHistoryManager()
+            newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent, true)
+            setChatHistoryManager(newChatHistoryManager)
+        } else {
+            sendChatInputMessage(newContent, messageIndex)
+        }
     };
 
     const sendAgentMessage = async (message: string) => {
@@ -317,6 +324,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const executeAgentPlan = async () => {
+        setAgentModeEnabled(false)
+
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent')
 
