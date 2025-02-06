@@ -108,7 +108,6 @@ def get_open_ai_completion_function_params(
     messages: List[Dict[str, Any]], 
     stream: bool,
     response_format: Optional[Type[BaseModel]] = None,
-    timeout: Optional[int] = None,
 ) -> Dict[str, Any]:
     
     completion_function_params = {
@@ -121,11 +120,5 @@ def get_open_ai_completion_function_params(
     # o3-mini will error if we try setting the temperature
     if model == "gpt-4o-mini":
         completion_function_params["temperature"] = 0.0
-        
-    # Timeout is only supported in the data when we use the OpenAI API.
-    # When we make a request using the mito server, we need to pass the timeout
-    # as a top level parameter, not in the json body otherwise it will error. 
-    if timeout is not None:
-        completion_function_params["timeout"] = timeout
 
     return completion_function_params

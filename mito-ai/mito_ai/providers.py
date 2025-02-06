@@ -235,7 +235,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         Returns:
             The completion
         """
-        TIMEOUT = 100
         self.last_error = None
         try:
             if self._openAI_sync_client:
@@ -245,12 +244,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 if model not in self.models:
                     model = "gpt-4o-mini"
 
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format, TIMEOUT)
-                
-                print("Sending message")
+                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-                
-                print(f"completion: {completion}")
                                 
                 if prompt_type == "agent:planning":
                     pass # TODO: Add logging for agents 
@@ -315,7 +310,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
 
         except BaseException as e:
-            print(e)
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
