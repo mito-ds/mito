@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 
 import json
-from typing import Any, Dict, List, Optional, Type, Final
+from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
 
 from pydantic import BaseModel
@@ -56,7 +56,7 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
 
 
 async def get_ai_completion_from_mito_server(
-    last_message_content: str | None,
+    last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
     n_counts: int,
     first_usage_date: str,
@@ -93,7 +93,7 @@ async def get_ai_completion_from_mito_server(
     # so we just return that.
     content = json.loads(res.body)
 
-    return content.get("completion", "")
+    return str(content.get("completion", ""))
 
 
 def get_open_ai_completion_function_params(

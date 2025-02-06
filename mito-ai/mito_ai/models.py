@@ -213,7 +213,7 @@ class CompletionError:
             error_type=f"{error_module}.{error_type.__name__}"
             if error_module
             else error_type.__name__,
-            title=exception.body.get("message")  # type: ignore[attr-defined]
+            title=exception.body.get("message")
             if hasattr(exception, "body")
             else (exception.args[0] if exception.args else "Exception"),
             traceback=traceback.format_exc(),
