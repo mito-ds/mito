@@ -69,7 +69,6 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @default("api_key")
     def _api_key_default(self):
-        print("Running default")
         default_key = os.environ.get("OPENAI_API_KEY")
         return self._validate_api_key({"value": default_key})
 
