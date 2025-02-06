@@ -738,7 +738,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     />
                     {agentModeEnabled &&
                         <>
-                            <div className="agent-mode-container">
+                            {/* <div className="agent-mode-container">
                                 <input placeholder="Enter your CSV file path" className="chat-input chat-input-container" />
                             </div>
                             <button
@@ -746,7 +746,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 onClick={() => { console.log('REPLACE_ME') }}
                             >
                                 Create plan
-                            </button>
+                            </button> */}
                         </>
                     }
                 </>
