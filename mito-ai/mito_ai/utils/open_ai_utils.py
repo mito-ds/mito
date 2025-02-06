@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 
 import json
-from typing import Any, Dict, List, Optional, Type, Final, cast
+from typing import Any, Dict, List, Optional, Type, Final
 from datetime import datetime, timedelta
 
 from pydantic import BaseModel

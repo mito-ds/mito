@@ -63,7 +63,7 @@ Your task: {input}
     
     return prompt
 
-def create_explain_code_prompt(active_cell_code: str):
+def create_explain_code_prompt(active_cell_code: str) -> str:
     prompt = f"""Explain the code in the active code cell to me like I have a basic understanding of Python. Don't explain each line, but instead explain the overall logic of the code.
 
 <Example>
@@ -92,10 +92,10 @@ Output:
     return prompt
     
 def create_inline_prompt(
-        prefix: str,
-        suffix: str,
-        variables: List[str],
-):
+    prefix: str,
+    suffix: str,
+    variables: List[str],
+) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     prompt = f"""You are a coding assistant that lives inside of JupyterLab. Your job is to help the user write code.
 
@@ -250,7 +250,7 @@ def create_error_prompt(
     errorMessage: str,
     active_cell_code: str,
     variables: List[str],
-):
+) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     prompt = f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
 
@@ -381,7 +381,7 @@ SOLUTION:
 """
     return prompt
 
-def create_agent_prompt(file_type: str, columnSamples: List[str], input: str):
+def create_agent_prompt(file_type: str, columnSamples: List[str], input: str) -> str:
     if file_type:
         file_sample_snippet = f"""You will be working with the following dataset (sample rows shown) from a {file_type} file:
 {columnSamples}
