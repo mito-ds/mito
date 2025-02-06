@@ -18,7 +18,13 @@ from .telemetry_utils import (
 )
 from .version_utils import is_pro
 
-MITO_AI_URL = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+MITO_AI_PROD_URL = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+MITO_AI_DEV_URL = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+
+# If you want to test the dev endpoint, change this to MITO_AI_DEV_URL.
+# Note that we have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
+# before merging into dev because we always want our users to be using the prod endpoint!
+MITO_AI_URL = MITO_AI_PROD_URL
 
 OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 500
 OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT = 30 # days
@@ -86,6 +92,11 @@ async def get_ai_completion_from_mito_server(
     http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
     try:
         res = await http_client.fetch(
+            # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
+            # go to the top of this file and change MITO_AI_URL to MITO_AI_DEV_URL. We 
+            # have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
+            # before merging into dev. So if you change which variable we are using here, the 
+            # test will not catch our mistakes.
             MITO_AI_URL, method="POST", headers=headers, body=json.dumps(data)
         )
     finally:
