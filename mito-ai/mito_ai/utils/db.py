@@ -3,7 +3,7 @@ Helpers for accessing the user.json file
 """
 import os
 import json
-from typing import Any, Dict, Optional, Union, Final, TypeVar, cast
+from typing import Any, Optional, Final
 from .schema import MITO_FOLDER
 
 # The path of the user.json file
