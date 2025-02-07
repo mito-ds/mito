@@ -734,7 +734,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <>
                     <ChatInput
                         initialContent={''}
-                        placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
+                        placeholder={agentModeEnabled ? 'Ask agent to do anything' : displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
                         onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
                         onCancel={undefined}
                         isEditing={false}
