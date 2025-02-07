@@ -217,7 +217,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const handleUpdateMessage = async (messageIndex: number, newContent: string, isAgentMessage: boolean = false) => {
         if (isAgentMessage) {
-            // Update the agent message locally without sending it to the AI
+            // In agent planning mode we only update the message locally without sending it to the AI
+            // because the user has not yet confirmed that they want the AI to process these messages 
+            // until they hit the submit button.
             const newChatHistoryManager = getDuplicateChatHistoryManager()
             newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent, true)
             setChatHistoryManager(newChatHistoryManager)
