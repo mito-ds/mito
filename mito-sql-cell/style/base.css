@@ -1,18 +1,18 @@
 /* TOOLBAR */
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sqlcell-header .jp-Toolbar {
+.mito-sqlcell-toolbar .jp-Toolbar {
   border-bottom: none;
   align-items: center;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sqlcell-header .jp-Toolbar .mito-sqlcell-variable {
+.mito-sqlcell-toolbar .jp-Toolbar .mito-sqlcell-variable {
   display: flex;
   align-items: center;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sqlcell-header .jp-Toolbar input {
+.mito-sqlcell-toolbar .jp-Toolbar input {
   height: 63%;
 }

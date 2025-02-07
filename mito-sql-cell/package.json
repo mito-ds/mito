@@ -66,6 +66,7 @@
         "@jupyterlab/codeeditor": "^4.0.0",
         "@jupyterlab/codemirror": "^4.0.0",
         "@jupyterlab/coreutils": "^6.0.0",
+        "@jupyterlab/docregistry": "^4.0.0",
         "@jupyterlab/nbformat": "^4.0.0",
         "@jupyterlab/notebook": "^4.0.0",
         "@jupyterlab/observables": "^5.0.0",
@@ -75,6 +76,7 @@
         "@lumino/algorithm": "^2.0.0",
         "@lumino/commands": "^2.0.0",
         "@lumino/coreutils": "^2.0.0",
+        "@lumino/disposable": "^2.0.0",
         "@lumino/messaging": "^2.0.0",
         "@lumino/signaling": "^2.0.0",
         "@lumino/widgets": "^2.0.0",
@@ -118,9 +120,6 @@
         "access": "public"
     },
     "jupyterlab": {
-        "disabledExtensions": [
-            "@jupyterlab/notebook-extension:factory"
-        ],
         "discovery": {
             "server": {
                 "managers": [
