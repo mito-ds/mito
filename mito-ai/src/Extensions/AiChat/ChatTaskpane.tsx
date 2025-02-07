@@ -721,7 +721,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
-            {agentModeEnabled && displayOptimizedChatHistory.length >= 2 ? (
+            {agentModeEnabled && displayOptimizedChatHistory.some(msg =>
+                msg.type === 'openai message:agent:planning'
+            ) ? (
                 <button
                     className="button-base button-purple"
                     onClick={executeAgentPlan}
