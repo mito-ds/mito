@@ -336,14 +336,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
 
-        // Clear the chat history
-        const newChatHistoryManager = clearChatHistory()
-        setChatHistoryManager(newChatHistoryManager)
-
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
             const success = await sendChatInputMessage(agentMessage.message.content as string)
-
+            
             // If the message fails, break out of the loop
             if (!success) {
                 break
