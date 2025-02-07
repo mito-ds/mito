@@ -46,6 +46,8 @@ class CellTypeSelector extends ReactWidget {
     widget.activeCellChanged.connect(this.update, this);
     // Follow a change in the selection.
     widget.selectionChanged.connect(this.update, this);
+    // We need to refresh the widget if the content of a cell changes to an SQL one.
+    widget.modelContentChanged.connect(this.update, this);
   }
 
   /**
@@ -65,7 +67,14 @@ class CellTypeSelector extends ReactWidget {
         }
       }
 
-      if (this._notebook.activeCell?.model.type !== newType) {
+      let currentType = this._notebook.activeCell?.model.type;
+      if (
+        currentType === 'code' &&
+        MagicLine.isSQLCell(this._notebook.activeCell!.model as ICodeCellModel)
+      ) {
+        currentType = 'sql';
+      }
+      if (currentType !== newType) {
         if (
           this._notebook.activeCell &&
           this._currentType === 'sql' &&
