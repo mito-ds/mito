@@ -303,6 +303,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleAgentResponse = (
         agentResponse: { actions: string[], dependencies: string[] }, newChatHistoryManager: ChatHistoryManager
     ) => {
+        newChatHistoryManager.addAIMessageFromResponse(
+            "Based on your request, I've outlined a step-by-step plan. Please review each step carefully. If you'd like to add details or make any changes, you can edit each step directly. Once everything looks good, press Go at the bottom of the task pane to proceed.",
+            'chat'
+        )
+
         // If there are dependencies, we need to add them to the top of the chat history 
         if (agentResponse.dependencies.length > 0) {
             newChatHistoryManager.addAIMessageFromResponse(
