@@ -339,13 +339,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
             const success = await sendChatInputMessage(agentMessage.message.content as string)
-            
+
             // If the message fails, break out of the loop
             if (!success) {
                 break
             }
 
             await new Promise<void>((resolve) => {
+                // Adding a small delay to make it easier for users to follow along
                 setTimeout(async () => {
                     await previewAICode()
                     await acceptAICode()
