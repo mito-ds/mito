@@ -8,7 +8,7 @@ REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
 
-def test_os_user_mito_server_below_limit():
+def test_os_user_mito_server_below_limit() -> None:
     """
     Open source user, with no OpenAI API key set (Mito server), below both limits.
     No error should be thrown.
@@ -27,7 +27,7 @@ def test_os_user_mito_server_below_limit():
         assert llm.last_error is None
 
 
-def test_os_user_mito_server_above_limit():
+def test_os_user_mito_server_above_limit() -> None:
     """
     Open source user, with no OpenAI API key set (Mito server), above both limits.
     An error should be thrown.
@@ -60,7 +60,7 @@ def test_os_user_mito_server_above_limit():
         assert llm.last_error.title == "mito_server_free_tier_limit_reached"
 
 
-def test_os_user_openai_key_set_below_limit():
+def test_os_user_openai_key_set_below_limit() -> None:
     """
     Open source user, with OpenAI API key set, below both limits.
     No error should be thrown.
@@ -78,7 +78,7 @@ def test_os_user_openai_key_set_below_limit():
         assert llm.last_error is None
 
 
-def test_os_user_openai_key_set_above_limit():
+def test_os_user_openai_key_set_above_limit() -> None:
     """
     Open source user, with OpenAI API key set, above both limits.
     No error should be thrown, since the user is using their own key.
@@ -107,7 +107,7 @@ def test_os_user_openai_key_set_above_limit():
         assert llm.last_error is None
 
 
-def test_pro_user_mito_server_set_below_limit():
+def test_pro_user_mito_server_set_below_limit() -> None:
     """
     Pro user, with no OpenAI API key set (Mito server), below chat limit.
     No error should be thrown.
@@ -127,7 +127,7 @@ def test_pro_user_mito_server_set_below_limit():
         assert llm.last_error is None
 
 
-def test_pro_user_mito_server_above_limit():
+def test_pro_user_mito_server_above_limit() -> None:
     """
     Pro user, with no OpenAI API key set (Mito server), with usage above both limits.
     No error should be thrown since pro users don't have limits.
@@ -160,7 +160,7 @@ def test_pro_user_mito_server_above_limit():
         assert llm.last_error is None
 
 
-def test_pro_user_openai_key_set_below_limit():
+def test_pro_user_openai_key_set_below_limit() -> None:
     """
     Pro user, with OpenAI API key set, below chat limit.
     No error should be thrown.
@@ -179,7 +179,7 @@ def test_pro_user_openai_key_set_below_limit():
         assert llm.last_error is None
 
 
-def test_pro_user_openai_key_set_above_limit():
+def test_pro_user_openai_key_set_above_limit() -> None:
     """
     Pro user, with OpenAI API key set, above both limits.
     No error should be thrown since pro users don't have limits.

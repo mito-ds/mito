@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 
 import json
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
 
 from pydantic import BaseModel
@@ -17,14 +17,16 @@ from .telemetry_utils import (
     log,
 )
 from .version_utils import is_pro
+from openai.types.chat import ChatCompletionMessageParam
 
-MITO_AI_URL = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
-OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 500
-OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT = 30 # days
+MITO_AI_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
-__user_email = None
-__user_id = None
+OPEN_SOURCE_AI_COMPLETIONS_LIMIT: Final[int] = 500
+OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT: Final[int] = 30 # days
+
+__user_email: Optional[str] = None
+__user_id: Optional[str] = None
 
 
 def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
@@ -54,7 +56,7 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
 
 
 async def get_ai_completion_from_mito_server(
-    last_message_content: str,
+    last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
     n_counts: int,
     first_usage_date: str,
@@ -72,7 +74,7 @@ async def get_ai_completion_from_mito_server(
         "email": __user_email,
         "user_id": __user_id,
         "data": ai_completion_data,
-        "user_input": last_message_content,  # We add this just for logging purposes
+        "user_input": last_message_content or "",  # We add this just for logging purposes
     }
 
     headers = {
@@ -91,12 +93,12 @@ async def get_ai_completion_from_mito_server(
     # so we just return that.
     content = json.loads(res.body)
 
-    return content.get("completion", "")
+    return str(content.get("completion", ""))
 
 
 def get_open_ai_completion_function_params(
     model: str, 
-    messages: List[Dict[str, Any]], 
+    messages: List[ChatCompletionMessageParam], 
     stream: bool,
     response_format: Optional[Type[BaseModel]] = None
 ) -> Dict[str, Any]:

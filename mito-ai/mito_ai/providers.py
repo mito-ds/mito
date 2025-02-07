@@ -6,7 +6,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk
-from traitlets import  Instance, Unicode, default, validate, List
+from traitlets import  Instance, Unicode, default, validate
 from pydantic import BaseModel
 from traitlets.config import LoggingConfigurable
 
@@ -50,7 +50,7 @@ class OpenAIProvider(LoggingConfigurable):
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
     
-    models = List(['gpt-4o-mini', 'o3-mini'])
+    models: List[str] = ['gpt-4o-mini', 'o3-mini']
     
     last_error = Instance(
         CompletionError,
@@ -60,7 +60,7 @@ class OpenAIProvider(LoggingConfigurable):
 This attribute is observed by the websocket provider to push the error to the client.""",
     )
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
@@ -68,14 +68,12 @@ This attribute is observed by the websocket provider to push the error to the cl
         self._models: Optional[List[str]] = None
 
     @default("api_key")
-    def _api_key_default(self):
+    def _api_key_default(self) -> Optional[str]:
         default_key = os.environ.get("OPENAI_API_KEY")
-        return self._validate_api_key({"value": default_key})
+        return self._validate_api_key(default_key)
 
     @validate("api_key")
-    def _validate_api_key(self, changes: Dict[str, Any]) -> Optional[str]:
-        """"""
-        api_key = changes["value"]
+    def _validate_api_key(self, api_key: Optional[str]) -> Optional[str]:
         if not api_key:
             self.log.debug(
                 "No OpenAI API key provided; following back to Mito server API."
@@ -145,7 +143,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             The provider capabilities.
         """
         if self._models is None:
-            self._validate_api_key({"value": self.api_key})
+            self._validate_api_key(self.api_key)
 
         # If the user has an OpenAI API key, then we don't need to check the Mito server quota.
         if self.api_key:
@@ -261,8 +259,10 @@ This attribute is observed by the websocket provider to push the error to the cl
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
                 
                 completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
+                
+                last_message_content = str(request.messages[-1].get("content", "")) if request.messages else None
                 ai_response = await get_ai_completion_from_mito_server(
-                    request.messages[-1].get("content", ""),
+                    last_message_content,
                     completion_function_params,
                     _num_usages or 0,
                     _first_usage_date or "",
@@ -331,7 +331,10 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Send the completion request to the OpenAI API and returns a stream of completion chunks
         try:
             completion_function_params = get_open_ai_completion_function_params(model, request.messages, stream=True)
-            stream: AsyncStream[ChatCompletionChunk] = await self._openAI_async_client.chat.completions.create(**completion_function_params)
+            client = self._openAI_async_client
+            if client is None:
+                raise ValueError("OpenAI client not initialized")
+            stream: AsyncStream[ChatCompletionChunk] = await client.chat.completions.create(**completion_function_params)
             
             # Log the successful completion
             log_ai_completion_success(
