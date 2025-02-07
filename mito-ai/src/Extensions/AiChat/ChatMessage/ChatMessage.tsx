@@ -62,7 +62,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
-    const editable = messageType === 'openai message:agent' || message.role === 'user'
+    const editable = messageType === 'openai message:agent:planning' || message.role === 'user'
 
     const messageContentParts = splitStringWithCodeBlocks(message);
 
@@ -74,7 +74,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         onUpdateMessage(
             messageIndex, 
             content, 
-            messageType === 'openai message:agent' ? true : false
+            messageType === 'openai message:agent:planning' ? true : false
         )
         setIsEditing(false);
     };
@@ -102,8 +102,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant': message.role === 'assistant' && messageType !== 'openai message:agent' },
-            { 'message-agent': messageType === 'openai message:agent' },
+            { 'message-assistant': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
+            { 'message-agent': messageType === 'openai message:agent:planning' },
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {

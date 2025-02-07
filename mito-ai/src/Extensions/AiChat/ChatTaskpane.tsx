@@ -332,7 +332,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentModeEnabled(false)
 
         // Get the plan from the chat history
-        const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent')
+        const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
 
         // Clear the chat history
         const newChatHistoryManager = clearChatHistory()

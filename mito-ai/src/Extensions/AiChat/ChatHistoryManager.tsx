@@ -13,7 +13,7 @@ export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning
 // we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'openai message:agent' | 'connection error',
+    type: 'openai message' | 'openai message:agent:planning' | 'connection error',
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
 }
@@ -111,7 +111,7 @@ export class ChatHistoryManager {
         
         this.displayOptimizedChatHistory[index] = { 
             message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
-            type: isAgentMessage ? 'openai message:agent' : 'openai message',
+            type: isAgentMessage ? 'openai message:agent:planning' : 'openai message',
             codeCellID: activeCellID
         }
 
@@ -217,7 +217,7 @@ export class ChatHistoryManager {
         if (mitoAIConnectionError) {
             type = 'connection error';
         } else if (promptType === 'agent:planning') {
-            type = 'openai message:agent';
+            type = 'openai message:agent:planning';
         } else {
             type = 'openai message';
         }
