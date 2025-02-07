@@ -17,7 +17,7 @@ import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { ChatHistoryManager, IOutgoingMessage } from './ChatHistoryManager';
+import { ChatHistoryManager, IDisplayOptimizedChatHistory, IOutgoingMessage } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import DropdownMenu from '../../components/DropdownMenu';
 import IconButton from '../../components/IconButton';
@@ -215,8 +215,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return true
     }
 
-    const handleUpdateMessage = async (messageIndex: number, newContent: string, isAgentMessage: boolean = false) => {
-        if (isAgentMessage) {
+    const handleUpdateMessage = async (
+        messageIndex: number,
+        newContent: string,
+        messageType: IDisplayOptimizedChatHistory['type']
+    ) => {
+        if (messageType === 'openai message:agent:planning') {
             // In agent planning mode we only update the message locally without sending it to the AI
             // because the user has not yet confirmed that they want the AI to process these messages 
             // until they hit the submit button.

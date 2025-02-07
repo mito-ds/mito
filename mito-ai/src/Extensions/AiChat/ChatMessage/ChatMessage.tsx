@@ -18,10 +18,11 @@ import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
+import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    messageType: string
+    messageType: IDisplayOptimizedChatHistory['type']
     codeCellID: string | undefined
     messageIndex: number
     mitoAIConnectionError: boolean
@@ -34,7 +35,7 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, isAgentMessage?: boolean) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, messageType: IDisplayOptimizedChatHistory['type']) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -71,11 +72,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        onUpdateMessage(
-            messageIndex, 
-            content, 
-            messageType === 'openai message:agent:planning' ? true : false
-        )
+        onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
 
