@@ -7,7 +7,7 @@ import type { ICodeCellModel } from '@jupyterlab/cells';
  * @returns The configuration code snippet
  */
 export function magicConfiguration(filename: string): string {
-  return `# This cell is required to use Mito SQL cells within the notebook.
+  return `# DO NOT EDIT this cell; it is required for Mito SQL cells to work.
 # It must be executed prior to any SQL cell.
 %load_ext sql
 %config SqlMagic.autopandas=True
@@ -87,11 +87,7 @@ export namespace MagicLine {
    * @param cellModel Code cell model to parse
    * @returns The SQL magic
    */
-  export function parse(cellModel?: ICodeCellModel): ISQLMagic | undefined {
-    if (!cellModel) {
-      return;
-    }
-
+  export function parse(cellModel: ICodeCellModel): ISQLMagic {
     const isSQL = isSQLCell(cellModel);
     let output: string | undefined;
     const options: Record<string, string | undefined> = {};
@@ -129,9 +125,15 @@ export namespace MagicLine {
     };
   }
 
-  function isSQLCell(cellModel: ICodeCellModel): boolean {
+  /**
+   * Whether the code cell is a SQL cell or not.
+   *
+   * @param cellModel The code cell model
+   * @returns The SQL status
+   */
+  export function isSQLCell(cellModel: ICodeCellModel): boolean {
     const firstLine = cellModel.sharedModel.source.split('\n', 1)[0];
-    const matches = firstLine.match(new RegExp(`^${MAGIC}(\s|$)`));
+    const matches = firstLine.match(new RegExp(`^${MAGIC}(\\s|$)`));
     return matches ? true : false;
   }
 
@@ -167,16 +169,17 @@ export namespace MagicLine {
    * @param cellModel Cell model to update
    * @param magic Magic to set
    */
-  export function updateMagic(
-    cellModel: ICodeCellModel,
-    magic: ISQLMagic
-  ): void {
+  export function update(cellModel: ICodeCellModel, magic: ISQLMagic): void {
     const isSQL = isSQLCell(cellModel);
     const source = cellModel.sharedModel.source;
-    const lines = source.split('\n', 1);
+    let lines = source.split('\n');
     const magicLine = stringify(magic);
     if (isSQL) {
-      lines[0] = magicLine;
+      if (magicLine) {
+        lines[0] = magicLine;
+      } else {
+        lines = lines.slice(1);
+      }
     } else {
       lines.unshift(magicLine);
     }
