@@ -3,12 +3,10 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { IEditorServices } from '@jupyterlab/codeeditor';
 import {
   EditorExtensionRegistry,
   IEditorExtensionRegistry
 } from '@jupyterlab/codemirror';
-import { NotebookPanel } from '@jupyterlab/notebook';
 import {
   addIcon,
   CommandToolbarButton,
@@ -16,28 +14,26 @@ import {
   Toolbar
 } from '@jupyterlab/ui-components';
 import { find } from '@lumino/algorithm';
+import { Widget } from '@lumino/widgets';
 import { AddSource } from './addsource';
 import { cellTypeSwitcher } from './celltypeselector';
-import { NotebookContentFactory } from './contentfactory';
 import { hideSqlMagic } from './hidemagic';
 import { databaseIcon } from './icon';
 import { SqlSourcesModel, SqlSourcesPanel } from './sources';
+import { SQLExtension } from './sqlextension';
 import { CommandIDs, type ISqlSource } from './tokens';
-import { Widget } from '@lumino/widgets';
 
 /**
  * Plugin using a custom cell widget for SQL cells.
  */
-const contentFactory: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
-  id: 'mito-sql-cell:notebook-content-factory',
+const sqlCell: JupyterFrontEndPlugin<void> = {
+  id: 'mito-sql-cell:sql-cell',
   description:
     'Plugin providing the notebook content factory with a special treatment for SQL cells.',
-  provides: NotebookPanel.IContentFactory,
-  requires: [IEditorServices, IEditorExtensionRegistry],
+  requires: [IEditorExtensionRegistry],
   autoStart: true,
   activate: (
     app: JupyterFrontEnd,
-    editorServices: IEditorServices,
     editorExtensionRegistry: IEditorExtensionRegistry
   ) => {
     const sources = new SqlSourcesModel();
@@ -77,10 +73,6 @@ const contentFactory: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
       caption: 'Refresh the list of SQL sources'
     });
 
-    Promise.all([app.started, app.restored]).then(async () => {
-      await sources.refresh();
-    });
-
     const sourcesPanel = new SqlSourcesPanel({
       model: sources,
       commands: app.commands
@@ -115,6 +107,10 @@ const contentFactory: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
 
     app.shell.add(sourcesPanel, 'left', { rank: 1000 });
 
+    // Add the widget extension
+    const sqlCellExtension = new SQLExtension(sources);
+    app.docRegistry.addWidgetExtension('Notebook', sqlCellExtension);
+
     editorExtensionRegistry.addExtension({
       name: 'mito-sql-cell:hide-sql-magics',
       // Don't add the extension to the file editor
@@ -124,13 +120,10 @@ const contentFactory: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
           : null
     });
 
-    // FIXME use simpler widget extension instead of replacing the content factory
-    const editorFactory = editorServices.factoryService.newInlineEditor;
-    return new NotebookContentFactory({
-      editorFactory,
-      sqlSources: sources
+    Promise.all([app.started, app.restored]).then(async () => {
+      await sources.refresh();
     });
   }
 };
 
-export default [cellTypeSwitcher, contentFactory];
+export default [cellTypeSwitcher, sqlCell];
