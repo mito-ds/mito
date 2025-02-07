@@ -11,7 +11,7 @@ export function magicConfiguration(filename: string): string {
 # It must be executed prior to any SQL cell.
 %load_ext sql
 %config SqlMagic.autopandas=True
-%config SqlMagic.dsn_filename=${filename}`;
+%config SqlMagic.dsn_filename="${filename}"`;
 }
 
 /**
