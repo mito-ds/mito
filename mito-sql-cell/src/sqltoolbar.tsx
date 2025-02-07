@@ -157,6 +157,10 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
         : null;
 
     if (magic) {
+      // Clear args and options to avoid unsupported combinations.
+      magic.args = [];
+      magic.options = {};
+
       let needsUpdate = false;
       if (
         this.model?.variableName &&
