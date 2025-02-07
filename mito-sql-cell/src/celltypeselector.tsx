@@ -3,11 +3,21 @@ import type {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { IToolbarWidgetRegistry, ReactWidget } from '@jupyterlab/apputils';
+import type { ICodeCellModel } from '@jupyterlab/cells';
 import type { CellType } from '@jupyterlab/nbformat';
-import { NotebookActions, type Notebook, type NotebookPanel } from '@jupyterlab/notebook';
-import { ITranslator, nullTranslator, type TranslationBundle } from '@jupyterlab/translation';
+import {
+  NotebookActions,
+  type Notebook,
+  type NotebookPanel
+} from '@jupyterlab/notebook';
+import {
+  ITranslator,
+  nullTranslator,
+  type TranslationBundle
+} from '@jupyterlab/translation';
 import { HTMLSelect } from '@jupyterlab/ui-components';
 import * as React from 'react';
+import { MagicLine } from './common';
 
 /**
  * The class name added to toolbar cell type dropdown wrapper.
@@ -20,6 +30,8 @@ const TOOLBAR_CELLTYPE_CLASS = 'jp-Notebook-toolbarCellType';
 const TOOLBAR_CELLTYPE_DROPDOWN_CLASS = 'jp-Notebook-toolbarCellTypeDropdown';
 
 class CellTypeSelector extends ReactWidget {
+  private _currentType = '-';
+
   /**
    * Construct a new cell type switcher.
    */
@@ -40,11 +52,34 @@ class CellTypeSelector extends ReactWidget {
    * Handle `change` events for the HTMLSelect component.
    */
   handleChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-    if (event.target.value !== '-') {
-      NotebookActions.changeCellType(
-        this._notebook,
-        event.target.value as CellType
-      );
+    let newType = event.target.value;
+    if (newType !== '-') {
+      if (newType === 'sql') {
+        newType = 'code';
+        if (this._notebook.activeCell) {
+          MagicLine.update(this._notebook.activeCell.model as ICodeCellModel, {
+            args: [],
+            isSQL: true,
+            options: {}
+          });
+        }
+      }
+
+      if (this._notebook.activeCell?.model.type !== newType) {
+        if (
+          this._notebook.activeCell &&
+          this._currentType === 'sql' &&
+          newType !== this._currentType
+        ) {
+          MagicLine.update(this._notebook.activeCell.model as ICodeCellModel, {
+            args: [],
+            isSQL: false,
+            options: {}
+          });
+        }
+        NotebookActions.changeCellType(this._notebook, newType as CellType);
+      }
+
       this._notebook.activate();
     }
   };
@@ -59,14 +94,27 @@ class CellTypeSelector extends ReactWidget {
   };
 
   render(): JSX.Element {
-    let value = '-';
+    this._currentType = '-';
     if (this._notebook.activeCell) {
-      value = this._notebook.activeCell.model.type;
+      this._currentType = this._notebook.activeCell.model.type;
+      if (
+        this._currentType === 'code' &&
+        MagicLine.isSQLCell(this._notebook.activeCell.model as ICodeCellModel)
+      ) {
+        this._currentType = 'sql';
+      }
     }
     for (const widget of this._notebook.widgets) {
       if (this._notebook.isSelectedOrActive(widget)) {
-        if (widget.model.type !== value) {
-          value = '-';
+        let cellType = widget.model.type;
+        if (
+          cellType === 'code' &&
+          MagicLine.isSQLCell(widget.model as ICodeCellModel)
+        ) {
+          cellType = 'sql';
+        }
+        if (cellType !== this._currentType) {
+          this._currentType = '-';
           break;
         }
       }
@@ -76,7 +124,7 @@ class CellTypeSelector extends ReactWidget {
         className={TOOLBAR_CELLTYPE_DROPDOWN_CLASS}
         onChange={this.handleChange}
         onKeyDown={this.handleKeyDown}
-        value={value}
+        value={this._currentType}
         aria-label={this._trans.__('Cell type')}
         title={this._trans.__('Select the cell type')}
       >
