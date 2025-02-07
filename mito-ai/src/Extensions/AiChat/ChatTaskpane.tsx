@@ -320,11 +320,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each action in the agent response 
         // and add it to the chat history.
+        let n = 1;
         agentResponse.actions.forEach((action: string) => {
             newChatHistoryManager.addAIMessageFromResponse(
-                action,
+                `Step ${n}: ${action}`,
                 'agent:planning'
             );
+            n++;
         });
 
         setChatHistoryManager(newChatHistoryManager);
