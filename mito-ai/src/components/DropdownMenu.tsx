@@ -47,7 +47,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, className =
                             key={index}
                             className={`dropdown-item ${item.icon ? 'dropdown-item-with-icon' : ''}`}
                             onClick={() => handleItemClick(item.onClick)}
-                            style={{ display: 'flex', gap: '5px', alignItems: 'center' }}
+                            style={{ display: 'flex', gap: '5px'}}
                         >
                             {item.icon && (
                                 <span className="dropdown-item-icon">
