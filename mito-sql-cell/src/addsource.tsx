@@ -7,6 +7,9 @@ import React, { useCallback } from 'react';
 import * as templates from './databases/templates.json';
 import type { ISqlSource } from './tokens';
 
+/**
+ * Map driver key to source type.
+ */
 export const DRIVER_TO_TYPE = Object.keys(templates).reduce(
   (agg, key) => {
     agg[(templates as any)[key].driver] = key;
@@ -44,7 +47,7 @@ function SqlSourceForm(props: {
         uiSchema={{
           driver: {
             'ui:disabled': true,
-            'ui:readonly': true,
+            'ui:readonly': true
           },
           password: {
             'ui:widget': 'password'
@@ -56,6 +59,9 @@ function SqlSourceForm(props: {
   );
 }
 
+/**
+ * JupyterLab dialog body containing a form for adding a SQL source.
+ */
 export class AddSource
   extends ReactWidget
   implements Dialog.IBodyWidget<ISqlSource | null>
@@ -66,6 +72,9 @@ export class AddSource
     return <SqlSourceForm onChange={this._onChange} />;
   }
 
+  /**
+   * Returns the form data.
+   */
   getValue(): ISqlSource | null {
     return this.source;
   }
