@@ -646,7 +646,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         <div className="chat-taskpane">
-            <div className="chat-taskpane-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="chat-taskpane-header">
                 <DropdownMenu
                     trigger={
                         <TextAndIconButton
@@ -661,7 +661,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
                     items={agentMenuItems}
                 />
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="chat-taskpane-header-buttons">
                     <IconButton
                         icon={<SupportIcon />}
                         title="Get Help"

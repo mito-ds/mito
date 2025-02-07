@@ -22,7 +22,7 @@
 .chat-taskpane-header {
     display: flex;
     flex-direction: row;
-    justify-content: end;
+    justify-content: space-between;
     align-items: center;
     padding-top: 10px;
     padding-bottom: 5px;
@@ -40,6 +40,11 @@
     font-size: 14px;
     font-weight: bold;
     margin: 0;
+}
+
+.chat-taskpane-header-buttons {
+    display: flex;
+    gap: 8px;
 }
 
 .message {
