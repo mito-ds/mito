@@ -3,7 +3,7 @@ import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Awaitable, Dict, Optional, Literal, Type
+from typing import Any, Awaitable, Dict, Optional, Literal, Type, Union
 
 import tornado
 import tornado.ioloop
@@ -16,7 +16,7 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai.logger import get_logger
 from mito_ai.models import (
-    AllIncomingMessageTypes,
+    IncomingMessageTypes,
     CodeExplainMessageBuilder,
     CompletionError,
     CompletionItem,
@@ -47,7 +47,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
-        self.full_message_history = []
+        self.full_message_history: list[ChatCompletionMessageParam] = []
         self.is_pro = is_pro()
 
     @property
@@ -75,10 +75,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         ):
             raise tornado.web.HTTPError(HTTPStatus.FORBIDDEN)
 
-    async def get(self, *args, **kwargs) -> None:
+    async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
         """Get an event to open a socket."""
         # This method ensure to call `pre_get` before opening the socket.
-        await ensure_async(self.pre_get())
+        await ensure_async(self.pre_get()) # type: ignore
 
         initialize_user()
 
@@ -99,7 +99,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Clear the message history
         self.full_message_history = []
 
-    async def on_message(self, message: str) -> None:
+    async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
 
         Args:
@@ -111,7 +111,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
 
             metadata_dict = parsed_message.get('metadata', {})
-            type: AllIncomingMessageTypes = parsed_message.get('type')
+            type: IncomingMessageTypes = parsed_message.get('type')
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
@@ -121,7 +121,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.full_message_history = []
             return
         
-        messages = []
         response_format = None
 
         # Generate new message based on message type
@@ -154,7 +153,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         else:
             raise ValueError(f"Invalid message type: {type}")
 
-        new_message = {
+        new_message: ChatCompletionMessageParam = {
             "role": "user", 
             "content": prompt
         }
@@ -186,7 +185,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         except Exception as e:
             await self.handle_exception(e, request)
 
-    def open(self, *args: str, **kwargs: str) -> Optional[Awaitable[None]]:
+    def open(self, *args: str, **kwargs: str) -> None:
         """Invoked when a new WebSocket is opened.
 
         The arguments to `open` are extracted from the `tornado.web.URLSpec`
@@ -203,7 +202,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Send the server capabilities to the client.
         self.reply(self._llm.capabilities)
 
-    async def handle_exception(self, e: Exception, request: CompletionRequest):
+    async def handle_exception(self, e: Exception, request: CompletionRequest) -> None:
         """
         Handles an exception raised in either ``handle_request`` or
         ``handle_stream_request``.
@@ -219,8 +218,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             hint = "There was an error communicating with OpenAI. This might be due to a temporary OpenAI outage, a problem with your internet connection, or an incorrect API key. Please try again."
         else:
             hint = "There was an error communicating with Mito server. This might be due to a temporary server outage or a problem with your internet connection. Please try again."
-        error = CompletionError.from_exception(e, hint=hint)
+        
+        error: CompletionError = CompletionError.from_exception(e, hint=hint)
         self._send_error({"new": error})
+        
+        reply: Union[CompletionStreamChunk, CompletionReply]
         if request.stream:
             reply = CompletionStreamChunk(
                 chunk=CompletionItem(content="", isIncomplete=True),
@@ -282,7 +284,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.full_message_history.append(
                 {
                     "role": "assistant", 
-                    "content": reply.items[0].content
+                    "content": reply.items[0].content # type: ignore
                 }
             )
         latency_ms = round((time.time() - start) * 1000)

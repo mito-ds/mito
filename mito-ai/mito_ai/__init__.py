@@ -1,9 +1,10 @@
+from typing import List, Dict
 from jupyter_server.utils import url_path_join
-from .handlers import CompletionHandler
-from .providers import OpenAIProvider
+from mito_ai.handlers import CompletionHandler
+from mito_ai.providers import OpenAIProvider
 
 try:
-    from _version import __version__
+    from _version import __version__  # type: ignore
 except ImportError:
     # Fallback when using the package in dev mode without installing
     # in editable mode with pip. It is highly recommended to install
@@ -14,11 +15,11 @@ except ImportError:
     __version__ = "dev"
 
 
-def _jupyter_labextension_paths():
+def _jupyter_labextension_paths() -> List[Dict[str, str]]:
     return [{"src": "labextension", "dest": "mito-ai"}]
 
 
-def _jupyter_server_extension_points():
+def _jupyter_server_extension_points() -> List[Dict[str, str]]:
     """
     Returns a list of dictionaries with metadata describing
     where to find the `_load_jupyter_server_extension` function.
@@ -33,7 +34,7 @@ def _jupyter_server_extension_points():
 
 # For a further explanation of the Jupyter architecture watch the first 35 minutes
 # of this video: https://www.youtube.com/watch?v=9_-siU-_XoI
-def _load_jupyter_server_extension(server_app):
+def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     host_pattern = ".*$"
     web_app = server_app.web_app
     base_url = web_app.settings["base_url"]
