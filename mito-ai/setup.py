@@ -90,6 +90,7 @@ setup(
         'analytics-python',
         "tornado>=6.2.0",
         "traitlets",
+        "pydantic",
     ],
     extras_require = {
         'deploy': [

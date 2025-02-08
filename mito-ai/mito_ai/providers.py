@@ -59,6 +59,14 @@ class OpenAIProvider(LoggingConfigurable):
 
 This attribute is observed by the websocket provider to push the error to the client.""",
     )
+    
+    
+    # Consider the request a failure if it takes longer than 45 seconds.
+    # We will try a total of 3 times. Once on the initial request, 
+    # and then twice more if the first request fails.
+    # Note that max_retries cannot be set to None. If we want to disable it, set it to 0.
+    timeout = 45
+    max_retries = 2
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(log=get_logger(), **kwargs)
@@ -189,7 +197,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             return None
 
         if not self._async_client or self._async_client.is_closed():
-            self._async_client = openai.AsyncOpenAI(api_key=self.api_key)
+            self._async_client = openai.AsyncOpenAI(
+                api_key=self.api_key,
+                max_retries=self.max_retries,
+                timeout=self.timeout
+            )
 
         return self._async_client
     
@@ -200,7 +212,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             return None
 
         if not self._sync_client or self._sync_client.is_closed():
-            self._sync_client = openai.OpenAI(api_key=self.api_key)
+            self._sync_client = openai.OpenAI(
+                api_key=self.api_key,
+                max_retries=self.max_retries,
+                timeout=self.timeout
+            )
             
         return self._sync_client
 
@@ -264,6 +280,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 ai_response = await get_ai_completion_from_mito_server(
                     last_message_content,
                     completion_function_params,
+                    self.timeout,
+                    self.max_retries,
                     _num_usages or 0,
                     _first_usage_date or "",
                 )
@@ -343,6 +361,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 last_message_content=str(request.messages[-1].get('content', '')),
                 response={"completion": "not available for streamed completions"},
             )
+            
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: USER_KEY}, error=e)
