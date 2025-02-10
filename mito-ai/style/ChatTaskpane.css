@@ -65,15 +65,15 @@
     color: var(--chat-user-message-font-color);
 }
 
-.message-assistant {
+.message-assistant-chat {
     color: var(--chat-assistant-message-font-color);
 }
 
-.message-agent {
+.message-assistant-agent {
     background-color: var(--purple-300);
 }
 
-.message-agent p {
+.message-assistant-agent p {
     color: var(--jp-content-font-color1) !important;
 }
 

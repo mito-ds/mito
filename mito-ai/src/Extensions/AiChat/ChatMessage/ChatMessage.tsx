@@ -99,8 +99,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
-            { 'message-agent': messageType === 'openai message:agent:planning' },
+            { 'message-assistant-chat': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
+            { 'message-assistant-agent': messageType === 'openai message:agent:planning' },
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
