@@ -29,13 +29,14 @@ import { CommandIDs, type ISqlSource } from './tokens';
 const sqlCell: JupyterFrontEndPlugin<void> = {
   id: 'mito-sql-cell:sql-cell',
   description:
-    'Plugin providing the notebook content factory with a special treatment for SQL cells.',
+    'Plugin adding support SQL cells.',
   requires: [IEditorExtensionRegistry],
   autoStart: true,
   activate: (
     app: JupyterFrontEnd,
     editorExtensionRegistry: IEditorExtensionRegistry
   ) => {
+    // Model handling the SQL sources
     const sources = new SqlSourcesModel();
 
     // Add commands
@@ -73,6 +74,8 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
       caption: 'Refresh the list of SQL sources'
     });
 
+    // Sidebar panel for the SQL sources
+    //- Create the widget
     const sourcesPanel = new SqlSourcesPanel({
       model: sources,
       commands: app.commands
@@ -81,7 +84,7 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
     sourcesPanel.title.icon = databaseIcon;
     sourcesPanel.title.caption = 'SQL Sources';
 
-    // Add toolbar items
+    //- Add side panel toolbar items
     const node = document.createElement('h2');
     node.textContent = 'SQL Sources';
     sourcesPanel.toolbar.addItem('header', new Widget({ node }));
@@ -105,9 +108,10 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
       })
     );
 
+    //- Add the sources panel to the left sidebar
     app.shell.add(sourcesPanel, 'left', { rank: 1000 });
 
-    // Add the widget extension
+    // Add the widget extension adding the SQL toolbar to notebook cells
     const sqlCellExtension = new SQLExtension(sources);
     app.docRegistry.addWidgetExtension('Notebook', sqlCellExtension);
 
@@ -120,6 +124,7 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
           : null
     });
 
+    // Read the SQL sources from the backend
     Promise.all([app.started, app.restored]).then(async () => {
       await sources.refresh();
     });
