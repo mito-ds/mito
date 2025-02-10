@@ -78,7 +78,7 @@ class GlobalMessageHistory:
         # Load from disk on startup
         self._load_from_disk()
     
-    def _load_from_disk(self):
+    def _load_from_disk(self) -> None:
         """Load existing history from disk, if it exists."""
         if os.path.exists(self._save_file):
             try:
@@ -101,7 +101,7 @@ class GlobalMessageHistory:
             except Exception as e:
                 print(f"Error loading history file: {e}")
     
-    def _save_to_disk(self):
+    def _save_to_disk(self) -> None:
         """Save current history to disk."""
         data = {
             "chat_history_version": CHAT_HISTORY_VERSION,

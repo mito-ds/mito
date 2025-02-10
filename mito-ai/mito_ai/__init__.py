@@ -4,7 +4,7 @@ from mito_ai.handlers import CompletionHandler
 from mito_ai.providers import OpenAIProvider
 
 try:
-    from _version import __version__  # type: ignore
+    from _version import __version__
 except ImportError:
     # Fallback when using the package in dev mode without installing
     # in editable mode with pip. It is highly recommended to install

@@ -53,6 +53,7 @@ class ChatMessageBuilder:
 """
         return f"{cell_code_block if self.activeCellCode else ''}{self.input}"
     
+    @property
     def pro_model(self) -> str:
         return "o3-mini"
     
@@ -79,6 +80,7 @@ class SmartDebugMessageBuilder:
 """
         return f"{cell_code_block if self.activeCellCode else ''}{self.errorMessage}"
     
+    @property
     def pro_model(self) -> str:
         return "gpt-4o-mini"
     
@@ -104,6 +106,8 @@ class CodeExplainMessageBuilder:
 """
         
         return f"{cell_code_block if self.activeCellCode else ''}Explain this code"
+    
+    @property
     def pro_model(self) -> str:
         return "gpt-4o-mini"
     

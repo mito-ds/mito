@@ -279,11 +279,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if request.type != "inline_completion":
             response = reply.items[0].content if reply.items else ""
 
-            ai_optimized_message = {
+            ai_optimized_message: ChatCompletionMessageParam = {
                 "role": "assistant", 
                 "content": response
             }
-            display_message = {
+            display_message: ChatCompletionMessageParam = {
                 "role": "assistant", 
                 "content": response
             }
@@ -319,7 +319,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.reply(reply)
         
         if request.type != "inline_completion":
-            message = {
+            message: ChatCompletionMessageParam = {
                 "role": "assistant", 
                 "content": accumulated_response
             }

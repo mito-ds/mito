@@ -38,5 +38,5 @@ def test_check_mito_server_quota_pro_user() -> None:
         check_mito_server_quota(OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1, TODAY)
         check_mito_server_quota(1, REALLY_OLD_DATE)
 
-def test_mito_ai_url_is_prod_url():
+def test_mito_ai_url_is_prod_url() -> None:
     assert MITO_AI_URL == MITO_AI_PROD_URL
