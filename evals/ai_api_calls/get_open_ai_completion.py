@@ -8,7 +8,7 @@ def get_open_ai_completion(prompt: str, model: str) -> str:
         
     completion_function_params = {
         "model": model,
-        "stream": True,
+        "stream": False,
         "messages": [
             {"role": "system", "content": "You are an expert Python programmer."},
             {"role": "user", "content": prompt}
@@ -23,6 +23,7 @@ def get_open_ai_completion(prompt: str, model: str) -> str:
         **completion_function_params
     )
 
+    print(response)
     response_content = response.choices[0].message.content
 
     return get_code_block_from_message(response_content)

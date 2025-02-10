@@ -8,6 +8,9 @@ from evals.prompts.smart_debug_prompts import SMART_DEBUG_PROMPT_GENERATORS
 from evals.test_cases.smart_debug_tests import SMART_DEBUG_TESTS
 from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
+from IPython.core.interactiveshell import InteractiveShell
+from io import StringIO
+import sys
 
 
 def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]], model: Optional[str]):
@@ -65,13 +68,25 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     invalid_notebook_state.cell_contents.append(test.invalid_code)
     invalid_code_cells_script = get_script_from_cells(invalid_notebook_state.cell_contents, include_current_cell=True)
 
+    # Create IPython shell for execution
+    ipython = InteractiveShell.instance()
+    
     # Exec the invalid code and get the error message
     error_message = None
+    stdout_capture = StringIO()
+    
+    
+    original_stdout = sys.stdout
     try:
-        exec(invalid_code_cells_script, {})
+        sys.stdout = stdout_capture
+        ipython.run_cell(invalid_code_cells_script)
+        error_type = 'error'
+        error_message = stdout_capture.getvalue()
     except Exception as e:
-        error_type = e.__class__.__name__
-        error_message = f"{error_type}: {str(e)}"
+        print("Something went wrong running the code in the IPython shell.")
+    finally:
+        sys.stdout = original_stdout
+        stdout_capture.close()
 
     print(f"Error message: {error_message}")
     if error_message is None:
