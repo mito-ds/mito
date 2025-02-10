@@ -28,9 +28,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
                 <TextButton
                     title="Upgrade to Pro"
                     text="Upgrade to Pro"
-                    onClick={() => {
-                        window.open(STRIPE_PAYMENT_LINK, '_blank');
-                    }}
+                    action={STRIPE_PAYMENT_LINK}
                     variant="purple"
                     width="block"
                 />

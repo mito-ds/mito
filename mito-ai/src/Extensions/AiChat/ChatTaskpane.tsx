@@ -88,22 +88,60 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
 
+    const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
+        await websocketClient.ready;
+        
+        const chatHistoryResponse = await websocketClient.sendMessage({
+            type: 'fetch_history',
+            message_id: UUID.uuid4(),
+            metadata: {},
+            stream: false
+        });
+
+        return chatHistoryResponse.items.map((item: any) => ({
+            role: item.role,
+            content: item.content
+        }));
+    };
+
     useEffect(() => {
-        // Check that the websocket client is ready
-        // and display the error if it is not.
-        websocketClient.ready.catch(error => {
+        const initializeChatHistory = async () => {
+          try {
+            // 1. Check that the websocket client is ready
+            await websocketClient.ready;
+      
+            // 2. Fetch or load the initial chat history
+            const history = await fetchInitialChatHistory();
+      
+            // 3. Create a fresh ChatHistoryManager and add the initial messages
             const newChatHistoryManager = getDefaultChatHistoryManager(
-                notebookTracker,
-                variableManager
+              notebookTracker,
+              variableManager
+            );
+      
+            // 4. Add messages to the ChatHistoryManager
+            history.forEach(item => {
+              newChatHistoryManager.addChatMessageFromHistory(item);
+            });
+      
+            // 5. Update the state with the new ChatHistoryManager
+            setChatHistoryManager(newChatHistoryManager);
+          } catch (error) {
+            const newChatHistoryManager = getDefaultChatHistoryManager(
+              notebookTracker,
+              variableManager
             );
             newChatHistoryManager.addAIMessageFromResponse(
-                (error as any).hint ? (error as any).hint : `${error}`,
-                'chat',
-                true
+              (error as any).hint ? (error as any).hint : `${error}`,
+              'chat',
+              true
             );
             setChatHistoryManager(newChatHistoryManager);
-        });
-    }, [websocketClient]);
+          }
+        };
+      
+        initializeChatHistory();
+      }, [websocketClient]);
 
     useEffect(() => {
         /* 
@@ -286,12 +324,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     handleAgentResponse(agentResponse, newChatHistoryManager);
                 } else {
                     // For all other prompt types, we can just add the content to the chat history
-                    newChatHistoryManager.addAIMessageFromResponse(
-                        content,
+                    aiResponse.items.forEach((item: any) => {
+                      newChatHistoryManager.addAIMessageFromResponse(
+                        item.content || '', 
                         promptType
-                    );
+                      );
+                    });
                     setChatHistoryManager(newChatHistoryManager);
-                }
+                  }
             }
         } catch (error) {
             newChatHistoryManager.addAIMessageFromResponse(
@@ -401,7 +441,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
-        updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
+        updateCodeDiffStripes(chatHistoryManagerRef.current.getLastAIMessage()?.message)
         updateCellToolbarButtons()
     }
 
@@ -626,7 +666,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         });
     });
-
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 

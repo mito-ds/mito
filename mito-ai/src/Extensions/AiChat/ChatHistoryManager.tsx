@@ -73,6 +73,16 @@ export class ChatHistoryManager {
         return this.displayOptimizedChatHistory;
     }
 
+    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam) {
+        this.displayOptimizedChatHistory.push(
+            {
+                message: message, 
+                type: 'openai message',
+                codeCellID: undefined
+            }
+        );
+    }
+
     addChatInputMessage(input: string): IOutgoingMessage {
         const variables = this.variableManager.variables
         const activeCellCode = getActiveCellCode(this.notebookTracker)
@@ -204,10 +214,6 @@ export class ChatHistoryManager {
             return
         }
 
-        if (promptType === 'smartDebug') {
-            messageContent = removeInnerThoughtsFromMessage(messageContent)
-        }
-
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
             content: messageContent
@@ -273,32 +279,10 @@ export class ChatHistoryManager {
 const getDisplayedOptimizedUserMessage = (input: string, activeCellCode?: string): OpenAI.Chat.ChatCompletionMessageParam => {
     return {
         role: 'user',
-        content: `\`\`\`python
+        content: activeCellCode ? `\`\`\`python
 ${activeCellCode}
 \`\`\`
 
-${input}`};
-}
-
-const removeInnerThoughtsFromMessage = (messageContent: string) => {
-    /* 
-    The smart debug prompt thinks to itself before returning the solution. We don't need to save the inner thoughts. 
-    We remove them before saving the message in the chat history
-    */
-
-    if (messageContent === null) {
-        return ''
-    }
-
-    const SOLUTION_STRING = 'SOLUTION:'
-
-    // Get the message after the SOLUTION section
-    const solutionIndex = messageContent.indexOf(SOLUTION_STRING)
-    if (solutionIndex === -1) {
-        return messageContent
-    }
-
-    const solutionText = messageContent.split(SOLUTION_STRING)[1].trim()
-
-    return solutionText
+${input}` : input
+    };
 }

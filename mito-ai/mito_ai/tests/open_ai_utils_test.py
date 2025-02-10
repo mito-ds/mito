@@ -2,6 +2,8 @@ import pytest
 from datetime import datetime
 from unittest.mock import patch
 from mito_ai.utils.open_ai_utils import (
+    MITO_AI_PROD_URL,
+    MITO_AI_URL,
     MITO_SERVER_FREE_TIER_LIMIT_REACHED,
     OPEN_SOURCE_AI_COMPLETIONS_LIMIT,
     check_mito_server_quota,
@@ -11,7 +13,7 @@ REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
 
-def test_check_mito_server_quota_open_source_user():
+def test_check_mito_server_quota_open_source_user() -> None:
     # Under both limits
     check_mito_server_quota(1, TODAY)
 
@@ -28,10 +30,13 @@ def test_check_mito_server_quota_open_source_user():
         check_mito_server_quota(1, REALLY_OLD_DATE)
 
 
-def test_check_mito_server_quota_pro_user():
+def test_check_mito_server_quota_pro_user() -> None:
     # No error should be thrown since pro users don't have limits
     with patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True):
         check_mito_server_quota(1, TODAY)
         check_mito_server_quota(OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1, REALLY_OLD_DATE)
         check_mito_server_quota(OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1, TODAY)
         check_mito_server_quota(1, REALLY_OLD_DATE)
+
+def test_mito_ai_url_is_prod_url() -> None:
+    assert MITO_AI_URL == MITO_AI_PROD_URL

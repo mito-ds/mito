@@ -4,7 +4,10 @@ import {
     getCodeFromCell,
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
-import { sendMessageToMitoAI } from './utils';
+import { 
+    sendMessageToMitoAI,
+    clearMitoAIChatHistory
+ } from './utils';
 
 const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
 
@@ -22,6 +25,8 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test('Accept AI generated code', async ({ page }) => {
+        await clearMitoAIChatHistory(page);
+
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
@@ -43,6 +48,8 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test('Reject AI generated code', async ({ page }) => {
+        await clearMitoAIChatHistory(page);
+
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
