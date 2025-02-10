@@ -635,7 +635,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setAgentModeEnabled(false);
             },
             icon: ChatIcon,
-            iconColor: 'var(--jp-ui-font-color1)'
         },
         {
             label: 'Agent',
@@ -644,7 +643,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setAgentModeEnabled(true);
             },
             icon: RobotHeadIcon,
-            iconColor: 'var(--jp-ui-font-color1)'
         }
     ];
 

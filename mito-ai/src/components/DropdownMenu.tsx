@@ -5,7 +5,6 @@ interface DropdownMenuItem {
     label: string;
     onClick: () => void;
     icon?: React.ComponentType<{ fill?: string }>;
-    iconColor?: string; // This can be a hex color or a variable
 }
 
 interface DropdownMenuProps {
@@ -51,7 +50,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, className =
                         >
                             {item.icon && (
                                 <span className="dropdown-item-icon" style={{ width: '20px', display: 'flex' }}>
-                                    {React.createElement(item.icon, { fill: item.iconColor })}
+                                    {React.createElement(item.icon )}
                                 </span>
                             )}
                             <span className="dropdown-item-label">{item.label}</span>
