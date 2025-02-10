@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "incremental": true,
     "jsx": "react",
-    "lib": ["DOM", "ES2018", "ES2020.Intl"],
+    "lib": ["DOM", "ES2020"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -18,7 +18,7 @@
     "rootDir": "src",
     "strict": true,
     "strictNullChecks": true,
-    "target": "ES2018"
+    "target": "ES2020"
   },
   "include": ["src/*", "src/databases/templates.json"]
 }
