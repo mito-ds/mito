@@ -5,6 +5,8 @@ interface DropdownMenuItem {
     label: string;
     onClick: () => void;
     icon?: React.ComponentType<{ fill?: string }>;
+    disabled?: boolean;
+    disabledTooltip?: string;
 }
 
 interface DropdownMenuProps {
@@ -29,7 +31,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, className =
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleItemClick = (onClick: () => void) => {
+    const handleItemClick = (onClick: () => void, disabled?: boolean) => {
+        if (disabled) return;
         onClick();
         setIsOpen(false);
     };
@@ -44,13 +47,14 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, items, className =
                     {items.map((item, index) => (
                         <button
                             key={index}
-                            className={`dropdown-item ${item.icon ? 'dropdown-item-with-icon' : ''}`}
-                            onClick={() => handleItemClick(item.onClick)}
+                            className={`dropdown-item ${item.icon ? 'dropdown-item-with-icon' : ''} ${item.disabled ? 'dropdown-item-disabled' : ''}`}
+                            onClick={() => handleItemClick(item.onClick, item.disabled)}
+                            title={item.disabled ? item.disabledTooltip : undefined}
                             style={{ display: 'flex', gap: '5px' }}
                         >
                             {item.icon && (
                                 <span className="dropdown-item-icon" style={{ width: '20px', display: 'flex' }}>
-                                    {React.createElement(item.icon )}
+                                    {React.createElement(item.icon)}
                                 </span>
                             )}
                             <span className="dropdown-item-label">{item.label}</span>
