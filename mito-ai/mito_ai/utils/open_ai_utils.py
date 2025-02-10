@@ -108,7 +108,7 @@ async def get_ai_completion_from_mito_server(
     content = json.loads(res.body)
     
     if "completion" in content:
-        return content["completion"]
+        return content["completion"] # type: ignore
     elif "error" in content:
         raise Exception(f"{content['error']}")
     else:

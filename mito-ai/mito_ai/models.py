@@ -16,7 +16,7 @@ from mito_ai.prompt_builders import (
 )
 
 CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning']
-IncomingMessageTypes = Union[Literal['clear_history'], CompletionIncomingMessageTypes]
+IncomingMessageTypes = Union[Literal['clear_history', 'fetch_history'], CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)
 class AICapabilities:
@@ -45,6 +45,15 @@ class ChatMessageBuilder:
         return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
     
     @property
+    def display_message(self) -> str:
+        cell_code_block = f"""```python
+{self.activeCellCode}
+```
+
+"""
+        return f"{cell_code_block if self.activeCellCode else ''}{self.input}"
+    
+    @property
     def pro_model(self) -> str:
         return "o3-mini"
     
@@ -63,6 +72,15 @@ class SmartDebugMessageBuilder:
         return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
     
     @property
+    def display_message(self) -> str:
+        cell_code_block = f"""```python
+{self.activeCellCode}
+```
+
+"""
+        return f"{cell_code_block if self.activeCellCode else ''}{self.errorMessage}"
+    
+    @property
     def pro_model(self) -> str:
         return "gpt-4o-mini"
     
@@ -78,6 +96,16 @@ class CodeExplainMessageBuilder:
     @property
     def prompt(self) -> str:
         return create_explain_code_prompt(self.activeCellCode or '')
+    
+    @property
+    def display_message(self) -> str:
+        cell_code_block = f"""```python
+{self.activeCellCode}
+```
+
+"""
+        
+        return f"{cell_code_block if self.activeCellCode else ''}Explain this code"
     
     @property
     def pro_model(self) -> str:
@@ -114,6 +142,10 @@ class AgentMessageBuilder:
     @property
     def prompt(self) -> str:
         return create_agent_prompt(self.fileType or '', self.columnSamples or [], self.input or '')
+    
+    @property
+    def display_message(self) -> str:
+        return self.input or ''
     
     @property
     def pro_model(self) -> str:
@@ -270,3 +302,20 @@ class CompletionStreamChunk:
 
     # Completion error.
     error: Optional[CompletionError] = None
+    """Completion error."""
+
+@dataclass(frozen=True)
+class FetchHistoryReply:
+    """
+    Message sent from model to client with the chat history.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # List of chat messages.
+    items: List[ChatCompletionMessageParam]
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+

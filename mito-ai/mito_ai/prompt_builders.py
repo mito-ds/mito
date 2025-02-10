@@ -381,6 +381,7 @@ SOLUTION:
 """
     return prompt
 
+
 def create_agent_prompt(file_type: str, columnSamples: List[str], input: str) -> str:
     if file_type:
         file_sample_snippet = f"""You will be working with the following dataset (sample rows shown) from a {file_type} file:
@@ -398,3 +399,18 @@ Given the dataset (if provided) and the question below:
 3. Additionally, provide a list of python packages that are required to complete the actions. 
 {input}
 """
+
+
+def remove_inner_thoughts_from_message(message: str) -> str:
+    # The smart debug prompt thinks to itself before returning the solution. We don't need to save the inner thoughts. 
+    # We remove them before saving the message in the chat history
+    if message == "":
+        return message
+    
+    SOLUTION_STRING = "SOLUTION:"
+
+    if SOLUTION_STRING in message:
+        message = message.split(SOLUTION_STRING)[1].strip()
+    
+    return message
+
