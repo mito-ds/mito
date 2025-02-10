@@ -32,3 +32,9 @@ cd ../mito-ai
 pip install -e ".[test]"
 jlpm install
 jlpm run build
+
+# Install mito-sql-cell and build JS
+cd ../mito-sql-cell
+pip install -e ".[test]"
+jlpm install
+jlpm run build
