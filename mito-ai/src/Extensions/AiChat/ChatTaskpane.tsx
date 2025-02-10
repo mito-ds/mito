@@ -121,7 +121,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
       
             // 4. Add messages to the ChatHistoryManager
             history.forEach(item => {
-              newChatHistoryManager.addChatMessageFromHistory(item);
+                console.log(item)
+                try {
+                    // If the user sent a message in agent mode, the ai response will be a JSON object
+                    // which we need to parse. 
+                    const agentResponse = JSON.parse(item.content as string);
+                    handleAgentResponse(agentResponse, newChatHistoryManager);
+                } catch {
+                    newChatHistoryManager.addChatMessageFromHistory(item);
+                }
             });
       
             // 5. Update the state with the new ChatHistoryManager
