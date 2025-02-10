@@ -366,6 +366,11 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
     await page.waitForTimeout(2000);
     
+    // As you have a notebook opened, at reload a dialog shows up to 
+    // select the kernel for the notebook. The dialog prevent all the tests 
+    // carried out at page load to be performed as it capture the focus.
+    // One way around it is to set the option waitForIsReady (specific to JupyterLab):
+    // When that option is set, we don't wait for addition checks specific to JupyterLab
     await page.reload({waitForIsReady: false});
     await Promise.all([
       page.getByRole('button', { name: 'Select Kernel' }).click(),
