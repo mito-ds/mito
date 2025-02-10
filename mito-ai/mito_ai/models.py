@@ -51,8 +51,8 @@ class ChatMessageBuilder:
 ```
 
 """
-        
         return f"{cell_code_block if self.activeCellCode else ''}{self.input}"
+    
     def pro_model(self) -> str:
         return "o3-mini"
     
@@ -78,6 +78,7 @@ class SmartDebugMessageBuilder:
 
 """
         return f"{cell_code_block if self.activeCellCode else ''}{self.errorMessage}"
+    
     def pro_model(self) -> str:
         return "gpt-4o-mini"
     
@@ -137,6 +138,10 @@ class AgentMessageBuilder:
     @property
     def prompt(self) -> str:
         return create_agent_prompt(self.fileType or '', self.columnSamples or [], self.input or '')
+    
+    @property
+    def display_message(self) -> str:
+        return self.input or ''
     
     @property
     def pro_model(self) -> str:

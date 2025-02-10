@@ -3,7 +3,8 @@ import json
 from threading import Lock
 from typing import Dict, List
 
-from .utils.schema import MITO_FOLDER
+from openai.types.chat import ChatCompletionMessageParam
+from mito_ai.utils.schema import MITO_FOLDER
 
 CHAT_HISTORY_VERSION = 1 # Increment this if the schema changes
 
@@ -70,8 +71,8 @@ class GlobalMessageHistory:
     """
     def __init__(self, save_file: str = os.path.join(MITO_FOLDER, "message_history.json")):
         self._lock = Lock()
-        self._ai_optimized_history: List[Dict[str, str]] = []
-        self._display_history: List[Dict[str, str]] = []
+        self._ai_optimized_history: List[ChatCompletionMessageParam] = []
+        self._display_history: List[ChatCompletionMessageParam] = []
         self._save_file = save_file
 
         # Load from disk on startup
@@ -117,7 +118,7 @@ class GlobalMessageHistory:
             # log or handle error
             print(f"Error saving history file: {e}")
 
-    def get_histories(self) -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+    def get_histories(self) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         with self._lock:
             return self._ai_optimized_history[:], self._display_history[:]
 
@@ -127,7 +128,7 @@ class GlobalMessageHistory:
             self._display_history = []
             self._save_to_disk()
 
-    def append_message(self, ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
+    def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam) -> None:
         with self._lock:
             self._ai_optimized_history.append(ai_optimized_message)
             self._display_history.append(display_message)

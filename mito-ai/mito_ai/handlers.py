@@ -3,7 +3,7 @@ import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 import tornado
 import tornado.ioloop
 import tornado.web
@@ -148,37 +148,43 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             inlineCompletionPromptBuilder = InlineCompletionMessageBuilder(**metadata_dict)
             prompt = inlineCompletionPromptBuilder.prompt
             model = inlineCompletionPromptBuilder.pro_model if self.is_pro else inlineCompletionPromptBuilder.os_model
-        elif type == "chat":
-            chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
-            prompt = chatMessagePromptBuilder.prompt
-            model = chatMessagePromptBuilder.pro_model if self.is_pro else chatMessagePromptBuilder.os_model
-
-            if chatMessagePromptBuilder.index is not None:
-                # Clear the chat history after the specified index (inclusive)
-                self.full_message_history = self.full_message_history[:chatMessagePromptBuilder.index]
-
-        elif type == "codeExplain":
-            codeExplainPromptBuilder = CodeExplainMessageBuilder(**metadata_dict)
-            prompt = codeExplainPromptBuilder.prompt
-            model = codeExplainPromptBuilder.pro_model if self.is_pro else codeExplainPromptBuilder.os_model
-        elif type == "smartDebug":
-            smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
-            prompt = smartDebugPromptBuilder.prompt
-            model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
-        elif type == "agent:planning":
-            agentMessageBuilder = AgentMessageBuilder(**metadata_dict)
-            prompt = agentMessageBuilder.prompt
-            model = agentMessageBuilder.pro_model if self.is_pro else agentMessageBuilder.os_model
-            response_format = agentMessageBuilder.response_format
+            
+            ai_optimized_history: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
+            
         else:
-            raise ValueError(f"Invalid message type: {type}")
+            if type == "chat":
+                chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
+                prompt = chatMessagePromptBuilder.prompt
+                display_message = chatMessagePromptBuilder.display_message
+                model = chatMessagePromptBuilder.pro_model if self.is_pro else chatMessagePromptBuilder.os_model
 
-        new_ai_optimized_message = {"role": "user", "content": prompt}
-        
-        # TODO: Get the display message!
-        new_display_message = {"role": "user", "content": display_message}
-        message_history.append_message(new_ai_optimized_message, new_display_message)
-        ai_optimized_history, display_history = message_history.get_histories()
+                if chatMessagePromptBuilder.index is not None:
+                    # Clear the chat history after the specified index (inclusive)
+                    self.full_message_history = self.full_message_history[:chatMessagePromptBuilder.index]
+
+            elif type == "codeExplain":
+                codeExplainPromptBuilder = CodeExplainMessageBuilder(**metadata_dict)
+                prompt = codeExplainPromptBuilder.prompt
+                display_message = codeExplainPromptBuilder.display_message
+                model = codeExplainPromptBuilder.pro_model if self.is_pro else codeExplainPromptBuilder.os_model
+            elif type == "smartDebug":
+                smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
+                prompt = smartDebugPromptBuilder.prompt
+                display_message = smartDebugPromptBuilder.display_message
+                model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
+            elif type == "agent:planning":
+                agentMessageBuilder = AgentMessageBuilder(**metadata_dict)
+                prompt = agentMessageBuilder.prompt
+                display_message = agentMessageBuilder.display_message
+                model = agentMessageBuilder.pro_model if self.is_pro else agentMessageBuilder.os_model
+                response_format = agentMessageBuilder.response_format
+            else:
+                raise ValueError(f"Invalid message type: {type}")
+
+            new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+            new_display_message: ChatCompletionMessageParam = {"role": "user", "content": display_message}
+            message_history.append_message(new_ai_optimized_message, new_display_message)
+            ai_optimized_history, display_history = message_history.get_histories()
 
         request = CompletionRequest(
             type=type,
