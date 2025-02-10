@@ -380,7 +380,7 @@ test.describe('Mito AI Chat', () => {
     // 1 from the previous message, 1 for the new chat input since we use
     // the message-user class on the chat input also
     await expect(page.locator('.message-user')).toHaveCount(2); 
-    await expect(page.locator('.message-assistant')).toHaveCount(1);
+    await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
   });
 });
 
