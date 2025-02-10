@@ -128,3 +128,4 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+mito-sql-cell/junit.xml
