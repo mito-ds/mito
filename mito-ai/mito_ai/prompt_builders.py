@@ -63,7 +63,7 @@ Your task: {input}
     
     return prompt
 
-def create_explain_code_prompt(active_cell_code: str):
+def create_explain_code_prompt(active_cell_code: str) -> str:
     prompt = f"""Explain the code in the active code cell to me like I have a basic understanding of Python. Don't explain each line, but instead explain the overall logic of the code.
 
 <Example>
@@ -92,10 +92,10 @@ Output:
     return prompt
     
 def create_inline_prompt(
-        prefix: str,
-        suffix: str,
-        variables: List[str],
-):
+    prefix: str,
+    suffix: str,
+    variables: List[str],
+) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     prompt = f"""You are a coding assistant that lives inside of JupyterLab. Your job is to help the user write code.
 
@@ -250,7 +250,7 @@ def create_error_prompt(
     errorMessage: str,
     active_cell_code: str,
     variables: List[str],
-):
+) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     prompt = f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
 
@@ -358,6 +358,7 @@ Solution Requirements:
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
+- The code in the SOLUTION section should be a python code block starting with ```python and ending with ```
 
 Here is your task. 
 
@@ -380,6 +381,26 @@ SOLUTION:
 """
     return prompt
 
+
+def create_agent_prompt(file_type: str, columnSamples: List[str], input: str) -> str:
+    if file_type:
+        file_sample_snippet = f"""You will be working with the following dataset (sample rows shown) from a {file_type} file:
+{columnSamples}
+"""
+
+    return f"""You are an expert data science assistant working in a Jupyter notebook environment. Your task is to break a problem into the essential, actionable steps required to write Python code for solving it. 
+You have access to the following Python packages:
+- pandas (for data manipulation and analysis)
+- matplotlib (for data visualization)
+{file_sample_snippet if file_type else ''}
+Given the dataset (if provided) and the question below:
+1. Break the problem into the **smallest possible number of clear, high-level tasks** necessary to achieve the solution. 
+2. **Do not include any code or specific implementation details.** Focus only on describing the high-level steps required to solve the problem.
+3. Additionally, provide a list of python packages that are required to complete the actions. 
+{input}
+"""
+
+
 def remove_inner_thoughts_from_message(message: str) -> str:
     # The smart debug prompt thinks to itself before returning the solution. We don't need to save the inner thoughts. 
     # We remove them before saving the message in the chat history
@@ -392,3 +413,4 @@ def remove_inner_thoughts_from_message(message: str) -> str:
         message = message.split(SOLUTION_STRING)[1].strip()
     
     return message
+

@@ -84,7 +84,7 @@ setup_args = dict(
         'pandas>=0.24.2',
         'analytics-python',
         # Graphing libraries
-        'plotly>=4.14.3',
+        'plotly>=4.14.3,<6.0.0',
         'chardet>=3.0.4',
         # For XLSX, reading - we don't fix so works on all python versions
         'openpyxl',
@@ -117,13 +117,12 @@ setup_args = dict(
         ]
     },
     zip_safe                = False,
-    python_requires         = ">=3.8",
+    python_requires         = ">=3.9",
     platforms               = "Linux, Mac OS X, Windows",
     classifiers             = [
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",

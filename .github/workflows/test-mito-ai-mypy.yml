@@ -1,21 +1,21 @@
-name: Test - mitoinstaller pytest
+name: Test - mito-ai mypy
 
 on:
   push:
     branches: [ dev ]
     paths:
-      - 'mitoinstaller/**'
+      - 'mito-ai/**'
   pull_request:
     paths:
-      - 'mitoinstaller/**'
+      - 'mito-ai/**'
 
 jobs:
-  test-mitoinstaller:
+  test-mito-ai-mypy:
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [3.10, 3.11]
-        os: [ubuntu-20.04, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        python-version: ["3.10"]
+
     steps:
     - name: Cancel Previous Runs
       uses: styfle/cancel-workflow-action@0.7.0
@@ -27,15 +27,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
-        cache-dependency-path: |
-          mitosheet/setup.py
-          mitoinstaller/setup.py
-          mitoinstaller/requirements.txt
+        cache-dependency-path: mito-ai/setup.py
     - name: Install dependencies
       run: |
-        cd mitoinstaller
-        pip install -r requirements.txt
-    - name: Test with pytest
+        cd mito-ai
+        pip install -e ".[test]"
+    - name: Check types with MyPY
       run: |
-        cd mitoinstaller
-        pytest
+        mypy mito-ai/mito_ai/ --ignore-missing-imports

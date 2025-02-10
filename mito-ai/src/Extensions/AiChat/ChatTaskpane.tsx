@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/ChatTaskpane.css';
+import '../../../style/button.css';
+import '../../../style/TextButton.css';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -9,12 +11,12 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import LoadingDots from '../../components/LoadingDots';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
-import { 
-    COMMAND_MITO_AI_PREVIEW_LATEST_CODE, 
-    COMMAND_MITO_AI_APPLY_LATEST_CODE, 
-    COMMAND_MITO_AI_REJECT_LATEST_CODE, 
-    COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, 
-    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, 
+import {
+    COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
+    COMMAND_MITO_AI_APPLY_LATEST_CODE,
+    COMMAND_MITO_AI_REJECT_LATEST_CODE,
+    COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
+    COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE
 } from '../../commands';
@@ -66,7 +68,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
-    
+
     // Store the original cell before diff so that we can revert to it if the user rejects the AI's code
     const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined)
 
@@ -78,6 +80,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
+
+    // TODO: RE-ADD setAgentModeEnabled when we need to call it. 
+    const [agentModeEnabled, _] = useState<boolean>(false)
 
     const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
         await websocketClient.ready;
@@ -157,7 +162,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         chatHistoryManagerRef.current = chatHistoryManager;
     }, [chatHistoryManager]);
-    
+
 
     const getDuplicateChatHistoryManager = () => {
 
@@ -196,7 +201,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = clearChatHistory()
         const outgoingMessage = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
-        
+
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
 
@@ -218,6 +223,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } else {
             outgoingMessage = newChatHistoryManager.addChatInputMessage(input)
         }
+        setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Scroll to the bottom of the chat messages container
         // Add a small delay to ensure the new message is rendered
@@ -245,56 +251,71 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendChatInputMessage(newContent, messageIndex)
     };
 
+    const sendAgentMessage = async (message: string) => {
+        console.log('Sending agent message: ', message)
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
+        // Step 1: Clear the chat history, and add the new error message
+        const newChatHistoryManager = clearChatHistory()
+        const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
+        setChatHistoryManager(newChatHistoryManager)
+        console.log('outgoingMessage: ', outgoingMessage)
+
+        // Step 2: Send the message to the AI
+        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
+    }
+
     const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager) => {
-        setLoadingAIResponse(true)        
+        setLoadingAIResponse(true)
         const { promptType, metadata } = outgoingMessage;
 
         try {
             await websocketClient.ready;
 
             const aiResponse = await websocketClient.sendMessage({
-              type: promptType,
-              message_id: UUID.uuid4(),
-              metadata: metadata,
-              stream: false
+                type: promptType,
+                message_id: UUID.uuid4(),
+                metadata: metadata,
+                stream: false
             });
 
             if (aiResponse.error) {
-              console.error('Error calling OpenAI API:', aiResponse.error);
-              newChatHistoryManager.addAIMessageFromResponse(
-                aiResponse.error.hint
-                  ? aiResponse.error.hint
-                  : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
-                promptType,
-                true,
-                aiResponse.error.title
-              );
-              setChatHistoryManager(newChatHistoryManager);
-            } else {
-              aiResponse.items.forEach((item: any) => {
+                console.error('Error calling OpenAI API:', aiResponse.error);
                 newChatHistoryManager.addAIMessageFromResponse(
-                    item.content || '', 
-                    promptType
+                    aiResponse.error.hint
+                        ? aiResponse.error.hint
+                        : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
+                    promptType,
+                    true,
+                    aiResponse.error.title
                 );
-              });
-              setChatHistoryManager(newChatHistoryManager);
+                setChatHistoryManager(newChatHistoryManager);
+            } else {
+                aiResponse.items.forEach((item: any) => {
+                    newChatHistoryManager.addAIMessageFromResponse(
+                        item.content || '', 
+                        promptType
+                    );
+                });
+                setChatHistoryManager(newChatHistoryManager);
             }      
         } catch (error) {
             newChatHistoryManager.addAIMessageFromResponse(
-              (error as any).hint ? (error as any).hint : `${error}`,
-              promptType,
-              true
+                (error as any).hint ? (error as any).hint : `${error}`,
+                promptType,
+                true
             );
             setChatHistoryManager(newChatHistoryManager);
             console.error('Error calling OpenAI API:', error);
         } finally {
             // Reset states to allow future messages to show the "Apply" button
             setCodeReviewStatus('chatPreview');
-    
+
             setLoadingAIResponse(false);
         }
     }
-    
+
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
         if (!aiMessage) {
@@ -316,7 +337,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Store the code cell ID where we write the code diffs so that we can
         // accept or reject the code diffs to the correct cell
-        cellStateBeforeDiff.current = {codeCellID: codeCellID, code: activeCellCode}
+        cellStateBeforeDiff.current = { codeCellID: codeCellID, code: activeCellCode }
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
@@ -352,6 +373,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Write to the cell that has the code diffs
         writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellStateBeforeDiff.current.codeCellID)
+
+        // Focus on the active cell after the code is written
+        const notebook = notebookTracker.currentWidget?.content;
+        const activeCell = notebook?.activeCell;
+        if (activeCell) {
+            activeCell.activate();
+        }
     }
 
     const rejectAICode = () => {
@@ -395,7 +423,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             to the active code cell. Do this inside of the useEffect so that we only register the command
             the first time we create the chat. Registering the command when it is already created causes
             errors.
-        */        
+        */
         app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_LATEST_CODE, {
             execute: () => {
                 previewAICode()
@@ -438,9 +466,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE, {
             label: `Accept ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
-            className: 'text-and-icon-button button-green small',
+            className: 'text-button-mito-ai button-base button-green',
             caption: 'Accept Code',
-            execute: () => {acceptAICode()},
+            execute: () => { acceptAICode() },
             // We use the cellStateBeforeDiff because it contains the code cell ID that we want to write to
             // and it will only be set when the codeReviewStatus is 'codeCellPreview'
             isVisible: () => {
@@ -449,14 +477,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } catch (error) {
                     return false;
                 }
-            }        
+            }
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
             label: `Reject ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`,
-            className: 'text-and-icon-button button-red small',
+            className: 'text-button-mito-ai button-base button-red',
             caption: 'Reject Code',
-            execute: () => {rejectAICode()},
+            execute: () => { rejectAICode() },
             isVisible: () => {
                 try {
                     return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
@@ -470,8 +498,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     useEffect(() => {
         // Register keyboard shortcuts 
         const accelYDisposable = app.commands.addKeyBinding({
-            command: codeReviewStatus === 'chatPreview' ? 
-                COMMAND_MITO_AI_PREVIEW_LATEST_CODE : 
+            command: codeReviewStatus === 'chatPreview' ?
+                COMMAND_MITO_AI_PREVIEW_LATEST_CODE :
                 COMMAND_MITO_AI_APPLY_LATEST_CODE,
             keys: ['Accel Y'],
             selector: 'body',
@@ -532,7 +560,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // Apply the initial configuration
                         editorView.dispatch({
                             effects: StateEffect.appendConfig.of(
-                                compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
+                                compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
                             ),
                         });
                     } else {
@@ -550,11 +578,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
     });
 
-
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()    
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
+                {/* <IconButton
+                    icon={<SupportIcon />}
+                    title="Enter Agent Mode"
+                    onClick={() => { setAgentModeEnabled(!agentModeEnabled) }}
+                /> */}
                 <IconButton
                     icon={<SupportIcon />}
                     title="Get Help"
@@ -565,16 +597,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <IconButton
                     icon={<ResetIcon />}
                     title="Clear the chat history"
-                    onClick={() => {clearChatHistory()}}
+                    onClick={() => { clearChatHistory() }}
                 />
             </div>
             <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length <= 1 &&
                     <div className="chat-empty-message">
                         <p className="long-message">
-                            Ask your personal Python expert anything! 
+                            Ask your personal Python expert anything!
                             <br />
-                            Hint: 
+                            Hint:
                             {[
                                 " Use @ to reference variables.",
                                 ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
@@ -610,20 +642,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }).filter(message => message !== null)}
                 {loadingAIResponse &&
                     <div className="chat-loading-message">
-                        Loading AI Response <LoadingDots />
+                        Thinking <LoadingDots />
                     </div>
                 }
             </div>
             <ChatInput
                 initialContent={''}
                 placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
-                onSave={sendChatInputMessage}
+                onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
                 onCancel={undefined}
                 isEditing={false}
                 variableManager={variableManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
             />
+            {agentModeEnabled &&
+                <div className="agent-mode-container">
+                    <input placeholder="Enter your CSV file path" className="chat-input chat-input-container"/>
+                </div>
+            }
         </div>
     );
 };

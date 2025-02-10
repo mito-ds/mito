@@ -25,10 +25,8 @@ Mito is the fallback but the number of request is limited for free tier.
 To use OpenAI directly, you will to create an API key on https://platform.openai.com/docs/overview.
 Then set the environment variable `OPENAI_API_KEY` with that key.
 
-The OpenAI model can be configured with 3 parameters:
+The OpenAI model can be configured with 1 parameters:
 - `OpenAIProvider.model`: Name of the AI model; default _gpt-4o-mini_.
-- `OpenAIProvider.max_completion_tokens`: Upper bound for the number of completion tokens; default None.
-- `OpenAIProvider.temperature`: Model temperature, a value between 0 and 2; default to 0
 
 You can set those parameters through command line when starting JupyterLab; e.g.
 
@@ -90,10 +88,10 @@ Then, in a new terminal, run:
 
 ```bash
 # Run JupyterLab in another terminal
-jupyter lab
+jupyter lab --autoreload
 ```
 
-With the watch command running, every saved change will immediately be built locally and available in your running JupyterLab. Refresh JupyterLab to load the change in your browser (you may need to wait several seconds for the extension to be rebuilt).
+With the watch command running, every saved change will immediately be built locally and available in your running JupyterLab. With the `--autoreload` flag, you don't need to refresh JupyterLab to load the change in your browser. It will launch a new window each time you save a change to the backend.
 
 By default, the `jlpm build` command generates the source maps for this extension to make it easier to debug using the browser dev tools. To also generate source maps for the JupyterLab core extensions, you can run the following command:
 
@@ -115,22 +113,7 @@ folder is located. Then you can remove the symlink named `mito-ai` within that f
 
 #### Frontend tests
 
-This extension is using [Jest](https://jestjs.io/) for JavaScript code testing.
+- Frontend tests for mito-ai are written using Playwright and Gelata in the mito/tests directory.
+- Backend tests for mito-ai are written using pytest in the mito/tests directory.
 
-To execute them, execute:
-
-```sh
-jlpm
-jlpm test
-```
-
-#### Integration tests
-
-This extension uses [Playwright](https://playwright.dev/docs/intro) for the integration tests (aka user level tests).
-More precisely, the JupyterLab helper [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to handle testing the extension in JupyterLab.
-
-More information are provided within the [ui-tests](./ui-tests/README.md) README.
-
-### Packaging the extension
-
-See [RELEASE](RELEASE.md)
+To run the pytests, just run `pytest` in the mito-ai directory.

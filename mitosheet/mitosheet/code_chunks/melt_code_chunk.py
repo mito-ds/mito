@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # coding: utf-8
 
@@ -9,6 +8,7 @@ from mitosheet.code_chunks.code_chunk import CodeChunk
 from mitosheet.state import State
 from mitosheet.transpiler.transpile_utils import get_column_header_list_as_transpiled_code
 from mitosheet.types import ColumnID
+import pandas as pd
 
 class MeltCodeChunk(CodeChunk):
 
@@ -38,7 +38,13 @@ class MeltCodeChunk(CodeChunk):
         if self.include_value_vars:
             param_string += f', value_vars={get_column_header_list_as_transpiled_code(value_vars)}'
 
-        return [f'{self.new_df_name} = {self.df_name}.melt({param_string})'], []
+        code = [f'{self.new_df_name} = {self.df_name}.melt({param_string})']
+        
+        # Only convert to datetime if any of the value_vars are themselves datetime objects
+        if any(isinstance(col, pd.Timestamp) for col in value_vars):
+            code.append(f'{self.new_df_name}["variable"] = pd.to_datetime({self.new_df_name}["variable"])')
+
+        return code, []
     
     def get_created_sheet_indexes(self) -> List[int]:
         return [len(self.prev_state.dfs)]

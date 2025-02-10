@@ -61,15 +61,7 @@ const INTEGRATION_FEATURES: Feature[] = [
     }
   },
   {
-    feature: 'CSV, XLSX Import',
-    planSupport: {
-      'Open Source': true,
-      'Pro': true,
-      'Enterprise': true 
-    }
-  },
-  {
-    feature: 'Dataframe Import',
+    feature: 'CSV, XLSX, Dataframe Import',
     planSupport: {
       'Open Source': true,
       'Pro': true,
@@ -287,25 +279,6 @@ const TRANSFORMATION_FEATURES: Feature[] = [
   },
 ]
 
-const CODE_GENERATION_FEATURES: Feature[] = [
-  {
-    feature: 'Code Generation',
-    planSupport: {
-      'Open Source': true,
-      'Pro': true,
-      'Enterprise': true 
-    }
-  },
-  {
-    feature: 'Optimized Generated Code',
-    planSupport: {
-      'Open Source': true,
-      'Pro': true,
-      'Enterprise': true 
-    }
-  },
-]
-
 const PRIVACY_FEATURES: Feature[] = [
   {
     feature: 'Local Extension',
@@ -408,7 +381,7 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      500 AI Chat Completions (or one month trial)
+                      One month trial with 500 Chats
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -444,12 +417,12 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      All of Open Source, and:
+                      Unlimited AI Chat Completions
                     </p>
                   </PlanBullet>
                   <PlanBullet>
                     <p>
-                      Unlimited AI Chat Completions
+                      Advanced reasoning with o3 models
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -578,11 +551,6 @@ const Plans: NextPage = () => {
               />
               <PlansFeatureGroup
                 mobilePlanDisplayed={mobilePlanDisplayed}
-                sectionTitle='Code Generation'
-                features={CODE_GENERATION_FEATURES}
-              />
-              <PlansFeatureGroup
-                mobilePlanDisplayed={mobilePlanDisplayed}
                 sectionTitle='Privacy'
                 features={PRIVACY_FEATURES}
               />
@@ -608,10 +576,6 @@ const Plans: NextPage = () => {
               <PlansFeatureGroup
                 sectionTitle='Presentation'
                 features={PRESENTATION_FEATURES}
-              />
-              <PlansFeatureGroup
-                sectionTitle='Code Generation'
-                features={CODE_GENERATION_FEATURES}
               />
               <PlansFeatureGroup
                 sectionTitle='Privacy'

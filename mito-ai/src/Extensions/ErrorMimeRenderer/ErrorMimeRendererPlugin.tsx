@@ -7,6 +7,7 @@ import { Widget } from '@lumino/widgets';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE } from '../../commands';
 import MagicWandIcon from '../../icons/MagicWand';
 import '../../../style/ErrorMimeRendererPlugin.css'
+import { CollapsibleWarningBlock } from './CollapsibleWarningBlock';
 
 interface ErrorMessageProps {
     onDebugClick: () => void;
@@ -66,36 +67,37 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
      * Render the original error message and append the custom prompt.
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        // Determine if it's an error or a warning
+        // Determine if it's an error or a warning. 
+        // An error has:     'application/vnd.jupyter.error' 
+        // A warning has:    'application/vnd.jupyter.stderr'
         const isErrorMessage = 'application/vnd.jupyter.error' in model.data;
 
         // Create the container for the custom UI elements
         const resolveInChatDiv = document.createElement('div');
+
+        const originalNode = this.originalRenderer.node;
 
         // Only show the Fix Error in AI Chat button if it is an error, not a warning
         if (isErrorMessage) {
             createRoot(resolveInChatDiv).render(
                 <ErrorMessage onDebugClick={() => this.openChatInterfaceWithError(model)} />
             );
-        }
 
-        // Append the chat container before rendering the original output
-        this.node.appendChild(resolveInChatDiv);
-        
-        // Render the original content
-        await this.originalRenderer.renderModel(model);
-        const originalNode = this.originalRenderer.node;
+            // Append the chat container before rendering the original output
+            this.node.appendChild(resolveInChatDiv);
+            
+            // Render the original content
+            await this.originalRenderer.renderModel(model);
+        } else {
+            // Apply styling for warnings
+            // Strip styling, use ErrorMimeRendererPlugin.css
+            originalNode.style.background = 'transparent';
+            originalNode.style.padding = '0px';
 
-        // Apply styling for warnings
-        if (!isErrorMessage) {
-            // Apply background styling to the original node
-            originalNode.style.background = 'var(--jp-warn-color3)';
-
-            // Find the pre element inside originalNode and apply the text color
-            const preElement = originalNode.querySelector('pre');
-            if (preElement) {
-                preElement.style.color = 'var(--md-grey-900)';
-            }
+            // Render the OutputBlock component
+            createRoot(originalNode).render(
+                <CollapsibleWarningBlock message={String(model.data['application/vnd.jupyter.stderr'] || '')} />
+            );
         }
 
         // Append the original error/warning rendered node

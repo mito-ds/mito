@@ -15,14 +15,14 @@ def get_script_from_cells(cells: List[str], include_current_cell: bool = False) 
         return "\n".join(cells[:-1])
 
 
-def print_test_case_result_tables(test_case_results_dict: Dict[str, List[TestCaseResult]]):
+def print_test_case_result_tables(test_type: str, test_case_results_dict: Dict[str, List[TestCaseResult]], model: str):
     for prompt_name, test_case_results in test_case_results_dict.items():
-        print_test_case_result_table(prompt_name, test_case_results)
+        print_test_case_result_table(test_type, prompt_name, test_case_results, model)
 
-def print_test_case_result_table(prompt_name: str, test_case_results: List[TestCaseResult]):
+def print_test_case_result_table(test_type: str, prompt_name: str, test_case_results: List[TestCaseResult], model: str):
 
     # Bold prompt name
-    print(f"\nPrompt: \033[1m{prompt_name}\033[0m")
+    print(f"Testing \033[1m{test_type}\033[0m with prompt \033[1m{prompt_name}\033[0m using \033[1m{model}\033[0m")
 
     table = PrettyTable()
     table.align = 'l'  # Left align all columns

@@ -3,14 +3,6 @@
     align-items: center;
     justify-content: space-between;
     gap: 5px;
-    padding: 5px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 14px;
-    /* Make sure the button grows large enough so that the text does not wrap */
-    white-space: nowrap;
-    width: fit-content;
 }
 
 .text-and-icon-button__icon {
@@ -22,31 +14,4 @@
 .text-and-icon-button__icon > svg {
     height: 100%;
     width: auto;
-}
-
-.text-and-icon-button.green {
-    background-color: var(--green-400);
-    color: var(--green-900);
-}
-
-.text-and-icon-button.green:hover {
-    background-color: var(--green-500);
-}
-
-.text-and-icon-button.red {
-    background-color: var(--red-400);
-    color: var(--red-900);
-}
-
-.text-and-icon-button.red:hover {
-    background-color: var(--red-500);
-}
-
-.text-and-icon-button.gray {
-    background-color: var(--jp-layout-color2);
-    color: var(--jp-content-font-color1);
-}
-
-.text-and-icon-button.gray:hover {
-    background-color: var(--jp-layout-color3);
 }
