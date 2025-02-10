@@ -5,7 +5,6 @@ from openai import OpenAI
 def get_open_ai_completion(prompt: str, model: str) -> str:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
-        
     completion_function_params = {
         "model": model,
         "stream": False,
@@ -23,7 +22,6 @@ def get_open_ai_completion(prompt: str, model: str) -> str:
         **completion_function_params
     )
 
-    print(response)
     response_content = response.choices[0].message.content
 
     return get_code_block_from_message(response_content)

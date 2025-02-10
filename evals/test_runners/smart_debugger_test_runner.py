@@ -11,6 +11,7 @@ from evals.utils import get_script_from_cells, print_test_case_result_tables
 from IPython.core.interactiveshell import InteractiveShell
 from io import StringIO
 import sys
+import re
 
 
 def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]], model: Optional[str]):
@@ -67,30 +68,13 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     # into a single script when we execute it anyways. 
     invalid_notebook_state.cell_contents.append(test.invalid_code)
     invalid_code_cells_script = get_script_from_cells(invalid_notebook_state.cell_contents, include_current_cell=True)
-
-    # Create IPython shell for execution
-    ipython = InteractiveShell.instance()
     
     # Exec the invalid code and get the error message
-    error_message = None
-    stdout_capture = StringIO()
-    
-    
-    original_stdout = sys.stdout
-    try:
-        sys.stdout = stdout_capture
-        ipython.run_cell(invalid_code_cells_script)
-        error_type = 'error'
-        error_message = stdout_capture.getvalue()
-    except Exception as e:
-        print("Something went wrong running the code in the IPython shell.")
-    finally:
-        sys.stdout = original_stdout
-        stdout_capture.close()
+    error_message = get_structured_error(invalid_code_cells_script)
 
-    print(f"Error message: {error_message}")
+    #print(f"Error message: {error_message}")
     if error_message is None:
-        raise ValueError("Broken Test: Test did not produce an error.")
+        print("Broken Test: Test did not produce an error.")
     
     # Ask the AI to correct the error
     # Make sure to use the invalid_notebook_state so that the prompt can include the 
@@ -132,3 +116,59 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
         print(f"Actual output: {actual_output}\n")
 
     return TestCaseResult(test=test, passed=passed)
+
+
+def get_structured_error(code):
+    ipython = InteractiveShell.instance()
+    stdout_capture = StringIO()
+    original_stdout = sys.stdout
+    
+    try:
+        sys.stdout = stdout_capture
+        result = ipython.run_cell(code)
+        
+        if result.error_before_exec or result.error_in_exec:
+            full_traceback = strip_ansi_codes(stdout_capture.getvalue())
+            lines = full_traceback.split('\n')
+            
+            filtered_lines = []
+            include_next_lines = False
+            
+            for line in lines:
+                # Always include error headers
+                if '--------------------' in line:
+                    filtered_lines.append(line)
+                    continue
+                
+                # Start capturing when we see a Cell block
+                if line.strip().startswith('Cell In['):
+                    include_next_lines = True
+                    filtered_lines.append(line)
+                    continue
+                
+                # Include indented lines after a Cell block
+                if include_next_lines and (line.strip().startswith('    ') or line.strip().startswith('--->')):
+                    filtered_lines.append(line)
+                    continue
+                else:
+                    include_next_lines = False
+                
+                # Include the final error message
+                if ':' in line and any(err in line for err in ['Error', 'Warning', 'Exception']):
+                    filtered_lines.append(line)
+            
+            return '\n'.join(filtered_lines)
+        else: 
+            print("Test Failure: No error was produced")
+            return None
+    except Exception as e:
+        print(f"Test Failure: Error running code in IPython shell: {e}")
+        return None
+    finally:
+        sys.stdout = original_stdout
+        stdout_capture.close()
+
+def strip_ansi_codes(text):
+    """Remove ANSI escape sequences from text"""
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
