@@ -325,13 +325,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     // For all other prompt types, we can just add the content to the chat history
                     aiResponse.items.forEach((item: any) => {
-                      newChatHistoryManager.addAIMessageFromResponse(
-                        item.content || '', 
-                        promptType
-                      );
+                        newChatHistoryManager.addAIMessageFromResponse(
+                            item.content || '',
+                            promptType
+                        );
                     });
                     setChatHistoryManager(newChatHistoryManager);
-                  }
+                }
             }
         } catch (error) {
             newChatHistoryManager.addAIMessageFromResponse(
