@@ -362,13 +362,19 @@ test.describe('Mito AI Chat', () => {
     await selectCell(page, 0);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
+    
     await waitForIdle(page);
     await page.waitForTimeout(2000);
+    
+    await page.reload({waitForIsReady: false});
+    await Promise.all([
+      page.getByRole('button', { name: 'Select Kernel' }).click(),
+      waitForIdle(page)
+    ]);
 
-    await page.reload();
-    await waitForIdle(page);
-
-    await expect(page.locator('.message-user')).toHaveCount(1);
+    // 1 from the previous message, 1 for the new chat input since we use
+    // the message-user class on the chat input also
+    await expect(page.locator('.message-user')).toHaveCount(2); 
     await expect(page.locator('.message-assistant')).toHaveCount(1);
   });
 });
