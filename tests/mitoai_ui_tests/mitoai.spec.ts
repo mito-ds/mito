@@ -125,13 +125,13 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('df["C_edited"] = [7, 8, 9]');
 
     // Ensure previous messages are removed.
-    const messageAssistantDivs = await page.locator('.message.message-assistant').count();
+    const messageAssistantDivs = await page.locator('.message.message-assistant-chat').count();
     expect(messageAssistantDivs).toBe(1);
 
     // Ensure you cannot edit the AI's messages by clicking the pencil icon or double clicking the message
-    await expect(page.locator('.message-assistant .message-edit-button')).not.toBeVisible();
-    await page.locator('.message-assistant p').last().dblclick();
-    await expect(page.locator('.message-assistant').getByRole('button', { name: 'Save' })).not.toBeVisible();
+    await expect(page.locator('.message-assistant-chat .message-edit-button')).not.toBeVisible();
+    await page.locator('.message-assistant-chat p').last().dblclick();
+    await expect(page.locator('.message-assistant-chat').getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
 
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
@@ -261,7 +261,7 @@ test.describe('Mito AI Chat', () => {
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     await waitForIdle(page);
-    await expect(page.locator('.message-assistant')).toHaveCount(1);
+    await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
   });
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
