@@ -1,4 +1,3 @@
-
 .chat-dropdown {
     /* Position the dropdown in the right place*/
     position: absolute;
@@ -77,4 +76,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.dropdown-item-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dropdown-item-disabled:hover {
+    background-color: inherit;
 }

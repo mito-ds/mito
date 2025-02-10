@@ -13,7 +13,7 @@ export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning
 // we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'connection error',
+    type: 'openai message' | 'openai message:agent:planning' | 'connection error',
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
 }
@@ -108,7 +108,7 @@ export class ChatHistoryManager {
         }
     }
 
-    updateMessageAtIndex(index: number, newContent: string): IOutgoingMessage {
+    updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IOutgoingMessage {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
@@ -121,11 +121,14 @@ export class ChatHistoryManager {
         
         this.displayOptimizedChatHistory[index] = { 
             message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
-            type: 'openai message',
+            type: isAgentMessage ? 'openai message:agent:planning' : 'openai message',
             codeCellID: activeCellID
         }
 
-        this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        // Only slice the history if it's not an agent message
+        if (!isAgentMessage) {
+            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        }
 
         return {
             promptType: 'chat',
@@ -216,12 +219,21 @@ export class ChatHistoryManager {
             content: messageContent
         }
 
+        let type: IDisplayOptimizedChatHistory['type'];
+        if (mitoAIConnectionError) {
+            type = 'connection error';
+        } else if (promptType === 'agent:planning') {
+            type = 'openai message:agent:planning';
+        } else {
+            type = 'openai message';
+        }
+
         const activeCellID = getActiveCellID(this.notebookTracker)
 
         this.displayOptimizedChatHistory.push(
             {
                 message: aiMessage, 
-                type: mitoAIConnectionError ? 'connection error' : 'openai message',
+                type: type,
                 mitoAIConnectionErrorType: mitoAIConnectionErrorType,
                 codeCellID: activeCellID
             }
