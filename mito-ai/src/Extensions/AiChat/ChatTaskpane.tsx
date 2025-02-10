@@ -227,6 +227,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const newChatHistoryManager = getDuplicateChatHistoryManager()
             newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent, true)
             setChatHistoryManager(newChatHistoryManager)
+        } else if (agentModeEnabled && messageIndex === 1) { 
+            // If editing the original agent message, send it as a new agent message.
+            sendAgentMessage(newContent)
         } else {
             sendChatInputMessage(newContent, messageIndex)
         }
