@@ -111,6 +111,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
+        
         # first, verify that the message is an `CompletionRequest`.
         self.log.debug("Message received: %s", message)
         try:

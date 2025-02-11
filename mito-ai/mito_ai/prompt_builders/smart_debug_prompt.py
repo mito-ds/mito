@@ -2,12 +2,12 @@ from typing import List
 
 
 def create_error_prompt(
-    errorMessage: str,
+    error_message: str,
     active_cell_code: str,
     variables: List[str],
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
-    prompt = f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
+    return f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
 
 <Example 1>
 Defined Variables:
@@ -21,13 +21,24 @@ Defined Variables:
     }})
 }}
 
-Code in the active code cell:
+Code in active cell:
 ```python
 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 ```
 
-Error Message:
+Error Traceback:
+Cell In[24], line 9
+      2 revenue_multiplier =  1.5
+      3 sales_df = pd.DataFrame({{
+      4         'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
+      5         'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
+      6         'units_sold': [1, 2, 1, 4, 5],
+      7         'total_price': [10, 19.98, 13.99, 84.00, 500]
+      8 }})
+----> 9 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
+
 KeyError: 'price'
+
 
 ERROR ANALYSIS:
 Runtime error: Attempted to access non-existent DataFrame column
@@ -53,12 +64,15 @@ Defined Variables:
     }})
 }}
 
-Code in the active code cell:
+Code in active cell:
 ```python
 df['date'] = pd.to_datetime(df['date'])
 ```
 
-Error Message:
+Error Traceback:
+Cell In[27], line 1
+----> 1 df['date'] = pd.to_datetime(df['date'])
+
 ValueError: time data "25 June, 2024" doesn't match format "%b %d, %Y", at position 2. You might want to try:
     - passing `format` if your strings have a consistent format;
     - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
@@ -109,6 +123,7 @@ Intent Preservation:
 Solution Requirements:
 
 - Return the full code cell with the error fixed and a short explanation of the error.
+- Only update code in the active cell. Do not update other code in the notebook.
 - Propose a solution that fixes the error and does not change the user's intent.
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
@@ -120,13 +135,13 @@ Here is your task.
 Defined Variables:
 {variables_str}
 
-Code in the active code cell:
+Code in active cell:
 ```python
 {active_cell_code}
 ```
 
-Error Message:
-{errorMessage}
+Error Traceback:
+{error_message}
 
 ERROR ANALYSIS:
 
@@ -134,8 +149,6 @@ INTENT ANALYSIS:
 
 SOLUTION:
 """
-    return prompt
-
 
 
 def remove_inner_thoughts_from_message(message: str) -> str:
