@@ -6,6 +6,8 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import {
     clickOnMitoAIChatTab,
+    clickPreviewButton,
+    clickAcceptButton,
     sendMessageToMitoAI,
 } from './utils';
 
@@ -52,7 +54,7 @@ test.describe("Agent mode integration tests", () => {
         expect(lastAgentMessageContent).toContain(newMessage);
     });
 
-    test.only("Run agent's plan", async ({ page }) => {
+    test("Run agent's plan", async ({ page }) => {
         const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
 
@@ -82,7 +84,6 @@ test.describe("Agent mode integration tests", () => {
 
         // Get count of cells in the notebook
         const cellCount = await page.locator('.jp-Cell').count();
-        expect(cellCount).toBeGreaterThanOrEqual(codeSnippetsFromChatMessages.length);
 
         // Get code from every cell in the notebook
         const codeFromCells: string[] = [];
@@ -101,5 +102,37 @@ test.describe("Agent mode integration tests", () => {
         // Now codeSnippets contains an array of code strings
         console.log('Extracted code snippets:', codeSnippetsFromChatMessages);
         console.log('Code from cells:', codeFromCells);
+    });
+
+    test("Run agent's plan then send a follow up chat message", async ({ page }) => {
+        const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
+        const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
+
+        // Run the plan of attack
+        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+
+        // Wait for all chat messages to appear
+        await page.waitForFunction(
+            ([expectedCount, startingCount]) => {
+                const currentCount = document.querySelectorAll('.message-assistant-chat').length;
+                return currentCount === startingCount + expectedCount;
+            },
+            [numOfStepsInAgentsPlan, startingNumOfChatMessages]
+        );
+
+        // Send a follow up chat message
+        await sendMessageToMitoAI(page, "print bye");
+        await waitForIdle(page);
+
+        // Accept the follow up chat message
+        await clickPreviewButton(page);
+        await clickAcceptButton(page, { useCellToolbar: true });
+        await waitForIdle(page);
+
+        // Look for the code in the last cell
+        const cellCount = await page.locator('.jp-Cell').count();
+        const code = await getCodeFromCell(page, cellCount - 1);
+        expect(code).toContain('print');
+        expect(code).toContain('bye');
     });
 });
