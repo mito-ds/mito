@@ -129,10 +129,17 @@ def get_structured_error(code):
         
         if result.error_before_exec or result.error_in_exec:
             full_traceback = strip_ansi_codes(stdout_capture.getvalue())
+            
+            # Close the stdout capture
+            sys.stdout = original_stdout
+            stdout_capture.close()
+            
             lines = full_traceback.split('\n')
             
             filtered_lines = []
-            include_next_lines = False
+            capturing = False
+            
+            print(f"Lines: {lines}")
             
             for line in lines:
                 # Always include error headers
@@ -142,27 +149,32 @@ def get_structured_error(code):
                 
                 # Start capturing when we see a Cell block
                 if line.strip().startswith('Cell In['):
-                    include_next_lines = True
+                    capturing = True
                     filtered_lines.append(line)
                     continue
                 
-                # Include indented lines after a Cell block
-                if include_next_lines and (line.strip().startswith('    ') or line.strip().startswith('--->')):
-                    filtered_lines.append(line)
-                    continue
-                else:
-                    include_next_lines = False
-                
-                # Include the final error message
-                if ':' in line and any(err in line for err in ['Error', 'Warning', 'Exception']):
-                    filtered_lines.append(line)
+                # Keep capturing until we hit an empty line
+                if capturing:
+                    if line.strip() == '':
+                        filtered_lines.append('')
+                        capturing = False
+                    else:
+                        filtered_lines.append(line)
+                        
+            # Always include the final, non-empty line
+            # This is the last line that is not ""
+            non_empty_lines = [line for line in lines if line != ""]
+            filtered_lines.append(non_empty_lines[-1])
             
+            sys.stdout = original_stdout  # Restore stdout before printing
             return '\n'.join(filtered_lines)
         else: 
-            print("Test Failure: No error was produced")
+            sys.stdout = original_stdout  # Restore stdout before printing
+            print("Test Failure 1: No error was produced")
             return None
     except Exception as e:
-        print(f"Test Failure: Error running code in IPython shell: {e}")
+        sys.stdout = original_stdout  # Restore stdout before printing
+        print(f"Test Failure 2: Error running code in IPython shell: {e}")
         return None
     finally:
         sys.stdout = original_stdout
