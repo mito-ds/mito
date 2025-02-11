@@ -384,6 +384,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             n++;
         });
 
+        newChatHistoryManager.addAIMessageFromResponse(
+            "If everything looks good, use the start button at the bottom of the task pane to proceed. By doing so, you grant Mito AI permission to execute the code in this notebook.",
+            'chat'
+        )
+
         setChatHistoryManager(newChatHistoryManager);
     }
 
