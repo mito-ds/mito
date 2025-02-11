@@ -1,6 +1,7 @@
 import { expect, galata, test } from '@jupyterlab/galata';
 import {
     createAndRunNotebookWithCells,
+    getCodeFromCell,
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
 import {
@@ -67,7 +68,38 @@ test.describe("Agent mode integration tests", () => {
             [numOfStepsInAgentsPlan, startingNumOfChatMessages]
         );
 
+        // Ensure all steps in the agent's plan have been executed
         const finalNumOfChatMessages = await page.locator('.message-assistant-chat').count();
         expect(finalNumOfChatMessages).toEqual(startingNumOfChatMessages + numOfStepsInAgentsPlan);
+
+        // Extract code snippets from chat messages
+        const codeSnippetsFromChatMessages = await page.$$eval('.code-block-python-code pre code', elements => {
+            return elements.map(element => {
+                // Remove any HTML tags and combine text content
+                return element.textContent?.replace(/\s+/g, ' ').trim() || '';
+            });
+        });
+
+        // Get count of cells in the notebook
+        const cellCount = await page.locator('.jp-Cell').count();
+        expect(cellCount).toBeGreaterThanOrEqual(codeSnippetsFromChatMessages.length);
+
+        // Get code from every cell in the notebook
+        const codeFromCells: string[] = [];
+        for (let i = 0; i < cellCount; i++) {
+            const code = await getCodeFromCell(page, i);
+            if (code) {
+                codeFromCells.push(code);
+            }
+        }
+
+        // Ensure all code snippets are in the notebook
+        codeSnippetsFromChatMessages.forEach(codeSnippet => {
+            expect(codeFromCells).toContain(codeSnippet);
+        });
+
+        // Now codeSnippets contains an array of code strings
+        console.log('Extracted code snippets:', codeSnippetsFromChatMessages);
+        console.log('Code from cells:', codeFromCells);
     });
 });
