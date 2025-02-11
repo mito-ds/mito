@@ -40,7 +40,7 @@ test.describe("Agent mode integration tests", () => {
         expect(messageCount).toBeGreaterThanOrEqual(1);
     })
 
-    test.only("Edit original message", async ({ page }) => {
+    test("Edit original message", async ({ page }) => {
         const newMessage = "print bye";
 
         // Keep track of the last agent message.
