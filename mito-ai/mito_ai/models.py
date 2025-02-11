@@ -7,13 +7,11 @@ from typing import List, Literal, Optional, Type, Union
 from pydantic import BaseModel
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai.prompt_builders import (
-    create_chat_prompt,
-    create_inline_prompt,
-    create_explain_code_prompt,
-    create_error_prompt,
-    create_agent_prompt,
-)
+from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
+from mito_ai.prompt_builders.inline_completer_prompt import create_inline_prompt
+from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prompt
+from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt
+from mito_ai.prompt_builders.agent_planning_prompt import create_agent_prompt
 
 CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning']
 IncomingMessageTypes = Union[Literal['clear_history', 'fetch_history'], CompletionIncomingMessageTypes]

@@ -28,9 +28,9 @@ from mito_ai.models import (
     InlineCompletionMessageBuilder,
     SmartDebugMessageBuilder
 )
-from .prompt_builders import remove_inner_thoughts_from_message
-from .providers import OpenAIProvider
-from .utils.create import initialize_user
+from mito_ai.prompt_builders.smart_debug_prompt import remove_inner_thoughts_from_message
+from mito_ai.providers import OpenAIProvider
+from mito_ai.utils.create import initialize_user
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
@@ -111,6 +111,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
+        
         # first, verify that the message is an `CompletionRequest`.
         self.log.debug("Message received: %s", message)
         try:

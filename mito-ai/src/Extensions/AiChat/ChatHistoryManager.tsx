@@ -14,6 +14,7 @@ export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
     type: 'openai message' | 'openai message:agent:planning' | 'connection error',
+    promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
 }
@@ -34,7 +35,7 @@ export interface IChatMessageMetadata {
  * your backend will use to build a prompt.
  */
 export interface IOutgoingMessage {
-    promptType: 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning';
+    promptType: PromptType
     metadata: IChatMessageMetadata;
 }
 
@@ -78,7 +79,8 @@ export class ChatHistoryManager {
             {
                 message: message, 
                 type: 'openai message',
-                codeCellID: undefined
+                codeCellID: undefined,
+                promptType: 'chat'
             }
         );
     }
@@ -98,7 +100,8 @@ export class ChatHistoryManager {
             {
                 message: getDisplayedOptimizedUserMessage(input, activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: 'chat'
             }
         );
 
@@ -122,7 +125,8 @@ export class ChatHistoryManager {
         this.displayOptimizedChatHistory[index] = { 
             message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
             type: isAgentMessage ? 'openai message:agent:planning' : 'openai message',
-            codeCellID: activeCellID
+            codeCellID: activeCellID,
+            promptType: isAgentMessage ? 'agent:planning' : 'chat'
         }
 
         // Only slice the history if it's not an agent message
@@ -145,7 +149,8 @@ export class ChatHistoryManager {
             {
                 message: getDisplayedOptimizedUserMessage(message, undefined),
                 type: 'openai message',
-                codeCellID: undefined
+                codeCellID: undefined,
+                promptType: 'agent:planning'
             }
         )
 
@@ -170,7 +175,8 @@ export class ChatHistoryManager {
             {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: 'smartDebug'
             }
         );
 
@@ -194,7 +200,8 @@ export class ChatHistoryManager {
             {
                 message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: 'codeExplain'
             }
         );
 
@@ -235,7 +242,8 @@ export class ChatHistoryManager {
                 message: aiMessage, 
                 type: type,
                 mitoAIConnectionErrorType: mitoAIConnectionErrorType,
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: promptType
             }
         );
     }
@@ -248,7 +256,8 @@ export class ChatHistoryManager {
         this.displayOptimizedChatHistory.push({
             message: systemMessage, 
             type: 'openai message',
-            codeCellID: undefined
+            codeCellID: undefined,
+            promptType: 'chat'
         });
     }
 

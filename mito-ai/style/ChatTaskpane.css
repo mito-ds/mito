@@ -116,6 +116,13 @@
     display: none;
 }
 
+.chat-taskpane-smart-debug-error-message {
+    white-space: pre;
+    font-family: monospace;
+    margin: 0;
+    overflow-x: auto;
+}
+
 /* Use container query instead of media query */
 @container (max-width: 300px) {
     .chat-empty-message .long-message {

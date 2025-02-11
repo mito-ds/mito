@@ -13,6 +13,7 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import { PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
@@ -25,6 +26,7 @@ interface IChatMessageProps {
     messageType: IDisplayOptimizedChatHistory['type']
     codeCellID: string | undefined
     messageIndex: number
+    promptType: PromptType
     mitoAIConnectionError: boolean
     mitoAIConnectionErrorType: string | null
     notebookTracker: INotebookTracker
@@ -44,6 +46,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
     messageType,
     messageIndex,
+    promptType,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
     notebookTracker,
@@ -95,6 +98,15 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         );
     }
 
+    if (mitoAIConnectionError) {
+        return (
+            <div className={classNames(
+                "message",
+            )}>
+                <AlertBlock content={message.content as string} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+            </div>
+        )
+    }
     return (
         <div className={classNames(
             "message",
@@ -175,8 +187,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     }
                                 }}
                             >
-                                {mitoAIConnectionError ? (
-                                    <AlertBlock content={messagePart} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+                                {message.role === 'user' && promptType === 'smartDebug' ? (
+                                    /* Use a pre tag to preserve the newline and indentation of the error message */
+                                    <pre className="chat-taskpane-smart-debug-error-message">
+                                        {messagePart}
+                                    </pre>
                                 ) : (
                                     <MarkdownBlock
                                         markdown={messagePart}
