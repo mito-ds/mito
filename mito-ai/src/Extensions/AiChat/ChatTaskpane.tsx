@@ -449,7 +449,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, {
             execute: (args?: ReadonlyPartialJSONObject) => {
                 if (args?.input) {
-                    console.log('Args Input: ', args.input)
                     sendDebugErrorMessage(args.input.toString())
                 }
             }

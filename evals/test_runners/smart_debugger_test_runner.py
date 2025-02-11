@@ -139,8 +139,6 @@ def get_structured_error(code):
             filtered_lines = []
             capturing = False
             
-            print(f"Lines: {lines}")
-            
             for line in lines:
                 # Always include error headers
                 if '--------------------' in line:

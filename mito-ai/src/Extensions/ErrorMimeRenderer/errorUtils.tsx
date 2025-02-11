@@ -94,7 +94,6 @@ export const getFullErrorMessage = (model: IRenderMime.IMimeModel): string => {
             if (line.trim().startsWith('Cell In[') || line === cleanedArray[cleanedArray.length - 1]) {
                 // Split on any type of line ending (\r\n, \r, \n, ↵)
                 const newLines = line.split(/\r\n|\r|\n|↵/);
-                console.log("New Lines: ", newLines);
                 filteredLines.push(...newLines);
 
                 // Add a new line to separate the sections

@@ -8,8 +8,6 @@ interface IMarkdownCodeProps {
 }
 
 const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry }) => {
-
-    console.log("Markdown: ", markdown);
     const [renderedContent, setRenderedContent] = useState<JSX.Element | null>(null);
 
 
