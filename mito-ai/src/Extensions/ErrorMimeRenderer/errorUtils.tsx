@@ -3,7 +3,20 @@ import { stripAnsiCodes } from '../../utils/strings';
 
 
 /* 
-    Get the error string from the model.
+Get the error string from the model. 
+    
+For example, if this is the error message: 
+
+    Cell In[3], line 3
+      1 import pandas as pd
+      2 df = pd.DataFrame({'A': ['1/2/24', '2/2/24', '3/2/24'], 'B': [4, 5, 6]})
+----> 3 df['Year'] = df['A'].dt.year
+
+    AttributeError: Can only use .dt accessor with datetimelike values
+
+This function will return:
+
+    AttributeError: Can only use .dt accessor with datetimelike values
 */
 export const getConciseErrorMessage = (model: IRenderMime.IMimeModel): string => {
     const error = model.data['application/vnd.jupyter.error']
@@ -54,7 +67,7 @@ File ~/Mito/mito/mito-ai/venv/lib/python3.11/site-packages/pandas/core/indexes/a
 AttributeError: Can only use .dt accessor with datetimelike values
 
 
-It will only return:
+This function will only return:
 
 Cell In[3], line 3
       1 import pandas as pd
