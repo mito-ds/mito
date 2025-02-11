@@ -9,6 +9,7 @@ import {
     clickPreviewButton,
     clickAcceptButton,
     sendMessageToMitoAI,
+    editMitoAIMessage,
 } from './utils';
 
 test.describe("Agent mode integration tests", () => {
@@ -38,6 +39,23 @@ test.describe("Agent mode integration tests", () => {
         const messageCount = await page.locator('.message-assistant-agent').count();
         expect(messageCount).toBeGreaterThanOrEqual(1);
     })
+
+    test.only("Edit original message", async ({ page }) => {
+        const newMessage = "print bye";
+
+        // Keep track of the last agent message.
+        // We want to validate that this message is changed to reflect the users edit. 
+        const lastAgentMessageOG = await page.locator('.message-assistant-agent').last().textContent();
+
+        // Edit the message
+        await editMitoAIMessage(page, newMessage, 0);
+        await waitForIdle(page);
+
+        // Ensure that we recieved a new plan 
+        // by checking that the last agent message is different from the original.
+        const lastAgentMessageUpdated = await page.locator('.message-assistant-agent').last().textContent();
+        expect(lastAgentMessageUpdated).not.toEqual(lastAgentMessageOG);
+    });
 
     test("Edit message in agent's plan", async ({ page }) => {
         const newMessage = "print bye";
@@ -98,10 +116,6 @@ test.describe("Agent mode integration tests", () => {
         codeSnippetsFromChatMessages.forEach(codeSnippet => {
             expect(codeFromCells).toContain(codeSnippet);
         });
-
-        // Now codeSnippets contains an array of code strings
-        console.log('Extracted code snippets:', codeSnippetsFromChatMessages);
-        console.log('Code from cells:', codeFromCells);
     });
 
     test("Run agent's plan then send a follow up chat message", async ({ page }) => {
