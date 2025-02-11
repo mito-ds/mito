@@ -6,7 +6,6 @@ import {
 import {
     clickOnMitoAIChatTab,
     sendMessageToMitoAI,
-    waitForMitoAILoadingToDisappear,
 } from './utils';
 
 test.describe("Agent mode integration tests", () => {
@@ -59,18 +58,14 @@ test.describe("Agent mode integration tests", () => {
         // Run the plan of attack
         await page.getByRole('button', { name: 'Let\'s go!' }).click();
 
-        // Wait for all steps to complete 
-        for (let i = 0; i < numOfStepsInAgentsPlan; i++) {
-            await waitForMitoAILoadingToDisappear(page);
-            await waitForIdle(page);
-
-            if (i < numOfStepsInAgentsPlan - 1) {
-                // Messages are not sent immediately. We've added a small delay 
-                // to make it easier for users to follow along. 
-                // See executeAgentPlan in ChatTaskpane.tsx. 
-                await page.waitForTimeout(1500);
-            }
-        }
+        // Wait for all chat messages to appear
+        await page.waitForFunction(
+            ([expectedCount, startingCount]) => {
+                const currentCount = document.querySelectorAll('.message-assistant-chat').length;
+                return currentCount === startingCount + expectedCount;
+            },
+            [numOfStepsInAgentsPlan, startingNumOfChatMessages]
+        );
 
         const finalNumOfChatMessages = await page.locator('.message-assistant-chat').count();
         expect(finalNumOfChatMessages).toEqual(startingNumOfChatMessages + numOfStepsInAgentsPlan);
