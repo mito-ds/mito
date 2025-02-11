@@ -22,7 +22,7 @@
 .chat-taskpane-header {
     display: flex;
     flex-direction: row;
-    justify-content: end;
+    justify-content: space-between;
     align-items: center;
     padding-top: 10px;
     padding-bottom: 5px;
@@ -42,12 +42,18 @@
     margin: 0;
 }
 
+.chat-taskpane-header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
 .message {
     height: min-content;
     box-sizing: border-box;
     padding: 10px;
     width: 100%;
     font-size: 14px;
+    border-radius: 5px;
 }
 
 .message:not(.chat-input) {
@@ -57,11 +63,18 @@
 .message-user {
     background-color: var(--chat-user-message-background-color);
     color: var(--chat-user-message-font-color);
-    border-radius: 5px;
 }
 
-.message-assistant {
+.message-assistant-chat {
     color: var(--chat-assistant-message-font-color);
+}
+
+.message-assistant-agent {
+    background-color: var(--purple-300);
+}
+
+.message-assistant-agent p {
+    color: var(--jp-content-font-color1) !important;
 }
 
 .markdown-message-part * .jp-RenderedHTMLCommon :not(pre) > code {
@@ -133,6 +146,7 @@
 .message-edit-button {
     background-color: rgba(255, 255, 255, 0);
     border: none;
+    color: var(--grey-900) !important;
 }
 
 .message-edit-buttons {

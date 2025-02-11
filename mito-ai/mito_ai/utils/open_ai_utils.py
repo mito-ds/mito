@@ -133,4 +133,9 @@ def get_open_ai_completion_function_params(
     if model == "gpt-4o-mini":
         completion_function_params["temperature"] = 0.0
 
+    # Remove "stream" key if response_format is set.
+    # beta.chat.completions.parse will error if we try to pass it as a param. 
+    if response_format:
+        completion_function_params.pop("stream", None)
+
     return completion_function_params

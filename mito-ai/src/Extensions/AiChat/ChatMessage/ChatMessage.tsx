@@ -19,12 +19,14 @@ import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
+import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    messageType: IDisplayOptimizedChatHistory['type']
+    codeCellID: string | undefined
     messageIndex: number
     promptType: PromptType
-    codeCellID: string | undefined
     mitoAIConnectionError: boolean
     mitoAIConnectionErrorType: string | null
     notebookTracker: INotebookTracker
@@ -35,13 +37,14 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, messageType: IDisplayOptimizedChatHistory['type']) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
+    messageType,
     messageIndex,
     promptType,
     mitoAIConnectionError,
@@ -63,6 +66,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
+    const editable = messageType === 'openai message:agent:planning' || message.role === 'user'
+
     const messageContentParts = splitStringWithCodeBlocks(message);
 
     const handleEditClick = () => {
@@ -70,7 +75,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        onUpdateMessage(messageIndex, content);
+        onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
 
@@ -106,7 +111,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant': message.role === 'assistant' },
+            { 'message-assistant-chat': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
+            { 'message-assistant-agent': messageType === 'openai message:agent:planning' },
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -193,7 +199,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
-                            {message.role === 'user' && (
+                            {editable && (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                                     <button
                                         className="message-edit-button"

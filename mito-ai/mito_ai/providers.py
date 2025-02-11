@@ -243,9 +243,15 @@ This attribute is observed by the websocket provider to push the error to the cl
                 # Validate that the model is supported. If not fall back to gpt-4o-mini
                 if model not in self.models:
                     model = "gpt-4o-mini"
-
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
-                completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
+                
+                if response_format:
+                    completion_function_params = get_open_ai_completion_function_params(
+                        model, request.messages, False, response_format
+                    )
+                    completion = self._openAI_sync_client.beta.chat.completions.parse(**completion_function_params)
+                else:
+                    completion_function_params = get_open_ai_completion_function_params(model, request.messages, False)
+                    completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                                 
                 if prompt_type == "agent:planning":
                     pass # TODO: Add logging for agents 
