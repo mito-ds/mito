@@ -90,8 +90,8 @@ export const getFullErrorMessage = (model: IRenderMime.IMimeModel): string => {
         
         for (const line of cleanedArray) {
             
-            // Start capturing when we see a Cell block
-            if (line.trim().startsWith('Cell In[')) {
+            // Start capturing when we see a Cell block or its the last line
+            if (line.trim().startsWith('Cell In[') || line === cleanedArray[cleanedArray.length - 1]) {
                 // Split on any type of line ending (\r\n, \r, \n, ↵)
                 const newLines = line.split(/\r\n|\r|\n|↵/);
                 console.log("New Lines: ", newLines);
@@ -101,11 +101,6 @@ export const getFullErrorMessage = (model: IRenderMime.IMimeModel): string => {
                 filteredLines.push('\n');
                 continue;
             }
-        }
-        
-        // Always include the final line if its not already there
-        if (!filteredLines.includes(cleanedArray[cleanedArray.length - 1])) {
-            filteredLines.push(cleanedArray[cleanedArray.length - 1]);
         }
 
         const fullErrorMessage = filteredLines.join('\n');

@@ -181,7 +181,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     }
                                 }}
                             >
-                                {promptType === 'smartDebug' ? (
+                                {message.role === 'user' && promptType === 'smartDebug' ? (
                                     /* Use a pre tag to preserve the newline and indentation of the error message */
                                     <pre className="chat-taskpane-smart-debug-error-message">
                                         {messagePart}
