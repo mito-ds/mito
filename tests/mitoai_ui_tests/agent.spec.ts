@@ -1,10 +1,15 @@
 import { expect, galata, test } from '@jupyterlab/galata';
-import { sendMessageToMitoAI } from './utils';
-import { createAndRunNotebookWithCells } from '../jupyter_utils/jupyterlab_utils';
-import { waitForIdle } from '../jupyter_utils/jupyterlab_utils';
-import { clickOnMitoAIChatTab } from './utils';
+import {
+    createAndRunNotebookWithCells,
+    waitForIdle,
+} from '../jupyter_utils/jupyterlab_utils';
+import {
+    clickOnMitoAIChatTab,
+    sendMessageToMitoAI,
+    waitForMitoAILoadingToDisappear,
+} from './utils';
 
-test.describe("Agent mode integration test", () => {
+test.describe("Agent mode integration tests", () => {
 
     test.beforeEach(async ({ page }) => {
         /*
@@ -17,6 +22,7 @@ test.describe("Agent mode integration test", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
+        // Switch to agent mode
         await page.getByRole('button', { name: 'Chat ▾' }).click();
         await page.getByRole('button', { name: 'Agent' }).click();
 
@@ -24,14 +30,14 @@ test.describe("Agent mode integration test", () => {
         await waitForIdle(page);
     });
 
-    test.only("Switch to agent mode, and send a message", async ({ page }) => {
+    test("Switch to agent mode, and send a message", async ({ page }) => {
         // It's hard to know exactly how many items will be in the agent's plan,
         // but we can assume there will be at least one message. 
         const messageCount = await page.locator('.message-assistant-agent').count();
         expect(messageCount).toBeGreaterThanOrEqual(1);
     })
 
-    test.only("Edit message in agent's plan", async ({ page }) => {
+    test("Edit message in agent's plan", async ({ page }) => {
         const newMessage = "print bye";
 
         // Get the last agent message, and click on it's edit button 
@@ -47,8 +53,26 @@ test.describe("Agent mode integration test", () => {
     });
 
     test.only("Run agent's plan", async ({ page }) => {
+        const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
+        const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
+
         // Run the plan of attack
         await page.getByRole('button', { name: 'Let\'s go!' }).click();
-        await waitForIdle(page);
+
+        // Wait for all steps to complete 
+        for (let i = 0; i < numOfStepsInAgentsPlan; i++) {
+            await waitForMitoAILoadingToDisappear(page);
+            await waitForIdle(page);
+
+            if (i < numOfStepsInAgentsPlan - 1) {
+                // Messages are not sent immediately. We've added a small delay 
+                // to make it easier for users to follow along. 
+                // See executeAgentPlan in ChatTaskpane.tsx. 
+                await page.waitForTimeout(1500);
+            }
+        }
+
+        const finalNumOfChatMessages = await page.locator('.message-assistant-chat').count();
+        expect(finalNumOfChatMessages).toEqual(startingNumOfChatMessages + numOfStepsInAgentsPlan);
     });
 });
