@@ -8,6 +8,7 @@ import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE } f
 import MagicWandIcon from '../../icons/MagicWand';
 import '../../../style/ErrorMimeRendererPlugin.css'
 import { CollapsibleWarningBlock } from './CollapsibleWarningBlock';
+import { getErrorString, getStructuredError } from './errorUtils';
 
 interface ErrorMessageProps {
     onDebugClick: () => void;
@@ -109,20 +110,15 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
         the user input.
     */
     openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
-        const conciseErrorMessage = this.getErrorString(model);
+        const conciseErrorMessage = getErrorString(model);
+        const structuredError = getStructuredError(model);
+
+        console.log("Concise error message: ", conciseErrorMessage);
+        console.log("Structured error: ", structuredError);
+
+
         this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
         this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: conciseErrorMessage });
-    }
-
-    /* 
-        Get the error string from the model.
-    */
-    getErrorString(model: IRenderMime.IMimeModel): string {
-        const error = model.data['application/vnd.jupyter.error']
-        if (error && typeof error === 'object' && 'ename' in error && 'evalue' in error) {
-            return `${error.ename}: ${error.evalue}`
-        }
-        return ''
     }
 }
   
