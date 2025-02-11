@@ -92,7 +92,13 @@ export const getFullErrorMessage = (model: IRenderMime.IMimeModel): string => {
             
             // Start capturing when we see a Cell block
             if (line.trim().startsWith('Cell In[')) {
-                filteredLines.push(line);
+                // Split on any type of line ending (\r\n, \r, \n, ↵)
+                const newLines = line.split(/\r\n|\r|\n|↵/);
+                console.log("New Lines: ", newLines);
+                filteredLines.push(...newLines);
+
+                // Add a new line to separate the sections
+                filteredLines.push('\n');
                 continue;
             }
         }
@@ -102,7 +108,9 @@ export const getFullErrorMessage = (model: IRenderMime.IMimeModel): string => {
             filteredLines.push(cleanedArray[cleanedArray.length - 1]);
         }
 
-        return filteredLines.join('\n');
+        const fullErrorMessage = filteredLines.join('\n');
+
+        return fullErrorMessage;
     } catch (error) {
         // If something goes wrong parsing the error, just return the concise error message
         console.error('Error processing traceback:', error);
