@@ -253,17 +253,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                     completion_function_params = get_open_ai_completion_function_params(model, request.messages, False)
                     completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                                 
-                if prompt_type == "agent:planning":
-                    pass # TODO: Add logging for agents 
-                else:
-                    # Log the successful completion
-                    log_ai_completion_success(
-                        key_type=USER_KEY,
-                        prompt_type=prompt_type,
-                        last_message_content=str(request.messages[-1].get('content', '')),
-                        response={"completion": completion.choices[0].message.content}
-                    )
-
+                # Log the successful completion
+                log_ai_completion_success(
+                    key_type=USER_KEY,
+                    prompt_type=prompt_type,
+                    last_message_content=str(request.messages[-1].get('content', '')),
+                    response={"completion": completion.choices[0].message.content}
+                )
+                
                 return CompletionReply(
                     parent_id=request.message_id,
                     items=[
