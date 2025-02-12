@@ -104,6 +104,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }));
     };
 
+
     useEffect(() => {
         const initializeChatHistory = async () => {
           try {
@@ -801,6 +802,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         variableManager={variableManager}
                         notebookTracker={notebookTracker}
                         renderMimeRegistry={renderMimeRegistry}
+                        app={app}
                     />
                     {agentModeEnabled &&
                         <>

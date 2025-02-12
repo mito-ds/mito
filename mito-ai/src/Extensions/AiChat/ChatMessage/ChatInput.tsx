@@ -3,13 +3,14 @@ import { classNames } from '../../../utils/classNames';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../VariableManager/VariableInspector';
-import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
+import { getActiveCellID, getCellCodeByID, getCellOutputByID } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import PythonCode from './PythonCode';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 interface ChatInputProps {
     initialContent: string;
@@ -20,6 +21,7 @@ interface ChatInputProps {
     variableManager?: IVariableManager;
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
+    app: JupyterFrontEnd
 }
 
 export interface ExpandedVariable extends Variable {
@@ -35,6 +37,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     variableManager,
     notebookTracker,
     renderMimeRegistry,
+    app
 }) => {
 
     const [input, setInput] = useState(initialContent);
@@ -163,6 +166,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
+
+
+    const activeCellOutput = getCellOutputByID(app, notebookTracker, activeCellID)
+    console.log(activeCellOutput)
 
     return (
         <div 
