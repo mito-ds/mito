@@ -62,7 +62,7 @@ jobs:
         jupyter lab --config jupyter_server_test_config.py &
         npm run test:mitoai
       env:
-        OPENAI_API_KEY: ${{ matrix.use-mito-ai-server && '' || secrets.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ matrix.use-mito-ai-server == false && secrets.OPENAI_API_KEY || '' }}
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()
