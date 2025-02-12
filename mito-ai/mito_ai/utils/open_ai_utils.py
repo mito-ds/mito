@@ -138,11 +138,13 @@ def get_open_ai_completion_function_params(
             "type": "json_schema",
             "json_schema": {
                 "name": "plan_of_attack",
-                "schema": json_schema,
+                "schema": {
+                    **json_schema,
+                    "additionalProperties": False
+                },
                 "strict": True
             }
         }
-        completion_function_params["response_format"]["json_schema"]["schema"]["additionalProperties"] = False
     
     # o3-mini will error if we try setting the temperature
     if model == "gpt-4o-mini":
