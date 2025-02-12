@@ -67,7 +67,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="GNU Affero General Public License v3",
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     classifiers=[
         "Framework :: Jupyter",
         "Framework :: Jupyter :: JupyterLab",
@@ -77,7 +77,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -91,16 +90,19 @@ setup(
         'analytics-python',
         "tornado>=6.2.0",
         "traitlets",
+        "pydantic",
     ],
     extras_require = {
         'deploy': [
             'wheel==0.42.0', 
             'twine==5.1.1',
             'setuptools==68.0.0'
-            
         ],
         'test': [
             'pytest==8.3.4',
+            'mypy>=1.8.0',
+            'types-setuptools>=69.0.0',
+            'types-tornado>=5.1.1',
         ],
     },
     keywords=["AI", "Jupyter", "Mito"],

@@ -16,12 +16,6 @@ import {
 const GHOST_SELECTOR = ".jp-GhostText";
 const THRESHOLD_IN_MS = 5000;
 
-// Before each test, enable inline completion
-test.beforeEach(async ({ page }) => {
-    await page.locator('button:has-text("Enable")').click();
-});
-
-
 test.describe("inline completion integration test", () => {
 
     test('Inline completion', async ({ page }) => {

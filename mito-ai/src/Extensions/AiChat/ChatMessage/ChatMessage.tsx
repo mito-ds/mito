@@ -13,16 +13,20 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import { PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
+import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    messageType: IDisplayOptimizedChatHistory['type']
     codeCellID: string | undefined
     messageIndex: number
+    promptType: PromptType
     mitoAIConnectionError: boolean
     mitoAIConnectionErrorType: string | null
     notebookTracker: INotebookTracker
@@ -33,14 +37,16 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, messageType: IDisplayOptimizedChatHistory['type']) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
+    messageType,
     messageIndex,
+    promptType,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
     notebookTracker,
@@ -60,6 +66,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
+    const editable = messageType === 'openai message:agent:planning' || message.role === 'user'
+
     const messageContentParts = splitStringWithCodeBlocks(message);
 
     const handleEditClick = () => {
@@ -67,7 +75,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        onUpdateMessage(messageIndex, content);
+        onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
 
@@ -90,11 +98,21 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         );
     }
 
+    if (mitoAIConnectionError) {
+        return (
+            <div className={classNames(
+                "message",
+            )}>
+                <AlertBlock content={message.content as string} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+            </div>
+        )
+    }
     return (
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant': message.role === 'assistant' },
+            { 'message-assistant-chat': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
+            { 'message-assistant-agent': messageType === 'openai message:agent:planning' },
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -123,6 +141,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             icon={PlayButtonIcon}
                                             title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
                                             variant='gray'
+                                            width='fit-contents'
                                         />
                                         <TextAndIconButton 
                                             onClick={() => {copyToClipboard(messagePart)}}
@@ -130,6 +149,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
                                             variant='gray'
+                                            width='fit-contents'
                                         />
                                     </div>
                                 }
@@ -140,12 +160,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             text={`Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`}
                                             title={'Accept the Ai generated code'}
                                             variant='green'
+                                            width='fit-contents'
                                         />
                                         <TextButton 
                                             onClick={() => {rejectAICode()}}
                                             text={`Reject code ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`}
                                             title={'Reject the Ai generated code and revert to the previous version of the code cell'}
                                             variant='red'
+                                            width='fit-contents'
                                         />
                                     </div>
 
@@ -165,8 +187,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     }
                                 }}
                             >
-                                {mitoAIConnectionError ? (
-                                    <AlertBlock content={messagePart} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+                                {message.role === 'user' && promptType === 'smartDebug' ? (
+                                    /* Use a pre tag to preserve the newline and indentation of the error message */
+                                    <pre className="chat-taskpane-smart-debug-error-message">
+                                        {messagePart}
+                                    </pre>
                                 ) : (
                                     <MarkdownBlock
                                         markdown={messagePart}
@@ -174,7 +199,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
-                            {message.role === 'user' && (
+                            {editable && (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                                     <button
                                         className="message-edit-button"

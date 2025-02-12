@@ -22,6 +22,8 @@ import type {
   InlineCompletionStreamChunk
 } from '../../utils/websocket/models';
 import { IChatMessageMetadata } from '../AiChat/ChatHistoryManager';
+import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
+import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 
 /**
  * Mito AI inline completer
@@ -33,25 +35,25 @@ export class MitoAIInlineCompleter
   private _client: CompletionWebsocketClient;
   private _counter = 0;
   private _isDisposed = false;
-  private _settings: MitoAIInlineCompleter.ISettings =
-    MitoAIInlineCompleter.DEFAULT_SETTINGS;
+  private _settings: MitoAIInlineCompleter.ISettings = MitoAIInlineCompleter.DEFAULT_SETTINGS;
+  
   // Store only one inline completion stream
-  //   Each new request should invalidate any other suggestions.
+  // Each new request should invalidate any other suggestions.
   private _currentToken = '';
-  private _currentStream: Stream<
-    MitoAIInlineCompleter,
-    InlineCompletionStreamChunk
-  > | null = null;
+  private _currentStream: Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk> | null = null;
+  
   /**
    * Block processing chunks while waiting for the acknowledge request
    * that will provide the unique completion token.
    */
   private _completionLock = new PromiseDelegate<void>();
-  private _fullCompletionMap = new WeakMap<
-    Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>,
-    string
-  >();
+  private _fullCompletionMap = new WeakMap<Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>, string>();
   private _variableManager: IVariableManager;
+
+  // We only want to display the free tier limit reached notification once 
+  // per session to avoid spamming the user. 
+  private _displayed_free_tier_limit_reached_notification = false;
+
 
   constructor({
     serverSettings,
@@ -144,6 +146,7 @@ export class MitoAIInlineCompleter
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    console.log("HERE")
     if (!this.isEnabled()) {
       return Promise.reject('Mito AI completion is disabled.');
     }
@@ -201,7 +204,12 @@ export class MitoAIInlineCompleter
       }
 
       const error = result.error;
-      if (error) {
+      if (error?.title === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
+        if (!this._displayed_free_tier_limit_reached_notification) {
+          this._notifyFreeTierLimitReached();
+          this._displayed_free_tier_limit_reached_notification = true;
+        }
+      } else if (error) {
         this._notifyCompletionFailure(error);
         throw new Error(
           `Inline completion failed: ${error.error_type}\n${error.traceback}`
@@ -279,6 +287,36 @@ export class MitoAIInlineCompleter
     return request.text.slice(request.offset);
   }
 
+  private _notifyFreeTierLimitReached() {
+    Notification.emit(`Your Mito AI free trial ended. Upgrade to Mito Pro to access advanced models and continue using Mito AI or supply your own key.`, 'error', {
+      autoClose: false,
+      actions: [
+        {
+          label: 'Upgrade to Mito Pro',
+          callback: () => {
+            // We create and submit a form programmatically instead of using window.open()
+            // because the Stripe endpoint requires a POST request, which window.open() 
+            // cannot do (it only makes GET requests). This approach allows us to make
+            // a proper POST request that will create a Stripe checkout session.
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = STRIPE_PAYMENT_LINK;
+            form.target = '_blank';
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+          }
+        },
+        {
+          label: "Learn more",
+          callback: () => {
+            window.open("https://www.trymito.io/plans", '_blank');
+          }
+        }
+      ]
+    });
+  }
+
   private _notifyCompletionFailure(error: CompletionError) {
     Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
       autoClose: false,
@@ -302,7 +340,11 @@ export class MitoAIInlineCompleter
     _emitter: CompletionWebsocketClient,
     chunk: ICompletionStreamChunk
   ) {
-    if (chunk.error) {
+
+    if (chunk.error?.title === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
+      this._notifyFreeTierLimitReached();
+      this._displayed_free_tier_limit_reached_notification = true;
+    } else if (chunk.error) {
       this._notifyCompletionFailure(chunk.error);
     }
 

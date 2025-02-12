@@ -114,6 +114,7 @@ Solution Requirements:
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
+- The code in the SOLUTION section should be a python code block starting with ```python and ending with ```
 
 Here is your task. 
 

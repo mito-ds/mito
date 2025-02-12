@@ -377,7 +377,7 @@ def get_mito_frontend_code(kernel_id: str, comm_target_id: str, div_id: str, mit
     # NOTE: we encode these as utf8 encoded byte arrays, so that we can avoid having to do complicated things with 
     # replacing \t, etc, which is required because JSON.parse limits what characters are valid in strings (bah humbug)
     def to_uint8_arr(string: str) -> List[int]:
-        return np.frombuffer(string.encode("utf8"), dtype=np.uint8).tolist()
+        return np.frombuffer(string.encode("utf8"), dtype=np.uint8).tolist()  # type: ignore
 
     js_code = js_code.replace('["REPLACE_THIS_WITH_SHEET_DATA_BYTES"]', f'{to_uint8_arr(mito_backend.steps_manager.sheet_data_json)}')
     js_code = js_code.replace('["REPLACE_THIS_WITH_ANALYSIS_DATA_BYTES"]', f'{to_uint8_arr(mito_backend.steps_manager.analysis_data_json)}')

@@ -37,9 +37,7 @@ test.describe("Mito AI status item", () => {
           ws.send(
             JSON.stringify({
               configuration: {
-                max_completion_tokens: 20,
                 model: "a-powerful-model",
-                temperature: 0.7,
               },
               provider: "Mito server",
               type: "ai_capabilities",
@@ -51,12 +49,38 @@ test.describe("Mito AI status item", () => {
 
     await page.goto(`tree/${tmpPath}`);
 
-    await page.getByRole("button", { name: "Mito AI Status" }).click();
+    await page.getByRole("button", { name: "Mito AI" }).click();
 
-    await expect(page.locator(".mito-ai-status-popup")).toHaveText(
-      "Mito AI StatusProvider: Mito serverConfiguration:Model: a-powerful-modelMax tokens: 20Temperature: 0.7"
-    );
+    await expect(page.locator(".mito-ai-status-popup")).toBeVisible();
+    await expect(page.locator(".mito-ai-status-popup")).toContainText("Mito server")
   });
+
+  test("should show upgrade to pro message and button", async ({ page, tmpPath }) => {
+    // Mock provider capabilities
+    await page.routeWebSocket(/.*\/mito-ai\/completions/, (ws) => {
+      // Send capabilities after a delay to simulate a real server
+      setTimeout(
+        () =>
+          ws.send(
+            JSON.stringify({
+              type: "error",
+              error_type: "builtins.PermissionError",
+              title: "mito_server_free_tier_limit_reached",
+              hint: "Upgrade to Mito Pro to continue using Mito AI",
+            })
+          ),
+        500
+      );
+    });
+
+    await page.goto(`tree/${tmpPath}`);
+
+    await page.getByRole("button", { name: "Mito AI" }).click();
+
+    await expect(page.locator(".mito-ai-status-popup")).toBeVisible();
+    await expect(page.locator(".mito-ai-status-popup")).toContainText("Free Trial Expired")
+    await expect(page.locator(".mito-ai-status-popup").locator(".button-base")).toContainText("Upgrade to Pro")
+  })
 
   test("should show the latest error", async ({ page, tmpPath }) => {
 
@@ -80,9 +104,7 @@ test.describe("Mito AI status item", () => {
           ws.send(
             JSON.stringify({
               configuration: {
-                max_completion_tokens: 20,
                 model: "a-powerful-model",
-                temperature: 0.7,
               },
               provider: "Mito server",
               type: "ai_capabilities",
@@ -94,11 +116,10 @@ test.describe("Mito AI status item", () => {
 
     await page.goto(`tree/${tmpPath}`);
 
-    await page.getByRole("button", { name: "Mito AI Status" }).click();
+    await page.getByRole("button", { name: "Mito AI" }).click();
 
-    await expect(page.locator(".mito-ai-status-popup")).toHaveText(
-      "Mito AI StatusProvider: Mito serverConfiguration:Model: a-powerful-modelMax tokens: 20Temperature: 0.7Last error:Type: openai.AuthenticationErrorTitle: Bad OpenAI API keyHint: Try again with a valid API key"
-    );
+    await expect(page.locator(".mito-ai-status-popup")).toContainText("Bad OpenAI API key");
+    await expect(page.locator(".mito-ai-status-popup")).toContainText("Try again with a valid API key")
   });
 
   test("should show error if server endpoint returns 404", async ({
@@ -115,10 +136,9 @@ test.describe("Mito AI status item", () => {
     
         await page.goto(`tree/${tmpPath}`);
     
-        await page.getByRole("button", { name: "Mito AI Status" }).click();
+        await page.getByRole("button", { name: "Mito AI" }).click();
 
-    await expect(page.locator(".mito-ai-status-popup")).toHaveText(
-      "Mito AI StatusProvider: NoneLast error:Type: HTTPErrorTitle: Mito AI extension not enabled.Hint: You can enable it by running in a cell `!jupyter server extension enable mito_ai`. Then restart the application."
-    );
+    await expect(page.locator(".mito-ai-status-popup")).toContainText("Mito AI extension not enabled.")
+    await expect(page.locator(".mito-ai-status-popup")).toContainText("You can enable it by running in a cell `!jupyter server extension enable mito_ai`. Then restart the application.")
   });
 });

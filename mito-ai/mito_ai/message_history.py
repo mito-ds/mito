@@ -1,0 +1,296 @@
+import os
+import time
+import json
+import uuid
+from threading import Lock
+from typing import Dict, List, Optional
+
+from openai.types.chat import ChatCompletionMessageParam
+from mito_ai.models import CompletionRequest
+from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
+from mito_ai.utils.schema import MITO_FOLDER
+
+CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
+
+async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider) -> str:
+    prompt = create_chat_name_prompt(user_message, assistant_message)
+
+    request = CompletionRequest(
+        type="chat_name_generation",
+        message_id=str(uuid.uuid4()),
+        messages=[{"role": "user", "content": prompt}],
+        stream=False
+    )
+
+    reply = await llm_provider.request_completions(
+        request=request,
+        prompt_type="chat_name_generation"
+    )
+
+    if not reply or not reply.items:
+        # if something went wrong or no completion returned
+        return "Untitled Chat"
+
+    return reply.items[0].content.strip()
+
+class ChatThread:
+    """
+    Holds metadata + two lists of messages: LLM and display messages.
+    """
+    def __init__(
+        self,
+        thread_id: str,
+        creation_ts: float,
+        last_interaction_ts: float,
+        name: str,
+        ai_optimized_history: Optional[List[Dict[str, str]]] = None,
+        display_history: Optional[List[Dict[str, str]]] = None,
+    ):
+        self.thread_id = thread_id
+        self.creation_ts = creation_ts
+        self.last_interaction_ts = last_interaction_ts
+        self.name = name  # short name for the thread
+        self.ai_optimized_history = ai_optimized_history or []
+        self.display_history = display_history or []
+
+class GlobalMessageHistory:
+    """
+    Manages a global message history with thread-safe chat conversations.
+
+    This class ensures thread-safe operations for reading, writing, and 
+    modifying message histories using a Lock object. It supports loading 
+    from and saving to disk, appending new messages, clearing histories, 
+    and truncating histories. Each chat thread is stored in a separate JSON file 
+    for persistence.
+
+    Thread safety is crucial to prevent data corruption and race conditions 
+    when multiple threads access or modify the message histories concurrently.
+
+    We store two types of messages per thread: AI-optimized and display-optimized messages.
+    We store display_history to be able to restore them in the frontend when 
+    the extension loads. We store ai_optimized_history to keep the conversation context
+    for continuing the conversation.
+
+    The JSON file structure for storing each thread is as follows:
+    {
+      "chat_history_version": 2,
+      "thread_id": "<uuid>",
+      "creation_ts": 1234567890.123,
+      "last_interaction_ts": 1234567890.123,
+      "name": "Short descriptive name",
+      "ai_optimized_history": [
+        {
+          "role": "user",
+          "content": "..."
+        },
+        {
+          "role": "assistant",
+          "content": "..."
+        }
+      ],
+      "display_history": [
+        {
+          "role": "user",
+          "content": "..."
+        },
+        {
+          "role": "assistant",
+          "content": "..."
+        }
+      ]
+    }
+
+    Each thread is stored in a separate JSON file named "<thread_id>.json".
+
+    Attributes:
+        _lock (Lock): Ensures thread-safe access.
+        _chats_dir (str): Directory where chat thread files are stored.
+        _chat_threads (Dict[str, ChatThread]): In-memory cache of all chat threads.
+
+    Methods:
+        create_new_thread() -> str:
+            Creates a new empty chat thread and returns its ID.
+        get_histories() -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+            Returns copies of the AI-optimized and display histories for the newest thread.
+        clear_histories() -> None:
+            Creates a new thread (preserving old threads).
+        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
+            Appends new messages to the newest thread and saves to disk.
+        truncate_histories(index: int) -> None:
+            Truncates both histories at the given index in the newest thread.
+    """
+    
+    def __init__(self, chats_dir: str = os.path.join(MITO_FOLDER, "ai-chats")):
+        self._lock = Lock()
+        self._chats_dir = chats_dir
+        os.makedirs(self._chats_dir, exist_ok=True)
+
+        # In-memory cache of all chat threads loaded from disk
+        self._chat_threads: Dict[str, ChatThread] = {}
+
+        # Load existing threads from disk on startup
+        self._load_all_threads_from_disk()
+
+    def create_new_thread(self) -> str:
+        """
+        Creates a new empty chat thread and saves it immediately.
+        """
+        with self._lock:
+            thread_id = str(uuid.uuid4())
+            now = time.time()
+            new_thread = ChatThread(
+                thread_id=thread_id,
+                creation_ts=now,
+                last_interaction_ts=now,
+                name="",  # we'll fill this in once we have at least user & assistant messages
+            )
+            self._chat_threads[thread_id] = new_thread
+            self._save_thread_to_disk(new_thread)
+            return thread_id
+    
+    def _load_all_threads_from_disk(self) -> None:
+        """
+        Loads each .json file in `self._chats_dir` into self._chat_threads.
+        """
+        for file_name in os.listdir(self._chats_dir):
+            if not file_name.endswith(".json"):
+                continue
+            path = os.path.join(self._chats_dir, file_name)
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                    # Check version
+                    file_version = data.get("chat_history_version", 0)
+                    if file_version == CHAT_HISTORY_VERSION:
+                        thread = ChatThread(
+                            thread_id=data["thread_id"],
+                            creation_ts=data["creation_ts"],
+                            last_interaction_ts=data["last_interaction_ts"],
+                            name=data["name"],
+                            ai_optimized_history=data.get("ai_optimized_history", []),
+                            display_history=data.get("display_history", []),
+                        )
+                        self._chat_threads[thread.thread_id] = thread
+                    else:
+                        # If versions don't match, throw a warning
+                        print(
+                            f"Warning: Incompatible chat history version ({file_version}). "
+                            f"Expected version {CHAT_HISTORY_VERSION}."
+                        )
+                        f.close()
+            except Exception as e:
+                print(f"Error loading chat thread from {path}: {e}")
+    
+    def _save_thread_to_disk(self, thread: ChatThread):
+        """
+        Saves the given ChatThread to a JSON file `<thread_id>.json` in `self._chats_dir`.
+        """
+        path = os.path.join(self._chats_dir, f"{thread.thread_id}.json")
+        data = {
+            "thread_id": thread.thread_id,
+            "creation_ts": thread.creation_ts,
+            "last_interaction_ts": thread.last_interaction_ts,
+            "name": thread.name,
+            "ai_optimized_history": thread.ai_optimized_history,
+            "display_history": thread.display_history,
+        }
+        
+        # Using a temporary file and rename for safer "atomic" writes
+        tmp_file = path + ".tmp"
+        try:
+            with open(tmp_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            os.replace(tmp_file, path)
+        except Exception as e:
+            print(f"Error saving chat thread {thread.thread_id}: {e}")
+    
+    def _get_newest_thread_id(self) -> Optional[str]:
+        """
+        Returns the thread_id of the thread with the latest 'last_interaction_ts'.
+        If no threads exist, return None.
+        """
+        if not self._chat_threads:
+            return None
+        return max(self._chat_threads, key=lambda tid: self._chat_threads[tid].last_interaction_ts)
+
+    def _update_last_interaction(self, thread: ChatThread):
+        thread.last_interaction_ts = time.time()
+
+    def get_histories(self) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
+        """
+        For backward compatibility: returns the LLM and display history of the newest thread.
+        """
+        with self._lock:
+            thread_id = self._get_newest_thread_id()
+            if not thread_id:
+                return [], []
+            # If history is requested, that is also considered an interaction
+            self._update_last_interaction(self._chat_threads[thread_id])
+            self._save_thread_to_disk(self._chat_threads[thread_id])
+            return (
+                self._chat_threads[thread_id].ai_optimized_history[:],
+                self._chat_threads[thread_id].display_history[:],
+            )
+
+    def clear_histories(self) -> None:
+        """
+        Instead of truly clearing, we create a new thread so that the old one is retained.
+        """
+        self.create_new_thread()  # not returning the ID here because the old code doesn't expect it
+
+    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider) -> None:
+        """
+        Appends the messages to the newest thread. If there are no threads yet, create one.
+        We also detect if we should set a short name for the thread.
+        """
+        with self._lock:
+            # Use the newest thread
+            thread_id = self._get_newest_thread_id()
+        if not thread_id:
+            thread_id = self.create_new_thread()
+
+        with self._lock:
+            thread = self._chat_threads[thread_id]
+            # Add message
+            thread.ai_optimized_history.append(ai_optimized_message)
+            thread.display_history.append(display_message)
+
+            # Update timestamps
+            self._update_last_interaction(thread)
+
+            # If we haven't assigned a name yet and we have at least two messages
+            # (the first user message and the first assistant message), we can set the name
+            if not thread.name:
+                # We look for first user msg and first assistant msg
+                user_message = None
+                assistant_message = None
+                for msg in thread.display_history:
+                    if msg["role"] == "user" and user_message is None:
+                        user_message = msg["content"]
+                    elif msg["role"] == "assistant" and assistant_message is None:
+                        assistant_message = msg["content"]
+                    if user_message and assistant_message:
+                        # We have what we need to name this thread
+                        thread.name = await generate_short_chat_name(
+                            user_message,
+                            assistant_message,
+                            llm_provider
+                        )
+                        break
+
+            self._save_thread_to_disk(thread)
+
+    def truncate_histories(self, index: int) -> None:
+        """
+        For the newest thread, truncate messages at the given index.
+        """
+        with self._lock:
+            thread_id = self._get_newest_thread_id()
+            if not thread_id:
+                return
+            thread = self._chat_threads[thread_id]
+            thread.ai_optimized_history = thread.ai_optimized_history[:index]
+            thread.display_history = thread.display_history[:index]
+            self._update_last_interaction(thread)
+            self._save_thread_to_disk(thread)

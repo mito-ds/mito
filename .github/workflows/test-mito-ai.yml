@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.8', '3.10', '3.12']
+        python-version: ['3.10', '3.12']
         use-mito-ai-server: [true, false]
       fail-fast: false
 

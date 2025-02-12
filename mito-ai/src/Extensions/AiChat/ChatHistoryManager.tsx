@@ -4,7 +4,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { Variable } from "../VariableManager/VariableInspector";
 
-type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'system'
+export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning';
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -13,7 +13,8 @@ type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'system'
 // we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'connection error',
+    type: 'openai message' | 'openai message:agent:planning' | 'connection error',
+    promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
 }
@@ -34,7 +35,7 @@ export interface IChatMessageMetadata {
  * your backend will use to build a prompt.
  */
 export interface IOutgoingMessage {
-    promptType: 'chat' | 'smartDebug' | 'codeExplain';
+    promptType: PromptType
     metadata: IChatMessageMetadata;
 }
 
@@ -78,7 +79,8 @@ export class ChatHistoryManager {
             {
                 message: message, 
                 type: 'openai message',
-                codeCellID: undefined
+                codeCellID: undefined,
+                promptType: 'chat'
             }
         );
     }
@@ -98,7 +100,8 @@ export class ChatHistoryManager {
             {
                 message: getDisplayedOptimizedUserMessage(input, activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: 'chat'
             }
         );
 
@@ -108,7 +111,7 @@ export class ChatHistoryManager {
         }
     }
 
-    updateMessageAtIndex(index: number, newContent: string): IOutgoingMessage {
+    updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IOutgoingMessage {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
@@ -121,14 +124,38 @@ export class ChatHistoryManager {
         
         this.displayOptimizedChatHistory[index] = { 
             message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
-            type: 'openai message',
-            codeCellID: activeCellID
+            type: isAgentMessage ? 'openai message:agent:planning' : 'openai message',
+            codeCellID: activeCellID,
+            promptType: isAgentMessage ? 'agent:planning' : 'chat'
         }
 
-        this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        // Only slice the history if it's not an agent message
+        if (!isAgentMessage) {
+            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        }
 
         return {
             promptType: 'chat',
+            metadata: metadata,
+        }
+    }
+
+    addAgentMessage(message: string): IOutgoingMessage {
+        const metadata: IChatMessageMetadata = {
+            input: message
+        }
+
+        this.displayOptimizedChatHistory.push(
+            {
+                message: getDisplayedOptimizedUserMessage(message, undefined),
+                type: 'openai message',
+                codeCellID: undefined,
+                promptType: 'agent:planning'
+            }
+        )
+
+        return {
+            promptType: 'agent:planning',
             metadata: metadata,
         }
     }
@@ -148,7 +175,8 @@ export class ChatHistoryManager {
             {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: 'smartDebug'
             }
         );
 
@@ -172,7 +200,8 @@ export class ChatHistoryManager {
             {
                 message: getDisplayedOptimizedUserMessage('Explain this code', activeCellCode), 
                 type: 'openai message',
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: 'codeExplain'
             }
         );
 
@@ -197,14 +226,24 @@ export class ChatHistoryManager {
             content: messageContent
         }
 
+        let type: IDisplayOptimizedChatHistory['type'];
+        if (mitoAIConnectionError) {
+            type = 'connection error';
+        } else if (promptType === 'agent:planning') {
+            type = 'openai message:agent:planning';
+        } else {
+            type = 'openai message';
+        }
+
         const activeCellID = getActiveCellID(this.notebookTracker)
 
         this.displayOptimizedChatHistory.push(
             {
                 message: aiMessage, 
-                type: mitoAIConnectionError ? 'connection error' : 'openai message',
+                type: type,
                 mitoAIConnectionErrorType: mitoAIConnectionErrorType,
-                codeCellID: activeCellID
+                codeCellID: activeCellID,
+                promptType: promptType
             }
         );
     }
@@ -217,7 +256,8 @@ export class ChatHistoryManager {
         this.displayOptimizedChatHistory.push({
             message: systemMessage, 
             type: 'openai message',
-            codeCellID: undefined
+            codeCellID: undefined,
+            promptType: 'chat'
         });
     }
 

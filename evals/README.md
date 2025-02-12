@@ -37,12 +37,13 @@ python -m evals.main --test_type=smart_debug
 ## Running specific tests
 To specify which tests to run, set some of the following flags: 
 
-- `--test_name`
-- `--prompt_name`
+- `--test_type`
+- `--test`
+- `--prompt`
 - `--tags`
-
+- `--model`
 
 For example, to run all tests for the `single_shot_prompt` prompt, run: 
 ```
-python -m evals.main --test_type=chat --prompt_name=single_shot_prompt
+python -m evals.main --test_type=chat --prompt=single_shot_prompt
 ```

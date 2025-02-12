@@ -50,8 +50,11 @@ def telemetry_turned_on() -> bool:
     if is_pro():
         return False
 
-    telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY) 
-    return telemetry if telemetry is not None else False
+    telemetry = get_user_field(UJ_MITOSHEET_TELEMETRY)
+    if telemetry is None:
+        return False
+    
+    return bool(telemetry)
 
 def identify() -> None:
     """

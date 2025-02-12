@@ -8,9 +8,13 @@ from evals.prompts.smart_debug_prompts import SMART_DEBUG_PROMPT_GENERATORS
 from evals.test_cases.smart_debug_tests import SMART_DEBUG_TESTS
 from evals.test_runners.utils import exec_code_and_get_globals_and_output
 from evals.utils import get_script_from_cells, print_test_case_result_tables
+from IPython.core.interactiveshell import InteractiveShell
+from io import StringIO
+import sys
+import re
 
 
-def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]]):
+def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], tags: Optional[List[str]], model: Optional[str]):
 
     tests_to_run = SMART_DEBUG_TESTS
     if test_name:
@@ -38,19 +42,21 @@ def run_smart_debug_tests(test_name: Optional[str], prompt_name: Optional[str], 
     
     print(f"Collected {len(prompt_generators_to_test)} prompts")
 
+    # Get the default model if no model is provided
+    model = prompt_generators_to_test[0].get_default_model() if model is None else model
 
     # Mapping from prompt name to test results for each prompt we test
     test_case_results: Dict[str, List[TestCaseResult]] = {}
     for prompt_generator in prompt_generators_to_test:
         test_case_results[prompt_generator.prompt_name] = []
         for test in tests_to_run:
-            test_case_result = run_smart_debug_test(test, prompt_generator)
+            test_case_result = run_smart_debug_test(test, prompt_generator, model)
             test_case_results[prompt_generator.prompt_name].append(test_case_result)
 
-    print_test_case_result_tables(test_case_results)
+    print_test_case_result_tables("smart_debug", test_case_results, model)
 
 
-def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPromptGenerator) -> TestCaseResult:
+def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPromptGenerator, model: Optional[str]) -> TestCaseResult:
     print(f"Running test: {test.name}")
                 
     # Create a copy of the notebook state that includes the invalid code.
@@ -62,24 +68,19 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     # into a single script when we execute it anyways. 
     invalid_notebook_state.cell_contents.append(test.invalid_code)
     invalid_code_cells_script = get_script_from_cells(invalid_notebook_state.cell_contents, include_current_cell=True)
-
+    
     # Exec the invalid code and get the error message
-    error_message = None
-    try:
-        exec(invalid_code_cells_script, {})
-    except Exception as e:
-        error_type = e.__class__.__name__
-        error_message = f"{error_type}: {str(e)}"
+    error_message = get_structured_error(invalid_code_cells_script)
 
-    print(f"Error message: {error_message}")
+    #print(f"Error message: {error_message}")
     if error_message is None:
-        raise ValueError("Broken Test: Test did not produce an error.")
+        print("Broken Test: Test did not produce an error.")
     
     # Ask the AI to correct the error
     # Make sure to use the invalid_notebook_state so that the prompt can include the 
     # invalid code in the prompt. 
     prompt = prompt_generator.get_prompt(error_message, invalid_notebook_state)
-    ai_generated_code = get_open_ai_completion(prompt)
+    ai_generated_code = get_open_ai_completion(prompt, model)
     actual_code = script_without_invalid_code + "\n" + ai_generated_code
 
     # Get the expected code script 
@@ -115,3 +116,69 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
         print(f"Actual output: {actual_output}\n")
 
     return TestCaseResult(test=test, passed=passed)
+
+
+def get_structured_error(code):
+    ipython = InteractiveShell.instance()
+    stdout_capture = StringIO()
+    original_stdout = sys.stdout
+    
+    try:
+        sys.stdout = stdout_capture
+        result = ipython.run_cell(code)
+        
+        if result.error_before_exec or result.error_in_exec:
+            full_traceback = strip_ansi_codes(stdout_capture.getvalue())
+            
+            # Close the stdout capture
+            sys.stdout = original_stdout
+            stdout_capture.close()
+            
+            lines = full_traceback.split('\n')
+            
+            filtered_lines = []
+            capturing = False
+            
+            for line in lines:
+                # Always include error headers
+                if '--------------------' in line:
+                    filtered_lines.append(line)
+                    continue
+                
+                # Start capturing when we see a Cell block
+                if line.strip().startswith('Cell In['):
+                    capturing = True
+                    filtered_lines.append(line)
+                    continue
+                
+                # Keep capturing until we hit an empty line
+                if capturing:
+                    if line.strip() == '':
+                        filtered_lines.append('')
+                        capturing = False
+                    else:
+                        filtered_lines.append(line)
+                        
+            # Always include the final, non-empty line
+            # This is the last line that is not ""
+            non_empty_lines = [line for line in lines if line != ""]
+            filtered_lines.append(non_empty_lines[-1])
+            
+            sys.stdout = original_stdout  # Restore stdout before printing
+            return '\n'.join(filtered_lines)
+        else: 
+            sys.stdout = original_stdout  # Restore stdout before printing
+            print("Test Failure 1: No error was produced")
+            return None
+    except Exception as e:
+        sys.stdout = original_stdout  # Restore stdout before printing
+        print(f"Test Failure 2: Error running code in IPython shell: {e}")
+        return None
+    finally:
+        sys.stdout = original_stdout
+        stdout_capture.close()
+
+def strip_ansi_codes(text):
+    """Remove ANSI escape sequences from text"""
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)

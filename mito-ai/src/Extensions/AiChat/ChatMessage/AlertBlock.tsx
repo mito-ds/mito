@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import ErrorIcon from '../../../icons/ErrorIcon';
+import React from 'react';
+import TextButton from '../../../components/TextButton';
+import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../../utils/errors';
+import { STRIPE_PAYMENT_LINK } from '../../../utils/stripe';
 
 
 interface IAlertBlockProps {
@@ -8,26 +10,35 @@ interface IAlertBlockProps {
 }
 
 const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionErrorType }) => {
-    const [message, setMessage] = useState<string | JSX.Element>("");
 
-    useEffect(() => {
-        if (mitoAIConnectionErrorType === "mito_server_free_tier_limit_reached") {
-            const message = (
+    if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
+        return (
+            <div className="chat-message-alert">
                 <p>
-                    You've reached the free tier limit for Mito AI. <a href="https://www.trymito.io/plans" target="_blank">Upgrade to Pro for unlimited uses</a> or supply your own OpenAI API key.
+                    Your Mito AI free trial has ended. To continue using Mito AI, upgrade to <a href="https://www.trymito.io/plans" target="_blank">Mito Pro</a> and get access to:
                 </p>
-            );
-            setMessage(message);
-        }
-        else {
-            setMessage(content);
-        }
-    }, [content]);
+                <ul>
+                    <li>Unlimited AI Completions</li>
+                    <li>Advanced reasoning with o3 models</li>
+                    <li>All Mito Spreadsheet Pro features</li>
+                </ul>
+                <p>
+                    Or supply your own Open AI Key to continue using the basic version of Mito AI. 
+                </p>
+                <TextButton
+                    title="Upgrade to Pro"
+                    text="Upgrade to Pro"
+                    action={STRIPE_PAYMENT_LINK}
+                    variant="purple"
+                    width="block"
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="chat-message-alert">
-            <span style={{ marginRight: '4px' }}><ErrorIcon /></span>
-            {message}
+            {content}
         </div>
     );
 };
