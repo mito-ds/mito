@@ -14,7 +14,7 @@ from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt
 from mito_ai.prompt_builders.agent_planning_prompt import create_agent_prompt
 
 
-CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning']
+CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning', 'chat_name_generation']
 IncomingMessageTypes = Union[Literal['start_new_chat', 'clear_history', 'fetch_history'], CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)

@@ -24,7 +24,8 @@ async def generate_short_chat_name(user_message: str, assistant_message: str, ll
 
     reply = await llm_provider.request_completions(
         request=request,
-        prompt_type="chat_name_generation"
+        prompt_type="chat_name_generation",
+        model="gpt-4o-mini",
     )
 
     if not reply or not reply.items:
