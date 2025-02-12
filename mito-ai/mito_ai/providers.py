@@ -248,11 +248,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                     completion_function_params = get_open_ai_completion_function_params(
                         model, request.messages, False, response_format
                     )
-                    completion = self._openAI_sync_client.beta.chat.completions.parse(**completion_function_params)
                 else:
                     completion_function_params = get_open_ai_completion_function_params(model, request.messages, False)
-                    completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                                 
+                completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
+
                 # Log the successful completion
                 log_ai_completion_success(
                     key_type=USER_KEY,
