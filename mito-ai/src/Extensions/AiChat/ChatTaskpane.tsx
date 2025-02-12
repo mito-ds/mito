@@ -287,7 +287,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = clearChatHistory()
+        const newChatHistoryManager = startNewChat()
         const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
         setChatHistoryManager(newChatHistoryManager)
         console.log('outgoingMessage: ', outgoingMessage)
@@ -686,7 +686,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         {
             label: 'Chat',
             onClick: () => {
-                clearChatHistory()
+                startNewChat()
                 setAgentModeEnabled(false);
             },
             icon: ChatIcon,
@@ -694,7 +694,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         {
             label: 'Agent',
             onClick: () => {
-                clearChatHistory()
+                startNewChat()
                 setAgentModeEnabled(true);
             },
             icon: RobotHeadIcon,
