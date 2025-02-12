@@ -17,7 +17,12 @@ import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { ChatHistoryManager, IDisplayOptimizedChatHistory, IOutgoingMessage } from './ChatHistoryManager';
+import { 
+    ChatHistoryManager, 
+    IDisplayOptimizedChatHistory, 
+    IOutgoingMessage, 
+    PromptType 
+} from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import DropdownMenu from '../../components/DropdownMenu';
 import IconButton from '../../components/IconButton';
@@ -223,7 +228,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number) => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: PromptType) => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -235,6 +240,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } else {
             outgoingMessage = newChatHistoryManager.addChatInputMessage(input)
         }
+
+        // If the user is in agent mode, we override the prompt type to be 'agent:execution'
+        // This gets used in the backend for logging purposes.
+        if (overridePromptType) {
+            outgoingMessage.promptType = overridePromptType
+        }
+
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Scroll to the bottom of the chat messages container
@@ -400,7 +412,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
-            const success = await sendChatInputMessage(agentMessage.message.content as string)
+            const success = await sendChatInputMessage(agentMessage.message.content as string, undefined, 'agent:execution')
 
             // If the message fails, break out of the loop
             if (!success) {

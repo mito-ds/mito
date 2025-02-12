@@ -4,7 +4,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { Variable } from "../VariableManager/VariableInspector";
 
-export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning';
+export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning' | 'agent:execution';
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 

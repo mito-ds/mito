@@ -153,7 +153,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             ai_optimized_history: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
             
         else:
-            if type == "chat":
+            if type == "chat" or type == "agent:execution":
                 chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
                 prompt = chatMessagePromptBuilder.prompt
                 display_message = chatMessagePromptBuilder.display_message
