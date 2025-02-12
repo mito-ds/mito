@@ -272,13 +272,22 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
             else:
                 # If they don't have an Open AI key, use the mito server to get a completion
-                self.log.debug(f"Requesting completion from Mito server with model {model}.")
+                self.log.debug(
+                    f"Requesting completion from Mito server with model {model}."
+                )
                 global _num_usages
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-                
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
-                
+
+                if response_format:
+                    completion_function_params = get_open_ai_completion_function_params(
+                        model, request.messages, False, response_format
+                    )
+                else:
+                    completion_function_params = get_open_ai_completion_function_params(
+                        model, request.messages, False
+                    )
+
                 last_message_content = str(request.messages[-1].get("content", "")) if request.messages else None
                 ai_response = await get_ai_completion_from_mito_server(
                     last_message_content,
