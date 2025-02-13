@@ -26,6 +26,9 @@ from mito_ai.models import (
     CompletionStreamChunk,
     ErrorMessage,
     FetchHistoryReply,
+    StartNewChatReply,
+    FetchThreadsReply,
+    DeleteThreadReply,
     InlineCompletionMessageBuilder,
     SmartDebugMessageBuilder
 )
@@ -81,7 +84,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
     async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
         """Get an event to open a socket."""
         # This method ensure to call `pre_get` before opening the socket.
-        await ensure_async(self.pre_get()) # type: ignore
+        await ensure_async(self.pre_get())
 
         initialize_user()
 
@@ -102,8 +105,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Clear the message history
         self.full_message_history = []
         
-
-    async def on_message(self, message: str) -> None: # type: ignore
+    async def on_message(self, message: str) -> None:
         """Handle incoming messages on the WebSocket.
 
         Args:
@@ -123,11 +125,48 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear history if the type is "start_new_chat"
         if type == "start_new_chat":
-            message_history.clear_histories()
+            thread = message_history.create_new_thread()
+            reply = StartNewChatReply(
+                parent_id=parsed_message.get("message_id"),
+                items=thread
+            )
+            self.reply(reply)
             return
-        
+
+        # Handle get_threads: return list of chat threads
+        if type == "get_threads":
+            threads = message_history.get_threads()
+            reply = FetchThreadsReply(
+                parent_id=parsed_message.get("message_id"),
+                items=threads
+            )
+            self.reply(reply)
+            return
+
+        # Handle delete_thread: delete the specified thread
+        if type == "delete_thread":
+            thread_id_to_delete = metadata_dict.get('threadID')
+            if thread_id_to_delete:
+                is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    items=is_thread_deleted
+                )
+            else:
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    items=False
+                )
+            self.reply(reply)
+            return
+
         if type == "fetch_history":
-            _, display_history = message_history.get_histories()
+            # If a thread_id is provided, use that thread's history; otherwise, use newest.
+            thread_id = metadata_dict.get('threadID')
+            if thread_id:
+                _, display_history = message_history.get_histories(thread_id)
+            else:
+                _, display_history = message_history.get_histories()
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history

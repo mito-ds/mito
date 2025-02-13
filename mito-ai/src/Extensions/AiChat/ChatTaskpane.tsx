@@ -13,11 +13,14 @@ import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
 import ChatIcon from '../../icons/ChatIcon';
 import NewChatIcon from '../../icons/NewChatIcon';
+import DeleteIcon from '../../icons/DeleteIcon';
+import HistoryIcon from '../../icons/HistoryIcon';
+import OpenIndicatorIcon from '../../icons/OpenIndicatorIcon';
 import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { ChatHistoryManager, IDisplayOptimizedChatHistory, IOutgoingMessage } from './ChatHistoryManager';
+import { ChatHistoryManager, IDisplayOptimizedChatHistory, IOutgoingMessage, IChatMessageMetadata} from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import DropdownMenu from '../../components/DropdownMenu';
 import IconButton from '../../components/IconButton';
@@ -87,53 +90,117 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+    const [chatThreads, setChatThreads] = useState<Array<{ thread_id: string, name: string }>>([]);
+    const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+    
+    const fetchChatThreads = async () => {
+      await websocketClient.ready;
+      const chatThreadsResponse = await websocketClient.sendMessage({
+         type: "get_threads",
+         message_id: UUID.uuid4(),
+         metadata: {},
+         stream: false
+      });
 
-    const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
-        await websocketClient.ready;
-        
-        const chatHistoryResponse = await websocketClient.sendMessage({
-            type: 'fetch_history',
-            message_id: UUID.uuid4(),
-            metadata: {},
-            stream: false
-        });
-
-        return chatHistoryResponse.items.map((item: any) => ({
-            role: item.role,
-            content: item.content
-        }));
+      setChatThreads(chatThreadsResponse.items.map((item: any) => ({
+        thread_id: item.thread_id,
+        name: item.name,
+      })));
     };
 
-    useEffect(() => {
+    const fetchChatHistoryForThread = async (threadId: string) => {
+      await websocketClient.ready;
+
+      const metadata: IChatMessageMetadata = {
+        threadID: threadId
+      };
+
+      const response = await websocketClient.sendMessage({
+         type: "fetch_history",
+         message_id: UUID.uuid4(),
+         metadata: metadata,
+         stream: false
+      });
+      const history = response.items.map((item: any) => ({
+         role: item.role,
+         content: item.content
+      }));
+      const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager);
+      history.forEach(item => {
+         newChatHistoryManager.addChatMessageFromHistory(item);
+      });
+      setChatHistoryManager(newChatHistoryManager);
+      setActiveThreadId(threadId);
+    };
+    
+    const deleteThread = async (threadId: string) => {
+      await websocketClient.ready;
+
+      const metadata: IChatMessageMetadata = {
+        threadID: threadId
+      };
+
+      const response = await websocketClient.sendMessage({
+         type: "delete_thread",
+         message_id: UUID.uuid4(),
+         metadata: metadata,
+         stream: false
+      });
+      if(response.items as any === true) {
+         const updatedThreads = chatThreads.filter(thread => thread.thread_id !== threadId);
+         setChatThreads(updatedThreads);
+         if(activeThreadId === threadId) {
+           if(updatedThreads.length > 0) {
+              fetchChatHistoryForThread(updatedThreads[0].thread_id);
+           } else {
+              await startNewChat();
+           }
+         }
+      }
+    };
+
+    // const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
+    //     await websocketClient.ready;
+        
+    //     const chatHistoryResponse = await websocketClient.sendMessage({
+    //         type: 'fetch_history',
+    //         message_id: UUID.uuid4(),
+    //         metadata: {},
+    //         stream: false
+    //     });
+
+    //     return chatHistoryResponse.items.map((item: any) => ({
+    //         role: item.role,
+    //         content: item.content
+    //     }));
+    // };
+
+      useEffect(() => {
         const initializeChatHistory = async () => {
           try {
-            // 1. Check that the websocket client is ready
+            // 1. Ensure the websocket client is ready.
             await websocketClient.ready;
       
-            // 2. Fetch or load the initial chat history
-            const history = await fetchInitialChatHistory();
-      
-            // 3. Create a fresh ChatHistoryManager and add the initial messages
-            const newChatHistoryManager = getDefaultChatHistoryManager(
-              notebookTracker,
-              variableManager
-            );
-      
-            // 4. Add messages to the ChatHistoryManager
-            history.forEach(item => {
-                console.log(item)
-                try {
-                    // If the user sent a message in agent mode, the ai response will be a JSON object
-                    // which we need to parse. 
-                    const agentResponse = JSON.parse(item.content as string);
-                    handleAgentResponse(agentResponse, newChatHistoryManager);
-                } catch {
-                    newChatHistoryManager.addChatMessageFromHistory(item);
-                }
+            // 2. Fetch available chat threads.
+            const chatThreadsResponse = await websocketClient.sendMessage({
+              type: "get_threads",
+              message_id: UUID.uuid4(),
+              metadata: {},
+              stream: false
             });
+            const threads = chatThreadsResponse.items.map((item: any) => ({
+              thread_id: item.thread_id,
+              name: item.name,
+            }));
+            setChatThreads(threads);
       
-            // 5. Update the state with the new ChatHistoryManager
-            setChatHistoryManager(newChatHistoryManager);
+            // 3. If threads exist, load the latest thread; otherwise, start a new chat.
+            if (threads.length > 0) {
+              const latestThread = threads[threads.length - 1];
+              await fetchChatHistoryForThread(latestThread.thread_id);
+            } else {
+              await startNewChat();
+            }
           } catch (error) {
             const newChatHistoryManager = getDefaultChatHistoryManager(
               notebookTracker,
@@ -197,7 +264,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = startNewChat()
+        const newChatHistoryManager = await startNewChat()
         const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager)
 
@@ -210,7 +277,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the explain code message
-        const newChatHistoryManager = startNewChat()
+        const newChatHistoryManager = await startNewChat()
         const outgoingMessage = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
 
@@ -287,7 +354,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = startNewChat()
+        const newChatHistoryManager = await startNewChat()
         const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
         setChatHistoryManager(newChatHistoryManager)
         console.log('outgoingMessage: ', outgoingMessage)
@@ -503,20 +570,32 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const startNewChat = () => {
+    const startNewChat = async () => {
+        // If current thread is empty (only contains system message), do not create a new thread.
+        if (chatHistoryManager.getDisplayOptimizedHistory().length <= 1) {
+            return chatHistoryManager;
+        }
         // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager);
         setChatHistoryManager(newChatHistoryManager);
 
-        // Notify the backend to request a new chat thread
-        websocketClient.sendMessage({
-            type: 'start_new_chat',
-            message_id: UUID.uuid4(),
-            metadata: {},
-            stream: false,
-        });
+        // Notify the backend to request a new chat thread and get its ID
+        try {
+            const response = await websocketClient.sendMessage({
+                type: 'start_new_chat',
+                message_id: UUID.uuid4(),
+                metadata: {},
+                stream: false,
+            });
 
-        return newChatHistoryManager
+            // Set the new thread ID as active
+            const newThreadId = (response as any).items;
+            setActiveThreadId(newThreadId);
+        } catch (error) {
+            console.error('Error starting new chat:', error);
+        }
+
+        return newChatHistoryManager;
     }
 
     useEffect(() => {
@@ -685,19 +764,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const agentMenuItems = [
         {
             label: 'Chat',
-            onClick: () => {
-                startNewChat()
+            onClick: async () => {
+                await startNewChat()
                 setAgentModeEnabled(false);
             },
-            icon: ChatIcon,
+            primaryIcon: ChatIcon,
         },
         {
             label: 'Agent',
-            onClick: () => {
-                startNewChat()
+            onClick: async () => {
+                await startNewChat()
                 setAgentModeEnabled(true);
             },
-            icon: RobotHeadIcon,
+            primaryIcon: RobotHeadIcon,
         }
     ];
 
@@ -729,8 +808,28 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <IconButton
                         icon={<NewChatIcon />}
                         title="Start New Chat"
-                        onClick={() => {startNewChat()}}
+                        onClick={async () => { await startNewChat() }}
                     />
+                    <DropdownMenu
+                         trigger={
+                             <button className="icon-button" title="Chat Threads" onClick={fetchChatThreads}>
+                                 <HistoryIcon />
+                             </button>
+                         }
+                         items={chatThreads.map(thread => ({
+                           label: thread.name,
+                           primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorIcon : undefined,
+                           onClick: () => fetchChatHistoryForThread(thread.thread_id),
+                           secondaryActions: [
+                            {
+                                icon: DeleteIcon,
+                                onClick: () => deleteThread(thread.thread_id),
+                                tooltip: 'Delete this chat',
+                            }
+                           ]
+                         }))}
+                         alignment="right"
+                     />
                 </div>
             </div>
             <div className="chat-messages" ref={chatMessagesRef}>

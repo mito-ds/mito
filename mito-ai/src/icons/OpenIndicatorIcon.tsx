@@ -1,0 +1,11 @@
+import React from "react";
+
+const OpenIndicatorIcon: React.FC = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="5" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8" fill="green" className="jp-icon3 jp-icon-selectable"/>
+    </svg>
+  );
+}
+
+export default OpenIndicatorIcon;

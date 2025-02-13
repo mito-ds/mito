@@ -318,3 +318,61 @@ class FetchHistoryReply:
     # Message type.
     type: Literal["reply"] = "reply"
 
+@dataclass(frozen=True)
+class ChatThreadItem:
+    """
+    Chat thread item.
+    """
+
+    thread_id: str
+
+    name: str
+
+    creation_ts: float
+
+    last_interaction_ts: float
+
+@dataclass(frozen=True)
+class StartNewChatReply:
+    """
+    Message sent from model to client after starting a new chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # Chat thread item.
+    items: str
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class FetchThreadsReply:
+    """
+    Message sent from model to client with the chat threads.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # List of chat threads.
+    items: List[ChatThreadItem]
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class DeleteThreadReply:
+    """
+    Message sent from model to client after deleting a chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    #Success message
+    items: bool
+
+    # Message type.
+    type: Literal["reply"] = "reply"
