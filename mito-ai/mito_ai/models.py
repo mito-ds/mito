@@ -136,11 +136,17 @@ class AgentMessageBuilder:
     fileType: Optional[str] = None
     columnSamples: Optional[List[str]] = None
     input: Optional[str] = None
+    variables: Optional[List[str]] = None
 
     @property
     def prompt(self) -> str:
-        return create_agent_prompt(self.fileType or '', self.columnSamples or [], self.input or '')
-    
+        return create_agent_prompt(
+            self.fileType or "",
+            self.columnSamples or [],
+            self.input or "",
+            self.variables or [],
+        )
+
     @property
     def display_message(self) -> str:
         return self.input or ''
