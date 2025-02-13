@@ -141,7 +141,10 @@ export class ChatHistoryManager {
     }
 
     addAgentMessage(message: string): IOutgoingMessage {
+        const variables = this.variableManager.variables
+
         const metadata: IChatMessageMetadata = {
+            variables,
             input: message
         }
 
