@@ -1,7 +1,9 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { Cell } from '@jupyterlab/cells';
+import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { captureNode } from './nodeToPng';
+
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
@@ -35,18 +37,14 @@ export const getCellOutputByID = async (app: JupyterFrontEnd, notebookTracker: I
 
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
-    const outputs = (cell?.model.sharedModel as any)?.outputs;
-    const outputData = outputs?.[0]?.data;
-    console.log('outputData', outputData)
-    if (outputData && outputData['image/png']) {
-        console.log('image/png')
-        console.log(outputData['image/png'])
-    } else if (outputData && outputData['text/html']) {
-
-        console.log('text/html')
-        console.log(outputData['text/html'])
-    } else {
-        console.log('no output data')
+    if (cell instanceof CodeCell) {
+        console.log('cell', cell.outputArea?.node);
+        const outputNode = cell.outputArea?.node;
+        if (outputNode) {
+            console.log('outputNode', outputNode)
+            const image = await captureNode(outputNode);
+            console.log('image', image)
+        }
     }
     return 'test'
 }
