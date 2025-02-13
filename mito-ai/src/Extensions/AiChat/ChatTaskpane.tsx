@@ -711,7 +711,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 clearChatHistory()
                 setAgentModeEnabled(false);
             },
-            icon: ChatIcon,
+            primaryIcon: ChatIcon,
         },
         {
             label: 'Agent',
@@ -719,27 +719,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 clearChatHistory()
                 setAgentModeEnabled(true);
             },
-            icon: RobotHeadIcon,
+            primaryIcon: RobotHeadIcon,
         }
     ];
 
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                <DropdownMenu
-                    trigger={
-                        <TextAndIconButton
-                            text={agentModeEnabled ? 'Agent ▾' : 'Chat ▾'}
-                            icon={agentModeEnabled ? RobotHeadIcon : ChatIcon}
-                            title={'Enter Agent Mode'}
-                            variant='purple'
-                            width='fit-contents'
-                            iconPosition='left'
-                            onClick={() => { }}
-                        />
-                    }
-                    items={agentMenuItems}
-                />
+            <DropdownMenu
+                trigger={
+                    <TextAndIconButton
+                        text={agentModeEnabled ? 'Agent ▾' : 'Chat ▾'}
+                        icon={agentModeEnabled ? RobotHeadIcon : ChatIcon}
+                        title={'Enter Agent Mode'}
+                        variant='purple'
+                        width='fit-contents'
+                        iconPosition='left'
+                        onClick={() => { }}
+                    />
+                }
+                items={agentMenuItems}
+            />
                 <div className="chat-taskpane-header-buttons">
                     <IconButton
                         icon={<SupportIcon />}
