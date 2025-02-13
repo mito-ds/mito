@@ -126,16 +126,28 @@ def get_open_ai_completion_function_params(
         "model": model,
         "stream": stream,
         "messages": messages,
-        "response_format": response_format,
     }
+    
+    # If a response format is provided, we need to convert it to a json schema.
+    # Pydantic models are supported by the OpenAI API, however, we need to be able to 
+    # serialize it for requests that are going to be sent to the mito server. 
+    # OpenAI expects a very specific schema as seen below. 
+    if response_format:
+        json_schema = response_format.schema()
+        completion_function_params["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "plan_of_attack",
+                "schema": {
+                    **json_schema,
+                    "additionalProperties": False
+                },
+                "strict": True
+            }
+        }
     
     # o3-mini will error if we try setting the temperature
     if model == "gpt-4o-mini":
         completion_function_params["temperature"] = 0.0
-
-    # Remove "stream" key if response_format is set.
-    # beta.chat.completions.parse will error if we try to pass it as a param. 
-    if response_format:
-        completion_function_params.pop("stream", None)
 
     return completion_function_params

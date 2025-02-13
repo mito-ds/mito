@@ -1,8 +1,11 @@
-
 from typing import List
 
 
-def create_agent_prompt(file_type: str, columnSamples: List[str], input: str) -> str:
+def create_agent_prompt(
+    file_type: str, columnSamples: List[str], input: str, variables: List[str]
+) -> str:
+    variables_str = "\n".join([f"{variable}" for variable in variables])
+
     if file_type:
         file_sample_snippet = f"""You will be working with the following dataset (sample rows shown) from a {file_type} file:
 {columnSamples}
@@ -12,7 +15,12 @@ def create_agent_prompt(file_type: str, columnSamples: List[str], input: str) ->
 You have access to the following Python packages:
 - pandas (for data manipulation and analysis)
 - matplotlib (for data visualization)
+
+Defined Variables:
+{variables_str}
+
 {file_sample_snippet if file_type else ''}
+
 Given the dataset (if provided) and the question below:
 1. Break the problem into the **smallest possible number of clear, high-level tasks** necessary to achieve the solution. 
 2. **Do not include any code or specific implementation details.** Focus only on describing the high-level steps required to solve the problem.
