@@ -244,13 +244,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 if model not in self.models:
                     model = "gpt-4o-mini"
                 
-                if response_format:
-                    completion_function_params = get_open_ai_completion_function_params(
-                        model, request.messages, False, response_format
-                    )
-                else:
-                    completion_function_params = get_open_ai_completion_function_params(model, request.messages, False)
-                                
+                completion_function_params = get_open_ai_completion_function_params(
+                    model, request.messages, False, response_format
+                )
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
 
                 # Log the successful completion
@@ -279,14 +275,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
 
-                if response_format:
-                    completion_function_params = get_open_ai_completion_function_params(
-                        model, request.messages, False, response_format
-                    )
-                else:
-                    completion_function_params = get_open_ai_completion_function_params(
-                        model, request.messages, False
-                    )
+                completion_function_params = get_open_ai_completion_function_params(
+                    model, request.messages, False, response_format
+                )
 
                 last_message_content = str(request.messages[-1].get("content", "")) if request.messages else None
                 ai_response = await get_ai_completion_from_mito_server(
