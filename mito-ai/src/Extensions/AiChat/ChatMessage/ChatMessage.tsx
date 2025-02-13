@@ -58,7 +58,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     rejectAICode,
     onUpdateMessage,
     variableManager,
-    codeReviewStatus
+    codeReviewStatus,
+    app
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -94,6 +95,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 variableManager={variableManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
+                app={app}
             />
         );
     }
