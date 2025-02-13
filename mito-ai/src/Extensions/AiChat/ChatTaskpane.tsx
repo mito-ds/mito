@@ -410,6 +410,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
 
+        // Move to the last cell of the notebook
+        // We don't want to overwrite any code in the notebook
+        const notebook = notebookTracker.currentWidget?.content;
+        if (notebook) {
+            notebook.activeCellIndex = notebook.widgets.length - 1;
+        }
+
+        // Insert a new cell at the bottom
+        await app.commands.execute("notebook:insert-cell-below");
+
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
             const success = await sendChatInputMessage(agentMessage.message.content as string, undefined, 'agent:execution')
@@ -424,7 +434,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setTimeout(async () => {
                     await previewAICode()
                     await acceptAICode()
-                    await app.commands.execute("notebook:run-cell-and-select-next");
+                    await app.commands.execute("notebook:run-cell-and-insert-below");
                     resolve();
                 }, 1000);
             });
