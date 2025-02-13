@@ -177,13 +177,18 @@ def log_ai_completion_success(
         KEY_TYPE_PARAM: key_type,
     }
 
-    code_cell_input = json.dumps(
-        last_message_content.split("Code in the active code cell:")[-1]
-        .strip()
-        .split("```python")[1]
-        .strip()
-        .split("```")[0]
-    )
+    try:
+        code_cell_input = json.dumps(
+            last_message_content.split("Code in the active code cell:")[-1]
+            .strip()
+            .split("```python")[1]
+            .strip()
+            .split("```")[0]
+        )
+    except:
+        # Most user prompts will have an associated code cell that serves as the input context.
+        # However, types like agent:planning do not have a code cell input.
+        code_cell_input = ""
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
@@ -231,6 +236,12 @@ def log_ai_completion_success(
             final_params[chunk_key] = chunk_value
 
         log("mito_ai_chat_success", params=final_params)
+    elif prompt_type == "agent:planning":
+        final_params = base_params
+        log("mito_ai_agent_planning_success", params=final_params)
+    elif prompt_type == "agent:execution":
+        final_params = base_params
+        log("mito_ai_agent_execution_success", params=final_params)
     elif prompt_type == "inline_completion":
         final_params = base_params
         log("mito_ai_inline_completion_success", params=final_params)
