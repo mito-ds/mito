@@ -157,7 +157,9 @@ export namespace MagicLine {
     }
 
     if (magic.output) {
-      line += ` ${magic.output} <<`;
+      // Equals sign is optional but it allows to display
+      // the query result as cell output
+      line += ` ${magic.output}= <<`;
     }
 
     return line;
