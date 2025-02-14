@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+import uuid
 from dataclasses import asdict
 from http import HTTPStatus
 from typing import Any, Dict, List, Optional, Type, Union
@@ -25,18 +26,18 @@ from mito_ai.models import (
     CompletionStreamChunk,
     ErrorMessage,
     FetchHistoryReply,
+    StartNewChatReply,
+    FetchThreadsReply,
+    DeleteThreadReply,
     InlineCompletionMessageBuilder,
     SmartDebugMessageBuilder
 )
+
 from mito_ai.prompt_builders.smart_debug_prompt import remove_inner_thoughts_from_message
-from mito_ai.providers import OpenAIProvider
-from mito_ai.utils.create import initialize_user
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from openai.types.chat import ChatCompletionMessageParam
-
-__all__ = ["CompletionHandler"]
 
 # Global history instance
 message_history = GlobalMessageHistory()
@@ -83,7 +84,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
     async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
         """Get an event to open a socket."""
         # This method ensure to call `pre_get` before opening the socket.
-        await ensure_async(self.pre_get()) # type: ignore
+        await ensure_async(self.pre_get())
 
         initialize_user()
 
@@ -104,8 +105,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Clear the message history
         self.full_message_history = []
         
-
-    async def on_message(self, message: str) -> None: # type: ignore
+    async def on_message(self, message: str) -> None:
         """Handle incoming messages on the WebSocket.
 
         Args:
@@ -123,13 +123,50 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.log.error("Invalid completion request.", exc_info=e)
             return
 
-        # Clear history if the type is "clear_history"
-        if type == "clear_history":
-            message_history.clear_histories()
+        # Clear history if the type is "start_new_chat"
+        if type == "start_new_chat":
+            thread = message_history.create_new_thread()
+            reply = StartNewChatReply(
+                parent_id=parsed_message.get("message_id"),
+                items=thread
+            )
+            self.reply(reply)
             return
-        
+
+        # Handle get_threads: return list of chat threads
+        if type == "get_threads":
+            threads = message_history.get_threads()
+            reply = FetchThreadsReply(
+                parent_id=parsed_message.get("message_id"),
+                items=threads
+            )
+            self.reply(reply)
+            return
+
+        # Handle delete_thread: delete the specified thread
+        if type == "delete_thread":
+            thread_id_to_delete = metadata_dict.get('threadID')
+            if thread_id_to_delete:
+                is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    items=is_thread_deleted
+                )
+            else:
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    items=False
+                )
+            self.reply(reply)
+            return
+
         if type == "fetch_history":
-            _, display_history = message_history.get_histories()
+            # If a thread_id is provided, use that thread's history; otherwise, use newest.
+            thread_id = metadata_dict.get('threadID')
+            if thread_id:
+                _, display_history = message_history.get_histories(thread_id)
+            else:
+                _, display_history = message_history.get_histories()
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
@@ -184,7 +221,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
             new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
             new_display_message: ChatCompletionMessageParam = {"role": "user", "content": display_message}
-            message_history.append_message(new_ai_optimized_message, new_display_message)
+            await message_history.append_message(new_ai_optimized_message, new_display_message, self._llm)
             ai_optimized_history, display_history = message_history.get_histories()
 
         request = CompletionRequest(
@@ -297,7 +334,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 # Modify reply so the display message in the frontend is also have inner thoughts removed
                 reply.items[0] = CompletionItem(content=response, isIncomplete=reply.items[0].isIncomplete)
 
-            message_history.append_message(ai_optimized_message, display_message)
+            await message_history.append_message(ai_optimized_message, display_message, self._llm)
 
 
         self.reply(reply)
@@ -324,7 +361,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 "role": "assistant", 
                 "content": accumulated_response
             }
-            message_history.append_message(message, message)
+            await message_history.append_message(message, message, self._llm)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 

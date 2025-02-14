@@ -27,6 +27,7 @@ export interface IChatMessageMetadata {
     prefix?: string;
     suffix?: string;
     index?: number;
+    threadID?: string;
 }
 
 /**
