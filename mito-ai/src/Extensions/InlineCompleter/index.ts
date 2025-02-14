@@ -164,5 +164,6 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       variableManager
     });
     completionManager.registerInlineProvider(provider);
+
   }
 };
