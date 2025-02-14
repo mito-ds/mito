@@ -229,6 +229,8 @@ class DatabaseHandler(APIHandler):
 
         if connection:
             self.finish(json.dumps(connection))
+        else:
+            self.set_status(HTTPStatus.NOT_FOUND)
 
     @tornado.web.authenticated
     def patch(self, connection_name: str):
@@ -243,6 +245,8 @@ class DatabaseHandler(APIHandler):
             new_connection = connection.copy()
             new_connection.update(body)
             self.manager.save_connection_to_config_file(body)
+        else:
+            self.set_status(HTTPStatus.NOT_FOUND)
 
     @tornado.web.authenticated
     def delete(self, connection_name: str):
