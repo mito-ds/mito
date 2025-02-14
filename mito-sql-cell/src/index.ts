@@ -44,7 +44,7 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
       execute: async () => {
         const result = await showDialog<ISqlSource | null>({
           title: 'Add a SQL source',
-          body: new AddSource(),
+          body: new AddSource(sources),
           buttons: [Dialog.cancelButton(), Dialog.okButton({ label: 'Add' })]
         });
 
