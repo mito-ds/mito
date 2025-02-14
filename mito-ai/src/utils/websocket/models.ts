@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 import type {
   IInlineCompletionError,
   IInlineCompletionItem
@@ -138,8 +139,117 @@ export interface InlineCompletionStreamChunk
   response: IInlineCompletionItem;
 }
 
+/**
+ * Chat thread item information.
+ */
+export interface IChatThreadItem {
+  /**
+   * Unique thread identifier.
+   */
+  thread_id: string;
+
+  /**
+   * Display name of the thread.
+   */
+  name: string;
+
+  /**
+   * Thread creation timestamp.
+   */
+  creation_ts: number;
+
+  /**
+   * Last interaction timestamp.
+   */
+  last_interaction_ts: number;
+}
+
+/**
+ * Response for fetching chat history.
+ */
+export interface IFetchHistoryReply {
+  /**
+   * The type of the message.
+   */
+  type: 'fetch_history';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * List of chat messages.
+   */
+  items: OpenAI.Chat.ChatCompletionMessageParam[];
+}
+
+/**
+ * Response for starting a new chat.
+ */
+export interface IStartNewChatReply {
+  /**
+   * The type of the message.
+   */
+  type: 'start_new_chat';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * New thread ID.
+   */
+  items: string;
+}
+
+/**
+ * Response for fetching chat threads.
+ */
+export interface IFetchThreadsReply {
+  /**
+   * The type of the message.
+   */
+  type: 'fetch_threads';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * List of chat threads.
+   */
+  items: IChatThreadItem[];
+}
+
+/**
+ * Response for deleting a chat thread.
+ */
+export interface IDeleteThreadReply {
+  /**
+   * The type of the message.
+   */
+  type: 'delete_thread';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * Success status.
+   */
+  items: boolean;
+}
+
 export type CompleterMessage =
   | ErrorMessage
   | IAICapabilities
   | ICompletionReply
-  | ICompletionStreamChunk;
+  | ICompletionStreamChunk
+  | IFetchHistoryReply
+  | IStartNewChatReply
+  | IFetchThreadsReply
+  | IDeleteThreadReply;
