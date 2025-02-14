@@ -165,22 +165,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
       }
     };
 
-    // const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
-    //     await websocketClient.ready;
-        
-    //     const chatHistoryResponse = await websocketClient.sendMessage({
-    //         type: 'fetch_history',
-    //         message_id: UUID.uuid4(),
-    //         metadata: {},
-    //         stream: false
-    //     });
-
-    //     return chatHistoryResponse.items.map((item: any) => ({
-    //         role: item.role,
-    //         content: item.content
-    //     }));
-    // };
-
       useEffect(() => {
         const initializeChatHistory = async () => {
           try {
