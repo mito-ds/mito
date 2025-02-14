@@ -3,6 +3,7 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
+import type { ICellModel } from '@jupyterlab/cells';
 import {
   EditorExtensionRegistry,
   IEditorExtensionRegistry
@@ -28,8 +29,7 @@ import { CommandIDs, type ISqlSource } from './tokens';
  */
 const sqlCell: JupyterFrontEndPlugin<void> = {
   id: 'mito-sql-cell:sql-cell',
-  description:
-    'Plugin adding support SQL cells.',
+  description: 'Plugin adding support SQL cells.',
   requires: [IEditorExtensionRegistry],
   autoStart: true,
   activate: (
@@ -117,9 +117,9 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
 
     editorExtensionRegistry.addExtension({
       name: 'mito-sql-cell:hide-sql-magics',
-      // Don't add the extension to the file editor
+      // Don't add the extension to the file editor or non-code cells
       factory: options =>
-        options.inline
+        options.inline && (options.model as ICellModel).type === 'code'
           ? EditorExtensionRegistry.createImmutableExtension(hideSqlMagic)
           : null
     });
