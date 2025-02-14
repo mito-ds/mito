@@ -95,12 +95,13 @@ export class SqlSourcesModel
   async refresh(): Promise<void> {
     try {
       this._isRefreshing = true;
-      const [sources, ] = await Promise.all([requestAPI<{
-        connections: ISqlSource[];
-        configurationFile: string;
-      }>('databases'),
-      sleep(500)
-    ]);
+      const [sources] = await Promise.all([
+        requestAPI<{
+          connections: ISqlSource[];
+          configurationFile: string;
+        }>('databases'),
+        sleep(500)
+      ]);
       this.error = '';
       this.clear();
       this.pushAll(sources.connections);
@@ -290,15 +291,20 @@ function SqlSources(props: ISqlSourceListProps): JSX.Element {
   }, [model]);
 
   return (
-    <ul className="mito-sql-sources-list">
+    <ul aria-label="SQL sources" className="mito-sql-sources-list">
       {sources.map(source => (
-        <li className="mito-sql-source-item" key={source.connectionName}>
+        <li
+          aria-label={source.connectionName}
+          className="mito-sql-source-item"
+          key={source.connectionName}
+        >
           <span className="mito-sql-source-name">{source.connectionName}</span>
           <br />
           <span className="mito-sql-source-database">
             {DRIVER_TO_TYPE[source.driver]}: {source.database}
           </span>
           <Button
+            title="Delete SQL source"
             className="mito-sql-btn-source-delete"
             appearance="stealth"
             onClick={() => {
@@ -379,9 +385,7 @@ export class SqlSourcesPanel extends SidePanel {
   }
 }
 
-
-
 // A helper function for sleeping for a number of seconds
 const sleep = async (timeoutInMilliseconds: number): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, timeoutInMilliseconds));
-}
+};

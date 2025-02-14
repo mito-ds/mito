@@ -95,7 +95,8 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
         commands: app.commands,
         id: CommandIDs.addSource,
         icon: addIcon,
-        label: ''
+        label: '',
+        caption: 'Add a new SQL source'
       })
     );
     sourcesPanel.toolbar.addItem(
@@ -104,7 +105,8 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
         commands: app.commands,
         id: CommandIDs.refreshSources,
         icon: refreshIcon,
-        label: ''
+        label: '',
+        caption: 'Refresh the SQL sources'
       })
     );
 

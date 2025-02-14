@@ -12,7 +12,9 @@ import type { ISqlSource } from './tokens';
  */
 export const DRIVER_TO_TYPE = Object.keys(templates).reduce(
   (agg, key) => {
-    agg[(templates as any)[key].driver] = key;
+    if ((templates as any)[key].schema) {
+      agg[(templates as any)[key].schema.properties.driver.default] = key;
+    }
     return agg;
   },
   {} as Record<string, string>
