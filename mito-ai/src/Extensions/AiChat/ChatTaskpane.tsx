@@ -261,12 +261,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
 
-        // Step 4: Scroll so that the top of the last AI message is visible
+        // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
-            const aiMessages = chatMessagesRef.current?.getElementsByClassName('message message-assistant');
-            if (aiMessages && aiMessages.length > 0) {
-                const lastAiMessage = aiMessages[aiMessages.length - 1];
-                lastAiMessage.scrollIntoView({ behavior: 'smooth' });
+            const chatContainer = chatMessagesRef.current;
+            if (chatContainer) {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
             }
         }, 100);
 
