@@ -101,7 +101,6 @@
         }
     },
     "MySQL": {
-        "driver": "mysql+pymysql",
         "schema": {
             "type": "object",
             "properties": {
