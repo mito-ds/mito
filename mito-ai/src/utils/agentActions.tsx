@@ -3,22 +3,24 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { COMMAND_MITO_AI_APPLY_LATEST_CODE, COMMAND_MITO_AI_PREVIEW_LATEST_CODE } from "../commands"
 import { didCellExecutionError } from "./notebook"
 
-export const acceptAndRunCode = async (app: JupyterFrontEnd) => {
-    console.log('accepting code')
-
-    await app.commands.execute(COMMAND_MITO_AI_PREVIEW_LATEST_CODE)
-    await app.commands.execute(COMMAND_MITO_AI_APPLY_LATEST_CODE)
+export const acceptAndRunCode = async (
+    app: JupyterFrontEnd,
+    previewAICode: () => void,
+    acceptAICode: () => void,
+) => {
+    previewAICode()
+    acceptAICode()
     await app.commands.execute("notebook:run-cell");
-    console.log('code accepted and run')
 }
 
 export const retryIfExecutionError = async (
     notebookTracker: INotebookTracker, 
     app: JupyterFrontEnd,
     sendDebugErrorMessage: (errorMessage: string) => Promise<void>,
+    previewAICode: () => void,
+    acceptAICode: () => void,
 ): Promise<void> => {
     console.log('checking for error')
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
@@ -37,6 +39,6 @@ export const retryIfExecutionError = async (
         console.log('sending error to AI')
 
         await sendDebugErrorMessage(errorMessage)
-        await acceptAndRunCode(app)
+        await acceptAndRunCode(app, previewAICode, acceptAICode)
     }
 }
