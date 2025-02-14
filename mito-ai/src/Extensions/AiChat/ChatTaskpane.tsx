@@ -50,6 +50,7 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { IChatThreadItem, ICompletionReply, IDeleteThreadReply, IFetchHistoryReply, IFetchThreadsReply, IStartNewChatReply } from '../../utils/websocket/models';
 import { getFullErrorMessageFromTraceback } from '../ErrorMimeRenderer/errorUtils';
 import { sleep } from '../../utils/sleep';
+import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -491,36 +492,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 break
             }
 
-            const acceptAndRunCode = async () => {
-                console.log('accepting code')
-                previewAICode()
-                acceptAICode()
-                console.log('running code')
-                await app.commands.execute("notebook:run-cell");
-                console.log('code run')
-            }
-
-            await acceptAndRunCode()
-
-            // Check if the code cell has an error
-            // TODO: We should check if any of the outputs are an error, not just the first one.
-            const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
-
-            console.log('Checking for error')
-
-            if (didCellExecutionError(cell)) {
-                sleep(5000)
-                console.log('Error found')
-                // If the code cell has an error, we need to send the error to the AI
-                // and get it to fix the error.
-                const errorTraceback = cell?.model.outputs?.toJSON()[0].traceback as string[]
-                const errorMessage = getFullErrorMessageFromTraceback(errorTraceback)
-                console.log('errorMessage', errorMessage)
-                console.log('sending error message')
-                await sendDebugErrorMessage(errorMessage)
-                await acceptAndRunCode()
-            }
-
+            await acceptAndRunCode(app)
+            await retryIfExecutionError(notebookTracker, app)
 
             console.log('inserting cell below')
             await app.commands.execute("notebook:insert-cell-below")
