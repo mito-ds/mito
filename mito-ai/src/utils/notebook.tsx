@@ -1,5 +1,5 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { Cell } from '@jupyterlab/cells';
+import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
@@ -43,6 +43,11 @@ export const writeCodeToCellByID = (
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
     }
+}
+
+export const didCellExecutionError = (cell: CodeCell): boolean => {
+    // TODO: Update to not just the first output. Check them all
+    return cell?.model.outputs?.toJSON()[0]?.output_type === "error"
 }
 
 export const getNotebookName = (notebookTracker: INotebookTracker): string => {

@@ -42,12 +42,14 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
+import { didCellExecutionError, getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient, ICompletionRequest } from '../../utils/websocket/websocketClient';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { IChatThreadItem, ICompletionReply, IDeleteThreadReply, IFetchHistoryReply, IFetchThreadsReply, IStartNewChatReply } from '../../utils/websocket/models';
+import { getFullErrorMessageFromTraceback } from '../ErrorMimeRenderer/errorUtils';
+import { sleep } from '../../utils/sleep';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -480,22 +482,51 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
-            const success = await sendChatInputMessage(agentMessage.message.content as string, undefined, 'agent:execution')
+            const tempError = 'Write the code print(x). Do not define X. This code should error'
+            console.log('', agentMessage)
+            const success = await sendChatInputMessage(tempError, undefined, 'agent:execution')
 
             // If the message fails, break out of the loop
             if (!success) {
                 break
             }
 
-            await new Promise<void>((resolve) => {
-                // Adding a small delay to make it easier for users to follow along
-                setTimeout(async () => {
-                    await previewAICode()
-                    await acceptAICode()
-                    await app.commands.execute("notebook:run-cell-and-insert-below");
-                    resolve();
-                }, 1000);
-            });
+            const acceptAndRunCode = async () => {
+                console.log('accepting code')
+                previewAICode()
+                acceptAICode()
+                console.log('running code')
+                await app.commands.execute("notebook:run-cell");
+                console.log('code run')
+            }
+
+            await acceptAndRunCode()
+
+            // Check if the code cell has an error
+            // TODO: We should check if any of the outputs are an error, not just the first one.
+            const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
+
+            console.log('Checking for error')
+
+            if (didCellExecutionError(cell)) {
+                sleep(5000)
+                console.log('Error found')
+                // If the code cell has an error, we need to send the error to the AI
+                // and get it to fix the error.
+                const errorTraceback = cell?.model.outputs?.toJSON()[0].traceback as string[]
+                const errorMessage = getFullErrorMessageFromTraceback(errorTraceback)
+                console.log('errorMessage', errorMessage)
+                console.log('sending error message')
+                await sendDebugErrorMessage(errorMessage)
+                await acceptAndRunCode()
+            }
+
+
+            console.log('inserting cell below')
+            await app.commands.execute("notebook:insert-cell-below")
+
+            sleep(1000)
+
         }
     }
 
