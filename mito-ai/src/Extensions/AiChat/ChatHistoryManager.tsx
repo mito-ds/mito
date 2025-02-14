@@ -113,7 +113,7 @@ export class ChatHistoryManager {
 
     updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IOutgoingMessage {
         const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
+        const activeCellCode = isAgentMessage ? undefined : getCellCodeByID(this.notebookTracker, activeCellID)
 
         const metadata: IChatMessageMetadata = {
             variables: this.variableManager.variables,
