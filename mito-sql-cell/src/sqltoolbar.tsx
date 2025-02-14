@@ -99,8 +99,9 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   protected render(): JSX.Element | null {
     return this.model ? (
-      <Toolbar>
+      <Toolbar aria-label="Cell SQL toolbar">
         <Select
+          title="SQL source"
           onChange={this._onDatabaseChange}
           scale="xsmall"
           value={this.model.database}
@@ -113,6 +114,8 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
         </Select>
         <span>saved to</span>
         <TextField
+          aria-label="Variable name"
+          title="Variable name"
           onInput={this._onVariableChange}
           onChange={this._onVariableChange}
           placeholder="Variable"
