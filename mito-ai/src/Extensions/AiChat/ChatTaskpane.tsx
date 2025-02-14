@@ -212,7 +212,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
     }
 
-    const sendExplainCodeMessage = async () => {
+    const sendExplainCodeMessage = async (): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -278,7 +278,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         messageIndex: number,
         newContent: string,
         messageType: IDisplayOptimizedChatHistory['type']
-    ) => {
+    ): Promise<void> => {
         if (messageType === 'openai message:agent:planning') {
             // In agent planning mode we only update the message locally without sending it to the AI
             // because the user has not yet confirmed that they want the AI to process these messages 
@@ -288,13 +288,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             setChatHistoryManager(newChatHistoryManager)
         } else if (agentModeEnabled && messageIndex === 1) { 
             // If editing the original agent message, send it as a new agent message.
-            sendAgentMessage(newContent)
+            await sendAgentMessage(newContent)
         } else {
-            sendChatInputMessage(newContent, messageIndex)
+            await sendChatInputMessage(newContent, messageIndex)
         }
     };
 
-    const sendAgentMessage = async (message: string) => {
+    const sendAgentMessage = async (message: string): Promise<void> => {
         console.log('Sending agent message: ', message)
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
@@ -303,7 +303,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = clearChatHistory()
         const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
         setChatHistoryManager(newChatHistoryManager)
-        console.log('outgoingMessage: ', outgoingMessage)
 
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
@@ -432,8 +431,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             await sendChatInputMessage(tempError, undefined, 'agent:execution')
 
             // Run the code and handle any errors
-            await acceptAndRunCode(app)
-            await retryIfExecutionError(notebookTracker, app, sendDebugErrorMessage)
+            await acceptAndRunCode(app, previewAICode, acceptAICode)
+            await retryIfExecutionError(notebookTracker, app, sendDebugErrorMessage, previewAICode, acceptAICode)
 
             // Insert a new cell for the next step
             await app.commands.execute("notebook:insert-cell-below")
