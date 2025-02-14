@@ -8,7 +8,7 @@ import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE } f
 import MagicWandIcon from '../../icons/MagicWand';
 import '../../../style/ErrorMimeRendererPlugin.css'
 import { CollapsibleWarningBlock } from './CollapsibleWarningBlock';
-import { getFullErrorMessage } from './errorUtils';
+import { getFullErrorMessageFromModel } from './errorUtils';
 
 interface ErrorMessageProps {
     onDebugClick: () => void;
@@ -110,7 +110,7 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
         the user input.
     */
     openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
-        const structuredError = getFullErrorMessage(model);
+        const structuredError = getFullErrorMessageFromModel(model);
 
         this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
         this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: structuredError });
