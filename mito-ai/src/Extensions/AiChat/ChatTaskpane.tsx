@@ -781,6 +781,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         {
             label: 'Chat',
             onClick: () => {
+                clearChatHistory()
                 setAgentModeEnabled(false);
             },
             primaryIcon: ChatIcon,
@@ -788,6 +789,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         {
             label: 'Agent',
             onClick: () => {
+                clearChatHistory()
                 setAgentModeEnabled(true);
             },
             primaryIcon: RobotHeadIcon,
