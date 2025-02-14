@@ -1,11 +1,14 @@
 import { Option, Select } from '@jupyter/react-components';
 import type { Dialog } from '@jupyterlab/apputils';
 import { FormComponent, ReactWidget } from '@jupyterlab/ui-components';
+import { find } from '@lumino/algorithm';
 import { IChangeEvent } from '@rjsf/core';
+import type { FormValidation } from '@rjsf/utils';
 import validatorAjv8 from '@rjsf/validator-ajv8';
 import React, { useCallback } from 'react';
 import * as templates from './databases/templates.json';
-import type { ISqlSource } from './tokens';
+import type { ISqlSource, ISqlSources } from './tokens';
+import type { ReadonlyJSONObject } from '@lumino/coreutils';
 
 /**
  * Map driver key to source type.
@@ -22,11 +25,34 @@ export const DRIVER_TO_TYPE = Object.keys(templates).reduce(
 
 function SqlSourceForm(props: {
   /**
+   * SQL sources.
+   */
+  sources: ISqlSources;
+  /**
    * Form data change callback.
    */
   onChange: (e: IChangeEvent) => any;
 }): JSX.Element {
   const [type, setType] = React.useState<string>('PostgreSQL');
+  const customValidate = useCallback(
+    (
+      formData: ReadonlyJSONObject | undefined,
+      errors: FormValidation<ReadonlyJSONObject>
+    ) => {
+      if (
+        find(
+          props.sources,
+          source => source.connectionName === formData?.connectionName
+        )
+      ) {
+        errors.connectionName?.addError(
+          'A source with this name already exists.'
+        );
+      }
+      return errors;
+    },
+    [props.sources]
+  );
   const onTypeChange = useCallback((event: any) => {
     setType(event.target.value);
   }, []);
@@ -43,6 +69,7 @@ function SqlSourceForm(props: {
         </Select>
       </label>
       <FormComponent
+        customValidate={customValidate}
         formData={{}}
         onChange={props.onChange}
         schema={(templates as any)[type].schema as any}
@@ -70,8 +97,12 @@ export class AddSource
 {
   protected source: ISqlSource | null = null;
 
+  constructor(protected sources: ISqlSources) {
+    super();
+  }
+
   protected render(): JSX.Element {
-    return <SqlSourceForm onChange={this._onChange} />;
+    return <SqlSourceForm onChange={this._onChange} sources={this.sources} />;
   }
 
   /**
