@@ -352,11 +352,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = await startNewChat()
+        // Step 1: Add user message to chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
         const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
         setChatHistoryManager(newChatHistoryManager)
-        console.log('outgoingMessage: ', outgoingMessage)
 
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
@@ -779,16 +778,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const agentMenuItems = [
         {
             label: 'Chat',
-            onClick: async () => {
-                await startNewChat()
+            onClick: () => {
                 setAgentModeEnabled(false);
             },
             primaryIcon: ChatIcon,
         },
         {
             label: 'Agent',
-            onClick: async () => {
-                await startNewChat()
+            onClick: () => {
                 setAgentModeEnabled(true);
             },
             primaryIcon: RobotHeadIcon,
