@@ -38,12 +38,11 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { didCellExecutionError, getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { getFullErrorMessageFromTraceback } from '../ErrorMimeRenderer/errorUtils';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 
@@ -200,12 +199,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         This is useful when we want to send the error message from the MIME renderer directly
         to the AI chat.
     */
-    const sendDebugErrorMessage = async (errorMessage: string) => {
+    const sendDebugErrorMessage = async (errorMessage: string): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = clearChatHistory()
+        // Step 1: Add the error message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
         const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager)
 
@@ -231,7 +230,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: PromptType) => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: PromptType): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -273,7 +272,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         }, 100);
 
-        return true
     }
 
     const handleUpdateMessage = async (
@@ -311,7 +309,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
     }
 
-    const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager) => {
+    const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
         const { promptType, metadata } = outgoingMessage;
 
@@ -370,6 +368,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             setLoadingAIResponse(false);
         }
+
+        return true
     }
 
     const handleAgentResponse = (
@@ -426,22 +426,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
             const tempError = 'Write the code print(x). Do not define X. This code should error'
-            console.log('', agentMessage)
-            const success = await sendChatInputMessage(tempError, undefined, 'agent:execution')
+            console.log('agentMessage', agentMessage)
+            
+            // Send the message to the AI 
+            await sendChatInputMessage(tempError, undefined, 'agent:execution')
 
-            // If the message fails, break out of the loop
-            if (!success) {
-                break
-            }
-
+            // Run the code and handle any errors
             await acceptAndRunCode(app)
-            await retryIfExecutionError(notebookTracker, app)
+            await retryIfExecutionError(notebookTracker, app, sendDebugErrorMessage)
 
-            console.log('inserting cell below')
+            // Insert a new cell for the next step
             await app.commands.execute("notebook:insert-cell-below")
 
-            sleep(1000)
-
+            // Wait for the new cell to be created
+            await sleep(1000)
         }
     }
 
