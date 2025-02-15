@@ -440,9 +440,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
-            // const tempError = 'Write the code print(x). Do not define X. This code should error'
-            console.log('agentMessage', agentMessage)
-
+            
             const messageContent = agentMessage.message.content
 
             if (typeof messageContent !== 'string') {

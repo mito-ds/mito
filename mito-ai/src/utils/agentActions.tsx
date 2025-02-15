@@ -25,15 +25,15 @@ export const retryIfExecutionError = async (
     previewAICode: () => void,
     acceptAICode: () => void,
 ): Promise<boolean> => {
-    console.log('checking for error')
+
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
+
+    // Note: If you update the max retries, update the message we display on each failure
+    // attempt to ensure we don't say "third attempt" over and over again.
     const MAX_RETRIES = 3;
     let attempts = 0;
 
     while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
-        console.log(`Error found - Attempt ${attempts + 1} of ${MAX_RETRIES}`)
-
-        await sleep(5000)
 
         // If the code cell has an error, we need to send the error to the AI
         // and get it to fix the error.
@@ -49,6 +49,11 @@ export const retryIfExecutionError = async (
             'agent:execution',
             newChatHistoryManager
         )
+
+        // Wait two seconds so the use can more easily see what is going on 
+        await sleep(2000)
+
+        
         await sendDebugErrorMessage(errorMessage, true)
         await acceptAndRunCode(app, previewAICode, acceptAICode)
         attempts++;
