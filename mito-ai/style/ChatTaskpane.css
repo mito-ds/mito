@@ -50,10 +50,11 @@
 .message {
     height: min-content;
     box-sizing: border-box;
-    padding: 10px;
     width: 100%;
     font-size: 14px;
     border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .message:not(.chat-input) {
@@ -63,6 +64,7 @@
 .message-user {
     background-color: var(--chat-user-message-background-color);
     color: var(--chat-user-message-font-color);
+    padding: 10px;
 }
 
 .message-assistant-chat {
@@ -71,6 +73,7 @@
 
 .message-assistant-agent {
     background-color: var(--purple-300);
+    padding: 10px;
 }
 
 .message-assistant-agent p {
