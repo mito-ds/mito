@@ -27,13 +27,14 @@ export const retryIfExecutionError = async (
 ): Promise<void> => {
     console.log('checking for error')
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
+    const MAX_RETRIES = 3;
+    let attempts = 0;
 
-    if (didCellExecutionError(cell)) {
-        console.log('error found')
+    while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
+        console.log(`Error found - Attempt ${attempts + 1} of ${MAX_RETRIES}`)
 
         await sleep(5000)
 
-        console.log('Error found')
         // If the code cell has an error, we need to send the error to the AI
         // and get it to fix the error.
         const errorTraceback = cell?.model.outputs?.toJSON()[0].traceback as string[]
@@ -42,11 +43,23 @@ export const retryIfExecutionError = async (
         console.log('sending error to AI')
 
         addAIMessageFromResponseAndUpdateState(
-            "Hmm it looks like my first attempt failed. Let me try to fix my error.",
+            attempts === 0 
+                ? "Hmm it looks like my first attempt failed. Let me try to fix my error."
+                : `My attempt ${attempts + 1} failed. Let me try again.`,
             'agent:execution',
             chatHistoryManager
         )
         await sendDebugErrorMessage(errorMessage)
         await acceptAndRunCode(app, previewAICode, acceptAICode)
+        attempts++;
+
+        // If this was the last attempt and it still failed, inform the user
+        if (attempts === MAX_RETRIES && didCellExecutionError(cell)) {
+            addAIMessageFromResponseAndUpdateState(
+                "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
+                'agent:execution',
+                chatHistoryManager
+            )
+        }
     }
 }
