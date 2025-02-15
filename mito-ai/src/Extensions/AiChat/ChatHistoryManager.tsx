@@ -4,7 +4,13 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { Variable } from "../VariableManager/VariableInspector";
 
-export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning' | 'agent:execution';
+export type PromptType = 
+    'chat' | 
+    'smartDebug' | 
+    'codeExplain' | 
+    'agent:planning' | 
+    'agent:execution' | 
+    'agent:autoErrorFixup';
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -167,7 +173,7 @@ export class ChatHistoryManager {
         }
     }
 
-    addDebugErrorMessage(errorMessage: string): IOutgoingMessage {
+    addDebugErrorMessage(errorMessage: string, promptType: PromptType): IOutgoingMessage {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -183,12 +189,12 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: 'smartDebug'
+                promptType: promptType
             }
         );
 
         return {
-            promptType: 'smartDebug',
+            promptType: promptType,
             metadata,
         }
     }

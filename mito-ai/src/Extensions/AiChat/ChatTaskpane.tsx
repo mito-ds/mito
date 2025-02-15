@@ -17,11 +17,11 @@ import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { 
-    ChatHistoryManager, 
-    IDisplayOptimizedChatHistory, 
-    IOutgoingMessage, 
-    PromptType 
+import {
+    ChatHistoryManager,
+    IDisplayOptimizedChatHistory,
+    IOutgoingMessage,
+    PromptType
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import DropdownMenu from '../../components/DropdownMenu';
@@ -97,7 +97,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
         await websocketClient.ready;
-        
+
         const chatHistoryResponse = await websocketClient.sendMessage({
             type: 'fetch_history',
             message_id: UUID.uuid4(),
@@ -113,49 +113,49 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     useEffect(() => {
         const initializeChatHistory = async () => {
-          try {
-            // 1. Check that the websocket client is ready
-            await websocketClient.ready;
-      
-            // 2. Fetch or load the initial chat history
-            const history = await fetchInitialChatHistory();
-      
-            // 3. Create a fresh ChatHistoryManager and add the initial messages
-            const newChatHistoryManager = getDefaultChatHistoryManager(
-              notebookTracker,
-              variableManager
-            );
-      
-            // 4. Add messages to the ChatHistoryManager
-            history.forEach(item => {
-                try {
-                    // If the user sent a message in agent mode, the ai response will be a JSON object
-                    // which we need to parse. 
-                    const agentResponse = JSON.parse(item.content as string);
-                    handleAgentResponse(agentResponse, newChatHistoryManager);
-                } catch {
-                    newChatHistoryManager.addChatMessageFromHistory(item);
-                }
-            });
-      
-            // 5. Update the state with the new ChatHistoryManager
-            setChatHistoryManager(newChatHistoryManager);
-          } catch (error) {
-            const newChatHistoryManager = getDefaultChatHistoryManager(
-              notebookTracker,
-              variableManager
-            );
-            addAIMessageFromResponseAndUpdateState(
-              (error as any).hint ? (error as any).hint : `${error}`,
-              'chat',
-              newChatHistoryManager,
-              true
-            );
-          }
+            try {
+                // 1. Check that the websocket client is ready
+                await websocketClient.ready;
+
+                // 2. Fetch or load the initial chat history
+                const history = await fetchInitialChatHistory();
+
+                // 3. Create a fresh ChatHistoryManager and add the initial messages
+                const newChatHistoryManager = getDefaultChatHistoryManager(
+                    notebookTracker,
+                    variableManager
+                );
+
+                // 4. Add messages to the ChatHistoryManager
+                history.forEach(item => {
+                    try {
+                        // If the user sent a message in agent mode, the ai response will be a JSON object
+                        // which we need to parse. 
+                        const agentResponse = JSON.parse(item.content as string);
+                        handleAgentResponse(agentResponse, newChatHistoryManager);
+                    } catch {
+                        newChatHistoryManager.addChatMessageFromHistory(item);
+                    }
+                });
+
+                // 5. Update the state with the new ChatHistoryManager
+                setChatHistoryManager(newChatHistoryManager);
+            } catch (error) {
+                const newChatHistoryManager = getDefaultChatHistoryManager(
+                    notebookTracker,
+                    variableManager
+                );
+                addAIMessageFromResponseAndUpdateState(
+                    (error as any).hint ? (error as any).hint : `${error}`,
+                    'chat',
+                    newChatHistoryManager,
+                    true
+                );
+            }
         };
-      
+
         initializeChatHistory();
-      }, [websocketClient]);
+    }, [websocketClient]);
 
     useEffect(() => {
         /* 
@@ -181,6 +181,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
     }, [chatHistoryManager]);
 
+    // Helper function to scroll chat to bottom
+    const scrollToBottom = () => {
+        setTimeout(() => {
+            const chatContainer = chatMessagesRef.current;
+            if (chatContainer) {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+    };
+
+    // Scroll to bottom whenever chat history updates
+    useEffect(() => {
+        scrollToBottom();
+    }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
+
 
     const getDuplicateChatHistoryManager = () => {
 
@@ -198,13 +216,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         This is useful when we want to send the error message from the MIME renderer directly
         to the AI chat.
     */
-    const sendDebugErrorMessage = async (errorMessage: string): Promise<void> => {
+    const sendDebugErrorMessage = async (errorMessage: string, agent?: boolean): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
+        const promptType = agent ? 'agent:autoErrorFixup' : 'smartDebug'
+
         // Step 1: Add the error message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage)
+        const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -266,7 +286,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const newChatHistoryManager = getDuplicateChatHistoryManager()
             newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent, true)
             setChatHistoryManager(newChatHistoryManager)
-        } else if (agentModeEnabled && messageIndex === 1) { 
+        } else if (agentModeEnabled && messageIndex === 1) {
             // If editing the original agent message, send it as a new agent message.
             await sendAgentMessage(newContent)
         } else {
@@ -386,14 +406,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each action in the agent response 
         // and add it to the chat history.
-        let n = 1;
-        agentResponse.actions.forEach((action: string) => {
+        agentResponse.actions.forEach((action: string, index: number) => {
             addAIMessageFromResponseAndUpdateState(
-                `Step ${n}: ${action}`,
+                `Step ${index + 1}: ${action}`,
                 'agent:planning',
                 newChatHistoryManager
             );
-            n++;
         });
 
         addAIMessageFromResponseAndUpdateState(
@@ -401,7 +419,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             'chat',
             newChatHistoryManager
         )
-
     }
 
     const executeAgentPlan = async () => {
@@ -432,19 +449,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // This can happen if the agent response is a refusal.
                 continue
             }
-            
+
             // Send the message to the AI 
             await sendChatInputMessage(messageContent, undefined, 'agent:execution')
 
             // Run the code and handle any errors
             await acceptAndRunCode(app, previewAICode, acceptAICode)
             const success = await retryIfExecutionError(
-                notebookTracker, 
-                app, 
+                notebookTracker,
+                app,
                 getDuplicateChatHistoryManager,
-                addAIMessageFromResponseAndUpdateState, 
-                sendDebugErrorMessage, 
-                previewAICode, 
+                addAIMessageFromResponseAndUpdateState,
+                sendDebugErrorMessage,
+                previewAICode,
                 acceptAICode
             )
 
@@ -501,24 +518,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
-
-    // Helper function to scroll chat to bottom
-    const scrollToBottom = () => {
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
-    };
-
-    // Scroll to bottom whenever chat history updates
-    useEffect(() => {
-        scrollToBottom();
-    }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
 
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
