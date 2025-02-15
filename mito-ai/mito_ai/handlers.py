@@ -122,6 +122,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
+        
+        reply: Union[StartNewChatReply, FetchThreadsReply, DeleteThreadReply, FetchHistoryReply, CompletionStreamChunk, CompletionReply]
 
         # Clear history if the type is "start_new_chat"
         if type == "start_new_chat":
