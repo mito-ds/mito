@@ -250,29 +250,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         setChatHistoryManager(newChatHistoryManager)
 
-        // Step 2: Scroll to the bottom of the chat messages container
-        // Add a small delay to ensure the new message is rendered
-        setTimeout(() => {
-            chatMessagesRef.current?.scrollTo({
-                top: chatMessagesRef.current.scrollHeight,
-                behavior: 'smooth'
-            });
-        }, 100);
-
-        // Step 3: Send the message to the AI
+        // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
-
-        // Step 4: Scroll to the bottom of the chat smoothly
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
-
     }
 
     const handleUpdateMessage = async (
@@ -462,7 +441,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const success = await retryIfExecutionError(
                 notebookTracker, 
                 app, 
-                chatHistoryManager,
+                getDuplicateChatHistoryManager,
                 addAIMessageFromResponseAndUpdateState, 
                 sendDebugErrorMessage, 
                 previewAICode, 
@@ -522,6 +501,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
+
+    // Helper function to scroll chat to bottom
+    const scrollToBottom = () => {
+        setTimeout(() => {
+            const chatContainer = chatMessagesRef.current;
+            if (chatContainer) {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+    };
+
+    // Scroll to bottom whenever chat history updates
+    useEffect(() => {
+        scrollToBottom();
+    }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
 
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
