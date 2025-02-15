@@ -113,7 +113,7 @@ export class ChatHistoryManager {
 
     updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IOutgoingMessage {
         const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
+        const activeCellCode = isAgentMessage ? undefined : getCellCodeByID(this.notebookTracker, activeCellID)
 
         const metadata: IChatMessageMetadata = {
             variables: this.variableManager.variables,
@@ -123,7 +123,11 @@ export class ChatHistoryManager {
         }
         
         this.displayOptimizedChatHistory[index] = { 
-            message: getDisplayedOptimizedUserMessage(newContent, activeCellCode),
+            message: getDisplayedOptimizedUserMessage(
+                newContent, 
+                activeCellCode,
+                isAgentMessage
+            ),
             type: isAgentMessage ? 'openai message:agent:planning' : 'openai message',
             codeCellID: activeCellID,
             promptType: isAgentMessage ? 'agent:planning' : 'chat'
@@ -288,10 +292,15 @@ export class ChatHistoryManager {
 }
 
 
-const getDisplayedOptimizedUserMessage = (input: string, activeCellCode?: string): OpenAI.Chat.ChatCompletionMessageParam => {
+const getDisplayedOptimizedUserMessage = (
+    input: string, 
+    activeCellCode?: string, 
+    isAgentPlanning: boolean = false
+): OpenAI.Chat.ChatCompletionMessageParam => {
     return {
         role: 'user',
-        content: activeCellCode ? `\`\`\`python
+        content: (!isAgentPlanning && activeCellCode) ? 
+`\`\`\`python
 ${activeCellCode}
 \`\`\`
 

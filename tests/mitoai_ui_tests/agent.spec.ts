@@ -64,6 +64,9 @@ test.describe("Agent mode integration tests", () => {
         const lastAgentMessage = await page.locator('.message-assistant-agent').last();
         await lastAgentMessage.locator('.message-edit-button').click();
 
+        // Make sure the active cell preview is not visible
+        await expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
+
         // Edit the message
         await page.locator('.chat-input').fill(newMessage);
         await page.keyboard.press('Enter');
