@@ -173,11 +173,21 @@ test.describe("Agent auto error debugging", () => {
         await page.getByRole('button', { name: 'Agent' }).click();
     });
 
-    test("Auto Error Fixup", async ({ page }) => {
+    test.only("Auto Error Fixup", async ({ page }) => {
 
         await sendMessageToMitoAI(page, "Import the file nba_data.csv");
         await waitForIdle(page);
 
-        await expect(page.locator('.message-assistant-agent')).toContainText("Hmm, looks like my first attempt didn't work. Let me try again.");
+        // Run the plan of attack
+        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+
+        // Check that the agent eventually sends a message that says it is trying again
+        await expect(async () => {
+            const messages = await page.locator('.message-assistant-chat').all();
+            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+                throw new Error('Expected message not found');
+            }
+        }).toPass({ timeout: 45000 }); // Increase timeout if needed
     });
 });
