@@ -5,7 +5,6 @@ import { IDisposable } from '@lumino/disposable';
 import { Signal, Stream, type IStream } from '@lumino/signaling';
 import type {
   CompleterMessage,
-  ICompletionReply,
   ICompletionStreamChunk
 } from './models';
 import { IChatMessageMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
@@ -151,11 +150,16 @@ export class CompletionWebsocketClient implements IDisposable {
    * Sends a message across the WebSocket. Promise resolves to the message ID
    * when the server sends the same message back, acknowledging receipt.
    */
-  sendMessage(message: ICompletionRequest): Promise<ICompletionReply> {
-    const pendingReply = new PromiseDelegate<ICompletionReply>();
+  sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(
+    message: T
+  ): Promise<R> {
+    const pendingReply = new PromiseDelegate<R>();
     if (this._socket) {
       this._socket.send(JSON.stringify(message));
-      this._pendingRepliesMap.set(message.message_id, pendingReply);
+      this._pendingRepliesMap.set(
+        message.message_id, 
+        pendingReply as PromiseDelegate<CompleterMessage>
+      );
     } else {
       pendingReply.reject(
         new Error('Inline completion websocket not initialized')
@@ -293,6 +297,6 @@ export class CompletionWebsocketClient implements IDisposable {
    */
   private _pendingRepliesMap = new Map<
     string,
-    PromiseDelegate<ICompletionReply>
+    PromiseDelegate<CompleterMessage>
   >();
 }
