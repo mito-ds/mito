@@ -46,8 +46,10 @@ export const writeCodeToCellByID = (
 }
 
 export const didCellExecutionError = (cell: CodeCell): boolean => {
-    // TODO: Update to not just the first output. Check them all
-    return cell?.model.outputs?.toJSON()[0]?.output_type === "error"
+    /* 
+        Check the cell's output for an error.
+    */
+    return cell?.model.outputs?.toJSON().some(output => output.output_type === "error")
 }
 
 export const getNotebookName = (notebookTracker: INotebookTracker): string => {
