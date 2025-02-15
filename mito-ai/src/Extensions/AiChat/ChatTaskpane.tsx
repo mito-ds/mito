@@ -94,6 +94,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+    const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'idle'>('idle')
 
     const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
         await websocketClient.ready;
@@ -423,7 +424,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const executeAgentPlan = async () => {
         setAgentModeEnabled(false)
-
+        setAgentExecutionStatus('working')
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
 
@@ -484,6 +485,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Wait for the new cell to be created
             await sleep(1000)
         }
+
+        setAgentExecutionStatus('idle')
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
@@ -861,7 +864,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <>
                     <ChatInput
                         initialContent={''}
-                        placeholder={agentModeEnabled ? 'Ask agent to do anything' : displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
+                        placeholder={
+                            agentExecutionStatus === 'working' ? 'Agent is working...' : 
+                            agentModeEnabled ? 'Ask agent to do anything' : 
+                            displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` 
+                            : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                        }
                         onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
                         onCancel={undefined}
                         isEditing={false}
