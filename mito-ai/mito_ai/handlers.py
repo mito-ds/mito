@@ -105,7 +105,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Clear the message history
         self.full_message_history = []
         
-    async def on_message(self, message: str) -> None:
+    async def on_message(self, message: str | bytes) -> None:
         """Handle incoming messages on the WebSocket.
 
         Args:
@@ -115,6 +115,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # first, verify that the message is an `CompletionRequest`.
         self.log.debug("Message received: %s", message)
         try:
+            if isinstance(message, bytes):
+                message = message.decode("utf-8")
             parsed_message = json.loads(message)
 
             metadata_dict = parsed_message.get('metadata', {})
