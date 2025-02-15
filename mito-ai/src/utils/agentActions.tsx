@@ -24,7 +24,7 @@ export const retryIfExecutionError = async (
     sendDebugErrorMessage: (errorMessage: string) => Promise<void>,
     previewAICode: () => void,
     acceptAICode: () => void,
-): Promise<void> => {
+): Promise<boolean> => {
     console.log('checking for error')
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
     const MAX_RETRIES = 3;
@@ -44,8 +44,8 @@ export const retryIfExecutionError = async (
 
         addAIMessageFromResponseAndUpdateState(
             attempts === 0 
-                ? "Hmm it looks like my first attempt failed. Let me try to fix my error."
-                : `My attempt ${attempts + 1} failed. Let me try again.`,
+                ? "Hmm, looks like my first attempt didn't work. Let me try again."
+                : `Looks like my ${attempts === 1 ? 'second' : 'third'} attempt didn't work. ${attempts === 1 ? 'Let me try again.': "Let me try one more time. If I cannot figure it out this time, I'll ask you for more information"}`,
             'agent:execution',
             chatHistoryManager
         )
@@ -53,13 +53,11 @@ export const retryIfExecutionError = async (
         await acceptAndRunCode(app, previewAICode, acceptAICode)
         attempts++;
 
-        // If this was the last attempt and it still failed, inform the user
+        // If this was the last attempt and it still failed
         if (attempts === MAX_RETRIES && didCellExecutionError(cell)) {
-            addAIMessageFromResponseAndUpdateState(
-                "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                'agent:execution',
-                chatHistoryManager
-            )
+            return false
         }
     }
+
+    return true
 }

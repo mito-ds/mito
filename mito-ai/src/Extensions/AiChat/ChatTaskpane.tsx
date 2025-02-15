@@ -457,7 +457,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Run the code and handle any errors
             await acceptAndRunCode(app, previewAICode, acceptAICode)
-            await retryIfExecutionError(
+            const success = await retryIfExecutionError(
                 notebookTracker, 
                 app, 
                 chatHistoryManager,
@@ -466,6 +466,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 previewAICode, 
                 acceptAICode
             )
+
+            // If we were not able to run the code, break out of the loop 
+            // so we don't continue to execute the plan. Instead, we encourage
+            // the user to update the plan and try again. 
+            // TODO: Save this message in backend also even if there is not another message sent. 
+            if (!success) {
+                addAIMessageFromResponseAndUpdateState(
+                    "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
+                    'agent:execution',
+                    chatHistoryManager
+                )
+                break;
+            }
 
             // Insert a new cell for the next step
             await app.commands.execute("notebook:insert-cell-below")
