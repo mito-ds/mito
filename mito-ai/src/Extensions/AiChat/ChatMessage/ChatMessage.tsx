@@ -94,6 +94,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 variableManager={variableManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
+                displayActiveCellCode={messageType !== 'openai message:agent:planning'}
             />
         );
     }
