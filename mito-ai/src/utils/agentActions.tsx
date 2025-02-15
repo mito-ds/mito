@@ -21,7 +21,7 @@ export const retryIfExecutionError = async (
     app: JupyterFrontEnd,
     getDuplicateChatHistoryManager: () => ChatHistoryManager,
     addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager, mitoAIConnectionError?: boolean, mitoAIConnectionErrorType?: string | null) => void,
-    sendDebugErrorMessage: (errorMessage: string) => Promise<void>,
+    sendDebugErrorMessage: (errorMessage: string, agent?: boolean) => Promise<void>,
     previewAICode: () => void,
     acceptAICode: () => void,
 ): Promise<boolean> => {
@@ -49,7 +49,7 @@ export const retryIfExecutionError = async (
             'agent:execution',
             newChatHistoryManager
         )
-        await sendDebugErrorMessage(errorMessage)
+        await sendDebugErrorMessage(errorMessage, true)
         await acceptAndRunCode(app, previewAICode, acceptAICode)
         attempts++;
 

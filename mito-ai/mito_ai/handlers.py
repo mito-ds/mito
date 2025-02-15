@@ -209,7 +209,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 prompt = codeExplainPromptBuilder.prompt
                 display_message = codeExplainPromptBuilder.display_message
                 model = codeExplainPromptBuilder.pro_model if self.is_pro else codeExplainPromptBuilder.os_model
-            elif type == "smartDebug":
+            elif type == "smartDebug" or type == "agent:autoErrorFixup":
                 smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
                 prompt = smartDebugPromptBuilder.prompt
                 display_message = smartDebugPromptBuilder.display_message

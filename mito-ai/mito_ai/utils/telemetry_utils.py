@@ -242,6 +242,9 @@ def log_ai_completion_success(
     elif prompt_type == "agent:execution":
         final_params = base_params
         log("mito_ai_agent_execution_success", params=final_params)
+    elif prompt_type == "agent:autoErrorFixup":
+        final_params = base_params
+        log("mito_ai_agent_auto_error_fixup_success", params=final_params)
     elif prompt_type == "inline_completion":
         final_params = base_params
         log("mito_ai_inline_completion_success", params=final_params)
