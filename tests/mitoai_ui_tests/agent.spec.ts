@@ -153,3 +153,31 @@ test.describe("Agent mode integration tests", () => {
         expect(code).toContain('bye');
     });
 });
+
+
+test.describe("Agent auto error debugging", () => {
+
+    test.beforeEach(async ({ page }) => {
+        /*
+            Before each test, we switch to agent mode, and send a message. 
+        */
+
+        await createAndRunNotebookWithCells(page, []);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode
+        await page.getByRole('button', { name: 'Chat ▾' }).click();
+        await page.getByRole('button', { name: 'Agent' }).click();
+    });
+
+    test("Auto Error Fixup", async ({ page }) => {
+
+        await sendMessageToMitoAI(page, "Import the file nba_data.csv");
+        await waitForIdle(page);
+
+        await expect(page.locator('.message-assistant-agent')).toContainText("Hmm, looks like my first attempt didn't work. Let me try again.");
+    });
+});
