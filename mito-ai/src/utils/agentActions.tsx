@@ -4,6 +4,7 @@ import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
 import { didCellExecutionError } from "./notebook"
+import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
@@ -18,6 +19,8 @@ export const acceptAndRunCode = async (
 export const retryIfExecutionError = async (
     notebookTracker: INotebookTracker, 
     app: JupyterFrontEnd,
+    chatHistoryManager: ChatHistoryManager,
+    addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager, mitoAIConnectionError?: boolean, mitoAIConnectionErrorType?: string | null) => void,
     sendDebugErrorMessage: (errorMessage: string) => Promise<void>,
     previewAICode: () => void,
     acceptAICode: () => void,
@@ -38,6 +41,11 @@ export const retryIfExecutionError = async (
 
         console.log('sending error to AI')
 
+        addAIMessageFromResponseAndUpdateState(
+            "Hmm it looks like my first attempt failed. Let me try to fix my error.",
+            'agent:execution',
+            chatHistoryManager
+        )
         await sendDebugErrorMessage(errorMessage)
         await acceptAndRunCode(app, previewAICode, acceptAICode)
     }
