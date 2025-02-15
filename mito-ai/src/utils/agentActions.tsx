@@ -19,7 +19,7 @@ export const acceptAndRunCode = async (
 export const retryIfExecutionError = async (
     notebookTracker: INotebookTracker, 
     app: JupyterFrontEnd,
-    chatHistoryManager: ChatHistoryManager,
+    getDuplicateChatHistoryManager: () => ChatHistoryManager,
     addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager, mitoAIConnectionError?: boolean, mitoAIConnectionErrorType?: string | null) => void,
     sendDebugErrorMessage: (errorMessage: string) => Promise<void>,
     previewAICode: () => void,
@@ -40,14 +40,14 @@ export const retryIfExecutionError = async (
         const errorTraceback = cell?.model.outputs?.toJSON()[0].traceback as string[]
         const errorMessage = getFullErrorMessageFromTraceback(errorTraceback)
 
-        console.log('sending error to AI')
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
 
         addAIMessageFromResponseAndUpdateState(
             attempts === 0 
                 ? "Hmm, looks like my first attempt didn't work. Let me try again."
                 : `Looks like my ${attempts === 1 ? 'second' : 'third'} attempt didn't work. ${attempts === 1 ? 'Let me try again.': "Let me try one more time. If I cannot figure it out this time, I'll ask you for more information"}`,
             'agent:execution',
-            chatHistoryManager
+            newChatHistoryManager
         )
         await sendDebugErrorMessage(errorMessage)
         await acceptAndRunCode(app, previewAICode, acceptAICode)
