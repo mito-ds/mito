@@ -51,8 +51,8 @@ class ChatThread:
         self.creation_ts = creation_ts
         self.last_interaction_ts = last_interaction_ts
         self.name = name  # short name for the thread
-        self.ai_optimized_history = ai_optimized_history or []
-        self.display_history = display_history or []
+        self.ai_optimized_history: List[ChatCompletionMessageParam] = ai_optimized_history or []
+        self.display_history: List[ChatCompletionMessageParam] = display_history or []
 
 class GlobalMessageHistory:
     """
