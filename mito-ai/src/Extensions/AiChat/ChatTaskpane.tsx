@@ -187,8 +187,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             setChatThreads(chatThreadsResponse.threads);
       
             // 3. If threads exist, load the latest thread; otherwise, start a new chat.
-            if (chatThreads.length > 0) {
-              const latestThread = chatThreads[chatThreads.length - 1];
+            if (chatThreadsResponse.threads.length > 0) {
+              const latestThread = chatThreadsResponse.threads[chatThreadsResponse.threads.length - 1];
               await fetchChatHistoryForThread(latestThread.thread_id);
             } else {
               await startNewChat();

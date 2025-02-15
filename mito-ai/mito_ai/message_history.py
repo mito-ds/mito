@@ -44,8 +44,8 @@ class ChatThread:
         creation_ts: float,
         last_interaction_ts: float,
         name: str,
-        ai_optimized_history: Optional[List[Dict[str, str]]] = None,
-        display_history: Optional[List[Dict[str, str]]] = None,
+        ai_optimized_history: Optional[List[ChatCompletionMessageParam]] = None,
+        display_history: Optional[List[ChatCompletionMessageParam]] = None,
     ):
         self.thread_id = thread_id
         self.creation_ts = creation_ts
