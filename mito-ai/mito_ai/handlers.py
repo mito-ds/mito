@@ -128,7 +128,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             thread = message_history.create_new_thread()
             reply = StartNewChatReply(
                 parent_id=parsed_message.get("message_id"),
-                items=thread
+                thread_id=thread
             )
             self.reply(reply)
             return
@@ -138,7 +138,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             threads = message_history.get_threads()
             reply = FetchThreadsReply(
                 parent_id=parsed_message.get("message_id"),
-                items=threads
+                threads=threads
             )
             self.reply(reply)
             return
@@ -150,12 +150,12 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
                 reply = DeleteThreadReply(
                     parent_id=parsed_message.get("message_id"),
-                    items=is_thread_deleted
+                    created=is_thread_deleted
                 )
             else:
                 reply = DeleteThreadReply(
                     parent_id=parsed_message.get("message_id"),
-                    items=False
+                    created=False
                 )
             self.reply(reply)
             return

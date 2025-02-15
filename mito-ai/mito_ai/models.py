@@ -348,7 +348,7 @@ class StartNewChatReply:
     parent_id: str
 
     # Chat thread item.
-    items: str
+    thread_id: str
 
     # Message type.
     type: Literal["reply"] = "reply"
@@ -363,7 +363,7 @@ class FetchThreadsReply:
     parent_id: str
 
     # List of chat threads.
-    items: List[ChatThreadItem]
+    threads: List[ChatThreadItem]
 
     # Message type.
     type: Literal["reply"] = "reply"
@@ -378,7 +378,7 @@ class DeleteThreadReply:
     parent_id: str
 
     #Success message
-    items: bool
+    created: bool
 
     # Message type.
     type: Literal["reply"] = "reply"

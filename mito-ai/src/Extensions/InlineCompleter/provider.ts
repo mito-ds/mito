@@ -14,10 +14,12 @@ import { Signal, Stream } from '@lumino/signaling';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import {
   CompletionWebsocketClient,
+  ICompletionRequest,
   type ICompletionWebsocketClientOptions
 } from '../../utils/websocket/websocketClient';
 import type {
   CompletionError,
+  ICompletionReply,
   ICompletionStreamChunk,
   InlineCompletionStreamChunk
 } from '../../utils/websocket/models';
@@ -146,7 +148,6 @@ export class MitoAIInlineCompleter
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
-    console.log("HERE")
     if (!this.isEnabled()) {
       return Promise.reject('Mito AI completion is disabled.');
     }
@@ -188,7 +189,10 @@ export class MitoAIInlineCompleter
         prefix: prefix,
         suffix: suffix
       }
-      const result = await this._client.sendMessage({
+      const result = await this._client.sendMessage<
+        ICompletionRequest,
+        ICompletionReply
+      >({
         type: 'inline_completion',
         message_id: messageId.toString(),
         metadata: metadata,

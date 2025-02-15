@@ -201,7 +201,7 @@ export interface IStartNewChatReply {
   /**
    * New thread ID.
    */
-  items: string;
+  thread_id: string;
 }
 
 /**
@@ -221,7 +221,7 @@ export interface IFetchThreadsReply {
   /**
    * List of chat threads.
    */
-  items: IChatThreadItem[];
+  threads: IChatThreadItem[];
 }
 
 /**
@@ -241,7 +241,7 @@ export interface IDeleteThreadReply {
   /**
    * Success status.
    */
-  items: boolean;
+  created: boolean;
 }
 
 export type CompleterMessage =

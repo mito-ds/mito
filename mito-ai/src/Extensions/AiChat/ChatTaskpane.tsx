@@ -45,8 +45,9 @@ import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/c
 import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
-import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import type { CompletionWebsocketClient, ICompletionRequest } from '../../utils/websocket/websocketClient';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IChatThreadItem, ICompletionReply, IDeleteThreadReply, IFetchHistoryReply, IFetchThreadsReply, IStartNewChatReply } from '../../utils/websocket/models';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -96,22 +97,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
-    const [chatThreads, setChatThreads] = useState<Array<{ thread_id: string, name: string }>>([]);
+    const [chatThreads, setChatThreads] = useState<IChatThreadItem[]>([]);
     const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
     
     const fetchChatThreads = async () => {
       await websocketClient.ready;
-      const chatThreadsResponse = await websocketClient.sendMessage({
+      const chatThreadsResponse = await websocketClient.sendMessage<
+        ICompletionRequest, 
+        IFetchThreadsReply
+      >({
          type: "get_threads",
          message_id: UUID.uuid4(),
          metadata: {},
          stream: false
       });
 
-      setChatThreads(chatThreadsResponse.items.map((item: any) => ({
-        thread_id: item.thread_id,
-        name: item.name,
-      })));
+      setChatThreads(chatThreadsResponse.threads);
     };
 
     const fetchChatHistoryForThread = async (threadId: string) => {
@@ -121,20 +122,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         threadID: threadId
       };
 
-      const response = await websocketClient.sendMessage({
+      const response = await websocketClient.sendMessage<
+        ICompletionRequest, 
+        IFetchHistoryReply
+      >({
          type: "fetch_history",
          message_id: UUID.uuid4(),
          metadata: metadata,
          stream: false
       });
-      const history = response.items.map((item: any) => ({
-         role: item.role,
-         content: item.content
-      }));
+
       const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager);
-      history.forEach(item => {
-         newChatHistoryManager.addChatMessageFromHistory(item);
-      });
+      response.items.forEach(item => newChatHistoryManager.addChatMessageFromHistory(item));
       setChatHistoryManager(newChatHistoryManager);
       setActiveThreadId(threadId);
     };
@@ -146,13 +145,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         threadID: threadId
       };
 
-      const response = await websocketClient.sendMessage({
+      const response = await websocketClient.sendMessage<
+        ICompletionRequest, 
+        IDeleteThreadReply
+      >({
          type: "delete_thread",
          message_id: UUID.uuid4(),
          metadata: metadata,
          stream: false
       });
-      if(response.items as any === true) {
+
+      if(response.created === true) {
          const updatedThreads = chatThreads.filter(thread => thread.thread_id !== threadId);
          setChatThreads(updatedThreads);
          if(activeThreadId === threadId) {
@@ -172,21 +175,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             await websocketClient.ready;
       
             // 2. Fetch available chat threads.
-            const chatThreadsResponse = await websocketClient.sendMessage({
+            const chatThreadsResponse = await websocketClient.sendMessage<
+                ICompletionRequest, 
+                IFetchThreadsReply
+            >({
               type: "get_threads",
               message_id: UUID.uuid4(),
               metadata: {},
               stream: false
             });
-            const threads = chatThreadsResponse.items.map((item: any) => ({
-              thread_id: item.thread_id,
-              name: item.name,
-            }));
-            setChatThreads(threads);
+            setChatThreads(chatThreadsResponse.threads);
       
             // 3. If threads exist, load the latest thread; otherwise, start a new chat.
-            if (threads.length > 0) {
-              const latestThread = threads[threads.length - 1];
+            if (chatThreads.length > 0) {
+              const latestThread = chatThreads[chatThreads.length - 1];
               await fetchChatHistoryForThread(latestThread.thread_id);
             } else {
               await startNewChat();
@@ -367,7 +369,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         try {
             await websocketClient.ready;
 
-            const aiResponse = await websocketClient.sendMessage({
+            const aiResponse = await websocketClient.sendMessage<
+                ICompletionRequest, 
+                ICompletionReply
+            >({
                 type: promptType,
                 message_id: UUID.uuid4(),
                 metadata: metadata,
@@ -588,7 +593,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Notify the backend to request a new chat thread and get its ID
         try {
-            const response = await websocketClient.sendMessage({
+            const response = await websocketClient.sendMessage<
+                ICompletionRequest, 
+                IStartNewChatReply
+            >({
                 type: 'start_new_chat',
                 message_id: UUID.uuid4(),
                 metadata: {},
@@ -596,7 +604,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             });
 
             // Set the new thread ID as active
-            const newThreadId = (response as any).items;
+            const newThreadId = response.thread_id;
             setActiveThreadId(newThreadId);
         } catch (error) {
             console.error('Error starting new chat:', error);
