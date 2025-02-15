@@ -173,7 +173,7 @@ test.describe("Agent auto error debugging", () => {
         await page.getByRole('button', { name: 'Agent' }).click();
     });
 
-    test.only("Auto Error Fixup", async ({ page }) => {
+    test("Auto Error Fixup", async ({ page }) => {
 
         await sendMessageToMitoAI(page, "Import the file nba_data.csv");
         await waitForIdle(page);
