@@ -128,7 +128,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
       
             // 4. Add messages to the ChatHistoryManager
             history.forEach(item => {
-                console.log(item)
                 try {
                     // If the user sent a message in agent mode, the ai response will be a JSON object
                     // which we need to parse. 
@@ -146,12 +145,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
               notebookTracker,
               variableManager
             );
-            newChatHistoryManager.addAIMessageFromResponse(
+            addAIMessageFromResponseAndUpdateState(
               (error as any).hint ? (error as any).hint : `${error}`,
               'chat',
+              newChatHistoryManager,
               true
             );
-            setChatHistoryManager(newChatHistoryManager);
           }
         };
       
@@ -324,15 +323,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (aiResponse.error) {
                 console.error('Error calling OpenAI API:', aiResponse.error);
-                newChatHistoryManager.addAIMessageFromResponse(
+                addAIMessageFromResponseAndUpdateState(
                     aiResponse.error.hint
                         ? aiResponse.error.hint
                         : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
                     promptType,
+                    newChatHistoryManager,
                     true,
                     aiResponse.error.title
                 );
-                setChatHistoryManager(newChatHistoryManager);
             } else {
                 console.log('Mito AI: aiResponse', aiResponse)
                 const content = aiResponse.items[0].content || '';
@@ -354,13 +353,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         } catch (error) {
-            newChatHistoryManager.addAIMessageFromResponse(
+            addAIMessageFromResponseAndUpdateState(
                 (error as any).hint ? (error as any).hint : `${error}`,
                 promptType,
+                newChatHistoryManager,
                 true
-            );
-            setChatHistoryManager(newChatHistoryManager);
-            console.error('Error calling OpenAI API:', error);
+            )
         } finally {
             // Reset states to allow future messages to show the "Apply" button
             setCodeReviewStatus('chatPreview');
@@ -371,19 +369,37 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return true
     }
 
+    const addAIMessageFromResponseAndUpdateState = (
+        messageContent: string,
+        promptType: PromptType,
+        chatHistoryManager: ChatHistoryManager,
+        mitoAIConnectionError: boolean = false,
+        mitoAIConnectionErrorType: string | null = null
+    ) => {
+        /* 
+        Adds a new message to the chat history and updates the state. If we don't update the state 
+        then the chat history does not update in the UI. 
+        */
+        chatHistoryManager.addAIMessageFromResponse(messageContent, promptType, mitoAIConnectionError, mitoAIConnectionErrorType)
+        setChatHistoryManager(chatHistoryManager)
+    }
+
     const handleAgentResponse = (
         agentResponse: { actions: string[], dependencies: string[] }, newChatHistoryManager: ChatHistoryManager
     ) => {
-        newChatHistoryManager.addAIMessageFromResponse(
+
+        addAIMessageFromResponseAndUpdateState(
             "Based on your request, I've outlined a step-by-step plan. Please review each step carefully. If you'd like to add details or make any changes, you can edit each step directly. Once everything looks good, press Go at the bottom of the task pane to proceed.",
-            'chat'
+            'chat',
+            newChatHistoryManager
         )
 
         // If there are dependencies, we need to add them to the top of the chat history 
         if (agentResponse.dependencies.length > 0) {
-            newChatHistoryManager.addAIMessageFromResponse(
+            addAIMessageFromResponseAndUpdateState(
                 `Install the following dependencies: ${agentResponse.dependencies.join(', ')}`,
-                'agent:planning'
+                'agent:planning',
+                newChatHistoryManager
             )
         }
 
@@ -391,19 +407,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // and add it to the chat history.
         let n = 1;
         agentResponse.actions.forEach((action: string) => {
-            newChatHistoryManager.addAIMessageFromResponse(
+            addAIMessageFromResponseAndUpdateState(
                 `Step ${n}: ${action}`,
-                'agent:planning'
+                'agent:planning',
+                newChatHistoryManager
             );
             n++;
         });
 
-        newChatHistoryManager.addAIMessageFromResponse(
+        addAIMessageFromResponseAndUpdateState(
             "If everything looks good, use the start button at the bottom of the task pane to proceed. By doing so, you grant Mito AI permission to execute the code in this notebook.",
-            'chat'
+            'chat',
+            newChatHistoryManager
         )
 
-        setChatHistoryManager(newChatHistoryManager);
     }
 
     const executeAgentPlan = async () => {
@@ -432,7 +449,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Run the code and handle any errors
             await acceptAndRunCode(app, previewAICode, acceptAICode)
-            await retryIfExecutionError(notebookTracker, app, sendDebugErrorMessage, previewAICode, acceptAICode)
+            await retryIfExecutionError(
+                notebookTracker, 
+                app, 
+                chatHistoryManager,
+                addAIMessageFromResponseAndUpdateState, 
+                sendDebugErrorMessage, 
+                previewAICode, 
+                acceptAICode
+            )
 
             // Insert a new cell for the next step
             await app.commands.execute("notebook:insert-cell-below")
