@@ -17,6 +17,8 @@
     border: none;
     padding: 4px;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
 }
 
 .message-edit-button:hover {
