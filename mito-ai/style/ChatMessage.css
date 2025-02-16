@@ -1,0 +1,24 @@
+.message {
+    position: relative;
+}
+
+.message:hover .message-edit-button {
+    opacity: 1 !important;
+}
+
+.message-edit-button {
+    position: absolute !important;
+    bottom: 8px !important;
+    right: 8px !important;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    background: none;
+    border: none;
+    padding: 4px;
+}
+
+.message-edit-button:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 4px;
+} 
