@@ -36,14 +36,20 @@ export interface IChatMessageMetadata {
     threadID?: string;
 }
 
-/**
- * Outgoing message from the user to the AI,
- * specifying the promptType and the metadata
- * your backend will use to build a prompt.
- */
-export interface IOutgoingMessage {
-    promptType: PromptType
-    metadata: IChatMessageMetadata;
+export interface IChatSmartDebugMetadata {
+    variables?: Variable[];
+    activeCellCode?: string;   
+    errorMessage?: string;     
+}
+
+export interface ICodeExplainMetadata {
+    variables?: Variable[];
+    activeCellCode?: string;
+}
+
+export interface IAgentPlanningMetadata {
+    variables?: Variable[];
+    input?: string;
 }
 
 /* 

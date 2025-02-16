@@ -4,7 +4,7 @@ import type {
   IInlineCompletionItem
 } from '@jupyterlab/completer';
 
-import { IChatMessageMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+import { IChatMessageMetadata, IChatSmartDebugMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
 
 
 /**
@@ -28,6 +28,26 @@ export interface ICompletionRequest {
    */
   stream: boolean;
 }
+
+
+export interface IChatCompletionRequest extends ICompletionRequest {
+  type: 'chat',
+  metadata: IChatMessageMetadata
+}
+
+export interface ISmartDebugCompletionRequest extends ICompletionRequest {
+  type: 'smartDebug'
+  metadata: IChatSmartDebugMetadata
+}
+
+
+
+
+
+
+
+
+
 
 /**
  * AI capabilities.
