@@ -4,7 +4,18 @@ import type {
   IInlineCompletionItem
 } from '@jupyterlab/completer';
 
-import { IChatMessageMetadata, IChatSmartDebugMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+import { IAgentPlanningMetadata, IChatMessageMetadata, IChatSmartDebugMetadata, IClearHistoryMetadata, ICodeExplainMetadata, IInlineCompleterMetadata, IFetchHistoryMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+
+
+export type CompletionRequestMetadata = 
+  IChatMessageMetadata | 
+  IChatSmartDebugMetadata | 
+  ICodeExplainMetadata | 
+  IAgentPlanningMetadata | 
+  IInlineCompleterMetadata |
+  IClearHistoryMetadata | // TODO: Remove this from the CompletionRequestMetadata because it is not a completion. Instead, the send function take a message other
+  // than ICompletionRequest that does not contain metatdata.
+  IFetchHistoryMetadata
 
 
 /**
@@ -22,7 +33,7 @@ export interface ICompletionRequest {
   /**
    * The metadata containing structured data for backend prompt generation.
    */
-  metadata: IChatMessageMetadata;
+  metadata: CompletionRequestMetadata;
   /**
    * Whether to stream the completion or not.
    */
@@ -30,15 +41,15 @@ export interface ICompletionRequest {
 }
 
 
-export interface IChatCompletionRequest extends ICompletionRequest {
-  type: 'chat',
-  metadata: IChatMessageMetadata
-}
+// export interface IChatCompletionRequest extends ICompletionRequest {
+//   type: 'chat',
+//   metadata: IChatMessageMetadata
+// }
 
-export interface ISmartDebugCompletionRequest extends ICompletionRequest {
-  type: 'smartDebug'
-  metadata: IChatSmartDebugMetadata
-}
+// export interface ISmartDebugCompletionRequest extends ICompletionRequest {
+//   type: 'smartDebug'
+//   metadata: IChatSmartDebugMetadata
+// }
 
 
 
