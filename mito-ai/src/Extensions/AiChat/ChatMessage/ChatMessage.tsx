@@ -20,6 +20,7 @@ import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
+import '../../../../style/ChatMessage.css';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -178,7 +179,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <div className={classNames('markdown-message-part')} style={{ position: 'relative' }}>
+                        <div className={classNames('markdown-message-part')}>
                             <p 
                                 key={index + messagePart} 
                                 onDoubleClick={() => {
@@ -200,22 +201,19 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
-                            {editable && (
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                    <button
-                                        className="message-edit-button"
-                                        onClick={handleEditClick}
-                                        style={{ cursor: 'pointer' }}
-                                        title="Edit message"
-                                    >
-                                        <PencilIcon />
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     )
                 }
             })}
+            {editable && (
+                <button
+                    className="message-edit-button"
+                    onClick={handleEditClick}
+                    title="Edit message"
+                >
+                    <PencilIcon />
+                </button>
+            )}
         </div>
     )
 }
