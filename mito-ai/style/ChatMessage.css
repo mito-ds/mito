@@ -12,13 +12,13 @@
     right: 8px !important;
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-    background: none;
+    transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    background-color: var(--jp-layout-color3);
     border: none;
     padding: 4px;
+    border-radius: 4px;
 }
 
 .message-edit-button:hover {
-    background-color: rgba(0, 0, 0, 0.05) !important;
-    border-radius: 4px;
+    background-color: var(--jp-layout-color4);
 } 
