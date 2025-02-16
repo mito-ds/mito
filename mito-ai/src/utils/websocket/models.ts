@@ -3,6 +3,31 @@ import type {
   IInlineCompletionItem
 } from '@jupyterlab/completer';
 
+import { IChatMessageMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+
+
+/**
+ * Mito AI completion request.
+ */
+export interface ICompletionRequest {
+  /**
+   * The type of the message.
+   */
+  type: string;
+  /**
+   * The message ID.
+   */
+  message_id: string;
+  /**
+   * The metadata containing structured data for backend prompt generation.
+   */
+  metadata: IChatMessageMetadata;
+  /**
+   * Whether to stream the completion or not.
+   */
+  stream: boolean;
+}
+
 /**
  * AI capabilities.
  */
