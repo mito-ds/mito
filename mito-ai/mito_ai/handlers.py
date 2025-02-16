@@ -180,9 +180,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
         
         response_format = None
-        
-        # Remove the promptType from the metadata_dict for now
-        del metadata_dict['promptType']
 
         # Generate new message based on message type
         if type == "inline_completion":

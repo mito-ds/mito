@@ -34,15 +34,15 @@ export interface IChatMessageMetadata {
     promptType: 'chat' | 'agent:execution'
     variables?: Variable[];
     activeCellCode?: string;   
-    input?: string;
+    input: string;
     index?: number;
 }
 
-export interface IChatSmartDebugMetadata {
+export interface ISmartDebugMetadata {
     promptType: 'smartDebug';
     variables?: Variable[];
     activeCellCode?: string;   
-    errorMessage?: string;     
+    errorMessage: string;     
 }
 
 export interface ICodeExplainMetadata {
@@ -54,15 +54,14 @@ export interface ICodeExplainMetadata {
 export interface IAgentPlanningMetadata {
     promptType: 'agent:planning';
     variables?: Variable[];
-    input?: string;
+    input: string;
 }
 
 export interface IInlineCompleterMetadata {
     promptType: 'inline_completion';
-    variables?: Variable[];
-    activeCellCode?: string;   
-    prefix?: string;
-    suffix?: string;
+    variables?: Variable[]; 
+    prefix: string;
+    suffix: string;
 }
 
 export interface IFetchHistoryMetadata {
@@ -203,12 +202,12 @@ export class ChatHistoryManager {
         return agentPlanningMetadata
     }
 
-    addDebugErrorMessage(errorMessage: string): IChatSmartDebugMetadata {
+    addDebugErrorMessage(errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const smartDebugMetadata: IChatSmartDebugMetadata = {
+        const smartDebugMetadata: ISmartDebugMetadata = {
             promptType: 'smartDebug',
             variables: this.variableManager.variables,
             activeCellCode: activeCellCode,

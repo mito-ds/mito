@@ -4,12 +4,12 @@ import type {
   IInlineCompletionItem
 } from '@jupyterlab/completer';
 
-import { IAgentPlanningMetadata, IChatMessageMetadata, IChatSmartDebugMetadata, ICodeExplainMetadata, IInlineCompleterMetadata, IFetchHistoryMetadata, IStartNewChatMetadata, IGetThreadsMetadata, IDeleteThreadMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+import { IAgentPlanningMetadata, IChatMessageMetadata, ISmartDebugMetadata, ICodeExplainMetadata, IInlineCompleterMetadata, IFetchHistoryMetadata, IStartNewChatMetadata, IGetThreadsMetadata, IDeleteThreadMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
 
 
 export type CompletionRequestMetadata = 
   IChatMessageMetadata | 
-  IChatSmartDebugMetadata | 
+  ISmartDebugMetadata | 
   ICodeExplainMetadata | 
   IAgentPlanningMetadata | 
   IInlineCompleterMetadata |
@@ -41,15 +41,15 @@ export interface ICompletionRequest {
 }
 
 
-// export interface IChatCompletionRequest extends ICompletionRequest {
-//   type: 'chat',
-//   metadata: IChatMessageMetadata
-// }
+export interface IChatCompletionRequest extends ICompletionRequest {
+  type: 'chat',
+  metadata: IChatMessageMetadata
+}
 
-// export interface ISmartDebugCompletionRequest extends ICompletionRequest {
-//   type: 'smartDebug'
-//   metadata: IChatSmartDebugMetadata
-// }
+export interface ISmartDebugCompletionRequest extends ICompletionRequest {
+  type: 'smartDebug'
+  metadata: ISmartDebugMetadata
+}
 
 
 
