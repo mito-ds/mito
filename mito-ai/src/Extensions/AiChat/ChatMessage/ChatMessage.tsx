@@ -20,7 +20,6 @@ import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
-import '../../../../style/ChatMessage.css';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -207,7 +206,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             })}
             {editable && (
                 <button
-                    className="message-edit-button"
+                    className="message-start-editing-button"
                     onClick={handleEditClick}
                     title="Edit message"
                 >
