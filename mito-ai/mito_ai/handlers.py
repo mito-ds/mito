@@ -139,6 +139,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
         
         response_format = None
+        
+        # Remove the promptType from the metadata_dict for now
+        del metadata_dict['promptType']
 
         # Generate new message based on message type
         if type == "inline_completion":
@@ -153,6 +156,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             ai_optimized_history: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
             
         else:
+            
+            
             if type == "chat" or type == "agent:execution":
                 chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
                 prompt = chatMessagePromptBuilder.prompt

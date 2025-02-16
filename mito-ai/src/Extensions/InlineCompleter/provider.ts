@@ -21,7 +21,7 @@ import type {
   ICompletionStreamChunk,
   InlineCompletionStreamChunk
 } from '../../utils/websocket/models';
-import { IChatMessageMetadata } from '../AiChat/ChatHistoryManager';
+import { IInlineCompleterMetadata } from '../AiChat/ChatHistoryManager';
 import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 
@@ -183,7 +183,8 @@ export class MitoAIInlineCompleter
       const suffix = this._getSuffix(request);
 
       const variables = this._variableManager.variables;
-      const metadata: IChatMessageMetadata = {
+      const metadata: IInlineCompleterMetadata = {
+        promptType: 'inline_completion',
         variables: variables,
         prefix: prefix,
         suffix: suffix

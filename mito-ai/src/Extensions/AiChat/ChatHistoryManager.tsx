@@ -4,7 +4,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { Variable } from "../VariableManager/VariableInspector";
 
-export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning' | 'agent:execution';
+export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning' | 'agent:execution' | 'inline_completion' | 'clear_history' | 'fetch_history';
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -20,29 +20,46 @@ export interface IDisplayOptimizedChatHistory {
 }
 
 export interface IChatMessageMetadata {
+    promptType: 'chat' | 'agent:execution'
     variables?: Variable[];
     activeCellCode?: string;   
     input?: string;
-    errorMessage?: string;     
-    prefix?: string;
-    suffix?: string;
     index?: number;
 }
 
 export interface IChatSmartDebugMetadata {
+    promptType: 'smartDebug';
     variables?: Variable[];
     activeCellCode?: string;   
     errorMessage?: string;     
 }
 
 export interface ICodeExplainMetadata {
+    promptType: 'codeExplain';
     variables?: Variable[];
     activeCellCode?: string;
 }
 
 export interface IAgentPlanningMetadata {
+    promptType: 'agent:planning';
     variables?: Variable[];
     input?: string;
+}
+
+export interface IInlineCompleterMetadata {
+    promptType: 'inline_completion';
+    variables?: Variable[];
+    activeCellCode?: string;   
+    prefix?: string;
+    suffix?: string;
+}
+
+export interface IClearHistoryMetadata {
+    promptType: 'clear_history'
+}
+
+export interface IFetchHistoryMetadata {
+    promptType: 'fetch_history'
 }
 
 /* 
@@ -91,15 +108,15 @@ export class ChatHistoryManager {
         );
     }
 
-    addChatInputMessage(input: string): IOutgoingMessage {
-        const variables = this.variableManager.variables
+    addChatInputMessage(input: string): IChatMessageMetadata {
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
 
-        const metadata: IChatMessageMetadata = {
-            variables,
-            activeCellCode,
-            input
+        const chatMessageMetadata: IChatMessageMetadata = {
+            promptType: 'chat',
+            variables: this.variableManager.variables,
+            activeCellCode: activeCellCode,
+            input: input
         }
 
         this.displayOptimizedChatHistory.push(
@@ -111,17 +128,15 @@ export class ChatHistoryManager {
             }
         );
 
-        return {
-            promptType: 'chat',
-            metadata: metadata,
-        }
+        return chatMessageMetadata
     }
 
-    updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IOutgoingMessage {
+    updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IChatMessageMetadata {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = isAgentMessage ? undefined : getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const metadata: IChatMessageMetadata = {
+        const chatMessageMetadata: IChatMessageMetadata = {
+            promptType: 'chat',
             variables: this.variableManager.variables,
             activeCellCode: activeCellCode,
             input: newContent,
@@ -144,17 +159,14 @@ export class ChatHistoryManager {
             this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
         }
 
-        return {
-            promptType: 'chat',
-            metadata: metadata,
-        }
+        return chatMessageMetadata
     }
 
-    addAgentMessage(message: string): IOutgoingMessage {
-        const variables = this.variableManager.variables
+    addAgentMessage(message: string): IAgentPlanningMetadata {
 
-        const metadata: IChatMessageMetadata = {
-            variables,
+        const agentPlanningMetadata: IAgentPlanningMetadata = {
+            promptType: "agent:planning",
+            variables: this.variableManager.variables,
             input: message
         }
 
@@ -167,18 +179,16 @@ export class ChatHistoryManager {
             }
         )
 
-        return {
-            promptType: 'agent:planning',
-            metadata: metadata,
-        }
+        return agentPlanningMetadata
     }
 
-    addDebugErrorMessage(errorMessage: string): IOutgoingMessage {
+    addDebugErrorMessage(errorMessage: string): IChatSmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const metadata: IChatMessageMetadata = {
+        const smartDebugMetadata: IChatSmartDebugMetadata = {
+            promptType: 'smartDebug',
             variables: this.variableManager.variables,
             activeCellCode: activeCellCode,
             errorMessage: errorMessage
@@ -193,18 +203,16 @@ export class ChatHistoryManager {
             }
         );
 
-        return {
-            promptType: 'smartDebug',
-            metadata,
-        }
+        return smartDebugMetadata
     }
 
-    addExplainCodeMessage(): IOutgoingMessage {
+    addExplainCodeMessage(): ICodeExplainMetadata {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
-        const metadata: IChatMessageMetadata = {
+        const codeExplainMetadata: ICodeExplainMetadata = {
+            promptType: 'codeExplain',
             variables: this.variableManager.variables,
             activeCellCode
         }
@@ -218,10 +226,7 @@ export class ChatHistoryManager {
             }
         );
 
-        return {
-            promptType: 'codeExplain',
-            metadata,
-        }
+        return codeExplainMetadata
     }
 
     addAIMessageFromResponse(
