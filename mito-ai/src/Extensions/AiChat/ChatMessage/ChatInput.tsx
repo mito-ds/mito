@@ -21,6 +21,7 @@ interface ChatInputProps {
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
     displayActiveCellCode?: boolean;
+    agentModeEnabled?: boolean;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -37,6 +38,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     notebookTracker,
     renderMimeRegistry,
     displayActiveCellCode = true,
+    agentModeEnabled = false,
 }) => {
 
     const [input, setInput] = useState(initialContent);
@@ -196,7 +198,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div style={{ position: 'relative', height: 'min-content'}}>
                 <textarea
                     ref={textAreaRef}
-                    className={classNames("message", "message-user", 'chat-input')}
+                    className={classNames("message", "message-user", 'chat-input', {"agent-mode": agentModeEnabled})}
                     placeholder={placeholder}
                     value={input}
                     onChange={handleInputChange}

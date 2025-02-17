@@ -17,10 +17,7 @@ import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { 
-    ChatHistoryManager, 
-    IDisplayOptimizedChatHistory, 
-} from './ChatHistoryManager';
+import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import DropdownMenu from '../../components/DropdownMenu';
 import IconButton from '../../components/IconButton';
@@ -299,9 +296,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (
         messageIndex: number,
         newContent: string,
-        messageType: IDisplayOptimizedChatHistory['type']
+        promptType: PromptType
     ) => {
-        if (messageType === 'openai message:agent:planning') {
+        if (promptType === 'agent:planning' && messageIndex !== 1) {
             // In agent planning mode we only update the message locally without sending it to the AI
             // because the user has not yet confirmed that they want the AI to process these messages 
             // until they hit the submit button.
@@ -310,19 +307,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             setChatHistoryManager(newChatHistoryManager)
         } else if (agentModeEnabled && messageIndex === 1) { 
             // If editing the original agent message, send it as a new agent message.
-            sendAgentPlanningMessage(newContent)
+            sendAgentPlanningMessage(newContent, messageIndex)
         } else {
             sendChatInputMessage(newContent, messageIndex)
         }
     };
 
-    const sendAgentPlanningMessage = async (message: string) => {
+    const sendAgentPlanningMessage = async (message: string, messageIndex?: number) => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add user message to chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message)
+        const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message, messageIndex)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -845,6 +842,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         variableManager={variableManager}
                         notebookTracker={notebookTracker}
                         renderMimeRegistry={renderMimeRegistry}
+                        agentModeEnabled={agentModeEnabled}
                     />
                     {agentModeEnabled &&
                         <>
