@@ -20,7 +20,6 @@ from mito_ai.models import (
     CompletionRequest,
     CompletionStreamChunk,
 )
-from mito_ai.utils.db import get_user_field, set_user_field
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
@@ -38,8 +37,6 @@ from mito_ai.utils.telemetry_utils import (
 )
 
 __all__ = ["OpenAIProvider"]
-_num_usages = None
-_first_usage_date = None
 
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -161,26 +158,13 @@ This attribute is observed by the websocket provider to push the error to the cl
                 },
                 provider="OpenAI (user key)",
             )
-
-        # Get the number of usages
-        global _num_usages
-        if _num_usages is None:
-            _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-
-        # Get the first usage date
-        global _first_usage_date
-        _first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
-        if _first_usage_date is None:
-            from datetime import datetime
-            today = datetime.today().strftime('%Y-%m-%d')
-            try:
-                set_user_field(UJ_MITO_AI_FIRST_USAGE_DATE, today)
-            except Exception as e:
-                self.log.warning("Failed to set first usage date in user.json", exc_info=e)
+            
+        print("Checking mito server quota")
 
         try:
-            check_mito_server_quota(_num_usages or 0, _first_usage_date or "")
+            check_mito_server_quota()
         except Exception as e:
+            self.log.warning("Failed to set first usage date in user.json", exc_info=e)
             self.last_error = CompletionError.from_exception(e)
 
         return AICapabilities(
@@ -256,6 +240,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                     self.timeout,
                     self.max_retries,
                 )
+                
+                update_mito_server_quota()
                 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)

@@ -12,10 +12,9 @@ from tornado.httpclient import AsyncHTTPClient
 
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITO_AI_FIRST_USAGE_DATE, UJ_AI_MITO_API_NUM_USAGES
 from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
-from mito_ai.utils.db import get_user_field
+from mito_ai.utils.db import get_user_field, set_user_field
 from mito_ai.utils.version_utils import is_pro
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.providers import OpenAIProvider
 MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
@@ -34,19 +33,19 @@ __user_id: Optional[str] = None
 def check_mito_server_quota() -> None:
     """Check whether the user has reached the limit of completions for the free tier or not.
 
-    Args:
-        n_counts: The number of completions the user has made so far.
-        first_usage_date: The date of the user's first usage.
     Raises:
         PermissionError: If the user has reached the limit.
     """
-    pro = is_pro()
     
-    n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-    first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
-
+    print("HERE1")
+    # If the user is on pro, they can use the AI unlimited.
+    pro = is_pro()
     if pro:
         return
+    
+    # If the user is not on pro, we need to check their quota.
+    n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES) or 0
+    first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE) or ""
 
     if n_counts >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
         log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
@@ -58,7 +57,27 @@ def check_mito_server_quota() -> None:
         if datetime.now() > one_month_later:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
             raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
+        
+    print("HERE2")
 
+
+def update_mito_server_quota() -> None:
+    """Update the user's quota for the Mito Server."""
+    n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
+    first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
+    
+    if n_counts is None:
+        n_counts = 0
+        
+    if first_usage_date is None:
+        first_usage_date = datetime.now().strftime("%Y-%m-%d")
+        
+    try: 
+        set_user_field(UJ_AI_MITO_API_NUM_USAGES, n_counts + 1)
+        set_user_field(UJ_MITO_AI_FIRST_USAGE_DATE, first_usage_date)
+    except Exception as e:
+        raise e
+        
 
 async def get_ai_completion_from_mito_server(
     last_message_content: Union[str, None],
