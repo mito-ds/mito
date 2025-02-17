@@ -823,6 +823,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         variableManager={variableManager}
                         notebookTracker={notebookTracker}
                         renderMimeRegistry={renderMimeRegistry}
+                        agentModeEnabled={agentModeEnabled}
                     />
                     {agentModeEnabled &&
                         <>
