@@ -118,10 +118,14 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
+
+        
+        
         print("ON MESSAGE")
         print(f"message: {message}")
         start = time.time()
         self.log.debug("Message received: %s", message)
+        
         try:
             if isinstance(message, bytes):
                 message = message.decode("utf-8")
@@ -188,9 +192,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
 
         try:
+            
             # Get completion based on message type
             completion = None
-            display_history = None
 
             if type == "chat":
                 print("in chat")
