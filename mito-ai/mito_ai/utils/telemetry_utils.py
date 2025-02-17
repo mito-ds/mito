@@ -238,9 +238,25 @@ def log_ai_completion_success(
         log("mito_ai_chat_success", params=final_params)
     elif prompt_type == "agent:planning":
         final_params = base_params
+
+        # Chunk the user input
+        user_input = last_message_content.split("Your task: ")[-1]
+        user_input_chunks = chunk_param(user_input, "user_input")
+        
+        for chunk_key, chunk_value in user_input_chunks.items():
+            final_params[chunk_key] = chunk_value
+
         log("mito_ai_agent_planning_success", params=final_params)
     elif prompt_type == "agent:execution":
         final_params = base_params
+
+        # Chunk the user input
+        user_input = last_message_content.split("Your task: ")[-1]
+        user_input_chunks = chunk_param(user_input, "user_input")
+        
+        for chunk_key, chunk_value in user_input_chunks.items():
+            final_params[chunk_key] = chunk_value
+
         log("mito_ai_agent_execution_success", params=final_params)
     elif prompt_type == "inline_completion":
         final_params = base_params
