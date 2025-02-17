@@ -1,6 +1,6 @@
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import InlineCompleterMetadata
+from mito_ai.models import InlineCompleterMetadata, MessageType
 from mito_ai.prompt_builders.inline_completer_prompt import create_inline_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -33,7 +33,11 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         messages: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
         
         # Get the completion
-        completion = await provider.request_completions(messages=messages, model=MODEL)
+        completion = await provider.request_completions(
+            messages=messages, 
+            model=MODEL,
+            prompt_type=MessageType.INLINE_COMPLETION
+        )
         
         return completion
 

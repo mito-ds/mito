@@ -1,6 +1,6 @@
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import CodeExplainMetadata
+from mito_ai.models import CodeExplainMetadata, MessageType
 from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -33,7 +33,11 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
         
         # Get the completion
-        completion = await provider.request_completions(messages=message_history.ai_optimized_history, model=MODEL)
+        completion = await provider.request_completions(
+            messages=message_history.ai_optimized_history, 
+            model=MODEL,
+            prompt_type=MessageType.CODE_EXPLAIN
+        )
         
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}

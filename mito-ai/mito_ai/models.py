@@ -2,17 +2,22 @@ import traceback
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional, Union
 from openai.types.chat import ChatCompletionMessageParam
+from enum import Enum
 
-CompletionIncomingMessageTypes = Literal[
-    'chat', 
-    'inline_completion', 
-    'codeExplain', 
-    'smartDebug', 
-    'agent:planning', 
-    'chat_name_generation'
-]
+class MessageType(Enum):
+    CHAT = "chat"
+    SMART_DEBUG = "smartDebug"
+    CODE_EXPLAIN = "codeExplain"
+    AGENT_PLANNING = "agent:planning"
+    INLINE_COMPLETION = "inline_completion"
+    CHAT_NAME_GENERATION = "chat_name_generation"
+    START_NEW_CHAT = "start_new_chat"
+    FETCH_HISTORY = "fetch_history"
+    GET_THREADS = "get_threads"
+    DELETE_THREAD = "delete_thread"
 
-IncomingMessageTypes = Union[Literal['start_new_chat', 'fetch_history'], CompletionIncomingMessageTypes]
+CompletionIncomingMessageTypes = Literal[MessageType.CHAT, MessageType.INLINE_COMPLETION, MessageType.CODE_EXPLAIN, MessageType.SMART_DEBUG, MessageType.AGENT_PLANNING, MessageType.CHAT_NAME_GENERATION]
+IncomingMessageTypes = Union[Literal[MessageType.START_NEW_CHAT, MessageType.FETCH_HISTORY], CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
@@ -87,10 +92,6 @@ class InlineCompleterMetadata():
     prefix: str 
     suffix: str
     variables: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class ClearHistoryMetadata():
-    promptType: Literal['clear_history']
 
 @dataclass(frozen=True)
 class FetchHistoryMetadata():

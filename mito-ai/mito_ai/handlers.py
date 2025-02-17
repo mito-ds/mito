@@ -31,7 +31,8 @@ from mito_ai.models import (
     SmartDebugMetadata,
     CodeExplainMetadata,
     AgentPlanningMetadata,
-    InlineCompleterMetadata
+    InlineCompleterMetadata,
+    MessageType
 )
 from mito_ai.prompt_builders.smart_debug_prompt import remove_inner_thoughts_from_message
 from mito_ai.providers import OpenAIProvider
@@ -131,7 +132,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 message = message.decode("utf-8")
             parsed_message = json.loads(message)
             metadata_dict = parsed_message.get('metadata', {})
-            type: IncomingMessageTypes = parsed_message.get('type')
+            type: MessageType = MessageType(parsed_message.get('type'))
+            print(f"type: {type}")
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
@@ -139,7 +141,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         reply: Union[StartNewChatReply, FetchThreadsReply, DeleteThreadReply, FetchHistoryReply, CompletionStreamChunk, CompletionReply]
 
         # Clear history if the type is "start_new_chat"
-        if type == "start_new_chat":
+        if type == MessageType.START_NEW_CHAT:
             thread = message_history.create_new_thread()
             reply = StartNewChatReply(
                 parent_id=parsed_message.get("message_id"),
@@ -149,7 +151,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
 
         # Handle get_threads: return list of chat threads
-        if type == "get_threads":
+        if type == MessageType.GET_THREADS:
             threads = message_history.get_threads()
             reply = FetchThreadsReply(
                 parent_id=parsed_message.get("message_id"),
@@ -159,7 +161,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
 
         # Handle delete_thread: delete the specified thread
-        if type == "delete_thread":
+        if type == MessageType.DELETE_THREAD:
             thread_id_to_delete = metadata_dict.get('threadID')
             if thread_id_to_delete:
                 is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
@@ -175,7 +177,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.reply(reply)
             return
 
-        if type == "fetch_history":
+        if type == MessageType.FETCH_HISTORY:
             print("in fetch history")
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
             thread_id = metadata_dict.get('threadID')
@@ -196,22 +198,22 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # Get completion based on message type
             completion = None
 
-            if type == "chat":
+            if type == MessageType.CHAT:
                 print("in chat")
                 metadata = ChatMessageMetadata(**metadata_dict)
                 print("in chat: metadata")
                 completion = await get_chat_completion(metadata, self._llm, message_history)
                 print("in chat: completion")
-            elif type == "smartDebug":
+            elif type == MessageType.SMART_DEBUG:
                 metadata = SmartDebugMetadata(**metadata_dict)
                 completion = await get_smart_debug_completion(metadata, self._llm, message_history)
-            elif type == "codeExplain":
+            elif type == MessageType.CODE_EXPLAIN:
                 metadata = CodeExplainMetadata(**metadata_dict)
                 completion = await get_code_explain_completion(metadata, self._llm, message_history)
-            elif type == "agent:planning":
+            elif type == MessageType.AGENT_PLANNING:
                 metadata = AgentPlanningMetadata(**metadata_dict)
                 completion = await get_agent_planning_completion(metadata, self._llm, message_history)
-            elif type == "inline_completion":
+            elif type == MessageType.INLINE_COMPLETION:
                 metadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(metadata, self._llm, message_history)
             else:
