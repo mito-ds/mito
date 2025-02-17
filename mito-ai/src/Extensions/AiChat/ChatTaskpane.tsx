@@ -19,7 +19,6 @@ import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { 
     ChatHistoryManager, 
-    IDisplayOptimizedChatHistory, 
     IOutgoingMessage, 
     PromptType 
 } from './ChatHistoryManager';
@@ -278,9 +277,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (
         messageIndex: number,
         newContent: string,
-        messageType: IDisplayOptimizedChatHistory['type']
+        promptType: PromptType
     ) => {
-        if (messageType === 'openai message:agent:planning') {
+        if (promptType === 'agent:planning' && messageIndex !== 1) {
             // In agent planning mode we only update the message locally without sending it to the AI
             // because the user has not yet confirmed that they want the AI to process these messages 
             // until they hit the submit button.
@@ -288,21 +287,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent, true)
             setChatHistoryManager(newChatHistoryManager)
         } else if (agentModeEnabled && messageIndex === 1) { 
-            // If editing the original agent message, send it as a new agent message.
-            sendAgentMessage(newContent)
+            // If editing the original agent message
+            sendAgentMessage(newContent, messageIndex)
         } else {
             sendChatInputMessage(newContent, messageIndex)
         }
     };
 
-    const sendAgentMessage = async (message: string) => {
+    const sendAgentMessage = async (message: string, messageIndex?: number) => {
         console.log('Sending agent message: ', message)
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add user message to chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
+        const outgoingMessage = newChatHistoryManager.addAgentMessage(message, messageIndex)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
