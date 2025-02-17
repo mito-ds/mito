@@ -1,65 +1,55 @@
-from typing import List, Optional, Type
-
+from typing import List
 from openai.types.chat import ChatCompletionMessageParam
-from pydantic import BaseModel
 from mito_ai.models import SmartDebugMetadata
-from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt
+from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt, remove_inner_thoughts_from_message
 from mito_ai.providers import OpenAIProvider
-from mito_ai.utils.open_ai_utils import (
-    get_ai_completion_from_mito_server,
-    get_open_ai_completion_function_params,
-)
+from mito_ai.message_history import GlobalMessageHistory
+from mito_ai.completion_handlers.completion_handler import CompletionHandler
 
 # Model constants
 MODEL = "gpt-4o-mini"
 
-async def get_completion(
-    metadata: SmartDebugMetadata,
-    provider: OpenAIProvider,
-    message_history: list[ChatCompletionMessageParam]
-) -> str:
-    """Get a smart debug completion from the AI provider."""
-    
-    # Create the prompt
-    prompt = create_error_prompt(
-        metadata.errorMessage or '', 
-        metadata.activeCellCode or '', 
-        metadata.variables or []
-    )
-    
-    # Add the prompt to the message history
-    message_history.append({"role": "user", "content": prompt})
-    
-    # Get the completion
-    completion = await _get_completion(
-        provider=provider, 
-        messages=message_history, 
-        model=MODEL
-    )
+__all__ = ["get_smart_debug_completion"]
 
-    return completion
-
-async def _get_completion(
-    provider: OpenAIProvider, 
-    messages: List[ChatCompletionMessageParam], 
-    model: str,
-    response_format: Optional[Type[BaseModel]] = None
-) -> str:
-    """Internal helper to get the completion from the provider."""
+class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
+    """Handler for smart debug completions."""
     
-    completion_function_params = get_open_ai_completion_function_params(
-        model, messages, False, response_format
-    )
-    
-    if provider._openAI_sync_client:
-        completion = provider._openAI_sync_client.chat.completions.create(**completion_function_params)
-        return completion.choices[0].message.content or ""
-    else: 
-        last_message_content = str(messages[-1].get("content", "")) if messages else None
-        completion = await get_ai_completion_from_mito_server(
-            last_message_content,
-            completion_function_params,
-            provider.timeout,
-            provider.max_retries,
+    @staticmethod
+    async def get_completion(
+        metadata: SmartDebugMetadata,
+        provider: OpenAIProvider,
+        message_history: GlobalMessageHistory
+    ) -> str:
+        """Get a smart debug completion from the AI provider."""
+        
+        error_message = metadata.errorMessage
+        active_cell_code = metadata.activeCellCode or ''
+        variables = metadata.variables or []
+        
+        # Create the prompt
+        prompt = create_error_prompt(
+            error_message, 
+            active_cell_code, 
+            variables
         )
-        return completion 
+        
+        # Add the prompt to the message history
+        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": error_message}
+        message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
+        
+        # Get the completion
+        completion = await provider.request_completions(messages=message_history.ai_optimized_history, model=MODEL)
+        
+        # Process the completion to remove inner thoughts
+        display_completion = remove_inner_thoughts_from_message(completion)
+        
+        # Add the response to message history
+        ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
+        display_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": display_completion}
+        message_history.append_message(ai_response_message, display_response_message)
+
+        return completion
+
+# Use the static method directly
+get_smart_debug_completion = SmartDebugHandler.get_completion

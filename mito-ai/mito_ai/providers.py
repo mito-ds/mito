@@ -5,7 +5,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 
 import openai
 from openai._streaming import AsyncStream
-from openai.types.chat import ChatCompletionChunk
+from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 from traitlets import  Instance, Unicode, default, validate
 from pydantic import BaseModel
 from traitlets.config import LoggingConfigurable
@@ -219,100 +219,44 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
         return self._sync_client
-
+        
+        
     async def request_completions(
         self,
-        request: CompletionRequest,
-        prompt_type: str,
+        messages: List[ChatCompletionMessageParam], 
         model: str,
         response_format: Optional[Type[BaseModel]] = None
-    ) -> CompletionReply:
-        """Get a completion from the OpenAI API.
-
-        Args:
-            request: The completion request description.
-            prompt_type: The type of prompt that was sent to the AI (e.g. "chat", "smart_debug", "explain")
-        Returns:
-            The completion
-        """
-        self.last_error = None
+    ) -> str:
+        """Internal helper to get the completion from the provider."""
+        
         try:
+            # Reset the last error
+            self.last_error = None
+            
+            # If we're using the user's key, make sure the model is supported.
+            if self._openAI_sync_client and model not in self.models:
+                model = "gpt-4o-mini"
+        
+            completion_function_params = get_open_ai_completion_function_params(
+                model, messages, False, response_format
+            )
+            
             if self._openAI_sync_client:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
-                # Validate that the model is supported. If not fall back to gpt-4o-mini
-                if model not in self.models:
-                    model = "gpt-4o-mini"
-                
-                completion_function_params = get_open_ai_completion_function_params(
-                    model, request.messages, False, response_format
-                )
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type=USER_KEY,
-                    prompt_type=prompt_type,
-                    last_message_content=str(request.messages[-1].get('content', '')),
-                    response={"completion": completion.choices[0].message.content}
-                )
+                return completion.choices[0].message.content or ""
+            else: 
+                self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
-                return CompletionReply(
-                    parent_id=request.message_id,
-                    items=[
-                        CompletionItem(
-                            content=completion.choices[0].message.content or "",
-                            isIncomplete=False,
-                        )
-                    ]
-                )
-            else:
-                # If they don't have an Open AI key, use the mito server to get a completion
-                self.log.debug(
-                    f"Requesting completion from Mito server with model {model}."
-                )
-                global _num_usages
-                if _num_usages is None:
-                    _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-
-                completion_function_params = get_open_ai_completion_function_params(
-                    model, request.messages, False, response_format
-                )
-
-                last_message_content = str(request.messages[-1].get("content", "")) if request.messages else None
-                ai_response = await get_ai_completion_from_mito_server(
+                last_message_content = str(messages[-1].get("content", "")) if messages else None
+                return await get_ai_completion_from_mito_server(
                     last_message_content,
                     completion_function_params,
                     self.timeout,
                     self.max_retries,
-                    _num_usages or 0,
-                    _first_usage_date or "",
                 )
-
-                # Increment the number of usages for everything EXCEPT inline completions.
-                if prompt_type != "inline_completion":
-                    _num_usages = (_num_usages or 0) + 1
-                    set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
-
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type=MITO_SERVER_KEY,
-                    prompt_type=prompt_type,
-                    last_message_content=str(request.messages[-1].get('content', '')),
-                    response={"completion": ai_response},
-                    num_usages=_num_usages,
-                )
-
-                return CompletionReply(
-                    parent_id=request.message_id,
-                    items=[
-                        CompletionItem(
-                            content=ai_response,
-                            isIncomplete=False,
-                        )
-                    ],
-                )
-
+                
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
