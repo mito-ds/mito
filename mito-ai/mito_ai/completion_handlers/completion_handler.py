@@ -1,20 +1,20 @@
 from typing import Protocol, TypeVar
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 from mito_ai.models import ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentPlanningMetadata, InlineCompleterMetadata
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 
 T = TypeVar('T', ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentPlanningMetadata, InlineCompleterMetadata, contravariant=True)
 
-class CompletionHandler(Protocol[T]):
+class CompletionHandler(Protocol[T], metaclass=ABCMeta):
     """Protocol defining the interface for completion handlers.
     
     All completion handler classes should implement this protocol to ensure
     they provide a get_completion static method with the correct signature.
     """
     
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     async def get_completion(
         metadata: T,
         provider: OpenAIProvider,
@@ -28,11 +28,9 @@ class CompletionHandler(Protocol[T]):
             message_history: The history of messages in the conversation
             
         Returns:
-            A tuple containing:
-            - The completion string from the AI
-            - The updated message history
+            The completion string from the AI
         """
-        ...
+        pass
     
     
     

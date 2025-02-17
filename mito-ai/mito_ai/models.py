@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import traceback
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional, Union
@@ -42,16 +40,10 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
 
-"""
-Clear History Message
-"""
 @dataclass(frozen=True)
 class ClearHistoryMetadata():
     promptType: Literal['clear_history']
 
-"""
-Fetch History Message
-"""
 @dataclass(frozen=True)
 class FetchHistoryMetadata():
     promptType: Literal['fetch_history']
@@ -140,7 +132,7 @@ class CompletionError:
     hint: str = ""
 
     @staticmethod
-    def from_exception(exception: BaseException, hint: str = "") -> CompletionError:
+    def from_exception(exception: BaseException, hint: str = "") -> "CompletionError":
         """
         Create a completion error from an exception.
         

@@ -1,4 +1,3 @@
-from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.models import SmartDebugMetadata
 from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt, remove_inner_thoughts_from_message
