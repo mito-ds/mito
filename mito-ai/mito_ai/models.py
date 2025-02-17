@@ -42,6 +42,46 @@ class AgentPlanningMetadata():
     variables: Optional[List[str]] = None
     
 @dataclass(frozen=True)
+class AgentMessageBuilder:
+    promptType: Literal['agent:execution']
+    fileType: Optional[str] = None
+    columnSamples: Optional[List[str]] = None
+    input: Optional[str] = None
+    variables: Optional[List[str]] = None
+
+    @property
+    def prompt(self) -> str:
+        return create_agent_prompt(
+            self.fileType or "",
+            self.columnSamples or [],
+            self.input or "",
+            self.variables or [],
+        )
+
+    @property
+    def display_message(self) -> str:
+        return self.input or ''
+    
+    @property
+    def pro_model(self) -> str:
+        return "o3-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
+
+    @property
+    def response_format(self) -> Type[BaseModel]:
+        class PlanOfAttack(BaseModel):
+            actions: List[str]
+            dependencies: List[str]
+        return PlanOfAttack
+    
+    
+"""
+Inline Completer Message
+"""
+@dataclass(frozen=True)
 class InlineCompleterMetadata():
     promptType: Literal['inline_completion']
     prefix: str 
