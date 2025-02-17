@@ -25,7 +25,8 @@ from mito_ai.models import (
     SmartDebugMetadata,
     CodeExplainMetadata,
     AgentPlanningMetadata,
-    InlineCompleterMetadata
+    InlineCompleterMetadata,
+    MessageType
 )
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
@@ -124,17 +125,18 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         try:
             parsed_message = json.loads(message)
             metadata_dict = parsed_message.get('metadata', {})
-            type: IncomingMessageTypes = parsed_message.get('type')
+            type: MessageType = MessageType(parsed_message.get('type'))
+            print(f"type: {type}")
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
 
         # Clear history if the type is "clear_history"
-        if type == "clear_history":
+        if type == MessageType.CLEAR_HISTORY:
             message_history.clear_histories()
             return
         
-        if type == "fetch_history":
+        if type == MessageType.FETCH_HISTORY:
             print("in fetch history")
             _, display_history = message_history.get_histories()
             reply = FetchHistoryReply(
@@ -150,22 +152,22 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # Get completion based on message type
             completion = None
 
-            if type == "chat":
+            if type == MessageType.CHAT:
                 print("in chat")
                 metadata = ChatMessageMetadata(**metadata_dict)
                 print("in chat: metadata")
                 completion = await get_chat_completion(metadata, self._llm, message_history)
                 print("in chat: completion")
-            elif type == "smartDebug":
+            elif type == MessageType.SMART_DEBUG:
                 metadata = SmartDebugMetadata(**metadata_dict)
                 completion = await get_smart_debug_completion(metadata, self._llm, message_history)
-            elif type == "codeExplain":
+            elif type == MessageType.CODE_EXPLAIN:
                 metadata = CodeExplainMetadata(**metadata_dict)
                 completion = await get_code_explain_completion(metadata, self._llm, message_history)
-            elif type == "agent:planning":
+            elif type == MessageType.AGENT_PLANNING:
                 metadata = AgentPlanningMetadata(**metadata_dict)
                 completion = await get_agent_planning_completion(metadata, self._llm, message_history)
-            elif type == "inline_completion":
+            elif type == MessageType.INLINE_COMPLETION:
                 metadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(metadata, self._llm, message_history)
             else:

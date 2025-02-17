@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
-
+from mito_ai.models import MessageType
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITO_AI_FIRST_USAGE_DATE, UJ_AI_MITO_API_NUM_USAGES
 from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
 from mito_ai.utils.db import get_user_field, set_user_field
@@ -57,23 +57,26 @@ def check_mito_server_quota() -> None:
         if datetime.now() > one_month_later:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
             raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-        
-    print("HERE2")
 
-
-def update_mito_server_quota() -> None:
+def update_mito_server_quota(message_type: MessageType) -> None:
     """Update the user's quota for the Mito Server."""
+    
     n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
     first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
     
     if n_counts is None:
         n_counts = 0
-        
+    
+    if message_type != MessageType.INLINE_COMPLETION:
+        # We don't increment the count for inline completions because they are not
+        # counted towards the quota.
+        n_counts = n_counts + 1
+    
     if first_usage_date is None:
         first_usage_date = datetime.now().strftime("%Y-%m-%d")
         
     try: 
-        set_user_field(UJ_AI_MITO_API_NUM_USAGES, n_counts + 1)
+        set_user_field(UJ_AI_MITO_API_NUM_USAGES, n_counts)
         set_user_field(UJ_MITO_AI_FIRST_USAGE_DATE, first_usage_date)
     except Exception as e:
         raise e

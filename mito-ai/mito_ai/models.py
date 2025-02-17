@@ -2,9 +2,19 @@ import traceback
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional, Union
 from openai.types.chat import ChatCompletionMessageParam
+from enum import Enum
 
-CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning']
-IncomingMessageTypes = Union[Literal['clear_history', 'fetch_history'], CompletionIncomingMessageTypes]
+class MessageType(Enum):
+    CHAT = "chat"
+    SMART_DEBUG = "smartDebug"
+    CODE_EXPLAIN = "codeExplain"
+    AGENT_PLANNING = "agent:planning"
+    INLINE_COMPLETION = "inline_completion"
+    CLEAR_HISTORY = "clear_history"
+    FETCH_HISTORY = "fetch_history"
+
+CompletionIncomingMessageTypes = Literal[MessageType.CHAT, MessageType.INLINE_COMPLETION, MessageType.CODE_EXPLAIN, MessageType.SMART_DEBUG, MessageType.AGENT_PLANNING]
+IncomingMessageTypes = Union[Literal[MessageType.CLEAR_HISTORY, MessageType.FETCH_HISTORY], CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():

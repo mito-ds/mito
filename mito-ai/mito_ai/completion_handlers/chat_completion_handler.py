@@ -1,6 +1,6 @@
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import ChatMessageMetadata
+from mito_ai.models import ChatMessageMetadata, MessageType
 from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -35,7 +35,11 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
         
         # Get the completion
-        completion = await provider.request_completions(messages=message_history.ai_optimized_history, model=MODEL)
+        completion = await provider.request_completions(
+            messages=message_history.ai_optimized_history, 
+            model=MODEL,
+            prompt_type=MessageType.CHAT
+        )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         message_history.append_message(ai_response_message, ai_response_message)

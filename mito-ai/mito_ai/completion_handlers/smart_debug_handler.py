@@ -1,5 +1,5 @@
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import SmartDebugMetadata
+from mito_ai.models import SmartDebugMetadata, MessageType
 from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt, remove_inner_thoughts_from_message
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -38,7 +38,11 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
         
         # Get the completion
-        completion = await provider.request_completions(messages=message_history.ai_optimized_history, model=MODEL)
+        completion = await provider.request_completions(
+            messages=message_history.ai_optimized_history, 
+            model=MODEL,
+            prompt_type=MessageType.SMART_DEBUG
+        )
         
         # Process the completion to remove inner thoughts
         display_completion = remove_inner_thoughts_from_message(completion)

@@ -19,11 +19,13 @@ from mito_ai.models import (
     CompletionReply,
     CompletionRequest,
     CompletionStreamChunk,
+    MessageType,
 )
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,
+    update_mito_server_quota,
 )
 
 from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
@@ -207,6 +209,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         
     async def request_completions(
         self,
+        prompt_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
         response_format: Optional[Type[BaseModel]] = None
@@ -234,14 +237,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
-                return await get_ai_completion_from_mito_server(
+                
+                completion = await get_ai_completion_from_mito_server(
                     last_message_content,
                     completion_function_params,
                     self.timeout,
                     self.max_retries,
                 )
                 
-                update_mito_server_quota()
+                update_mito_server_quota(prompt_type)
+                return completion
                 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)

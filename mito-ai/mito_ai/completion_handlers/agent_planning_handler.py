@@ -1,7 +1,7 @@
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel
-from mito_ai.models import AgentPlanningMetadata
+from mito_ai.models import AgentPlanningMetadata, MessageType
 from mito_ai.prompt_builders.agent_planning_prompt import create_agent_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -42,7 +42,12 @@ class AgentPlanningHandler(CompletionHandler[AgentPlanningMetadata]):
         message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
         
         # Get the completion
-        completion = await provider.request_completions(messages=message_history.ai_optimized_history, model=MODEL, response_format=PlanOfAttack)
+        completion = await provider.request_completions(
+            messages=message_history.ai_optimized_history, 
+            model=MODEL,
+            response_format=PlanOfAttack,
+            prompt_type=MessageType.AGENT_PLANNING
+        )
         
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
