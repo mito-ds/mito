@@ -147,20 +147,23 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             display_history = None
 
             if type == "chat":
+                print("in chat")
                 metadata = ChatMessageMetadata(**metadata_dict)
-                completion, display_history = await get_chat_completion(metadata, self._llm, message_history)
+                print("in chat: metadata")
+                completion = await get_chat_completion(metadata, self._llm, message_history)
+                print("in chat: completion")
             elif type == "smartDebug":
                 metadata = SmartDebugMetadata(**metadata_dict)
-                completion, display_history = await get_smart_debug_completion(metadata, self._llm, message_history)
+                completion = await get_smart_debug_completion(metadata, self._llm, message_history)
             elif type == "codeExplain":
                 metadata = CodeExplainMetadata(**metadata_dict)
-                completion, display_history = await get_code_explain_completion(metadata, self._llm, message_history)
+                completion = await get_code_explain_completion(metadata, self._llm, message_history)
             elif type == "agent:planning":
                 metadata = AgentPlanningMetadata(**metadata_dict)
-                completion, display_history = await get_agent_planning_completion(metadata, self._llm, message_history)
+                completion = await get_agent_planning_completion(metadata, self._llm, message_history)
             elif type == "inline_completion":
                 metadata = InlineCompleterMetadata(**metadata_dict)
-                completion, _ = await get_inline_completion(metadata, self._llm, message_history)
+                completion = await get_inline_completion(metadata, self._llm, message_history)
             else:
                 raise ValueError(f"Invalid message type: {type}")
             
