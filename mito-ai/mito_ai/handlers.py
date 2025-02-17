@@ -118,6 +118,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
+        print("ON MESSAGE")
+        print(f"message: {message}")
         start = time.time()
         self.log.debug("Message received: %s", message)
         try:
@@ -170,6 +172,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
 
         if type == "fetch_history":
+            print("in fetch history")
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
             thread_id = metadata_dict.get('threadID')
             if thread_id:
@@ -180,6 +183,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
             )
+            print(f"in fetch history: {reply}")
             self.reply(reply)
             return
 
@@ -237,6 +241,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         `open` may be a coroutine. `on_message` will not be called until
         `open` has returned.
         """
+        print("OPEN")
         if self._llm.last_error:
             self._send_error({"new": self._llm.last_error})
         # Start observing the provider error
@@ -312,12 +317,14 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             reply: The completion reply object.
                 It must be a dataclass instance.
         """
+        print(f"reply: {reply}")
         message = asdict(reply)
         super().write_message(message)
 
     def _send_error(self, change: Dict[str, Optional[CompletionError]]) -> None:
         """Send an error message to the client."""
-        error = change.get("new")
+        print("SEND ERROR")
+        error = change["new"]
 
         self.reply(
             ErrorMessage(**asdict(error))
