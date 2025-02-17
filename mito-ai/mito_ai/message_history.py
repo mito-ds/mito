@@ -223,6 +223,22 @@ class GlobalMessageHistory:
     def _update_last_interaction(self, thread: ChatThread):
         thread.last_interaction_ts = time.time()
 
+    @property
+    def ai_optimized_history(self) -> List[ChatCompletionMessageParam]:
+        """
+        For backward compatibility: returns the LLM history of the newest thread.
+        """
+        with self._lock:
+            thread_id = self._get_newest_thread_id()
+            if not thread_id or thread_id not in self._chat_threads:
+                return []
+            # If history is requested, that is also considered an interaction
+            self._update_last_interaction(self._chat_threads[thread_id])
+            self._save_thread_to_disk(self._chat_threads[thread_id])
+
+            return self._chat_threads[thread_id].ai_optimized_history[:]
+
+    @property
     def get_histories(self, thread_id: Optional[str] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         """
         For backward compatibility: returns the LLM and display history of the newest thread.
