@@ -52,7 +52,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         display_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": display_completion}
         message_history.append_message(ai_response_message, display_response_message)
 
-        return completion
+        return display_completion
 
 # Use the static method directly
 get_smart_debug_completion = SmartDebugHandler.get_completion
