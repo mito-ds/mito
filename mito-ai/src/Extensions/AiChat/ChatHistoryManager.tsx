@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
-import { Variable } from "../VariableManager/VariableInspector";
+import { IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 
 export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning' | 'agent:execution' | 'inline_completion' | 'clear_history' | 'fetch_history';
 
