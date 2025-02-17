@@ -36,7 +36,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
             model=MODEL,
-            prompt_type=MessageType.CODE_EXPLAIN
+            message_type=MessageType.CODE_EXPLAIN
         )
         
         # Add the response to message history

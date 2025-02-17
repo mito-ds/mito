@@ -46,7 +46,7 @@ class AgentPlanningHandler(CompletionHandler[AgentPlanningMetadata]):
             messages=message_history.ai_optimized_history, 
             model=MODEL,
             response_format=PlanOfAttack,
-            prompt_type=MessageType.AGENT_PLANNING
+            message_type=MessageType.AGENT_PLANNING
         )
         
         # Add the response to message history

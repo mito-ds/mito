@@ -41,7 +41,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
             model=MODEL,
-            prompt_type=MessageType.SMART_DEBUG
+            message_type=MessageType.SMART_DEBUG
         )
         
         # Process the completion to remove inner thoughts

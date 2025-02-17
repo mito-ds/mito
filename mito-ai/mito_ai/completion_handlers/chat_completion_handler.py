@@ -38,7 +38,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
             model=MODEL,
-            prompt_type=MessageType.CHAT
+            message_type=MessageType.CHAT
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}

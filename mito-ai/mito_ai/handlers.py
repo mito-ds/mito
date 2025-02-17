@@ -114,8 +114,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
-
-        
         
         print("ON MESSAGE")
         print(f"message: {message}")
@@ -126,7 +124,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
             metadata_dict = parsed_message.get('metadata', {})
             type: MessageType = MessageType(parsed_message.get('type'))
-            print(f"type: {type}")
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
@@ -137,13 +134,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
         
         if type == MessageType.FETCH_HISTORY:
-            print("in fetch history")
             _, display_history = message_history.get_histories()
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
             )
-            print(f"in fetch history: {reply}")
             self.reply(reply)
             return
 
@@ -152,12 +147,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # Get completion based on message type
             completion = None
 
+            print("HERE IN GET COMPLETION")
+            print(f"type: {type}")
+            print(f"Message type: {MessageType.CHAT}")
+            print('1')
             if type == MessageType.CHAT:
-                print("in chat")
                 metadata = ChatMessageMetadata(**metadata_dict)
-                print("in chat: metadata")
                 completion = await get_chat_completion(metadata, self._llm, message_history)
-                print("in chat: completion")
             elif type == MessageType.SMART_DEBUG:
                 metadata = SmartDebugMetadata(**metadata_dict)
                 completion = await get_smart_debug_completion(metadata, self._llm, message_history)

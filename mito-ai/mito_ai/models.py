@@ -9,11 +9,12 @@ class MessageType(Enum):
     SMART_DEBUG = "smartDebug"
     CODE_EXPLAIN = "codeExplain"
     AGENT_PLANNING = "agent:planning"
+    AGENT_EXECUTION = "agent:execution"
     INLINE_COMPLETION = "inline_completion"
     CLEAR_HISTORY = "clear_history"
     FETCH_HISTORY = "fetch_history"
 
-CompletionIncomingMessageTypes = Literal[MessageType.CHAT, MessageType.INLINE_COMPLETION, MessageType.CODE_EXPLAIN, MessageType.SMART_DEBUG, MessageType.AGENT_PLANNING]
+CompletionIncomingMessageTypes = Literal[MessageType.CHAT, MessageType.INLINE_COMPLETION, MessageType.CODE_EXPLAIN, MessageType.SMART_DEBUG, MessageType.AGENT_PLANNING, MessageType.AGENT_EXECUTION]
 IncomingMessageTypes = Union[Literal[MessageType.CLEAR_HISTORY, MessageType.FETCH_HISTORY], CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)

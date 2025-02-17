@@ -28,7 +28,6 @@ from mito_ai.utils.open_ai_utils import (
     update_mito_server_quota,
 )
 
-from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
@@ -209,7 +208,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         
     async def request_completions(
         self,
-        prompt_type: MessageType,
+        message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
         response_format: Optional[Type[BaseModel]] = None
@@ -228,16 +227,22 @@ This attribute is observed by the websocket provider to push the error to the cl
                 model, messages, False, response_format
             )
             
-            if self._openAI_sync_client:
+            print("COMPLETION FUNCTION PARAMS")
+            print(completion_function_params)
+            
+            use_user_key = self._openAI_sync_client is not None
+            completion = None
+            if use_user_key:
+                print("USE USER KEY")
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
-                
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-                return completion.choices[0].message.content or ""
+                completion = completion.choices[0].message.content or ""
+                print("COMPLETION")
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
+                print("GET AI COMPLETION FROM MITO SERVER")
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
-                
                 completion = await get_ai_completion_from_mito_server(
                     last_message_content,
                     completion_function_params,
@@ -245,8 +250,19 @@ This attribute is observed by the websocket provider to push the error to the cl
                     self.max_retries,
                 )
                 
-                update_mito_server_quota(prompt_type)
-                return completion
+                print("UPDATE MITO SERVER QUOTA")
+                update_mito_server_quota(message_type)
+            
+            # Log the successful completion
+            log_ai_completion_success(
+                key_type=USER_KEY if use_user_key else MITO_SERVER_KEY,
+                message_type=message_type,
+                last_message_content=str(messages[-1].get('content', '')),
+                response={"completion": completion},
+            )
+            
+            # Finally, return the completion
+            return completion
                 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
