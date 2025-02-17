@@ -37,7 +37,7 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, messageType: IDisplayOptimizedChatHistory['type']) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, promptType: PromptType) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -75,7 +75,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        onUpdateMessage(messageIndex, content, messageType);
+        onUpdateMessage(messageIndex, content, promptType);
         setIsEditing(false);
     };
 

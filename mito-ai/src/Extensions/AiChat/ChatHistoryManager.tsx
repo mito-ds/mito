@@ -144,7 +144,7 @@ export class ChatHistoryManager {
         }
     }
 
-    addAgentMessage(message: string): IOutgoingMessage {
+    addAgentMessage(message: string, index?: number): IOutgoingMessage {
         const variables = this.variableManager.variables
 
         const metadata: IChatMessageMetadata = {
@@ -160,6 +160,12 @@ export class ChatHistoryManager {
                 promptType: 'agent:planning'
             }
         )
+
+        // If editing the first agent message, the user will want a new plan.
+        // So we drop all steps in the agent's previous plan.
+        if (index === 1) {
+            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        }
 
         return {
             promptType: 'agent:planning',

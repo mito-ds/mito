@@ -43,18 +43,35 @@ test.describe("Agent mode integration tests", () => {
     test("Edit original message", async ({ page }) => {
         const newMessage = "print bye";
 
-        // Keep track of the last agent message.
-        // We want to validate that this message is changed to reflect the users edit. 
-        const lastAgentMessageOG = await page.locator('.message-assistant-agent').last().textContent();
+        // Keep track of the original messages in the agent's plan.
+        const oldPlanMessages: string[] = [];
+        const messages = await page.locator('.message-assistant-agent').all();
+        messages.forEach(async (message) => {
+            const messageText = await message.textContent();
+            if (messageText) {
+                oldPlanMessages.push(messageText);
+            }
+        });
 
         // Edit the message
         await editMitoAIMessage(page, newMessage, 0);
         await waitForIdle(page);
 
-        // Ensure that we recieved a new plan 
-        // by checking that the last agent message is different from the original.
-        const lastAgentMessageUpdated = await page.locator('.message-assistant-agent').last().textContent();
-        expect(lastAgentMessageUpdated).not.toEqual(lastAgentMessageOG);
+        // Track new plan.  
+        const newPlanMessages: string[] = [];
+        const newMessages = await page.locator('.message-assistant-agent').all();
+        newMessages.forEach(async (message) => {
+            const messageText = await message.textContent();
+            if (messageText) {
+                newPlanMessages.push(messageText);
+            }
+        });
+        
+        // By editing the original agent message, we should see a new plan
+        // and the old plan messages should be wiped. 
+        oldPlanMessages.forEach(message => {
+            expect(newPlanMessages).not.toContain(message);
+        });
     });
 
     test("Edit message in agent's plan", async ({ page }) => {
