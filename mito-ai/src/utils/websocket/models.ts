@@ -2,24 +2,71 @@ import type {
   IInlineCompletionError,
   IInlineCompletionItem
 } from '@jupyterlab/completer';
+import { Variable } from '../../Extensions/VariableManager/VariableInspector';
 
-import { IAgentPlanningMetadata, IChatMessageMetadata, ISmartDebugMetadata, IClearHistoryMetadata, ICodeExplainMetadata, IInlineCompleterMetadata, IFetchHistoryMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+/* 
 
+Meta Data Models
 
-export type CompletionRequestMetadata = 
-  IChatMessageMetadata | 
-  ISmartDebugMetadata | 
-  ICodeExplainMetadata | 
-  IAgentPlanningMetadata | 
+*/
+
+type CompletionRequestMetadata =
+  IChatMessageMetadata |
+  ISmartDebugMetadata |
+  ICodeExplainMetadata |
+  IAgentPlanningMetadata |
   IInlineCompleterMetadata |
-  IClearHistoryMetadata | // TODO: Remove this from the CompletionRequestMetadata because it is not a completion. Instead, the send function take a message other
-  // than ICompletionRequest that does not contain metatdata.
+  IClearHistoryMetadata |
   IFetchHistoryMetadata
 
 
-/**
- * Mito AI completion request.
- */
+export interface IChatMessageMetadata {
+    promptType: 'chat' | 'agent:execution'
+    variables?: Variable[];
+    activeCellCode?: string;   
+    input: string;
+    index?: number;
+}
+
+export interface ISmartDebugMetadata {
+    promptType: 'smartDebug';
+    variables?: Variable[];
+    activeCellCode?: string;   
+    errorMessage: string;     
+}
+
+export interface ICodeExplainMetadata {
+    promptType: 'codeExplain';
+    variables?: Variable[];
+    activeCellCode?: string;
+}
+
+export interface IAgentPlanningMetadata {
+    promptType: 'agent:planning';
+    variables?: Variable[];
+    input: string;
+}
+
+export interface IInlineCompleterMetadata {
+    promptType: 'inline_completion';
+    variables?: Variable[]; 
+    prefix: string;
+    suffix: string;
+}
+
+export interface IClearHistoryMetadata {
+    promptType: 'clear_history'
+}
+
+export interface IFetchHistoryMetadata {
+    promptType: 'fetch_history'
+}
+
+/* 
+
+Completion Request Models
+
+*/
 export interface ICompletionRequest {
   /**
    * The type of the message.

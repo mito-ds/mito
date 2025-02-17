@@ -19,47 +19,6 @@ export interface IDisplayOptimizedChatHistory {
     codeCellID: string | undefined
 }
 
-export interface IChatMessageMetadata {
-    promptType: 'chat' | 'agent:execution'
-    variables?: Variable[];
-    activeCellCode?: string;   
-    input: string;
-    index?: number;
-}
-
-export interface ISmartDebugMetadata {
-    promptType: 'smartDebug';
-    variables?: Variable[];
-    activeCellCode?: string;   
-    errorMessage: string;     
-}
-
-export interface ICodeExplainMetadata {
-    promptType: 'codeExplain';
-    variables?: Variable[];
-    activeCellCode?: string;
-}
-
-export interface IAgentPlanningMetadata {
-    promptType: 'agent:planning';
-    variables?: Variable[];
-    input: string;
-}
-
-export interface IInlineCompleterMetadata {
-    promptType: 'inline_completion';
-    variables?: Variable[]; 
-    prefix: string;
-    suffix: string;
-}
-
-export interface IClearHistoryMetadata {
-    promptType: 'clear_history'
-}
-
-export interface IFetchHistoryMetadata {
-    promptType: 'fetch_history'
-}
 
 /* 
     The ChatHistoryManager is responsible for managing the AI chat history.
