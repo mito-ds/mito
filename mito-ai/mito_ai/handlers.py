@@ -108,7 +108,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.full_message_history = []
         
 
-    async def on_message(self, message: str) -> None:
+    async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
 
         Args:
@@ -135,37 +135,32 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         
         if type == MessageType.FETCH_HISTORY:
             _, display_history = message_history.get_histories()
-            reply = FetchHistoryReply(
+            fetch_history_reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
             )
-            self.reply(reply)
+            self.reply(fetch_history_reply)
             return
 
         try:
             
             # Get completion based on message type
             completion = None
-
-            print("HERE IN GET COMPLETION")
-            print(f"type: {type}")
-            print(f"Message type: {MessageType.CHAT}")
-            print('1')
             if type == MessageType.CHAT:
-                metadata = ChatMessageMetadata(**metadata_dict)
-                completion = await get_chat_completion(metadata, self._llm, message_history)
+                chatMetadata = ChatMessageMetadata(**metadata_dict)
+                completion = await get_chat_completion(chatMetadata, self._llm, message_history)
             elif type == MessageType.SMART_DEBUG:
-                metadata = SmartDebugMetadata(**metadata_dict)
-                completion = await get_smart_debug_completion(metadata, self._llm, message_history)
+                smartDebugMetadata = SmartDebugMetadata(**metadata_dict)
+                completion = await get_smart_debug_completion(smartDebugMetadata, self._llm, message_history)
             elif type == MessageType.CODE_EXPLAIN:
-                metadata = CodeExplainMetadata(**metadata_dict)
-                completion = await get_code_explain_completion(metadata, self._llm, message_history)
+                codeExplainMetadata = CodeExplainMetadata(**metadata_dict)
+                completion = await get_code_explain_completion(codeExplainMetadata, self._llm, message_history)
             elif type == MessageType.AGENT_PLANNING:
-                metadata = AgentPlanningMetadata(**metadata_dict)
-                completion = await get_agent_planning_completion(metadata, self._llm, message_history)
+                agentPlanningMetadata = AgentPlanningMetadata(**metadata_dict)
+                completion = await get_agent_planning_completion(agentPlanningMetadata, self._llm, message_history)
             elif type == MessageType.INLINE_COMPLETION:
-                metadata = InlineCompleterMetadata(**metadata_dict)
-                completion = await get_inline_completion(metadata, self._llm, message_history)
+                inlineCompleterMetadata = InlineCompleterMetadata(**metadata_dict)
+                completion = await get_inline_completion(inlineCompleterMetadata, self._llm, message_history)
             else:
                 raise ValueError(f"Invalid message type: {type}")
             
@@ -246,7 +241,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.reply(reply)
         
 
-    async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str, model: str) -> None:
+    async def _handle_stream_request(self, request: CompletionRequest, message_type: MessageType, model: str) -> None:
         """Handle stream completion request."""
         start = time.time()
 
@@ -254,7 +249,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # We need to accumulate the response on the backend so that we can save it to
         # the message history after the streaming is complete.
         accumulated_response = ""
-        async for reply in self._llm.stream_completions(request, prompt_type, model):
+        async for reply in self._llm.stream_completions(request, message_type, model):
             if isinstance(reply, CompletionStreamChunk):
                 accumulated_response += reply.chunk.content
 

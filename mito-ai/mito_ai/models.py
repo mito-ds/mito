@@ -17,6 +17,7 @@ class MessageType(Enum):
 CompletionIncomingMessageTypes = Literal[MessageType.CHAT, MessageType.INLINE_COMPLETION, MessageType.CODE_EXPLAIN, MessageType.SMART_DEBUG, MessageType.AGENT_PLANNING, MessageType.AGENT_EXECUTION]
 IncomingMessageTypes = Union[Literal[MessageType.CLEAR_HISTORY, MessageType.FETCH_HISTORY], CompletionIncomingMessageTypes]
 
+
 @dataclass(frozen=True)
 class ChatMessageMetadata():
     promptType: Literal['chat', 'agent:execution']
@@ -58,24 +59,8 @@ class ClearHistoryMetadata():
 @dataclass(frozen=True)
 class FetchHistoryMetadata():
     promptType: Literal['fetch_history']
-
     
-@dataclass(frozen=True)
-class AICapabilities:
-    """
-    AI provider capabilities
-    """
-
-    # Configuration schema.
-    configuration: dict
-
-    # AI provider name.
-    provider: str
-
-    # Message type.
-    type: str = "ai_capabilities"
-
-
+    
 @dataclass(frozen=True)
 class CompletionRequest:
     """
@@ -93,6 +78,22 @@ class CompletionRequest:
 
     # Whether to stream the response (if supported by the model).
     stream: bool = False
+    
+    
+@dataclass(frozen=True)
+class AICapabilities:
+    """
+    AI provider capabilities
+    """
+
+    # Configuration schema.
+    configuration: dict
+
+    # AI provider name.
+    provider: str
+
+    # Message type.
+    type: str = "ai_capabilities"
 
 
 @dataclass(frozen=True)

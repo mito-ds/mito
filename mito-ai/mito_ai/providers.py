@@ -227,17 +227,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                 model, messages, False, response_format
             )
             
-            print("COMPLETION FUNCTION PARAMS")
-            print(completion_function_params)
-            
-            use_user_key = self._openAI_sync_client is not None
             completion = None
-            if use_user_key:
-                print("USE USER KEY")
+            if self._openAI_sync_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                 completion = completion.choices[0].message.content or ""
-                print("COMPLETION")
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
@@ -255,14 +249,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY if use_user_key else MITO_SERVER_KEY,
+                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
             )
             
             # Finally, return the completion
-            return completion
+            return completion # type: ignore
                 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
@@ -272,7 +266,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
 
     async def stream_completions(
-        self, request: CompletionRequest, prompt_type: str, model: str
+        self, request: CompletionRequest, message_type: MessageType, model: str
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
@@ -311,7 +305,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             # Log the successful completion
             log_ai_completion_success(
                 key_type=USER_KEY,
-                prompt_type=prompt_type,
+                message_type=message_type,
                 last_message_content=str(request.messages[-1].get('content', '')),
                 response={"completion": "not available for streamed completions"},
             )
