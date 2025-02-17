@@ -66,6 +66,7 @@ export interface IInlineCompleterMetadata {
 
 export interface IFetchHistoryMetadata {
     promptType: 'fetch_history'
+    threadID?: string;
 }
 
 export interface IStartNewChatMetadata {
@@ -74,7 +75,6 @@ export interface IStartNewChatMetadata {
 
 export interface IGetThreadsMetadata {
     promptType: 'get_threads'
-    threadID?: string;
 }
 
 export interface IDeleteThreadMetadata {

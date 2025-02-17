@@ -51,13 +51,25 @@ export interface ISmartDebugCompletionRequest extends ICompletionRequest {
   metadata: ISmartDebugMetadata
 }
 
+export interface ICodeExplainCompletionRequest extends ICompletionRequest {
+  type: 'codeExplain'
+  metadata: ICodeExplainMetadata
+}
 
+export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
+  type: 'agent:planning'
+  metadata: IAgentPlanningMetadata
+}
 
+export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
+  type: 'inline_completion'
+  metadata: IInlineCompleterMetadata
+}
 
-
-
-
-
+export interface IFetchHistoryCompletionRequest extends ICompletionRequest {
+  type: 'fetch_history'
+  metadata: IFetchHistoryMetadata
+}
 
 
 /**
