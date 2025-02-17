@@ -10,15 +10,12 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
 
-from .db import get_user_field
-from .schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
-from .telemetry_utils import (
-    MITO_SERVER_FREE_TIER_LIMIT_REACHED,
-    log,
-)
-from .version_utils import is_pro
+from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITO_AI_FIRST_USAGE_DATE, UJ_AI_MITO_API_NUM_USAGES
+from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
+from mito_ai.utils.db import get_user_field
+from mito_ai.utils.version_utils import is_pro
 from openai.types.chat import ChatCompletionMessageParam
-
+from mito_ai.providers import OpenAIProvider
 MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
@@ -32,9 +29,9 @@ OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT: Final[int] = 30 # days
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
+    
 
-
-def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
+def check_mito_server_quota() -> None:
     """Check whether the user has reached the limit of completions for the free tier or not.
 
     Args:
@@ -44,6 +41,9 @@ def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
         PermissionError: If the user has reached the limit.
     """
     pro = is_pro()
+    
+    n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
+    first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
 
     if pro:
         return
@@ -66,6 +66,10 @@ async def get_ai_completion_from_mito_server(
     timeout: int,
     max_retries: int,
 ) -> str:
+    
+    # First check that the user is allowed to use the Mito Server
+    check_mito_server_quota()
+    
     global __user_email, __user_id
 
     if __user_email is None:
@@ -73,7 +77,6 @@ async def get_ai_completion_from_mito_server(
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
 
-    # check_mito_server_quota(n_counts, first_usage_date)
 
     data = {
         "timeout": timeout,
