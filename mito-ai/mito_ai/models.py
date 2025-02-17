@@ -128,6 +128,7 @@ class AgentPlanningMetadata():
     
 @dataclass(frozen=True)
 class AgentMessageBuilder:
+    promptType: Literal['agent:execution']
     fileType: Optional[str] = None
     columnSamples: Optional[List[str]] = None
     input: Optional[str] = None
