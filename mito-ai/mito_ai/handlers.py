@@ -13,7 +13,6 @@ from tornado.websocket import WebSocketHandler
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.models import (
-    IncomingMessageTypes,
     CompletionError,
     CompletionItem,
     CompletionReply,
@@ -114,9 +113,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
-        
-        print("ON MESSAGE")
-        print(f"message: {message}")
         start = time.time()
         self.log.debug("Message received: %s", message)
         
@@ -195,7 +191,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         `open` may be a coroutine. `on_message` will not be called until
         `open` has returned.
         """
-        print("OPEN")
         if self._llm.last_error:
             self._send_error({"new": self._llm.last_error})
         # Start observing the provider error
@@ -271,13 +266,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             reply: The completion reply object.
                 It must be a dataclass instance.
         """
-        print(f"reply: {reply}")
         message = asdict(reply)
         super().write_message(message)
 
     def _send_error(self, change: Dict[str, Optional[CompletionError]]) -> None:
         """Send an error message to the client."""
-        print("SEND ERROR")
         error = change["new"]
 
         self.reply(

@@ -159,8 +159,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 },
                 provider="OpenAI (user key)",
             )
-            
-        print("Checking mito server quota")
 
         try:
             check_mito_server_quota()
@@ -213,8 +211,16 @@ This attribute is observed by the websocket provider to push the error to the cl
         model: str,
         response_format: Optional[Type[BaseModel]] = None
     ) -> str:
-        """Internal helper to get the completion from the provider."""
+        """
+        Request completions from the OpenAI API.
         
+        Args:
+            message_type: The type of message to request completions for.
+            messages: The messages to request completions for.
+            model: The model to request completions for.
+        Returns:
+            The completion from the OpenAI API.
+        """
         try:
             # Reset the last error
             self.last_error = None
@@ -230,12 +236,12 @@ This attribute is observed by the websocket provider to push the error to the cl
             completion = None
             if self._openAI_sync_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
+                
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                 completion = completion.choices[0].message.content or ""
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
-                print("GET AI COMPLETION FROM MITO SERVER")
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
                 completion = await get_ai_completion_from_mito_server(
                     last_message_content,
@@ -244,7 +250,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     self.max_retries,
                 )
                 
-                print("UPDATE MITO SERVER QUOTA")
                 update_mito_server_quota(message_type)
             
             # Log the successful completion

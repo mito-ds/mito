@@ -34,11 +34,15 @@ def set_user_field(field: str, value: Any) -> None:
 def get_completion_count() -> int:
     """
     Returns the number of AI completions the user has made.
+    
+    Using this helper function lets us mock the number of completions in tests.
     """
     return get_user_field(UJ_AI_MITO_API_NUM_USAGES) or 0
 
 def get_first_completion_date() -> str:
     """
     Returns the date of the user's last completion in YYYY-MM-DD format.
+    
+    Using this helper function lets us mock the date of the first completion in tests.
     """
     return get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE) or ""

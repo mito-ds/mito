@@ -38,6 +38,8 @@ def check_mito_server_quota() -> None:
     if is_pro():
         return
 
+    # Using these helper functions lets us mock their results in tests so 
+    # we can test the logic of this function.
     completion_count = get_completion_count()
     first_completion_date = get_first_completion_date()
 

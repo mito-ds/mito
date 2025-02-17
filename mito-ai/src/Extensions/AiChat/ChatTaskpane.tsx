@@ -317,7 +317,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     const sendAgentPlanningMessage = async (message: string) => {
-        console.log('Sending agent message: ', message)
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -356,7 +355,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 );
                 setChatHistoryManager(newChatHistoryManager);
             } else {
-                console.log('Mito AI: aiResponse', aiResponse)
                 const content = aiResponse.items[0].content || '';
 
                 if (completionRequest.metadata.promptType === 'agent:planning') {

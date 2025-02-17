@@ -171,8 +171,6 @@ def log_ai_completion_success(
         last_message_content: The last message sent to the AI
         response: The response received from the AI
     """
-    
-    print("HERE IN LOGGING")
 
     # Params that every log has
     base_params = {
@@ -256,5 +254,5 @@ def log_ai_completion_success(
             "This input_location has not been accounted for in `telemetry_utils.py`."
         )
 
-        log(f"mito_ai_{message_type}_success", params=final_params)
+        log(f"mito_ai_{message_type.value}_success", params=final_params)
         
