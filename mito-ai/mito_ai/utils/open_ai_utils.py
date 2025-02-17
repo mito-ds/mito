@@ -65,8 +65,6 @@ async def get_ai_completion_from_mito_server(
     ai_completion_data: Dict[str, Any],
     timeout: int,
     max_retries: int,
-    n_counts: int,
-    first_usage_date: str,
 ) -> str:
     global __user_email, __user_id
 
@@ -75,7 +73,7 @@ async def get_ai_completion_from_mito_server(
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
 
-    check_mito_server_quota(n_counts, first_usage_date)
+    # check_mito_server_quota(n_counts, first_usage_date)
 
     data = {
         "timeout": timeout,

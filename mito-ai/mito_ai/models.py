@@ -25,31 +25,7 @@ class ChatMessageMetadata():
     input: str
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    index: Optional[int] = None
-
-@dataclass(frozen=True)
-class ChatMessageBuilder(ChatMessageMetadata):
-    @property
-    def prompt(self) -> str:
-        return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
-    
-    @property
-    def display_message(self) -> str:
-        cell_code_block = f"""```python
-{self.activeCellCode}
-```
-
-"""
-        return f"{cell_code_block if self.activeCellCode else ''}{self.input}"
-    
-    @property
-    def pro_model(self) -> str:
-        return "o3-mini"
-    
-    @property
-    def os_model(self) -> str:
-        return "gpt-4o-mini"
-    
+    index: Optional[int] = None    
     
 """
 Smart Debug Message
