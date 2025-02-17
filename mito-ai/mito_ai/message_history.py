@@ -88,10 +88,9 @@ class GlobalMessageHistory:
         with self._lock:
             return self._display_history[:]
     
-    @property
     def get_histories(self) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         with self._lock:
-            return self.ai_optimized_history, self.display_history
+            return self._ai_optimized_history, self._display_history
     
     def _load_from_disk(self) -> None:
         """Load existing history from disk, if it exists."""
