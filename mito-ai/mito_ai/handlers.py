@@ -4,11 +4,10 @@ import time
 import uuid
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Union
 import tornado
 import tornado.ioloop
 import tornado.web
-from pydantic import BaseModel
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
@@ -119,7 +118,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
-        
+        start = time.time()
         self.log.debug("Message received: %s", message)
         try:
             if isinstance(message, bytes):
@@ -213,6 +212,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=parsed_message.get('message_id')
             )
             self.reply(reply)
+            
+            latency_ms = round((time.time() - start) * 1000)
+            self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
         except Exception as e:
             error = CompletionError.from_exception(e)
@@ -223,6 +225,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=parsed_message.get('message_id')
             )
             self.reply(reply)
+            
 
     def open(self, *args: str, **kwargs: str) -> None:
         """Invoked when a new WebSocket is opened.
@@ -240,6 +243,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._llm.observe(self._send_error, "last_error")
         # Send the server capabilities to the client.
         self.reply(self._llm.capabilities)
+        
 
     async def handle_exception(self, e: Exception, request: CompletionRequest) -> None:
         """
@@ -276,45 +280,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=request.message_id,
             )
         self.reply(reply)
-
-    async def _handle_request(
-        self,
-        request: CompletionRequest,
-        prompt_type: str,
-        model: str,
-        response_format: Optional[Type[BaseModel]] = None,
-    ) -> None:
-        """Handle completion request.
-
-        Args:
-            request: The completion request description.
-        """
-        start = time.time()
-        reply = await self._llm.request_completions(request, prompt_type, model, response_format)
-        
-        
-
-        # Save to the message history
-        # Inline completion is ephemeral and does not need to be saved
-        if request.type != "inline_completion":
-            response = reply.items[0].content if reply.items else ""
-
-            ai_optimized_message: ChatCompletionMessageParam = {
-                "role": "assistant", 
-                "content": response
-            }
-            display_message: ChatCompletionMessageParam = {
-                "role": "assistant", 
-                "content": response
-            }
-
-            await message_history.append_message(ai_optimized_message, display_message, self._llm)
-
-
-        self.reply(reply)
-        
-        latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
     async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str, model: str) -> None:
         """Handle stream completion request."""
