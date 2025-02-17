@@ -79,15 +79,7 @@
 }
 
 .message-assistant-agent p {
-    color: var(--jp-content-font-color1) !important;
-}
-
-.markdown-message-part * .jp-RenderedHTMLCommon :not(pre) > code {
-    background-color: var(--purple-300);
-    color: var(--purple-700);
-    border-radius: 3px;
-    display: inline-flex;
-    align-items: center;
+    color: var(--grey-900)!important;
 }
 
 .chat-messages {
