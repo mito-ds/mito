@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
-import { Variable } from "../VariableManager/VariableInspector";
+import { IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 
 export type PromptType = 
     'chat' | 
@@ -28,58 +28,6 @@ export interface IDisplayOptimizedChatHistory {
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
-}
-
-export interface IChatMessageMetadata {
-    promptType: 'chat' | 'agent:execution'
-    variables?: Variable[];
-    activeCellCode?: string;   
-    input: string;
-    index?: number;
-}
-
-export interface ISmartDebugMetadata {
-    promptType: 'smartDebug';
-    variables?: Variable[];
-    activeCellCode?: string;   
-    errorMessage: string;     
-}
-
-export interface ICodeExplainMetadata {
-    promptType: 'codeExplain';
-    variables?: Variable[];
-    activeCellCode?: string;
-}
-
-export interface IAgentPlanningMetadata {
-    promptType: 'agent:planning';
-    variables?: Variable[];
-    input: string;
-}
-
-export interface IInlineCompleterMetadata {
-    promptType: 'inline_completion';
-    variables?: Variable[]; 
-    prefix: string;
-    suffix: string;
-}
-
-export interface IFetchHistoryMetadata {
-    promptType: 'fetch_history'
-    threadID?: string;
-}
-
-export interface IStartNewChatMetadata {
-    promptType: 'start_new_chat'
-}
-
-export interface IGetThreadsMetadata {
-    promptType: 'get_threads'
-}
-
-export interface IDeleteThreadMetadata {
-    promptType: 'delete_thread'
-    threadID: string;
 }
 
 /* 

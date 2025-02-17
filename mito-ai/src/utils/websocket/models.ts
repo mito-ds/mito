@@ -3,24 +3,82 @@ import type {
   IInlineCompletionError,
   IInlineCompletionItem
 } from '@jupyterlab/completer';
+import { Variable } from '../../Extensions/VariableManager/VariableInspector';
 
-import { IAgentPlanningMetadata, IChatMessageMetadata, ISmartDebugMetadata, ICodeExplainMetadata, IInlineCompleterMetadata, IFetchHistoryMetadata, IStartNewChatMetadata, IGetThreadsMetadata, IDeleteThreadMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+/* 
 
+Meta Data Models
 
-export type CompletionRequestMetadata = 
-  IChatMessageMetadata | 
-  ISmartDebugMetadata | 
-  ICodeExplainMetadata | 
-  IAgentPlanningMetadata | 
+*/
+
+type CompletionRequestMetadata =
+  IChatMessageMetadata |
+  ISmartDebugMetadata |
+  ICodeExplainMetadata |
+  IAgentPlanningMetadata |
   IInlineCompleterMetadata |
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
   IGetThreadsMetadata | 
   IDeleteThreadMetadata;
 
-/**
- * Mito AI completion request.
- */
+export interface IChatMessageMetadata {
+    promptType: 'chat' | 'agent:execution'
+    variables?: Variable[];
+    activeCellCode?: string;   
+    input: string;
+    index?: number;
+}
+
+export interface ISmartDebugMetadata {
+    promptType: 'smartDebug';
+    variables?: Variable[];
+    activeCellCode?: string;   
+    errorMessage: string;     
+}
+
+export interface ICodeExplainMetadata {
+    promptType: 'codeExplain';
+    variables?: Variable[];
+    activeCellCode?: string;
+}
+
+export interface IAgentPlanningMetadata {
+    promptType: 'agent:planning';
+    variables?: Variable[];
+    input: string;
+}
+
+export interface IInlineCompleterMetadata {
+    promptType: 'inline_completion';
+    variables?: Variable[]; 
+    prefix: string;
+    suffix: string;
+}
+
+export interface IFetchHistoryMetadata {
+    promptType: 'fetch_history'
+    threadID?: string;
+}
+
+export interface IStartNewChatMetadata {
+  promptType: 'start_new_chat'
+}
+
+export interface IGetThreadsMetadata {
+  promptType: 'get_threads'
+}
+
+export interface IDeleteThreadMetadata {
+  promptType: 'delete_thread'
+  threadID: string;
+}
+
+/* 
+
+Completion Request Models
+
+*/
 export interface ICompletionRequest {
   /**
    * The type of the message.

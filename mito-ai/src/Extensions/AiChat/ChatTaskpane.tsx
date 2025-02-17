@@ -21,12 +21,8 @@ import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { 
-    ChatHistoryManager, 
-    IChatMessageMetadata, 
-    IDeleteThreadMetadata, 
+    ChatHistoryManager,  
     IDisplayOptimizedChatHistory,
-    IFetchHistoryMetadata,
-    IGetThreadsMetadata,
     PromptType, 
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
@@ -51,6 +47,10 @@ import type { CompletionWebsocketClient } from '../../utils/websocket/websocketC
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { 
     IChatThreadItem, 
+    IChatMessageMetadata, 
+    IGetThreadsMetadata,
+    IFetchHistoryMetadata,
+    IDeleteThreadMetadata,
     ICompletionReply, 
     IDeleteThreadReply,
     IFetchHistoryReply,

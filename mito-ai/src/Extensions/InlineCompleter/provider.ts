@@ -21,9 +21,9 @@ import type {
   ICompletionRequest,
   ICompletionReply,
   ICompletionStreamChunk,
-  InlineCompletionStreamChunk
+  InlineCompletionStreamChunk,
+  IInlineCompleterMetadata
 } from '../../utils/websocket/models';
-import { IInlineCompleterMetadata } from '../AiChat/ChatHistoryManager';
 import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 
