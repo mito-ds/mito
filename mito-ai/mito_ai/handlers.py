@@ -280,6 +280,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=request.message_id,
             )
         self.reply(reply)
+        
 
     async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str, model: str) -> None:
         """Handle stream completion request."""
