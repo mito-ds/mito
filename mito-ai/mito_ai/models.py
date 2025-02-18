@@ -13,7 +13,16 @@ from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prom
 from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt
 from mito_ai.prompt_builders.agent_planning_prompt import create_agent_prompt
 
-CompletionIncomingMessageTypes = Literal['chat', 'inline_completion', 'codeExplain', 'smartDebug', 'agent:planning']
+CompletionIncomingMessageTypes = Literal[
+    'chat', 
+    'inline_completion', 
+    'codeExplain', 
+    'smartDebug', 
+    'agent:planning', 
+    'agent:execution', 
+    'agent:autoErrorFixup'
+]
+
 IncomingMessageTypes = Union[Literal['clear_history', 'fetch_history'], CompletionIncomingMessageTypes]
 
 """

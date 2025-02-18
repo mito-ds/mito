@@ -12,6 +12,8 @@ import {
     editMitoAIMessage,
 } from './utils';
 
+const AGENT_PLAN_SUBMIT_BUTTON_TEXT = 'Let\'s go!';
+
 test.describe("Agent mode integration tests", () => {
 
     test.beforeEach(async ({ page }) => {
@@ -43,18 +45,35 @@ test.describe("Agent mode integration tests", () => {
     test("Edit original message", async ({ page }) => {
         const newMessage = "print bye";
 
-        // Keep track of the last agent message.
-        // We want to validate that this message is changed to reflect the users edit. 
-        const lastAgentMessageOG = await page.locator('.message-assistant-agent').last().textContent();
+        // Keep track of the original messages in the agent's plan.
+        const oldPlanMessages: string[] = [];
+        const messages = await page.locator('.message-assistant-agent').all();
+        messages.forEach(async (message) => {
+            const messageText = await message.textContent();
+            if (messageText) {
+                oldPlanMessages.push(messageText);
+            }
+        });
 
         // Edit the message
         await editMitoAIMessage(page, newMessage, 0);
         await waitForIdle(page);
 
-        // Ensure that we recieved a new plan 
-        // by checking that the last agent message is different from the original.
-        const lastAgentMessageUpdated = await page.locator('.message-assistant-agent').last().textContent();
-        expect(lastAgentMessageUpdated).not.toEqual(lastAgentMessageOG);
+        // Track new plan.  
+        const newPlanMessages: string[] = [];
+        const newMessages = await page.locator('.message-assistant-agent').all();
+        newMessages.forEach(async (message) => {
+            const messageText = await message.textContent();
+            if (messageText) {
+                newPlanMessages.push(messageText);
+            }
+        });
+        
+        // By editing the original agent message, we should see a new plan
+        // and the old plan messages should be wiped. 
+        oldPlanMessages.forEach(message => {
+            expect(newPlanMessages).not.toContain(message);
+        });
     });
 
     test("Edit message in agent's plan", async ({ page }) => {
@@ -62,7 +81,7 @@ test.describe("Agent mode integration tests", () => {
 
         // Get the last agent message, and click on it's edit button 
         const lastAgentMessage = await page.locator('.message-assistant-agent').last();
-        await lastAgentMessage.locator('.message-edit-button').click();
+        await lastAgentMessage.locator('.message-start-editing-button').click();
 
         // Make sure the active cell preview is not visible
         await expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
@@ -80,7 +99,7 @@ test.describe("Agent mode integration tests", () => {
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
 
         // Run the plan of attack
-        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Wait for all chat messages to appear
         await page.waitForFunction(
@@ -126,7 +145,7 @@ test.describe("Agent mode integration tests", () => {
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
 
         // Run the plan of attack
-        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Wait for all chat messages to appear
         await page.waitForFunction(
@@ -151,5 +170,43 @@ test.describe("Agent mode integration tests", () => {
         const code = await getCodeFromCell(page, cellCount - 1);
         expect(code).toContain('print');
         expect(code).toContain('bye');
+    });
+});
+
+
+test.describe("Agent auto error debugging", () => {
+
+    test.beforeEach(async ({ page }) => {
+        /*
+            Before each test, we switch to agent mode, and send a message. 
+        */
+
+        await createAndRunNotebookWithCells(page, []);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode
+        await page.getByRole('button', { name: 'Chat ▾' }).click();
+        await page.getByRole('button', { name: 'Agent' }).click();
+    });
+
+    test("Auto Error Fixup", async ({ page }) => {
+
+        await sendMessageToMitoAI(page, "Import the file nba_data.csv");
+        await waitForIdle(page);
+
+        // Run the plan of attack
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+
+        // Check that the agent eventually sends a message that says it is trying again
+        await expect(async () => {
+            const messages = await page.locator('.message-assistant-chat').all();
+            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+                throw new Error('Expected message not found');
+            }
+        }).toPass({ timeout: 45000 }); // Increase timeout if needed
     });
 });

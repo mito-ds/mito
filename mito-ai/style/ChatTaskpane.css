@@ -48,21 +48,28 @@
 }
 
 .message {
+    position: relative;
     height: min-content;
     box-sizing: border-box;
-    padding: 10px;
     width: 100%;
     font-size: 14px;
     border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .message:not(.chat-input) {
     margin-bottom: 20px;
 }
 
+.message:hover .message-start-editing-button {
+    opacity: 1 !important;
+}
+
 .message-user {
     background-color: var(--chat-user-message-background-color);
     color: var(--chat-user-message-font-color);
+    padding: 10px;
 }
 
 .message-assistant-chat {
@@ -71,18 +78,11 @@
 
 .message-assistant-agent {
     background-color: var(--purple-300);
+    padding: 10px;
 }
 
 .message-assistant-agent p {
-    color: var(--jp-content-font-color1) !important;
-}
-
-.markdown-message-part * .jp-RenderedHTMLCommon :not(pre) > code {
-    background-color: var(--purple-300);
-    color: var(--purple-700);
-    border-radius: 3px;
-    display: inline-flex;
-    align-items: center;
+    color: var(--grey-900)!important;
 }
 
 .chat-messages {
@@ -143,10 +143,24 @@
     align-items: center;
 }
 
-.message-edit-button {
-    background-color: rgba(255, 255, 255, 0);
+.message-start-editing-button {
+    position: absolute !important;
+    bottom: 8px !important;
+    right: 8px !important;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    background-color: var(--jp-layout-color3);
     border: none;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
     color: var(--grey-900) !important;
+}
+
+.message-start-editing-button:hover {
+    background-color: var(--jp-layout-color4);
 }
 
 .message-edit-buttons {

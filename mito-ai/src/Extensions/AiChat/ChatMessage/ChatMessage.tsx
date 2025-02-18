@@ -13,7 +13,7 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
-import { PromptType } from '../ChatHistoryManager';
+import { ChatMessageType, PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
@@ -37,7 +37,7 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, messageType: IDisplayOptimizedChatHistory['type']) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -45,8 +45,8 @@ interface IChatMessageProps {
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
     messageType,
-    messageIndex,
     promptType,
+    messageIndex,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
     notebookTracker,
@@ -178,7 +178,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <div className={classNames('markdown-message-part')} style={{ position: 'relative' }}>
+                        <div className={classNames('markdown-message-part')}>
                             <p 
                                 key={index + messagePart} 
                                 onDoubleClick={() => {
@@ -200,22 +200,19 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
-                            {editable && (
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                    <button
-                                        className="message-edit-button"
-                                        onClick={handleEditClick}
-                                        style={{ cursor: 'pointer' }}
-                                        title="Edit message"
-                                    >
-                                        <PencilIcon />
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     )
                 }
             })}
+            {editable && (
+                <button
+                    className="message-start-editing-button"
+                    onClick={handleEditClick}
+                    title="Edit message"
+                >
+                    <PencilIcon />
+                </button>
+            )}
         </div>
     )
 }
