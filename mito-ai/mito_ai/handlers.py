@@ -158,6 +158,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             elif type == MessageType.AGENT_EXECUTION:
                 agentExecutionMetadata = ChatMessageMetadata(**metadata_dict)
                 completion = await get_agent_execution_completion(agentExecutionMetadata, self._llm, message_history)
+            elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
+                agentAutoErrorFixupMetadata = ChatMessageMetadata(**metadata_dict)
+                completion = await get_agent_auto_error_fixup_completion(agentAutoErrorFixupMetadata, self._llm, message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inlineCompleterMetadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(inlineCompleterMetadata, self._llm, message_history)

@@ -4,7 +4,18 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 
-export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning' | 'agent:execution' | 'inline_completion' | 'clear_history' | 'fetch_history';
+export type PromptType = 
+    'chat' | 
+    'smartDebug' | 
+    'codeExplain' | 
+    'agent:planning' | 
+    'agent:execution' | 
+    'agent:autoErrorFixup' |
+    'inline_completion' | 
+    'clear_history' | 
+    'fetch_history'
+
+export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -13,7 +24,7 @@ export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning
 // we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'openai message:agent:planning' | 'connection error',
+    type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
@@ -146,7 +157,7 @@ export class ChatHistoryManager {
         return agentPlanningMetadata
     }
 
-    addDebugErrorMessage(errorMessage: string): ISmartDebugMetadata {
+    addDebugErrorMessage(errorMessage: string, promptType: PromptType): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -163,7 +174,7 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: 'smartDebug'
+                promptType: promptType
             }
         );
 

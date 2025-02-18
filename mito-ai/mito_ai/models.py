@@ -13,6 +13,7 @@ class MessageType(Enum):
     CODE_EXPLAIN = "codeExplain"
     AGENT_PLANNING = "agent:planning"
     AGENT_EXECUTION = "agent:execution"
+    AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
     INLINE_COMPLETION = "inline_completion"
     CLEAR_HISTORY = "clear_history"
     FETCH_HISTORY = "fetch_history"

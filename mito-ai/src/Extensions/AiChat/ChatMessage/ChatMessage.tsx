@@ -13,7 +13,7 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
-import { PromptType } from '../ChatHistoryManager';
+import { ChatMessageType, PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
@@ -37,7 +37,7 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, promptType: PromptType) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -45,8 +45,8 @@ interface IChatMessageProps {
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
     messageType,
-    messageIndex,
     promptType,
+    messageIndex,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
     notebookTracker,
@@ -75,7 +75,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        onUpdateMessage(messageIndex, content, promptType);
+        onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
 
@@ -204,7 +204,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     )
                 }
             })}
-            {editable && (
+            {editable && 
                 <button
                     className="message-start-editing-button"
                     onClick={handleEditClick}
@@ -212,7 +212,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 >
                     <PencilIcon />
                 </button>
-            )}
+            }
         </div>
     )
 }
