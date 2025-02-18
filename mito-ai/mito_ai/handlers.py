@@ -34,8 +34,9 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completion_handlers.chat_completion_handler import get_chat_completion
 from mito_ai.completion_handlers.smart_debug_handler import get_smart_debug_completion
 from mito_ai.completion_handlers.code_explain_handler import get_code_explain_completion
-from mito_ai.completion_handlers.agent_planning_handler import get_agent_planning_completion
 from mito_ai.completion_handlers.inline_completer_handler import get_inline_completion
+from mito_ai.completion_handlers.agent_planning_handler import get_agent_planning_completion
+from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
 
 
 __all__ = ["CompletionHandler"]
@@ -142,7 +143,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             
             # Get completion based on message type
             completion = None
-            if type == MessageType.CHAT or type == MessageType.AGENT_EXECUTION:
+            if type == MessageType.CHAT:
                 chatMetadata = ChatMessageMetadata(**metadata_dict)
                 completion = await get_chat_completion(chatMetadata, self._llm, message_history)
             elif type == MessageType.SMART_DEBUG:
@@ -154,6 +155,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             elif type == MessageType.AGENT_PLANNING:
                 agentPlanningMetadata = AgentPlanningMetadata(**metadata_dict)
                 completion = await get_agent_planning_completion(agentPlanningMetadata, self._llm, message_history)
+            elif type == MessageType.AGENT_EXECUTION:
+                agentExecutionMetadata = ChatMessageMetadata(**metadata_dict)
+                completion = await get_agent_execution_completion(agentExecutionMetadata, self._llm, message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inlineCompleterMetadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(inlineCompleterMetadata, self._llm, message_history)
