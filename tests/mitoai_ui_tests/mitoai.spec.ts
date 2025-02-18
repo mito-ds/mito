@@ -6,7 +6,7 @@ import {
   selectCell, 
   typeInNotebookCell, 
   waitForIdle, 
-  addNewCell 
+  addNewCell
 } from '../jupyter_utils/jupyterlab_utils';
 import { 
   clearMitoAIChatInput, 
@@ -17,7 +17,8 @@ import {
   closeMitoAIChat, 
   editMitoAIMessage, 
   sendMessageToMitoAI, 
-  waitForMitoAILoadingToDisappear 
+  waitForMitoAILoadingToDisappear,
+  clearMitoAIChatHistory
 } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
@@ -27,6 +28,8 @@ test.describe('Mito AI Chat', () => {
   test('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
+
+    await clearMitoAIChatHistory(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
@@ -125,13 +128,13 @@ test.describe('Mito AI Chat', () => {
     expect(code).toContain('df["C_edited"] = [7, 8, 9]');
 
     // Ensure previous messages are removed.
-    const messageAssistantDivs = await page.locator('.message.message-assistant').count();
+    const messageAssistantDivs = await page.locator('.message.message-assistant-chat').count();
     expect(messageAssistantDivs).toBe(1);
 
     // Ensure you cannot edit the AI's messages by clicking the pencil icon or double clicking the message
-    await expect(page.locator('.message-assistant .message-edit-button')).not.toBeVisible();
-    await page.locator('.message-assistant p').last().dblclick();
-    await expect(page.locator('.message-assistant').getByRole('button', { name: 'Save' })).not.toBeVisible();
+    await expect(page.locator('.message-assistant-chat .message-start-editing-button')).not.toBeVisible();
+    await page.locator('.message-assistant-chat p').last().dblclick();
+    await expect(page.locator('.message-assistant-chat').getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
 
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
@@ -212,6 +215,8 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, []);
     await waitForIdle(page);
 
+    await clearMitoAIChatHistory(page);
+
     await sendMessageToMitoAI(page, 'Add print (1)');
 
     // Since the active cell is empty, there should only be one code message part container.
@@ -261,7 +266,7 @@ test.describe('Mito AI Chat', () => {
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     await waitForIdle(page);
-    await expect(page.locator('.message-assistant')).toHaveCount(1);
+    await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
   });
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
@@ -347,6 +352,36 @@ test.describe('Mito AI Chat', () => {
     expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
   });
 
+  test('Restore message history', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await waitForIdle(page);
+
+    await clearMitoAIChatHistory(page);
+    await waitForIdle(page);
+
+    await selectCell(page, 0);
+
+    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
+    
+    await waitForIdle(page);
+    await page.waitForTimeout(2000);
+    
+    // As you have a notebook opened, at reload a dialog shows up to 
+    // select the kernel for the notebook. The dialog prevent all the tests 
+    // carried out at page load to be performed as it capture the focus.
+    // One way around it is to set the option waitForIsReady (specific to JupyterLab):
+    // When that option is set, we don't wait for addition checks specific to JupyterLab
+    await page.reload({waitForIsReady: false});
+    await Promise.all([
+      page.getByRole('button', { name: 'Select Kernel' }).click(),
+      waitForIdle(page)
+    ]);
+
+    // 1 from the previous message, 1 for the new chat input since we use
+    // the message-user class on the chat input also
+    await expect(page.locator('.message-user')).toHaveCount(2); 
+    await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
+  });
 });
 
 

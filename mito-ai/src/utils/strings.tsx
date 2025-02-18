@@ -111,3 +111,14 @@ export const removeMarkdownCodeFormatting = (code: string) => {
 
     return code
 }
+
+
+/* 
+    Remove ANSI escape sequences from text. 
+    For example, this is useful for removing the escape 
+    codes from the error traceback.
+*/
+export const stripAnsiCodes = (text: string): string => {
+    const ansiEscape = /\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g;
+    return text.replace(ansiEscape, '');
+}

@@ -4,3 +4,4 @@ openai>=1.0.0
 prettytable>=3.0.0
 pandas>=2.0.0
 matplotlib>=3.0.0
+ipython

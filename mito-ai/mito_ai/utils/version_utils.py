@@ -5,18 +5,18 @@ from .db import get_user_field
 
 # Check if helper packages are installed
 try:
-    import mitosheet_helper_pro  # type: ignore
+    import mitosheet_helper_pro
     MITOSHEET_HELPER_PRO = True
 except ImportError:
     MITOSHEET_HELPER_PRO = False
 try:
-    import mitosheet_helper_enterprise  # type: ignore
+    import mitosheet_helper_enterprise  
     MITOSHEET_HELPER_ENTERPRISE = True
 except ImportError:
     MITOSHEET_HELPER_ENTERPRISE = False
 
 try:
-    import mitosheet_private  # type: ignore
+    import mitosheet_private 
     MITOSHEET_PRIVATE = True
 except ImportError:
     MITOSHEET_PRIVATE = False
@@ -24,7 +24,7 @@ except ImportError:
 # This is a legacy helper that we don't use anymore, however, we're keeping it for now
 # for backwards compatibility, since I'm not 100% confident that nobody is currently using it.
 try:
-    import mitosheet_helper_private  # type: ignore
+    import mitosheet_helper_private 
     MITOSHEET_HELPER_PRIVATE = True
 except ImportError:
     MITOSHEET_HELPER_PRIVATE = False

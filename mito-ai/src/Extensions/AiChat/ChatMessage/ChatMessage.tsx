@@ -13,16 +13,20 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
+import { PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
+import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
+    messageType: IDisplayOptimizedChatHistory['type']
     codeCellID: string | undefined
     messageIndex: number
+    promptType: PromptType
     mitoAIConnectionError: boolean
     mitoAIConnectionErrorType: string | null
     notebookTracker: INotebookTracker
@@ -33,14 +37,16 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, promptType: PromptType) => void
     variableManager?: IVariableManager
     codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
+    messageType,
     messageIndex,
+    promptType,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
     notebookTracker,
@@ -60,6 +66,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
+    const editable = messageType === 'openai message:agent:planning' || message.role === 'user'
+
     const messageContentParts = splitStringWithCodeBlocks(message);
 
     const handleEditClick = () => {
@@ -67,7 +75,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     };
 
     const handleSave = (content: string) => {
-        onUpdateMessage(messageIndex, content);
+        onUpdateMessage(messageIndex, content, promptType);
         setIsEditing(false);
     };
 
@@ -86,15 +94,26 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 variableManager={variableManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
+                displayActiveCellCode={messageType !== 'openai message:agent:planning'}
             />
         );
     }
 
+    if (mitoAIConnectionError) {
+        return (
+            <div className={classNames(
+                "message",
+            )}>
+                <AlertBlock content={message.content as string} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+            </div>
+        )
+    }
     return (
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant': message.role === 'assistant' },
+            { 'message-assistant-chat': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
+            { 'message-assistant-agent': messageType === 'openai message:agent:planning' },
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -159,7 +178,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     }
                 } else {
                     return (
-                        <div className={classNames('markdown-message-part')} style={{ position: 'relative' }}>
+                        <div className={classNames('markdown-message-part')}>
                             <p 
                                 key={index + messagePart} 
                                 onDoubleClick={() => {
@@ -169,8 +188,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     }
                                 }}
                             >
-                                {mitoAIConnectionError ? (
-                                    <AlertBlock content={messagePart} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+                                {message.role === 'user' && promptType === 'smartDebug' ? (
+                                    /* Use a pre tag to preserve the newline and indentation of the error message */
+                                    <pre className="chat-taskpane-smart-debug-error-message">
+                                        {messagePart}
+                                    </pre>
                                 ) : (
                                     <MarkdownBlock
                                         markdown={messagePart}
@@ -178,22 +200,19 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
-                            {message.role === 'user' && (
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                    <button
-                                        className="message-edit-button"
-                                        onClick={handleEditClick}
-                                        style={{ cursor: 'pointer' }}
-                                        title="Edit message"
-                                    >
-                                        <PencilIcon />
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     )
                 }
             })}
+            {editable && (
+                <button
+                    className="message-start-editing-button"
+                    onClick={handleEditClick}
+                    title="Edit message"
+                >
+                    <PencilIcon />
+                </button>
+            )}
         </div>
     )
 }

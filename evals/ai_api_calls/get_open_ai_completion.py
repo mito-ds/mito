@@ -5,10 +5,9 @@ from openai import OpenAI
 def get_open_ai_completion(prompt: str, model: str) -> str:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
-        
     completion_function_params = {
         "model": model,
-        "stream": True,
+        "stream": False,
         "messages": [
             {"role": "system", "content": "You are an expert Python programmer."},
             {"role": "user", "content": prompt}

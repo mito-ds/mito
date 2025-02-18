@@ -1,38 +1,47 @@
-import React, { useEffect, useRef, useState } from 'react';
-import '../../../style/ChatTaskpane.css';
-import '../../../style/button.css';
-import '../../../style/TextButton.css';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { writeCodeToCellByID, getCellCodeByID, getActiveCellID, highlightCodeCell } from '../../utils/notebook';
-import ChatMessage from './ChatMessage/ChatMessage';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ChatHistoryManager, IOutgoingMessage } from './ChatHistoryManager';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import LoadingDots from '../../components/LoadingDots';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { CodeCell } from '@jupyterlab/cells';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
+import { Compartment, StateEffect } from '@codemirror/state';
+import OpenAI from "openai";
+import React, { useEffect, useRef, useState } from 'react';
+
+import '../../../style/button.css';
+import '../../../style/ChatTaskpane.css';
+import '../../../style/TextButton.css';
+import ChatIcon from '../../icons/ChatIcon';
+import ResetIcon from '../../icons/ResetIcon';
+import RobotHeadIcon from '../../icons/RobotHeadIcon';
+import SupportIcon from '../../icons/SupportIcon';
+import ChatInput from './ChatMessage/ChatInput';
+import ChatMessage from './ChatMessage/ChatMessage';
+import { 
+    ChatHistoryManager, 
+    IOutgoingMessage, 
+    PromptType 
+} from './ChatHistoryManager';
+import { codeDiffStripesExtension } from './CodeDiffDisplay';
+import DropdownMenu from '../../components/DropdownMenu';
+import IconButton from '../../components/IconButton';
+import LoadingDots from '../../components/LoadingDots';
+import TextAndIconButton from '../../components/TextAndIconButton';
 import {
-    COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
+    COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
+    COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
+    COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
-    COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
-    COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE
 } from '../../commands';
-import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
-import ResetIcon from '../../icons/ResetIcon';
-import IconButton from '../../components/IconButton';
-import { OperatingSystem } from '../../utils/user';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { CodeCell } from '@jupyterlab/cells';
-import { StateEffect, Compartment } from '@codemirror/state';
-import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import OpenAI from "openai";
-import ChatInput from './ChatMessage/ChatInput';
-import SupportIcon from '../../icons/SupportIcon';
+import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
+import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -81,25 +90,70 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
-    // TODO: RE-ADD setAgentModeEnabled when we need to call it. 
-    const [agentModeEnabled, _] = useState<boolean>(false)
+    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+
+    const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
+        await websocketClient.ready;
+        
+        const chatHistoryResponse = await websocketClient.sendMessage({
+            type: 'fetch_history',
+            message_id: UUID.uuid4(),
+            metadata: {},
+            stream: false
+        });
+
+        return chatHistoryResponse.items.map((item: any) => ({
+            role: item.role,
+            content: item.content
+        }));
+    };
 
     useEffect(() => {
-        // Check that the websocket client is ready
-        // and display the error if it is not.
-        websocketClient.ready.catch(error => {
+        const initializeChatHistory = async () => {
+          try {
+            // 1. Check that the websocket client is ready
+            await websocketClient.ready;
+      
+            // 2. Fetch or load the initial chat history
+            const history = await fetchInitialChatHistory();
+      
+            // 3. Create a fresh ChatHistoryManager and add the initial messages
             const newChatHistoryManager = getDefaultChatHistoryManager(
-                notebookTracker,
-                variableManager
+              notebookTracker,
+              variableManager
+            );
+      
+            // 4. Add messages to the ChatHistoryManager
+            history.forEach(item => {
+                console.log(item)
+                try {
+                    // If the user sent a message in agent mode, the ai response will be a JSON object
+                    // which we need to parse. 
+                    const agentResponse = JSON.parse(item.content as string);
+                    handleAgentResponse(agentResponse, newChatHistoryManager);
+                } catch {
+                    newChatHistoryManager.addChatMessageFromHistory(item);
+                }
+            });
+      
+            // 5. Update the state with the new ChatHistoryManager
+            setChatHistoryManager(newChatHistoryManager);
+          } catch (error) {
+            const newChatHistoryManager = getDefaultChatHistoryManager(
+              notebookTracker,
+              variableManager
             );
             newChatHistoryManager.addAIMessageFromResponse(
-                (error as any).hint ? (error as any).hint : `${error}`,
-                'chat',
-                true
+              (error as any).hint ? (error as any).hint : `${error}`,
+              'chat',
+              true
             );
             setChatHistoryManager(newChatHistoryManager);
-        });
-    }, [websocketClient]);
+          }
+        };
+      
+        initializeChatHistory();
+      }, [websocketClient]);
 
     useEffect(() => {
         /* 
@@ -173,7 +227,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number) => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: PromptType) => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -185,6 +239,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } else {
             outgoingMessage = newChatHistoryManager.addChatInputMessage(input)
         }
+
+        // If the user is in agent mode, we override the prompt type to be 'agent:execution'
+        // This gets used in the backend for logging purposes.
+        if (overridePromptType) {
+            outgoingMessage.promptType = overridePromptType
+        }
+
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Scroll to the bottom of the chat messages container
@@ -199,30 +260,49 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
 
-        // Step 4: Scroll so that the top of the last AI message is visible
+        // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
-            const aiMessages = chatMessagesRef.current?.getElementsByClassName('message message-assistant');
-            if (aiMessages && aiMessages.length > 0) {
-                const lastAiMessage = aiMessages[aiMessages.length - 1];
-                lastAiMessage.scrollIntoView({ behavior: 'smooth' });
+            const chatContainer = chatMessagesRef.current;
+            if (chatContainer) {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
             }
         }, 100);
+
+        return true
     }
 
-    const handleUpdateMessage = async (messageIndex: number, newContent: string) => {
-        sendChatInputMessage(newContent, messageIndex)
+    const handleUpdateMessage = async (
+        messageIndex: number,
+        newContent: string,
+        promptType: PromptType
+    ) => {
+        if (promptType === 'agent:planning' && messageIndex !== 1) {
+            // In agent planning mode we only update the message locally without sending it to the AI
+            // because the user has not yet confirmed that they want the AI to process these messages 
+            // until they hit the submit button.
+            const newChatHistoryManager = getDuplicateChatHistoryManager()
+            newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent, true)
+            setChatHistoryManager(newChatHistoryManager)
+        } else if (agentModeEnabled && messageIndex === 1) { 
+            // If editing the original agent message
+            sendAgentMessage(newContent, messageIndex)
+        } else {
+            sendChatInputMessage(newContent, messageIndex)
+        }
     };
 
-    const sendAgentMessage = async (message: string) => {
+    const sendAgentMessage = async (message: string, messageIndex?: number) => {
         console.log('Sending agent message: ', message)
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1: Clear the chat history, and add the new error message
-        const newChatHistoryManager = clearChatHistory()
-        const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
+        // Step 1: Add user message to chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        const outgoingMessage = newChatHistoryManager.addAgentMessage(message, messageIndex)
         setChatHistoryManager(newChatHistoryManager)
-        console.log('outgoingMessage: ', outgoingMessage)
 
         // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
@@ -255,11 +335,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setChatHistoryManager(newChatHistoryManager);
             } else {
                 console.log('Mito AI: aiResponse', aiResponse)
-                newChatHistoryManager.addAIMessageFromResponse(
-                    aiResponse.items[0].content || '',
-                    promptType
-                );
-                setChatHistoryManager(newChatHistoryManager);
+                const content = aiResponse.items[0].content || '';
+
+                if (promptType === 'agent:planning') {
+                    // If the user is in agent mode, the ai response is a JSON object
+                    // which we need to parse. 
+                    const agentResponse = JSON.parse(content);
+                    handleAgentResponse(agentResponse, newChatHistoryManager);
+                } else {
+                    // For all other prompt types, we can just add the content to the chat history
+                    aiResponse.items.forEach((item: any) => {
+                        newChatHistoryManager.addAIMessageFromResponse(
+                            item.content || '',
+                            promptType
+                        );
+                    });
+                    setChatHistoryManager(newChatHistoryManager);
+                }
             }
         } catch (error) {
             newChatHistoryManager.addAIMessageFromResponse(
@@ -277,6 +369,77 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
+    const handleAgentResponse = (
+        agentResponse: { actions: string[], dependencies: string[] }, newChatHistoryManager: ChatHistoryManager
+    ) => {
+        newChatHistoryManager.addAIMessageFromResponse(
+            "Based on your request, I've outlined a step-by-step plan. Please review each step carefully. If you'd like to add details or make any changes, you can edit each step directly. Once everything looks good, press Go at the bottom of the task pane to proceed.",
+            'chat'
+        )
+
+        // If there are dependencies, we need to add them to the top of the chat history 
+        if (agentResponse.dependencies.length > 0) {
+            newChatHistoryManager.addAIMessageFromResponse(
+                `Install the following dependencies: ${agentResponse.dependencies.join(', ')}`,
+                'agent:planning'
+            )
+        }
+
+        // Loop through each action in the agent response 
+        // and add it to the chat history.
+        let n = 1;
+        agentResponse.actions.forEach((action: string) => {
+            newChatHistoryManager.addAIMessageFromResponse(
+                `Step ${n}: ${action}`,
+                'agent:planning'
+            );
+            n++;
+        });
+
+        newChatHistoryManager.addAIMessageFromResponse(
+            "If everything looks good, use the start button at the bottom of the task pane to proceed. By doing so, you grant Mito AI permission to execute the code in this notebook.",
+            'chat'
+        )
+
+        setChatHistoryManager(newChatHistoryManager);
+    }
+
+    const executeAgentPlan = async () => {
+        setAgentModeEnabled(false)
+
+        // Get the plan from the chat history
+        const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
+
+        // Move to the last cell of the notebook
+        // We don't want to overwrite any code in the notebook
+        const notebook = notebookTracker.currentWidget?.content;
+        if (notebook) {
+            notebook.activeCellIndex = notebook.widgets.length - 1;
+        }
+
+        // Insert a new cell at the bottom
+        await app.commands.execute("notebook:insert-cell-below");
+
+        // Loop through each message in the plan and send it to the AI
+        for (const agentMessage of plan) {
+            const success = await sendChatInputMessage(agentMessage.message.content as string, undefined, 'agent:execution')
+
+            // If the message fails, break out of the loop
+            if (!success) {
+                break
+            }
+
+            await new Promise<void>((resolve) => {
+                // Adding a small delay to make it easier for users to follow along
+                setTimeout(async () => {
+                    await previewAICode()
+                    await acceptAICode()
+                    await app.commands.execute("notebook:run-cell-and-insert-below");
+                    resolve();
+                }, 1000);
+            });
+        }
+    }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
         if (!aiMessage) {
@@ -313,7 +476,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const previewAICode = () => {
         setCodeReviewStatus('codeCellPreview')
-        updateCodeDiffStripes(chatHistoryManager.getLastAIMessage()?.message)
+        updateCodeDiffStripes(chatHistoryManagerRef.current.getLastAIMessage()?.message)
         updateCellToolbarButtons()
     }
 
@@ -539,29 +702,58 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
     });
 
-
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
+
+    const agentMenuItems = [
+        {
+            label: 'Chat',
+            onClick: () => {
+                clearChatHistory()
+                setAgentModeEnabled(false);
+            },
+            primaryIcon: ChatIcon,
+        },
+        {
+            label: 'Agent',
+            onClick: () => {
+                clearChatHistory()
+                setAgentModeEnabled(true);
+            },
+            primaryIcon: RobotHeadIcon,
+        }
+    ];
 
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                {/* <IconButton
-                    icon={<SupportIcon />}
-                    title="Enter Agent Mode"
-                    onClick={() => { setAgentModeEnabled(!agentModeEnabled) }}
-                /> */}
-                <IconButton
-                    icon={<SupportIcon />}
-                    title="Get Help"
-                    onClick={() => {
-                        window.open('mailto:founders@sagacollab.com?subject=Mito AI Chat Support', '_blank');
-                    }}
+                <DropdownMenu
+                    trigger={
+                        <TextAndIconButton
+                            text={agentModeEnabled ? 'Agent ▾' : 'Chat ▾'}
+                            icon={agentModeEnabled ? RobotHeadIcon : ChatIcon}
+                            title={'Enter Agent Mode'}
+                            variant='purple'
+                            width='fit-contents'
+                            iconPosition='left'
+                            onClick={() => { }}
+                        />
+                    }
+                    items={agentMenuItems}
                 />
-                <IconButton
-                    icon={<ResetIcon />}
-                    title="Clear the chat history"
-                    onClick={() => { clearChatHistory() }}
-                />
+                <div className="chat-taskpane-header-buttons">
+                    <IconButton
+                        icon={<SupportIcon />}
+                        title="Get Help"
+                        onClick={() => {
+                            window.open('mailto:founders@sagacollab.com?subject=Mito AI Chat Support', '_blank');
+                        }}
+                    />
+                    <IconButton
+                        icon={<ResetIcon />}
+                        title="Clear the chat history"
+                        onClick={() => { clearChatHistory() }}
+                    />
+                </div>
             </div>
             <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length <= 1 &&
@@ -585,6 +777,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     return (
                         <ChatMessage
                             message={displayOptimizedChat.message}
+                            promptType={displayOptimizedChat.promptType}
+                            messageType={displayOptimizedChat.type}
                             codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}
@@ -609,21 +803,43 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
-            <ChatInput
-                initialContent={''}
-                placeholder={displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
-                onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                variableManager={variableManager}
-                notebookTracker={notebookTracker}
-                renderMimeRegistry={renderMimeRegistry}
-            />
-            {agentModeEnabled &&
-                <div className="agent-mode-container">
-                    <input placeholder="Enter your CSV file path" className="chat-input chat-input-container"/>
-                </div>
-            }
+            {agentModeEnabled && displayOptimizedChatHistory.some(msg =>
+                msg.type === 'openai message:agent:planning'
+            ) ? (
+                <button
+                    className="button-base button-purple"
+                    onClick={executeAgentPlan}
+                >
+                    Let's go!
+                </button>
+            ) : (
+                <>
+                    <ChatInput
+                        initialContent={''}
+                        placeholder={agentModeEnabled ? 'Ask agent to do anything' : displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
+                        onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
+                        onCancel={undefined}
+                        isEditing={false}
+                        variableManager={variableManager}
+                        notebookTracker={notebookTracker}
+                        renderMimeRegistry={renderMimeRegistry}
+                        agentModeEnabled={agentModeEnabled}
+                    />
+                    {agentModeEnabled &&
+                        <>
+                            {/* <div className="agent-mode-container">
+                                <input placeholder="Enter your CSV file path" className="chat-input chat-input-container" />
+                            </div>
+                            <button
+                                className="button-base button-purple"
+                                onClick={() => { console.log('REPLACE_ME') }}
+                            >
+                                Create plan
+                            </button> */}
+                        </>
+                    }
+                </>
+            )}
         </div>
     );
 };

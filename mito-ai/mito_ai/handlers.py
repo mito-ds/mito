@@ -3,8 +3,7 @@ import logging
 import time
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Awaitable, Dict, Optional, Literal, Type, Union
-
+from typing import Any, Dict, List, Optional, Type, Union
 import tornado
 import tornado.ioloop
 import tornado.web
@@ -12,10 +11,11 @@ from pydantic import BaseModel
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
-from openai.types.chat import ChatCompletionMessageParam
-
+from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.models import (
+    AgentMessageBuilder,
+    ChatMessageBuilder,
     IncomingMessageTypes,
     CodeExplainMessageBuilder,
     CompletionError,
@@ -24,17 +24,22 @@ from mito_ai.models import (
     CompletionRequest,
     CompletionStreamChunk,
     ErrorMessage,
-    ChatMessageBuilder,
+    FetchHistoryReply,
     InlineCompletionMessageBuilder,
-    SmartDebugMessageBuilder,
-    AgentMessageBuilder,
+    SmartDebugMessageBuilder
 )
+from mito_ai.prompt_builders.smart_debug_prompt import remove_inner_thoughts_from_message
+from mito_ai.providers import OpenAIProvider
+from mito_ai.utils.create import initialize_user
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
+from openai.types.chat import ChatCompletionMessageParam
 
 __all__ = ["CompletionHandler"]
 
+# Global history instance
+message_history = GlobalMessageHistory()
 
 # This handler is responsible for the mito-ai/completions endpoint.
 # It takes a message from the user, sends it to the OpenAI API, and returns the response.
@@ -95,9 +100,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         # Stop observing the provider error
         self._llm.unobserve(self._send_error, "last_error")
-
+        
         # Clear the message history
         self.full_message_history = []
+        
 
     async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
@@ -105,6 +111,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
+        
         # first, verify that the message is an `CompletionRequest`.
         self.log.debug("Message received: %s", message)
         try:
@@ -118,57 +125,72 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear history if the type is "clear_history"
         if type == "clear_history":
-            self.full_message_history = []
+            message_history.clear_histories()
+            return
+        
+        if type == "fetch_history":
+            _, display_history = message_history.get_histories()
+            reply = FetchHistoryReply(
+                parent_id=parsed_message.get('message_id'),
+                items=display_history
+            )
+            
+            self.reply(reply)
             return
         
         response_format = None
 
         # Generate new message based on message type
         if type == "inline_completion":
+            # Reset the message history for the inline completion 
+            # because they are ephemeral
+            self.full_message_history = []
+            
             inlineCompletionPromptBuilder = InlineCompletionMessageBuilder(**metadata_dict)
             prompt = inlineCompletionPromptBuilder.prompt
             model = inlineCompletionPromptBuilder.pro_model if self.is_pro else inlineCompletionPromptBuilder.os_model
-        elif type == "chat":
-            chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
-            prompt = chatMessagePromptBuilder.prompt
-            model = chatMessagePromptBuilder.pro_model if self.is_pro else chatMessagePromptBuilder.os_model
-
-            if chatMessagePromptBuilder.index is not None:
-                # Clear the chat history after the specified index (inclusive)
-                self.full_message_history = self.full_message_history[:chatMessagePromptBuilder.index]
-
-        elif type == "codeExplain":
-            codeExplainPromptBuilder = CodeExplainMessageBuilder(**metadata_dict)
-            prompt = codeExplainPromptBuilder.prompt
-            model = codeExplainPromptBuilder.pro_model if self.is_pro else codeExplainPromptBuilder.os_model
-        elif type == "smartDebug":
-            smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
-            prompt = smartDebugPromptBuilder.prompt
-            model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
-        elif type == "agent:planning":
-            agentMessageBuilder = AgentMessageBuilder(**metadata_dict)
-            prompt = agentMessageBuilder.prompt
-            model = agentMessageBuilder.pro_model if self.is_pro else agentMessageBuilder.os_model
-            response_format = agentMessageBuilder.response_format
+            
+            ai_optimized_history: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
+            
         else:
-            raise ValueError(f"Invalid message type: {type}")
+            if type == "chat" or type == "agent:execution":
+                chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
+                prompt = chatMessagePromptBuilder.prompt
+                display_message = chatMessagePromptBuilder.display_message
+                model = chatMessagePromptBuilder.pro_model if self.is_pro else chatMessagePromptBuilder.os_model
 
-        new_message: ChatCompletionMessageParam = {
-            "role": "user", 
-            "content": prompt
-        }
+                if chatMessagePromptBuilder.index is not None:
+                    # Clear the chat history after the specified index (inclusive)
+                    self.full_message_history = self.full_message_history[:chatMessagePromptBuilder.index]
 
-        # Inline completion uses its own websocket
-        #   so we can reuse the full_message_history variable
-        if type == "inline_completion":
-            self.full_message_history = [new_message]
-        else:
-            self.full_message_history.append(new_message)
+            elif type == "codeExplain":
+                codeExplainPromptBuilder = CodeExplainMessageBuilder(**metadata_dict)
+                prompt = codeExplainPromptBuilder.prompt
+                display_message = codeExplainPromptBuilder.display_message
+                model = codeExplainPromptBuilder.pro_model if self.is_pro else codeExplainPromptBuilder.os_model
+            elif type == "smartDebug":
+                smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
+                prompt = smartDebugPromptBuilder.prompt
+                display_message = smartDebugPromptBuilder.display_message
+                model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
+            elif type == "agent:planning":
+                agentMessageBuilder = AgentMessageBuilder(**metadata_dict)
+                prompt = agentMessageBuilder.prompt
+                display_message = agentMessageBuilder.display_message
+                model = agentMessageBuilder.pro_model if self.is_pro else agentMessageBuilder.os_model
+                response_format = agentMessageBuilder.response_format
+            else:
+                raise ValueError(f"Invalid message type: {type}")
+
+            new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+            new_display_message: ChatCompletionMessageParam = {"role": "user", "content": display_message}
+            message_history.append_message(new_ai_optimized_message, new_display_message)
+            ai_optimized_history, display_history = message_history.get_histories()
 
         request = CompletionRequest(
             type=type,
             message_id=parsed_message.get('message_id'),
-            messages=self.full_message_history,
+            messages=ai_optimized_history,
             stream=parsed_message.get('stream', False)
         )
 
@@ -252,17 +274,34 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         start = time.time()
         reply = await self._llm.request_completions(request, prompt_type, model, response_format)
-        self.reply(reply)
 
         # Save to the message history
         # Inline completion is ephemeral and does not need to be saved
         if request.type != "inline_completion":
-            self.full_message_history.append(
-                {
-                    "role": "assistant", 
-                    "content": reply.items[0].content
-                }
-            )
+            response = reply.items[0].content if reply.items else ""
+
+            ai_optimized_message: ChatCompletionMessageParam = {
+                "role": "assistant", 
+                "content": response
+            }
+            display_message: ChatCompletionMessageParam = {
+                "role": "assistant", 
+                "content": response
+            }
+
+            if request.type == "smartDebug":
+                # Remove inner thoughts from the response
+                response = remove_inner_thoughts_from_message(response)
+                display_message["content"] = response
+
+                # Modify reply so the display message in the frontend is also have inner thoughts removed
+                reply.items[0] = CompletionItem(content=response, isIncomplete=reply.items[0].isIncomplete)
+
+            message_history.append_message(ai_optimized_message, display_message)
+
+
+        self.reply(reply)
+        
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
@@ -272,7 +311,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Use a string buffer to accumulate the full response from streaming chunks.
         # We need to accumulate the response on the backend so that we can save it to
-        # the full_message_history
+        # the message history after the streaming is complete.
         accumulated_response = ""
         async for reply in self._llm.stream_completions(request, prompt_type, model):
             if isinstance(reply, CompletionStreamChunk):
@@ -281,12 +320,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.reply(reply)
         
         if request.type != "inline_completion":
-            self.full_message_history.append(
-                {
-                    "role": "assistant", 
-                    "content": reply.items[0].content # type: ignore
-                }
-            )
+            message: ChatCompletionMessageParam = {
+                "role": "assistant", 
+                "content": accumulated_response
+            }
+            message_history.append_message(message, message)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 

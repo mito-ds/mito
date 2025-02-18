@@ -20,6 +20,8 @@ interface ChatInputProps {
     variableManager?: IVariableManager;
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
+    displayActiveCellCode?: boolean;
+    agentModeEnabled?: boolean;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -35,6 +37,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     variableManager,
     notebookTracker,
     renderMimeRegistry,
+    displayActiveCellCode = true,
+    agentModeEnabled = false,
 }) => {
 
     const [input, setInput] = useState(initialContent);
@@ -173,7 +177,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }}
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
-            {activeCellCodePreview.length > 0 
+            {displayActiveCellCode && activeCellCodePreview.length > 0 
                 && (isFocused || input.length > 0)
                 && <div className='active-cell-preview-container'>
                     <div className='code-block-container'>
@@ -194,7 +198,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div style={{ position: 'relative', height: 'min-content'}}>
                 <textarea
                     ref={textAreaRef}
-                    className={classNames("message", "message-user", 'chat-input')}
+                    className={classNames("message", "message-user", 'chat-input', {"agent-mode": agentModeEnabled})}
                     placeholder={placeholder}
                     value={input}
                     onChange={handleInputChange}

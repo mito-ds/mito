@@ -22,7 +22,7 @@
 .chat-taskpane-header {
     display: flex;
     flex-direction: row;
-    justify-content: end;
+    justify-content: space-between;
     align-items: center;
     padding-top: 10px;
     padding-bottom: 5px;
@@ -42,34 +42,44 @@
     margin: 0;
 }
 
+.chat-taskpane-header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
 .message {
+    position: relative;
     height: min-content;
     box-sizing: border-box;
     padding: 10px;
     width: 100%;
     font-size: 14px;
+    border-radius: 5px;
 }
 
 .message:not(.chat-input) {
     margin-bottom: 20px;
 }
 
+.message:hover .message-start-editing-button {
+    opacity: 1 !important;
+}
+
 .message-user {
     background-color: var(--chat-user-message-background-color);
     color: var(--chat-user-message-font-color);
-    border-radius: 5px;
 }
 
-.message-assistant {
+.message-assistant-chat {
     color: var(--chat-assistant-message-font-color);
 }
 
-.markdown-message-part * .jp-RenderedHTMLCommon :not(pre) > code {
+.message-assistant-agent {
     background-color: var(--purple-300);
-    color: var(--purple-700);
-    border-radius: 3px;
-    display: inline-flex;
-    align-items: center;
+}
+
+.message-assistant-agent p {
+    color: var(--grey-900)!important;
 }
 
 .chat-messages {
@@ -103,6 +113,13 @@
     display: none;
 }
 
+.chat-taskpane-smart-debug-error-message {
+    white-space: pre;
+    font-family: monospace;
+    margin: 0;
+    overflow-x: auto;
+}
+
 /* Use container query instead of media query */
 @container (max-width: 300px) {
     .chat-empty-message .long-message {
@@ -123,9 +140,24 @@
     align-items: center;
 }
 
-.message-edit-button {
-    background-color: rgba(255, 255, 255, 0);
+.message-start-editing-button {
+    position: absolute !important;
+    bottom: 8px !important;
+    right: 8px !important;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    background-color: var(--jp-layout-color3);
     border: none;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    color: var(--grey-900) !important;
+}
+
+.message-start-editing-button:hover {
+    background-color: var(--jp-layout-color4);
 }
 
 .message-edit-buttons {

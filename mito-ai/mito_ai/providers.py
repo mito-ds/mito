@@ -243,21 +243,20 @@ This attribute is observed by the websocket provider to push the error to the cl
                 # Validate that the model is supported. If not fall back to gpt-4o-mini
                 if model not in self.models:
                     model = "gpt-4o-mini"
-
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
+                
+                completion_function_params = get_open_ai_completion_function_params(
+                    model, request.messages, False, response_format
+                )
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-                                
-                if prompt_type == "agent:planning":
-                    pass # TODO: Add logging for agents 
-                else:
-                    # Log the successful completion
-                    log_ai_completion_success(
-                        key_type=USER_KEY,
-                        prompt_type=prompt_type,
-                        last_message_content=str(request.messages[-1].get('content', '')),
-                        response={"completion": completion.choices[0].message.content}
-                    )
 
+                # Log the successful completion
+                log_ai_completion_success(
+                    key_type=USER_KEY,
+                    prompt_type=prompt_type,
+                    last_message_content=str(request.messages[-1].get('content', '')),
+                    response={"completion": completion.choices[0].message.content}
+                )
+                
                 return CompletionReply(
                     parent_id=request.message_id,
                     items=[
@@ -269,13 +268,17 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
             else:
                 # If they don't have an Open AI key, use the mito server to get a completion
-                self.log.debug(f"Requesting completion from Mito server with model {model}.")
+                self.log.debug(
+                    f"Requesting completion from Mito server with model {model}."
+                )
                 global _num_usages
                 if _num_usages is None:
                     _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-                
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
-                
+
+                completion_function_params = get_open_ai_completion_function_params(
+                    model, request.messages, False, response_format
+                )
+
                 last_message_content = str(request.messages[-1].get("content", "")) if request.messages else None
                 ai_response = await get_ai_completion_from_mito_server(
                     last_message_content,
