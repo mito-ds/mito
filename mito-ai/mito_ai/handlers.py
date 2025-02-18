@@ -118,6 +118,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
 
             metadata_dict = parsed_message.get('metadata', {})
+            
             type: IncomingMessageTypes = parsed_message.get('type')
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
@@ -153,6 +154,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             ai_optimized_history: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
             
         else:
+            
             if type == "chat" or type == "agent:execution":
                 chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
                 prompt = chatMessagePromptBuilder.prompt

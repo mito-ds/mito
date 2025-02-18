@@ -204,7 +204,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     )
                 }
             })}
-            {editable && (
+            {editable && 
                 <button
                     className="message-start-editing-button"
                     onClick={handleEditClick}
@@ -212,7 +212,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 >
                     <PencilIcon />
                 </button>
-            )}
+            }
         </div>
     )
 }

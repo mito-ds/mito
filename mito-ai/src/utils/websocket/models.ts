@@ -2,6 +2,126 @@ import type {
   IInlineCompletionError,
   IInlineCompletionItem
 } from '@jupyterlab/completer';
+import { Variable } from '../../Extensions/VariableManager/VariableInspector';
+
+/* 
+
+Meta Data Models
+
+*/
+
+type CompletionRequestMetadata =
+  IChatMessageMetadata |
+  ISmartDebugMetadata |
+  ICodeExplainMetadata |
+  IAgentPlanningMetadata |
+  IInlineCompleterMetadata |
+  IClearHistoryMetadata |
+  IFetchHistoryMetadata
+
+
+export interface IChatMessageMetadata {
+    promptType: 'chat' | 'agent:execution'
+    variables?: Variable[];
+    activeCellCode?: string;   
+    input: string;
+    index?: number;
+}
+
+export interface ISmartDebugMetadata {
+    promptType: 'smartDebug';
+    variables?: Variable[];
+    activeCellCode?: string;   
+    errorMessage: string;     
+}
+
+export interface ICodeExplainMetadata {
+    promptType: 'codeExplain';
+    variables?: Variable[];
+    activeCellCode?: string;
+}
+
+export interface IAgentPlanningMetadata {
+    promptType: 'agent:planning';
+    variables?: Variable[];
+    input: string;
+}
+
+export interface IInlineCompleterMetadata {
+    promptType: 'inline_completion';
+    variables?: Variable[]; 
+    prefix: string;
+    suffix: string;
+}
+
+export interface IClearHistoryMetadata {
+    promptType: 'clear_history'
+}
+
+export interface IFetchHistoryMetadata {
+    promptType: 'fetch_history'
+}
+
+/* 
+
+Completion Request Models
+
+*/
+export interface ICompletionRequest {
+  /**
+   * The type of the message.
+   */
+  type: string;
+  /**
+   * The message ID.
+   */
+  message_id: string;
+  /**
+   * The metadata containing structured data for backend prompt generation.
+   */
+  metadata: CompletionRequestMetadata;
+  /**
+   * Whether to stream the completion or not.
+   */
+  stream: boolean;
+}
+
+
+export interface IChatCompletionRequest extends ICompletionRequest {
+  type: 'chat',
+  metadata: IChatMessageMetadata
+}
+
+export interface ISmartDebugCompletionRequest extends ICompletionRequest {
+  type: 'smartDebug'
+  metadata: ISmartDebugMetadata
+}
+
+export interface ICodeExplainCompletionRequest extends ICompletionRequest {
+  type: 'codeExplain'
+  metadata: ICodeExplainMetadata
+}
+
+export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
+  type: 'agent:planning'
+  metadata: IAgentPlanningMetadata
+}
+
+export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
+  type: 'inline_completion'
+  metadata: IInlineCompleterMetadata
+}
+
+export interface IClearHistoryCompletionRequest extends ICompletionRequest {
+  type: 'clear_history'
+  metadata: IClearHistoryMetadata
+}
+
+export interface IFetchHistoryCompletionRequest extends ICompletionRequest {
+  type: 'fetch_history'
+  metadata: IFetchHistoryMetadata
+}
+
 
 /**
  * AI capabilities.
