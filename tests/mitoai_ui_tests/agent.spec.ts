@@ -194,7 +194,7 @@ test.describe("Stop Agent", () => {
     });
 
 
-    test.only("Stop agent's plan execution", async ({ page }) => {
+    test("Stop agent's plan execution", async ({ page }) => {
 
         await sendMessageToMitoAI(page, "Create a list of 10 numbers and then find the largest number in the list.");
         await waitForIdle(page);
@@ -233,7 +233,7 @@ test.describe("Stop Agent", () => {
         await expect(page.getByText('Agent execution stopped')).toBeVisible();
     });
 
-    test.only("Stop agent during error fixup", async ({ page }) => {
+    test("Stop agent during error fixup", async ({ page }) => {
         // This is hopefully an impossible thing for the agent to pass. 
         await sendMessageToMitoAI(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
         await waitForIdle(page);
