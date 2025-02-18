@@ -429,7 +429,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Add a message to indicate the agent was stopped
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
-            "Agent execution was stopped. You can start a new conversation.",
+            "Agent execution stopped. You can continue the conversation or start a new one.",
             'chat',
             newChatHistoryManager
         );
