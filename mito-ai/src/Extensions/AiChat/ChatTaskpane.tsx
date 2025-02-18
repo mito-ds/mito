@@ -914,7 +914,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             disabled={agentExecutionStatus === 'stopping'}
                         >
                             {agentExecutionStatus === 'stopping' ? (
-                                <>Stopping<LoadingCircle /> </>
+                                <div style={{display: 'flex', textAlign: 'center', alignItems: 'center', gap: '8px', justifyContent: 'center'}}>Stopping<LoadingCircle /> </div>
                             ) : (
                                 'Stop Agent'
                             )}
