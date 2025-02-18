@@ -194,13 +194,10 @@ test.describe("Stop Agent", () => {
     });
 
 
-    test("Stop agent's plan execution", async ({ page }) => {
+    test.only("Stop agent's plan execution", async ({ page }) => {
 
-        await sendMessageToMitoAI(page, "Import the file nba_data.csv");
+        await sendMessageToMitoAI(page, "Create a list of 10 numbers and then find the largest number in the list.");
         await waitForIdle(page);
-
-        // Run the plan of attack
-        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
@@ -234,6 +231,43 @@ test.describe("Stop Agent", () => {
 
         // Verify that the message "Agent stopped" is visible
         await expect(page.getByText('Agent execution stopped')).toBeVisible();
+    });
+
+    test.only("Stop agent during error fixup", async ({ page }) => {
+        // This is hopefully an impossible thing for the agent to pass. 
+        await sendMessageToMitoAI(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
+        await waitForIdle(page);
+
+        // Run the plan of attack
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+
+        // Wait for the "trying again" message to appear
+        await expect(async () => {
+            const messages = await page.locator('.message-assistant-chat').all();
+            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+                throw new Error('Expected retry message not found');
+            }
+        }).toPass({ timeout: 45000 });
+
+        // Click the Stop Agent button
+        await page.getByRole('button', { name: 'Stop Agent' }).click();
+
+        // Expect that the message turns into Stopping 
+        await expect(page.getByRole('button', { name: 'Stopping' })).toBeVisible();
+
+        // Wait for the current message to finish
+        await waitForMitoAILoadingToDisappear(page);
+
+        // Verify that the message "Agent stopped" is visible
+        await expect(page.getByText('Agent execution stopped')).toBeVisible();
+
+        // Verify we don't see the final error message
+        const messages = await page.locator('.message-assistant-chat').all();
+        const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+        expect(messageTexts.some(text => 
+            text?.includes("I apologize, but I was unable to fix the error after 3 attempts")
+        )).toBe(false);
     });
 })
 
@@ -273,6 +307,5 @@ test.describe("Agent mode auto error fixup", () => {
             }
         }).toPass({ timeout: 45000 }); // Increase timeout if needed
     });
-
     
 });
