@@ -12,6 +12,8 @@ import {
     editMitoAIMessage,
 } from './utils';
 
+const AGENT_PLAN_SUBMIT_BUTTON_TEXT = 'Let\'s go!';
+
 test.describe("Agent mode integration tests", () => {
 
     test.beforeEach(async ({ page }) => {
@@ -80,7 +82,7 @@ test.describe("Agent mode integration tests", () => {
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
 
         // Run the plan of attack
-        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Wait for all chat messages to appear
         await page.waitForFunction(
@@ -126,7 +128,7 @@ test.describe("Agent mode integration tests", () => {
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
 
         // Run the plan of attack
-        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Wait for all chat messages to appear
         await page.waitForFunction(
@@ -179,7 +181,7 @@ test.describe("Agent auto error debugging", () => {
         await waitForIdle(page);
 
         // Run the plan of attack
-        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Check that the agent eventually sends a message that says it is trying again
         await expect(async () => {
