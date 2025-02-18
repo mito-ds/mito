@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type, Union
+from typing import List, Literal, Optional, Type, TypedDict, Union
 
 from pydantic import BaseModel
 from openai.types.chat import ChatCompletionMessageParam
@@ -25,28 +25,19 @@ CompletionIncomingMessageTypes = Literal[
 
 IncomingMessageTypes = Union[Literal['clear_history', 'fetch_history'], CompletionIncomingMessageTypes]
 
+"""
+Chat Messages
+"""
 @dataclass(frozen=True)
-class AICapabilities:
-    """
-    AI provider capabilities
-    """
-
-    # Configuration schema.
-    configuration: dict
-
-    # AI provider name.
-    provider: str
-
-    # Message type.
-    type: str = "ai_capabilities"
-
-@dataclass(frozen=True)
-class ChatMessageBuilder:
+class ChatMessageMetadata():
+    promptType: Literal['chat', 'agent:execution']
+    input: str
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    input: Optional[str] = None
     index: Optional[int] = None
 
+@dataclass(frozen=True)
+class ChatMessageBuilder(ChatMessageMetadata):
     @property
     def prompt(self) -> str:
         return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
@@ -67,13 +58,20 @@ class ChatMessageBuilder:
     @property
     def os_model(self) -> str:
         return "gpt-4o-mini"
-
+    
+    
+"""
+Smart Debug Message
+"""
 @dataclass(frozen=True)
-class SmartDebugMessageBuilder:
+class SmartDebugMetadata():
+    promptType: Literal['smartDebug']
+    errorMessage: str
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    errorMessage: Optional[str] = None
 
+@dataclass(frozen=True)
+class SmartDebugMessageBuilder(SmartDebugMetadata):
     @property
     def prompt(self) -> str:
         return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
@@ -94,12 +92,18 @@ class SmartDebugMessageBuilder:
     @property
     def os_model(self) -> str:
         return "gpt-4o-mini"
-
+    
+"""
+Code Explain Message
+"""
 @dataclass(frozen=True)
-class CodeExplainMessageBuilder:
+class CodeExplainMetadata():    
+    promptType: Literal['codeExplain']
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
 
+@dataclass(frozen=True)
+class CodeExplainMessageBuilder(CodeExplainMetadata):
     @property
     def prompt(self) -> str:
         return create_explain_code_prompt(self.activeCellCode or '')
@@ -121,28 +125,19 @@ class CodeExplainMessageBuilder:
     @property
     def os_model(self) -> str:
         return "gpt-4o-mini"
-
+    
+"""
+Agent Planning Message
+"""
 @dataclass(frozen=True)
-class InlineCompletionMessageBuilder:
-    prefix: Optional[str] = None
-    suffix: Optional[str] = None
+class AgentPlanningMetadata():    
+    promptType: Literal['agent:planning']
+    input: str
     variables: Optional[List[str]] = None
-
-    @property
-    def prompt(self) -> str:
-        return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
     
-    @property
-    def pro_model(self) -> str:
-        return "gpt-4o-mini"
-    
-    @property
-    def os_model(self) -> str:
-        return "gpt-4o-mini"
-
 @dataclass(frozen=True)
 class AgentMessageBuilder:
-    promptType: Optional[str] = None
+    promptType: Literal['agent:execution']
     fileType: Optional[str] = None
     columnSamples: Optional[List[str]] = None
     input: Optional[str] = None
@@ -176,6 +171,61 @@ class AgentMessageBuilder:
             dependencies: List[str]
         return PlanOfAttack
     
+    
+"""
+Inline Completer Message
+"""
+@dataclass(frozen=True)
+class InlineCompleterMetadata():
+    promptType: Literal['inline_completion']
+    prefix: str 
+    suffix: str
+    variables: Optional[List[str]] = None
+
+@dataclass(frozen=True)
+class InlineCompletionMessageBuilder(InlineCompleterMetadata):
+
+    @property
+    def prompt(self) -> str:
+        return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
+    
+    @property
+    def pro_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    @property
+    def os_model(self) -> str:
+        return "gpt-4o-mini"
+
+"""
+Clear History Message
+"""
+@dataclass(frozen=True)
+class ClearHistoryMetadata():
+    promptType: Literal['clear_history']
+
+"""
+Fetch History Message
+"""
+@dataclass(frozen=True)
+class FetchHistoryMetadata():
+    promptType: Literal['fetch_history']
+
+    
+@dataclass(frozen=True)
+class AICapabilities:
+    """
+    AI provider capabilities
+    """
+
+    # Configuration schema.
+    configuration: dict
+
+    # AI provider name.
+    provider: str
+
+    # Message type.
+    type: str = "ai_capabilities"
 
 
 @dataclass(frozen=True)

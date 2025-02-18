@@ -20,7 +20,6 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import {
     ChatHistoryManager,
     IDisplayOptimizedChatHistory,
-    IOutgoingMessage,
     PromptType 
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
@@ -43,6 +42,7 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IAgentPlanningCompletionRequest, IChatCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
@@ -112,12 +112,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
         await websocketClient.ready;
 
-        const chatHistoryResponse = await websocketClient.sendMessage({
+        const fetchHistoryCompletionRequest: IFetchHistoryCompletionRequest = {
             type: 'fetch_history',
             message_id: UUID.uuid4(),
-            metadata: {},
+            metadata: {
+                promptType: 'fetch_history'
+            },
             stream: false
-        });
+        }
+        
+        const chatHistoryResponse = await websocketClient.sendMessage(fetchHistoryCompletionRequest);
 
         return chatHistoryResponse.items.map((item: any) => ({
             role: item.role,
@@ -225,11 +229,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the error message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
+        const smartDebugMetadata = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
+        const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
+            type: 'smartDebug',
+            message_id: UUID.uuid4(),
+            metadata: smartDebugMetadata,
+            stream: false
+        }
+        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
@@ -238,11 +248,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = clearChatHistory()
-        const outgoingMessage = newChatHistoryManager.addExplainCodeMessage()
+        const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
+        const explainCompletionRequest: ICodeExplainCompletionRequest = {
+            type: 'codeExplain',
+            message_id: UUID.uuid4(),
+            metadata: explainCodeMetadata,
+            stream: false
+        }
+        await _sendMessageAndSaveResponse(explainCompletionRequest, newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
@@ -256,23 +272,49 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        var outgoingMessage: IOutgoingMessage;
+        var chatMessageMetadata: IChatMessageMetadata;
         if (messageIndex !== undefined) {
-            outgoingMessage = newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
+            chatMessageMetadata = newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
         } else {
-            outgoingMessage = newChatHistoryManager.addChatInputMessage(input)
+            chatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
         }
 
         // If the user is in agent mode, we override the prompt type to be 'agent:execution'
         // This gets used in the backend for logging purposes.
-        if (overridePromptType) {
-            outgoingMessage.promptType = overridePromptType
+        if (overridePromptType === 'agent:execution') {
+            chatMessageMetadata.promptType = overridePromptType
         }
 
         setChatHistoryManager(newChatHistoryManager)
 
-        // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
+        // Step 2: Scroll to the bottom of the chat messages container
+        // Add a small delay to ensure the new message is rendered
+        setTimeout(() => {
+            chatMessagesRef.current?.scrollTo({
+                top: chatMessagesRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 100);
+
+        // Step 3: Send the message to the AI
+        const chatCompletionRequest: IChatCompletionRequest = {
+            type: 'chat',
+            message_id: UUID.uuid4(),
+            metadata: chatMessageMetadata,
+            stream: false
+        }
+        await _sendMessageAndSaveResponse(chatCompletionRequest, newChatHistoryManager)
+
+        // Step 4: Scroll to the bottom of the chat smoothly
+        setTimeout(() => {
+            const chatContainer = chatMessagesRef.current;
+            if (chatContainer) {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
     }
 
     const handleUpdateMessage = async (
@@ -289,38 +331,38 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             setChatHistoryManager(newChatHistoryManager)
         } else if (agentModeEnabled && messageIndex === 1) {
             // If editing the original agent message, send it as a new agent message.
-            await sendAgentMessage(newContent)
+            await sendAgentPlanningMessage(newContent)
         } else {
             await sendChatInputMessage(newContent, messageIndex)
         }
     };
 
-    const sendAgentMessage = async (message: string, messageIndex?: number): Promise<void> => {
+    const sendAgentPlanningMessage = async (message: string, messageIndex?: number): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add user message to chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const outgoingMessage = newChatHistoryManager.addAgentMessage(message, messageIndex)
+        const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message, messageIndex)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        await _sendMessageAndSaveResponse(outgoingMessage, newChatHistoryManager)
+        const agentPlanningCompletionRequest: IAgentPlanningCompletionRequest = {
+            type: 'agent:planning',
+            message_id: UUID.uuid4(),
+            metadata: agentPlanningMetadata,
+            stream: false
+        }
+        await _sendMessageAndSaveResponse(agentPlanningCompletionRequest, newChatHistoryManager)
     }
 
-    const _sendMessageAndSaveResponse = async (outgoingMessage: IOutgoingMessage, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
+    const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
-        const { promptType, metadata } = outgoingMessage;
 
         try {
             await websocketClient.ready;
 
-            const aiResponse = await websocketClient.sendMessage({
-                type: promptType,
-                message_id: UUID.uuid4(),
-                metadata: metadata,
-                stream: false
-            });
+            const aiResponse = await websocketClient.sendMessage(completionRequest);
 
             if (aiResponse.error) {
                 console.error('Error calling OpenAI API:', aiResponse.error);
@@ -328,7 +370,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     aiResponse.error.hint
                         ? aiResponse.error.hint
                         : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
-                    promptType,
+                    completionRequest.metadata.promptType, // #TODO: Why are we storing the prompt type in the AI response?
                     newChatHistoryManager,
                     true,
                     aiResponse.error.title
@@ -337,7 +379,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 console.log('Mito AI: aiResponse', aiResponse)
                 const content = aiResponse.items[0].content || '';
 
-                if (promptType === 'agent:planning') {
+                if (completionRequest.metadata.promptType === 'agent:planning') {
                     // If the user is in agent mode, the ai response is a JSON object
                     // which we need to parse. 
                     const agentResponse = JSON.parse(content);
@@ -347,7 +389,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     aiResponse.items.forEach((item: any) => {
                         newChatHistoryManager.addAIMessageFromResponse(
                             item.content || '',
-                            promptType
+                            completionRequest.metadata.promptType
                         );
                     });
                     setChatHistoryManager(newChatHistoryManager);
@@ -356,7 +398,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } catch (error) {
             addAIMessageFromResponseAndUpdateState(
                 (error as any).hint ? (error as any).hint : `${error}`,
-                promptType,
+                completionRequest.metadata.promptType,
                 newChatHistoryManager,
                 true
             )
@@ -612,7 +654,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         websocketClient.sendMessage({
             type: 'clear_history',
             message_id: UUID.uuid4(),
-            metadata: {},
+            metadata: {
+                promptType: 'clear_history'
+            },
             stream: false,
         });
 
@@ -901,7 +945,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` 
                             : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
                         }
-                        onSave={agentModeEnabled ? sendAgentMessage : sendChatInputMessage}
+                        onSave={agentModeEnabled ? sendAgentPlanningMessage : sendChatInputMessage}
                         onCancel={undefined}
                         isEditing={false}
                         variableManager={variableManager}
