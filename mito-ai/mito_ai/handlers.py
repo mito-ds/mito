@@ -142,7 +142,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             
             # Get completion based on message type
             completion = None
-            if type == MessageType.CHAT:
+            if type == MessageType.CHAT or type == MessageType.AGENT_EXECUTION:
                 chatMetadata = ChatMessageMetadata(**metadata_dict)
                 completion = await get_chat_completion(chatMetadata, self._llm, message_history)
             elif type == MessageType.SMART_DEBUG:

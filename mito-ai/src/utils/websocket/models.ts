@@ -107,6 +107,11 @@ export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
   metadata: IAgentPlanningMetadata
 }
 
+export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
+  type: 'agent:execution'
+  metadata: IChatMessageMetadata
+}
+
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
   type: 'inline_completion'
   metadata: IInlineCompleterMetadata

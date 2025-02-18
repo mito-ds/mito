@@ -38,7 +38,7 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { IAgentPlanningCompletionRequest, IChatCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
+import { IAgentExecutionCompletionRequest, IAgentPlanningCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -255,8 +255,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // If the user is in agent mode, we override the prompt type to be 'agent:execution'
         // This gets used in the backend for logging purposes.
+        let completionRequest: ICompletionRequest | IAgentExecutionCompletionRequest;
         if (overridePromptType) {
             chatMessageMetadata.promptType = overridePromptType
+            completionRequest = {
+                type: overridePromptType,
+                message_id: UUID.uuid4(),
+                metadata: chatMessageMetadata,
+                stream: false
+            }
+        } else {
+            completionRequest = {
+                type: 'chat',
+                message_id: UUID.uuid4(),
+                metadata: chatMessageMetadata,
+                stream: false
+            }
         }
 
         setChatHistoryManager(newChatHistoryManager)
@@ -271,13 +285,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }, 100);
 
         // Step 3: Send the message to the AI
-        const chatCompletionRequest: IChatCompletionRequest = {
-            type: 'chat',
-            message_id: UUID.uuid4(),
-            metadata: chatMessageMetadata,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(chatCompletionRequest, newChatHistoryManager)
+        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
@@ -319,6 +327,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add user message to chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
+
         const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message, messageIndex)
         setChatHistoryManager(newChatHistoryManager)
 
