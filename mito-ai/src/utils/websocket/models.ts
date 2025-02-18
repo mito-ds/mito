@@ -29,7 +29,7 @@ export interface IChatMessageMetadata {
 }
 
 export interface ISmartDebugMetadata {
-    promptType: 'smartDebug';
+    promptType: 'smartDebug' | 'agent:autoErrorFixup';
     variables?: Variable[];
     activeCellCode?: string;   
     errorMessage: string;     
@@ -94,6 +94,11 @@ export interface IChatCompletionRequest extends ICompletionRequest {
 
 export interface ISmartDebugCompletionRequest extends ICompletionRequest {
   type: 'smartDebug'
+  metadata: ISmartDebugMetadata
+}
+
+export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
+  type: 'agent:autoErrorFixup'
   metadata: ISmartDebugMetadata
 }
 

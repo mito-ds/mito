@@ -42,7 +42,7 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { IAgentExecutionCompletionRequest, IAgentPlanningCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
+import { IAgentAutoErrorFixupCompletionRequest, IAgentExecutionCompletionRequest, IAgentPlanningCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
@@ -233,8 +233,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
-            type: 'smartDebug',
+        const smartDebugCompletionRequest: ISmartDebugCompletionRequest | IAgentAutoErrorFixupCompletionRequest = {
+            type: promptType,
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
             stream: false

@@ -37,6 +37,7 @@ from mito_ai.completion_handlers.code_explain_handler import get_code_explain_co
 from mito_ai.completion_handlers.inline_completer_handler import get_inline_completion
 from mito_ai.completion_handlers.agent_planning_handler import get_agent_planning_completion
 from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
+from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 
 
 __all__ = ["CompletionHandler"]
@@ -159,7 +160,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 agentExecutionMetadata = ChatMessageMetadata(**metadata_dict)
                 completion = await get_agent_execution_completion(agentExecutionMetadata, self._llm, message_history)
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
-                agentAutoErrorFixupMetadata = ChatMessageMetadata(**metadata_dict)
+                agentAutoErrorFixupMetadata = SmartDebugMetadata(**metadata_dict)
                 completion = await get_agent_auto_error_fixup_completion(agentAutoErrorFixupMetadata, self._llm, message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inlineCompleterMetadata = InlineCompleterMetadata(**metadata_dict)
