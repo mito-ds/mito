@@ -46,6 +46,7 @@ import { IAgentPlanningCompletionRequest, IChatCompletionRequest, IChatMessageMe
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
+import LoadingCircle from '../../components/LoadingCircle';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -95,7 +96,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
-    const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'idle'>('idle')
+
+    /* 
+        Three possible states:
+        1. working: the agent is working on the task
+        2. stopping: the agent is stopping after it has received ai response it is waiting on
+        3. idle: the agent is idle
+    */
+    const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'stopping' | 'idle'>('idle')
+    
+    // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
+    // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
+    const shouldContinueAgentExecution = useRef<boolean>(true);
 
     const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
         await websocketClient.ready;
@@ -451,9 +463,31 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         )
     }
 
+    const markAgentForStopping = () => {
+        // Signal that the agent should stop after current task
+        shouldContinueAgentExecution.current = false;
+        // Update UI to show stopping state
+        setAgentExecutionStatus('stopping');
+    }
+
+    const finalizeAgentStop = () => {
+        // Notify user that agent has been stopped
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        addAIMessageFromResponseAndUpdateState(
+            "Agent execution stopped. You can continue the conversation or start a new one.",
+            'chat',
+            newChatHistoryManager
+        );
+        // Reset agent to idle state
+        setAgentExecutionStatus('idle');
+    }
+
     const executeAgentPlan = async () => {
         setAgentModeEnabled(false)
         setAgentExecutionStatus('working')
+        // Reset the execution flag at the start of a new plan
+        shouldContinueAgentExecution.current = true;
+
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
 
@@ -469,6 +503,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
+            // Check if we should continue execution
+            if (!shouldContinueAgentExecution.current) {
+                finalizeAgentStop()
+                break;
+            }
             
             const messageContent = agentMessage.message.content
 
@@ -483,21 +522,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Run the code and handle any errors
             await acceptAndRunCode(app, previewAICode, acceptAICode)
-            const success = await retryIfExecutionError(
+            const status = await retryIfExecutionError(
                 notebookTracker,
                 app,
                 getDuplicateChatHistoryManager,
                 addAIMessageFromResponseAndUpdateState,
                 sendDebugErrorMessage,
                 previewAICode,
-                acceptAICode
+                acceptAICode,
+                shouldContinueAgentExecution,
+                finalizeAgentStop
             )
+
+            if (status === 'interupted') {
+                break;
+            }
 
             // If we were not able to run the code, break out of the loop 
             // so we don't continue to execute the plan. Instead, we encourage
             // the user to update the plan and try again. 
             // TODO: Save this message in backend also even if there is not another message sent. 
-            if (!success) {
+            if (status === 'failure') {
                 addAIMessageFromResponseAndUpdateState(
                     "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
                     'agent:execution',
@@ -894,7 +939,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <ChatInput
                         initialContent={''}
                         placeholder={
-                            agentExecutionStatus === 'working' ? 'Agent is working...' : 
+                            agentExecutionStatus === 'working' ? 'Agent is working...' :
+                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
                             agentModeEnabled ? 'Ask agent to do anything' : 
                             displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` 
                             : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
@@ -907,19 +953,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         renderMimeRegistry={renderMimeRegistry}
                         agentModeEnabled={agentModeEnabled}
                     />
-                    {agentModeEnabled &&
-                        <>
-                            {/* <div className="agent-mode-container">
-                                <input placeholder="Enter your CSV file path" className="chat-input chat-input-container" />
-                            </div>
-                            <button
-                                className="button-base button-purple"
-                                onClick={() => { console.log('REPLACE_ME') }}
-                            >
-                                Create plan
-                            </button> */}
-                        </>
-                    }
+                    {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
+                        <button 
+                            className="button-base button-red" 
+                            onClick={markAgentForStopping}
+                            style={{marginTop: '8px'}}
+                            disabled={agentExecutionStatus === 'stopping'}
+                        >
+                            {agentExecutionStatus === 'stopping' ? (
+                                <div style={{display: 'flex', textAlign: 'center', alignItems: 'center', gap: '8px', justifyContent: 'center'}}>Stopping<LoadingCircle /> </div>
+                            ) : (
+                                'Stop Agent'
+                            )}
+                        </button>
+                    )}
                 </>
             )}
         </div>
