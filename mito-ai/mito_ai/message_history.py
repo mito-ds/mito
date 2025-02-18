@@ -77,6 +77,20 @@ class GlobalMessageHistory:
 
         # Load from disk on startup
         self._load_from_disk()
+        
+    @property
+    def ai_optimized_history(self) -> List[ChatCompletionMessageParam]:
+        with self._lock:
+            return self._ai_optimized_history[:]
+    
+    @property
+    def display_history(self) -> List[ChatCompletionMessageParam]:
+        with self._lock:
+            return self._display_history[:]
+    
+    def get_histories(self) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
+        with self._lock:
+            return self._ai_optimized_history[:], self._display_history[:]
     
     def _load_from_disk(self) -> None:
         """Load existing history from disk, if it exists."""
@@ -118,9 +132,6 @@ class GlobalMessageHistory:
             # log or handle error
             print(f"Error saving history file: {e}")
 
-    def get_histories(self) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
-        with self._lock:
-            return self._ai_optimized_history[:], self._display_history[:]
 
     def clear_histories(self) -> None:
         with self._lock:

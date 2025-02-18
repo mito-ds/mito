@@ -18,8 +18,8 @@ def test_os_user_mito_server_below_limit() -> None:
 
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY)
     ):
         capabilities = llm.capabilities
 
@@ -38,8 +38,8 @@ def test_os_user_mito_server_above_limit() -> None:
     # Above the chat limit
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY),
     ):
         capabilities = llm.capabilities
 
@@ -50,8 +50,8 @@ def test_os_user_mito_server_above_limit() -> None:
     # Above the inline limit
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
-        patch("mito_ai.providers._first_usage_date", REALLY_OLD_DATE),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=REALLY_OLD_DATE),
     ):
         capabilities = llm.capabilities
 
@@ -69,8 +69,8 @@ def test_os_user_openai_key_set_below_limit() -> None:
     llm = OpenAIProvider()
 
     with (
-        patch("mito_ai.providers._num_usages", 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY),
     ):
         capabilities = llm.capabilities
 
@@ -88,8 +88,8 @@ def test_os_user_openai_key_set_above_limit() -> None:
 
     # Above the chat limit
     with (
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY),
     ):
         capabilities = llm.capabilities
 
@@ -98,8 +98,8 @@ def test_os_user_openai_key_set_above_limit() -> None:
 
     # Above the inline limit
     with (
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
-        patch("mito_ai.providers._first_usage_date", REALLY_OLD_DATE),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=REALLY_OLD_DATE),
     ):
         capabilities = llm.capabilities
 
@@ -117,8 +117,8 @@ def test_pro_user_mito_server_set_below_limit() -> None:
 
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
         capabilities = llm.capabilities
@@ -138,24 +138,22 @@ def test_pro_user_mito_server_above_limit() -> None:
     # Above the chat limit
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
         capabilities = llm.capabilities
-
         assert capabilities.provider == "Mito server"
         assert llm.last_error is None
 
     # Above the inline limit
     with (
         patch.dict(os.environ, {"OPENAI_API_KEY": ""}),
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
-        patch("mito_ai.providers._first_usage_date", REALLY_OLD_DATE),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=REALLY_OLD_DATE),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
         capabilities = llm.capabilities
-
         assert capabilities.provider == "Mito server"
         assert llm.last_error is None
 
@@ -169,8 +167,8 @@ def test_pro_user_openai_key_set_below_limit() -> None:
     llm = OpenAIProvider()
 
     with (
-        patch("mito_ai.providers._num_usages", 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
         capabilities = llm.capabilities
@@ -189,8 +187,8 @@ def test_pro_user_openai_key_set_above_limit() -> None:
 
     # Above the chat limit
     with (
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
-        patch("mito_ai.providers._first_usage_date", TODAY),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT + 1),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=TODAY),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
         capabilities = llm.capabilities
@@ -200,8 +198,8 @@ def test_pro_user_openai_key_set_above_limit() -> None:
 
     # Above the inline limit
     with (
-        patch("mito_ai.providers._num_usages", OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
-        patch("mito_ai.providers._first_usage_date", REALLY_OLD_DATE),
+        patch("mito_ai.utils.open_ai_utils.get_completion_count", return_value=OPEN_SOURCE_AI_COMPLETIONS_LIMIT),
+        patch("mito_ai.utils.open_ai_utils.get_first_completion_date", return_value=REALLY_OLD_DATE),
         patch("mito_ai.utils.open_ai_utils.is_pro", return_value=True),
     ):
         capabilities = llm.capabilities
