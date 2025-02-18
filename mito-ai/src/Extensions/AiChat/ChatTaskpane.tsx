@@ -45,6 +45,7 @@ import type { CompletionWebsocketClient } from '../../utils/websocket/websocketC
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
+import { scrollToDiv } from '../../utils/scroll';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -182,22 +183,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
     }, [chatHistoryManager]);
 
-    // Helper function to scroll chat to bottom
-    const scrollToBottom = () => {
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
-    };
-
     // Scroll to bottom whenever chat history updates
     useEffect(() => {
-        scrollToBottom();
+        scrollToDiv(chatMessagesRef);
     }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
 
 
