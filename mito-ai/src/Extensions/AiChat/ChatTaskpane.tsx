@@ -21,7 +21,7 @@ import {
     ChatHistoryManager,
     IDisplayOptimizedChatHistory,
     IOutgoingMessage,
-    PromptType
+    PromptType 
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import DropdownMenu from '../../components/DropdownMenu';
@@ -280,7 +280,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         newContent: string,
         messageType: IDisplayOptimizedChatHistory['type']
     ): Promise<void> => {
-        if (messageType === 'openai message:agent:planning') {
+        if (messageType === 'openai message:agent:planning' && messageIndex !== 1) {
             // In agent planning mode we only update the message locally without sending it to the AI
             // because the user has not yet confirmed that they want the AI to process these messages 
             // until they hit the submit button.
@@ -295,14 +295,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
-    const sendAgentMessage = async (message: string): Promise<void> => {
-        console.log('Sending agent message: ', message)
+    const sendAgentMessage = async (message: string, messageIndex?: number): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add user message to chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const outgoingMessage = newChatHistoryManager.addAgentMessage(message)
+        const outgoingMessage = newChatHistoryManager.addAgentMessage(message, messageIndex)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -874,6 +873,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         variableManager={variableManager}
                         notebookTracker={notebookTracker}
                         renderMimeRegistry={renderMimeRegistry}
+                        agentModeEnabled={agentModeEnabled}
                     />
                     {agentModeEnabled &&
                         <>

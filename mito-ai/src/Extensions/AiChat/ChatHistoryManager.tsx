@@ -12,6 +12,8 @@ export type PromptType =
     'agent:execution' | 
     'agent:autoErrorFixup';
 
+export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
+
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
 // displayOptimizedChatHistory, we also include connection error messages so that we can 
@@ -19,7 +21,7 @@ export type PromptType =
 // we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'openai message:agent:planning' | 'connection error',
+    type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
@@ -150,7 +152,7 @@ export class ChatHistoryManager {
         }
     }
 
-    addAgentMessage(message: string): IOutgoingMessage {
+    addAgentMessage(message: string, index?: number): IOutgoingMessage {
         const variables = this.variableManager.variables
 
         const metadata: IChatMessageMetadata = {
@@ -166,6 +168,12 @@ export class ChatHistoryManager {
                 promptType: 'agent:planning'
             }
         )
+
+        // If editing the first agent message, the user will want a new plan.
+        // So we drop all steps in the agent's previous plan.
+        if (index === 1) {
+            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        }
 
         return {
             promptType: 'agent:planning',
