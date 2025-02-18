@@ -74,21 +74,3 @@ export const retryIfExecutionError = async (
 
     return 'success'
 }
-
-
-export const stopAgentExecution = (
-    getDuplicateChatHistoryManager: () => ChatHistoryManager,
-    addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager) => void,
-    setAgentExecutionStatus: (status: 'idle' | 'working' | 'stopping') => void,
-) => {
-    // Add a message to indicate the agent was stopped
-    const newChatHistoryManager = getDuplicateChatHistoryManager();
-    addAIMessageFromResponseAndUpdateState(
-        "Agent execution was stopped. You can start a new conversation.",
-        'chat',
-        newChatHistoryManager
-    );
-    // Set status back to idle
-    setAgentExecutionStatus('idle');
-}
-
