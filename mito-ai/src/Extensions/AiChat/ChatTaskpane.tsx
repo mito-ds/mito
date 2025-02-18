@@ -46,6 +46,7 @@ import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
+import LoadingCircle from '../../components/LoadingCircle';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -912,7 +913,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             style={{marginTop: '8px'}}
                             disabled={agentExecutionStatus === 'stopping'}
                         >
-                            {agentExecutionStatus === 'stopping' ? 'Stopping...' : 'Stop Agent'}
+                            {agentExecutionStatus === 'stopping' ? (
+                                <>Stopping<LoadingCircle /> </>
+                            ) : (
+                                'Stop Agent'
+                            )}
                         </button>
                     )}
                 </>
