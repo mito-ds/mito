@@ -24,7 +24,9 @@ export const retryIfExecutionError = async (
     sendDebugErrorMessage: (errorMessage: string, agent?: boolean) => Promise<void>,
     previewAICode: () => void,
     acceptAICode: () => void,
-): Promise<boolean> => {
+    shouldAgentContinueExecution: () => boolean,
+    stopAgentExecutionPhaseTwo: () => void,
+): Promise<'success' | 'failure' | 'interupted'> => {
 
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
 
@@ -34,6 +36,11 @@ export const retryIfExecutionError = async (
     let attempts = 0;
 
     while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
+
+        if (!shouldAgentContinueExecution()) {
+            stopAgentExecutionPhaseTwo()
+            return 'interupted';
+        }
 
         // If the code cell has an error, we need to send the error to the AI
         // and get it to fix the error.
@@ -60,9 +67,27 @@ export const retryIfExecutionError = async (
 
         // If this was the last attempt and it still failed
         if (attempts === MAX_RETRIES && didCellExecutionError(cell)) {
-            return false
+            return 'failure'
         }
     }
 
-    return true
+    return 'success'
 }
+
+
+export const stopAgentExecution = (
+    getDuplicateChatHistoryManager: () => ChatHistoryManager,
+    addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager) => void,
+    setAgentExecutionStatus: (status: 'idle' | 'working' | 'stopping') => void,
+) => {
+    // Add a message to indicate the agent was stopped
+    const newChatHistoryManager = getDuplicateChatHistoryManager();
+    addAIMessageFromResponseAndUpdateState(
+        "Agent execution was stopped. You can start a new conversation.",
+        'chat',
+        newChatHistoryManager
+    );
+    // Set status back to idle
+    setAgentExecutionStatus('idle');
+}
+

@@ -142,6 +142,7 @@ class InlineCompletionMessageBuilder:
 
 @dataclass(frozen=True)
 class AgentMessageBuilder:
+    promptType: Optional[str] = None
     fileType: Optional[str] = None
     columnSamples: Optional[List[str]] = None
     input: Optional[str] = None
