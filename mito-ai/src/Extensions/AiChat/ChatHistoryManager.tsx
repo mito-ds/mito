@@ -4,7 +4,15 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { Variable } from "../VariableManager/VariableInspector";
 
-export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning' | 'agent:execution';
+export type PromptType = 
+    'chat' | 
+    'smartDebug' | 
+    'codeExplain' | 
+    'agent:planning' | 
+    'agent:execution' | 
+    'agent:autoErrorFixup';
+
+export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -13,7 +21,7 @@ export type PromptType = 'chat' | 'smartDebug' | 'codeExplain' | 'agent:planning
 // we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'openai message:agent:planning' | 'connection error',
+    type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
@@ -173,7 +181,7 @@ export class ChatHistoryManager {
         }
     }
 
-    addDebugErrorMessage(errorMessage: string): IOutgoingMessage {
+    addDebugErrorMessage(errorMessage: string, promptType: PromptType): IOutgoingMessage {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -189,12 +197,12 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: 'smartDebug'
+                promptType: promptType
             }
         );
 
         return {
-            promptType: 'smartDebug',
+            promptType: promptType,
             metadata,
         }
     }
