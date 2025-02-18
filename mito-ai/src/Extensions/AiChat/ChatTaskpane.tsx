@@ -96,7 +96,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+
+    /* 
+        Three possible states:
+        1. working: the agent is working on the task
+        2. stopping: the agent is stopping after it has received ai response it is waiting on
+        3. idle: the agent is idle
+    */
     const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'stopping' | 'idle'>('idle')
+    
+    // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
+    // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
     const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
@@ -411,29 +421,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         )
     }
 
-    const stopAgentExecutionPhaseOne = () => {
-        // Set the flag to false to prevent further steps from executing
+    const markAgentForStopping = () => {
+        // Signal that the agent should stop after current task
         shouldContinueAgentExecution.current = false;
-        // Set status to stopping to show we're waiting for the current message to complete
+        // Update UI to show stopping state
         setAgentExecutionStatus('stopping');
     }
 
-    const shouldAgentContinueExecution = () => {
-        if (!shouldContinueAgentExecution.current) {
-            return false;
-        }
-        return true;
-    }
-
-    const stopAgentExecutionPhaseTwo = () => {
-        // Add a message to indicate the agent was stopped
+    const finalizeAgentStop = () => {
+        // Notify user that agent has been stopped
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
             "Agent execution stopped. You can continue the conversation or start a new one.",
             'chat',
             newChatHistoryManager
         );
-        // Set status back to idle
+        // Reset agent to idle state
         setAgentExecutionStatus('idle');
     }
 
@@ -459,8 +462,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
             // Check if we should continue execution
-            if (!shouldAgentContinueExecution()) {
-                stopAgentExecutionPhaseTwo()
+            if (!shouldContinueAgentExecution.current) {
+                finalizeAgentStop()
                 break;
             }
             
@@ -485,8 +488,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 sendDebugErrorMessage,
                 previewAICode,
                 acceptAICode,
-                shouldAgentContinueExecution,
-                stopAgentExecutionPhaseTwo
+                shouldContinueAgentExecution,
+                finalizeAgentStop
             )
 
             if (status === 'interupted') {
@@ -909,7 +912,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
                         <button 
                             className="button-base button-red" 
-                            onClick={stopAgentExecutionPhaseOne}
+                            onClick={markAgentForStopping}
                             style={{marginTop: '8px'}}
                             disabled={agentExecutionStatus === 'stopping'}
                         >

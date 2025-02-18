@@ -5,6 +5,7 @@ import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRendere
 import { sleep } from "./sleep"
 import { didCellExecutionError } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
+import { MutableRefObject } from "react"
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
@@ -24,8 +25,8 @@ export const retryIfExecutionError = async (
     sendDebugErrorMessage: (errorMessage: string, agent?: boolean) => Promise<void>,
     previewAICode: () => void,
     acceptAICode: () => void,
-    shouldAgentContinueExecution: () => boolean,
-    stopAgentExecutionPhaseTwo: () => void,
+    shouldContinueAgentExecution: MutableRefObject<boolean>,
+    finalizeAgentStop: () => void,
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
@@ -37,8 +38,8 @@ export const retryIfExecutionError = async (
 
     while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
 
-        if (!shouldAgentContinueExecution()) {
-            stopAgentExecutionPhaseTwo()
+        if (!shouldContinueAgentExecution.current) {
+            finalizeAgentStop()
             return 'interupted';
         }
 
