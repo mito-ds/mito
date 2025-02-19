@@ -5,7 +5,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg';
-import { IContextManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getOperatingSystem, type OperatingSystem } from '../../utils/user';
 import type { IChatWidget as IChatWidget } from './token';

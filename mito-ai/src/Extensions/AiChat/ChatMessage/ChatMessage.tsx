@@ -11,7 +11,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
-import { IContextManager } from '../../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
 import { ChatMessageType, PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';

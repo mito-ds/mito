@@ -76,8 +76,8 @@ export class ContextManager implements IContextManager {
 }
 
 
-export const VariableManagerPlugin: JupyterFrontEndPlugin<IContextManager> = {
-    id: 'mito-ai:variable-manager',
+export const ContextManagerPlugin: JupyterFrontEndPlugin<IContextManager> = {
+    id: 'mito-ai:context-manager',
     autoStart: true,
     requires: [INotebookTracker],
     provides: IContextManager,
@@ -87,4 +87,4 @@ export const VariableManagerPlugin: JupyterFrontEndPlugin<IContextManager> = {
     }
 };
 
-export default VariableManagerPlugin
+export default ContextManagerPlugin

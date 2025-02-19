@@ -11,7 +11,7 @@ import type { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
-import { IContextManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions

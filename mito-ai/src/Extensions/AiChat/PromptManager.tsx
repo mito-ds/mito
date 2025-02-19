@@ -1,4 +1,4 @@
-import { Variable } from "../VariableManager/VariableInspector";
+import { Variable } from "../ContextManager/VariableInspector";
 
 export function createBasicPrompt(
     variables: Variable[],

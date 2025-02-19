@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
-import { IContextManager } from '../../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
-import { Variable } from '../../VariableManager/VariableInspector';
+import { Variable } from '../../ContextManager/VariableInspector';
 import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';

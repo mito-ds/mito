@@ -7,7 +7,7 @@ import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ConfigSection } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { MitoAIInlineCompleter } from './provider';
-import { IContextManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 
 /**
  * Interface for the Mito AI configuration settings.

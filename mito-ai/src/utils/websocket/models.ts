@@ -2,8 +2,8 @@ import type {
   IInlineCompletionError,
   IInlineCompletionItem
 } from '@jupyterlab/completer';
-import { Variable } from '../../Extensions/VariableManager/VariableInspector';
-import { File } from '../../Extensions/VariableManager/FileInspector';
+import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { File } from '../../Extensions/ContextManager/FileInspector';
 
 /* 
 
