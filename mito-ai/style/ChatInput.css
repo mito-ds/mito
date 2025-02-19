@@ -25,7 +25,7 @@
 
 .chat-input.agent-mode {
     border: 1px solid var(--purple-500);
-    animation: glow 2s ease-in-out;
+    animation: glow 1s ease-in-out;
     --glow-color: var(--purple-500);
 }
 
