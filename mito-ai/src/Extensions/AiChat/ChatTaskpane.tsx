@@ -11,9 +11,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import ChatIcon from '../../icons/ChatIcon';
+// import ChatIcon from '../../icons/ChatIcon';
 import ResetIcon from '../../icons/ResetIcon';
-import RobotHeadIcon from '../../icons/RobotHeadIcon';
+// import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -23,10 +23,10 @@ import {
     PromptType 
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import DropdownMenu from '../../components/DropdownMenu';
+import ToggleButton from '../../components/ToggleButton';
 import IconButton from '../../components/IconButton';
 import LoadingDots from '../../components/LoadingDots';
-import TextAndIconButton from '../../components/TextAndIconButton';
+// import TextAndIconButton from '../../components/TextAndIconButton';
 import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
@@ -826,41 +826,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
-    const agentMenuItems = [
-        {
-            label: 'Chat',
-            onClick: () => {
-                clearChatHistory()
-                setAgentModeEnabled(false);
-            },
-            primaryIcon: ChatIcon,
-        },
-        {
-            label: 'Agent',
-            onClick: () => {
-                clearChatHistory()
-                setAgentModeEnabled(true);
-            },
-            primaryIcon: RobotHeadIcon,
-        }
-    ];
-
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                <DropdownMenu
-                    trigger={
-                        <TextAndIconButton
-                            text={agentModeEnabled ? 'Agent ▾' : 'Chat ▾'}
-                            icon={agentModeEnabled ? RobotHeadIcon : ChatIcon}
-                            title={'Enter Agent Mode'}
-                            variant='purple'
-                            width='fit-contents'
-                            iconPosition='left'
-                            onClick={() => { }}
-                        />
-                    }
-                    items={agentMenuItems}
+                <ToggleButton
+                    leftText="Chat"
+                    rightText="Agent"
+                    isLeftSelected={!agentModeEnabled}
+                    onChange={(isLeftSelected) => {
+                        clearChatHistory();
+                        setAgentModeEnabled(!isLeftSelected);
+                    }}
+                    title="Toggle between Chat and Agent mode"
+                    variant="purple"
+                    width="fit-contents"
                 />
                 <div className="chat-taskpane-header-buttons">
                     <IconButton
