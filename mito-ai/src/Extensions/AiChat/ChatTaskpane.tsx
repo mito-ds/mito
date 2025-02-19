@@ -892,21 +892,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             {agentModeEnabled && displayOptimizedChatHistory.some(msg =>
                 msg.type === 'openai message:agent:planning'
             ) ? (
-                <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <div className="agent-controls">
                     <button
-                        className="button-base button-purple"
+                        className="button-base button-purple agent-start-button"
                         onClick={executeAgentPlan}
-                        style={{ flex: 1 }}
                     >
                         Let's go!
                     </button>
                     <button
-                        className="button-base button-red"
+                        className="button-base button-red agent-cancel-button"
                         onClick={() => {
                             clearChatHistory();
                             setAgentModeEnabled(false);
                         }}
-                        style={{ width: '32px', padding: '0' }}
                     >
                         ✖
                     </button>
@@ -931,7 +929,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         agentModeEnabled={agentModeEnabled}
                     />
                     {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className="chat-controls">
                             <ToggleButton
                                 leftText="Chat"
                                 rightText="Agent"
@@ -950,8 +948,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 title="Agent can create plans and run code."
                             />
                             <button
-                                className="button-base"
-                                style={{backgroundColor: 'var(--purple-400)', color: 'var(--purple-700)', padding: '2px 10px'}}
+                                className="button-base submit-button"
                                 onClick={() => {
                                     const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                     if (chatInput && chatInput.value) {
@@ -975,13 +972,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     )}
                     {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
                         <button 
-                            className="button-base button-red" 
+                            className="button-base button-red stop-agent-button" 
                             onClick={markAgentForStopping}
-                            style={{marginTop: '8px'}}
                             disabled={agentExecutionStatus === 'stopping'}
                         >
                             {agentExecutionStatus === 'stopping' ? (
-                                <div style={{display: 'flex', textAlign: 'center', alignItems: 'center', gap: '8px', justifyContent: 'center'}}>Stopping<LoadingCircle /> </div>
+                                <div className="stop-agent-button-content">Stopping<LoadingCircle /> </div>
                             ) : (
                                 'Stop Agent'
                             )}
