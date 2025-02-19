@@ -31,7 +31,8 @@ class AgentPlanningHandler(CompletionHandler[AgentPlanningMetadata]):
             "", # fileType is not in metadata
             [], # columnSamples is not in metadata
             metadata.input,
-            metadata.variables or []
+            metadata.variables or [],
+            metadata.files or []
         )
         
         # Add the prompt to the message history

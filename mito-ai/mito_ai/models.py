@@ -24,6 +24,7 @@ class ChatMessageMetadata():
     promptType: Literal['chat', 'agent:execution']
     input: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     index: Optional[int] = None    
     
@@ -32,6 +33,7 @@ class SmartDebugMetadata():
     promptType: Literal['smartDebug']
     errorMessage: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     
 @dataclass(frozen=True)
@@ -45,6 +47,7 @@ class AgentPlanningMetadata():
     promptType: Literal['agent:planning']
     input: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class InlineCompleterMetadata():
@@ -52,6 +55,7 @@ class InlineCompleterMetadata():
     prefix: str 
     suffix: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
 
 @dataclass(frozen=True)
 class ClearHistoryMetadata():

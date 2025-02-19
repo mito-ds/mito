@@ -22,12 +22,13 @@ class AgentAutoErrorFixupHandler(CompletionHandler[SmartDebugMetadata]):
         error_message = metadata.errorMessage
         active_cell_code = metadata.activeCellCode or ''
         variables = metadata.variables or []
-        
+        files = metadata.files or []
         # Create the prompt
         prompt = create_error_prompt(
             error_message, 
             active_cell_code, 
-            variables
+            variables,
+            files
         )
         
         # Add the prompt to the message history

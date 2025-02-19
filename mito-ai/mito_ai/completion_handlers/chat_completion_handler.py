@@ -23,6 +23,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Create the prompt
         prompt = create_chat_prompt(
             metadata.variables or [], 
+            metadata.files or [],
             metadata.activeCellCode or '', 
             metadata.input
         )

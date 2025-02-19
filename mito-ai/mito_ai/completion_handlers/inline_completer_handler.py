@@ -24,7 +24,8 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         prompt = create_inline_prompt(
             metadata.prefix or '', 
             metadata.suffix or '', 
-            metadata.variables or []
+            metadata.variables or [],
+            metadata.files or []
         )
         
         # Each inline completer is independent and ephemeral. So we do not use the message history. 
