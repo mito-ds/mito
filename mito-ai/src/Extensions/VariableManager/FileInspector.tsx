@@ -23,7 +23,6 @@ export const fetchFilesAndUpdateState = async (
     // Get the current notebook
     const currentNotebook = notebookTracker.currentWidget;
     if (!currentNotebook) {
-        setFiles([]);
         return;
     }
     
@@ -31,11 +30,9 @@ export const fetchFilesAndUpdateState = async (
     // Get the directory path using PathExt.dirname from @jupyterlab/coreutils
     const relativeNotebookPath = currentNotebook.context.path;
     const relativeDirectoryPath = PathExt.dirname(relativeNotebookPath);
-    console.log("RELATIVE DIRECTORY PATH", relativeDirectoryPath)
 
     try {
         const contents = await fileManager.get(relativeDirectoryPath);
-        console.log("CONTENTS", contents)
         if (contents.type === 'directory') {
             // Filter for only csv and Excel files
             const data_files = contents.content.filter((file: any) => {
@@ -61,7 +58,7 @@ export const fetchFilesAndUpdateState = async (
         
     } catch (error) {
         console.error('Error listing directory contents:', error);
-        setFiles([]);
+        return;
     }
 };
 

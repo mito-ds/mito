@@ -26,8 +26,6 @@ export class ContextManager implements IContextManager {
     private _files: File[] = [];
 
     constructor(app: JupyterFrontEnd, notebookTracker: INotebookTracker) {
-        // Initialize variables and files 
-
         // Setup the kernel listener to update context as kernel messages are received
         this.setupKernelListener(app, notebookTracker); 
     }
@@ -57,6 +55,9 @@ export class ContextManager implements IContextManager {
                 return;
             }
 
+            // As soon as the notebook is opened, fetch the files so we don't have to wait for the first message.
+            fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
+ 
             // Listen to kernel messages
             notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
 
