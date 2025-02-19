@@ -826,18 +826,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                <ToggleButton
-                    leftText="Chat"
-                    rightText="Agent"
-                    isLeftSelected={!agentModeEnabled}
-                    onChange={(isLeftSelected) => {
-                        clearChatHistory();
-                        setAgentModeEnabled(!isLeftSelected);
-                    }}
-                    title="Toggle between Chat and Agent mode"
-                    variant="purple"
-                    width="fit-contents"
-                />
                 <div className="chat-taskpane-header-buttons">
                     <IconButton
                         icon={<SupportIcon />}
@@ -929,6 +917,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         renderMimeRegistry={renderMimeRegistry}
                         agentModeEnabled={agentModeEnabled}
                     />
+                    <div>
+                        <ToggleButton
+                            leftText="Chat"
+                            rightText="Agent"
+                            isLeftSelected={!agentModeEnabled}
+                            onChange={(isLeftSelected) => {
+                                clearChatHistory();
+                                setAgentModeEnabled(!isLeftSelected);
+                            }}
+                            title="Toggle between Chat and Agent mode"
+                            variant="purple"
+                            width="fit-contents"
+                        />
+                    </div>
                     {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
                         <button 
                             className="button-base button-red" 

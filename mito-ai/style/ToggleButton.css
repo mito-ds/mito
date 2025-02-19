@@ -2,8 +2,8 @@
     display: flex;
     gap: 1px;
     background-color: var(--jp-layout-color2);
-    border-radius: 4px;
-    padding: 1px;
+    border: 1px solid var(--jp-ui-font-color3);
+    border-radius: 2px;
 }
 
 .toggle-button-half {
@@ -12,8 +12,9 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    border-radius: 4px;
     min-width: 40px;
+    font-size: 12px;
+    border-radius: 0px!important;
 }
 
 .toggle-button-half.selected {
@@ -23,6 +24,7 @@
 .toggle-button-half.unselected {
     opacity: 0.6;
     background-color: transparent !important;
+    color: var(--jp-ui-font-color2)!important;
 }
 
 .toggle-button-icon {
