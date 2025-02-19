@@ -111,9 +111,21 @@ folder is located. Then you can remove the symlink named `mito-ai` within that f
 
 ### Testing the extension
 
-#### Frontend tests
+#### Integration tests
 
-- Frontend tests for mito-ai are written using Playwright and Gelata in the mito/tests directory.
-- Backend tests for mito-ai are written using pytest in the mito/tests directory.
+Integration tests for mito-ai are written using Playwright and Gelata in the mito/tests directory.
+
+To run these tests, follow the directions in the tests/README.md file.
+
+#### Backend Unit tests
+
+Backend tests for mito-ai are written using pytest in the mito/mito-ai/mito_ai/tests directory.
 
 To run the pytests, just run `pytest` in the mito-ai directory.
+
+#### Frontend Unit tests 
+
+Frontend unit tests for mito-ai are written using Jest in the mito/mito-ai/src/tests directory.
+
+To run the Jest tests, just run `npm test` in the mito-ai directory.
+

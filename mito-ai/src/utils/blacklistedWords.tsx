@@ -1,19 +1,11 @@
-  // Function to check for blacklisted words that could be dangerous for the agent to execute
+// Function to check for blacklisted words that could be dangerous for the agent to execute
 
-  export const checkForBlacklistedWords = (code: string): { safe: boolean, reason?: string } => {
+export const checkForBlacklistedWords = (code: string): { safe: boolean, reason?: string } => {
     // List of dangerous operations/commands that could delete files or cause harm
     const blacklistedPatterns = [
         {
             pattern: /\brm\s+-rf\b/,
             message: "This code contains a command (rm -rf) that could recursively delete files and directories from your system"
-        },
-        {
-            pattern: /\brmdir\b/,
-            message: "This code contains a command (rmdir) that could delete directories from your system"
-        },
-        {
-            pattern: /\bunlink\b/,
-            message: "This code contains a function (unlink) that could delete files from your system"
         },
         {
             pattern: /\bfs\.rmdir\b/,
@@ -38,6 +30,14 @@
         {
             pattern: /\bos\.unlink\b/,
             message: "This code contains a Python command (os.unlink) that could delete files from your system"
+        },
+        {
+            pattern: /\brmdir\b/,
+            message: "This code contains a command (rmdir) that could delete directories from your system"
+        },
+        {
+            pattern: /\bunlink\b/,
+            message: "This code contains a function (unlink) that could delete files from your system"
         },
         {
             pattern: /\bdelete\s+from\b/i,
