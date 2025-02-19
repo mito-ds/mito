@@ -939,6 +939,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 onChange={(isLeftSelected) => {
                                     clearChatHistory();
                                     setAgentModeEnabled(!isLeftSelected);
+                                    // Focus the chat input after mode switch
+                                    setTimeout(() => {
+                                        const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                        if (chatInput) {
+                                            chatInput.focus();
+                                        }
+                                    }, 0);
                                 }}
                                 title="Agent can create plans and run code."
                             />
