@@ -136,14 +136,12 @@ class AgentPlanningMetadata():
     promptType: Literal['agent:planning']
     input: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
-class AgentMessageBuilder:
-    promptType: Literal['agent:execution']
+class AgentMessageBuilder(AgentPlanningMetadata):
     fileType: Optional[str] = None
     columnSamples: Optional[List[str]] = None
-    input: Optional[str] = None
-    variables: Optional[List[str]] = None
 
     @property
     def prompt(self) -> str:
@@ -152,6 +150,7 @@ class AgentMessageBuilder:
             self.columnSamples or [],
             self.input or "",
             self.variables or [],
+            self.files or []
         )
 
     @property

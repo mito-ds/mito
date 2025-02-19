@@ -137,6 +137,7 @@ export class ChatHistoryManager {
         const agentPlanningMetadata: IAgentPlanningMetadata = {
             promptType: "agent:planning",
             variables: this.contextManager.variables,
+            files: this.contextManager.files,
             input: message
         }
 

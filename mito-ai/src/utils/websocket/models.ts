@@ -47,6 +47,7 @@ export interface ICodeExplainMetadata {
 export interface IAgentPlanningMetadata {
     promptType: 'agent:planning';
     variables?: Variable[];
+    files?: File[];
     input: string;
 }
 
