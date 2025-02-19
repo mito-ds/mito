@@ -33,6 +33,7 @@ export interface IChatMessageMetadata {
 export interface ISmartDebugMetadata {
     promptType: 'smartDebug';
     variables?: Variable[];
+    files?: File[];
     activeCellCode?: string;   
     errorMessage: string;     
 }

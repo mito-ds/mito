@@ -166,6 +166,7 @@ export class ChatHistoryManager {
         const smartDebugMetadata: ISmartDebugMetadata = {
             promptType: 'smartDebug',
             variables: this.contextManager.variables,
+            files: this.contextManager.files,
             activeCellCode: activeCellCode,
             errorMessage: errorMessage
         }

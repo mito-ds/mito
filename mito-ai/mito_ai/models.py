@@ -69,13 +69,14 @@ class SmartDebugMetadata():
     promptType: Literal['smartDebug']
     errorMessage: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
 
 @dataclass(frozen=True)
 class SmartDebugMessageBuilder(SmartDebugMetadata):
     @property
     def prompt(self) -> str:
-        return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
+        return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [], self.files or [])
     
     @property
     def display_message(self) -> str:
