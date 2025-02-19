@@ -4,10 +4,11 @@
     background-color: var(--jp-layout-color2);
     border: 1px solid var(--jp-ui-font-color3);
     border-radius: 2px;
+    width: 120px;
 }
 
 .toggle-button-half {
-    flex: 1;
+    flex: 0 0 50%;
     display: flex;
     align-items: center;
     justify-content: center;
