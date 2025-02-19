@@ -38,11 +38,12 @@ jobs:
       run: |
         cd mito-ai
         npm ci
+        npm install --save-dev jupyterlab
 
     - name: Build project
       run: |
         cd mito-ai
-        npm run build
+        npm run build:lib && jupyter labextension build --development True .
 
     - name: Run Jest tests
       run: |
