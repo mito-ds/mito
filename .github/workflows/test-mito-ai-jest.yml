@@ -1,0 +1,58 @@
+name: Test - Mito AI Jest Frontend
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-ai/src/**'
+      - 'mito-ai/package.json'
+      - 'mito-ai/jest.config.js'
+      - 'mito-ai/src/tests/**'
+  pull_request:
+    paths:
+      - 'mito-ai/src/**'
+      - 'mito-ai/package.json'
+      - 'mito-ai/jest.config.js'
+      - 'mito-ai/src/tests/**'
+jobs:
+  test-mitoai-frontend:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.7.0
+      with:
+        access_token: ${{ github.token }}
+
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v2
+      with:
+        node-version: 18.x
+        cache: 'yarn'
+        cache-dependency-path: mito-ai/yarn.lock
+
+    - name: Install dependencies
+      run: |
+        cd mito-ai
+        jlpm install --frozen-lockfile
+
+    - name: Build project
+      run: |
+        cd mito-ai
+        jlpm build
+
+    - name: Run Jest tests
+      run: |
+        cd mito-ai
+        jlpm test
+
+    - name: Upload test coverage
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mitoai-frontend-coverage-${{ github.run_id }}
+        path: mito-ai/coverage/
+        retention-days: 14 
