@@ -7,7 +7,7 @@ import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ConfigSection } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { MitoAIInlineCompleter } from './provider';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 
 /**
  * Interface for the Mito AI configuration settings.
@@ -29,13 +29,13 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
   requires: [
     ICompletionProviderManager,
     ISettingRegistry,
-    IVariableManager,
+    IContextManager,
   ],
   activate: (
     app: JupyterFrontEnd,
     completionManager: ICompletionProviderManager,
     settingRegistry: ISettingRegistry,
-    variableManager: IVariableManager,
+    contextManager: IContextManager,
   ) => {
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
@@ -161,7 +161,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     // Register the Mito AI inline completer
     const provider = new MitoAIInlineCompleter({
       serverSettings: app.serviceManager.serverSettings,
-      variableManager
+      contextManager: contextManager
     });
     completionManager.registerInlineProvider(provider);
   }

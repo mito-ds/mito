@@ -1,4 +1,4 @@
-import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { NotebookPanel } from '@jupyterlab/notebook';
 import { KernelMessage } from '@jupyterlab/services';
 
 export type Variable = {
@@ -84,7 +84,7 @@ def structured_globals():
 print(structured_globals())
 `
 // Function to fetch variables and sync with the frontend
-async function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variable[]) => void) {
+export async function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variable[]) => void) {
     const kernel = notebookPanel.context.sessionContext.session?.kernel;
     if (kernel) {
         // Request the kernel to execute a command to fetch global variables
@@ -111,26 +111,4 @@ async function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVar
             }
         };
     }
-}
-
-// Setup kernel execution listener
-export function setupKernelListener(notebookTracker: INotebookTracker, setVariables: (variables: Variable[]) => void) {
-    notebookTracker.currentChanged.connect((tracker, notebookPanel) => {
-        if (!notebookPanel) {
-            return;
-        }
-
-        // Listen to kernel messages
-        notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
-
-            // Watch for execute_input messages, which indicate is a request to execute code. 
-            // Previosuly, we watched for 'execute_result' messages, but these are only returned
-            // from the kernel when a code cell prints a value to the output cell, which is not what we want.
-            // TODO: Check if there is a race condition where we might end up fetching variables before the 
-            // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
-            if (msg.header.msg_type === 'execute_input') {
-                fetchVariablesAndUpdateState(notebookPanel, setVariables);
-            }
-        });
-    });
 }

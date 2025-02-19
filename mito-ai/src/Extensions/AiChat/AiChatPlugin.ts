@@ -7,7 +7,7 @@ import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
@@ -24,7 +24,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IVariableManager,
+    IContextManager,
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -33,8 +33,8 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     notebookTracker: INotebookTracker,
     palette: ICommandPalette,
     rendermime: IRenderMimeRegistry,
-    variableManager: IVariableManager,
-    restorer: ILayoutRestorer | null
+    contextManager: IContextManager,
+    restorer: ILayoutRestorer | null,
   ) => {
     // Define a widget creator function,
     // then call it to make a new widget
@@ -44,7 +44,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         app,
         notebookTracker,
         rendermime,
-        variableManager,
+        contextManager,
       );
       return chatWidget;
     };

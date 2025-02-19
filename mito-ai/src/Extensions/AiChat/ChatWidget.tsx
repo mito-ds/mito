@@ -5,7 +5,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getOperatingSystem, type OperatingSystem } from '../../utils/user';
 import type { IChatWidget as IChatWidget } from './token';
@@ -16,7 +16,6 @@ import type {
   IAICapabilities
 } from '../../utils/websocket/models';
 import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-
 export const chatIcon = new LabIcon({
   name: 'mito_ai',
   svgstr: chatIconSvg
@@ -32,7 +31,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
       app: JupyterFrontEnd;
       notebookTracker: INotebookTracker;
       renderMimeRegistry: IRenderMimeRegistry;
-      variableManager: IVariableManager;
+      contextManager: IContextManager;
       operatingSystem: OperatingSystem;
     }
   ) {
@@ -83,7 +82,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
         app={this.options.app}
         notebookTracker={this.options.notebookTracker}
         renderMimeRegistry={this.options.renderMimeRegistry}
-        variableManager={this.options.variableManager}
+        contextManager={this.options.contextManager}
         operatingSystem={this.options.operatingSystem}
         websocketClient={this.websocketClient}
       />
@@ -109,7 +108,7 @@ export function buildChatWidget(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
   renderMimeRegistry: IRenderMimeRegistry,
-  variableManager: IVariableManager
+  contextManager: IContextManager,
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
   // The operating system won't change, duh.
@@ -119,7 +118,7 @@ export function buildChatWidget(
     app,
     notebookTracker,
     renderMimeRegistry,
-    variableManager,
+    contextManager,
     operatingSystem
   });
   chatWidget.id = 'mito_ai';
