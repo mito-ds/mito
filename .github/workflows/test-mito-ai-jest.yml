@@ -34,20 +34,23 @@ jobs:
         cache: 'yarn'
         cache-dependency-path: mito-ai/yarn.lock
 
+    - name: Enable Corepack
+      run: corepack enable
+
     - name: Install dependencies
       run: |
         cd mito-ai
-        jlpm install --frozen-lockfile
+        yarn install --frozen-lockfile
 
     - name: Build project
       run: |
         cd mito-ai
-        jlpm build
+        yarn build
 
     - name: Run Jest tests
       run: |
         cd mito-ai
-        jlpm test
+        yarn test
 
     - name: Upload test coverage
       uses: actions/upload-artifact@v4
