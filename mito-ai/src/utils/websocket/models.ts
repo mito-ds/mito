@@ -31,7 +31,7 @@ export interface IChatMessageMetadata {
 }
 
 export interface ISmartDebugMetadata {
-    promptType: 'smartDebug';
+    promptType: 'smartDebug' | 'agent:autoErrorFixup';
     variables?: Variable[];
     files?: File[];
     activeCellCode?: string;   
@@ -102,6 +102,11 @@ export interface ISmartDebugCompletionRequest extends ICompletionRequest {
   metadata: ISmartDebugMetadata
 }
 
+export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
+  type: 'agent:autoErrorFixup'
+  metadata: ISmartDebugMetadata
+}
+
 export interface ICodeExplainCompletionRequest extends ICompletionRequest {
   type: 'codeExplain'
   metadata: ICodeExplainMetadata
@@ -110,6 +115,11 @@ export interface ICodeExplainCompletionRequest extends ICompletionRequest {
 export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
   type: 'agent:planning'
   metadata: IAgentPlanningMetadata
+}
+
+export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
+  type: 'agent:execution'
+  metadata: IChatMessageMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {

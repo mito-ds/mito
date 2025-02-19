@@ -41,8 +41,8 @@ import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByI
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import { IAgentAutoErrorFixupCompletionRequest, IAgentExecutionCompletionRequest, IAgentPlanningCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
-import { IAgentPlanningCompletionRequest, IChatCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
@@ -233,8 +233,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
-            type: 'smartDebug',
+        const smartDebugCompletionRequest: ISmartDebugCompletionRequest | IAgentAutoErrorFixupCompletionRequest = {
+            type: promptType,
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
             stream: false
@@ -266,7 +266,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: PromptType): Promise<void> => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: 'agent:execution'): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -281,8 +281,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // If the user is in agent mode, we override the prompt type to be 'agent:execution'
         // This gets used in the backend for logging purposes.
-        if (overridePromptType === 'agent:execution') {
+        let completionRequest: ICompletionRequest | IAgentExecutionCompletionRequest;
+        if (overridePromptType) {
             chatMessageMetadata.promptType = overridePromptType
+            completionRequest = {
+                type: overridePromptType,
+                message_id: UUID.uuid4(),
+                metadata: chatMessageMetadata,
+                stream: false
+            }
+        } else {
+            completionRequest = {
+                type: 'chat',
+                message_id: UUID.uuid4(),
+                metadata: chatMessageMetadata,
+                stream: false
+            }
         }
 
         setChatHistoryManager(newChatHistoryManager)
@@ -297,13 +311,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }, 100);
 
         // Step 3: Send the message to the AI
-        const chatCompletionRequest: IChatCompletionRequest = {
-            type: 'chat',
-            message_id: UUID.uuid4(),
-            metadata: chatMessageMetadata,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(chatCompletionRequest, newChatHistoryManager)
+        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
@@ -376,7 +384,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     aiResponse.error.title
                 );
             } else {
-                console.log('Mito AI: aiResponse', aiResponse)
                 const content = aiResponse.items[0].content || '';
 
                 if (completionRequest.metadata.promptType === 'agent:planning') {
