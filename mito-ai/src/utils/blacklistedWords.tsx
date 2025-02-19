@@ -59,6 +59,14 @@ export const checkForBlacklistedWords = (code: string): { safe: boolean, reason?
             pattern: /\bsystem\s*\(/,
             message: "This code contains a system() call that could execute arbitrary system commands, which is a security risk"
         },
+        {
+            pattern: /\beval\s*\(/,
+            message: "This code contains an eval() function that could execute arbitrary code, which is a security risk"
+        },
+        {
+            pattern: /\bexec\s*\(/,
+            message: "This code contains an exec() function that could execute arbitrary code, which is a security risk"
+        },
     ];
 
     for (const { pattern, message } of blacklistedPatterns) {
