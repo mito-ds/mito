@@ -1,4 +1,4 @@
-// src/VariableManager.ts
+// src/ContextManager.ts
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Token } from '@lumino/coreutils';
@@ -9,9 +9,7 @@ import { KernelMessage } from '@jupyterlab/services';
 
 // The provides field in JupyterLab's JupyterFrontEndPlugin expects a token 
 // that can be used to look up the service in the dependency injection system,
-// so we define a new token for the VariableManager
-// TODO: Should this still be called mito-ai or something else? Do I need a new name for 
-// each extension? I don't think so.
+// so we define a new token for the ContextManager
 export const IContextManager = new Token<IContextManager>('mito-ai:IContextManager');
 
 export interface IContextManager {
@@ -36,7 +34,6 @@ export class ContextManager implements IContextManager {
 
     setVariables(newVars: Variable[]) {
         this._variables = newVars;
-        console.log("Variables updated", this._variables)
     }
 
     get files(): File[] {
@@ -45,7 +42,6 @@ export class ContextManager implements IContextManager {
 
     setFiles(newFiles: File[]) {
         this._files = newFiles;
-        console.log("Files updated", this._files)
     }
 
     // Setup kernel execution listener
