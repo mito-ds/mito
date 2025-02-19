@@ -41,15 +41,15 @@ import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByI
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../VariableManager/VariableManagerPlugin';
 import { IAgentPlanningCompletionRequest, IChatCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 
-const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
-    const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
+const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
+    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
     chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
     return chatHistoryManager
 }
@@ -57,7 +57,7 @@ const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variabl
 interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
-    variableManager: IVariableManager
+    contextManager: IContextManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient;
@@ -73,12 +73,12 @@ export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     renderMimeRegistry,
-    variableManager,
+    contextManager,
     app,
     operatingSystem,
     websocketClient
 }) => {
-    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, variableManager));
+    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
@@ -141,7 +141,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // 3. Create a fresh ChatHistoryManager and add the initial messages
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
-                    variableManager
+                    contextManager
                 );
 
                 // 4. Add messages to the ChatHistoryManager
@@ -161,7 +161,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } catch (error) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
-                    variableManager
+                    contextManager
                 );
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).hint ? (error as any).hint : `${error}`,
@@ -647,7 +647,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const clearChatHistory = () => {
         // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager)
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager)
         setChatHistoryManager(newChatHistoryManager);
 
         // Notify the backend to clear the prompt history
@@ -914,7 +914,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
-                            variableManager={variableManager}
+                            contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
                         />
                     )
@@ -948,7 +948,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         onSave={agentModeEnabled ? sendAgentPlanningMessage : sendChatInputMessage}
                         onCancel={undefined}
                         isEditing={false}
-                        variableManager={variableManager}
+                        contextManager={contextManager}
                         notebookTracker={notebookTracker}
                         renderMimeRegistry={renderMimeRegistry}
                         agentModeEnabled={agentModeEnabled}

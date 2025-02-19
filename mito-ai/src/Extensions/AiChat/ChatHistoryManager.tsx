@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
+import { IContextManager } from "../VariableManager/VariableManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
@@ -44,22 +44,22 @@ export interface IDisplayOptimizedChatHistory {
 */
 export class ChatHistoryManager {
     private displayOptimizedChatHistory: IDisplayOptimizedChatHistory[];
-    private variableManager: IVariableManager;
+    private contextManager: IContextManager;
     private notebookTracker: INotebookTracker;
 
-    constructor(variableManager: IVariableManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatHistory[]) {
+    constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatHistory[]) {
         // Initialize the history
         this.displayOptimizedChatHistory = initialHistory || [];
 
-        // Save the variable manager
-        this.variableManager = variableManager;
+        // Save the context manager
+        this.contextManager = contextManager;
 
         // Save the notebook tracker
         this.notebookTracker = notebookTracker;
     }
 
     createDuplicateChatHistoryManager(): ChatHistoryManager {
-        return new ChatHistoryManager(this.variableManager, this.notebookTracker, this.displayOptimizedChatHistory);
+        return new ChatHistoryManager(this.contextManager, this.notebookTracker, this.displayOptimizedChatHistory);
     }
 
     getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
@@ -83,7 +83,7 @@ export class ChatHistoryManager {
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
             activeCellCode: activeCellCode,
             input: input
         }
@@ -106,7 +106,7 @@ export class ChatHistoryManager {
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
-            variables: this.variableManager.variables,
+                variables: this.contextManager.variables,
             activeCellCode: activeCellCode,
             input: newContent,
             index: index
@@ -135,7 +135,7 @@ export class ChatHistoryManager {
 
         const agentPlanningMetadata: IAgentPlanningMetadata = {
             promptType: "agent:planning",
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
             input: message
         }
 
@@ -164,7 +164,7 @@ export class ChatHistoryManager {
 
         const smartDebugMetadata: ISmartDebugMetadata = {
             promptType: 'smartDebug',
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
             activeCellCode: activeCellCode,
             errorMessage: errorMessage
         }
@@ -188,7 +188,7 @@ export class ChatHistoryManager {
 
         const codeExplainMetadata: ICodeExplainMetadata = {
             promptType: 'codeExplain',
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
             activeCellCode
         }
 

@@ -11,7 +11,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
-import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../../VariableManager/VariableManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
 import { ChatMessageType, PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
@@ -38,7 +38,7 @@ interface IChatMessageProps {
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
-    variableManager?: IVariableManager
+    contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
 }
 
@@ -57,7 +57,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    variableManager,
+    contextManager,
     codeReviewStatus
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
@@ -91,7 +91,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 onSave={handleSave}
                 onCancel={handleCancel}
                 isEditing={isEditing}
-                variableManager={variableManager}
+                contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
                 displayActiveCellCode={messageType !== 'openai message:agent:planning'}

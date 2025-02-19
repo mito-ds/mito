@@ -11,7 +11,7 @@ import type { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../VariableManager/VariableManagerPlugin';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
@@ -49,7 +49,7 @@ export class MitoAIInlineCompleter
    */
   private _completionLock = new PromiseDelegate<void>();
   private _fullCompletionMap = new WeakMap<Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>, string>();
-  private _variableManager: IVariableManager;
+  private _contextManager: IContextManager;
 
   // We only want to display the free tier limit reached notification once 
   // per session to avoid spamming the user. 
@@ -58,10 +58,10 @@ export class MitoAIInlineCompleter
 
   constructor({
     serverSettings,
-    variableManager,
+    contextManager,
     ...clientOptions
   }: MitoAIInlineCompleter.IOptions) {
-    this._variableManager = variableManager;
+    this._contextManager = contextManager;
     this._client = new CompletionWebsocketClient(clientOptions);
 
     this._client
@@ -183,7 +183,7 @@ export class MitoAIInlineCompleter
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
 
-      const variables = this._variableManager.variables;
+      const variables = this._contextManager.variables;
       const metadata: IInlineCompleterMetadata = {
         promptType: 'inline_completion',
         variables: variables,
@@ -445,7 +445,7 @@ export namespace MitoAIInlineCompleter {
     /**
      * CodeMirror language registry.
      */
-    variableManager: IVariableManager;
+    contextManager: IContextManager;
   }
 
   export interface ISettings {

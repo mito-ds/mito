@@ -3,10 +3,9 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import ChatTaskpane from './ChatTaskpane';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { IDocumentManager } from '@jupyterlab/docmanager';
 import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../VariableManager/VariableManagerPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getOperatingSystem, type OperatingSystem } from '../../utils/user';
 import type { IChatWidget as IChatWidget } from './token';
@@ -32,7 +31,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
       app: JupyterFrontEnd;
       notebookTracker: INotebookTracker;
       renderMimeRegistry: IRenderMimeRegistry;
-      variableManager: IVariableManager;
+      contextManager: IContextManager;
       operatingSystem: OperatingSystem;
     }
   ) {
@@ -83,7 +82,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
         app={this.options.app}
         notebookTracker={this.options.notebookTracker}
         renderMimeRegistry={this.options.renderMimeRegistry}
-        variableManager={this.options.variableManager}
+        contextManager={this.options.contextManager}
         operatingSystem={this.options.operatingSystem}
         websocketClient={this.websocketClient}
       />
@@ -109,47 +108,17 @@ export function buildChatWidget(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
   renderMimeRegistry: IRenderMimeRegistry,
-  variableManager: IVariableManager,
-  documentManager: IDocumentManager
+  contextManager: IContextManager,
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
   // The operating system won't change, duh.
   const operatingSystem = getOperatingSystem();
 
-  // Get the current path and files from the document manager
-  const fileManager = app.serviceManager.contents;
-
-  // Function to list all files in the current directory
-  const listCurrentDirectoryFiles = async () => {
-    try {
-      const contents = await fileManager.get('');
-      if (contents.type === 'directory') {
-        // Filter for only csv and Excel files
-        const data_files = contents.content.filter((file: any) => {
-          const extension = file.name.split('.').pop()?.toLowerCase();
-          return extension === 'csv' || 
-                 extension === 'xlsx' || 
-                 extension === 'xls' || 
-                 extension === 'xlsm';
-        });
-        console.log(data_files)
-        return data_files;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error listing directory contents:', error);
-      return [];
-    }
-  };
-
-  listCurrentDirectoryFiles();
-  
-
   const chatWidget = new ChatWidget({
     app,
     notebookTracker,
     renderMimeRegistry,
-    variableManager,
+    contextManager,
     operatingSystem
   });
   chatWidget.id = 'mito_ai';
