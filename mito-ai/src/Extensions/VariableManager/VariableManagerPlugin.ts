@@ -19,8 +19,8 @@ export interface IVariableManager {
 export class VariableManager implements IVariableManager {
     private _variables: Variable[] = [];
 
-    constructor(notebookTracker: INotebookTracker) {
-        setupKernelListener(notebookTracker, this.setVariables.bind(this));
+    constructor(notebookTracker: INotebookTracker, app: JupyterFrontEnd) {
+        setupKernelListener(notebookTracker, this.setVariables.bind(this), app);
     }
 
     get variables(): Variable[] {
@@ -40,7 +40,7 @@ export const VariableManagerPlugin: JupyterFrontEndPlugin<IVariableManager> = {
     provides: IVariableManager,
     activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker): IVariableManager => {
         console.log("mito-ai: VariableManagerPlugin activated");
-        return new VariableManager(notebookTracker);
+        return new VariableManager(notebookTracker, app);
     }
 };
 

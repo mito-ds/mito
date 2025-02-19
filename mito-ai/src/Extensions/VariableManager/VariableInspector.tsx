@@ -1,3 +1,4 @@
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { KernelMessage } from '@jupyterlab/services';
 
@@ -114,7 +115,7 @@ async function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVar
 }
 
 // Setup kernel execution listener
-export function setupKernelListener(notebookTracker: INotebookTracker, setVariables: (variables: Variable[]) => void) {
+export function setupKernelListener(notebookTracker: INotebookTracker, setVariables: (variables: Variable[]) => void, app: JupyterFrontEnd) {
     notebookTracker.currentChanged.connect((tracker, notebookPanel) => {
         if (!notebookPanel) {
             return;
@@ -131,6 +132,21 @@ export function setupKernelListener(notebookTracker: INotebookTracker, setVariab
             if (msg.header.msg_type === 'execute_input') {
                 fetchVariablesAndUpdateState(notebookPanel, setVariables);
             }
+
+            const contentsManager = app.serviceManager.contents
+            const path = notebookTracker.currentWidget?.context.path
+            if (path) {
+
+                (async () => {
+                    await contentsManager.createCheckpoint(path)
+
+
+                    const checkpoints = await contentsManager.listCheckpoints(path)
+                    console.log(checkpoints)
+                })()
+            }
+
+            
         });
     });
 }
