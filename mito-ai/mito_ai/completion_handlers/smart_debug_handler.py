@@ -4,9 +4,7 @@ from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt, remo
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
-
-# Model constants
-MODEL = "gpt-4o-mini"
+from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
 __all__ = ["get_smart_debug_completion"]
 
@@ -40,7 +38,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
-            model=MODEL,
+            model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
             message_type=MessageType.SMART_DEBUG
         )
         

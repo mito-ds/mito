@@ -5,9 +5,7 @@ from mito_ai.prompt_builders.inline_completer_prompt import create_inline_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
-
-# Model constants
-MODEL = "gpt-4o-mini"
+from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
 __all__ = ["get_inline_completion"]
 
@@ -35,7 +33,7 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=messages, 
-            model=MODEL,
+            model=MESSAGE_TYPE_TO_MODEL[MessageType.INLINE_COMPLETE],
             message_type=MessageType.INLINE_COMPLETION
         )
         

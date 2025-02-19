@@ -5,9 +5,7 @@ from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
-
-# Model constants
-MODEL = "o3-mini"
+from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
 __all__ = ["get_chat_completion"]
 
@@ -37,8 +35,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
-            model=MODEL,
-            message_type=MessageType.CHAT # TODO: This should be MessageType.AGENT_EXECUTION sometimes.
+            model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
+            message_type=MessageType.CHAT
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
