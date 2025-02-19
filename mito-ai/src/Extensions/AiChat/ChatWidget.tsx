@@ -3,6 +3,7 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import ChatTaskpane from './ChatTaskpane';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
@@ -16,7 +17,6 @@ import type {
   IAICapabilities
 } from '../../utils/websocket/models';
 import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-
 export const chatIcon = new LabIcon({
   name: 'mito_ai',
   svgstr: chatIconSvg
@@ -109,11 +109,41 @@ export function buildChatWidget(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
   renderMimeRegistry: IRenderMimeRegistry,
-  variableManager: IVariableManager
+  variableManager: IVariableManager,
+  documentManager: IDocumentManager
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
   // The operating system won't change, duh.
   const operatingSystem = getOperatingSystem();
+
+  // Get the current path and files from the document manager
+  const fileManager = app.serviceManager.contents;
+
+  // Function to list all files in the current directory
+  const listCurrentDirectoryFiles = async () => {
+    try {
+      const contents = await fileManager.get('');
+      if (contents.type === 'directory') {
+        // Filter for only csv and Excel files
+        const data_files = contents.content.filter((file: any) => {
+          const extension = file.name.split('.').pop()?.toLowerCase();
+          return extension === 'csv' || 
+                 extension === 'xlsx' || 
+                 extension === 'xls' || 
+                 extension === 'xlsm';
+        });
+        console.log(data_files)
+        return data_files;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error listing directory contents:', error);
+      return [];
+    }
+  };
+
+  listCurrentDirectoryFiles();
+  
 
   const chatWidget = new ChatWidget({
     app,
