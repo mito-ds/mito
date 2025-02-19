@@ -7,9 +7,14 @@ export type File = {
 }
 
 
-
-// Function to list all files in the current directory
-export const fetchFilesAndUpdateState = async (app: JupyterFrontEnd, notebookTracker: INotebookTracker, setFiles: (files: File[]) => void) => {
+/* 
+    Fetches all files in the current directory and updates the state of the files.
+*/
+export const fetchFilesAndUpdateState = async (
+    app: JupyterFrontEnd, 
+    notebookTracker: INotebookTracker, 
+    setFiles: (files: File[]) => void
+): Promise<void> => {
     
     const fileManager = app.serviceManager.contents;
 
@@ -24,14 +29,14 @@ export const fetchFilesAndUpdateState = async (app: JupyterFrontEnd, notebookTra
                     extension === 'xls' ||
                     extension === 'xlsm';
             });
-            console.log("FILES")
-            console.log(data_files)
-            return data_files;
+            setFiles(data_files);
         }
-        return [];
+
+        // If the contents are not a directory, set the files to an empty array
+        setFiles([]);
     } catch (error) {
         console.error('Error listing directory contents:', error);
-        return [];
+        setFiles([]);
     }
 };
 
