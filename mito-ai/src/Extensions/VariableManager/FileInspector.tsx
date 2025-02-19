@@ -1,4 +1,5 @@
 import { JupyterFrontEnd } from "@jupyterlab/application";
+import { INotebookTracker } from "@jupyterlab/notebook";
 
 
 export type File = {
@@ -8,7 +9,7 @@ export type File = {
 
 
 // Function to list all files in the current directory
-export const listCurrentDirectoryFiles = async (app: JupyterFrontEnd) => {
+export const fetchFilesAndUpdateState = async (app: JupyterFrontEnd, notebookTracker: INotebookTracker, setFiles: (files: File[]) => void) => {
     
     const fileManager = app.serviceManager.contents;
 
@@ -23,6 +24,7 @@ export const listCurrentDirectoryFiles = async (app: JupyterFrontEnd) => {
                     extension === 'xls' ||
                     extension === 'xlsm';
             });
+            console.log("FILES")
             console.log(data_files)
             return data_files;
         }

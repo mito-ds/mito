@@ -2,8 +2,10 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Token } from '@lumino/coreutils';
-import { setupKernelListener, Variable } from './VariableInspector';
-import { listCurrentDirectoryFiles, File } from './FileInspector';
+import { fetchVariablesAndUpdateState, Variable } from './VariableInspector';
+import { fetchFilesAndUpdateState, File } from './FileInspector';
+import { KernelMessage } from '@jupyterlab/services';
+
 
 // The provides field in JupyterLab's JupyterFrontEndPlugin expects a token 
 // that can be used to look up the service in the dependency injection system,
@@ -24,11 +26,7 @@ export class ContextManager implements IContextManager {
     private _files: File[] = [];
 
     constructor(app: JupyterFrontEnd, notebookTracker: INotebookTracker) {
-        setupKernelListener(notebookTracker, this.setVariables.bind(this));
-        
-        // Initialize with empty array and update once files are loaded
-        this._files = [];
-        listCurrentDirectoryFiles(app).then(files => this.setFiles(files));
+        this.setupKernelListener(app, notebookTracker);        
     }
 
     get variables(): Variable[] {
@@ -47,6 +45,29 @@ export class ContextManager implements IContextManager {
     setFiles(newFiles: File[]) {
         this._files = newFiles;
         console.log("Files updated", this._files)
+    }
+
+    // Setup kernel execution listener
+    private setupKernelListener(app: JupyterFrontEnd, notebookTracker: INotebookTracker): void {
+        notebookTracker.currentChanged.connect((tracker, notebookPanel) => {
+            if (!notebookPanel) {
+                return;
+            }
+
+            // Listen to kernel messages
+            notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
+
+                // Watch for execute_input messages, which indicate is a request to execute code. 
+                // Previosuly, we watched for 'execute_result' messages, but these are only returned
+                // from the kernel when a code cell prints a value to the output cell, which is not what we want.
+                // TODO: Check if there is a race condition where we might end up fetching variables before the 
+                // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
+                if (msg.header.msg_type === 'execute_input') {
+                    fetchVariablesAndUpdateState(notebookPanel, this.setVariables.bind(this));
+                    fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
+                }
+            });
+        });
     }
 }
 
