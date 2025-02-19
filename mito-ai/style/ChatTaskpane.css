@@ -211,6 +211,11 @@
     padding: 2px 10px;
 }
 
+.submit-button:hover {
+    background-color: var(--purple-500);
+    transition: background-color 0.2s ease-in-out;
+}
+
 .stop-agent-button {
     margin-top: 8px;
 }
