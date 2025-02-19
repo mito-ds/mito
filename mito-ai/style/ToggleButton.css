@@ -16,10 +16,13 @@
     min-width: 20px;
     font-size: 12px;
     border-radius: 0px!important;
+    padding: 2px 10px;
 }
 
 .toggle-button-half.selected {
     opacity: 1;
+    background-color: var(--purple-400);
+    color: var(--purple-700)!important;
 }
 
 .toggle-button-half.unselected {

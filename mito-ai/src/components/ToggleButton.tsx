@@ -11,8 +11,6 @@ export interface ToggleButtonProps {
     isLeftSelected: boolean;
     onChange: (isLeftSelected: boolean) => void;
     title: string;
-    variant: 'green' | 'red' | 'gray' | 'purple';
-    width: 'block' | 'fit-contents';
 }
 
 const ToggleButton: React.FC<ToggleButtonProps> = ({ 
@@ -23,19 +21,15 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
     isLeftSelected, 
     onChange, 
     title, 
-    variant, 
-    width 
 }) => {
     return (
         <div className={classNames(
             "toggle-button-container",
-            `button-width-${width}`
         )}>
             <button 
                 className={classNames(
                     "toggle-button-half",
                     "button-base",
-                    `button-${variant}`,
                     isLeftSelected ? 'selected' : 'unselected'
                 )}
                 onClick={() => onChange(true)}
@@ -48,7 +42,6 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
                 className={classNames(
                     "toggle-button-half",
                     "button-base",
-                    `button-${variant}`,
                     !isLeftSelected ? 'selected' : 'unselected'
                 )}
                 onClick={() => onChange(false)}

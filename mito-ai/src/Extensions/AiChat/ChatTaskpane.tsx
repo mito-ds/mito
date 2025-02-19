@@ -928,11 +928,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                     setAgentModeEnabled(!isLeftSelected);
                                 }}
                                 title="Agent can create plans and run code."
-                                variant="purple"
-                                width="fit-contents"
                             />
                             <button
-                                className="button-base button-purple"
+                                className="button-base"
+                                style={{backgroundColor: 'var(--purple-400)', color: 'var(--purple-700)', padding: '2px 10px'}}
                                 onClick={() => {
                                     const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                     if (chatInput && chatInput.value) {
