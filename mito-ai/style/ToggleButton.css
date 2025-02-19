@@ -5,6 +5,7 @@
     border: 1px solid var(--jp-ui-font-color3);
     border-radius: 2px;
     width: 120px;
+    overflow: hidden;
 }
 
 .toggle-button-half {
@@ -15,8 +16,15 @@
     gap: 8px;
     min-width: 20px;
     font-size: 12px;
-    border-radius: 0px!important;
     padding: 2px 10px;
+}
+
+.toggle-button-half:first-child {
+    border-radius: 0px;
+}
+
+.toggle-button-half:last-child {
+    border-radius: 0px;
 }
 
 .toggle-button-half.selected {
