@@ -1,7 +1,6 @@
 .chat-input-container {
     position: sticky;
     bottom: 0;
-    background-color: var(--chat-user-message-background-color);
     margin: 10px 0;
     margin-top: auto;
     border-radius: 3px;

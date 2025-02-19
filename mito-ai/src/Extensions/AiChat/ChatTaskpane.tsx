@@ -917,20 +917,28 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         renderMimeRegistry={renderMimeRegistry}
                         agentModeEnabled={agentModeEnabled}
                     />
-                    <div>
-                        <ToggleButton
-                            leftText="Chat"
-                            rightText="Agent"
-                            isLeftSelected={!agentModeEnabled}
-                            onChange={(isLeftSelected) => {
-                                clearChatHistory();
-                                setAgentModeEnabled(!isLeftSelected);
-                            }}
-                            title="Toggle between Chat and Agent mode"
-                            variant="purple"
-                            width="fit-contents"
-                        />
-                    </div>
+                    {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <ToggleButton
+                                leftText="Chat"
+                                rightText="Agent"
+                                isLeftSelected={!agentModeEnabled}
+                                onChange={(isLeftSelected) => {
+                                    clearChatHistory();
+                                    setAgentModeEnabled(!isLeftSelected);
+                                }}
+                                title="Toggle between Chat and Agent mode"
+                                variant="purple"
+                                width="fit-contents"
+                            />
+                            <button
+                                className="button-base button-purple"
+                                onClick={() => {console.log('submit')}}
+                            >
+                                Submit ⏎
+                            </button>
+                        </div>
+                    )}
                     {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
                         <button 
                             className="button-base button-red" 
