@@ -182,13 +182,14 @@ class InlineCompleterMetadata():
     prefix: str 
     suffix: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
 
 @dataclass(frozen=True)
 class InlineCompletionMessageBuilder(InlineCompleterMetadata):
 
     @property
     def prompt(self) -> str:
-        return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
+        return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [], self.files or [])
     
     @property
     def pro_model(self) -> str:

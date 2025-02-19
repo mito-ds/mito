@@ -183,10 +183,10 @@ export class MitoAIInlineCompleter
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
 
-      const variables = this._contextManager.variables;
       const metadata: IInlineCompleterMetadata = {
         promptType: 'inline_completion',
-        variables: variables,
+        variables: this._contextManager.variables,
+        files: this._contextManager.files,
         prefix: prefix,
         suffix: suffix
       }

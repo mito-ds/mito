@@ -54,6 +54,7 @@ export interface IAgentPlanningMetadata {
 export interface IInlineCompleterMetadata {
     promptType: 'inline_completion';
     variables?: Variable[]; 
+    files?: File[];
     prefix: string;
     suffix: string;
 }
