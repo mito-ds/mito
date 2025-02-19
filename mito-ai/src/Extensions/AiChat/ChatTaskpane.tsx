@@ -892,12 +892,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             {agentModeEnabled && displayOptimizedChatHistory.some(msg =>
                 msg.type === 'openai message:agent:planning'
             ) ? (
-                <button
-                    className="button-base button-purple"
-                    onClick={executeAgentPlan}
-                >
-                    Let's go!
-                </button>
+                <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                    <button
+                        className="button-base button-purple"
+                        onClick={executeAgentPlan}
+                        style={{ flex: 1 }}
+                    >
+                        Let's go!
+                    </button>
+                    <button
+                        className="button-base button-red"
+                        onClick={() => {
+                            clearChatHistory();
+                            setAgentModeEnabled(false);
+                        }}
+                        style={{ width: '32px', padding: '0' }}
+                    >
+                        ✖
+                    </button>
+                </div>
             ) : (
                 <>
                     <ChatInput
