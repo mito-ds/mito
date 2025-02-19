@@ -31,26 +31,23 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: 18.x
-        cache: 'yarn'
-        cache-dependency-path: mito-ai/yarn.lock
-
-    - name: Enable Corepack
-      run: corepack enable
+        cache: 'npm'
+        cache-dependency-path: mito-ai/package-lock.json
 
     - name: Install dependencies
       run: |
         cd mito-ai
-        yarn install --frozen-lockfile
+        npm ci
 
     - name: Build project
       run: |
         cd mito-ai
-        yarn build
+        npm run build
 
     - name: Run Jest tests
       run: |
         cd mito-ai
-        yarn test
+        npm test
 
     - name: Upload test coverage
       uses: actions/upload-artifact@v4
