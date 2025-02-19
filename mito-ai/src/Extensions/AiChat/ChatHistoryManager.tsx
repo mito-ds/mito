@@ -81,6 +81,8 @@ export class ChatHistoryManager {
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
 
+        console.log("FILES", this.contextManager.files)
+
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
             variables: this.contextManager.variables,

@@ -1,9 +1,11 @@
+import { PathExt } from '@jupyterlab/coreutils';
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { INotebookTracker } from "@jupyterlab/notebook";
 
 
 export type File = {
     path: string;
+    name: string;
 }
 
 
@@ -17,9 +19,23 @@ export const fetchFilesAndUpdateState = async (
 ): Promise<void> => {
     
     const fileManager = app.serviceManager.contents;
+    
+    // Get the current notebook
+    const currentNotebook = notebookTracker.currentWidget;
+    if (!currentNotebook) {
+        setFiles([]);
+        return;
+    }
+    
+    
+    // Get the directory path using PathExt.dirname from @jupyterlab/coreutils
+    const relativeNotebookPath = currentNotebook.context.path;
+    const relativeDirectoryPath = PathExt.dirname(relativeNotebookPath);
+    console.log("RELATIVE DIRECTORY PATH", relativeDirectoryPath)
 
     try {
-        const contents = await fileManager.get('');
+        const contents = await fileManager.get(relativeDirectoryPath);
+        console.log("CONTENTS", contents)
         if (contents.type === 'directory') {
             // Filter for only csv and Excel files
             const data_files = contents.content.filter((file: any) => {
@@ -29,11 +45,20 @@ export const fetchFilesAndUpdateState = async (
                     extension === 'xls' ||
                     extension === 'xlsm';
             });
-            setFiles(data_files);
-        }
 
-        // If the contents are not a directory, set the files to an empty array
-        setFiles([]);
+            // Map the files to the File type
+            const files = data_files.map((file: any) => ({
+                path: file.path,
+                name: file.name
+            }));
+
+            // Update the state of the files
+            setFiles(files);
+        } else {
+            // If the contents are not a directory, set the files to an empty array
+            setFiles([]);
+        }
+        
     } catch (error) {
         console.error('Error listing directory contents:', error);
         setFiles([]);

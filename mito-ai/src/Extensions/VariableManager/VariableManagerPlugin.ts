@@ -26,7 +26,10 @@ export class ContextManager implements IContextManager {
     private _files: File[] = [];
 
     constructor(app: JupyterFrontEnd, notebookTracker: INotebookTracker) {
-        this.setupKernelListener(app, notebookTracker);        
+        // Initialize variables and files 
+
+        // Setup the kernel listener to update context as kernel messages are received
+        this.setupKernelListener(app, notebookTracker); 
     }
 
     get variables(): Variable[] {
