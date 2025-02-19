@@ -927,13 +927,28 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                     clearChatHistory();
                                     setAgentModeEnabled(!isLeftSelected);
                                 }}
-                                title="Toggle between Chat and Agent mode"
+                                title="Agent can create plans and run code."
                                 variant="purple"
                                 width="fit-contents"
                             />
                             <button
                                 className="button-base button-purple"
-                                onClick={() => {console.log('submit')}}
+                                onClick={() => {
+                                    const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                    if (chatInput && chatInput.value) {
+                                        // Simulate an Enter keypress
+                                        // This triggers the existing submission logic in ChatInput.tsx
+                                        const enterEvent = new KeyboardEvent('keydown', {
+                                            key: 'Enter',
+                                            code: 'Enter',
+                                            keyCode: 13,
+                                            which: 13,
+                                            bubbles: true,
+                                            cancelable: true
+                                        });
+                                        chatInput.dispatchEvent(enterEvent);
+                                    }
+                                }}
                             >
                                 Submit ⏎
                             </button>
