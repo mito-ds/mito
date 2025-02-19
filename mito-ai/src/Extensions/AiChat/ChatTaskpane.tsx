@@ -11,9 +11,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-// import ChatIcon from '../../icons/ChatIcon';
 import ResetIcon from '../../icons/ResetIcon';
-// import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -26,7 +24,6 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import ToggleButton from '../../components/ToggleButton';
 import IconButton from '../../components/IconButton';
 import LoadingDots from '../../components/LoadingDots';
-// import TextAndIconButton from '../../components/TextAndIconButton';
 import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
