@@ -337,6 +337,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
+    const handleDeleteMessage = (messageIndex: number) => {
+        // Get a new chat history manager
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        
+        // Remove the message at the specified index
+        newChatHistoryManager.removeMessageAtIndex(messageIndex)
+        
+        // Update the state with the new chat history
+        setChatHistoryManager(newChatHistoryManager)
+    }
+
     const sendAgentPlanningMessage = async (message: string, messageIndex?: number): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
@@ -914,6 +925,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
+                            onDeleteMessage={handleDeleteMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
                         />

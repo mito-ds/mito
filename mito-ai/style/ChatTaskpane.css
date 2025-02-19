@@ -143,10 +143,48 @@
     align-items: center;
 }
 
-.message-start-editing-button {
+.message-action-buttons {
     position: absolute !important;
     bottom: 8px !important;
     right: 8px !important;
+    display: flex;
+}
+
+.message-action-buttons button {
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    background-color: var(--jp-layout-color3);
+    border: none;
+    padding: 4px;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    color: var(--grey-900) !important;
+}
+
+.message-action-buttons button:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.message-action-buttons button:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.message-action-buttons button:hover {
+    background-color: var(--jp-layout-color4);
+}
+
+.message:hover .message-action-buttons button {
+    opacity: 1 !important;
+}
+
+.message-start-editing-button {
+    position: relative !important;
+    bottom: unset !important;
+    right: unset !important;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;

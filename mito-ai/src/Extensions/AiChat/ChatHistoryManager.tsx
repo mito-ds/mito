@@ -132,6 +132,11 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
+    removeMessageAtIndex(index: number): void {
+        // Remove the message at the specified index
+        this.displayOptimizedChatHistory.splice(index, 1);
+    }
+
     addAgentMessage(message: string, index?: number): IAgentPlanningMetadata {
 
         const agentPlanningMetadata: IAgentPlanningMetadata = {
@@ -275,8 +280,7 @@ export class ChatHistoryManager {
             return
         }
 
-        const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
-        return displayOptimizedChatHistory[lastAIMessagesIndex]
+        return this.displayOptimizedChatHistory[lastAIMessagesIndex]
     }
 }
 
