@@ -33,6 +33,7 @@ class ChatMessageMetadata():
     promptType: Literal['chat', 'agent:execution']
     input: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     index: Optional[int] = None
 
@@ -40,7 +41,7 @@ class ChatMessageMetadata():
 class ChatMessageBuilder(ChatMessageMetadata):
     @property
     def prompt(self) -> str:
-        return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
+        return create_chat_prompt(self.variables or [], self.files or [], self.activeCellCode or '', self.input or '')
     
     @property
     def display_message(self) -> str:

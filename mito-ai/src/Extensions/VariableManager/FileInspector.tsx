@@ -4,8 +4,7 @@ import { INotebookTracker } from "@jupyterlab/notebook";
 
 
 export type File = {
-    path: string;
-    name: string;
+    file_name: string;
 }
 
 
@@ -45,8 +44,7 @@ export const fetchFilesAndUpdateState = async (
 
             // Map the files to the File type
             const files = data_files.map((file: any) => ({
-                path: file.path,
-                name: file.name
+                file_name: file.name
             }));
 
             // Update the state of the files

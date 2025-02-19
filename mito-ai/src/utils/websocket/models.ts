@@ -3,10 +3,11 @@ import type {
   IInlineCompletionItem
 } from '@jupyterlab/completer';
 import { Variable } from '../../Extensions/VariableManager/VariableInspector';
+import { File } from '../../Extensions/VariableManager/FileInspector';
 
 /* 
 
-Meta Data Models
+Metadata Models
 
 */
 
@@ -23,6 +24,7 @@ type CompletionRequestMetadata =
 export interface IChatMessageMetadata {
     promptType: 'chat' | 'agent:execution'
     variables?: Variable[];
+    files?: File[];
     activeCellCode?: string;   
     input: string;
     index?: number;
