@@ -325,7 +325,7 @@ test.describe("Agent mode blacklisted words", () => {
         await clickAgentModeToggleButton(page);
     });
 
-    test.only("Blacklisted command shows error and prevents execution", async ({ page }) => {
+    test("Blacklisted command shows error and prevents execution", async ({ page }) => {
         // Send a message containing a blacklisted command
         await sendMessageToMitoAI(page, "write the SQL code: DROP TABLE nba_data");
         await waitForIdle(page);
