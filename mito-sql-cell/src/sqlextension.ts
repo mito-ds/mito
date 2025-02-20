@@ -12,6 +12,7 @@ import type { PanelLayout } from '@lumino/widgets';
 import { SQLToolbar } from './sqltoolbar';
 import type { ISqlSources } from './tokens';
 import { magicConfiguration } from './common';
+import type { CommandRegistry } from '@lumino/commands';
 
 /**
  * Cell tag for the mito SQL configuration cell.
@@ -26,15 +27,17 @@ class SQLToolbarFactory implements IDisposable {
   private _isDisposed = false;
   private _toolbars = new WeakMap<ICellModel, SQLToolbar>();
 
+  /**
+   * SQL toolbar factory.
+   *
+   * @param panel The notebook panel
+   * @param sqlSources The SQL sources
+   * @param commands Command registry
+   */
   constructor(
-    /**
-     * The notebook panel.
-     */
     protected panel: NotebookPanel,
-    /**
-     * The SQL sources.
-     */
-    protected sqlSources: ISqlSources
+    protected sqlSources: ISqlSources,
+    protected commands: CommandRegistry
   ) {
     this._onModelChanged(panel.content);
     panel.content.modelChanged.connect(this._onModelChanged, this);
@@ -62,7 +65,11 @@ class SQLToolbarFactory implements IDisposable {
   private _addToolbar(model: ICellModel): void {
     const cell = this._getCell(model);
     if (cell) {
-      const toolbar = new SQLToolbar({ model, sqlSources: this.sqlSources });
+      const toolbar = new SQLToolbar({
+        commands: this.commands,
+        model,
+        sqlSources: this.sqlSources
+      });
       (cell.layout as PanelLayout).insertWidget(0, toolbar);
       this._toolbars.set(model, toolbar);
       const removeToolbar = () => {
@@ -163,10 +170,23 @@ class SQLToolbarFactory implements IDisposable {
 }
 
 export class SQLExtension implements DocumentRegistry.WidgetExtension {
-  constructor(protected sqlSources: ISqlSources) {}
+  /**
+   * SQL toolbar extension for notebook panels.
+   *
+   * @param sqlSources The SQL sources
+   * @param commands Command registry
+   */
+  constructor(
+    protected sqlSources: ISqlSources,
+    protected commands: CommandRegistry
+  ) {}
 
   createNew(panel: NotebookPanel): IDisposable {
-    const toolbar = new SQLToolbarFactory(panel, this.sqlSources);
+    const toolbar = new SQLToolbarFactory(
+      panel,
+      this.sqlSources,
+      this.commands
+    );
     return toolbar;
   }
 }
