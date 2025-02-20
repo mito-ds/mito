@@ -1,7 +1,6 @@
 .chat-input-container {
     position: sticky;
     bottom: 0;
-    background-color: var(--chat-user-message-background-color);
     margin: 10px 0;
     margin-top: auto;
     border-radius: 3px;
@@ -26,7 +25,7 @@
 
 .chat-input.agent-mode {
     border: 1px solid var(--purple-500);
-    animation: glow 2s ease-in-out;
+    animation: glow 1s ease-in-out;
     --glow-color: var(--purple-500);
 }
 
