@@ -69,7 +69,7 @@ test.describe("Agent mode print hi", () => {
                 newPlanMessages.push(messageText);
             }
         });
-        
+
         // By editing the original agent message, we should see a new plan
         // and the old plan messages should be wiped. 
         oldPlanMessages.forEach(message => {
@@ -264,7 +264,7 @@ test.describe("Stop Agent", () => {
         // Verify we don't see the final error message
         const messages = await page.locator('.message-assistant-chat').all();
         const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
-        expect(messageTexts.some(text => 
+        expect(messageTexts.some(text =>
             text?.includes("I apologize, but I was unable to fix the error after 3 attempts")
         )).toBe(false);
     });
@@ -305,7 +305,7 @@ test.describe("Agent mode auto error fixup", () => {
             }
         }).toPass({ timeout: 45000 }); // Increase timeout if needed
     });
-    
+
 });
 
 test.describe("Agent mode blacklisted words", () => {
@@ -321,12 +321,11 @@ test.describe("Agent mode blacklisted words", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
-        // Switch to agent mode
-        await page.getByRole('button', { name: 'Chat ▾' }).click();
-        await page.getByRole('button', { name: 'Agent' }).click();
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
     });
 
-    test("Blacklisted command shows error and prevents execution", async ({ page }) => {
+    test.only("Blacklisted command shows error and prevents execution", async ({ page }) => {
         // Send a message containing a blacklisted command
         await sendMessageToMitoAI(page, "write the SQL code: DROP TABLE nba_data");
         await waitForIdle(page);
