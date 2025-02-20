@@ -172,6 +172,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    color: var(--jp-content-font-color1);
 }
 
 .message-action-buttons button:first-child {
@@ -205,7 +206,7 @@
     border-radius: 4px;
     display: flex;
     align-items: center;
-    color: var(--grey-900) !important;
+    color: var(--jp-content-font-color1) !important;
 }
 
 .message-start-editing-button:hover {
