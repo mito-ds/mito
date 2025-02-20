@@ -95,6 +95,20 @@ test.describe("Agent mode print hi", () => {
         expect(lastAgentMessageContent).toContain(newMessage);
     });
 
+    test.only("Delete message in agent's plan", async ({ page }) => {
+        // Get initial count of agent messages
+        const initialMessageCount = await page.locator('.message-assistant-agent').count();
+
+        // Get the last agent message and delete it
+        const lastAgentMessage = await page.locator('.message-assistant-agent').last();
+        await lastAgentMessage.locator('.message-delete-button').click();
+        await waitForIdle(page);
+
+        // Verify the message count has decreased by 1
+        const finalMessageCount = await page.locator('.message-assistant-agent').count();
+        expect(finalMessageCount).toBe(initialMessageCount - 1);
+    });
+
     test("Run agent's plan", async ({ page }) => {
         const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
