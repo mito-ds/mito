@@ -69,7 +69,7 @@ test.describe("Agent mode print hi", () => {
                 newPlanMessages.push(messageText);
             }
         });
-        
+
         // By editing the original agent message, we should see a new plan
         // and the old plan messages should be wiped. 
         oldPlanMessages.forEach(message => {
@@ -264,7 +264,7 @@ test.describe("Stop Agent", () => {
         // Verify we don't see the final error message
         const messages = await page.locator('.message-assistant-chat').all();
         const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
-        expect(messageTexts.some(text => 
+        expect(messageTexts.some(text =>
             text?.includes("I apologize, but I was unable to fix the error after 3 attempts")
         )).toBe(false);
     });
@@ -305,5 +305,47 @@ test.describe("Agent mode auto error fixup", () => {
             }
         }).toPass({ timeout: 45000 }); // Increase timeout if needed
     });
-    
+
+});
+
+test.describe("Agent mode blacklisted words", () => {
+
+    test.beforeEach(async ({ page }) => {
+        /*
+            Before each test, we switch to agent mode, and send a message. 
+        */
+
+        await createAndRunNotebookWithCells(page, []);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
+    });
+
+    test("Blacklisted command shows error and prevents execution", async ({ page }) => {
+        // Send a message containing a blacklisted command
+        await sendMessageToMitoAI(page, "write the SQL code: DROP TABLE nba_data");
+        await waitForIdle(page);
+
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+
+        // Check that the agent eventually sends a message that says it cannot execute the code
+        await expect(async () => {
+            const messages = await page.locator('.message-assistant-chat').all();
+            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+            if (!messageTexts.some(text => text?.includes("I cannot execute this code"))) {
+                throw new Error('Expected message not found');
+            }
+        }).toPass({ timeout: 45000 }); // Increase timeout if needed
+
+        // Verify that no dangerous command appears in any cell
+        const cells = await page.locator('.jp-Cell').all();
+        for (const cell of cells) {
+            const code = await cell.locator('.jp-Editor').textContent();
+            expect(code).not.toContain('DROP TABLE');
+        }
+    });
 });

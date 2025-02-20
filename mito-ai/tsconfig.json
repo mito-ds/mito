@@ -25,6 +25,7 @@
     "strictNullChecks": true,
     "target": "ES2018",
     "types": [
+      "jest",
       "node"
     ]
   },
