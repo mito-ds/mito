@@ -1,16 +1,66 @@
 import { expect, galata, test } from "@jupyterlab/galata";
-import * as path from "path";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 const DATABASES_URL =
   /.*\/mito-sql-cell\/databases(\/(?<connectionName>\w[\w-]*))?/;
-const MOCKED_CONFIGURATION_FILE = "/home/test/.mito/connections.ini";
+const TEMPORARY_DIRECTORY = os.tmpdir();
+const MOCKED_CONFIGURATION_FILE = path.join(".mito", "connections.ini");
+
+async function writeSources(file: string, data: any[]) {
+  let content = "";
+  for (const source of data) {
+    content += `[${source.connectionName}]\n`;
+    content += `database = ${source.database}\n`;
+    content += `drivername = ${source.driver}\n`;
+    if (source.host) content += `host = ${source.host}\n`;
+    if (source.port) content += `port = ${source.port}\n`;
+    if (source.username) content += `username = ${source.username}\n`;
+    if (source.password) content += `password = ${source.password}\n`;
+  }
+
+  await fs.writeFile(file, content);
+}
 
 test.describe("Mito SQL datasources", () => {
   test.use({ autoGoto: false });
 
   const sources = new Array<any>();
 
-  test.beforeEach(async ({ baseURL, page, request, tmpPath }) => {
+  test.afterEach(async ({}, testInfo) => {
+    // Remove the temporary configuration
+    const testFolder = path
+      .basename(testInfo.outputDir)
+      .replace(/-retry\d+$/i, "");
+
+    const configurationFile = path.join(
+      TEMPORARY_DIRECTORY,
+      testFolder,
+      MOCKED_CONFIGURATION_FILE
+    );
+
+    const content = await fs.readFile(configurationFile, "utf-8");
+    console.info(`Configuration file for ${testFolder} content:\n`, content);
+    await fs.unlink(configurationFile);
+  });
+
+  test.beforeEach(async ({ page, request, tmpPath }, testInfo) => {
+    const testFolder = path
+      .basename(testInfo.outputDir)
+      .replace(/-retry\d+$/i, "");
+
+    const configurationFile = path.join(
+      TEMPORARY_DIRECTORY,
+      testFolder,
+      MOCKED_CONFIGURATION_FILE
+    );
+
+    // Create a temporary directory for the configuration file
+    await fs.mkdir(path.dirname(configurationFile), {
+      recursive: true,
+    });
+
     // Mock SQL sources - must happen before page goto
     sources.length = 0;
 
@@ -39,6 +89,9 @@ test.describe("Mito SQL datasources", () => {
             } else {
               const connection = { ...sources[connectionIndex], ...data };
               sources.splice(connectionIndex, 1, connection);
+              writeSources(configurationFile, sources).catch((reason) => {
+                console.error("Failed to write sources");
+              });
               return route.fulfill({
                 status: 200,
               });
@@ -51,6 +104,9 @@ test.describe("Mito SQL datasources", () => {
             if (connectionIndex >= 0) {
               sources.splice(connectionIndex, 1);
             }
+            writeSources(configurationFile, sources).catch((reason) => {
+              console.error("Failed to write sources");
+            });
             return route.fulfill({ status: 204 });
           }
           default:
@@ -63,12 +119,15 @@ test.describe("Mito SQL datasources", () => {
               status: 200,
               body: JSON.stringify({
                 connections: sources,
-                configurationFile: MOCKED_CONFIGURATION_FILE,
+                configurationFile,
               }),
             });
           case "POST": {
             const data = request.postDataJSON();
             sources.push(data);
+            writeSources(configurationFile, sources).catch((reason) => {
+              console.error("Failed to write sources");
+            });
             return route.fulfill({ status: 201 });
           }
           default:
@@ -98,7 +157,7 @@ test.describe("Mito SQL datasources", () => {
     await dialog.getByRole("button", { name: "Add", exact: true }).click();
   });
 
-  test.only("should add and remove a new SQL source", async ({ page }) => {
+  test("should add and remove a new SQL source", async ({ page }) => {
     // Create a notebook and add a SQL cell to check
     // the sources list gets updated
     await page.notebook.createNew();
@@ -170,10 +229,8 @@ test.describe("Mito SQL datasources", () => {
       .getByLabel("Variable name")
       .getByRole("textbox")
       .fill("df");
-    await page.pause();
     await secondCell.locator(".cm-editor").click();
     await page.keyboard.type("\nSELECT\n*\nFROM repositories");
-    // FIXME need to generate a real config file for the magic to work
     await page.keyboard.press("Shift+Enter");
     await expect
       .soft(page.getByLabel("Code Cell Content with Output").last())
@@ -189,5 +246,41 @@ test.describe("Mito SQL datasources", () => {
     ).toContainText("stars");
   });
 
-  test("should update the cell magic", async ({ page }) => {});
+  test("should update the cell magic", async ({ page }) => {
+    await page.notebook.createNew();
+
+    const secondCell = page.getByLabel("Code Cell Content").nth(1);
+    await secondCell.waitFor({ state: "visible" });
+    // Execute the first cell
+    await page.getByLabel("Code Cell Content").first().click();
+    await page.keyboard.press("Shift+Enter");
+
+    // Set valid jupysql magic with unsupported mito options
+    await secondCell.getByRole("textbox")
+      .fill(`%%sql --save not_nulls --no-execute
+SELECT
+  name,
+  user
+FROM repositories
+WHERE
+  stars > 25000`);
+
+    // Setting the SQL options should update the magic
+    await secondCell.getByRole("combobox", {}).click();
+    await secondCell.getByRole("option", { name: "test" }).click();
+    await secondCell
+      .getByLabel("Variable name")
+      .getByRole("textbox")
+      .fill("out");
+
+    await secondCell.click();
+    await page.keyboard.press("Shift+Enter");
+
+    await expect
+      .soft(page.getByLabel("Code Cell Content with Output").last())
+      .toContainText("Connecting to 'test'");
+    await expect
+      .soft(page.getByLabel("Code Cell Content with Output").getByRole('table'))
+      .toContainText("handson-ml2");
+  });
 });
