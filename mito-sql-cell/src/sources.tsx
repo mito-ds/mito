@@ -298,11 +298,6 @@ function SqlSources(props: ISqlSourceListProps): JSX.Element {
           className="mito-sql-source-item"
           key={source.connectionName}
         >
-          <span className="mito-sql-source-name">{source.connectionName}</span>
-          <br />
-          <span className="mito-sql-source-database">
-            {DRIVER_TO_TYPE[source.driver]}: {source.database}
-          </span>
           <Button
             title="Delete SQL source"
             className="mito-sql-btn-source-delete"
@@ -315,6 +310,11 @@ function SqlSources(props: ISqlSourceListProps): JSX.Element {
           >
             <deleteIcon.react tag={null} />
           </Button>
+          <span className="mito-sql-source-name">{source.connectionName}</span>
+          <br />
+          <span className="mito-sql-source-database">
+            {DRIVER_TO_TYPE[source.driver]}: {source.database}
+          </span>
         </li>
       ))}
     </ul>

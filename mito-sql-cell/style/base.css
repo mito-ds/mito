@@ -1,7 +1,14 @@
 /* TOOLBAR */
 
+.mito-sqlcell-toolbar {
+  margin-left: calc(
+    var(--jp-cell-collapser-width) + var(--jp-cell-prompt-width)
+  );
+}
+
 /* stylelint-disable-next-line selector-class-pattern */
 .mito-sqlcell-toolbar .jp-Toolbar {
+  --toolbar-item-gap: 4px;
   border-bottom: none;
   align-items: center;
 }
@@ -15,4 +22,43 @@
 /* stylelint-disable-next-line selector-class-pattern */
 .mito-sqlcell-toolbar .jp-Toolbar input {
   height: 63%;
+}
+
+.mito-sql-add-option[aria-selected='true'] svg .jp-icon3 {
+  fill: var(--jp-ui-inverse-font-color1);
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.mito-sql-sources-panel .jp-SidePanel-toolbar {
+  --toolbar-item-gap: 4px;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.mito-sql-sources-panel .jp-SidePanel-toolbar h2 {
+  font-size: 100%;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mito-sql-sources-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 4px;
+}
+
+.mito-sql-source-item:nth-child(even) {
+  background-color: var(--jp-layout-color2);
+}
+
+.mito-sql-btn-source-delete {
+  float: right;
+}
+
+.mito-sql-source-name {
+  font-size: var(--jp-ui-font-size2);
+}
+
+.mito-sql-source-database {
+  color: var(--jp-ui-font-color2);
 }
