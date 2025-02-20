@@ -10,7 +10,7 @@ import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } f
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
-import XIcon from '../../../icons/XIcon';
+import GarbageIcon from '../../../icons/GarbageIcon';
 import ChatInput from './ChatInput';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
@@ -221,7 +221,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                         onClick={() => onDeleteMessage?.(messageIndex)}
                         title="Delete message"
                     >
-                        <XIcon />
+                        <GarbageIcon />
                     </button>
                 </div>
             }
