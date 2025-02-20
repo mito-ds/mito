@@ -116,4 +116,7 @@ export const clickDenyButton = async (
     await waitForIdle(page);
 }
 
-
+export const clickAgentModeToggleButton = async (page: IJupyterLabPageFixture) => {
+    await page.locator('.toggle-button-container').getByRole('button', { name: 'Agent' }).click();
+    await waitForIdle(page);
+}

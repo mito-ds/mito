@@ -22,7 +22,7 @@
 .chat-taskpane-header {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding-top: 10px;
     padding-bottom: 5px;
@@ -246,4 +246,48 @@
 .chat-message-alert a {
     color: var(--purple-700);
     text-decoration: underline;
+}
+
+.chat-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submit-button {
+    background-color: var(--purple-400);
+    color: var(--purple-700);
+    padding: 2px 10px;
+}
+
+.submit-button:hover {
+    background-color: var(--purple-500);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.stop-agent-button {
+    margin-top: 8px;
+}
+
+.stop-agent-button-content {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+.agent-controls {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.agent-start-button {
+    flex: 1;
+}
+
+.agent-cancel-button {
+    width: 32px;
+    padding: 0;
 }
