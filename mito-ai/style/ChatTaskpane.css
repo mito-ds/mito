@@ -168,8 +168,6 @@
 }
 
 .message-action-buttons button svg {
-    width: 16px;
-    height: 16px;
     position: absolute;
     top: 50%;
     left: 50%;
