@@ -1,6 +1,9 @@
 import type { IObservableList } from '@jupyterlab/observables';
 import type { ISignal } from '@lumino/signaling';
 
+/**
+ * Extension command IDs.
+ */
 export namespace CommandIDs {
   export const addSource = 'mito-sql-cell:add-source';
   export const deleteSource = 'mito-sql-cell:delete-source';
@@ -25,14 +28,30 @@ export interface ISqlSource {
    */
   driver: string;
 }
+
 /**
  * The interface for the SQL sources model.
  */
 
 export interface ISqlSources extends IObservableList<ISqlSource> {
+  /**
+   * The configuration file path.
+   */
   readonly configurationFile: string;
+  /**
+   * Error when requesting the backend.
+   */
   readonly error: string;
+  /**
+   * Model state changed signal.
+   */
   stateChanged: ISignal<ISqlSources, string>;
+  /**
+   * Whether the sources are ready or not.
+   */
   readonly isReady: boolean;
+  /**
+   * Refresh the sources from the backend.
+   */
   refresh(): Promise<void>;
 }

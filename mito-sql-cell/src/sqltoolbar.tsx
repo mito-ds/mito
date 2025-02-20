@@ -1,16 +1,23 @@
 import { Option, Select, TextField, Toolbar } from '@jupyter/react-components';
 import { CellChange } from '@jupyter/ydoc';
 import { type ICellModel, type ICodeCellModel } from '@jupyterlab/cells';
-import { VDomModel, VDomRenderer } from '@jupyterlab/ui-components';
+import {
+  VDomModel,
+  VDomRenderer,
+  addIcon,
+  editIcon
+} from '@jupyterlab/ui-components';
 import { map } from '@lumino/algorithm';
 import * as React from 'react';
 import { MagicLine } from './common';
-import type { ISqlSources } from './tokens';
+import { CommandIDs, type ISqlSources } from './tokens';
+import type { CommandRegistry } from '@lumino/commands';
 
 /**
  * The class of the toolbar.
  */
 const TOOLBAR_CLASS = 'mito-sqlcell-toolbar';
+const ADD_SOURCE_OPTION_VALUE = 'add-source';
 
 /**
  * SQL toolbar model.
@@ -51,6 +58,10 @@ export class SqlModel extends VDomModel {
  */
 export interface ISQLToolbarOptions {
   /**
+   * Command registry
+   */
+  commands: CommandRegistry;
+  /**
    * Cell model
    */
   model: ICellModel;
@@ -65,6 +76,7 @@ export interface ISQLToolbarOptions {
  */
 export class SQLToolbar extends VDomRenderer<SqlModel | null> {
   private _cellModel: ICellModel;
+  private _commands: CommandRegistry;
   private _sqlSources: ISqlSources;
 
   /**
@@ -73,6 +85,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
   constructor(options: ISQLToolbarOptions) {
     super();
     this._cellModel = options.model;
+    this._commands = options.commands;
     this._sqlSources = options.sqlSources;
     this.addClass(TOOLBAR_CLASS);
 
@@ -106,6 +119,15 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
           scale="xsmall"
           value={this.model.database}
         >
+          <Option
+            key="add"
+            className="mito-sql-add-option"
+            value={ADD_SOURCE_OPTION_VALUE}
+            onClick={this._addDatabase}
+          >
+            <addIcon.react tag="span" />
+            Connect to a database…
+          </Option>
           {map(this._sqlSources, s => (
             <Option key={s.connectionName} value={s.connectionName}>
               {s.connectionName}
@@ -120,16 +142,28 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
           onChange={this._onVariableChange}
           placeholder="Variable"
           value={this.model.variableName}
-        />
+        >
+          <editIcon.react slot="end" tag={null} />
+        </TextField>
       </Toolbar>
     ) : null;
   }
+
+  private _addDatabase = async () => {
+    if (this.model) {
+      const newSource = await this._commands.execute(CommandIDs.addSource);
+      const value = newSource?.connectionName;
+      if (value) {
+        this.model.database = value;
+      }
+    }
+  };
 
   /**
    * Callback on the react select component.
    */
   private _onDatabaseChange = (event: any) => {
-    if (this.model) {
+    if (this.model && event.target.value !== ADD_SOURCE_OPTION_VALUE) {
       this.model.database = event.target.value;
     }
   };

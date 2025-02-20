@@ -50,6 +50,7 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
 
         if (result.button.accept && result.value) {
           sources.push(result.value);
+          return result.value;
         }
       },
       label: 'Add a SQL source',
@@ -114,7 +115,7 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
     app.shell.add(sourcesPanel, 'left', { rank: 1000 });
 
     // Add the widget extension adding the SQL toolbar to notebook cells
-    const sqlCellExtension = new SQLExtension(sources);
+    const sqlCellExtension = new SQLExtension(sources, app.commands);
     app.docRegistry.addWidgetExtension('Notebook', sqlCellExtension);
 
     editorExtensionRegistry.addExtension({
