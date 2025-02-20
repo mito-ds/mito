@@ -95,7 +95,7 @@ test.describe("Agent mode print hi", () => {
         expect(lastAgentMessageContent).toContain(newMessage);
     });
 
-    test.only("Delete message in agent's plan", async ({ page }) => {
+    test("Delete message in agent's plan", async ({ page }) => {
         // Get initial count of agent messages
         const initialMessageCount = await page.locator('.message-assistant-agent').count();
 
