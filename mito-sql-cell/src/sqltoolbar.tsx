@@ -134,7 +134,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
             </Option>
           ))}
         </Select>
-        <span>saved to</span>
+        <span style={{margin: 'auto var(--toolbar-item-gap)'}}>saved to</span>
         <TextField
           aria-label="Variable name"
           title="Variable name"
