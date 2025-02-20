@@ -1,12 +1,13 @@
 import json
 from typing import Any, Dict, Optional
-from .version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
-from .schema import UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
-from .db import get_user_field
-from .._version import __version__
-from .utils import is_running_test
-
+from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
+from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
+from mito_ai.utils.db import get_user_field
+from mito_ai._version import __version__
+from mito_ai.utils.utils import is_running_test
+from mito_ai.models import MessageType
 import analytics
+
 WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 
 analytics.write_key = WRITE_KEY
 
@@ -157,17 +158,16 @@ def log(
 
 def log_ai_completion_success(
     key_type: str,
-    prompt_type: str,
+    message_type: MessageType,
     last_message_content: str,
     response: Dict[str, Any],
-    num_usages: Optional[int] = None
 ) -> None:
     """
     Logs AI completion success based on the input location.
 
     Args:
         key_type: The type of key that was used to get the AI completion
-        prompt_type: The type of prompt that was sent to the AI
+        message_type: The type of message that was sent to the AI
         last_message_content: The last message sent to the AI
         response: The response received from the AI
     """
@@ -185,10 +185,13 @@ def log_ai_completion_success(
             .strip()
             .split("```")[0]
         )
+        
+        num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
     except:
         # Most user prompts will have an associated code cell that serves as the input context.
         # However, types like agent:planning do not have a code cell input.
         code_cell_input = ""
+        num_usages = -1
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
@@ -208,7 +211,7 @@ def log_ai_completion_success(
     if num_usages is not None:
         base_params[MITO_SERVER_NUM_USAGES] = str(num_usages)
 
-    if prompt_type == "smartDebug":
+    if message_type == MessageType.SMART_DEBUG:
         error_message = (
             last_message_content.split("Error Message:")[-1]
             .split("ERROR ANALYSIS:")[0]
@@ -221,11 +224,11 @@ def log_ai_completion_success(
         final_params["error_type"] = error_type
 
         log("mito_ai_smart_debug_success", params=final_params)
-    elif prompt_type == "codeExplain":
+    elif message_type == MessageType.CODE_EXPLAIN:
         final_params = base_params
 
         log("mito_ai_code_explain_success", params=final_params)
-    elif prompt_type == "chat":
+    elif message_type == MessageType.CHAT:
         final_params = base_params
 
         # Chunk the user input
@@ -236,7 +239,7 @@ def log_ai_completion_success(
             final_params[chunk_key] = chunk_value
 
         log("mito_ai_chat_success", params=final_params)
-    elif prompt_type == "agent:planning":
+    elif message_type == MessageType.AGENT_PLANNING:
         final_params = base_params
 
         # Chunk the user input
@@ -247,7 +250,7 @@ def log_ai_completion_success(
             final_params[chunk_key] = chunk_value
 
         log("mito_ai_agent_planning_success", params=final_params)
-    elif prompt_type == "agent:execution":
+    elif message_type == MessageType.AGENT_EXECUTION:
         final_params = base_params
 
         # Chunk the user input
@@ -258,16 +261,17 @@ def log_ai_completion_success(
             final_params[chunk_key] = chunk_value
 
         log("mito_ai_agent_execution_success", params=final_params)
-    elif prompt_type == "agent:autoErrorFixup":
-        final_params = base_params
-        log("mito_ai_agent_auto_error_fixup_success", params=final_params)
-    elif prompt_type == "inline_completion":
+    elif message_type == MessageType.INLINE_COMPLETION:
         final_params = base_params
         log("mito_ai_inline_completion_success", params=final_params)
+    elif message_type == MessageType.AGENT_AUTO_ERROR_FIXUP:
+        final_params = base_params
+        log("mito_ai_agent_auto_error_fixup_success", params=final_params)
     else:
         final_params = base_params
         final_params["note"] = (
             "This input_location has not been accounted for in `telemetry_utils.py`."
         )
 
-        log(f"mito_ai_{prompt_type}_success", params=final_params)
+        log(f"mito_ai_{message_type.value}_success", params=final_params)
+        

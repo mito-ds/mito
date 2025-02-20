@@ -123,9 +123,21 @@ Backend tests for mito-ai are written using pytest in the mito/mito-ai/mito_ai/t
 
 To run the pytests, just run `pytest` in the mito-ai directory.
 
+#### Backend Mypy tests
+
+To run the mypy tests, just run `mypy mito_ai/ --ignore-missing-imports` in the mito-ai directory.
+
 #### Frontend Unit tests 
 
 Frontend unit tests for mito-ai are written using Jest in the mito/mito-ai/src/tests directory.
 
 To run the Jest tests, just run `npm test` in the mito-ai directory.
+
+#### Frontend Tests
+
+Frontend tests for mito-ai are written using Playwright and Gelata in the mito/tests directory.
+
+
+
+
 

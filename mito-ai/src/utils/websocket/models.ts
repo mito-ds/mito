@@ -2,11 +2,12 @@ import type {
   IInlineCompletionError,
   IInlineCompletionItem
 } from '@jupyterlab/completer';
-import { Variable } from '../../Extensions/VariableManager/VariableInspector';
+import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { File } from '../../Extensions/ContextManager/FileInspector';
 
 /* 
 
-Meta Data Models
+Metadata Models
 
 */
 
@@ -23,14 +24,16 @@ type CompletionRequestMetadata =
 export interface IChatMessageMetadata {
     promptType: 'chat' | 'agent:execution'
     variables?: Variable[];
+    files?: File[];
     activeCellCode?: string;   
     input: string;
     index?: number;
 }
 
 export interface ISmartDebugMetadata {
-    promptType: 'smartDebug';
+    promptType: 'smartDebug' | 'agent:autoErrorFixup';
     variables?: Variable[];
+    files?: File[];
     activeCellCode?: string;   
     errorMessage: string;     
 }
@@ -44,12 +47,14 @@ export interface ICodeExplainMetadata {
 export interface IAgentPlanningMetadata {
     promptType: 'agent:planning';
     variables?: Variable[];
+    files?: File[];
     input: string;
 }
 
 export interface IInlineCompleterMetadata {
     promptType: 'inline_completion';
     variables?: Variable[]; 
+    files?: File[];
     prefix: string;
     suffix: string;
 }
@@ -97,6 +102,11 @@ export interface ISmartDebugCompletionRequest extends ICompletionRequest {
   metadata: ISmartDebugMetadata
 }
 
+export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
+  type: 'agent:autoErrorFixup'
+  metadata: ISmartDebugMetadata
+}
+
 export interface ICodeExplainCompletionRequest extends ICompletionRequest {
   type: 'codeExplain'
   metadata: ICodeExplainMetadata
@@ -105,6 +115,11 @@ export interface ICodeExplainCompletionRequest extends ICompletionRequest {
 export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
   type: 'agent:planning'
   metadata: IAgentPlanningMetadata
+}
+
+export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
+  type: 'agent:execution'
+  metadata: IChatMessageMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {

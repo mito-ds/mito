@@ -1,101 +1,41 @@
-from __future__ import annotations
-
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type, TypedDict, Union
-
-from pydantic import BaseModel
+from typing import List, Literal, Optional
 from openai.types.chat import ChatCompletionMessageParam
+from enum import Enum
 
-from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
-from mito_ai.prompt_builders.inline_completer_prompt import create_inline_prompt
-from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prompt
-from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt
-from mito_ai.prompt_builders.agent_planning_prompt import create_agent_prompt
+class MessageType(Enum):
+    """
+    This is all of the different types of messages that we support through the on_message handler.
+    """
+    CHAT = "chat"
+    SMART_DEBUG = "smartDebug"
+    CODE_EXPLAIN = "codeExplain"
+    AGENT_PLANNING = "agent:planning"
+    AGENT_EXECUTION = "agent:execution"
+    AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
+    INLINE_COMPLETION = "inline_completion"
+    CLEAR_HISTORY = "clear_history"
+    FETCH_HISTORY = "fetch_history"
 
-CompletionIncomingMessageTypes = Literal[
-    'chat', 
-    'inline_completion', 
-    'codeExplain', 
-    'smartDebug', 
-    'agent:planning', 
-    'agent:execution', 
-    'agent:autoErrorFixup'
-]
 
-IncomingMessageTypes = Union[Literal['clear_history', 'fetch_history'], CompletionIncomingMessageTypes]
-
-"""
-Chat Messages
-"""
 @dataclass(frozen=True)
 class ChatMessageMetadata():
     promptType: Literal['chat', 'agent:execution']
     input: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    index: Optional[int] = None
-
-@dataclass(frozen=True)
-class ChatMessageBuilder(ChatMessageMetadata):
-    @property
-    def prompt(self) -> str:
-        return create_chat_prompt(self.variables or [], self.activeCellCode or '', self.input or '')
+    index: Optional[int] = None    
     
-    @property
-    def display_message(self) -> str:
-        cell_code_block = f"""```python
-{self.activeCellCode}
-```
-
-"""
-        return f"{cell_code_block if self.activeCellCode else ''}{self.input}"
-    
-    @property
-    def pro_model(self) -> str:
-        return "o3-mini"
-    
-    @property
-    def os_model(self) -> str:
-        return "gpt-4o-mini"
-    
-    
-"""
-Smart Debug Message
-"""
 @dataclass(frozen=True)
 class SmartDebugMetadata():
     promptType: Literal['smartDebug']
     errorMessage: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-
-@dataclass(frozen=True)
-class SmartDebugMessageBuilder(SmartDebugMetadata):
-    @property
-    def prompt(self) -> str:
-        return create_error_prompt(self.errorMessage or '', self.activeCellCode or '', self.variables or [])
     
-    @property
-    def display_message(self) -> str:
-        cell_code_block = f"""```python
-{self.activeCellCode}
-```
-
-"""
-        return f"{cell_code_block if self.activeCellCode else ''}{self.errorMessage}"
-    
-    @property
-    def pro_model(self) -> str:
-        return "gpt-4o-mini"
-    
-    @property
-    def os_model(self) -> str:
-        return "gpt-4o-mini"
-    
-"""
-Code Explain Message
-"""
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
@@ -103,114 +43,47 @@ class CodeExplainMetadata():
     activeCellCode: Optional[str] = None
 
 @dataclass(frozen=True)
-class CodeExplainMessageBuilder(CodeExplainMetadata):
-    @property
-    def prompt(self) -> str:
-        return create_explain_code_prompt(self.activeCellCode or '')
-    
-    @property
-    def display_message(self) -> str:
-        cell_code_block = f"""```python
-{self.activeCellCode}
-```
-
-"""
-        
-        return f"{cell_code_block if self.activeCellCode else ''}Explain this code"
-    
-    @property
-    def pro_model(self) -> str:
-        return "gpt-4o-mini"
-    
-    @property
-    def os_model(self) -> str:
-        return "gpt-4o-mini"
-    
-"""
-Agent Planning Message
-"""
-@dataclass(frozen=True)
 class AgentPlanningMetadata():    
     promptType: Literal['agent:planning']
     input: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     
-@dataclass(frozen=True)
-class AgentMessageBuilder:
-    promptType: Literal['agent:execution']
-    fileType: Optional[str] = None
-    columnSamples: Optional[List[str]] = None
-    input: Optional[str] = None
-    variables: Optional[List[str]] = None
-
-    @property
-    def prompt(self) -> str:
-        return create_agent_prompt(
-            self.fileType or "",
-            self.columnSamples or [],
-            self.input or "",
-            self.variables or [],
-        )
-
-    @property
-    def display_message(self) -> str:
-        return self.input or ''
-    
-    @property
-    def pro_model(self) -> str:
-        return "o3-mini"
-    
-    @property
-    def os_model(self) -> str:
-        return "gpt-4o-mini"
-
-    @property
-    def response_format(self) -> Type[BaseModel]:
-        class PlanOfAttack(BaseModel):
-            actions: List[str]
-            dependencies: List[str]
-        return PlanOfAttack
-    
-    
-"""
-Inline Completer Message
-"""
 @dataclass(frozen=True)
 class InlineCompleterMetadata():
     promptType: Literal['inline_completion']
     prefix: str 
     suffix: str
     variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
 
-@dataclass(frozen=True)
-class InlineCompletionMessageBuilder(InlineCompleterMetadata):
-
-    @property
-    def prompt(self) -> str:
-        return create_inline_prompt(self.prefix or '', self.suffix or '', self.variables or [])
-    
-    @property
-    def pro_model(self) -> str:
-        return "gpt-4o-mini"
-    
-    @property
-    def os_model(self) -> str:
-        return "gpt-4o-mini"
-
-"""
-Clear History Message
-"""
 @dataclass(frozen=True)
 class ClearHistoryMetadata():
     promptType: Literal['clear_history']
 
-"""
-Fetch History Message
-"""
 @dataclass(frozen=True)
 class FetchHistoryMetadata():
     promptType: Literal['fetch_history']
+    
+    
+@dataclass(frozen=True)
+class CompletionRequest:
+    """
+    Message send by the client to request an AI chat response.
+    """
 
+    # Message type.
+    type: MessageType
+
+    # Message UID generated by the client.
+    message_id: str
+
+    # Chat messages.
+    messages: List[ChatCompletionMessageParam] = field(default_factory=list)
+
+    # Whether to stream the response (if supported by the model).
+    stream: bool = False
+    
     
 @dataclass(frozen=True)
 class AICapabilities:
@@ -226,25 +99,6 @@ class AICapabilities:
 
     # Message type.
     type: str = "ai_capabilities"
-
-
-@dataclass(frozen=True)
-class CompletionRequest:
-    """
-    Message send by the client to request an AI chat response.
-    """
-
-    # Message type.
-    type: IncomingMessageTypes
-
-    # Message UID generated by the client.
-    message_id: str
-
-    # Chat messages.
-    messages: List[ChatCompletionMessageParam] = field(default_factory=list)
-
-    # Whether to stream the response (if supported by the model).
-    stream: bool = False
 
 
 @dataclass(frozen=True)
@@ -295,7 +149,7 @@ class CompletionError:
     hint: str = ""
 
     @staticmethod
-    def from_exception(exception: BaseException, hint: str = "") -> CompletionError:
+    def from_exception(exception: BaseException, hint: str = "") -> "CompletionError":
         """
         Create a completion error from an exception.
         

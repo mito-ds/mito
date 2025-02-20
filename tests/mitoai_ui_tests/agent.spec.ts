@@ -11,6 +11,7 @@ import {
     sendMessageToMitoAI,
     editMitoAIMessage,
     waitForMitoAILoadingToDisappear,
+    clickAgentModeToggleButton,
 } from './utils';
 
 const AGENT_PLAN_SUBMIT_BUTTON_TEXT = 'Let\'s go!';
@@ -28,9 +29,8 @@ test.describe("Agent mode print hi", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
-        // Switch to agent mode
-        await page.getByRole('button', { name: 'Chat ▾' }).click();
-        await page.getByRole('button', { name: 'Agent' }).click();
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
 
         await sendMessageToMitoAI(page, "print hi");
         await waitForIdle(page);
@@ -188,9 +188,8 @@ test.describe("Stop Agent", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
-        // Switch to agent mode
-        await page.getByRole('button', { name: 'Chat ▾' }).click();
-        await page.getByRole('button', { name: 'Agent' }).click();
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
     });
 
 
@@ -285,9 +284,8 @@ test.describe("Agent mode auto error fixup", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
-        // Switch to agent mode
-        await page.getByRole('button', { name: 'Chat ▾' }).click();
-        await page.getByRole('button', { name: 'Agent' }).click();
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
     });
 
     test("Auto Error Fixup", async ({ page }) => {
