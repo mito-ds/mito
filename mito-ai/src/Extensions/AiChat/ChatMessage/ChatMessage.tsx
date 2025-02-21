@@ -216,13 +216,15 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     >
                         <PencilIcon />
                     </button>
-                    <button
-                        className="message-delete-button"
-                        onClick={() => onDeleteMessage?.(messageIndex)}
-                        title="Delete message"
-                    >
-                        <GarbageIcon />
-                    </button>
+                    {messageType === 'openai message:agent:planning' &&
+                        <button
+                            className="message-delete-button"
+                            onClick={() => onDeleteMessage?.(messageIndex)}
+                            title="Delete message"
+                        >
+                            <GarbageIcon />
+                        </button>
+                    }
                 </div>
             }
         </div>
