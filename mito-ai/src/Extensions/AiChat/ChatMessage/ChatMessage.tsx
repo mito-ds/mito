@@ -39,7 +39,7 @@ interface IChatMessageProps {
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
-    onDeleteMessage?: (messageIndex: number) => void
+    onDeleteMessage: (messageIndex: number) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -219,7 +219,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     {messageType === 'openai message:agent:planning' &&
                         <button
                             className="message-delete-button"
-                            onClick={() => onDeleteMessage?.(messageIndex)}
+                            onClick={() => onDeleteMessage(messageIndex)}
                             title="Delete message"
                         >
                             <GarbageIcon />
