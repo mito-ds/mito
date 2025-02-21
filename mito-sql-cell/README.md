@@ -96,6 +96,77 @@ In development mode, you will also need to remove the symlink created by `jupyte
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
 folder is located. Then you can remove the symlink named `mito-sql-cell` within that folder.
 
+### Extension architecture and limitations
+
+#### Frontend
+
+The extension is building on top of [jupysql](https://jupysql.ploomber.io/en/latest/). That tool provides
+[Jupyter magics](https://ipython.readthedocs.io/en/stable/config/custommagics.html) to execute SQL queries
+within Python code cell.
+
+This extension uses only a subset of features provided by `jupysql`; namely:
+- Cell magic `%%sql`: Allow to define code cell containing only a multilines SQL query
+- SQL database connection in a configuration: This allows to not add connection details in the notebook; in particular user credentials.
+- Save SQL query results in pandas.DataFrame: This is not the default type used by `jupysql` to store the SQL query results.
+
+To use the cell magic and that subset of features, special magics must be executed for this extension to work.
+Those magics are automatically inserted at the top of the notebook if not found using a `DocumentRegistry.WidgetExtension` for the notebook panel;
+see `SQLToolbarFactory._checkConfiguration` in [./src/sqlextension.ts](./src/sqlextension.ts).
+
+The same widget extension also adds a toolbar at the top of code cell if it is starting
+with the SQL magics. The toolbar contains two elements; a datasource selector and a text
+field to set the variable name to use to output the SQL query result in. The code for the
+toolbar is defined in [./src/sqltoolbar.tsx](./src/sqltoolbar.tsx).
+
+Additionally, a CodeMirror extension is added to replace the magic by a custom DOM element
+to hide its complexity to the end user. That extension is defined in [./src/hidemagic.ts](./src/hidemagic.ts).
+Of note, selecting that DOM element and copy-pasting it will actually copy-paste the
+magic.
+
+Finally on the notebook panel, a third feature is added that adds a new cell type selector
+allowing to add a fake _SQL_ type. It is fake in the sense that the cell type is still
+_code_ but we use the SQL magic to differentiate the _code_ cell and _SQL_ cell. The code
+is defined in [./src/celltypeselector.tsx](./src/celltypeselector.tsx). And the configuration
+to deactivate the default cell type selector and hook the new one can be found in [./schema/cell-type-selector.json](./schema/cell-type-selector.json).
+
+The last part provided by the frontend extension is a model and a side panel to handle the SQL datasource. Its code can be found in [./src/sources.tsx](./src/sources.tsx).
+Of note, a custom dialog for adding SQL datasources has been created in [./src/addsource.tsx](./src/addsource.tsx). It uses rjsf that create a form from a JSON schema as
+the parameters for datasources depend on the type of datasource. Those schemas are defined in
+[./src/databases/templates.json](./src/databases/templates.json).
+
+#### Backend
+
+On the server side, we define 2 endpoints:
+- `mito-sql-cell/databases`; defined in `DatabasesHandler`
+  - _GET_: Get all defined datasources and the SQL magic configuration filename
+  - _POST_: Create a new datasource
+- `mito-sql-cell/databases/<connection_name>`; defined in `DatabaseHandler`
+  - _GET_: Get a single datasource details
+  - _PATCH_: Update a datasource
+  - _DELETE_: Delete a datasource
+
+Those endpoints are called by the SQL datasources model from the frontend to save
+them into the configuration file.
+
+#### Known limitations
+
+- The configuration file is handled by a server extension but it is also consumed by the
+  magic that lives within the kernel. Hence if the kernel does not run on the same machine as the server, the configuration won't be found by the magic and the SQL cell
+  won't work.
+- All datasource types are not supported out of the box. They may require to install additional
+  python library. `jupysql` does a good job at suggesting what to install in such cases.
+- When a failure occurs `jupysql` does a good job to provide hints on how to fix or debug
+  the error. Unfortunately it works against this extension as it often requires adding/changing
+  magic options that is hidden by this extension.
+- The need for the configuration cell is annoying - especially as you may forget to execute
+  it prior to run SQL cells.
+- There is an open question about where should the datasource connection details resides.
+  There is a need for portability of the notebook. But at the same time, you don't
+  want to store credentials in it.
+- For datasources using local files (like sqlite), path is not absolute (but maybe it is possible). That may
+  bring issue if multiple notebook want to use the same local files.
+- Connection name must be unique but for now this is not enforce when adding a datasource.
+
 ### Testing the extension
 
 #### Server tests
