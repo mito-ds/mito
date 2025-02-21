@@ -17,7 +17,7 @@ import type { CommandRegistry } from '@lumino/commands';
 /**
  * Cell tag for the mito SQL configuration cell.
  */
-const MITO_SQL_CELL_CONFIGURATION = 'mito-sql-cell-configuration';
+const MITO_SQL_CELL_CONFIGURATION_TAG = 'mito-sql-cell-configuration';
 
 /**
  * Factory to handle SQL toolbar creation and disposal on a notebook panel.
@@ -144,7 +144,7 @@ class SQLToolbarFactory implements IDisposable {
       for (const cell of this.panel.content.model.cells ?? []) {
         if (cell.type === 'code') {
           const tags = (cell.getMetadata('tags') as string[] | undefined) ?? [];
-          if (tags.includes(MITO_SQL_CELL_CONFIGURATION)) {
+          if (tags.includes(MITO_SQL_CELL_CONFIGURATION_TAG)) {
             if (cell.sharedModel.source !== configuration) {
               // Configuration cell exists but it is incorrect => update it.
               cell.sharedModel.source = configuration;
@@ -162,7 +162,7 @@ class SQLToolbarFactory implements IDisposable {
         this.panel.content.model.sharedModel.insertCell(0, {
           cell_type: 'code',
           source: configuration,
-          metadata: { tags: [MITO_SQL_CELL_CONFIGURATION] }
+          metadata: { tags: [MITO_SQL_CELL_CONFIGURATION_TAG] }
         });
       }
     });

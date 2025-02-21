@@ -110,8 +110,10 @@ This extension uses only a subset of features provided by `jupysql`; namely:
 - Save SQL query results in pandas.DataFrame: This is not the default type used by `jupysql` to store the SQL query results.
 
 To use the cell magic and that subset of features, special magics must be executed for this extension to work.
-Those magics are automatically inserted at the top of the notebook if not found using a `DocumentRegistry.WidgetExtension` for the notebook panel;
-see `SQLToolbarFactory._checkConfiguration` in [./src/sqlextension.ts](./src/sqlextension.ts).
+Those magics are automatically inserted within a cell at the top of the notebook if not found using a `DocumentRegistry.WidgetExtension` for the notebook panel;
+see `SQLToolbarFactory._checkConfiguration` in [./src/sqlextension.ts](./src/sqlextension.ts).  
+The cell is tagged with _mito-sql-cell-configuration_ to be more easily
+found and updated (instead of adding a new cell if the configuration changes slightly; e.g. the configuration file path).
 
 The same widget extension also adds a toolbar at the top of code cell if it is starting
 with the SQL magics. The toolbar contains two elements; a datasource selector and a text
@@ -133,6 +135,11 @@ The last part provided by the frontend extension is a model and a side panel to 
 Of note, a custom dialog for adding SQL datasources has been created in [./src/addsource.tsx](./src/addsource.tsx). It uses rjsf that create a form from a JSON schema as
 the parameters for datasources depend on the type of datasource. Those schemas are defined in
 [./src/databases/templates.json](./src/databases/templates.json).
+
+Some features are provided by `jupysql-plugin` (JupyterLab extensions by jupysql):
+- SQL syntax highlighting
+- Format SQL button
+- Basic completer
 
 #### Backend
 
