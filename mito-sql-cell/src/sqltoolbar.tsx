@@ -125,7 +125,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
             value={ADD_SOURCE_OPTION_VALUE}
             onClick={this._addDatabase}
           >
-            <addIcon.react tag={null} slot="start"/>
+            <addIcon.react tag={null} slot="start" />
             Connect to a database…
           </Option>
           {map(this._sqlSources, s => (
@@ -134,7 +134,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
             </Option>
           ))}
         </Select>
-        <span style={{margin: 'auto var(--toolbar-item-gap)'}}>saved to</span>
+        <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>saved to</span>
         <TextField
           aria-label="Variable name"
           title="Variable name"
@@ -196,21 +196,25 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
     if (magic) {
       // Clear args and options to avoid unsupported combinations.
       magic.args = [];
-      magic.options = {};
+      magic.options = magic.options['--section']
+        ? {
+            '--section': magic.options['--section']
+          }
+        : {};
 
       let needsUpdate = false;
-      if (
-        this.model?.variableName &&
-        magic.output !== this.model.variableName
-      ) {
-        magic.output = this.model?.variableName;
+      // Set undefined if variableName is empty string
+      const variableName = this.model?.variableName || undefined;
+      if (magic.output !== variableName) {
+        magic.output = variableName;
         needsUpdate = true;
       }
-      if (
-        this.model?.database &&
-        magic.options['--section'] !== this.model.database
-      ) {
-        magic.options['--section'] = this.model?.database;
+      if (magic.options['--section'] !== this.model?.database) {
+        if (this.model?.database) {
+          magic.options['--section'] = this.model.database;
+        } else {
+          delete magic.options['--section'];
+        }
         needsUpdate = true;
       }
       if (needsUpdate) {
