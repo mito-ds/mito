@@ -10,6 +10,7 @@ import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } f
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
+import GarbageIcon from '../../../icons/GarbageIcon';
 import ChatInput from './ChatInput';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
@@ -20,6 +21,7 @@ import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
+import '../../../../style/ChatMessage.css';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -38,6 +40,7 @@ interface IChatMessageProps {
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
+    onDeleteMessage: (messageIndex: number) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -57,6 +60,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
+    onDeleteMessage,
     contextManager,
     codeReviewStatus
 }): JSX.Element | null => {
@@ -205,13 +209,24 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 }
             })}
             {editable && 
-                <button
-                    className="message-start-editing-button"
-                    onClick={handleEditClick}
-                    title="Edit message"
-                >
-                    <PencilIcon />
-                </button>
+                <div className="message-action-buttons">
+                    <button
+                        className="message-start-editing-button"
+                        onClick={handleEditClick}
+                        title="Edit message"
+                    >
+                        <PencilIcon />
+                    </button>
+                    {messageType === 'openai message:agent:planning' &&
+                        <button
+                            className="message-delete-button"
+                            onClick={() => onDeleteMessage(messageIndex)}
+                            title="Delete message"
+                        >
+                            <GarbageIcon />
+                        </button>
+                    }
+                </div>
             }
         </div>
     )
