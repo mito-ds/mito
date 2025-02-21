@@ -125,7 +125,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
             value={ADD_SOURCE_OPTION_VALUE}
             onClick={this._addDatabase}
           >
-            <addIcon.react tag="span" />
+            <addIcon.react tag={null} slot="start"/>
             Connect to a database…
           </Option>
           {map(this._sqlSources, s => (
@@ -140,7 +140,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
           title="Variable name"
           onInput={this._onVariableChange}
           onChange={this._onVariableChange}
-          placeholder="Variable"
+          placeholder="Variable name"
           value={this.model.variableName}
         >
           <editIcon.react slot="end" tag={null} />

@@ -20,6 +20,7 @@ const sqlMagicTheme = EditorView.baseTheme({
   [`& .${SQL_MAGIC_PLACEHOLDER_CLASS}`]: {
     border: '1px solid var(--jp-brand-color0)',
     borderRadius: '4px',
+    color: 'var(--jp-brand-color0)',
     padding: '0 3px',
     background: 'var(--jp-brand-color4)'
   }

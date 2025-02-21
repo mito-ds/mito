@@ -24,13 +24,17 @@
   height: 63%;
 }
 
+.mito-sql-add-option {
+  border-bottom: 1px solid var(--jp-border-color2);
+}
+
 .mito-sql-add-option[aria-selected='true'] svg .jp-icon3 {
   fill: var(--jp-ui-inverse-font-color1);
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
 .mito-sql-sources-panel .jp-SidePanel-toolbar {
-  --toolbar-item-gap: 4px;
+  padding: 0 4px;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
@@ -41,14 +45,29 @@
   letter-spacing: 1px;
 }
 
+.mito-sql-sources-placeholder {
+  color: var(--jp-content-font-color2);
+  padding: 8px;
+  text-align: center;
+}
+
+.mito-sql-sources-placeholder > h3 {
+  margin-bottom: var(--jp-content-heading-margin-bottom);
+}
+
+.mito-sql-add-source-btn > svg .jp-icon3 {
+  fill: var(--jp-ui-inverse-font-color1);
+}
+
 .mito-sql-sources-list {
   list-style-type: none;
   margin: 0;
-  padding: 4px;
+  padding: 0;
 }
 
-.mito-sql-source-item:nth-child(even) {
-  background-color: var(--jp-layout-color2);
+.mito-sql-source-item {
+  padding: 4px;
+  border-bottom: 1px solid var(--jp-border-color2);
 }
 
 .mito-sql-btn-source-delete {
@@ -61,4 +80,35 @@
 
 .mito-sql-source-database {
   color: var(--jp-ui-font-color2);
+}
+
+.mito-sql-add-source-dialog .jp-Dialog-content {
+  overflow: visible;
+}
+
+.jp-Dialog-body.mito-sql-add-source-dialog-body {
+  overflow: visible;
+}
+
+.mito-sql-source-type-lbl {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 7px 9px;
+}
+
+.mito-sql-source-type-span {
+  font-size: var(--jp-content-font-size1);
+  min-width: 120px;
+}
+
+.mito-sql-source-type-select {
+  margin-left: 7px;
+  min-width: 220px;
+}
+
+.jp-Dialog-body.mito-sql-add-source-dialog-body
+  #root
+  > div.form-group:first-child {
+  /* Hide the database driver - it is anyway disabled for edition */
+  display: none;
 }
