@@ -58,9 +58,14 @@ function SqlSourceForm(props: {
   }, []);
   return (
     <>
-      <label>
-        Source type:{' '}
-        <Select onChange={onTypeChange} value={type}>
+      <label className="mito-sql-source-type-lbl">
+        <span className="mito-sql-source-type-span">Source type</span>
+        <Select
+          className="mito-sql-source-type-select"
+          onChange={onTypeChange}
+          value={type}
+          scale="small"
+        >
           {Object.keys(templates).map(key => (
             <Option key={key} value={key}>
               {key}
@@ -99,6 +104,7 @@ export class AddSource
 
   constructor(protected sources: ISqlSources) {
     super();
+    this.addClass('mito-sql-add-source-dialog-body');
   }
 
   protected render(): JSX.Element {

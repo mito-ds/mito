@@ -218,18 +218,15 @@ function SqlSourcesPlaceholder({
     commands.execute(CommandIDs.addSource);
   }, [commands]);
   return (
-    <div>
-      <div>
-        <h3>No SQL sources</h3>
-        <p>
-          This panel shows the SQL databases you can connect to within
-          notebooks.
-        </p>
-        <Button appearance="accent" onClick={onClick} scale="small">
-          <addIcon.react tag={null} />
-          Add a SQL source
-        </Button>
-      </div>
+    <div className="mito-sql-sources-placeholder">
+      <h3>No SQL sources</h3>
+      <p>
+        This panel shows the SQL databases you can connect to within notebooks.
+      </p>
+      <Button className='mito-sql-add-source-btn' appearance="accent" onClick={onClick}>
+        <addIcon.react tag={null} slot="start"/>
+        Add a SQL source…
+      </Button>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { Dialog } from '@jupyterlab/apputils';
 import type { ICellModel } from '@jupyterlab/cells';
 import {
   EditorExtensionRegistry,
@@ -42,11 +42,14 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
     // Add commands
     app.commands.addCommand(CommandIDs.addSource, {
       execute: async () => {
-        const result = await showDialog<ISqlSource | null>({
+        // Use `Dialog` instead of `showDialog` to add custom CSS class
+        const dialog = new Dialog<ISqlSource | null>({
           title: 'Add a SQL source',
           body: new AddSource(sources),
           buttons: [Dialog.cancelButton(), Dialog.okButton({ label: 'Add' })]
         });
+        dialog.addClass('mito-sql-add-source-dialog');
+        const result = await dialog.launch();
 
         if (result.button.accept && result.value) {
           sources.push(result.value);
