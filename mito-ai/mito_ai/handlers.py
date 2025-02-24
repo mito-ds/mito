@@ -25,8 +25,6 @@ from mito_ai.models import (
     StartNewChatReply,
     FetchThreadsReply,
     DeleteThreadReply,
-    InlineCompletionMessageBuilder,
-    SmartDebugMessageBuilder,
     ChatMessageMetadata,
     SmartDebugMetadata,
     CodeExplainMetadata,

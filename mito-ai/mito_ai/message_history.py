@@ -6,7 +6,7 @@ from threading import Lock
 from typing import Dict, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import CompletionRequest, ChatThreadItem
+from mito_ai.models import CompletionRequest, ChatThreadItem, MessageType
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai.utils.schema import MITO_FOLDER
 
@@ -15,24 +15,23 @@ CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
 
-    request = CompletionRequest(
-        type="chat_name_generation",
-        message_id=str(uuid.uuid4()),
-        messages=[{"role": "user", "content": prompt}],
-        stream=False
-    )
+    # request = CompletionRequest(
+    #     type="chat_name_generation",
+    #     message_id=str(uuid.uuid4()),
+    #     messages=[{"role": "user", "content": prompt}],
+    #     stream=False
+    # )
 
-    reply = await llm_provider.request_completions(
-        request=request,
-        prompt_type="chat_name_generation",
+    completion = await llm_provider.request_completions(
+        messages=[{"role": "user", "content": prompt}], 
         model="gpt-4o-mini",
+        prompt_type=MessageType.CHAT_NAME_GENERATION
     )
-
-    if not reply or not reply.items:
-        # if something went wrong or no completion returned
+        
+    if not completion or completion == "":
         return "Untitled Chat"
-
-    return reply.items[0].content.strip()
+    
+    return completion
 
 class ChatThread:
     """

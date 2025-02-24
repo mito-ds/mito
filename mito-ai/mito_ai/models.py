@@ -1,6 +1,7 @@
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, Type, Union
+from pydantic import BaseModel
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 

@@ -39,7 +39,7 @@ class AgentPlanningHandler(CompletionHandler[AgentPlanningMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": metadata.input}
-        message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
         
         # Get the completion
         completion = await provider.request_completions(
@@ -51,7 +51,7 @@ class AgentPlanningHandler(CompletionHandler[AgentPlanningMetadata]):
         
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        message_history.append_message(ai_response_message, ai_response_message)
+        await message_history.append_message(ai_response_message, ai_response_message, provider)
 
         return completion
 
