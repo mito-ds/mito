@@ -23,7 +23,10 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import { 
     ChatHistoryManager, 
     IChatMessageMetadata, 
-    IDisplayOptimizedChatHistory, 
+    IDeleteThreadMetadata, 
+    IDisplayOptimizedChatHistory,
+    IGetThreadsMetadata,
+    PromptType, 
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import DropdownMenu from '../../components/DropdownMenu';
@@ -43,9 +46,9 @@ import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/c
 import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
-import type { CompletionWebsocketClient, ICompletionRequest } from '../../utils/websocket/websocketClient';
+import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
-import { CompletionRequestMetadata, IChatThreadItem, ICompletionReply, IDeleteThreadReply, IFetchHistoryReply, IFetchThreadsReply, IStartNewChatReply } from '../../utils/websocket/models';
+import { CompletionRequestMetadata, IChatThreadItem, ICompletionReply, IDeleteThreadReply, IFetchHistoryReply, IFetchThreadsReply, IStartNewChatReply, ICompletionRequest } from '../../utils/websocket/models';
 import { sleep } from '../../utils/sleep';
 import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 
@@ -109,7 +112,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
       >({
          type: "get_threads",
          message_id: UUID.uuid4(),
-         metadata: {},
+         metadata: {
+            promptType: "get_threads"
+         },
          stream: false
       });
 
@@ -119,7 +124,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const fetchChatHistoryForThread = async (threadId: string) => {
       await websocketClient.ready;
 
-      const metadata: IChatMessageMetadata = {
+      const metadata: IGetThreadsMetadata = {
+        promptType: "get_threads",
         threadID: threadId
       };
 
@@ -156,7 +162,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const deleteThread = async (threadId: string) => {
       await websocketClient.ready;
 
-      const metadata: IChatMessageMetadata = {
+      const metadata: IDeleteThreadMetadata = {
+        promptType: "delete_thread",
         threadID: threadId
       };
 
@@ -196,7 +203,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 >({
                 type: "get_threads",
                 message_id: UUID.uuid4(),
-                metadata: {},
+                metadata: {
+                    promptType: "get_threads"
+                },
                 stream: false
                 });
 
@@ -289,11 +298,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        const promptType = agent ? 'agent:autoErrorFixup' : 'smartDebug'
-
         // Step 1: Add the error message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
+        const outgoingMessage = newChatHistoryManager.addDebugErrorMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI

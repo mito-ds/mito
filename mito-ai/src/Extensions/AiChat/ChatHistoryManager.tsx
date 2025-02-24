@@ -12,8 +12,10 @@ export type PromptType =
     'agent:execution' | 
     'agent:autoErrorFixup' |
     'inline_completion' | 
-    'clear_history' | 
-    'fetch_history';
+    'fetch_history' |
+    'start_new_chat' |
+    'get_threads' |
+    'delete_thread';
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -34,7 +36,6 @@ export interface IChatMessageMetadata {
     activeCellCode?: string;   
     input?: string;
     index?: number;
-    threadID?: string;
 }
 
 export interface IChatSmartDebugMetadata {
@@ -64,12 +65,22 @@ export interface IInlineCompleterMetadata {
     suffix?: string;
 }
 
-export interface IClearHistoryMetadata {
-    promptType: 'clear_history'
-}
-
 export interface IFetchHistoryMetadata {
     promptType: 'fetch_history'
+}
+
+export interface IStartNewChatMetadata {
+    promptType: 'start_new_chat'
+}
+
+export interface IGetThreadsMetadata {
+    promptType: 'get_threads'
+    threadID?: string;
+}
+
+export interface IDeleteThreadMetadata {
+    promptType: 'delete_thread'
+    threadID: string;
 }
 
 /* 
@@ -209,7 +220,7 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: promptType
+                promptType: smartDebugMetadata.promptType
             }
         );
 

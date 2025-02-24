@@ -14,11 +14,11 @@ import { Signal, Stream } from '@lumino/signaling';
 import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import {
   CompletionWebsocketClient,
-  ICompletionRequest,
   type ICompletionWebsocketClientOptions
 } from '../../utils/websocket/websocketClient';
 import type {
   CompletionError,
+  ICompletionRequest,
   ICompletionReply,
   ICompletionStreamChunk,
   InlineCompletionStreamChunk

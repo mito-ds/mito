@@ -24,7 +24,7 @@ CompletionIncomingMessageTypes = Literal[
     'chat_name_generation'
 ]
 
-IncomingMessageTypes = Union[Literal['start_new_chat', 'clear_history', 'fetch_history'], CompletionIncomingMessageTypes]
+IncomingMessageTypes = Union[Literal['start_new_chat', 'fetch_history'], CompletionIncomingMessageTypes]
 
 @dataclass(frozen=True)
 class AICapabilities:

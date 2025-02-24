@@ -4,7 +4,7 @@ import type {
   IInlineCompletionItem
 } from '@jupyterlab/completer';
 
-import { IAgentPlanningMetadata, IChatMessageMetadata, IChatSmartDebugMetadata, IClearHistoryMetadata, ICodeExplainMetadata, IInlineCompleterMetadata, IFetchHistoryMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
+import { IAgentPlanningMetadata, IChatMessageMetadata, IChatSmartDebugMetadata, ICodeExplainMetadata, IInlineCompleterMetadata, IFetchHistoryMetadata, IStartNewChatMetadata, IGetThreadsMetadata, IDeleteThreadMetadata } from '../../Extensions/AiChat/ChatHistoryManager';
 
 
 export type CompletionRequestMetadata = 
@@ -13,10 +13,10 @@ export type CompletionRequestMetadata =
   ICodeExplainMetadata | 
   IAgentPlanningMetadata | 
   IInlineCompleterMetadata |
-  IClearHistoryMetadata | // TODO: Remove this from the CompletionRequestMetadata because it is not a completion. Instead, the send function take a message other
-  // than ICompletionRequest that does not contain metatdata.
-  IFetchHistoryMetadata
-
+  IFetchHistoryMetadata |
+  IStartNewChatMetadata |
+  IGetThreadsMetadata | 
+  IDeleteThreadMetadata;
 
 /**
  * Mito AI completion request.

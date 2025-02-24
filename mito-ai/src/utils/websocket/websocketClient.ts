@@ -5,7 +5,6 @@ import { IDisposable } from '@lumino/disposable';
 import { Signal, Stream, type IStream } from '@lumino/signaling';
 import type {
   CompleterMessage,
-  ICompletionReply,
   ICompletionRequest,
   ICompletionStreamChunk
 } from './models';
