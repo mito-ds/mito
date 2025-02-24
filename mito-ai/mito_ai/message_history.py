@@ -238,7 +238,6 @@ class GlobalMessageHistory:
 
             return self._chat_threads[thread_id].ai_optimized_history[:]
 
-    @property
     def get_histories(self, thread_id: Optional[str] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         """
         For backward compatibility: returns the LLM and display history of the newest thread.
