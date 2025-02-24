@@ -49,7 +49,8 @@ export const didCellExecutionError = (cell: CodeCell): boolean => {
     /* 
         Check the cell's output for an error.
     */
-    return cell?.model.outputs?.toJSON().some(output => output.output_type === "error")
+    const outputs = cell?.model.outputs?.toJSON() || [];
+    return outputs.some(output => output.output_type === "error");
 }
 
 export const getNotebookName = (notebookTracker: INotebookTracker): string => {
