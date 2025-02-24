@@ -63,8 +63,6 @@ import {
     ISmartDebugCompletionRequest,
     IFetchHistoryCompletionRequest
 } from '../../utils/websocket/models';
-import { sleep } from '../../utils/sleep';
-import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
@@ -114,7 +112,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
-    const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'idle'>('idle')
     const [chatThreads, setChatThreads] = useState<IChatThreadItem[]>([]);
     const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
     
@@ -561,7 +558,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const executeAgentPlan = async () => {
         setAgentModeEnabled(false)
-        setAgentExecutionStatus('working')
+
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
 
@@ -577,51 +574,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
-            
-            const messageContent = agentMessage.message.content
+            const success = await sendChatInputMessage(agentMessage.message.content as string, undefined, 'agent:execution')
 
-            if (typeof messageContent !== 'string') {
-                // If the message content is not a string, then we skip this message. 
-                // This can happen if the agent response is a refusal.
-                continue
-            }
-
-            // Send the message to the AI 
-            await sendChatInputMessage(messageContent, undefined, 'agent:execution')
-
-            // Run the code and handle any errors
-            await acceptAndRunCode(app, previewAICode, acceptAICode)
-            const success = await retryIfExecutionError(
-                notebookTracker,
-                app,
-                getDuplicateChatHistoryManager,
-                addAIMessageFromResponseAndUpdateState,
-                sendDebugErrorMessage,
-                previewAICode,
-                acceptAICode
-            )
-
-            // If we were not able to run the code, break out of the loop 
-            // so we don't continue to execute the plan. Instead, we encourage
-            // the user to update the plan and try again. 
-            // TODO: Save this message in backend also even if there is not another message sent. 
+            // If the message fails, break out of the loop
             if (!success) {
-                addAIMessageFromResponseAndUpdateState(
-                    "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                    'agent:execution',
-                    chatHistoryManager
-                )
-                break;
+                break
             }
 
-            // Insert a new cell for the next step
-            await app.commands.execute("notebook:insert-cell-below")
-
-            // Wait for the new cell to be created
-            await sleep(1000)
+            await new Promise<void>((resolve) => {
+                // Adding a small delay to make it easier for users to follow along
+                setTimeout(async () => {
+                    await previewAICode()
+                    await acceptAICode()
+                    await app.commands.execute("notebook:run-cell-and-insert-below");
+                    resolve();
+                }, 1000);
+            });
         }
-
-        setAgentExecutionStatus('idle')
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
