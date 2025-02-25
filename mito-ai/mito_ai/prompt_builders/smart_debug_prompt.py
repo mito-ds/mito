@@ -5,11 +5,16 @@ def create_error_prompt(
     error_message: str,
     active_cell_code: str,
     variables: List[str],
+    files: List[str]
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
+    files_str = '\n'.join([f"{file}" for file in files])
     return f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
 
 <Example 1>
+Files in the current directory:
+file_name: sales.csv
+
 Defined Variables:
 {{
     'revenue_multiplier': 1.5,
@@ -23,19 +28,18 @@ Defined Variables:
 
 Code in active cell:
 ```python
+import pandas as pd
+sales_df = pd.read_csv('./sales.csv')
+revenue_multiplier =  1.5
 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 ```
 
 Error Traceback:
-Cell In[24], line 9
-      2 revenue_multiplier =  1.5
-      3 sales_df = pd.DataFrame({{
-      4         'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
-      5         'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
-      6         'units_sold': [1, 2, 1, 4, 5],
-      7         'total_price': [10, 19.98, 13.99, 84.00, 500]
-      8 }})
-----> 9 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
+Cell In[24], line 4
+      1 import pandas as pd
+      2 sales_df = pd.read_csv('./sales.csv')
+      3 revenue_multiplier =  1.5
+----> 4 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 
 KeyError: 'price'
 
@@ -48,6 +52,9 @@ User is trying to calculate total revenue by applying a multiplier to transactio
 
 SOLUTION:
 ```python
+import pandas as pd
+sales_df = pd.read_csv('./sales.csv')
+revenue_multiplier =  1.5
 sales_df['total_revenue'] = sales_df['total_price'] * revenue_multiplier
 ```
 
@@ -55,6 +62,9 @@ The DataFrame contains 'total_price' rather than 'price'. Updated column referen
 </Example 1>
 
 <Example 2>
+Files in the current directory:
+
+
 Defined Variables:
 {{
     'df': pd.DataFrame({{
@@ -131,6 +141,9 @@ Solution Requirements:
 - The code in the SOLUTION section should be a python code block starting with ```python and ending with ```
 
 Here is your task. 
+
+Files in the current directory:
+{files_str}
 
 Defined Variables:
 {variables_str}

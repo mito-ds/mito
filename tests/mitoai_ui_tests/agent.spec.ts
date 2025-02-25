@@ -10,9 +10,13 @@ import {
     clickAcceptButton,
     sendMessageToMitoAI,
     editMitoAIMessage,
+    waitForMitoAILoadingToDisappear,
+    clickAgentModeToggleButton,
 } from './utils';
 
-test.describe("Agent mode integration tests", () => {
+const AGENT_PLAN_SUBMIT_BUTTON_TEXT = 'Let\'s go!';
+
+test.describe("Agent mode print hi", () => {
 
     test.beforeEach(async ({ page }) => {
         /*
@@ -25,9 +29,8 @@ test.describe("Agent mode integration tests", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
-        // Switch to agent mode
-        await page.getByRole('button', { name: 'Chat ▾' }).click();
-        await page.getByRole('button', { name: 'Agent' }).click();
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
 
         await sendMessageToMitoAI(page, "print hi");
         await waitForIdle(page);
@@ -66,7 +69,7 @@ test.describe("Agent mode integration tests", () => {
                 newPlanMessages.push(messageText);
             }
         });
-        
+
         // By editing the original agent message, we should see a new plan
         // and the old plan messages should be wiped. 
         oldPlanMessages.forEach(message => {
@@ -92,12 +95,26 @@ test.describe("Agent mode integration tests", () => {
         expect(lastAgentMessageContent).toContain(newMessage);
     });
 
+    test("Delete message in agent's plan", async ({ page }) => {
+        // Get initial count of agent messages
+        const initialMessageCount = await page.locator('.message-assistant-agent').count();
+
+        // Get the last agent message and delete it
+        const lastAgentMessage = await page.locator('.message-assistant-agent').last();
+        await lastAgentMessage.locator('.message-delete-button').click();
+        await waitForIdle(page);
+
+        // Verify the message count has decreased by 1
+        const finalMessageCount = await page.locator('.message-assistant-agent').count();
+        expect(finalMessageCount).toBe(initialMessageCount - 1);
+    });
+
     test("Run agent's plan", async ({ page }) => {
         const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
 
         // Run the plan of attack
-        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Wait for all chat messages to appear
         await page.waitForFunction(
@@ -143,7 +160,7 @@ test.describe("Agent mode integration tests", () => {
         const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
 
         // Run the plan of attack
-        await page.getByRole('button', { name: 'Let\'s go!' }).click();
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Wait for all chat messages to appear
         await page.waitForFunction(
@@ -168,5 +185,181 @@ test.describe("Agent mode integration tests", () => {
         const code = await getCodeFromCell(page, cellCount - 1);
         expect(code).toContain('print');
         expect(code).toContain('bye');
+    });
+});
+
+
+test.describe("Stop Agent", () => {
+
+    test.beforeEach(async ({ page }) => {
+        /*
+            Before each test, we switch to agent mode, and send a message. 
+        */
+
+        await createAndRunNotebookWithCells(page, []);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
+    });
+
+
+    test("Stop agent's plan execution", async ({ page }) => {
+
+        await sendMessageToMitoAI(page, "Create a list of 10 numbers and then find the largest number in the list.");
+        await waitForIdle(page);
+
+        const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
+        const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
+
+        // Run the plan of attack
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+
+        // Wait for at least one chat message to appear to ensure the plan has started
+        await page.waitForFunction(
+            ([startingCount]) => {
+                const currentCount = document.querySelectorAll('.message-assistant-chat').length;
+                return currentCount > startingCount;
+            },
+            [startingNumOfChatMessages]
+        );
+
+        // Click the Stop Agent button
+        await page.getByRole('button', { name: 'Stop Agent' }).click();
+
+        // Expect that the message turns into Stopping 
+        await expect(page.getByRole('button', { name: 'Stopping' })).toBeVisible();
+
+        // Wait for the current message to finish
+        await waitForMitoAILoadingToDisappear(page);
+
+        // Get the final number of chat messages
+        const finalNumOfChatMessages = await page.locator('.message-assistant-chat').count();
+
+        // Verify that not all steps were executed (there should be fewer chat messages than planned steps)
+        expect(finalNumOfChatMessages - startingNumOfChatMessages).toBeLessThan(numOfStepsInAgentsPlan);
+
+        // Verify that the message "Agent stopped" is visible
+        await expect(page.getByText('Agent execution stopped')).toBeVisible();
+    });
+
+    test("Stop agent during error fixup", async ({ page }) => {
+        // This is hopefully an impossible thing for the agent to pass. 
+        await sendMessageToMitoAI(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
+        await waitForIdle(page);
+
+        // Run the plan of attack
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+
+        // Wait for the "trying again" message to appear
+        await expect(async () => {
+            const messages = await page.locator('.message-assistant-chat').all();
+            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+                throw new Error('Expected retry message not found');
+            }
+        }).toPass({ timeout: 45000 });
+
+        // Click the Stop Agent button
+        await page.getByRole('button', { name: 'Stop Agent' }).click();
+
+        // Expect that the message turns into Stopping 
+        await expect(page.getByRole('button', { name: 'Stopping' })).toBeVisible();
+
+        // Wait for the current message to finish
+        await waitForMitoAILoadingToDisappear(page);
+
+        // Verify that the message "Agent stopped" is visible
+        await expect(page.getByText('Agent execution stopped')).toBeVisible();
+
+        // Verify we don't see the final error message
+        const messages = await page.locator('.message-assistant-chat').all();
+        const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+        expect(messageTexts.some(text =>
+            text?.includes("I apologize, but I was unable to fix the error after 3 attempts")
+        )).toBe(false);
+    });
+})
+
+
+test.describe("Agent mode auto error fixup", () => {
+
+    test.beforeEach(async ({ page }) => {
+        /*
+            Before each test, we switch to agent mode, and send a message. 
+        */
+
+        await createAndRunNotebookWithCells(page, []);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
+    });
+
+    test("Auto Error Fixup", async ({ page }) => {
+
+        await sendMessageToMitoAI(page, "Import the file nba_data.csv");
+        await waitForIdle(page);
+
+        // Run the plan of attack
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+
+        // Check that the agent eventually sends a message that says it is trying again
+        await expect(async () => {
+            const messages = await page.locator('.message-assistant-chat').all();
+            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+                throw new Error('Expected message not found');
+            }
+        }).toPass({ timeout: 45000 }); // Increase timeout if needed
+    });
+
+});
+
+test.describe("Agent mode blacklisted words", () => {
+
+    test.beforeEach(async ({ page }) => {
+        /*
+            Before each test, we switch to agent mode, and send a message. 
+        */
+
+        await createAndRunNotebookWithCells(page, []);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
+    });
+
+    test("Blacklisted command shows error and prevents execution", async ({ page }) => {
+        // Send a message containing a blacklisted command
+        await sendMessageToMitoAI(page, "write the SQL code: DROP TABLE nba_data");
+        await waitForIdle(page);
+
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+
+        // Check that the agent eventually sends a message that says it cannot execute the code
+        await expect(async () => {
+            const messages = await page.locator('.message-assistant-chat').all();
+            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
+            if (!messageTexts.some(text => text?.includes("I cannot execute this code"))) {
+                throw new Error('Expected message not found');
+            }
+        }).toPass({ timeout: 45000 }); // Increase timeout if needed
+
+        // Verify that no dangerous command appears in any cell
+        const cells = await page.locator('.jp-Cell').all();
+        for (const cell of cells) {
+            const code = await cell.locator('.jp-Editor').textContent();
+            expect(code).not.toContain('DROP TABLE');
+        }
     });
 });

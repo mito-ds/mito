@@ -1,4 +1,4 @@
-name: Test - Mito AI
+name: Test - Mito AI Frontend Playwright
 
 on:
   push:

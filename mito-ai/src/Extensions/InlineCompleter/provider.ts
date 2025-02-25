@@ -11,7 +11,7 @@ import type { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
@@ -19,9 +19,10 @@ import {
 import type {
   CompletionError,
   ICompletionStreamChunk,
+  IInlineCompleterCompletionRequest,
+  IInlineCompleterMetadata,
   InlineCompletionStreamChunk
 } from '../../utils/websocket/models';
-import { IChatMessageMetadata } from '../AiChat/ChatHistoryManager';
 import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 
@@ -48,7 +49,7 @@ export class MitoAIInlineCompleter
    */
   private _completionLock = new PromiseDelegate<void>();
   private _fullCompletionMap = new WeakMap<Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>, string>();
-  private _variableManager: IVariableManager;
+  private _contextManager: IContextManager;
 
   // We only want to display the free tier limit reached notification once 
   // per session to avoid spamming the user. 
@@ -57,10 +58,10 @@ export class MitoAIInlineCompleter
 
   constructor({
     serverSettings,
-    variableManager,
+    contextManager,
     ...clientOptions
   }: MitoAIInlineCompleter.IOptions) {
-    this._variableManager = variableManager;
+    this._contextManager = contextManager;
     this._client = new CompletionWebsocketClient(clientOptions);
 
     this._client
@@ -182,18 +183,20 @@ export class MitoAIInlineCompleter
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
 
-      const variables = this._variableManager.variables;
-      const metadata: IChatMessageMetadata = {
-        variables: variables,
+      const metadata: IInlineCompleterMetadata = {
+        promptType: 'inline_completion',
+        variables: this._contextManager.variables,
+        files: this._contextManager.files,
         prefix: prefix,
         suffix: suffix
       }
-      const result = await this._client.sendMessage({
+      const inlineCompleterCompletionRequest: IInlineCompleterCompletionRequest = {
         type: 'inline_completion',
         message_id: messageId.toString(),
         metadata: metadata,
         stream: false,
-      });
+      }
+      const result = await this._client.sendMessage(inlineCompleterCompletionRequest);
 
       if (result.items[0]?.token) {
         this._currentToken = result.items[0].token;
@@ -442,7 +445,7 @@ export namespace MitoAIInlineCompleter {
     /**
      * CodeMirror language registry.
      */
-    variableManager: IVariableManager;
+    contextManager: IContextManager;
   }
 
   export interface ISettings {
