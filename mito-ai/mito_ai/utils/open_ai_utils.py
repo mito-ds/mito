@@ -37,10 +37,6 @@ def check_mito_server_quota() -> None:
     """
     if is_pro():
         return
-    
-    # If the user is not on pro, we need to check their quota.
-    n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES) or 0
-    first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE) or ""
 
     # Using these helper functions lets us mock their results in tests so 
     # we can test the logic of this function.
