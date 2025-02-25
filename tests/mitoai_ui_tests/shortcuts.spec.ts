@@ -6,7 +6,7 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import { 
     sendMessageToMitoAI,
-    clearMitoAIChatHistory
+    startNewMitoAIChat
  } from './utils';
 
 const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
@@ -25,7 +25,7 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test('Accept AI generated code', async ({ page }) => {
-        await clearMitoAIChatHistory(page);
+        await startNewMitoAIChat(page);
 
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
@@ -48,7 +48,7 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test('Reject AI generated code', async ({ page }) => {
-        await clearMitoAIChatHistory(page);
+        await startNewMitoAIChat(page);
 
         await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 

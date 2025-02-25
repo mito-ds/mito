@@ -18,7 +18,7 @@ import {
   editMitoAIMessage, 
   sendMessageToMitoAI, 
   waitForMitoAILoadingToDisappear,
-  clearMitoAIChatHistory
+  startNewMitoAIChat
 } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
@@ -29,7 +29,7 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
-    await clearMitoAIChatHistory(page);
+    await startNewMitoAIChat(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
@@ -215,7 +215,7 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, []);
     await waitForIdle(page);
 
-    await clearMitoAIChatHistory(page);
+    await startNewMitoAIChat(page);
 
     await sendMessageToMitoAI(page, 'Add print (1)');
 
@@ -356,15 +356,12 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
 
-    await clearMitoAIChatHistory(page);
-    await waitForIdle(page);
-
     await selectCell(page, 0);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     
     await waitForIdle(page);
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(4000);
     
     // As you have a notebook opened, at reload a dialog shows up to 
     // select the kernel for the notebook. The dialog prevent all the tests 
