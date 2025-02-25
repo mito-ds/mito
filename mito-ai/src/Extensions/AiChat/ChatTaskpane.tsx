@@ -65,6 +65,7 @@ import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentAction
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
+import DropdownMenu from '../../components/DropdownMenu';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
@@ -1086,8 +1087,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </button>
                     <button
                         className="button-base button-red agent-cancel-button"
-                        onClick={() => {
-                            clearChatHistory();
+                        onClick={async () => {
+                            await startNewChat(); // TODO: delete thread instead of starting new chat
                             setAgentModeEnabled(false);
                         }}
                     >
@@ -1119,8 +1120,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 leftText="Chat"
                                 rightText="Agent"
                                 isLeftSelected={!agentModeEnabled}
-                                onChange={(isLeftSelected) => {
-                                    clearChatHistory();
+                                onChange={async (isLeftSelected) => {
+                                    await startNewChat(); // TODO: delete thread instead of starting new chat
                                     setAgentModeEnabled(!isLeftSelected);
                                     // Focus the chat input directly
                                     const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
