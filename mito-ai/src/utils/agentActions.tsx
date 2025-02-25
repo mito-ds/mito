@@ -45,8 +45,11 @@ export const retryIfExecutionError = async (
 
         // If the code cell has an error, we need to send the error to the AI
         // and get it to fix the error.
-        const errorTraceback = cell?.model.outputs?.toJSON()[0].traceback as string[]
-        const errorMessage = getFullErrorMessageFromTraceback(errorTraceback)
+        const errorOutput = cell?.model.outputs?.toJSON().find(output => output.output_type === "error");
+        if (!errorOutput) {
+            return 'success'; // If no error output, we're done
+        }
+        const errorMessage = getFullErrorMessageFromTraceback(errorOutput.traceback as string[]);
 
         const newChatHistoryManager = getDuplicateChatHistoryManager()
 
