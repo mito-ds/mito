@@ -88,9 +88,9 @@ def run_code_gen_test(
     except Exception as e:
         # Fail early if we can't execute the code
         print(f"Failed to execute code with error: {e}")
-        print(f"AI Generated Code: {ai_generated_cell_update}")
-        print(f"Actual Code: {actual_code}")
-        print(f"Expected Code: {expected_code}")
+        # print(f"AI Generated Code: {ai_generated_cell_update}")
+        # print(f"Actual Code: {actual_code}")
+        # print(f"Expected Code: {expected_code}")
         return TestCaseResult(test=test, passed=False)
 
     equal_globals = assert_equal_globals(expected_globals, actual_globals)
