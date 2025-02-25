@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Union
 
+from evals.test_cases.agent_find_and_update_tests.simple import Cell, CellUpdate
+
 WORKFLOW_TAGS = Literal[
     'variable_declaration', 
     'function',
@@ -122,6 +124,28 @@ class InlineCodeCompletionPromptGenerator():
         # Default implementation returns the output unchanged
         return output
     
+    def get_default_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    
+class AgentFindAndUpdatePromptGenerator():
+
+    prompt_name: str
+
+    def get_prompt(self, user_input: str, initial_notebook_state: List[Cell]) -> str:
+        raise NotImplementedError("Subclasses must implement this method")
+ 
+    def post_process_output(self, cell_update: CellUpdate, initial_notebook_state: List[Cell]) -> str:
+        # Return the notebook as one chunk of code with the cell update applied
+        for cell in initial_notebook_state:
+            if cell.id == cell_update.id:
+                cell.code = cell_update.code
+                
+        code_cells = [cell.code for cell in initial_notebook_state]
+        new_code = "\n".join(code_cells)
+        
+        return new_code
+        
     def get_default_model(self) -> str:
         return "gpt-4o-mini"
 
