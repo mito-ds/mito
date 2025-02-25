@@ -5,8 +5,11 @@ def create_inline_prompt(
     prefix: str,
     suffix: str,
     variables: List[str],
+    files: List[str]
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
+    files_str = '\n'.join([f"file_name: {file}" for file in files])
+    
     prompt = f"""You are a coding assistant that lives inside of JupyterLab. Your job is to help the user write code.
 
 You're given the current code cell, the user's cursor position, and the variables defined in the notebook. The user's cursor is signified by the symbol <cursor>.
@@ -19,7 +22,11 @@ CRITICAL FORMATTING RULES:
 Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent.
 
 <Example 1>
-Defined Variables: {{
+Files in the current directory:
+file_name: sales.csv
+
+Defined Variables: 
+{{
     'loan_multiplier': 1.5,
     'sales_df': pd.DataFrame({{
         'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
@@ -47,7 +54,11 @@ sales_df['total_price'] = sales_df['total_price'] * loan_multiplier
 IMPORTANT: Notice in Example 1 that the output starts with a newline because the cursor was at the end of a comment. This newline is REQUIRED to maintain proper Python formatting.
 
 <Example 2>
-Defined Variables: {{
+Files in the current directory:
+
+
+Defined Variables: 
+{{
     df: pd.DataFrame({{
         'age': [20, 25, 22, 23, 29],
         'name': ['Nawaz', 'Aaron', 'Charlie', 'Tamir', 'Eve'],
@@ -68,7 +79,11 @@ df['age'] = df[df['age'] > 23]
 IMPORTANT: Notice in Example 2 that the output does NOT start with a newline because the cursor is in the middle of existing code.
 
 <Example 3>
-Defined Variables: {{}}
+Files in the current directory:
+file_name: voters.csv
+
+Defined Variables: 
+{{}}
 
 Code in the active code cell:
 ```python
@@ -90,7 +105,12 @@ tx_voters = voters[voters['state'] == 'TX']
 IMPORTANT: Notice in Example 3 that output does not start with a newline character because it wasnts to continue the line of code that the user started. Also notice the output contains three lines of code because that is the minimal code to achieve the user's intent.
 
 <Example 4>
-Defined Variables: {{}}
+Files in the current directory:
+file_name: july_2025.xlsx
+file_name: august_2025.xlsx
+
+Defined Variables: 
+{{}}
 
 Code in the active code cell:
 ```python
@@ -107,7 +127,11 @@ Output:
 IMPORTANT: Notice in Example 4 that the output is empty becuase the user's intent is already complete.
 
 <Example 5>
-Defined Variables: {{}}
+Files in the current directory:
+
+
+Defined Variables: 
+{{}}
 
 Code in the active code cell:
 ```python
@@ -128,7 +152,11 @@ Output:
 IMPORTANT: Notice in Example 5 that the output is indented several times because the code must be executed as part of the else block.
 
 <Example 6>
-Defined Variables: {{}}
+Files in the current directory:
+
+
+Defined Variables: 
+{{}}
 
 Code in the active code cell:
 ```python
@@ -145,7 +173,11 @@ IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, 
 
 Your Task:
 
-Defined Variables: {variables_str}
+Files in the current directory:
+{files_str}
+
+Defined Variables: 
+{variables_str}
 
 Code in the active code cell:
 ```python

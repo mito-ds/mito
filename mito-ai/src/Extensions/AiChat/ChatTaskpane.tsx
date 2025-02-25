@@ -11,25 +11,22 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import ChatIcon from '../../icons/ChatIcon';
 import NewChatIcon from '../../icons/NewChatIcon';
 import DeleteIcon from '../../icons/DeleteIcon';
 import HistoryIcon from '../../icons/HistoryIcon';
 import OpenIndicatorIcon from '../../icons/OpenIndicatorIcon';
-import RobotHeadIcon from '../../icons/RobotHeadIcon';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { 
-    ChatHistoryManager,  
+import {
+    ChatHistoryManager,
     IDisplayOptimizedChatHistory,
-    PromptType, 
+    PromptType 
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import DropdownMenu from '../../components/DropdownMenu';
+import ToggleButton from '../../components/ToggleButton';
 import IconButton from '../../components/IconButton';
 import LoadingDots from '../../components/LoadingDots';
-import TextAndIconButton from '../../components/TextAndIconButton';
 import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
@@ -44,7 +41,6 @@ import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByI
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
 import { 
     IChatThreadItem, 
     IChatMessageMetadata, 
@@ -58,14 +54,20 @@ import {
     IStartNewChatReply,
     ICompletionRequest,
     IAgentPlanningCompletionRequest,
-    IChatCompletionRequest,
     ICodeExplainCompletionRequest,
     ISmartDebugCompletionRequest,
-    IFetchHistoryCompletionRequest
+    IFetchHistoryCompletionRequest,
+    IAgentAutoErrorFixupCompletionRequest, 
+    IAgentExecutionCompletionRequest
 } from '../../utils/websocket/models';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
+import { scrollToDiv } from '../../utils/scroll';
+import LoadingCircle from '../../components/LoadingCircle';
+import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 
-const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variableManager: IVariableManager): ChatHistoryManager => {
-    const chatHistoryManager = new ChatHistoryManager(variableManager, notebookTracker)
+const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
+    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
     chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
     return chatHistoryManager
 }
@@ -73,7 +75,7 @@ const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, variabl
 interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
-    variableManager: IVariableManager
+    contextManager: IContextManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient;
@@ -89,12 +91,12 @@ export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     renderMimeRegistry,
-    variableManager,
+    contextManager,
     app,
     operatingSystem,
     websocketClient
 }) => {
-    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, variableManager));
+    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
@@ -115,12 +117,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [chatThreads, setChatThreads] = useState<IChatThreadItem[]>([]);
     const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
     
+    /* 
+        Three possible states:
+        1. working: the agent is working on the task
+        2. stopping: the agent is stopping after it has received ai response it is waiting on
+        3. idle: the agent is idle
+    */
+    const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'stopping' | 'idle'>('idle')
+
+    // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
+    // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
+    const shouldContinueAgentExecution = useRef<boolean>(true);
+
     const fetchChatThreads = async () => {
       await websocketClient.ready;
 
       const metadata: IGetThreadsMetadata = {
         promptType: "get_threads"
-     };
+      };
 
       const chatThreadsResponse = await websocketClient.sendMessage<
         ICompletionRequest, 
@@ -156,7 +170,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
       >(fetchHistoryCompletionRequest);
 
       // Create a fresh ChatHistoryManager and add the initial messages
-      const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager);
+      const newChatHistoryManager = getDefaultChatHistoryManager(
+        notebookTracker,
+        contextManager
+    );
 
       // Add messages to the ChatHistoryManager
       chatHistoryResponse.items.forEach(item => {
@@ -237,7 +254,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } catch (error) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
-                    variableManager
+                    contextManager
                 );
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).hint ? (error as any).hint : `${error}`,
@@ -275,22 +292,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
     }, [chatHistoryManager]);
 
-    // Helper function to scroll chat to bottom
-    const scrollToBottom = () => {
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
-    };
-
     // Scroll to bottom whenever chat history updates
     useEffect(() => {
-        scrollToBottom();
+        scrollToDiv(chatMessagesRef);
     }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
 
 
@@ -314,14 +318,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1: Start new chat, and add the new error message
-        const newChatHistoryManager = await startNewChat()
-        const smartDebugMetadata = newChatHistoryManager.addDebugErrorMessage(errorMessage)
-        setChatHistoryManager(newChatHistoryManager)
+        // Step 1. Determine prompt type and chat history manager based on if it is agent or not
+        let promptType: PromptType;
+        let newChatHistoryManager: ChatHistoryManager;
+        if (agent) {
+            promptType = 'agent:autoErrorFixup';
+            newChatHistoryManager = getDuplicateChatHistoryManager()
+        }
+        else {
+            promptType = 'smartDebug';
+            newChatHistoryManager = await startNewChat()
+        }
+            
+        const smartDebugMetadata = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
+        setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
-            type: 'smartDebug',
+        const smartDebugCompletionRequest: ISmartDebugCompletionRequest | IAgentAutoErrorFixupCompletionRequest = {
+            type: promptType,
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
             stream: false
@@ -353,7 +367,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: 'agent:execution') => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: 'agent:execution'): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -368,8 +382,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // If the user is in agent mode, we override the prompt type to be 'agent:execution'
         // This gets used in the backend for logging purposes.
+        let completionRequest: ICompletionRequest | IAgentExecutionCompletionRequest;
         if (overridePromptType) {
             chatMessageMetadata.promptType = overridePromptType
+            completionRequest = {
+                type: overridePromptType,
+                message_id: UUID.uuid4(),
+                metadata: chatMessageMetadata,
+                stream: false
+            }
+        } else {
+            completionRequest = {
+                type: 'chat',
+                message_id: UUID.uuid4(),
+                metadata: chatMessageMetadata,
+                stream: false
+            }
         }
 
         setChatHistoryManager(newChatHistoryManager)
@@ -384,13 +412,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }, 100);
 
         // Step 3: Send the message to the AI
-        const chatCompletionRequest: IChatCompletionRequest = {
-            type: 'chat',
-            message_id: UUID.uuid4(),
-            metadata: chatMessageMetadata,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(chatCompletionRequest, newChatHistoryManager)
+        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
@@ -402,8 +424,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 });
             }
         }, 100);
-
-        return true
     }
 
     const handleUpdateMessage = async (
@@ -411,7 +431,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         newContent: string,
         messageType: IDisplayOptimizedChatHistory['type']
     ): Promise<void> => {
-        if (messageType === 'openai message:agent:planning') {
+        if (messageType === 'openai message:agent:planning' && messageIndex !== 1) {
             // In agent planning mode we only update the message locally without sending it to the AI
             // because the user has not yet confirmed that they want the AI to process these messages 
             // until they hit the submit button.
@@ -420,20 +440,30 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             setChatHistoryManager(newChatHistoryManager)
         } else if (agentModeEnabled && messageIndex === 1) {
             // If editing the original agent message, send it as a new agent message.
-            sendAgentPlanningMessage(newContent)
+            await sendAgentPlanningMessage(newContent)
         } else {
             await sendChatInputMessage(newContent, messageIndex)
         }
     };
 
-    const sendAgentPlanningMessage = async (message: string) => {
-        console.log('Sending agent message: ', message)
+    const handleDeleteMessage = (messageIndex: number) => {
+        // Get a new chat history manager
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        
+        // Remove the message at the specified index
+        newChatHistoryManager.removeMessageAtIndex(messageIndex)
+        
+        // Update the state with the new chat history
+        setChatHistoryManager(newChatHistoryManager)
+    }
+
+    const sendAgentPlanningMessage = async (message: string, messageIndex?: number): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add user message to chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message)
+        const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message, messageIndex)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -446,7 +476,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(agentPlanningCompletionRequest, newChatHistoryManager)
     }
 
-    const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager) => {
+    const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
 
         try {
@@ -469,7 +499,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     aiResponse.error.title
                 );
             } else {
-                console.log('Mito AI: aiResponse', aiResponse)
                 const content = aiResponse.items[0].content || '';
 
                 if (completionRequest.metadata.promptType === 'agent:planning') {
@@ -556,8 +585,31 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         )
     }
 
+    const markAgentForStopping = () => {
+        // Signal that the agent should stop after current task
+        shouldContinueAgentExecution.current = false;
+        // Update UI to show stopping state
+        setAgentExecutionStatus('stopping');
+    }
+
+    const finalizeAgentStop = () => {
+        // Notify user that agent has been stopped
+        shouldContinueAgentExecution.current = false;
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        addAIMessageFromResponseAndUpdateState(
+            "Agent execution stopped. You can continue the conversation or start a new one.",
+            'chat',
+            newChatHistoryManager
+        );
+        // Reset agent to idle state
+        setAgentExecutionStatus('idle');
+    }
+
     const executeAgentPlan = async () => {
         setAgentModeEnabled(false)
+        setAgentExecutionStatus('working')
+        // Reset the execution flag at the start of a new plan
+        shouldContinueAgentExecution.current = true;
 
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
@@ -574,11 +626,71 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
-            const success = await sendChatInputMessage(agentMessage.message.content as string, undefined, 'agent:execution')
+            // Check if we should continue execution
+            if (!shouldContinueAgentExecution.current) {
+                finalizeAgentStop()
+                break;
+            }
+            
+            const messageContent = agentMessage.message.content
 
-            // If the message fails, break out of the loop
-            if (!success) {
-                break
+            if (typeof messageContent !== 'string') {
+                // If the message content is not a string, then we skip this message. 
+                // This can happen if the agent response is a refusal.
+                continue
+            }
+
+            // Send the message to the AI 
+            await sendChatInputMessage(messageContent, undefined, 'agent:execution')
+
+            // Check the code generated by the AI for blacklisted words before running it
+            const aiMessage = chatHistoryManagerRef.current.getLastAIMessage();
+            if (aiMessage) {
+                const aiGeneratedCode = getCodeBlockFromMessage(aiMessage.message);
+                if (aiGeneratedCode) {
+                    const securityCheck = checkForBlacklistedWords(aiGeneratedCode);
+                    if (!securityCheck.safe) {
+                        console.error('Security Warning:', securityCheck.reason);
+                        addAIMessageFromResponseAndUpdateState(
+                            `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
+                            'agent:execution',
+                            chatHistoryManager
+                        );
+                        finalizeAgentStop()
+                        break;
+                    }
+                }
+            }
+
+            // Run the code and handle any errors
+            await acceptAndRunCode(app, previewAICode, acceptAICode)
+            const status = await retryIfExecutionError(
+                notebookTracker,
+                app,
+                getDuplicateChatHistoryManager,
+                addAIMessageFromResponseAndUpdateState,
+                sendDebugErrorMessage,
+                previewAICode,
+                acceptAICode,
+                shouldContinueAgentExecution,
+                finalizeAgentStop
+            )
+
+            if (status === 'interupted') {
+                break;
+            }
+
+            // If we were not able to run the code, break out of the loop 
+            // so we don't continue to execute the plan. Instead, we encourage
+            // the user to update the plan and try again. 
+            // TODO: Save this message in backend also even if there is not another message sent. 
+            if (status === 'failure') {
+                addAIMessageFromResponseAndUpdateState(
+                    "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
+                    'agent:execution',
+                    chatHistoryManager
+                )
+                break;
             }
 
             await new Promise<void>((resolve) => {
@@ -591,6 +703,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }, 1000);
             });
         }
+
+        setAgentExecutionStatus('idle')
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
@@ -683,7 +797,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return chatHistoryManager;
         }
         // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, variableManager);
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
         setChatHistoryManager(newChatHistoryManager);
 
         // Notify the backend to request a new chat thread and get its ID
@@ -873,40 +987,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
-    const agentMenuItems = [
-        {
-            label: 'Chat',
-            onClick: () => {
-                setAgentModeEnabled(false);
-            },
-            primaryIcon: ChatIcon,
-        },
-        {
-            label: 'Agent',
-            onClick: () => {
-                setAgentModeEnabled(true);
-            },
-            primaryIcon: RobotHeadIcon,
-        }
-    ];
-
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                <DropdownMenu
-                    trigger={
-                        <TextAndIconButton
-                            text={agentModeEnabled ? 'Agent ▾' : 'Chat ▾'}
-                            icon={agentModeEnabled ? RobotHeadIcon : ChatIcon}
-                            title={'Enter Agent Mode'}
-                            variant='purple'
-                            width='fit-contents'
-                            iconPosition='left'
-                            onClick={() => { }}
-                        />
-                    }
-                    items={agentMenuItems}
-                />
                 <div className="chat-taskpane-header-buttons">
                     <IconButton
                         icon={<SupportIcon />}
@@ -979,7 +1062,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
-                            variableManager={variableManager}
+                            onDeleteMessage={handleDeleteMessage}
+                            contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
                         />
                     )
@@ -993,37 +1077,95 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             {agentModeEnabled && displayOptimizedChatHistory.some(msg =>
                 msg.type === 'openai message:agent:planning'
             ) ? (
-                <button
-                    className="button-base button-purple"
-                    onClick={executeAgentPlan}
-                >
-                    Let's go!
-                </button>
+                <div className="agent-controls">
+                    <button
+                        className="button-base button-purple agent-start-button"
+                        onClick={executeAgentPlan}
+                    >
+                        Let's go!
+                    </button>
+                    <button
+                        className="button-base button-red agent-cancel-button"
+                        onClick={() => {
+                            clearChatHistory();
+                            setAgentModeEnabled(false);
+                        }}
+                    >
+                        ✖
+                    </button>
+                </div>
             ) : (
                 <>
                     <ChatInput
                         initialContent={''}
-                        placeholder={agentModeEnabled ? 'Ask agent to do anything' : displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`}
+                        placeholder={
+                            agentExecutionStatus === 'working' ? 'Agent is working...' :
+                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
+                            agentModeEnabled ? 'Ask agent to do anything' : 
+                            displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention` 
+                            : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                        }
                         onSave={agentModeEnabled ? sendAgentPlanningMessage : sendChatInputMessage}
                         onCancel={undefined}
                         isEditing={false}
-                        variableManager={variableManager}
+                        contextManager={contextManager}
                         notebookTracker={notebookTracker}
                         renderMimeRegistry={renderMimeRegistry}
+                        agentModeEnabled={agentModeEnabled}
                     />
-                    {agentModeEnabled &&
-                        <>
-                            {/* <div className="agent-mode-container">
-                                <input placeholder="Enter your CSV file path" className="chat-input chat-input-container" />
-                            </div>
+                    {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
+                        <div className="chat-controls">
+                            <ToggleButton
+                                leftText="Chat"
+                                rightText="Agent"
+                                isLeftSelected={!agentModeEnabled}
+                                onChange={(isLeftSelected) => {
+                                    clearChatHistory();
+                                    setAgentModeEnabled(!isLeftSelected);
+                                    // Focus the chat input directly
+                                    const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                    if (chatInput) {
+                                        chatInput.focus();
+                                    }
+                                }}
+                                title="Agent can create plans and run code."
+                            />
                             <button
-                                className="button-base button-purple"
-                                onClick={() => { console.log('REPLACE_ME') }}
+                                className="button-base submit-button"
+                                onClick={() => {
+                                    const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                    if (chatInput && chatInput.value) {
+                                        // Simulate an Enter keypress
+                                        // This triggers the existing submission logic in ChatInput.tsx
+                                        const enterEvent = new KeyboardEvent('keydown', {
+                                            key: 'Enter',
+                                            code: 'Enter',
+                                            keyCode: 13,
+                                            which: 13,
+                                            bubbles: true,
+                                            cancelable: true
+                                        });
+                                        chatInput.dispatchEvent(enterEvent);
+                                    }
+                                }}
                             >
-                                Create plan
-                            </button> */}
-                        </>
-                    }
+                                Submit ⏎
+                            </button>
+                        </div>
+                    )}
+                    {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
+                        <button 
+                            className="button-base button-red stop-agent-button" 
+                            onClick={markAgentForStopping}
+                            disabled={agentExecutionStatus === 'stopping'}
+                        >
+                            {agentExecutionStatus === 'stopping' ? (
+                                <div className="stop-agent-button-content">Stopping<LoadingCircle /> </div>
+                            ) : (
+                                'Stop Agent'
+                            )}
+                        </button>
+                    )}
                 </>
             )}
         </div>

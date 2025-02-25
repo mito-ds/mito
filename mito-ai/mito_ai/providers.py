@@ -28,7 +28,6 @@ from mito_ai.utils.open_ai_utils import (
     update_mito_server_quota,
 )
 
-from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
@@ -160,8 +159,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 },
                 provider="OpenAI (user key)",
             )
-            
-        print("Checking mito server quota")
 
         try:
             check_mito_server_quota()
@@ -209,13 +206,21 @@ This attribute is observed by the websocket provider to push the error to the cl
         
     async def request_completions(
         self,
-        prompt_type: MessageType,
+        message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
         response_format: Optional[Type[BaseModel]] = None
     ) -> str:
-        """Internal helper to get the completion from the provider."""
+        """
+        Request completions from the OpenAI API.
         
+        Args:
+            message_type: The type of message to request completions for.
+            messages: The messages to request completions for.
+            model: The model to request completions for.
+        Returns:
+            The completion from the OpenAI API.
+        """
         try:
             # Reset the last error
             self.last_error = None
@@ -228,16 +233,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                 model, messages, False, response_format
             )
             
-            if self._openAI_sync_client:
+            completion = None
+            if self._openAI_sync_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-                return completion.choices[0].message.content or ""
+                completion = completion.choices[0].message.content or ""
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
-                
                 completion = await get_ai_completion_from_mito_server(
                     last_message_content,
                     completion_function_params,
@@ -245,8 +250,18 @@ This attribute is observed by the websocket provider to push the error to the cl
                     self.max_retries,
                 )
                 
-                update_mito_server_quota(prompt_type)
-                return completion
+                update_mito_server_quota(message_type)
+            
+            # Log the successful completion
+            log_ai_completion_success(
+                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
+                message_type=message_type,
+                last_message_content=str(messages[-1].get('content', '')),
+                response={"completion": completion},
+            )
+            
+            # Finally, return the completion
+            return completion # type: ignore
                 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
@@ -256,7 +271,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
 
     async def stream_completions(
-        self, request: CompletionRequest, prompt_type: str, model: str
+        self, request: CompletionRequest, message_type: MessageType, model: str
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
@@ -295,7 +310,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             # Log the successful completion
             log_ai_completion_success(
                 key_type=USER_KEY,
-                prompt_type=prompt_type,
+                message_type=message_type,
                 last_message_content=str(request.messages[-1].get('content', '')),
                 response={"completion": "not available for streamed completions"},
             )

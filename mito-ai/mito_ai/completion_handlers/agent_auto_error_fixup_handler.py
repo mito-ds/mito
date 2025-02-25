@@ -6,9 +6,9 @@ from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
-__all__ = ["get_smart_debug_completion"]
+__all__ = ["get_agent_auto_error_fixup_completion"]
 
-class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
+class AgentAutoErrorFixupHandler(CompletionHandler[SmartDebugMetadata]):
     """Handler for smart debug completions."""
     
     @staticmethod
@@ -23,7 +23,6 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         active_cell_code = metadata.activeCellCode or ''
         variables = metadata.variables or []
         files = metadata.files or []
-        
         # Create the prompt
         prompt = create_error_prompt(
             error_message, 
@@ -35,13 +34,13 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": error_message}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
+        message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
         
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
-            message_type=MessageType.SMART_DEBUG
+            model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_AUTO_ERROR_FIXUP],
+            message_type=MessageType.AGENT_AUTO_ERROR_FIXUP
         )
         
         # Process the completion to remove inner thoughts
@@ -50,9 +49,9 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         display_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": display_completion}
-        await message_history.append_message(ai_response_message, display_response_message, provider)
+        message_history.append_message(ai_response_message, display_response_message)
 
         return display_completion
 
 # Use the static method directly
-get_smart_debug_completion = SmartDebugHandler.get_completion
+get_agent_auto_error_fixup_completion = AgentAutoErrorFixupHandler.get_completion

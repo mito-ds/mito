@@ -5,9 +5,7 @@ from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prom
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
-
-# Model constants
-MODEL = "gpt-4o-mini"
+from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
 __all__ = ["get_code_explain_completion"]
 
@@ -35,8 +33,8 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
-            model=MODEL,
-            prompt_type=MessageType.CODE_EXPLAIN
+            model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
+            message_type=MessageType.CODE_EXPLAIN
         )
         
         # Add the response to message history

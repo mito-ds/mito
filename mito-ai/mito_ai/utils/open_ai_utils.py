@@ -12,7 +12,7 @@ from tornado.httpclient import AsyncHTTPClient
 from mito_ai.models import MessageType
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITO_AI_FIRST_USAGE_DATE, UJ_AI_MITO_API_NUM_USAGES
 from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
-from mito_ai.utils.db import get_user_field, set_user_field
+from mito_ai.utils.db import get_completion_count, get_first_completion_date, get_user_field, set_user_field
 from mito_ai.utils.version_utils import is_pro
 from openai.types.chat import ChatCompletionMessageParam
 MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
@@ -31,28 +31,28 @@ __user_id: Optional[str] = None
     
 
 def check_mito_server_quota() -> None:
-    """Check whether the user has reached the limit of completions for the free tier or not.
-
-    Raises:
-        PermissionError: If the user has reached the limit.
     """
-    
-    print("HERE1")
-    # If the user is on pro, they can use the AI unlimited.
-    pro = is_pro()
-    if pro:
+    Checks if the user has exceeded their Mito server quota. Pro users have no limits.
+    Raises PermissionError if the user has exceeded their quota.
+    """
+    if is_pro():
         return
     
     # If the user is not on pro, we need to check their quota.
     n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES) or 0
     first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE) or ""
 
-    if n_counts >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
+    # Using these helper functions lets us mock their results in tests so 
+    # we can test the logic of this function.
+    completion_count = get_completion_count()
+    first_completion_date = get_first_completion_date()
+
+    if completion_count >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
         log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
         raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
 
-    if first_usage_date != "":
-        first_use = datetime.strptime(first_usage_date, "%Y-%m-%d")
+    if first_completion_date != "":
+        first_use = datetime.strptime(first_completion_date, "%Y-%m-%d")
         one_month_later = first_use + timedelta(days=OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT)
         if datetime.now() > one_month_later:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
@@ -98,7 +98,6 @@ async def get_ai_completion_from_mito_server(
         __user_email = get_user_field(UJ_USER_EMAIL)
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
-
 
     data = {
         "timeout": timeout,

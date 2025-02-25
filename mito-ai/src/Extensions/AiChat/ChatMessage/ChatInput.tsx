@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
-import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
-import { Variable } from '../../VariableManager/VariableInspector';
+import { Variable } from '../../ContextManager/VariableInspector';
 import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -17,10 +17,11 @@ interface ChatInputProps {
     onSave: (content: string) => void;
     onCancel?: () => void;
     isEditing: boolean;
-    variableManager?: IVariableManager;
+    contextManager?: IContextManager;
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
     displayActiveCellCode?: boolean;
+    agentModeEnabled?: boolean;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -33,10 +34,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onSave,
     onCancel,
     isEditing,
-    variableManager,
+    contextManager,
     notebookTracker,
     renderMimeRegistry,
     displayActiveCellCode = true,
+    agentModeEnabled = false,
 }) => {
 
     const [input, setInput] = useState(initialContent);
@@ -143,11 +145,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     useEffect(() => {
         const expandedVariables: ExpandedVariable[] = [
             // Add base variables (excluding DataFrames)
-            ...(variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
+            ...(contextManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
             // Add DataFrames
-            ...(variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
+            ...(contextManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
             // Add series with parent DataFrame references
-            ...(variableManager?.variables
+            ...(contextManager?.variables
                 .filter((variable) => variable.type === "pd.DataFrame")
                 .flatMap((df) =>
                     Object.entries(df.value).map(([seriesName, details]) => ({
@@ -159,7 +161,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ) || [])
         ];
         setExpandedVariables(expandedVariables);
-    }, [variableManager?.variables]);
+    }, [contextManager?.variables]);
 
     // If there are more than 8 lines, show the first 8 lines and add a "..."
     const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
@@ -196,7 +198,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div style={{ position: 'relative', height: 'min-content'}}>
                 <textarea
                     ref={textAreaRef}
-                    className={classNames("message", "message-user", 'chat-input')}
+                    className={classNames("message", "message-user", 'chat-input', {"agent-mode": agentModeEnabled})}
                     placeholder={placeholder}
                     value={input}
                     onChange={handleInputChange}

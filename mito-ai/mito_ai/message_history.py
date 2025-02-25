@@ -6,26 +6,21 @@ from threading import Lock
 from typing import Dict, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
+from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.models import CompletionRequest, ChatThreadItem, MessageType
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai.utils.schema import MITO_FOLDER
+
 
 CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 
 async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
 
-    # request = CompletionRequest(
-    #     type="chat_name_generation",
-    #     message_id=str(uuid.uuid4()),
-    #     messages=[{"role": "user", "content": prompt}],
-    #     stream=False
-    # )
-
     completion = await llm_provider.request_completions(
         messages=[{"role": "user", "content": prompt}], 
-        model="gpt-4o-mini",
-        prompt_type=MessageType.CHAT_NAME_GENERATION
+        model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT_NAME_GENERATION],
+        message_type=MessageType.CHAT_NAME_GENERATION
     )
         
     if not completion or completion == "":
@@ -236,6 +231,21 @@ class GlobalMessageHistory:
             self._save_thread_to_disk(self._chat_threads[thread_id])
 
             return self._chat_threads[thread_id].ai_optimized_history[:]
+    
+    @property
+    def display_history(self) -> List[ChatCompletionMessageParam]:
+        """
+        For backward compatibility: returns the display history of the newest thread.
+        """
+        with self._lock:
+            thread_id = self._get_newest_thread_id()
+            if not thread_id or thread_id not in self._chat_threads:
+                return []
+            # If history is requested, that is also considered an interaction
+            self._update_last_interaction(self._chat_threads[thread_id])
+            self._save_thread_to_disk(self._chat_threads[thread_id])
+
+            return self._chat_threads[thread_id].display_history[:]
 
     def get_histories(self, thread_id: Optional[str] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         """

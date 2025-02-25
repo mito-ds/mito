@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { IVariableManager } from "../VariableManager/VariableManagerPlugin";
+import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
 import { IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
@@ -17,6 +17,8 @@ export type PromptType =
     'get_threads' |
     'delete_thread';
 
+export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
+
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
 // displayOptimizedChatHistory, we also include connection error messages so that we can 
@@ -24,7 +26,7 @@ export type PromptType =
 // we add a message to the chat ui that tells them to set an API key.
 export interface IDisplayOptimizedChatHistory {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    type: 'openai message' | 'openai message:agent:planning' | 'connection error',
+    type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
@@ -43,22 +45,22 @@ export interface IDisplayOptimizedChatHistory {
 */
 export class ChatHistoryManager {
     private displayOptimizedChatHistory: IDisplayOptimizedChatHistory[];
-    private variableManager: IVariableManager;
+    private contextManager: IContextManager;
     private notebookTracker: INotebookTracker;
 
-    constructor(variableManager: IVariableManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatHistory[]) {
+    constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatHistory[]) {
         // Initialize the history
         this.displayOptimizedChatHistory = initialHistory || [];
 
-        // Save the variable manager
-        this.variableManager = variableManager;
+        // Save the context manager
+        this.contextManager = contextManager;
 
         // Save the notebook tracker
         this.notebookTracker = notebookTracker;
     }
 
     createDuplicateChatHistoryManager(): ChatHistoryManager {
-        return new ChatHistoryManager(this.variableManager, this.notebookTracker, this.displayOptimizedChatHistory);
+        return new ChatHistoryManager(this.contextManager, this.notebookTracker, this.displayOptimizedChatHistory);
     }
 
     getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
@@ -82,7 +84,8 @@ export class ChatHistoryManager {
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
+            files: this.contextManager.files,
             activeCellCode: activeCellCode,
             input: input
         }
@@ -105,7 +108,7 @@ export class ChatHistoryManager {
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
             activeCellCode: activeCellCode,
             input: newContent,
             index: index
@@ -130,11 +133,17 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentMessage(message: string): IAgentPlanningMetadata {
+    removeMessageAtIndex(index: number): void {
+        // Remove the message at the specified index
+        this.displayOptimizedChatHistory.splice(index, 1);
+    }
+
+    addAgentMessage(message: string, index?: number): IAgentPlanningMetadata {
 
         const agentPlanningMetadata: IAgentPlanningMetadata = {
             promptType: "agent:planning",
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
+            files: this.contextManager.files,
             input: message
         }
 
@@ -147,17 +156,24 @@ export class ChatHistoryManager {
             }
         )
 
+        // If editing the first agent message, the user will want a new plan.
+        // So we drop all steps in the agent's previous plan.
+        if (index === 1) {
+            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+        }
+
         return agentPlanningMetadata
     }
 
-    addDebugErrorMessage(errorMessage: string): ISmartDebugMetadata {
+    addDebugErrorMessage(errorMessage: string, promptType: PromptType): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
         const smartDebugMetadata: ISmartDebugMetadata = {
             promptType: 'smartDebug',
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
+            files: this.contextManager.files,
             activeCellCode: activeCellCode,
             errorMessage: errorMessage
         }
@@ -167,7 +183,7 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: smartDebugMetadata.promptType
+                promptType: promptType
             }
         );
 
@@ -181,7 +197,7 @@ export class ChatHistoryManager {
 
         const codeExplainMetadata: ICodeExplainMetadata = {
             promptType: 'codeExplain',
-            variables: this.variableManager.variables,
+            variables: this.contextManager.variables,
             activeCellCode
         }
 
@@ -265,8 +281,7 @@ export class ChatHistoryManager {
             return
         }
 
-        const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
-        return displayOptimizedChatHistory[lastAIMessagesIndex]
+        return this.displayOptimizedChatHistory[lastAIMessagesIndex]
     }
 }
 

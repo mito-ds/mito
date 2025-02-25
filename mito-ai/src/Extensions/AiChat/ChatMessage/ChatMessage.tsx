@@ -10,16 +10,18 @@ import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } f
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
+import GarbageIcon from '../../../icons/GarbageIcon';
 import ChatInput from './ChatInput';
-import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
-import { PromptType } from '../ChatHistoryManager';
+import { ChatMessageType, PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
+import '../../../../style/ChatMessage.css';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -37,16 +39,17 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, messageType: IDisplayOptimizedChatHistory['type']) => void
-    variableManager?: IVariableManager
+    onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
+    onDeleteMessage: (messageIndex: number) => void
+    contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
     messageType,
-    messageIndex,
     promptType,
+    messageIndex,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
     notebookTracker,
@@ -57,7 +60,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    variableManager,
+    onDeleteMessage,
+    contextManager,
     codeReviewStatus
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
@@ -91,7 +95,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 onSave={handleSave}
                 onCancel={handleCancel}
                 isEditing={isEditing}
-                variableManager={variableManager}
+                contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
                 displayActiveCellCode={messageType !== 'openai message:agent:planning'}
@@ -204,15 +208,26 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     )
                 }
             })}
-            {editable && (
-                <button
-                    className="message-start-editing-button"
-                    onClick={handleEditClick}
-                    title="Edit message"
-                >
-                    <PencilIcon />
-                </button>
-            )}
+            {editable && 
+                <div className="message-action-buttons">
+                    <button
+                        className="message-start-editing-button"
+                        onClick={handleEditClick}
+                        title="Edit message"
+                    >
+                        <PencilIcon />
+                    </button>
+                    {messageType === 'openai message:agent:planning' &&
+                        <button
+                            className="message-delete-button"
+                            onClick={() => onDeleteMessage(messageIndex)}
+                            title="Delete message"
+                        >
+                            <GarbageIcon />
+                        </button>
+                    }
+                </div>
+            }
         </div>
     )
 }

@@ -52,7 +52,7 @@ jobs:
           python ../deployment/bump_version.py mito-ai ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[deploy]" --verbose
           python -m pip check
-          jlpm install
+          jlpm install --frozen-lockfile
           jlpm run build
       - name: Deploy mito-ai
         run: |
