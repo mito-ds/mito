@@ -300,7 +300,7 @@ class GlobalMessageHistory:
 
         # Outside the lock, await the name generation if needed
         if name_gen_input:
-            new_name = await generate_short_chat_name(name_gen_input[0], name_gen_input[1], llm_provider)
+            new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), llm_provider)
             with self._lock:
                 # Update the thread's name if still required
                 thread = self._chat_threads.get(thread_id)
