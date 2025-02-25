@@ -9,12 +9,13 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.models import CompletionRequest, ChatThreadItem, MessageType
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
+from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.schema import MITO_FOLDER
 
 
 CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 
-async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider) -> str:
+async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider: OpenAIProvider) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
 
     completion = await llm_provider.request_completions(
@@ -181,7 +182,7 @@ class GlobalMessageHistory:
             except Exception as e:
                 print(f"Error loading chat thread from {path}: {e}")
     
-    def _save_thread_to_disk(self, thread: ChatThread):
+    def _save_thread_to_disk(self, thread: ChatThread) -> None:
         """
         Saves the given ChatThread to a JSON file `<thread_id>.json` in `self._chats_dir`.
         """
@@ -214,7 +215,7 @@ class GlobalMessageHistory:
             return None
         return max(self._chat_threads, key=lambda tid: self._chat_threads[tid].last_interaction_ts)
 
-    def _update_last_interaction(self, thread: ChatThread):
+    def _update_last_interaction(self, thread: ChatThread) -> None:
         thread.last_interaction_ts = time.time()
 
     @property
@@ -263,7 +264,7 @@ class GlobalMessageHistory:
                 self._chat_threads[thread_id].display_history[:],
             )
 
-    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider) -> None:
+    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider) -> None:
         """
         Appends the messages to the newest thread. If there are no threads yet, create one.
         We also detect if we should set a short name for the thread.
