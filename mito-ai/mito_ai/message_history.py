@@ -303,7 +303,7 @@ class GlobalMessageHistory:
             new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), llm_provider)
             with self._lock:
                 # Update the thread's name if still required
-                thread = self._chat_threads.get(thread_id)
+                thread = self._chat_threads[thread_id]
                 if thread is not None and thread.name == "(New Chat)":
                     thread.name = new_name
                     self._save_thread_to_disk(thread)
