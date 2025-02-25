@@ -90,7 +90,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
     async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
         """Get an event to open a socket."""
         # This method ensure to call `pre_get` before opening the socket.
-        await ensure_async(self.pre_get())
+        await ensure_async(self.pre_get()) # type: ignore
 
         initialize_user()
 
@@ -112,7 +112,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.full_message_history = []
         
 
-    async def on_message(self, message: str) -> None:
+    async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
 
         Args:
