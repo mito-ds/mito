@@ -587,11 +587,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 break;
             }
 
-            // Insert a new cell for the next step
-            await app.commands.execute("notebook:insert-cell-below")
+            // Only create a new cell if the AI generated code in its response
+            if (aiMessage?.message) {
+                const aiGeneratedCode = getCodeBlockFromMessage(aiMessage.message);
+                if (aiGeneratedCode) {
+                    // Insert a new cell for the next step
+                    await app.commands.execute("notebook:insert-cell-below")
 
-            // Wait for the new cell to be created
-            await sleep(1000)
+                    // Wait for the new cell to be created
+                    await sleep(1000)
+                }
+            }
         }
 
         setAgentExecutionStatus('idle')
