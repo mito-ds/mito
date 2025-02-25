@@ -304,7 +304,7 @@ class GlobalMessageHistory:
             with self._lock:
                 # Update the thread's name if still required
                 thread = self._chat_threads.get(thread_id)
-                if thread and thread.name == "(New Chat)":
+                if thread is not None and thread.name == "(New Chat)":
                     thread.name = new_name
                     self._save_thread_to_disk(thread)
 
