@@ -1,7 +1,27 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Union
+from pydantic import BaseModel
+    
+@dataclass()
+class Cell:
+    cell_type: Literal['code', 'markdown']
+    id: str
+    code: str
+  
+class CellUpdate(BaseModel):
+    id: str
+    code: str
 
-from evals.test_cases.agent_find_and_update_tests.simple import AgentFindAndUpdateTestCase, Cell, CellUpdate
+@dataclass()
+class AgentFindAndUpdateTestCase:
+    """A single test case with input state and expected output"""
+    name: str
+    initial_notebook_state: List[Cell]
+    user_input: str
+    cell_update: CellUpdate
+    workflow_tags: List[str]
+    type_tags: List[str]
+    
 
 WORKFLOW_TAGS = Literal[
     'variable_declaration', 

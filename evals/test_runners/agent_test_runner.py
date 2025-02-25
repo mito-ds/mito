@@ -1,18 +1,13 @@
 from copy import copy
 import pprint
 from typing import Dict, List, Literal, Optional, Union
-from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion_code_block, get_open_ai_parsed_response
+from evals.ai_api_calls.get_open_ai_completion import get_open_ai_parsed_response
 from evals.asserts.equal_outputs import assert_equal_outputs
-from evals.eval_types import AgentFindAndUpdatePromptGenerator, ChatPromptGenerator, ChatTestCase, InlineCodeCompletionPromptGenerator, InlineCodeCompletionTestCase, TestCaseResult
+from evals.eval_types import AgentFindAndUpdatePromptGenerator, AgentFindAndUpdateTestCase, Cell, CellUpdate, InlineCodeCompletionTestCase, TestCaseResult
 from evals.prompts.agent_find_and_update_prompts import AGENT_PROMPTS
-from evals.prompts.chat_prompts import CHAT_PROMPT_GENERATORS
-from evals.prompts.inline_code_completion_prompts import INLINE_CODE_COMPLETION_PROMPT_GENERATORS
 from evals.test_cases.agent_find_and_update_tests import AGENT_TESTS
-from evals.test_cases.agent_find_and_update_tests.simple import AgentFindAndUpdateTestCase, Cell, CellUpdate
-from evals.test_cases.chat_tests import CHAT_TESTS
-from evals.test_cases.inline_code_completion_tests import INLINE_CODE_COMPLETION_TESTS
 from evals.test_runners.utils import exec_code_and_get_globals_and_output
-from evals.utils import get_script_from_cells, print_test_case_result_tables
+from evals.utils import print_test_case_result_tables
 from evals.asserts.equal_globals import assert_equal_globals, get_globals_to_compare
 
     
@@ -110,7 +105,7 @@ def run_code_gen_test(
 
 
 def debug_failed_test_case(
-        test: Union[ChatTestCase, InlineCodeCompletionTestCase],
+        test: InlineCodeCompletionTestCase,
         ai_generated_code: str, 
         actual_code: str,
         expected_code: str, 
