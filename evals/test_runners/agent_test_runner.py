@@ -136,7 +136,7 @@ def get_script_with_cell_update_applied(cell_update: CellUpdate, initial_noteboo
         if cell.id == cell_update.id:
             cell.code = cell_update.code
             
-    code_cells = [cell.code for cell in initial_notebook_state]
+    code_cells = [cell.code if cell.cell_type == 'code' else '' for cell in initial_notebook_state]
     new_code = "\n".join(code_cells)
     
     return new_code

@@ -151,4 +151,55 @@ warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_por
         workflow_tags = ['agent'],
         type_tags = ['simple']
     ),
+    
+    
+    # Uncomment code in LONG notebook
+    AgentFindAndUpdateTestCase(
+        name='uncomment_code_in_second_cell_long_notebook',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('n1b_python_and_variables.ipynb'),
+        user_input="Uncomment 'print('hello') so that we print both hello and world",
+        cell_update=CellUpdate(
+            id="212f7310",
+            code="""print("hello")
+print("world")
+"""
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
+    
+    # Create new variable in LONG notebook
+    AgentFindAndUpdateTestCase(
+        name='create_new_variable_in_last_cell_long_notebook',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('n1b_python_and_variables.ipynb'),
+        user_input="Add a third string s3 equal to 'Third String'",
+        cell_update=CellUpdate(
+            id="f40f5996",
+            code="""s1 = 'First String'
+s2 = 'Second String'
+s3 = 'Third String'
+# TODO: Replace me with your code
+"""
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
+    
+    # Update dictionary in LONG notebook
+    AgentFindAndUpdateTestCase(
+        name='create_new_variable_in_last_cell_long_notebook',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('n1b_python_and_variables.ipynb'),
+        user_input="Remove the 'shell' entry from the dictionary `d`",
+        cell_update=CellUpdate(
+            id="b9224693",
+            code="""d = {"sand": "tiny grains", "wave": "ocean's rhythm"}
+d
+"""
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
+    
+    
+    
 ]
