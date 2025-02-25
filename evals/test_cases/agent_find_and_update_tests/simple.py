@@ -1,6 +1,7 @@
 
 from dataclasses import dataclass
 from typing import List, Literal    
+from pydantic import BaseModel
     
 @dataclass()
 class Cell:
@@ -8,8 +9,7 @@ class Cell:
     id: str
     code: str
   
-@dataclass(frozen=True)  
-class CellUpdate:
+class CellUpdate(BaseModel):
     id: str
     code: str
 
@@ -19,7 +19,10 @@ class AgentFindAndUpdateTestCase:
     name: str
     initial_notebook_state: List[Cell]
     user_input: str
-    cell_update: CellUpdate 
+    cell_update: CellUpdate
+    workflow_tags: List[str]
+    type_tags: List[str]
+    
 
 SIMPLE_TESTS = [
     AgentFindAndUpdateTestCase(
@@ -39,7 +42,9 @@ z = x + y"""
             code="""x=50
 y=30
 z = x + y"""
-        )
-    )
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
 ]
     
