@@ -1,6 +1,6 @@
 from copy import copy
 import pprint
-from typing import Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_parsed_response
 from evals.asserts.equal_outputs import assert_equal_outputs
 from evals.eval_types import AgentFindAndUpdatePromptGenerator, AgentFindAndUpdateTestCase, Cell, CellUpdate, InlineCodeCompletionTestCase, TestCaseResult
@@ -88,9 +88,8 @@ def run_code_gen_test(
     except Exception as e:
         # Fail early if we can't execute the code
         print(f"Failed to execute code with error: {e}")
-        # print(f"AI Generated Code: {ai_generated_cell_update}")
-        # print(f"Actual Code: {actual_code}")
-        # print(f"Expected Code: {expected_code}")
+        print(f"AI Generated Cell Update: {ai_generated_cell_update}")
+        print(f"Expected Cell Update: {test.cell_update}")
         return TestCaseResult(test=test, passed=False)
 
     equal_globals = assert_equal_globals(expected_globals, actual_globals)
@@ -98,31 +97,33 @@ def run_code_gen_test(
 
     passed = equal_globals and equal_outputs
 
-    # if not passed:
-        # debug_failed_test_case(test, ai_generated_code, actual_code, expected_code, equal_globals, equal_outputs, expected_globals, actual_globals, expected_output, actual_output)
+    if not passed:
+        debug_failed_test_case(test, ai_generated_cell_update, test.cell_update, equal_globals, equal_outputs, expected_globals, actual_globals, expected_output, actual_output)
 
     return TestCaseResult(test=test, passed=passed)
 
 
 def debug_failed_test_case(
-        test: InlineCodeCompletionTestCase,
-        ai_generated_code: str, 
-        actual_code: str,
-        expected_code: str, 
+        test: AgentFindAndUpdateTestCase,
+        ai_generated_cell_update: CellUpdate, 
+        expected_cell_update: CellUpdate,
         equal_globals: bool, 
         equal_outputs: bool, 
-        expected_globals: Dict[str, str],
-        actual_globals: Dict[str, str],
+        expected_globals: Dict[str, Any],
+        actual_globals: Dict[str, Any],
         expected_output: str,
         actual_output: str,
     ) -> None:
 
+    if (ai_generated_cell_update.id != expected_cell_update.id):
+        print("Identified the wrong cell id")
+        
+    print(f"AI Generated Cell Update: {ai_generated_cell_update}")
+    print(f"Expected Cell Update: {expected_cell_update}")
 
-    print(f"AI Generated Code: {ai_generated_code}")
-    print(f"Actual Code: {actual_code}")
-    print(f"Expected Code: {expected_code}")
     print(f"Equal Globals: {equal_globals}")
     print(f"Equal Outputs: {equal_outputs}")
+    
     if not equal_outputs:
         print(f"Expected Output: {expected_output}")
         print(f"Actual Output: {actual_output}")

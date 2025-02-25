@@ -5,6 +5,8 @@ from evals.eval_types import AgentFindAndUpdateTestCase, Cell, CellUpdate
 from evals.test_cases.agent_find_and_update_tests.utils import get_cells_from_ipynb_in_notebook_folder
 
 SIMPLE_TESTS = [
+    
+    # Very Simple Test with only one code cell
     AgentFindAndUpdateTestCase(
         name='first test',
         initial_notebook_state=[
@@ -28,7 +30,8 @@ z = x + y"""
     ),
     
     
-        AgentFindAndUpdateTestCase(
+    # Rename a variable in a notebook with 5 code cells
+    AgentFindAndUpdateTestCase(
         name='warren_buffet_column_rename',
         initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('WarrenBuffet-Short.ipynb'),
         user_input="Instead of calling the column YEAR-MONTH, let's just call it `date_short`",
@@ -47,6 +50,102 @@ warren_buffett_portfolio_copy = warren_buffett_portfolio_copy.drop_duplicates(su
 
 # Filtered Date
 warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_portfolio_copy['Date'] > pd.to_datetime('2018-02-25')]
+"""
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
+    
+    # Update pivot table in a notebook with 5 code cells
+    # With a specific instruction to remove a specific aggregation
+    # function from the construction of the pivot table
+    AgentFindAndUpdateTestCase(
+        name='warren_buffet_column_pivot_table_configuration_specific_intent',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('WarrenBuffet-Short.ipynb'),
+        user_input="Don't include the median aggregation in the pivot table",
+        cell_update=CellUpdate(
+            id="be7d0a75-32a4-4812-a45d-a828aee90958",
+            code="""from mitosheet.public.v3 import *; 
+
+# Pivoted warren_buffett_portfolio into warren_buffett_portfolio_pivot
+tmp_df = warren_buffett_portfolio[['Industry', 'Num_Employees']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['Industry'],
+    values=['Num_Employees'],
+    aggfunc={'Num_Employees': ['mean']}
+)
+pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)
+warren_buffett_portfolio_pivot = pivot_table.reset_index()"""
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
+    
+    # Update pivot table in a notebook with 5 code cells
+    # With less specific intent: Just tell it to remove columns that are not used
+    AgentFindAndUpdateTestCase(
+        name='warren_buffet_column_pivot_table_configuration_less_specific_intent',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('WarrenBuffet-Short.ipynb'),
+        user_input="Don't create any aggregated columns in the pivot table that are not used later.",
+        cell_update=CellUpdate(
+            id="be7d0a75-32a4-4812-a45d-a828aee90958",
+            code="""from mitosheet.public.v3 import *; 
+
+# Pivoted warren_buffett_portfolio into warren_buffett_portfolio_pivot
+tmp_df = warren_buffett_portfolio[['Industry', 'Num_Employees']].copy()
+pivot_table = tmp_df.pivot_table(
+    index=['Industry'],
+    values=['Num_Employees'],
+    aggfunc={'Num_Employees': ['mean']}
+)
+pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)
+warren_buffett_portfolio_pivot = pivot_table.reset_index()"""
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
+    
+    
+    # Update a filter in the MEDIUM size analysis
+    AgentFindAndUpdateTestCase(
+        name='warren_buffet_medium_filter_update',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('WarrenBuffet-Medium.ipynb'),
+        user_input="Update the filter from 2018 to 2019",
+        cell_update=CellUpdate(
+            id="c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            code="""warren_buffett_portfolio_copy = warren_buffett_portfolio.copy(deep=True)
+
+# Added column 'YEAR-MONTH'
+warren_buffett_portfolio_copy.insert(1, 'YEAR-MONTH', CONCAT(YEAR(warren_buffett_portfolio_copy['Date']), "-", MONTH( ENDOFBUSINESSMONTH(warren_buffett_portfolio_copy['Date']))))
+
+# Dropped duplicates in warren_buffett_portfolio
+warren_buffett_portfolio_copy = warren_buffett_portfolio_copy.drop_duplicates(subset=['YEAR-MONTH', 'Symbol'], keep='last')
+
+# Filtered Date
+warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_portfolio_copy['Date'] > pd.to_datetime('2019-02-25')]
+"""
+        ),
+        workflow_tags = ['agent'],
+        type_tags = ['simple']
+    ),
+    
+    # Update a filter in the LONG size analysis
+    AgentFindAndUpdateTestCase(
+        name='warren_buffet_long_filter_update',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('WarrenBuffet-Long.ipynb'),
+        user_input="Update the filter from 2018 to 2019",
+        cell_update=CellUpdate(
+            id="c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            code="""warren_buffett_portfolio_copy = warren_buffett_portfolio.copy(deep=True)
+
+# Added column 'YEAR-MONTH'
+warren_buffett_portfolio_copy.insert(1, 'YEAR-MONTH', CONCAT(YEAR(warren_buffett_portfolio_copy['Date']), "-", MONTH( ENDOFBUSINESSMONTH(warren_buffett_portfolio_copy['Date']))))
+
+# Dropped duplicates in warren_buffett_portfolio
+warren_buffett_portfolio_copy = warren_buffett_portfolio_copy.drop_duplicates(subset=['YEAR-MONTH', 'Symbol'], keep='last')
+
+# Filtered Date
+warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_portfolio_copy['Date'] > pd.to_datetime('2019-02-25')]
 """
         ),
         workflow_tags = ['agent'],
