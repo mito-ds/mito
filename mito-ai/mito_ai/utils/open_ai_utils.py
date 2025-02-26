@@ -96,7 +96,7 @@ async def get_ai_completion_from_mito_server(
         __user_id = get_user_field(UJ_STATIC_USER_ID)
 
     data = {
-        "timeout": 120,
+        "timeout": timeout,
         "max_retries": max_retries,
         "email": __user_email,
         "user_id": __user_id,
