@@ -1,4 +1,5 @@
 from typing import List, Dict, Any, Optional, Sequence
+from evals.test_cases.agent_find_and_update_tests.simple import AgentFindAndUpdateTestCase
 from prettytable import PrettyTable
 from evals.eval_types import SmartDebugTestCase, TestCaseResult
 import pandas as pd
@@ -35,7 +36,7 @@ def print_test_case_result_table(test_type: str, prompt_name: str, test_case_res
 
         # Get the tags for the test. Smart debug tags are defined at the test level. 
         # Code gen tags are defined at the test case core level.
-        workflow_tags = test_case_result.test.workflow_tags if isinstance(test_case_result.test, SmartDebugTestCase) else test_case_result.test.test_case_core.workflow_tags
+        workflow_tags = test_case_result.test.workflow_tags if isinstance(test_case_result.test, SmartDebugTestCase) or isinstance(test_case_result.test, AgentFindAndUpdateTestCase) else test_case_result.test.test_case_core.workflow_tags
         clean_workflow_tags = clean_tags_for_display(workflow_tags)
 
         clean_type_tags = clean_tags_for_display(test_case_result.test.type_tags)

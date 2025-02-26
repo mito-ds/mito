@@ -1,6 +1,6 @@
 import copy
 from typing import Dict, List, Optional
-from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion
+from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion_code_block
 from evals.asserts.equal_globals import assert_equal_globals, get_globals_to_compare
 from evals.asserts.equal_outputs import assert_equal_outputs
 from evals.eval_types import DebugPromptGenerator, SmartDebugTestCase, TestCaseResult
@@ -80,7 +80,7 @@ def run_smart_debug_test(test: SmartDebugTestCase, prompt_generator: DebugPrompt
     # Make sure to use the invalid_notebook_state so that the prompt can include the 
     # invalid code in the prompt. 
     prompt = prompt_generator.get_prompt(error_message, invalid_notebook_state)
-    ai_generated_code = get_open_ai_completion(prompt, model)
+    ai_generated_code = get_open_ai_completion_code_block(prompt, model)
     actual_code = script_without_invalid_code + "\n" + ai_generated_code
 
     # Get the expected code script 

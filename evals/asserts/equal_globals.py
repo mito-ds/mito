@@ -45,21 +45,35 @@ def assert_equal_globals(expected_globals: Dict[str, Any], actual_globals: Dict[
 
         # If they are different types, then they are not equal
         if type(var_one) != type(var_two):
+            print_non_equal_globals(key, var_one, var_two)
             return False
-
+    
         if isinstance(var_one, pd.DataFrame) and isinstance(var_two, pd.DataFrame):
             if not var_one.equals(var_two):
+                print_non_equal_globals(key, var_one, var_two)
                 return False
         elif isinstance(var_one, pd.Series) and isinstance(var_two, pd.Series):
             if not var_one.equals(var_two):
+                print_non_equal_globals(key, var_one, var_two)
                 return False
         elif hasattr(var_one, '__array__') and hasattr(var_two, '__array__'):
             # Handle numpy arrays and array-like objects
             import numpy as np
             if not np.array_equal(var_one, var_two, equal_nan=True):
+                print_non_equal_globals(key, var_one, var_two)
+                return False
+        elif hasattr(var_one, '__eq__') and hasattr(var_two, '__eq__'):
+            # If the object has a custom __eq__ function, use it! 
+            if not var_one.__eq__(var_two):
+                print_non_equal_globals(key, var_one, var_two)
                 return False
         else:
             if var_one != var_two:
+                print_non_equal_globals(key, var_one, var_two)
                 return False
     
     return True
+
+
+def print_non_equal_globals(key, val_one, val_two):
+    print(f"Variable: {key} is not equal. Expected: {val_one}, Actual: {val_two}")
