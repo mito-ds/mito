@@ -12,8 +12,10 @@ export type PromptType =
     'agent:execution' | 
     'agent:autoErrorFixup' |
     'inline_completion' | 
-    'clear_history' | 
-    'fetch_history'
+    'fetch_history' |
+    'start_new_chat' |
+    'get_threads' |
+    'delete_thread';
 
 export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
 
@@ -29,7 +31,6 @@ export interface IDisplayOptimizedChatHistory {
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
 }
-
 
 /* 
     The ChatHistoryManager is responsible for managing the AI chat history.
@@ -107,7 +108,7 @@ export class ChatHistoryManager {
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
-                variables: this.contextManager.variables,
+            variables: this.contextManager.variables,
             activeCellCode: activeCellCode,
             input: newContent,
             index: index
