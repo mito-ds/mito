@@ -96,7 +96,7 @@ async def get_ai_completion_from_mito_server(
         __user_id = get_user_field(UJ_STATIC_USER_ID)
 
     data = {
-        "timeout": timeout,
+        "timeout": 120,
         "max_retries": max_retries,
         "email": __user_email,
         "user_id": __user_id,
@@ -107,8 +107,14 @@ async def get_ai_completion_from_mito_server(
     headers = {
         "Content-Type": "application/json",
     }
+    
+    # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
+    # we give to OpenAI. The OpenAI timeouts are denoted in seconds, wherease the HTTP client
+    # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
+    # the time it takes to send the request, etc.
+    http_client_timeout = timeout * 1000 * max_retries + 10000
 
-    http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+    http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"), request_timeout=http_client_timeout)
     try:
         res = await http_client.fetch(
             # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
