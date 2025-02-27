@@ -1,6 +1,7 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
+import { AIOptimizedCell } from './websocket/models';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
@@ -43,6 +44,34 @@ export const writeCodeToCellByID = (
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
     }
+}
+
+export const getNotebookRepresentationForAI = (
+    notebookTracker: INotebookTracker
+): AIOptimizedCell[] => {
+
+    const cellList = notebookTracker.currentWidget?.model?.cells
+
+    if (cellList == undefined) {
+        return []
+    }
+
+    // In order to get the cell index, we need to iterate over the cells and call the `get` method
+    // to see the cells in order. Otherwise, the cells are returned in a random order.
+    const cells: AIOptimizedCell[] = []
+    for (let i = 0; i < cellList.length; i++) {
+        const cellModel = cellList.get(i)
+        
+        const cell: AIOptimizedCell = {
+            id: cellModel.id,
+            cell_type: cellModel.type,
+            code: cellModel.sharedModel.source
+        }
+
+        cells.push(cell)
+    }
+    
+    return cells
 }
 
 export const didCellExecutionError = (cell: CodeCell): boolean => {

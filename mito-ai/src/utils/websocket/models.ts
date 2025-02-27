@@ -7,6 +7,17 @@ import { File } from '../../Extensions/ContextManager/FileInspector';
 
 /* 
 
+Notebook representation sent to the AI
+
+*/
+export type AIOptimizedCell = {
+  'cell_type': string,
+  'id': string,
+  'code': string
+}
+
+/* 
+
 Metadata Models
 
 */
