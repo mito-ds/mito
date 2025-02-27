@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
-from mito_ai.models import MessageType
+from mito_ai.models import MessageType, ResponseFormatInfo
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITO_AI_FIRST_USAGE_DATE, UJ_AI_MITO_API_NUM_USAGES
 from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
 from mito_ai.utils.db import get_completion_count, get_first_completion_date, get_user_field, set_user_field
@@ -137,7 +137,7 @@ def get_open_ai_completion_function_params(
     model: str, 
     messages: List[ChatCompletionMessageParam], 
     stream: bool,
-    response_format: Optional[Type[BaseModel]] = None,
+    response_format_info: Optional[ResponseFormatInfo] = None,
 ) -> Dict[str, Any]:
     
     completion_function_params = {
@@ -150,12 +150,12 @@ def get_open_ai_completion_function_params(
     # Pydantic models are supported by the OpenAI API, however, we need to be able to 
     # serialize it for requests that are going to be sent to the mito server. 
     # OpenAI expects a very specific schema as seen below. 
-    if response_format:
-        json_schema = response_format.schema()
+    if response_format_info:
+        json_schema = response_format_info.format.schema()
         completion_function_params["response_format"] = {
             "type": "json_schema",
             "json_schema": {
-                "name": "plan_of_attack",
+                "name": f"{response_format_info.name}",
                 "schema": {
                     **json_schema,
                     "additionalProperties": False

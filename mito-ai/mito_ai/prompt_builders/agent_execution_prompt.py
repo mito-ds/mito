@@ -2,7 +2,7 @@ from typing import List
 from mito_ai.models import AgentExecutionMetadata
 
 
-def create_agent_execution(md: AgentExecutionMetadata) -> str:
+def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
     files_str = '\n'.join([f"{file}" for file in md.files or []])
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.ai_optimized_cells or []])

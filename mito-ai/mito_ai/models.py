@@ -1,14 +1,20 @@
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Type
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
+from pydantic import BaseModel
 
 @dataclass(frozen=True)
 class AIOptimizedCells():
   cell_type: str
   id: str
   code: str
+  
+@dataclass(frozen=True)
+class ResponseFormatInfo():
+    name: str
+    format: Type[BaseModel]
 
 
 class MessageType(Enum):
