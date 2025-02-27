@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
-import { IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
+import { IAgentExecutionMetadata, IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 
 export type PromptType = 
     'chat' | 
@@ -100,6 +100,31 @@ export class ChatHistoryManager {
 
         return chatMessageMetadata
     }
+
+    addAgentExecutionMessage(input: string): IAgentExecutionMetadata {
+
+        const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
+
+        const agentExecutionMetatada: IAgentExecutionMetadata = {
+            promptType: 'agent:execution',
+            variables: this.contextManager.variables,
+            files: this.contextManager.files,
+            aiOptimizedCells: aiOptimizedCells,
+            input: input
+        }
+
+        this.displayOptimizedChatHistory.push(
+            {
+                message: getDisplayedOptimizedUserMessage(input), 
+                type: 'openai message',
+                promptType: 'chat',
+                codeCellID: undefined // The agent:execution is not tied to any specific code cell
+            }
+        )
+
+        return agentExecutionMetatada
+    }
+
 
     updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IChatMessageMetadata {
         const activeCellID = getActiveCellID(this.notebookTracker)
@@ -290,13 +315,24 @@ const getDisplayedOptimizedUserMessage = (
     activeCellCode?: string, 
     isAgentPlanning: boolean = false
 ): OpenAI.Chat.ChatCompletionMessageParam => {
-    return {
-        role: 'user',
-        content: (!isAgentPlanning && activeCellCode) ? 
+
+    // Don't include the active cell code if it is an agent planning message
+    // or if the there is no active cell code provided, which occurs when
+    // sending an agent:execution message which uses the entire notebook as context
+    // instead of just the active cell
+    let activeCellCodeBlock = ''
+    if (!isAgentPlanning && activeCellCode) {
+        activeCellCodeBlock = 
 `\`\`\`python
 ${activeCellCode}
-\`\`\`
+\`\`\``
 
-${input}` : input
+    }
+
+    return {
+        role: 'user',
+        content:
+`${activeCellCodeBlock}
+${input}`
     };
 }

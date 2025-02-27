@@ -46,7 +46,7 @@ export const writeCodeToCellByID = (
     }
 }
 
-export const getNotebookRepresentationForAI = (
+export const getAIOptimizedCells = (
     notebookTracker: INotebookTracker
 ): AIOptimizedCell[] => {
 
@@ -70,7 +70,7 @@ export const getNotebookRepresentationForAI = (
 
         cells.push(cell)
     }
-    
+
     return cells
 }
 

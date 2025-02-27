@@ -29,16 +29,26 @@ type CompletionRequestMetadata =
   IAgentPlanningMetadata |
   IInlineCompleterMetadata |
   IClearHistoryMetadata |
-  IFetchHistoryMetadata
+  IFetchHistoryMetadata |
+  IAgentExecutionMetadata
 
 
 export interface IChatMessageMetadata {
-    promptType: 'chat' | 'agent:execution'
+    promptType: 'chat'
     variables?: Variable[];
     files?: File[];
     activeCellCode?: string;   
     input: string;
     index?: number;
+}
+
+export interface IAgentExecutionMetadata {
+  promptType: 'agent:execution'
+  aiOptimizedCells: AIOptimizedCell[]
+  variables?: Variable[];
+  files?: File[];  
+  input: string;
+  index?: number;
 }
 
 export interface ISmartDebugMetadata {
@@ -130,7 +140,7 @@ export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
 
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
   type: 'agent:execution'
-  metadata: IChatMessageMetadata
+  metadata: IAgentExecutionMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
