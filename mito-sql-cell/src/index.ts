@@ -8,14 +8,7 @@ import {
   EditorExtensionRegistry,
   IEditorExtensionRegistry
 } from '@jupyterlab/codemirror';
-import {
-  addIcon,
-  CommandToolbarButton,
-  refreshIcon,
-  Toolbar
-} from '@jupyterlab/ui-components';
 import { find } from '@lumino/algorithm';
-import { Widget } from '@lumino/widgets';
 import { AddSource } from './addsource';
 import { cellTypeSwitcher } from './celltypeselector';
 import { CommandIDs } from './commands';

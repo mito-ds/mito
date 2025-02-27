@@ -9,7 +9,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "duckdb",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -37,7 +37,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "sqlite",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -65,7 +65,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "postgresql",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -113,7 +113,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "mysql",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -161,7 +161,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "mariadb",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -209,7 +209,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "snowflake",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -223,11 +223,13 @@
                 },
                 "host": {
                     "type": "string",
-                    "title": "Host"
+                    "title": "Host",
+                    "description": "Your account identifier. It typically follows this format: [account].[region].snowflakecomputing.com"
                 },
                 "port": {
                     "type": "integer",
                     "title": "Port",
+                    "description": "The default Snowflake port is 443",
                     "default": 443
                 },
                 "database": {
@@ -265,7 +267,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "oracle",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -313,7 +315,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "mssql",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
@@ -361,7 +363,7 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Save Connection As",
+                    "title": "Source Name",
                     "default": "redshift",
                     "pattern": "^\\w[\\w\\.]*$"
                 },

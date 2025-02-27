@@ -11,7 +11,7 @@ import { map } from '@lumino/algorithm';
 import type { CommandRegistry } from '@lumino/commands';
 import * as React from 'react';
 import { CommandIDs } from './commands';
-import { MagicLine } from './common';
+import { MagicLine } from './magicLineUtils';
 import { type ISqlSources } from './tokens';
 
 /**
@@ -23,7 +23,7 @@ const ADD_SOURCE_OPTION_VALUE = 'add-source';
 /**
  * SQL toolbar model.
  */
-export class SqlModel extends VDomModel {
+export class SqlCellModel extends VDomModel {
   private _database = '';
   private _variableName = '';
 
@@ -57,7 +57,7 @@ export class SqlModel extends VDomModel {
 /**
  * SQL toolbar constructor argument
  */
-export interface ISQLToolbarOptions {
+export interface ISQLCellToolbarOptions {
   /**
    * Command registry
    */
@@ -73,9 +73,9 @@ export interface ISQLToolbarOptions {
 }
 
 /**
- * SQL toolbar widget.
+ * SQL cell toolbar widget.
  */
-export class SQLToolbar extends VDomRenderer<SqlModel | null> {
+export class SQLCellToolbar extends VDomRenderer<SqlCellModel | null> {
   private _cellModel: ICellModel;
   private _commands: CommandRegistry;
   private _sqlSources: ISqlSources;
@@ -83,7 +83,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
   /**
    * Creates a cell header.
    */
-  constructor(options: ISQLToolbarOptions) {
+  constructor(options: ISQLCellToolbarOptions) {
     super();
     this._cellModel = options.model;
     this._commands = options.commands;
@@ -200,7 +200,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
   private _onStateChanged(): void {
     const magic =
       this._cellModel.type === 'code'
-        ? MagicLine.parse(this._cellModel as ICodeCellModel)
+        ? MagicLine.getSQLMagic(this._cellModel as ICodeCellModel)
         : null;
 
     if (magic) {
@@ -285,12 +285,12 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
   private _updateWidgetModel(): void {
     const magic =
       this._cellModel.type === 'code'
-        ? MagicLine.parse(this._cellModel as ICodeCellModel)
+        ? MagicLine.getSQLMagic(this._cellModel as ICodeCellModel)
         : null;
 
     if (magic?.isSQL) {
       if (!this.model) {
-        this.model = new SqlModel();
+        this.model = new SqlCellModel();
       }
       this.model.database = magic.options['--section'] ?? '';
       this.model.variableName = magic.output ?? '';

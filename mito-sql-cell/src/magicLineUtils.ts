@@ -87,7 +87,7 @@ export namespace MagicLine {
    * @param cellModel Code cell model to parse
    * @returns The SQL magic
    */
-  export function parse(cellModel: ICodeCellModel): ISQLMagic {
+  export function getSQLMagic(cellModel: ICodeCellModel): ISQLMagic {
     const isSQL = isSQLCell(cellModel);
     let output: string | undefined;
     const options: Record<string, string | undefined> = {};

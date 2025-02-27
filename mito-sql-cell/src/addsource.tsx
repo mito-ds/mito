@@ -66,7 +66,8 @@ function SqlSourceForm(props: {
           value={type}
           scale="small"
         >
-          {Object.keys(templates).map(key => (
+          {/* Only use database type with a schema */}
+          {Object.values(DRIVER_TO_TYPE).map(key => (
             <Option key={key} value={key}>
               {key}
             </Option>
