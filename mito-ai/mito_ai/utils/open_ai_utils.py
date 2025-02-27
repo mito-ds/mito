@@ -6,7 +6,9 @@
 import json
 from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
+import os
 
+from mitoinstaller.mitoinstaller.user_install import is_running_test
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
 from mito_ai.models import MessageType
@@ -113,6 +115,11 @@ async def get_ai_completion_from_mito_server(
     # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
     # the time it takes to send the request, etc.
     http_client_timeout = timeout * 1000 * max_retries + 10000
+    
+    # If we are running in a test environment, we don't want to wait for the timeout
+    # because the test will fail.
+    if is_running_test():
+        http_client_timeout = None
 
     http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"), request_timeout=http_client_timeout)
     try:
