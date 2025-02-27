@@ -5,7 +5,6 @@
     margin-top: auto;
     border-radius: 3px;
     border: 1px solid var(--grey-300);
-    overflow: hidden;
     background-color: var(--chat-user-message-background-color);
 }
 
