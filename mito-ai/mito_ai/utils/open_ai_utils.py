@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
 import os
 
-from mitoinstaller.mitoinstaller.user_install import is_running_test
+from mito_ai.utils.utils import is_running_test
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
 from mito_ai.models import MessageType
