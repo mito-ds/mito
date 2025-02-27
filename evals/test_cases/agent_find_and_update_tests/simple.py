@@ -62,17 +62,18 @@ warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_por
     AgentFindAndUpdateTestCase(
         name='warren_buffet_column_pivot_table_configuration_specific_intent',
         initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('WarrenBuffet-Short.ipynb'),
-        user_input="Don't include the median aggregation in the pivot table",
+        user_input="Don't include the median aggregation in the pivot table. Since we are only using one aggregation, use the format = mean, instead of = [mean]",
         cell_update=CellUpdate(
             id="be7d0a75-32a4-4812-a45d-a828aee90958",
             code="""from mitosheet.public.v3 import *; 
+import plotly.express as px
 
 # Pivoted warren_buffett_portfolio into warren_buffett_portfolio_pivot
 tmp_df = warren_buffett_portfolio[['Industry', 'Num_Employees']].copy()
 pivot_table = tmp_df.pivot_table(
     index=['Industry'],
     values=['Num_Employees'],
-    aggfunc={'Num_Employees': ['mean']}
+    aggfunc={'Num_Employees': 'mean'}
 )
 pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)
 warren_buffett_portfolio_pivot = pivot_table.reset_index()"""
@@ -86,17 +87,18 @@ warren_buffett_portfolio_pivot = pivot_table.reset_index()"""
     AgentFindAndUpdateTestCase(
         name='warren_buffet_column_pivot_table_configuration_less_specific_intent',
         initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('WarrenBuffet-Short.ipynb'),
-        user_input="Don't create any aggregated columns in the pivot table that are not used later.",
+        user_input="Don't create any aggregated columns in the pivot table that are not used later. If we are now only using one aggregation, use the format = mean, instead of = [mean]",
         cell_update=CellUpdate(
             id="be7d0a75-32a4-4812-a45d-a828aee90958",
             code="""from mitosheet.public.v3 import *; 
+import plotly.express as px
 
 # Pivoted warren_buffett_portfolio into warren_buffett_portfolio_pivot
 tmp_df = warren_buffett_portfolio[['Industry', 'Num_Employees']].copy()
 pivot_table = tmp_df.pivot_table(
     index=['Industry'],
     values=['Num_Employees'],
-    aggfunc={'Num_Employees': ['mean']}
+    aggfunc={'Num_Employees': 'mean'}
 )
 pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_table.keys()], axis=1)
 warren_buffett_portfolio_pivot = pivot_table.reset_index()"""
@@ -172,7 +174,7 @@ print("world")
     AgentFindAndUpdateTestCase(
         name='create_new_variable_in_last_cell_long_notebook',
         initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('n1b_python_and_variables.ipynb'),
-        user_input="Add a third string s3 equal to 'Third String'",
+        user_input="Create a new string s3 and set it equal to the value 'Third String'",
         cell_update=CellUpdate(
             id="f40f5996",
             code="""s1 = 'First String'
@@ -187,9 +189,9 @@ s3 = 'Third String'
     
     # Update dictionary in LONG notebook
     AgentFindAndUpdateTestCase(
-        name='create_new_variable_in_last_cell_long_notebook',
+        name='remove_dict_entry_long_notebook',
         initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('n1b_python_and_variables.ipynb'),
-        user_input="Remove the 'shell' entry from the dictionary `d`",
+        user_input="Update the code where I create the dictionary `d` so that it does not include the entry 'shell'",
         cell_update=CellUpdate(
             id="b9224693",
             code="""d = {"sand": "tiny grains", "wave": "ocean's rhythm"}
@@ -200,6 +202,21 @@ d
         type_tags = ['simple']
     ),
     
+    
+    # Update the suffix of a merge in a long notebook
+    AgentFindAndUpdateTestCase(
+        name='update_suffix_of_merge_long_notebook',
+        initial_notebook_state=get_cells_from_ipynb_in_notebook_folder('2a-pandas-fundamental-transformations.ipynb'),
+        user_input="Update the suffixes of the basic_recon from ` trading` and ` accounting` to `_TRADING_DATA` and `_ACCOUNTING_DATA`",
+        cell_update=CellUpdate(
+            id='c004e660-815e-4b82-9e50-528d75f195c9',
+            code="""
+basic_recon = pd.merge(trading_positions, accounting_positions, how='left', on='symbol', suffixes=('_TRADING_DATA', '_ACCOUNTING_DATA'))
+basic_recon"""
+        ),
+        workflow_tags=['agent'],
+        type_tags = ['simple']
+    )
     
     
 ]

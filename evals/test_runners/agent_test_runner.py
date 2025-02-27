@@ -82,14 +82,23 @@ def run_code_gen_test(
     actual_code = get_script_with_cell_update_applied(ai_generated_cell_update, test.initial_notebook_state)
 
     # Execute the code and check if they produce the same results
-    try:
+    try: 
         expected_globals, expected_output = exec_code_and_get_globals_and_output(expected_code)
+    except Exception as e:
+        print(f"Failed to execute EXPECTED code with error: {e}")
+        return TestCaseResult(test=test, passed=False)
+
+    try:
         actual_globals, actual_output = exec_code_and_get_globals_and_output(actual_code)
     except Exception as e:
         # Fail early if we can't execute the code
-        print(f"Failed to execute code with error: {e}")
-        print(f"AI Generated Cell Update: {ai_generated_cell_update}")
-        print(f"Expected Cell Update: {test.cell_update}")
+        print(f"Failed to execute AI GENERATED code with error: {e}")
+        print(f"AI Generated Cell Update")
+        print(f"    Cell ID: {ai_generated_cell_update.id}")
+        pprint.pprint(f"    Code: {ai_generated_cell_update.code}")
+        print(f"Expected Cell Update")
+        print(f"    Cell ID: {test.cell_update.id}")
+        pprint.pprint(f"    Code: {test.cell_update.code}")
         return TestCaseResult(test=test, passed=False)
 
     equal_globals = assert_equal_globals(expected_globals, actual_globals)
