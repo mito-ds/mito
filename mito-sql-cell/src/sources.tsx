@@ -3,7 +3,6 @@ import { ObservableList, type IObservableList } from '@jupyterlab/observables';
 import {
   CommandToolbarButtonComponent,
   ReactWidget,
-  SidePanel,
   addIcon,
   closeIcon,
   deleteIcon,
@@ -13,7 +12,6 @@ import { map } from '@lumino/algorithm';
 import type { CommandRegistry } from '@lumino/commands';
 import { JSONExt } from '@lumino/coreutils';
 import { Signal, type ISignal } from '@lumino/signaling';
-import { Panel } from '@lumino/widgets';
 import * as React from 'react';
 import { DRIVER_TO_TYPE } from './addsource';
 import { CommandIDs } from './commands';

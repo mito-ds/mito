@@ -6,13 +6,13 @@ import {
   type Notebook
 } from '@jupyterlab/notebook';
 import type { IObservableList } from '@jupyterlab/observables';
+import type { CommandRegistry } from '@lumino/commands';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal } from '@lumino/signaling';
 import type { PanelLayout } from '@lumino/widgets';
-import { SQLToolbar } from './sqltoolbar';
+import { magicConfiguration } from './magicLineUtils';
+import { SQLCellToolbar } from './sqlcelltoolbar';
 import type { ISqlSources } from './tokens';
-import { magicConfiguration } from './common';
-import type { CommandRegistry } from '@lumino/commands';
 
 /**
  * Cell tag for the mito SQL configuration cell.
@@ -22,10 +22,10 @@ const MITO_SQL_CELL_CONFIGURATION_TAG = 'mito-sql-cell-configuration';
 /**
  * Factory to handle SQL toolbar creation and disposal on a notebook panel.
  */
-class SQLToolbarFactory implements IDisposable {
+class SQLCellToolbarFactory implements IDisposable {
   private _configurationChecked = false;
   private _isDisposed = false;
-  private _toolbars = new WeakMap<ICellModel, SQLToolbar>();
+  private _toolbars = new WeakMap<ICellModel, SQLCellToolbar>();
 
   /**
    * SQL toolbar factory.
@@ -65,7 +65,7 @@ class SQLToolbarFactory implements IDisposable {
   private _addToolbar(model: ICellModel): void {
     const cell = this._getCell(model);
     if (cell) {
-      const toolbar = new SQLToolbar({
+      const toolbar = new SQLCellToolbar({
         commands: this.commands,
         model,
         sqlSources: this.sqlSources
@@ -181,12 +181,12 @@ export class SQLExtension implements DocumentRegistry.WidgetExtension {
     protected commands: CommandRegistry
   ) {}
 
-  createNew(panel: NotebookPanel): IDisposable {
-    const toolbar = new SQLToolbarFactory(
+  createNew(panel: NotebookPanel): SQLCellToolbarFactory {
+    const toolbarFactory = new SQLCellToolbarFactory(
       panel,
       this.sqlSources,
       this.commands
     );
-    return toolbar;
+    return toolbarFactory;
   }
 }

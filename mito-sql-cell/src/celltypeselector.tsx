@@ -17,7 +17,7 @@ import {
 } from '@jupyterlab/translation';
 import { HTMLSelect } from '@jupyterlab/ui-components';
 import * as React from 'react';
-import { MagicLine } from './common';
+import { MagicLine } from './magicLineUtils';
 
 /**
  * The class name added to toolbar cell type dropdown wrapper.
