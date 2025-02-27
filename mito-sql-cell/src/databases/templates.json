@@ -9,8 +9,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "duckdb"
+                    "title": "Save Connection As",
+                    "default": "duckdb",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "database": {
                     "type": "string",
@@ -36,8 +37,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "sqlite"
+                    "title": "Save Connection As",
+                    "default": "sqlite",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "database": {
                     "type": "string",
@@ -63,8 +65,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "postgresql"
+                    "title": "Save Connection As",
+                    "default": "postgresql",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "username": {
                     "type": "string",
@@ -110,8 +113,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "mysql"
+                    "title": "Save Connection As",
+                    "default": "mysql",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "username": {
                     "type": "string",
@@ -157,8 +161,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "mariadb"
+                    "title": "Save Connection As",
+                    "default": "mariadb",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "username": {
                     "type": "string",
@@ -204,8 +209,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "snowflake"
+                    "title": "Save Connection As",
+                    "default": "snowflake",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "username": {
                     "type": "string",
@@ -227,6 +233,14 @@
                 "database": {
                     "type": "string",
                     "title": "Database"
+                },
+                "warehouse": {
+                    "type": "string",
+                    "title": "Warehouse"
+                },
+                "role": {
+                    "type": "string",
+                    "title": "Role"
                 }
             },
             "required": [
@@ -235,8 +249,8 @@
                 "password",
                 "host",
                 "port",
-                "database",
-                "driver"
+                "driver",
+                "warehouse"
             ],
             "additionalProperties": false
         }
@@ -251,8 +265,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "oracle"
+                    "title": "Save Connection As",
+                    "default": "oracle",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "username": {
                     "type": "string",
@@ -298,8 +313,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "mssql"
+                    "title": "Save Connection As",
+                    "default": "mssql",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "username": {
                     "type": "string",
@@ -345,8 +361,9 @@
                 },
                 "connectionName": {
                     "type": "string",
-                    "title": "Connection alias",
-                    "default": "redshift"
+                    "title": "Save Connection As",
+                    "default": "redshift",
+                    "pattern": "^\\w[\\w\\.]*$"
                 },
                 "username": {
                     "type": "string",

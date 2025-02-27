@@ -8,10 +8,11 @@ import {
   editIcon
 } from '@jupyterlab/ui-components';
 import { map } from '@lumino/algorithm';
-import * as React from 'react';
-import { MagicLine } from './common';
-import { CommandIDs, type ISqlSources } from './tokens';
 import type { CommandRegistry } from '@lumino/commands';
+import * as React from 'react';
+import { CommandIDs } from './commands';
+import { MagicLine } from './common';
+import { type ISqlSources } from './tokens';
 
 /**
  * The class of the toolbar.
@@ -87,10 +88,9 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
     this._cellModel = options.model;
     this._commands = options.commands;
     this._sqlSources = options.sqlSources;
-    this.addClass(TOOLBAR_CLASS);
 
     this.modelChanged.connect(this._onModelChanged, this);
-    this._parseSource();
+    this._updateWidgetModel();
 
     this._cellModel.sharedModel.changed.connect(
       this._onSharedModelChanged,
@@ -112,7 +112,8 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   protected render(): JSX.Element | null {
     return this.model ? (
-      <Toolbar aria-label="Cell SQL toolbar">
+      <Toolbar className={TOOLBAR_CLASS} aria-label="Cell SQL toolbar">
+        <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Querying</span>
         <Select
           title="SQL source"
           onChange={this._onDatabaseChange}
@@ -126,7 +127,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
             onClick={this._addDatabase}
           >
             <addIcon.react tag={null} slot="start" />
-            Connect to a database…
+            Create new database connection
           </Option>
           {map(this._sqlSources, s => (
             <Option key={s.connectionName} value={s.connectionName}>
@@ -134,7 +135,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
             </Option>
           ))}
         </Select>
-        <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>saved to</span>
+        <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>and saving the results to variable</span>
         <TextField
           aria-label="Variable name"
           title="Variable name"
@@ -161,6 +162,8 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   /**
    * Callback on the react select component.
+   * 
+   * It updates the model database with the newly selected value.
    */
   private _onDatabaseChange = (event: any) => {
     if (this.model && event.target.value !== ADD_SOURCE_OPTION_VALUE) {
@@ -170,6 +173,8 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   /**
    * Callback on the react textfield component.
+   * 
+   * It updates the model variable name with the newly typed name.
    */
   private _onVariableChange = (event: any) => {
     if (this.model) {
@@ -179,6 +184,8 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   /**
    * Callback on widget model change to connect it to the magic.
+   * 
+   * If the data model changes we need to listen for changes of the new one.
    */
   private _onModelChanged(): void {
     this.model?.stateChanged.connect(this._onStateChanged, this);
@@ -186,6 +193,9 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   /**
    * Callback on widget model state change to update the magic.
+   * 
+   * This is triggered when the data model for the toolbar changes.
+   * It updates the magic line in the cell to reflect the new state.
    */
   private _onStateChanged(): void {
     const magic =
@@ -225,6 +235,8 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   /**
    * Callback on shared model change.
+   * 
+   * When the cell content changes, we need to parse it again as it may add/remove the magic line.
    */
   private _onSharedModelChanged = (_: any, change: CellChange) => {
     if (this._cellModel.type !== 'code') {
@@ -240,7 +252,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
       const firstLineLength = this._cellModel.sharedModel.source.indexOf('\n');
 
       if (firstLineLength === -1) {
-        this._parseSource();
+        this._updateWidgetModel();
       } else {
         // If an object with the key 'retain' exists, it will give the position of the
         // change. Otherwise we assume the change occurs at position 0;
@@ -250,7 +262,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
         // Check if the change occurs on the first line to update header and widgets.
         if (position <= firstLineLength) {
-          this._parseSource();
+          this._updateWidgetModel();
         }
       }
     }
@@ -258,6 +270,8 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
 
   /**
    * Callback on SQL sources change.
+   * 
+   * It forces the component to re-render.
    */
   private _onSQLSourcesChanged(): void {
     if (this._cellModel.type === 'code') {
@@ -268,7 +282,7 @@ export class SQLToolbar extends VDomRenderer<SqlModel | null> {
   /**
    * Parse the cell source to update the widget model.
    */
-  private _parseSource(): void {
+  private _updateWidgetModel(): void {
     const magic =
       this._cellModel.type === 'code'
         ? MagicLine.parse(this._cellModel as ICodeCellModel)
