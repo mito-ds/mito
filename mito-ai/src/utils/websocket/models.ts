@@ -11,9 +11,14 @@ Notebook representation sent to the AI
 
 */
 export type AIOptimizedCell = {
-  'cell_type': string,
-  'id': string,
-  'code': string
+  cell_type: string,
+  id: string,
+  code: string
+}
+
+export type CellUpdate = {
+  id: string,
+  code: string
 }
 
 /* 

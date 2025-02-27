@@ -5,7 +5,7 @@ from mito_ai.models import AgentExecutionMetadata
 def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
     files_str = '\n'.join([f"{file}" for file in md.files or []])
-    ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.ai_optimized_cells or []])
+    ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
     
     return f"""You're an expert python data scientist working in Jupyter Lab. Your job is to help your colleagues update their code in Jupyter. 
 
@@ -70,11 +70,7 @@ Convert the transaction_date column to datetime and then multiply the total_pric
 Output:
 {{
     id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
-    code: \"\"\"import pandas as pd
-sales_df = pd.read_csv('./sales.csv')
-loan_multiplier = 1.5
-sales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])
-sales_df['total_price'] = sales_df['total_price'] * sales_multiplier\"\"\"
+    code: "import pandas as pd\nsales_df = pd.read_csv('./sales.csv')\nloan_multiplier = 1.5\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier"
 }}
 
 </Example>

@@ -2,7 +2,8 @@ import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
-import { IAgentExecutionMetadata, IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { CellUpdate, IAgentExecutionMetadata, IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { addMarkdownCodeFormatting } from "../../utils/strings";
 
 export type PromptType = 
     'chat' | 
@@ -22,14 +23,13 @@ export type ChatMessageType = 'openai message' | 'openai message:agent:planning'
 // displayOptimizedChatHistory, we also include connection error messages so that we can 
 // display them in the chat interface. For example, if the user does not have an API key set, 
 // we add a message to the chat ui that tells them to set an API key.
-export interface IDisplayOptimizedChatHistory {
+export interface IDisplayOptimizedChatItem {
     message: OpenAI.Chat.ChatCompletionMessageParam
     type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID: string | undefined
 }
-
 
 /* 
     The ChatHistoryManager is responsible for managing the AI chat history.
@@ -43,11 +43,11 @@ export interface IDisplayOptimizedChatHistory {
     Whenever, the chatHistoryManager is updated, it should automatically send a message to the AI. 
 */
 export class ChatHistoryManager {
-    private displayOptimizedChatHistory: IDisplayOptimizedChatHistory[];
+    private displayOptimizedChatHistory: IDisplayOptimizedChatItem[];
     private contextManager: IContextManager;
     private notebookTracker: INotebookTracker;
 
-    constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatHistory[]) {
+    constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatItem[]) {
         // Initialize the history
         this.displayOptimizedChatHistory = initialHistory || [];
 
@@ -62,7 +62,7 @@ export class ChatHistoryManager {
         return new ChatHistoryManager(this.contextManager, this.notebookTracker, this.displayOptimizedChatHistory);
     }
 
-    getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
+    getDisplayOptimizedHistory(): IDisplayOptimizedChatItem[] {
         return this.displayOptimizedChatHistory;
     }
 
@@ -252,7 +252,7 @@ export class ChatHistoryManager {
             content: messageContent
         }
 
-        let type: IDisplayOptimizedChatHistory['type'];
+        let type: IDisplayOptimizedChatItem['type'];
         if (mitoAIConnectionError) {
             type = 'connection error';
         } else if (promptType === 'agent:planning') {
@@ -270,6 +270,27 @@ export class ChatHistoryManager {
                 mitoAIConnectionErrorType: mitoAIConnectionErrorType,
                 codeCellID: activeCellID,
                 promptType: promptType
+            }
+        );
+    }
+
+    addAIMessageFromCellUpdate(
+        cellUpdate: CellUpdate
+    ): void {
+
+        const codeWithMarkdownFormatting = addMarkdownCodeFormatting(cellUpdate.code)
+
+        const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+            role: 'assistant',
+            content: codeWithMarkdownFormatting
+        }
+
+        this.displayOptimizedChatHistory.push(
+            {
+                message: aiMessage, 
+                type: 'openai message',
+                codeCellID: cellUpdate.id,
+                promptType: 'agent:execution'
             }
         );
     }
@@ -299,7 +320,7 @@ export class ChatHistoryManager {
         return aiMessageIndexes[aiMessageIndexes.length - 1]
     }
 
-    getLastAIMessage = (): IDisplayOptimizedChatHistory | undefined=> {
+    getLastAIDisplayOptimizedChatItem = (): IDisplayOptimizedChatItem | undefined=> {
         const lastAIMessagesIndex = this.getLastAIMessageIndex()
         if (!lastAIMessagesIndex) {
             return

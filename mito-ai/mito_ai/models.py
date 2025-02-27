@@ -45,7 +45,7 @@ class ChatMessageMetadata():
 class AgentExecutionMetadata():
     promptType: Literal['agent:execution']
     input: str
-    ai_optimized_cells: List[AIOptimizedCells]
+    aiOptimizedCells: List[AIOptimizedCells]
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     
