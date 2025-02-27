@@ -18,11 +18,12 @@ import { find } from '@lumino/algorithm';
 import { Widget } from '@lumino/widgets';
 import { AddSource } from './addsource';
 import { cellTypeSwitcher } from './celltypeselector';
+import { CommandIDs } from './commands';
 import { hideSqlMagic } from './hidemagic';
 import { databaseIcon } from './icon';
 import { SqlSourcesModel, SqlSourcesPanel } from './sources';
 import { SQLExtension } from './sqlextension';
-import { CommandIDs, type ISqlSource } from './tokens';
+import { type ISqlSource } from './tokens';
 
 /**
  * Plugin using a custom cell widget for SQL cells.
@@ -87,32 +88,6 @@ const sqlCell: JupyterFrontEndPlugin<void> = {
     sourcesPanel.id = 'mito-sql-sources';
     sourcesPanel.title.icon = databaseIcon;
     sourcesPanel.title.caption = 'SQL Sources';
-
-    //- Add side panel toolbar items
-    const node = document.createElement('h2');
-    node.textContent = 'SQL Sources';
-    sourcesPanel.toolbar.addItem('header', new Widget({ node }));
-    sourcesPanel.toolbar.addItem('spacer', Toolbar.createSpacerItem());
-    sourcesPanel.toolbar.addItem(
-      'add',
-      new CommandToolbarButton({
-        commands: app.commands,
-        id: CommandIDs.addSource,
-        icon: addIcon,
-        label: '',
-        caption: 'Add a new SQL source'
-      })
-    );
-    sourcesPanel.toolbar.addItem(
-      'refresh',
-      new CommandToolbarButton({
-        commands: app.commands,
-        id: CommandIDs.refreshSources,
-        icon: refreshIcon,
-        label: '',
-        caption: 'Refresh the SQL sources'
-      })
-    );
 
     //- Add the sources panel to the left sidebar
     app.shell.add(sourcesPanel, 'left', { rank: 1000 });

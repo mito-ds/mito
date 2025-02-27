@@ -1,21 +1,24 @@
-import { Button, Skeleton } from '@jupyter/react-components';
+import { Button, Skeleton, Toolbar } from '@jupyter/react-components';
 import { ObservableList, type IObservableList } from '@jupyterlab/observables';
 import {
+  CommandToolbarButtonComponent,
   ReactWidget,
   SidePanel,
   addIcon,
+  closeIcon,
   deleteIcon,
-  closeIcon
+  refreshIcon
 } from '@jupyterlab/ui-components';
 import { map } from '@lumino/algorithm';
 import type { CommandRegistry } from '@lumino/commands';
 import { JSONExt } from '@lumino/coreutils';
+import { Signal, type ISignal } from '@lumino/signaling';
 import { Panel } from '@lumino/widgets';
 import * as React from 'react';
-import { requestAPI } from './handler';
-import { Signal, type ISignal } from '@lumino/signaling';
 import { DRIVER_TO_TYPE } from './addsource';
-import { CommandIDs, type ISqlSource, type ISqlSources } from './tokens';
+import { CommandIDs } from './commands';
+import { requestAPI } from './handler';
+import { type ISqlSource, type ISqlSources } from './tokens';
 
 /**
  * SQL sources model.
@@ -223,9 +226,13 @@ function SqlSourcesPlaceholder({
       <p>
         This panel shows the SQL databases you can connect to within notebooks.
       </p>
-      <Button className='mito-sql-add-source-btn' appearance="accent" onClick={onClick}>
-        <addIcon.react tag={null} slot="start"/>
-        Add a SQL source…
+      <Button
+        className="mito-sql-add-source-btn"
+        appearance="accent"
+        onClick={onClick}
+      >
+        <addIcon.react tag={null} slot="start" />
+        Add a SQL source
       </Button>
     </div>
   );
@@ -300,7 +307,7 @@ function SqlSources(props: ISqlSourceListProps): JSX.Element {
             className="mito-sql-btn-source-delete"
             appearance="stealth"
             onClick={() => {
-              commands.execute('mito-sql-cell:delete-source', {
+              commands.execute(CommandIDs.deleteSource, {
                 name: source.connectionName
               });
             }}
@@ -369,15 +376,51 @@ function SqlSourceList(props: ISqlSourceListProps): JSX.Element {
   );
 }
 
+function SqlSourceHeader({
+  commands
+}: {
+  commands: CommandRegistry;
+}): JSX.Element {
+  return (
+    <Toolbar className="mito-sql-sources-header">
+      <h2>SQL Sources</h2>
+      <span style={{ flex: '1 1 auto' }}></span>
+      <CommandToolbarButtonComponent
+        commands={commands}
+        id={CommandIDs.addSource}
+        icon={addIcon}
+        label={''}
+        caption={'Add a new SQL source'}
+      />
+      <CommandToolbarButtonComponent
+        commands={commands}
+        id={CommandIDs.refreshSources}
+        icon={refreshIcon}
+        label={''}
+        caption={'Refresh the SQL sources'}
+      />
+    </Toolbar>
+  );
+}
+
 /**
  * SQL sources side panel.
  */
-export class SqlSourcesPanel extends SidePanel {
-  constructor({ model, commands }: ISqlSourceListProps) {
-    super({ content: new Panel() });
+export class SqlSourcesPanel extends ReactWidget {
+  constructor(protected props: ISqlSourceListProps) {
+    super();
     this.addClass('mito-sql-sources-panel');
-    this.content.addWidget(
-      ReactWidget.create(<SqlSourceList commands={commands} model={model} />)
+  }
+
+  render(): JSX.Element {
+    return (
+      <>
+        <SqlSourceHeader commands={this.props.commands} />
+        <SqlSourceList
+          commands={this.props.commands}
+          model={this.props.model}
+        />
+      </>
     );
   }
 }

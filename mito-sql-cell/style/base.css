@@ -7,20 +7,20 @@
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sqlcell-toolbar .jp-Toolbar {
+.mito-sqlcell-toolbar.jp-Toolbar {
   --toolbar-item-gap: 4px;
   border-bottom: none;
   align-items: center;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sqlcell-toolbar .jp-Toolbar .mito-sqlcell-variable {
+.mito-sqlcell-toolbar.jp-Toolbar .mito-sqlcell-variable {
   display: flex;
   align-items: center;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sqlcell-toolbar .jp-Toolbar input {
+.mito-sqlcell-toolbar.jp-Toolbar input {
   height: 63%;
 }
 
@@ -33,12 +33,13 @@
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sql-sources-panel .jp-SidePanel-toolbar {
+.mito-sql-sources-header {
   padding: 0 4px;
+  display: flex;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
-.mito-sql-sources-panel .jp-SidePanel-toolbar h2 {
+.mito-sql-sources-header h2 {
   font-size: 100%;
   font-weight: 600;
   text-transform: uppercase;
