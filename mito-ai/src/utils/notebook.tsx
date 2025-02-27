@@ -9,6 +9,15 @@ export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefin
     return activeCell || undefined
 }
 
+export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): Cell | undefined => {
+    if (cellID === undefined) {
+        return undefined
+    }
+
+    const notebook = notebookTracker.currentWidget?.content;
+    return notebook?.widgets.find(cell => cell.model.id === cellID);
+}
+
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
     return getActiveCell(notebookTracker)?.model.id
 }
@@ -19,12 +28,7 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
 }
 
 export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {
-    if (codeCellID === undefined) {
-        return undefined
-    }
-
-    const notebook = notebookTracker.currentWidget?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const cell = getCellByID(notebookTracker, codeCellID)
     return cell?.model.sharedModel.source
 }
 
