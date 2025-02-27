@@ -4,6 +4,13 @@ from typing import List, Literal, Optional
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 
+@dataclass(frozen=True)
+class AIOptimizedCells():
+  cell_type: str
+  id: str
+  code: str
+
+
 class MessageType(Enum):
     """
     This is all of the different types of messages that we support through the on_message handler.
@@ -21,12 +28,20 @@ class MessageType(Enum):
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
-    promptType: Literal['chat', 'agent:execution']
+    promptType: Literal['chat']
     input: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    index: Optional[int] = None    
+    index: Optional[int] = None   
+    
+@dataclass(frozen=True)
+class AgentExecutionMetadata():
+    promptType: Literal['agent:execution']
+    input: str
+    ai_optimized_cells: List[AIOptimizedCells]
+    variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
