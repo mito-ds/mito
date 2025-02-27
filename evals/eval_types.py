@@ -20,7 +20,7 @@ class AgentFindAndUpdateTestCase:
     user_input: str
     cell_update: CellUpdate
     workflow_tags: List[str]
-    type_tags: List[str]
+    type_tags: List[Literal['short', 'medium', 'long']]
     
 
 WORKFLOW_TAGS = Literal[

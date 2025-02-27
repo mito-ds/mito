@@ -9,6 +9,9 @@ RELATIVE_PATH_TO_NOTEBOOK_FOLDER = 'notebooks'
 dirname = os.path.dirname(__file__)
 
 def get_cells_from_ipynb_in_notebook_folder(path_relative_to_notebook_folder) -> List[Cell]:
+    """
+    Turn a .ipynb file located in evals/test_cases/agent_find_and_update_tests/notebooks into a list of Cells
+    """
     
     path = os.path.join(dirname, RELATIVE_PATH_TO_NOTEBOOK_FOLDER, path_relative_to_notebook_folder)
     

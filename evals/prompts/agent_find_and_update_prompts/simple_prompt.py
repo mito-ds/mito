@@ -2,10 +2,10 @@ from typing import List
 from evals.eval_types import AgentFindAndUpdatePromptGenerator
 from evals.test_cases.agent_find_and_update_tests.simple import Cell
 
-__all__ = ['prod_prompt_v1']
+__all__ = ['simple_prompt_v1']
 
-class _ProdPromptV1(AgentFindAndUpdatePromptGenerator):
-    prompt_name = "prod_prompt_v1"
+class _SimplePromptV1(AgentFindAndUpdatePromptGenerator):
+    prompt_name = "simple_prompt_v1"
 
     def get_prompt(self,  user_input: str, initial_notebook_state: List[Cell]) -> str:
         return f"""You're an expert python data scientist working in Jupyter Lab. Your job is to help your colleagues update their code in Jupyter. 
@@ -57,4 +57,4 @@ Initial Notebook State:
 Colleague's request:
 {user_input}"""
 
-prod_prompt_v1 = _ProdPromptV1()
+simple_prompt_v1 = _SimplePromptV1()

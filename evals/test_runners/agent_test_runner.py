@@ -31,11 +31,11 @@ def _run_code_gen_tests(
             print(f"No test found with name: {test_name}")
             exit(1)
 
-    # if tags:
-    #     tests_to_run = [test for test in tests_to_run if any(tag in tags for tag in test.test_case_core.workflow_tags)]
-    #     if not tests_to_run:
-    #         print(f"No tests found with tags: {tags}")
-    #         exit(1)
+    if tags:
+        tests_to_run = [test for test in tests_to_run if any(tag in tags for tag in test.type_tags)]
+        if not tests_to_run:
+            print(f"No tests found with tags: {tags}")
+            exit(1)
 
     print(f"Collected {len(tests_to_run)} tests")
 

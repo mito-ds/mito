@@ -26,7 +26,7 @@ y=30
 z = x + y"""
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['short']
     ),
     
     
@@ -53,7 +53,7 @@ warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_por
 """
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['short']
     ),
     
     # Update pivot table in a notebook with 5 code cells
@@ -79,7 +79,7 @@ pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_
 warren_buffett_portfolio_pivot = pivot_table.reset_index()"""
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['short']
     ),
     
     # Update pivot table in a notebook with 5 code cells
@@ -104,7 +104,7 @@ pivot_table = pivot_table.set_axis([flatten_column_header(col) for col in pivot_
 warren_buffett_portfolio_pivot = pivot_table.reset_index()"""
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['short']
     ),
     
     
@@ -128,7 +128,7 @@ warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_por
 """
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['medium']
     ),
     
     # Update a filter in the LONG size analysis
@@ -151,7 +151,7 @@ warren_buffett_portfolio_copy = warren_buffett_portfolio_copy[warren_buffett_por
 """
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['long']
     ),
     
     
@@ -167,7 +167,7 @@ print("world")
 """
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['long']
     ),
     
     # Create new variable in LONG notebook
@@ -184,7 +184,7 @@ s3 = 'Third String'
 """
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['long']
     ),
     
     # Update dictionary in LONG notebook
@@ -199,7 +199,7 @@ d
 """
         ),
         workflow_tags = ['agent'],
-        type_tags = ['simple']
+        type_tags = ['long']
     ),
     
     
@@ -215,7 +215,7 @@ basic_recon = pd.merge(trading_positions, accounting_positions, how='left', on='
 basic_recon"""
         ),
         workflow_tags=['agent'],
-        type_tags = ['simple']
+        type_tags = ['long']
     )
     
     
