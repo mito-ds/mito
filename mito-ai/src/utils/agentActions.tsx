@@ -11,7 +11,7 @@ export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
     previewAICode: () => void,
     acceptAICode: () => void,
-) => {
+):Promise<void> => {
     previewAICode()
     acceptAICode()
     await app.commands.execute("notebook:run-cell");

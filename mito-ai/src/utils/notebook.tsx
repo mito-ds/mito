@@ -32,6 +32,35 @@ export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: s
     return cell?.model.sharedModel.source
 }
 
+export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
+    const cellList = notebookTracker.currentWidget?.model?.cells
+
+    if (cellList === undefined) {
+        return undefined 
+    }
+
+    // In order to get the cell index, we need to iterate over the cells and call the `get` method
+    // to see the cells in order. Otherwise, the cells are returned in a random order.
+    for (let i = 0; i < cellList.length; i++) {
+        const cellModel = cellList.get(i)
+
+        if (cellModel.id == cellID) {
+            return i
+        }
+    }
+
+    return undefined 
+}
+
+export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined) => {
+    const cellIndex = getCellIndexByID(notebookTracker, cellID)
+    const notebookPanel = notebookTracker.currentWidget
+    if (notebookPanel !== undefined && notebookPanel !== null && cellIndex !== undefined) {
+        notebookPanel.content.activeCellIndex = cellIndex
+    }
+}
+
+
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
     code: string | undefined, 

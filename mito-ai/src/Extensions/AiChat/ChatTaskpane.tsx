@@ -34,7 +34,7 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getCellByID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCellID, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
@@ -655,6 +655,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Focus on the active cell after the code is written
         const targetCell = getCellByID(notebookTracker, targetCellID)
         if (targetCell) {
+            // Make the target cell the active cell
+            setActiveCellByID(notebookTracker, targetCellID)
+            // Focus on the active cell
             targetCell.activate();
         }
     }
