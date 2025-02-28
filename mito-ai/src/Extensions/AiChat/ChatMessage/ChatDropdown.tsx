@@ -4,7 +4,7 @@ import { ExpandedVariable } from './ChatInput';
 
 interface ChatDropdownProps {
     options: ExpandedVariable[];
-    onSelect: (variableName: string, parentDf?: string) => void;
+    onSelect: (variableName: string, parentDf: string | undefined) => void;
     filterText: string;
     maxDropdownItems?: number;
     position?: 'above' | 'below';
@@ -48,8 +48,9 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             case 'Return':
             case 'Tab':
                 event.preventDefault();
-                if (filteredOptions[selectedIndex]) {
-                    onSelect(filteredOptions[selectedIndex].variable_name, filteredOptions[selectedIndex].parent_df);
+                const selectedOption = filteredOptions[selectedIndex];
+                if (selectedOption !== undefined) {
+                    onSelect(selectedOption.variable_name, selectedOption.parent_df);
                 }
                 break;
         }

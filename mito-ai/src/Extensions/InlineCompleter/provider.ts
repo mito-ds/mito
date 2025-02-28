@@ -398,7 +398,7 @@ export class MitoAIInlineCompleter
     // Remove duplicate prefix content
     if (prefix) {
       const lastPrefixLine = prefix.split('\n').slice(-1)[0];
-      if (cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
+      if (lastPrefixLine && cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
         cleanedCompletion = cleanedCompletion.slice(lastPrefixLine.length);
       }
     }
@@ -406,7 +406,7 @@ export class MitoAIInlineCompleter
     // Remove duplicate suffix content
     if (suffix) {
       const firstSuffixLine = suffix.split('\n')[0];
-      if (cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
+      if (firstSuffixLine && cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
         cleanedCompletion = cleanedCompletion.slice(0, -firstSuffixLine.length);
       }
     }

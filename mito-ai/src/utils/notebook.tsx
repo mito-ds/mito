@@ -40,7 +40,7 @@ export const writeCodeToCellByID = (
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
     
-    if (cell) {
+    if (cell && codeMirrorValidCode) {
         cell.model.sharedModel.source = codeMirrorValidCode;
     }
 }

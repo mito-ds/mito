@@ -393,7 +393,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     aiResponse.error.title
                 );
             } else {
-                const content = aiResponse.items[0].content || '';
+                const content = aiResponse.items[0]?.content ?? '';
 
                 if (completionRequest.metadata.promptType === 'agent:planning') {
                     // If the user is in agent mode, the ai response is a JSON object

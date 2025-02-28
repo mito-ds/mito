@@ -96,7 +96,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const words = textBeforeCursor.split(/\s+/);
         const currentWord = words[words.length - 1];
 
-        if (currentWord.startsWith("@")) {
+        if (currentWord && currentWord.startsWith("@")) {
             const query = currentWord.slice(1);
             setDropdownFilter(query);
             setDropdownVisible(true);

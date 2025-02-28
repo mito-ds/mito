@@ -81,6 +81,10 @@ export const createUnifiedDiff = (
         if (changeIndex < lineChanges.length) {
             const change = lineChanges[changeIndex];
 
+            if (change === undefined) {
+                break;
+            }
+
             // Process unchanged lines before the next change
             while (
                 (originalLineNum < change.originalStartLineNumber ||
@@ -89,7 +93,7 @@ export const createUnifiedDiff = (
                 modifiedLineNum <= modifiedLines.length
             ) {
                 result.push({
-                    content: originalLines[originalLineNum - 1],
+                    content: originalLines[originalLineNum - 1] ?? '',
                     type: 'unchanged',
                     originalLineNumber: originalLineNum,
                     modifiedLineNumber: modifiedLineNum,
@@ -107,7 +111,7 @@ export const createUnifiedDiff = (
                 // First add removed lines
                 for (;originalLineNum <= change.originalEndLineNumber; originalLineNum++) {
                     result.push({
-                        content: originalLines[originalLineNum - 1],
+                        content: originalLines[originalLineNum - 1] ?? '',
                         type: 'removed',
                         originalLineNumber: originalLineNum,
                         modifiedLineNumber: null,
@@ -116,7 +120,7 @@ export const createUnifiedDiff = (
                 // Then add inserted lines
                 for (;modifiedLineNum <= change.modifiedEndLineNumber; modifiedLineNum++) {
                     result.push({
-                        content: modifiedLines[modifiedLineNum - 1],
+                        content: modifiedLines[modifiedLineNum - 1] ?? '',
                         type: 'inserted',
                         originalLineNumber: null,
                         modifiedLineNumber: modifiedLineNum,
@@ -126,7 +130,7 @@ export const createUnifiedDiff = (
                 // Inserted Lines
                 for (;modifiedLineNum <= change.modifiedEndLineNumber;modifiedLineNum++) {
                     result.push({
-                        content: modifiedLines[modifiedLineNum - 1],
+                        content: modifiedLines[modifiedLineNum - 1] ?? '',
                         type: 'inserted',
                         originalLineNumber: null,
                         modifiedLineNumber: modifiedLineNum,
@@ -136,7 +140,7 @@ export const createUnifiedDiff = (
                 // Removed lines
                 for (;originalLineNum <= change.originalEndLineNumber; originalLineNum++) {
                     result.push({
-                        content: originalLines[originalLineNum - 1],
+                        content: originalLines[originalLineNum - 1] ?? '',
                         type: 'removed',
                         originalLineNumber: originalLineNum,
                         modifiedLineNumber: null,
@@ -151,7 +155,7 @@ export const createUnifiedDiff = (
                 modifiedLineNum <= modifiedLines.length
             ) {
                 result.push({
-                    content: originalLines[originalLineNum - 1],
+                    content: originalLines[originalLineNum - 1] ?? '',
                     type: 'unchanged',
                     originalLineNumber: originalLineNum,
                     modifiedLineNumber: modifiedLineNum,
@@ -161,7 +165,7 @@ export const createUnifiedDiff = (
             } else if (originalLineNum <= originalLines.length) {
                 // Remaining lines were removed
                 result.push({
-                    content: originalLines[originalLineNum - 1],
+                    content: originalLines[originalLineNum - 1] ?? '',
                     type: 'removed',
                     originalLineNumber: originalLineNum,
                     modifiedLineNumber: null,
@@ -170,7 +174,7 @@ export const createUnifiedDiff = (
             } else if (modifiedLineNum <= modifiedLines.length) {
                 // Remaining lines were added
                 result.push({
-                    content: modifiedLines[modifiedLineNum - 1],
+                    content: modifiedLines[modifiedLineNum - 1] ?? '',
                     type: 'inserted',
                     originalLineNumber: null,
                     modifiedLineNumber: modifiedLineNum,

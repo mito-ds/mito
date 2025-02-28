@@ -76,7 +76,11 @@ export const addMarkdownCodeFormatting = (code: string, trim?: boolean) => {
     // If the code already has the code formatting backticks, remove them 
     // so we can add them back in the correct format
     if (code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE).length > 1) {
-        codeWithoutBackticks = code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)[1].split(PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE)[0]
+        const parts = code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE);
+        if (parts.length > 1 && parts[1] != null) {
+            const endParts = parts[1].split(PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE);
+            codeWithoutBackticks = endParts[0] ?? '';
+        }
     } else {
         codeWithoutBackticks = code
     }
@@ -105,8 +109,8 @@ export const addMarkdownCodeFormatting = (code: string, trim?: boolean) => {
 */
 export const removeMarkdownCodeFormatting = (code: string) => {
 
-    if (code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE).length > 1) {
-        return code.split(PYTHON_CODE_BLOCK_START_WITH_NEW_LINE)[1].split(PYTHON_CODE_BLOCK_END_WITH_NEW_LINE)[0]
+    if (code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE).length > 1 ) {
+        return code.split(PYTHON_CODE_BLOCK_START_WITH_NEW_LINE)[1]?.split(PYTHON_CODE_BLOCK_END_WITH_NEW_LINE)[0]
     }
 
     return code

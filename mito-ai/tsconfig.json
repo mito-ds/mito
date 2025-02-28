@@ -24,6 +24,9 @@
     "strict": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
     "target": "ES2018",
     "types": [
       "jest",
