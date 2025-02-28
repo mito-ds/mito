@@ -15,6 +15,7 @@ from mito_ai.utils.schema import MITO_FOLDER
 
 CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 NEW_CHAT_NAME = "(New Chat)"
+NUMBER_OF_THREADS_CUT_OFF = 50
 
 async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider: OpenAIProvider) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
@@ -359,4 +360,7 @@ class GlobalMessageHistory:
                     last_interaction_ts=thread.last_interaction_ts,
                 ))
             threads.sort(key=lambda x: x.last_interaction_ts, reverse=True)
-            return threads
+
+            # Since we expect vast majority of chats are never going to be deleted,
+            # we cut off the list of threads to a reasonable number.
+            return threads[:NUMBER_OF_THREADS_CUT_OFF]
