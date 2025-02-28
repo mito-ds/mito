@@ -637,25 +637,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const previewAICodeToCellID = (cellID: string) => {
+    const previewAICodeToActiveCell = () => {
         setCodeReviewStatus('codeCellPreview')
 
+        const activeCellID = getActiveCellID(notebookTracker)
         const lastAIDisplayMessage = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem()
 
-        updateCodeDiffStripes(lastAIDisplayMessage?.message, cellID)
-        updateCellToolbarButtons()
-    } 
-
-    const previewAICodeToActiveCell = () => {
-        const activeCellID = getActiveCellID(notebookTracker)
-
-        console.log("previewAICodeToActiveCell active code cell", activeCellID)
-
-        if (activeCellID === undefined) {
+        if (activeCellID === undefined || lastAIDisplayMessage === undefined) {
             return
         }
 
-        previewAICodeToCellID(activeCellID)
+        updateCodeDiffStripes(lastAIDisplayMessage.message, activeCellID)
+        updateCellToolbarButtons()
     }
 
     const acceptAICode = () => {

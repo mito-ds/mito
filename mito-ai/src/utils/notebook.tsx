@@ -104,8 +104,6 @@ export const getAIOptimizedCells = (
         cells.push(cell)
     }
 
-    console.log(cells)
-
     return cells
 }
 

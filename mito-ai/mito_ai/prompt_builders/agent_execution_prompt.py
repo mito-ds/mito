@@ -16,7 +16,7 @@ Your colleague is going to provide you with:
 4. Your task
 
 You're job is to use the information provided to you to:
-1. Determine which code cell needs to be updated to implement the task
+1. Determine if you want to modify an existing cell or create a new cell.
 2. Update that code cell to meet your colleague's intent.
 
 You must respond to your colleague with either a CellModification or CellAddition repsonse type:
@@ -135,7 +135,7 @@ Output:
 {{
     type: 'add'
     index: 2
-    code: "import matplotlib.pyplot as plt\nplt.bar(sales_df.index, sales_df['total_price'])\nplt.title('Total Price per Sale')\nplt.xlabel('Transaction Number')\nplt.ylabel('Sales Price ($)')\nplt.show()"
+    code: "import matplotlib.pyplot as plt\n\nplt.bar(sales_df.index, sales_df['total_price'])\nplt.title('Total Price per Sale')\nplt.xlabel('Transaction Number')\nplt.ylabel('Sales Price ($)')\nplt.show()"
 }}
 
 </Cell Addition Example>

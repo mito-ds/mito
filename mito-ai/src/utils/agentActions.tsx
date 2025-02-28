@@ -15,7 +15,6 @@ export const acceptAndRunCellUpdate = async (
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void
 ): Promise<void> => {
-    console.log("CELL UPDATE", cellUpdate)
 
     // If the cellUpdate is creating a new code cell, insert it 
     // before previewing and accepting the code. 
