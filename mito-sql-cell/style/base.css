@@ -24,12 +24,12 @@
   height: 63%;
 }
 
-.mito-sql-add-option {
-  border-bottom: 1px solid var(--jp-border-color2);
+.mito-sqlcell-toolbar .jp-HTMLSelect {
+  position:relative;
 }
 
-.mito-sql-add-option[aria-selected='true'] svg .jp-icon3 {
-  fill: var(--jp-ui-inverse-font-color1);
+.mito-sqlcell-toolbar .jp-HTMLSelect > span > svg {
+  top: 4px;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
