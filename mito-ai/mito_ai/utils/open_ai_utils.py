@@ -121,7 +121,7 @@ async def get_ai_completion_from_mito_server(
         # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
         # the time it takes to send the request, etc.
         http_client_timeout = timeout * 1000 * max_retries + 10000
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"), request_timeout=http_client_timeout)
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
     
     try:
         res = await http_client.fetch(
