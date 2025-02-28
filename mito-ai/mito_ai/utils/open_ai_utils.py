@@ -110,20 +110,20 @@ async def get_ai_completion_from_mito_server(
         "Content-Type": "application/json",
     }
     
-    # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
-    # we give to OpenAI. The OpenAI timeouts are denoted in seconds, wherease the HTTP client
-    # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
-    # the time it takes to send the request, etc.
-    http_client_timeout = timeout * 1000 * max_retries + 10000
     
-    # If we are running in a test environment, we want a short timeout to prevent tests from hanging
-    # for too long, but still give enough time for simple responses.
+    
     if is_running_test():
-        # Increase timeout specifically for CI environments to prevent kernel shutdown issues
-        # CI environments tend to be slower and need more time to process requests
-        http_client_timeout = 60000  # 60 seconds for CI tests
-
-    http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"), request_timeout=http_client_timeout)
+        # If we are running in a test environment, setting the request_timeout fails for some reason.
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+    else:
+        
+        # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
+        # we give to OpenAI. The OpenAI timeouts are denoted in seconds, wherease the HTTP client
+        # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
+        # the time it takes to send the request, etc.
+        http_client_timeout = timeout * 1000 * max_retries + 10000
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"), request_timeout=http_client_timeout)
+    
     try:
         res = await http_client.fetch(
             # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
