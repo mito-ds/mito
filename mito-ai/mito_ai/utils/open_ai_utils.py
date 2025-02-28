@@ -110,8 +110,7 @@ async def get_ai_completion_from_mito_server(
         "Content-Type": "application/json",
     }
     
-    
-    
+    http_client = None
     if is_running_test():
         # If we are running in a test environment, setting the request_timeout fails for some reason.
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
