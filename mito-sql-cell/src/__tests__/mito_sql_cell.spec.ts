@@ -1,4 +1,4 @@
-import { MagicLine } from '../common';
+import { MagicLine } from '../magicLineUtils';
 
 describe('mito-sql-cell', () => {
   describe('MagicLine', () => {
@@ -45,7 +45,7 @@ describe('mito-sql-cell', () => {
       ['%sql', { isSQL: false, output: undefined, args: [], options: {} }],
       ['', { isSQL: false, output: undefined, args: [], options: {} }]
     ])('%s parse to %j', (text, expected) => {
-      expect(MagicLine.parse({ sharedModel: { source: text } } as any)).toEqual(
+      expect(MagicLine.getSQLMagic({ sharedModel: { source: text } } as any)).toEqual(
         expected
       );
     });
@@ -59,7 +59,7 @@ describe('mito-sql-cell', () => {
           args: ['line'],
           options: { '--section': 'sqlite1' }
         },
-        '%%sql --section sqlite1 line db <<\n'
+        '%%sql --section sqlite1 line db= <<\n'
       ],
       [
         '%%sql',
@@ -69,7 +69,7 @@ describe('mito-sql-cell', () => {
           args: ['line'],
           options: { '--section': 'sqlite1', '--close': undefined }
         },
-        '%%sql --section sqlite1 --close line db <<'
+        '%%sql --section sqlite1 --close line db= <<'
       ],
       [
         '%%sql --section a df <<',
@@ -79,7 +79,7 @@ describe('mito-sql-cell', () => {
           args: ['line'],
           options: { '--section': 'sqlite1' }
         },
-        '%%sql --section sqlite1 line db <<'
+        '%%sql --section sqlite1 line db= <<'
       ],
       [
         '%%sql --section a df <<',
@@ -89,7 +89,7 @@ describe('mito-sql-cell', () => {
           args: ['line'],
           options: { '--file': 'f1' }
         },
-        '%%sql --file f1 line db <<'
+        '%%sql --file f1 line db= <<'
       ],
       [
         '%%sql --section a df <<',
@@ -109,7 +109,7 @@ describe('mito-sql-cell', () => {
           args: ['line'],
           options: { '--section': 'sqlite1' }
         },
-        '%%sql --section sqlite1 line db <<\ndef f(a, b):\n  return a + b'
+        '%%sql --section sqlite1 line db= <<\ndef f(a, b):\n  return a + b'
       ]
     ])('%s parse to %j', (text, magic, expected) => {
       const fakeCell = { sharedModel: { source: text } } as any;
