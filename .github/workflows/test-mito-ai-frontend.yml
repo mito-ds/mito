@@ -48,6 +48,13 @@ jobs:
       run: |
         cd tests
         bash mac-setup.sh
+    - name: Install JupyterLab
+      run: |
+        python -m pip install jupyterlab
+    - name: Install Node.js dependencies
+      run: |
+        cd mito-ai
+        jlpm install
     - name: Setup JupyterLab
       run: |
         cd tests
@@ -60,7 +67,7 @@ jobs:
         cd tests
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
-        npm run test:mitoai
+        jlpm run test:mitoai
       env:
         OPENAI_API_KEY: ${{ matrix.use-mito-ai-server == false && secrets.OPENAI_API_KEY || '' }}
     - name: Upload test-results

@@ -22,13 +22,13 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
         commands.addCommand('toolbar-button:explain-code', {
             icon: lightBulbLabIcon,
             caption: 'Explain code in AI Chat',
-            execute: () => {
+            execute: async () => {
                 /* 
                     In order to click on the cell toolbar button, that cell must be the active cell, 
                     so the ChatHistoryManager will take care of providing the cell context.
                 */
-                app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT)
-                app.commands.execute(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE);
+                await app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT)
+                await app.commands.execute(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE);
             },
             isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE)
         });

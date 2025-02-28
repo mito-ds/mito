@@ -1,44 +1,44 @@
 .chat-input-container {
-    position: sticky;
-    bottom: 0;
-    margin: 10px 0;
-    margin-top: auto;
-    border-radius: 3px;
-    border: 1px solid var(--grey-300);
-    background-color: var(--chat-user-message-background-color);
+  position: sticky;
+  bottom: 0;
+  margin: 10px 0;
+  margin-top: auto;
+  border-radius: 3px;
+  border: 1px solid var(--grey-300);
+  background-color: var(--chat-user-message-background-color);
 }
 
 .chat-input {
-    outline: none;
-    border: none;
-    resize: none;
-    width: 100%;
-    padding: 10px;
-    overflow-y: hidden;
-    box-sizing: border-box;
-    flex-shrink: 0 !important;
-    background-color: white;
+  outline: none;
+  border: none;
+  resize: none;
+  width: 100%;
+  padding: 10px;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  flex-shrink: 0 !important;
+  background-color: white;
 }
 
 @keyframes glow {
-    0% {
-        box-shadow: 0 0 0 0 var(--glow-color);
-    }
-    50% {
-        box-shadow: 0 0 10px 3px var(--glow-color);
-    }
-    100% {
-        box-shadow: 0 0 0 0 var(--glow-color);
-    }
+  0% {
+    box-shadow: 0 0 0 0 var(--glow-color);
+  }
+  50% {
+    box-shadow: 0 0 10px 3px var(--glow-color);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--glow-color);
+  }
 }
 
 .chat-input-container:has(.chat-input.agent-mode) {
-    border: 1px solid var(--purple-500);
-    animation: glow 1s ease-in-out;
-    --glow-color: var(--purple-500);
+  border: 1px solid var(--purple-500);
+  animation: glow 1s ease-in-out;
+  --glow-color: var(--purple-500);
 }
 
 .active-cell-preview-container {
-    padding: 10px;
-    background-color: var(--chat-user-message-background-color);
+  padding: 10px;
+  background-color: var(--chat-user-message-background-color);
 }

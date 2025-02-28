@@ -47,17 +47,17 @@ jobs:
     - name: Install dependencies
       run: |
         cd mito-ai
-        npm ci
+        jlpm install
 
     - name: Build project
       run: |
         cd mito-ai
-        npm run build:lib && jupyter labextension build --development True .
+        jlpm run build:lib && jupyter labextension build --development True .
 
     - name: Run Jest tests
       run: |
         cd mito-ai
-        npm test
+        jlpm test
 
     - name: Upload test coverage
       uses: actions/upload-artifact@v4

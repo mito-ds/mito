@@ -170,12 +170,12 @@ export class CompletionWebsocketClient implements IDisposable {
     }
   }
 
-  private _onOpen(e: Event) {
+  private _onOpen(_: Event): void {
     console.log('Mito AI completion websocket connected');
     this._ready.resolve();
   }
 
-  private _onClose(e: CloseEvent) {
+  private _onClose(e: CloseEvent): void {
     this._ready.reject(new Error('Completion websocket disconnected'));
     console.error('Completion websocket disconnected');
     // only attempt re-connect if there was an abnormal closure

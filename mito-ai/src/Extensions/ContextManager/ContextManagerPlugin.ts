@@ -32,7 +32,7 @@ export class ContextManager implements IContextManager {
         return this._variables;
     }
 
-    setVariables(newVars: Variable[]) {
+    setVariables(newVars: Variable[]): void {
         this._variables = newVars;
     }
 
@@ -40,22 +40,22 @@ export class ContextManager implements IContextManager {
         return this._files;
     }
 
-    setFiles(newFiles: File[]) {
+    setFiles(newFiles: File[]): void {
         this._files = newFiles;
     }
 
     // Setup kernel execution listener
     private setupKernelListener(app: JupyterFrontEnd, notebookTracker: INotebookTracker): void {
-        notebookTracker.currentChanged.connect((tracker, notebookPanel) => {
+        notebookTracker.currentChanged.connect(async (tracker, notebookPanel) => {
             if (!notebookPanel) {
                 return;
             }
 
             // As soon as the notebook is opened, fetch the files so we don't have to wait for the first message.
-            fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
+            await fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
 
             // Listen to kernel messages
-            notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
+            notebookPanel.context.sessionContext.iopubMessage.connect(async (sender, msg: KernelMessage.IMessage) => {
 
                 // Watch for execute_input messages, which indicate is a request to execute code. 
                 // Previosuly, we watched for 'execute_result' messages, but these are only returned
@@ -63,8 +63,8 @@ export class ContextManager implements IContextManager {
                 // TODO: Check if there is a race condition where we might end up fetching variables before the 
                 // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
                 if (msg.header.msg_type === 'execute_input') {
-                    fetchVariablesAndUpdateState(notebookPanel, this.setVariables.bind(this));
-                    fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
+                    await fetchVariablesAndUpdateState(notebookPanel, this.setVariables.bind(this));
+                    await fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
                 }
             });
         });

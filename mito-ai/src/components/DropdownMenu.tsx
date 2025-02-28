@@ -35,7 +35,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent): void => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -49,7 +49,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   }, []);
 
   // Handle the main click (primary action)
-  const handlePrimaryClick = (onClick: () => void, disabled?: boolean) => {
+  const handlePrimaryClick = (onClick: () => void, disabled?: boolean): void => {
     if (disabled) return;
     onClick();
     setIsOpen(false);

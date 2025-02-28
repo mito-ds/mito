@@ -4,7 +4,7 @@ interface CollapsibleWarningBlockProps {
     message: string;
 }
 
-export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProps) => {
+export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProps): JSX.Element => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const lines = message.split('\n');

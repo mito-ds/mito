@@ -109,11 +109,11 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
         Open the chat interface and preload the error message into 
         the user input.
     */
-    openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
+    async openChatInterfaceWithError(model: IRenderMime.IMimeModel): Promise<void> {
         const structuredError = getFullErrorMessageFromModel(model);
 
-        this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
-        this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: structuredError });
+        await this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
+        await this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: structuredError });
     }
 }
   
