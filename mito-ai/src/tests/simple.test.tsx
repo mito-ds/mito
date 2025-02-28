@@ -4,31 +4,32 @@ import ChatInput from '../Extensions/AiChat/ChatMessage/ChatInput';
 import React from 'react';
 import { CodeCell } from '@jupyterlab/cells';
 
-// Create a mock for the active cell that matches the interface we need
-const mockActiveCell = {
+// Mock data for test cases
+const TEST_CELL_CODE = 'print("Hello World")';
+const EMPTY_CELL_ID = 'empty-cell-id';
+const TEST_CELL_ID = 'test-cell-id';
+
+// Mock cell with code
+const createMockCell = (code: string, cellId: string) => ({
     model: {
-        value: {
-            text: 'print("Hello World")'
-        },
-        id: 'test-cell-id'
+        value: { text: code },
+        id: cellId
     },
     editor: {
         model: {
-            value: {
-                text: 'print("Hello World")'
-            }
+            value: { text: code }
         }
     }
-};
+});
 
-// Mock the notebook utils functions
+// Mock notebook utils
 jest.mock('../utils/notebook', () => ({
-    getActiveCellID: jest.fn((id) => id === 'empty-cell-id' ? 'empty-cell-id' : 'test-cell-id'),
-    getCellCodeByID: jest.fn((id) => id === 'empty-cell-id' ? '' : 'print("Hello World")')
+    getActiveCellID: jest.fn((id) => id === EMPTY_CELL_ID ? EMPTY_CELL_ID : TEST_CELL_ID),
+    getCellCodeByID: jest.fn((id) => id === EMPTY_CELL_ID ? '' : TEST_CELL_CODE)
 }));
 
-// Mock data and required props
-const mockProps = {
+// Base props for ChatInput component
+const createMockProps = (overrides = {}) => ({
     initialContent: '',
     placeholder: 'Type your message...',
     onSave: jest.fn(),
@@ -38,7 +39,7 @@ const mockProps = {
             connect: jest.fn(),
             disconnect: jest.fn()
         },
-        activeCell: mockActiveCell as unknown as CodeCell,
+        activeCell: createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell,
         selectionChanged: {
             connect: jest.fn(),
             disconnect: jest.fn()
@@ -73,20 +74,14 @@ const mockProps = {
         inject: jest.fn()
     },
     renderMimeRegistry: {
-        sanitizer: {
-            sanitize: jest.fn()
-        },
+        sanitizer: { sanitize: jest.fn() },
         resolver: {
             resolve: jest.fn(),
             resolveUrl: jest.fn(),
             getDownloadUrl: jest.fn()
         },
-        linkHandler: {
-            handleLink: jest.fn()
-        },
-        latexTypesetter: {
-            typeset: jest.fn()
-        },
+        linkHandler: { handleLink: jest.fn() },
+        latexTypesetter: { typeset: jest.fn() },
         markdownParser: {
             parse: jest.fn(),
             render: jest.fn()
@@ -113,67 +108,59 @@ const mockProps = {
         getRank: jest.fn(),
         setRank: jest.fn()
     },
-    displayActiveCellCode: true
-};
-
-test('active cell preview is displayed when input has content', () => {
-    const { container } = render(<ChatInput {...mockProps} />);
-
-    // Get the textarea and assert it exists
-    const textarea = container.querySelector('textarea');
-    expect(textarea).toBeInTheDocument();
-
-    // Initially, preview should not be visible
-    expect(container.querySelector('.active-cell-preview-container')).not.toBeInTheDocument();
-
-    // Focus the textarea and type something
-    if (textarea) {
-        fireEvent.focus(textarea);
-        fireEvent.change(textarea, { target: { value: 'test input' } });
-    }
-
-    // Now preview should be visible
-    expect(container.querySelector('.active-cell-preview-container')).toBeInTheDocument();
+    displayActiveCellCode: true,
+    ...overrides
 });
 
-test('active cell preview is not displayed when active cell has no code', () => {
-    // Create a modified mock props with an empty active cell
-    const emptyActiveCellProps = {
-        ...mockProps,
-        displayActiveCellCode: false,
-        notebookTracker: {
-            ...mockProps.notebookTracker,
-            activeCell: {
-                ...mockActiveCell,
-                model: {
-                    value: {
-                        text: ''
-                    },
-                    id: 'empty-cell-id'
-                },
-                editor: {
-                    model: {
-                        value: {
-                            text: ''
-                        }
-                    }
+// Helper functions for common test operations
+const renderChatInput = (props = {}) => {
+    return render(<ChatInput {...createMockProps(props)} />);
+};
+
+const typeInTextarea = (textarea: HTMLElement, value: string) => {
+    fireEvent.focus(textarea);
+    fireEvent.change(textarea, { target: { value } });
+};
+
+describe('ChatInput Component', () => {
+    describe('Active Cell Preview', () => {
+        it('shows preview when input has content', () => {
+            const { container } = renderChatInput();
+            const textarea = container.querySelector('textarea');
+            expect(textarea).toBeInTheDocument();
+
+            // Initially, preview should not be visible
+            expect(container.querySelector('.active-cell-preview-container')).not.toBeInTheDocument();
+
+            // Type in textarea
+            if (textarea) {
+                typeInTextarea(textarea, 'test input');
+            }
+
+            // Preview should become visible
+            expect(container.querySelector('.active-cell-preview-container')).toBeInTheDocument();
+        });
+
+        it('does not show preview for empty cells', () => {
+            const props = {
+                displayActiveCellCode: false,
+                notebookTracker: {
+                    ...createMockProps().notebookTracker,
+                    activeCell: createMockCell('', EMPTY_CELL_ID) as unknown as CodeCell
                 }
-            } as unknown as CodeCell
-        }
-    };
+            };
 
-    const { container } = render(<ChatInput {...emptyActiveCellProps} />);
+            const { container } = renderChatInput(props);
+            const textarea = container.querySelector('textarea');
+            expect(textarea).toBeInTheDocument();
 
-    // Get the textarea and assert it exists
-    const textarea = container.querySelector('textarea');
-    expect(textarea).toBeInTheDocument();
+            // Type in textarea
+            if (textarea) {
+                typeInTextarea(textarea, 'test input');
+            }
 
-    // Focus the textarea and type something
-    if (textarea) {
-        fireEvent.focus(textarea);
-        fireEvent.change(textarea, { target: { value: 'test input' } });
-    }
-
-    // Preview should not be visible since active cell has no code
-    expect(container.querySelector('.active-cell-preview-container')).not.toBeInTheDocument();
+            // Preview should not be visible for empty cells
+            expect(container.querySelector('.active-cell-preview-container')).not.toBeInTheDocument();
+        });
+    });
 });
