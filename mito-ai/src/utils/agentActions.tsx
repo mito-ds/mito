@@ -26,7 +26,7 @@ export const acceptAndRunCellUpdate = async (
     }
 
     // The target cell should now be the active cell
-    acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
+    await acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
 }
 
 export const acceptAndRunCode = async (
@@ -56,6 +56,8 @@ export const retryIfExecutionError = async (
     finalizeAgentStop: () => void,
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
+    console.log("retry if execution error")
+
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
 
     // Note: If you update the max retries, update the message we display on each failure
@@ -64,6 +66,7 @@ export const retryIfExecutionError = async (
     let attempts = 0;
 
     while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
+        console.log("code errored")
 
         if (!shouldContinueAgentExecution.current) {
             finalizeAgentStop()
@@ -91,9 +94,11 @@ export const retryIfExecutionError = async (
         // Wait two seconds so the use can more easily see what is going on 
         await sleep(2000)
 
-        
+        console.log('sending debug error')
         await sendDebugErrorMessage(errorMessage, true)
+        console.log('sente error debug')
         await acceptAndRunCode(app, previewAICode, acceptAICode)
+        console.log("accepted and retrying")
         attempts++;
 
         // If this was the last attempt and it still failed
