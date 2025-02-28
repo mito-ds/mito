@@ -25,25 +25,26 @@
 }
 
 .mito-sqlcell-toolbar .jp-HTMLSelect {
-  position:relative;
+  position: relative;
 }
 
 .mito-sqlcell-toolbar .jp-HTMLSelect > span > svg {
   top: 4px;
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .mito-sql-sources-header {
-  padding: 0 4px;
+  padding: 2px 4px;
   display: flex;
+  font-size: var(--jp-ui-font-size0);
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .mito-sql-sources-header h2 {
   font-size: 100%;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin: 0 auto 0 0;
+  padding: 4px 10px;
 }
 
 .mito-sql-sources-placeholder {

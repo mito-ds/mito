@@ -380,7 +380,7 @@ function SqlSourceHeader({
   commands: CommandRegistry;
 }): JSX.Element {
   return (
-    <Toolbar className="mito-sql-sources-header">
+    <Toolbar className="jp-Toolbar mito-sql-sources-header">
       <h2>SQL Sources</h2>
       <span style={{ flex: '1 1 auto' }}></span>
       <CommandToolbarButtonComponent
