@@ -3,7 +3,7 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndex, didCellExecutionError, setActiveCellByID } from "./notebook"
+import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "./websocket/models"
@@ -19,24 +19,14 @@ export const acceptAndRunCellUpdate = async (
 
     // If the cellUpdate is creating a new code cell, insert it 
     // before previewing and accepting the code. 
-    let targetCellID
     if (cellUpdate.type === 'new' ) {
-        console.log("New")
-        targetCellID = createCodeCellAtIndex(notebookTracker, cellUpdate.index)
+        // makes the cell the active cell
+        createCodeCellAtIndexAndActivate(notebookTracker, cellUpdate.index)
     } else {
-        console.log("Modifying")
-        targetCellID = cellUpdate.id
+        setActiveCellByID(notebookTracker, cellUpdate.id)
     }
 
-    console.log("target cell id", targetCellID)
-
-    // Make sure the target cell is the active cell
-    setActiveCellByID(notebookTracker, targetCellID)
-
-    // Because acceptAndRunCode applies the code to the current active code
-    // cell it doesn't need to know about the cell update. The function 
-    // createCodeCellAtIndex sets the new cell as the active cell.
-
+    // The target cell should now be the active cell
     acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
 }
 
