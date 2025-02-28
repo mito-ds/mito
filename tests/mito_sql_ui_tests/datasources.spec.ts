@@ -162,8 +162,12 @@ test.describe("Mito SQL datasources", () => {
     // the sources list gets updated
     await page.notebook.createNew();
 
-    const secondCell = page.getByLabel("Code Cell Content").nth(1);
-    await secondCell.click();
+    // At first the last cell is the first as no SQL cell was set; hence
+    // no configuration cell was added at the top.
+    // Later the first cell will be the configuration cell and we want
+    // to play with the second cell.
+    const sqlCell = page.getByLabel("Code Cell Content").last();
+    await sqlCell.click();
     await page.getByLabel("Cell type").selectOption("SQL");
 
     // Adding a SQL source through the button in the empty panel
@@ -194,17 +198,29 @@ test.describe("Mito SQL datasources", () => {
     await dialog.locator("#root_database").fill("testdb");
     await dialog.getByRole("button", { name: "Add", exact: true }).click();
 
-    await secondCell.getByRole("combobox", {}).click();
-    await expect.soft(secondCell.getByRole("option")).toHaveCount(2);
+    await page.pause();
     await expect
-      .soft(secondCell.getByRole("option", { name: "testpg" }))
-      .toBeVisible();
+      .soft(
+        sqlCell
+          .getByRole("combobox", { name: "SQL source" })
+          .getByRole("option")
+      )
+      .toHaveCount(3);
+    await expect
+      .soft(
+        sqlCell
+          .getByRole("combobox", { name: "SQL source" })
+          .getByRole("option")
+          .last()
+      )
+      .toHaveText("testpg");
     await page.keyboard.press("Escape");
 
     // Deleting a SQL source
     await page.getByLabel("testpg").getByRole("button").last().click();
-    await secondCell.getByRole("combobox", {}).click();
-    await expect(secondCell.getByRole("option")).toHaveCount(1);
+    await expect(
+      sqlCell.getByRole("combobox", { name: "SQL source" }).getByRole("option")
+    ).toHaveCount(2);
   });
 
   test("should handle SQL datasource", async ({ page }) => {
@@ -214,22 +230,23 @@ test.describe("Mito SQL datasources", () => {
 
     await page.notebook.createNew();
 
-    const secondCell = page.getByLabel("Code Cell Content").nth(1);
-    await secondCell.waitFor({ state: "visible" });
-    // Execute the first cell
-    await page.getByLabel("Code Cell Content").first().click();
+    const sqlCell = page.getByLabel("Code Cell Content").last();
+    await sqlCell.waitFor({ state: "visible" });
+    await sqlCell.click();
+    await page.getByLabel("Cell type").selectOption("SQL");
+    // Execute the first cell that should contain the configuration
+    const firstCell = page.getByLabel("Code Cell Content").first();
+    await firstCell.getByRole("textbox").getByText("%load_ext sql").waitFor();
+    await firstCell.click();
     await page.keyboard.press("Shift+Enter");
 
-    // Focus on the second cell
-    await secondCell.click();
-    await page.getByLabel("Cell type").selectOption("SQL");
-    await secondCell.getByRole("combobox", {}).click();
-    await secondCell.getByRole("option", { name: "test" }).click();
-    await secondCell
-      .getByLabel("Variable name")
-      .getByRole("textbox")
-      .fill("df");
-    await secondCell.locator(".cm-editor").click();
+    // Focus on the SQL cell
+    await sqlCell.click();
+    await sqlCell
+      .getByRole("combobox", { name: "SQL source" })
+      .selectOption("test");
+    await sqlCell.getByLabel("Variable name").getByRole("textbox").fill("df");
+    await sqlCell.locator(".cm-editor").click();
     await page.keyboard.type("\nSELECT\n*\nFROM repositories");
     await page.keyboard.press("Shift+Enter");
     await expect
@@ -249,15 +266,10 @@ test.describe("Mito SQL datasources", () => {
   test("should update the cell magic", async ({ page }) => {
     await page.notebook.createNew();
 
-    const secondCell = page.getByLabel("Code Cell Content").nth(1);
-    await secondCell.waitFor({ state: "visible" });
-    // Execute the first cell
-    await page.getByLabel("Code Cell Content").first().click();
-    await page.keyboard.press("Shift+Enter");
-
+    const sqlCell = page.getByLabel("Code Cell Content").last();
+    await sqlCell.waitFor({ state: "visible" });
     // Set valid jupysql magic with unsupported mito options
-    await secondCell.getByRole("textbox")
-      .fill(`%%sql --save not_nulls --no-execute
+    await sqlCell.getByRole("textbox").fill(`%%sql --save not_nulls --no-execute
 SELECT
   name,
   user
@@ -265,22 +277,29 @@ FROM repositories
 WHERE
   stars > 25000`);
 
-    // Setting the SQL options should update the magic
-    await secondCell.getByRole("combobox", {}).click();
-    await secondCell.getByRole("option", { name: "test" }).click();
-    await secondCell
-      .getByLabel("Variable name")
-      .getByRole("textbox")
-      .fill("out");
+    // Execute the first cell that should contain the configuration
+    const firstCell = page.getByLabel("Code Cell Content").first();
+    await firstCell.getByRole("textbox").getByText("%load_ext sql").waitFor();
+    await firstCell.click();
+    await page.keyboard.press("Shift+Enter");
 
-    await secondCell.click();
+    // Focus on the SQL cell
+    await sqlCell.click();
+
+    // Setting the SQL options should update the magic
+    await sqlCell
+      .getByRole("combobox", { name: "SQL source" })
+      .selectOption("test");
+    await sqlCell.getByLabel("Variable name").getByRole("textbox").fill("out");
+
+    await sqlCell.click();
     await page.keyboard.press("Shift+Enter");
 
     await expect
       .soft(page.getByLabel("Code Cell Content with Output").last())
       .toContainText("Connecting to 'test'");
     await expect
-      .soft(page.getByLabel("Code Cell Content with Output").getByRole('table'))
+      .soft(page.getByLabel("Code Cell Content with Output").getByRole("table"))
       .toContainText("handson-ml2");
   });
 });
