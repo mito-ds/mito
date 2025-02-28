@@ -12,6 +12,8 @@ import {
     editMitoAIMessage,
     waitForMitoAILoadingToDisappear,
     clickAgentModeToggleButton,
+    getNotebookCode,
+    waitForAgentToFinish,
 } from './utils';
 
 const AGENT_PLAN_SUBMIT_BUTTON_TEXT = 'Let\'s go!';
@@ -137,21 +139,12 @@ test.describe("Agent mode print hi", () => {
             });
         });
 
-        // Get count of cells in the notebook
-        const cellCount = await page.locator('.jp-Cell').count();
-
-        // Get code from every cell in the notebook
-        const codeFromCells: string[] = [];
-        for (let i = 0; i < cellCount; i++) {
-            const code = await getCodeFromCell(page, i);
-            if (code) {
-                codeFromCells.push(code);
-            }
-        }
+        const codeFromCells = await getNotebookCode(page)
+        const codeFromCellsString = codeFromCells.join(' ')
 
         // Ensure all code snippets are in the notebook
         codeSnippetsFromChatMessages.forEach(codeSnippet => {
-            expect(codeFromCells).toContain(codeSnippet);
+            expect(codeFromCellsString).toContain(codeSnippet.trim());
         });
     });
 
@@ -282,6 +275,37 @@ test.describe("Stop Agent", () => {
             text?.includes("I apologize, but I was unable to fix the error after 3 attempts")
         )).toBe(false);
     });
+})
+
+test.describe("Agent overwrite existing cells", () => {
+    test("Update existing print statement", async ({ page }) => {
+
+
+        // Create a notebok with a bunch of cells
+        await createAndRunNotebookWithCells(page, ['print("hello world")', '']);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode 
+        await clickAgentModeToggleButton(page);
+
+        await sendMessageToMitoAI(page, "Generate a plan of attack with only one step. It should update the print hello world statement to print goodbye world");
+        await waitForIdle(page);
+
+        // Run the plan of attack
+        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
+        await waitForAgentToFinish(page)
+
+        // Check that the final notebook has print goodbye world and not print hello world
+        const codeFromCells = await getNotebookCode(page)
+
+        // Join all of the code content into one big string to make searching easier
+        const codeFromCellsString = codeFromCells.join(' ')
+        expect(codeFromCellsString).toContain('goodbye world');
+        expect(codeFromCellsString).not.toContain('hello world');
+    })
 })
 
 

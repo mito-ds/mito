@@ -1,11 +1,21 @@
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
+import { AIOptimizedCell } from './websocket/models';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
     const activeCell = notebook?.activeCell;
     return activeCell || undefined
+}
+
+export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): Cell | undefined => {
+    if (cellID === undefined) {
+        return undefined
+    }
+
+    const notebook = notebookTracker.currentWidget?.content;
+    return notebook?.widgets.find(cell => cell.model.id === cellID);
 }
 
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
@@ -18,14 +28,38 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
 }
 
 export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {
-    if (codeCellID === undefined) {
-        return undefined
-    }
-
-    const notebook = notebookTracker.currentWidget?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const cell = getCellByID(notebookTracker, codeCellID)
     return cell?.model.sharedModel.source
 }
+
+export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
+    const cellList = notebookTracker.currentWidget?.model?.cells
+
+    if (cellList === undefined) {
+        return undefined 
+    }
+
+    // In order to get the cell index, we need to iterate over the cells and call the `get` method
+    // to see the cells in order. Otherwise, the cells are returned in a random order.
+    for (let i = 0; i < cellList.length; i++) {
+        const cellModel = cellList.get(i)
+
+        if (cellModel.id == cellID) {
+            return i
+        }
+    }
+
+    return undefined 
+}
+
+export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined) => {
+    const cellIndex = getCellIndexByID(notebookTracker, cellID)
+    const notebookPanel = notebookTracker.currentWidget
+    if (notebookPanel !== undefined && notebookPanel !== null && cellIndex !== undefined) {
+        notebookPanel.content.activeCellIndex = cellIndex
+    }
+}
+
 
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker, 
@@ -42,6 +76,57 @@ export const writeCodeToCellByID = (
     
     if (cell && codeMirrorValidCode) {
         cell.model.sharedModel.source = codeMirrorValidCode;
+    }
+}
+
+export const getAIOptimizedCells = (
+    notebookTracker: INotebookTracker
+): AIOptimizedCell[] => {
+
+    const cellList = notebookTracker.currentWidget?.model?.cells
+
+    if (cellList == undefined) {
+        return []
+    }
+
+    // In order to get the cell index, we need to iterate over the cells and call the `get` method
+    // to see the cells in order. Otherwise, the cells are returned in a random order.
+    const cells: AIOptimizedCell[] = []
+    for (let i = 0; i < cellList.length; i++) {
+        const cellModel = cellList.get(i)
+        
+        const cell: AIOptimizedCell = {
+            id: cellModel.id,
+            cell_type: cellModel.type,
+            code: cellModel.sharedModel.source
+        }
+
+        cells.push(cell)
+    }
+
+    return cells
+}
+
+export function createCodeCellAtIndexAndActivate(notebookTracker: INotebookTracker, index: number): void {
+    /* 
+        Create a new code cell at index and make it the active cell.
+    */
+
+    const notebook = notebookTracker.currentWidget?.content
+    if (notebook === undefined) {
+        return;
+    }
+
+    if (index > 0) {
+        notebook.activeCellIndex = index - 1;
+
+        // insertBelow makes the new cell the active cell
+        NotebookActions.insertBelow(notebook);
+    } else {
+        notebook.activeCellIndex = 0
+
+        // insertAbove makes the new cell the active cell
+        NotebookActions.insertAbove(notebook)
     }
 }
 

@@ -1,9 +1,14 @@
 import { expect, IJupyterLabPageFixture } from "@jupyterlab/galata";
-import { selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
+import { getCodeFromCell, selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixture) => {
     const mitoAILoadingLocator = page.locator('.chat-loading-message');
     await mitoAILoadingLocator.waitFor({ state: 'hidden' });
+}
+
+export const waitForAgentToFinish = async (page: IJupyterLabPageFixture) => {
+    const agentStopButton = page.locator('.stop-agent-button');
+    await agentStopButton.waitFor({state: 'hidden'})
 }
 
 export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
@@ -120,3 +125,22 @@ export const clickAgentModeToggleButton = async (page: IJupyterLabPageFixture) =
     await page.locator('.toggle-button-container').getByRole('button', { name: 'Agent' }).click();
     await waitForIdle(page);
 }
+
+
+export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<string[]> => {
+    // Get count of cells in the notebook
+    const cellCount = await page.locator('.jp-Cell').count();
+
+    // Get code from every cell in the notebook
+    const codeFromCells: string[] = [];
+    for (let i = 0; i < cellCount; i++) {
+        const code = await getCodeFromCell(page, i);
+        console.log(code)
+        if (code) {
+            codeFromCells.push(code);
+        }
+    }
+    return codeFromCells
+}
+
+
