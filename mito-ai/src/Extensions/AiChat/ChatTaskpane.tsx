@@ -209,7 +209,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
          stream: false
       });
 
-      if(response.created === true) {
+      if(response.success) {
          const updatedThreads = chatThreads.filter(thread => thread.thread_id !== threadId);
          setChatThreads(updatedThreads);
          if(activeThreadId === threadId) {

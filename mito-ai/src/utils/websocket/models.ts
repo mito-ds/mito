@@ -382,7 +382,7 @@ export interface IDeleteThreadReply {
   /**
    * Success status.
    */
-  created: boolean;
+  success: boolean;
 }
 
 export type CompleterMessage =

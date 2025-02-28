@@ -289,7 +289,7 @@ class DeleteThreadReply:
     parent_id: str
 
     #Success message
-    created: bool
+    success: bool
 
     # Message type.
     type: Literal["reply"] = "reply"
