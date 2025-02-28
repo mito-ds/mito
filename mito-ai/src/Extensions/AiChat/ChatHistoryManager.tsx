@@ -119,7 +119,6 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(input), 
                 type: 'openai message',
                 promptType: 'chat',
-                codeCellID: undefined // The agent:execution is not tied to any specific code cell
             }
         )
 

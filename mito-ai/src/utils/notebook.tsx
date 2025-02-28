@@ -52,7 +52,7 @@ export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: stri
     return undefined 
 }
 
-export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined) => {
+export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
     const cellIndex = getCellIndexByID(notebookTracker, cellID)
     const notebookPanel = notebookTracker.currentWidget
     if (notebookPanel !== undefined && notebookPanel !== null && cellIndex !== undefined) {

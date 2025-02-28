@@ -148,11 +148,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // which we need to parse. 
                         // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
                         const agentResponse = JSON.parse(item.content as string);
-                        if (agentResponse.hasOwnProperty('type') && agentResponse.hasOwnProperty('code')) {
+
+                        if (Object.prototype.hasOwnProperty.call(agentResponse, 'type') && Object.prototype.hasOwnProperty.call(agentResponse, 'code')) {
                             // If it has the cellUpdate keys then it is a cell update and we should handle it as such
                             const cellUpdate: CellUpdate = agentResponse
                             newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
-                        } else if (agentResponse.hasOwnProperty('actions') && agentResponse.hasOwnProperty('dependencies')) {
+                        } else if (Object.prototype.hasOwnProperty.call(agentResponse, 'actions') && Object.prototype.hasOwnProperty.call(agentResponse, 'dependencies')) {
                             handleAgentResponse(agentResponse, newChatHistoryManager);
                         } else {
                             newChatHistoryManager.addChatMessageFromHistory(item); 
