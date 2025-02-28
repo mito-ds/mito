@@ -15,7 +15,7 @@ import { CommandIDs } from './commands';
 import { hideSqlMagic } from './hidemagic';
 import { databaseIcon } from './icon';
 import { SqlSourcesModel, SqlSourcesPanel } from './sources';
-import { SQLExtension } from './sqlextension';
+import { SQLExtension } from './sqlnotebookextension';
 import { type ISqlSource } from './tokens';
 
 /**

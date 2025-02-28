@@ -1,18 +1,13 @@
 import { Option, Select, TextField, Toolbar } from '@jupyter/react-components';
 import { CellChange } from '@jupyter/ydoc';
 import { type ICellModel, type ICodeCellModel } from '@jupyterlab/cells';
-import {
-  VDomModel,
-  VDomRenderer,
-  addIcon,
-  editIcon
-} from '@jupyterlab/ui-components';
-import { map } from '@lumino/algorithm';
+import { addIcon, editIcon, ReactWidget } from '@jupyterlab/ui-components';
 import type { CommandRegistry } from '@lumino/commands';
 import * as React from 'react';
 import { CommandIDs } from './commands';
 import { MagicLine } from './magicLineUtils';
 import { type ISqlSources } from './tokens';
+import type { Widget } from '@lumino/widgets';
 
 /**
  * The class of the toolbar.
@@ -21,43 +16,9 @@ const TOOLBAR_CLASS = 'mito-sqlcell-toolbar';
 const ADD_SOURCE_OPTION_VALUE = 'add-source';
 
 /**
- * SQL toolbar model.
+ * SQL cell toolbar properties
  */
-export class SqlCellModel extends VDomModel {
-  private _database = '';
-  private _variableName = '';
-
-  /**
-   * The database name.
-   */
-  get database(): string {
-    return this._database;
-  }
-  set database(v: string) {
-    if (v !== this._database) {
-      this._database = v;
-      this.stateChanged.emit();
-    }
-  }
-
-  /**
-   * The SQL query result variable name.
-   */
-  get variableName(): string {
-    return this._variableName;
-  }
-  set variableName(v: string) {
-    if (v !== this._variableName) {
-      this._variableName = v;
-      this.stateChanged.emit();
-    }
-  }
-}
-
-/**
- * SQL toolbar constructor argument
- */
-export interface ISQLCellToolbarOptions {
+export interface ISQLCellToolbarProps {
   /**
    * Command registry
    */
@@ -67,140 +28,121 @@ export interface ISQLCellToolbarOptions {
    */
   model: ICellModel;
   /**
+   * Callback when the isSQL state changes.
+   *
+   * @param isSQL Whether the cell is a SQL cell or not
+   */
+  onIsSQLChanged: (isSQL: boolean) => void;
+  /**
    * SQL sources
    */
   sqlSources: ISqlSources;
 }
 
 /**
- * SQL cell toolbar widget.
+ * SQL cell toolbar component.
  */
-export class SQLCellToolbar extends VDomRenderer<SqlCellModel | null> {
-  private _cellModel: ICellModel;
-  private _commands: CommandRegistry;
-  private _sqlSources: ISqlSources;
+function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
+  const { commands, model, onIsSQLChanged, sqlSources } = props;
+  const [sources, setSources] = React.useState<string[]>([]);
+  const [isSQL, setIsSQL] = React.useState<boolean>(false);
+  const [connectionName, setConnectionName] = React.useState<string>('');
+  const [variableName, setVariableName] = React.useState<string>('');
 
-  /**
-   * Creates a cell header.
-   */
-  constructor(options: ISQLCellToolbarOptions) {
-    super();
-    this._cellModel = options.model;
-    this._commands = options.commands;
-    this._sqlSources = options.sqlSources;
-
-    this.modelChanged.connect(this._onModelChanged, this);
-    this._updateWidgetModel();
-
-    this._cellModel.sharedModel.changed.connect(
-      this._onSharedModelChanged,
-      this
-    );
-    this._sqlSources.changed.connect(this._onSQLSourcesChanged, this);
-  }
-
-  /**
-   * Dispose the widget and its model.
-   */
-  dispose(): void {
-    if (this.isDisposed) {
-      return;
-    }
-    this.model?.dispose();
-    super.dispose();
-  }
-
-  protected render(): JSX.Element | null {
-    return this.model ? (
-      <Toolbar className={TOOLBAR_CLASS} aria-label="Cell SQL toolbar">
-        <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Querying</span>
-        <Select
-          title="SQL source"
-          onChange={this._onDatabaseChange}
-          scale="xsmall"
-          value={this.model.database}
-        >
-          <Option
-            key="add"
-            className="mito-sql-add-option"
-            value={ADD_SOURCE_OPTION_VALUE}
-            onClick={this._addDatabase}
-          >
-            <addIcon.react tag={null} slot="start" />
-            Create new database connection
-          </Option>
-          {map(this._sqlSources, s => (
-            <Option key={s.connectionName} value={s.connectionName}>
-              {s.connectionName}
-            </Option>
-          ))}
-        </Select>
-        <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>and saving the results to variable</span>
-        <TextField
-          aria-label="Variable name"
-          title="Variable name"
-          onInput={this._onVariableChange}
-          onChange={this._onVariableChange}
-          placeholder="Variable name"
-          value={this.model.variableName}
-        >
-          <editIcon.react slot="end" tag={null} />
-        </TextField>
-      </Toolbar>
-    ) : null;
-  }
-
-  private _addDatabase = async () => {
-    if (this.model) {
-      const newSource = await this._commands.execute(CommandIDs.addSource);
-      const value = newSource?.connectionName;
-      if (value) {
-        this.model.database = value;
+  // Read SQL configuration from cell content
+  React.useEffect(() => {
+    /**
+     * Callback on shared model change.
+     *
+     * When the cell content changes, we need to parse it again as it may add/remove the magic line.
+     */
+    const onSharedModelChanged = (_: any, change: CellChange) => {
+      if (model.type !== 'code') {
+        setIsSQL(false);
+        return;
       }
-    }
-  };
 
-  /**
-   * Callback on the react select component.
-   * 
-   * It updates the model database with the newly selected value.
-   */
-  private _onDatabaseChange = (event: any) => {
-    if (this.model && event.target.value !== ADD_SOURCE_OPTION_VALUE) {
-      this.model.database = event.target.value;
-    }
-  };
+      // Extract the magic line from the cell content
+      const updateComponentState = () => {
+        const magic =
+          model.type === 'code'
+            ? MagicLine.getSQLMagic(model as ICodeCellModel)
+            : null;
 
-  /**
-   * Callback on the react textfield component.
-   * 
-   * It updates the model variable name with the newly typed name.
-   */
-  private _onVariableChange = (event: any) => {
-    if (this.model) {
-      this.model.variableName = event.target.value;
-    }
-  };
+        if (magic?.isSQL) {
+          setIsSQL(true);
+          setConnectionName(magic.options['--section'] ?? '');
+          setVariableName(magic.output ?? '');
+        } else {
+          setIsSQL(false);
+          setConnectionName('');
+          setVariableName('');
+        }
+      };
 
-  /**
-   * Callback on widget model change to connect it to the magic.
-   * 
-   * If the data model changes we need to listen for changes of the new one.
-   */
-  private _onModelChanged(): void {
-    this.model?.stateChanged.connect(this._onStateChanged, this);
-  }
+      // Avoid triggering the parsing of the cell too often by filtering
+      // on the change position.
+      if (change.sourceChange) {
+        const firstLineLength = model.sharedModel.source.indexOf('\n');
 
-  /**
-   * Callback on widget model state change to update the magic.
-   * 
-   * This is triggered when the data model for the toolbar changes.
-   * It updates the magic line in the cell to reflect the new state.
-   */
-  private _onStateChanged(): void {
+        if (firstLineLength === -1) {
+          updateComponentState();
+        } else {
+          // If an object with the key 'retain' exists, it will give the position of the
+          // change. Otherwise we assume the change occurs at position 0;
+          const position =
+            change.sourceChange.find(change => change.retain !== undefined)
+              ?.retain || 0;
+
+          // Check if the change occurs on the first line to update header and widgets.
+          if (position <= firstLineLength) {
+            updateComponentState();
+          }
+        }
+      }
+    };
+
+    // Initialize the component state
+    onSharedModelChanged(model.sharedModel, { sourceChange: [] });
+
+    model.sharedModel.changed.connect(onSharedModelChanged);
+    return () => {
+      try {
+        model.sharedModel?.changed.disconnect(onSharedModelChanged);
+      } catch (e) {
+        /* Disconnecting the signal may failed on cell disposal as the object will be deleted. */
+      }
+    };
+  }, [model]);
+
+  // Notify the parent component when the isSQL state changes
+  React.useEffect(() => {
+    onIsSQLChanged(isSQL);
+  }, [isSQL, onIsSQLChanged]);
+
+  // Update sources list from connections model
+  React.useEffect(() => {
+    const onSQLSourcesChanged = () => {
+      if (isSQL) {
+        setSources(Array.from(sqlSources).map(s => s.connectionName));
+      }
+    };
+    // Initialize the list of sources
+    onSQLSourcesChanged();
+
+    // Listen for changes
+    sqlSources.changed.connect(onSQLSourcesChanged);
+
+    return () => {
+      sqlSources.changed.disconnect(onSQLSourcesChanged);
+    };
+  }, [isSQL, sqlSources]);
+
+  // Update the cell magic line when the database or variable name changes.
+  React.useEffect(() => {
     const magic =
-      this._cellModel.type === 'code'
-        ? MagicLine.getSQLMagic(this._cellModel as ICodeCellModel)
+      model.type === 'code'
+        ? MagicLine.getSQLMagic(model as ICodeCellModel)
         : null;
 
     if (magic) {
@@ -214,90 +156,87 @@ export class SQLCellToolbar extends VDomRenderer<SqlCellModel | null> {
 
       let needsUpdate = false;
       // Set undefined if variableName is empty string
-      const variableName = this.model?.variableName || undefined;
-      if (magic.output !== variableName) {
-        magic.output = variableName;
+      const newOutput = variableName || undefined;
+      if (magic.output !== newOutput) {
+        magic.output = newOutput;
         needsUpdate = true;
       }
-      if (magic.options['--section'] !== this.model?.database) {
-        if (this.model?.database) {
-          magic.options['--section'] = this.model.database;
+      if (magic.options['--section'] !== connectionName) {
+        if (connectionName) {
+          magic.options['--section'] = connectionName;
         } else {
           delete magic.options['--section'];
         }
         needsUpdate = true;
       }
       if (needsUpdate) {
-        MagicLine.update(this._cellModel as ICodeCellModel, magic);
+        MagicLine.update(model as ICodeCellModel, magic);
       }
     }
-  }
+  }, [connectionName, model, variableName]);
 
-  /**
-   * Callback on shared model change.
-   * 
-   * When the cell content changes, we need to parse it again as it may add/remove the magic line.
-   */
-  private _onSharedModelChanged = (_: any, change: CellChange) => {
-    if (this._cellModel.type !== 'code') {
-      const oldModel = this.model;
-      this.model = null;
-      oldModel?.dispose();
-      return;
+  const onDatabaseChange = React.useCallback((event: any) => {
+    if (event.target.value !== ADD_SOURCE_OPTION_VALUE) {
+      setConnectionName(event.target.value);
     }
+  }, []);
 
-    // Avoid triggering the parsing of the cell too often by filtering
-    // on the change position.
-    if (change.sourceChange) {
-      const firstLineLength = this._cellModel.sharedModel.source.indexOf('\n');
+  const onVariableChange = React.useCallback((event: any) => {
+    setVariableName(event.target.value);
+  }, []);
 
-      if (firstLineLength === -1) {
-        this._updateWidgetModel();
-      } else {
-        // If an object with the key 'retain' exists, it will give the position of the
-        // change. Otherwise we assume the change occurs at position 0;
-        const position =
-          change.sourceChange.find(change => change.retain !== undefined)
-            ?.retain || 0;
-
-        // Check if the change occurs on the first line to update header and widgets.
-        if (position <= firstLineLength) {
-          this._updateWidgetModel();
-        }
-      }
+  const addDatabase = React.useCallback(async () => {
+    const newSource = await commands.execute(CommandIDs.addSource);
+    const value = newSource?.connectionName;
+    if (value) {
+      setConnectionName(value);
     }
-  };
+  }, [commands]);
 
-  /**
-   * Callback on SQL sources change.
-   * 
-   * It forces the component to re-render.
-   */
-  private _onSQLSourcesChanged(): void {
-    if (this._cellModel.type === 'code') {
-      this.update();
-    }
-  }
+  return isSQL ? (
+    <Toolbar className={TOOLBAR_CLASS} aria-label="Cell SQL toolbar">
+      <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Querying</span>
+      <Select
+        title="SQL source"
+        onChange={onDatabaseChange}
+        scale="xsmall"
+        value={connectionName}
+      >
+        <Option
+          key="add"
+          className="mito-sql-add-option"
+          value={ADD_SOURCE_OPTION_VALUE}
+          onClick={addDatabase}
+        >
+          <addIcon.react tag={null} slot="start" />
+          Create new database connection
+        </Option>
+        {sources.map(connectionName => (
+          <Option key={connectionName} value={connectionName}>
+            {connectionName}
+          </Option>
+        ))}
+      </Select>
+      <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>
+        and saving the results to variable
+      </span>
+      <TextField
+        aria-label="Variable name"
+        title="Variable name"
+        onInput={onVariableChange}
+        onChange={onVariableChange}
+        placeholder="Variable name"
+        value={variableName}
+      >
+        <editIcon.react slot="end" tag={null} />
+      </TextField>
+    </Toolbar>
+  ) : null;
+}
 
-  /**
-   * Parse the cell source to update the widget model.
-   */
-  private _updateWidgetModel(): void {
-    const magic =
-      this._cellModel.type === 'code'
-        ? MagicLine.getSQLMagic(this._cellModel as ICodeCellModel)
-        : null;
-
-    if (magic?.isSQL) {
-      if (!this.model) {
-        this.model = new SqlCellModel();
-      }
-      this.model.database = magic.options['--section'] ?? '';
-      this.model.variableName = magic.output ?? '';
-    } else {
-      const oldModel = this.model;
-      this.model = null;
-      oldModel?.dispose();
-    }
-  }
+/**
+ * Create a SQL cell toolbar component wrapped in a widget.
+ */
+export function createSQLCellToolbar(props: ISQLCellToolbarProps): Widget {
+  return ReactWidget.create(<SQLCellToolbar {...props} />);
 }
