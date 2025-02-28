@@ -158,12 +158,12 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
                 reply = DeleteThreadReply(
                     parent_id=parsed_message.get("message_id"),
-                    created=is_thread_deleted
+                    success=is_thread_deleted
                 )
             else:
                 reply = DeleteThreadReply(
                     parent_id=parsed_message.get("message_id"),
-                    created=False
+                    success=False
                 )
             self.reply(reply)
             return
