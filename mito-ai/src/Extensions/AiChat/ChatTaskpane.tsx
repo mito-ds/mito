@@ -564,16 +564,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
 
-            console.log("cell update", aiDisplayOptimizedChatItem?.cellUpdate)
+
+            if (aiDisplayOptimizedChatItem?.cellUpdate === undefined) {
+                // If we didn't get a cellUpdate back, stop
+                break;
+            }
+
             // Run the code and handle any errors
-            await acceptAndRunCellUpdate(aiDisplayOptimizedChatItem?.cellUpdate, notebookTracker, app, previewAICode, acceptAICode)
+            await acceptAndRunCellUpdate(aiDisplayOptimizedChatItem.cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
             const status = await retryIfExecutionError(
                 notebookTracker,
                 app,
                 getDuplicateChatHistoryManager,
                 addAIMessageFromResponseAndUpdateState,
                 sendDebugErrorMessage,
-                previewAICode,
+                previewAICodeToActiveCell,
                 acceptAICode,
                 shouldContinueAgentExecution,
                 finalizeAgentStop
@@ -600,47 +605,57 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle')
     }
 
-    const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID?: string) => {
+    const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID: string) => {
         if (!aiMessage) {
             return
         }
 
-        const targetCellID = updateCellID ? updateCellID : getActiveCellID(notebookTracker)
-        const targetCellCode = getCellCodeByID(notebookTracker, targetCellID)
+        const updateCellCode = getCellCodeByID(notebookTracker, updateCellID)
 
-        if (targetCellID === undefined || targetCellCode === undefined) {
+        if (updateCellID === undefined || updateCellCode === undefined) {
             return
         }
 
         // Extract the code from the AI's message and then calculate the code diffs
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(targetCellCode, aiGeneratedCodeCleaned)
+        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(updateCellCode, aiGeneratedCodeCleaned)
 
 
         // Store the code cell ID where we write the code diffs so that we can
         // accept or reject the code diffs to the correct cell
-        cellStateBeforeDiff.current = { codeCellID: targetCellID, code: targetCellCode }
+        cellStateBeforeDiff.current = { codeCellID: updateCellID, code: updateCellCode }
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, targetCellID)
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, updateCellID)
         updateCodeCellsExtensions(unifiedDiffs)
 
         // Briefly highlight the code cell to draw the user's attention to it
-        highlightCodeCell(notebookTracker, targetCellID)
+        highlightCodeCell(notebookTracker, updateCellID)
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const previewAICode = () => {
+    const previewAICodeToCellID = (cellID: string) => {
         setCodeReviewStatus('codeCellPreview')
 
         const lastAIDisplayMessage = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem()
-        const targetCellID = lastAIDisplayMessage?.promptType === 'agent:execution' ? lastAIDisplayMessage.codeCellID : undefined
 
-        updateCodeDiffStripes(lastAIDisplayMessage?.message, targetCellID)
+        updateCodeDiffStripes(lastAIDisplayMessage?.message, cellID)
         updateCellToolbarButtons()
+    } 
+
+    const previewAICodeToActiveCell = () => {
+        const activeCellID = getActiveCellID(notebookTracker)
+
+        console.log("previewAICodeToActiveCell active code cell", activeCellID)
+
+        if (activeCellID === undefined) {
+            return
+        }
+
+        previewAICodeToCellID(activeCellID)
     }
 
     const acceptAICode = () => {
@@ -718,7 +733,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_LATEST_CODE, {
             execute: () => {
-                previewAICode()
+                previewAICodeToActiveCell()
             }
         });
 
@@ -923,7 +938,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
-                            previewAICode={previewAICode}
+                            previewAICode={previewAICodeToActiveCell}
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}

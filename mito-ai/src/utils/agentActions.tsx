@@ -3,33 +3,46 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndex, didCellExecutionError } from "./notebook"
+import { createCodeCellAtIndex, didCellExecutionError, setActiveCellByID } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "./websocket/models"
 
 export const acceptAndRunCellUpdate = async (
-    cellUpdate: CellUpdate | undefined,
+    cellUpdate: CellUpdate,
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
-    previewAICode: () => void,
+    previewAICodeToActiveCell: () => void,
     acceptAICode: () => void
 ): Promise<void> => {
+    console.log("CELL UPDATE", cellUpdate)
+
     // If the cellUpdate is creating a new code cell, insert it 
     // before previewing and accepting the code. 
-    if (cellUpdate !== undefined && cellUpdate.type === 'new' ) {
-        createCodeCellAtIndex(notebookTracker, cellUpdate.index)
+    let targetCellID
+    if (cellUpdate.type === 'new' ) {
+        console.log("New")
+        targetCellID = createCodeCellAtIndex(notebookTracker, cellUpdate.index)
+    } else {
+        console.log("Modifying")
+        targetCellID = cellUpdate.id
     }
+
+    console.log("target cell id", targetCellID)
+
+    // Make sure the target cell is the active cell
+    setActiveCellByID(notebookTracker, targetCellID)
 
     // Because acceptAndRunCode applies the code to the current active code
     // cell it doesn't need to know about the cell update. The function 
     // createCodeCellAtIndex sets the new cell as the active cell.
-    acceptAndRunCode(app, previewAICode, acceptAICode)
+
+    acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
 }
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
-    previewAICode: () => void,
+    previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
 ):Promise<void> => {
     /* 
@@ -37,7 +50,7 @@ export const acceptAndRunCode = async (
         so make sure that correct cell is active before calling 
         this function
     */
-    previewAICode()
+    previewAICodeToActiveCell()
     acceptAICode()
     await app.commands.execute("notebook:run-cell");
 }

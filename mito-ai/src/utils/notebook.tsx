@@ -109,9 +109,10 @@ export const getAIOptimizedCells = (
     return cells
 }
 
-export function createCodeCellAtIndex(notebookTracker: INotebookTracker, index: number): void {
+export function createCodeCellAtIndex(notebookTracker: INotebookTracker, index: number): string | undefined {
     /* 
-        Create a new code cell at index and make it the active cell
+        Create a new code cell at index and make it the active cell.
+        Returns the new cell's id
     */
 
     const notebook = notebookTracker.currentWidget?.content
@@ -130,6 +131,8 @@ export function createCodeCellAtIndex(notebookTracker: INotebookTracker, index: 
         // insertAbove makes the new cell the active cell
         NotebookActions.insertAbove(notebook)
     }
+
+    return notebookTracker.activeCell?.id
 }
 
 export const didCellExecutionError = (cell: CodeCell): boolean => {
