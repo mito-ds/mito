@@ -30,10 +30,10 @@ jobs:
       - name: Install Node.js dependencies
         run: | 
           cd mito-ai
-          npm install eslint
+          yarn install eslint
       - name: Run Linters
         run: |
           cd mito-ai
-          npm run lint:check
+          yarn eslint
 
 
