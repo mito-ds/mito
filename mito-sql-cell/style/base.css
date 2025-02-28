@@ -26,6 +26,8 @@
 
 .mito-sqlcell-toolbar .jp-HTMLSelect {
   position: relative;
+  border: var(--jp-border-width) solid var(--jp-inverse-border-color);
+  border-radius: var(--jp-border-radius);
 }
 
 .mito-sqlcell-toolbar .jp-HTMLSelect > span > svg {
