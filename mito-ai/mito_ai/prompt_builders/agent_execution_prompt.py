@@ -19,21 +19,43 @@ You're job is to use the information provided to you to:
 1. Determine which code cell needs to be updated to implement the task
 2. Update that code cell to meet your colleague's intent.
 
-You should respond to your colleage in this format:
+You must respond to your colleague with either a CellModification or CellAddition repsonse type:
+
+#### Cell Modification
+When you want to modify an existing cell in the notebook, respond in this format.
+
+Format:
 {{
+    type: modification
     id: str,
     code: str
 }}
 
-### Important:
+Important information:
 1. The id is the id of the code cell that you want to update. The id MUST already be part of the original Jupyter Notebook that your colleague shared with you.
 2. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
-3. You can only select one code cell to update. 
-4. Do not use the word "I"
-5. Do not recreate variables that already exist
-6. Keep as much of the original code as possible
 
-<Example>
+
+#### Cell Addition:
+When you want to add a new cell to the notebook, respond in this format
+
+Format: 
+{{
+    type: 'new'
+    index: int
+    code: str   
+}}
+
+Important information:
+1. The index should be the 0-index position of where you want the new code cell to be added in the notebook.
+2. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
+
+#### Additional Important Instructions
+1. You can only select one code cell to update. You must choose either one Cell Modification or one Cell Addition
+2. Do not recreate variables that already exist
+3. Keep as much of the original code as possible
+
+<Cell Modification Example>
 Jupyter Notebook:
 [
     {{
@@ -69,11 +91,54 @@ Convert the transaction_date column to datetime and then multiply the total_pric
 
 Output:
 {{
+    type: 'modification'
     id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
     code: "import pandas as pd\nsales_df = pd.read_csv('./sales.csv')\nloan_multiplier = 1.5\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier"
 }}
 
-</Example>
+</Cell Modification Example>
+
+<Cell Addition Example>
+Jupyter Notebook:
+[
+    {{
+        cell_type: 'markdown'
+        id: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
+        code: \"\"\"# Used Car Sales Analysis \"\"\"
+    }},
+    {{
+        cell_type: 'code'
+        id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+        code: \"\"\"import pandas as pd
+sales_df = pd.read_csv('./sales.csv')
+sales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\"\"\"
+    }},
+]
+
+Defined Variables:
+{{
+    'sales_df': pd.DataFrame({{
+        'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
+        'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
+        'units_sold': [1, 2, 1, 4, 5],
+        'total_price': [10, 19.98, 13.99, 84.00, 500]
+    }})
+}}
+
+Files in the current directory:
+file_name: sales.csv
+
+Your task: 
+Graph the total_price for each sale
+
+Output:
+{{
+    type: 'add'
+    index: 2
+    code: "import matplotlib.pyplot as plt\nplt.bar(sales_df.index, sales_df['total_price'])\nplt.title('Total Price per Sale')\nplt.xlabel('Transaction Number')\nplt.ylabel('Sales Price ($)')\nplt.show()"
+}}
+
+</Cell Addition Example>
 
 ===== 
 

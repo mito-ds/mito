@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Literal, Union
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import AgentExecutionMetadata, MessageType, ResponseFormatInfo
+from mito_ai.models import AgentExecutionMetadata, CellUpdate, MessageType, ResponseFormatInfo
 from mito_ai.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -9,11 +9,6 @@ from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from pydantic import BaseModel
 
 __all__ = ["get_agent_execution_completion"]
-
-# Response format for agent planning
-class CellUpdate(BaseModel):
-    id: str
-    code: str
 
 class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
     """Handler for agent execution completions."""

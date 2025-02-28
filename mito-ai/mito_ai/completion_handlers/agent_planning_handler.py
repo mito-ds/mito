@@ -1,7 +1,7 @@
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel
-from mito_ai.models import AgentPlanningMetadata, MessageType, ResponseFormatInfo
+from mito_ai.models import AgentPlanningMetadata, MessageType, PlanOfAttack, ResponseFormatInfo
 from mito_ai.prompt_builders.agent_planning_prompt import create_agent_planning_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -9,11 +9,6 @@ from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
 __all__ = ["get_agent_planning_completion"]
-
-# Response format for agent planning
-class PlanOfAttack(BaseModel):
-    actions: List[str]
-    dependencies: List[str]
 
 class AgentPlanningHandler(CompletionHandler[AgentPlanningMetadata]):
     """Handler for agent planning completions."""

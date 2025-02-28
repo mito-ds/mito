@@ -3,15 +3,40 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { didCellExecutionError } from "./notebook"
+import { createCodeCellAtIndex, didCellExecutionError } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
+import { CellUpdate } from "./websocket/models"
+
+export const acceptAndRunCellUpdate = async (
+    cellUpdate: CellUpdate | undefined,
+    notebookTracker: INotebookTracker,
+    app: JupyterFrontEnd,
+    previewAICode: () => void,
+    acceptAICode: () => void
+): Promise<void> => {
+    // If the cellUpdate is creating a new code cell, insert it 
+    // before previewing and accepting the code. 
+    if (cellUpdate !== undefined && cellUpdate.type === 'new' ) {
+        createCodeCellAtIndex(notebookTracker, cellUpdate.index)
+    }
+
+    // Because acceptAndRunCode applies the code to the current active code
+    // cell it doesn't need to know about the cell update. The function 
+    // createCodeCellAtIndex sets the new cell as the active cell.
+    acceptAndRunCode(app, previewAICode, acceptAICode)
+}
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
     previewAICode: () => void,
     acceptAICode: () => void,
 ):Promise<void> => {
+    /* 
+        PreviewAICode applies the code to the current active code cell, 
+        so make sure that correct cell is active before calling 
+        this function
+    */
     previewAICode()
     acceptAICode()
     await app.commands.execute("notebook:run-cell");

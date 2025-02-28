@@ -28,7 +28,8 @@ export interface IDisplayOptimizedChatItem {
     type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
-    codeCellID: string | undefined
+    codeCellID?: string | undefined
+    cellUpdate?: CellUpdate
 }
 
 /* 
@@ -289,8 +290,8 @@ export class ChatHistoryManager {
             {
                 message: aiMessage, 
                 type: 'openai message',
-                codeCellID: cellUpdate.id,
-                promptType: 'agent:execution'
+                promptType: 'agent:execution',
+                cellUpdate: cellUpdate
             }
         );
     }

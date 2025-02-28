@@ -1,4 +1,4 @@
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from './websocket/models';
@@ -107,6 +107,29 @@ export const getAIOptimizedCells = (
     console.log(cells)
 
     return cells
+}
+
+export function createCodeCellAtIndex(notebookTracker: INotebookTracker, index: number): void {
+    /* 
+        Create a new code cell at index and make it the active cell
+    */
+
+    const notebook = notebookTracker.currentWidget?.content
+    if (notebook === undefined) {
+        return undefined;
+    }
+
+    if (index > 0) {
+        notebook.activeCellIndex = index - 1;
+
+        // insertBelow makes the new cell the active cell
+        NotebookActions.insertBelow(notebook);
+    } else {
+        notebook.activeCellIndex = 0
+
+        // insertAbove makes the new cell the active cell
+        NotebookActions.insertAbove(notebook)
+    }
 }
 
 export const didCellExecutionError = (cell: CodeCell): boolean => {

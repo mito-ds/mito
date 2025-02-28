@@ -16,10 +16,19 @@ export type AIOptimizedCell = {
   code: string
 }
 
-export type CellUpdate = {
+export type CellUpdateModification = {
+  type: 'modification'
   id: string,
   code: string
 }
+
+export type CellUpdateNew = {
+  type: 'new'
+  index: number,
+  code: string
+}
+
+export type CellUpdate = CellUpdateModification | CellUpdateNew
 
 /* 
 

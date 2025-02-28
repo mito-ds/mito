@@ -40,7 +40,7 @@ import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { CellUpdate, IAgentAutoErrorFixupCompletionRequest, IAgentExecutionCompletionRequest, IAgentPlanningCompletionRequest, IChatCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
-import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
+import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
@@ -148,7 +148,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // which we need to parse. 
                         // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
                         const agentResponse = JSON.parse(item.content as string);
-                        if (agentResponse.hasOwnProperty('id') && agentResponse.hasOwnProperty('code')) {
+                        if (agentResponse.hasOwnProperty('type') && agentResponse.hasOwnProperty('code')) {
                             // If it has the cellUpdate keys then it is a cell update and we should handle it as such
                             const cellUpdate: CellUpdate = agentResponse
                             newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
@@ -564,8 +564,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
 
+            console.log("cell update", aiDisplayOptimizedChatItem?.cellUpdate)
             // Run the code and handle any errors
-            await acceptAndRunCode(app, previewAICode, acceptAICode)
+            await acceptAndRunCellUpdate(aiDisplayOptimizedChatItem?.cellUpdate, notebookTracker, app, previewAICode, acceptAICode)
             const status = await retryIfExecutionError(
                 notebookTracker,
                 app,

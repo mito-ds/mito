@@ -1,6 +1,6 @@
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type
+from typing import List, Literal, Optional, Type, Union
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 from pydantic import BaseModel
@@ -11,10 +11,25 @@ class AIOptimizedCells():
   id: str
   code: str
   
+# Response format for agent planning
+# TODO: Figure out how to discriminate the 
+# CellUpdateModification and CellUpdateNew types
+    
+class CellUpdate(BaseModel):
+    type: Literal['new', 'modification']
+    index: Optional[int]
+    id: Optional[str]
+    code: str
+
+# Response format for agent planning
+class PlanOfAttack(BaseModel):
+    actions: List[str]
+    dependencies: List[str]
+  
 @dataclass(frozen=True)
 class ResponseFormatInfo():
     name: str
-    format: Type[BaseModel]
+    format: Union[PlanOfAttack, CellUpdate]
 
 
 class MessageType(Enum):
