@@ -9,7 +9,7 @@
     "lib": [
       "dom",
       "DOM.Iterable",
-      "ES2022",
+      "ES2022"
     ],
     "module": "esnext",
     "moduleResolution": "node",
@@ -23,6 +23,7 @@
     "rootDir": "./src",
     "strict": true,
     "strictNullChecks": true,
+    "noImplicitReturns": true,
     "target": "ES2018",
     "types": [
       "jest",

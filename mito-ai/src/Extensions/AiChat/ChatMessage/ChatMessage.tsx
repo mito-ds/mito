@@ -179,6 +179,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 }
                             </>
                         )
+                    } else {
+                        // Return null for empty code blocks
+                        return null;
                     }
                 } else {
                     return (
