@@ -119,7 +119,9 @@ async def get_ai_completion_from_mito_server(
     # If we are running in a test environment, we want a short timeout to prevent tests from hanging
     # for too long, but still give enough time for simple responses.
     if is_running_test():
-        http_client_timeout = 20000  # 20 seconds for tests
+        # Increase timeout specifically for CI environments to prevent kernel shutdown issues
+        # CI environments tend to be slower and need more time to process requests
+        http_client_timeout = 60000  # 60 seconds for CI tests
 
     http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"), request_timeout=http_client_timeout)
     try:
