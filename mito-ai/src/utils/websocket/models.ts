@@ -283,7 +283,7 @@ export interface InlineCompletionStreamChunk
 /**
  * Chat thread item information.
  */
-export interface IChatThreadItem {
+export interface IChatThreadMetadataItem {
   /**
    * Unique thread identifier.
    */
@@ -362,7 +362,7 @@ export interface IFetchThreadsReply {
   /**
    * List of chat threads.
    */
-  threads: IChatThreadItem[];
+  threads: IChatThreadMetadataItem[];
 }
 
 /**

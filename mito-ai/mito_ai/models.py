@@ -236,7 +236,7 @@ class FetchHistoryReply:
     type: Literal["reply"] = "reply"
 
 @dataclass(frozen=True)
-class ChatThreadItem:
+class ChatThreadMetadata:
     """
     Chat thread item.
     """
@@ -274,7 +274,7 @@ class FetchThreadsReply:
     parent_id: str
 
     # List of chat threads.
-    threads: List[ChatThreadItem]
+    threads: List[ChatThreadMetadata]
 
     # Message type.
     type: Literal["reply"] = "reply"

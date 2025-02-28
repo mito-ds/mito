@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.models import CompletionRequest, ChatThreadItem, MessageType
+from mito_ai.models import CompletionRequest, ChatThreadMetadata, MessageType
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.schema import MITO_FOLDER
@@ -341,7 +341,7 @@ class GlobalMessageHistory:
                         print(f"Error deleting thread {thread_id}: {e}")
             return False
 
-    def get_threads(self) -> List[ChatThreadItem]:
+    def get_threads(self) -> List[ChatThreadMetadata]:
         """
         Returns a list of all chat threads with keys:
           - thread_id
@@ -353,7 +353,7 @@ class GlobalMessageHistory:
         with self._lock:
             threads = []
             for thread in self._chat_threads.values():
-                threads.append(ChatThreadItem(
+                threads.append(ChatThreadMetadata(
                     thread_id=thread.thread_id,
                     name=thread.name,
                     creation_ts=thread.creation_ts,

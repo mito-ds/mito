@@ -40,7 +40,7 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
 import { 
-    IChatThreadItem, 
+    IChatThreadMetadataItem, 
     IChatMessageMetadata, 
     IGetThreadsMetadata,
     IFetchHistoryMetadata,
@@ -113,7 +113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
-    const [chatThreads, setChatThreads] = useState<IChatThreadItem[]>([]);
+    const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
     
     /* 
