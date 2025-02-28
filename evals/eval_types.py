@@ -1,5 +1,27 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Union
+from pydantic import BaseModel
+    
+@dataclass()
+class Cell:
+    cell_type: Literal['code', 'markdown']
+    id: str
+    code: str
+  
+class CellUpdate(BaseModel):
+    id: str
+    code: str
+
+@dataclass()
+class AgentFindAndUpdateTestCase:
+    """A single test case with input state and expected output"""
+    name: str
+    initial_notebook_state: List[Cell]
+    user_input: str
+    cell_update: CellUpdate
+    workflow_tags: List[str]
+    type_tags: List[Literal['short', 'medium', 'long']]
+    
 
 WORKFLOW_TAGS = Literal[
     'variable_declaration', 
@@ -90,7 +112,7 @@ class TestCaseResult:
     """
     The result of running a test case. Used to display the results.
     """
-    test: Union[ChatTestCase, SmartDebugTestCase]
+    test: Union[ChatTestCase, SmartDebugTestCase, AgentFindAndUpdateTestCase]
     passed: bool
 
 
@@ -122,6 +144,17 @@ class InlineCodeCompletionPromptGenerator():
         # Default implementation returns the output unchanged
         return output
     
+    def get_default_model(self) -> str:
+        return "gpt-4o-mini"
+    
+    
+class AgentFindAndUpdatePromptGenerator():
+
+    prompt_name: str
+
+    def get_prompt(self, user_input: str, initial_notebook_state: List[Cell]) -> str:
+        raise NotImplementedError("Subclasses must implement this method")
+        
     def get_default_model(self) -> str:
         return "gpt-4o-mini"
 
