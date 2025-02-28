@@ -9,9 +9,9 @@ import type { IObservableList } from '@jupyterlab/observables';
 import type { CommandRegistry } from '@lumino/commands';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal } from '@lumino/signaling';
-import type { PanelLayout } from '@lumino/widgets';
+import type { PanelLayout, Widget } from '@lumino/widgets';
 import { magicConfiguration } from './magicLineUtils';
-import { SQLCellToolbar } from './sqlcelltoolbar';
+import { createSQLCellToolbar } from './sqlcelltoolbar';
 import type { ISqlSources } from './tokens';
 
 /**
@@ -25,7 +25,8 @@ const MITO_SQL_CELL_CONFIGURATION_TAG = 'mito-sql-cell-configuration';
 class SQLCellToolbarFactory implements IDisposable {
   private _configurationChecked = false;
   private _isDisposed = false;
-  private _toolbars = new WeakMap<ICellModel, SQLCellToolbar>();
+  private _nSqlCells = 0;
+  private _toolbars = new WeakMap<ICellModel, Widget>();
 
   /**
    * SQL toolbar factory.
@@ -65,9 +66,10 @@ class SQLCellToolbarFactory implements IDisposable {
   private _addToolbar(model: ICellModel): void {
     const cell = this._getCell(model);
     if (cell) {
-      const toolbar = new SQLCellToolbar({
+      const toolbar = createSQLCellToolbar({
         commands: this.commands,
         model,
+        onIsSQLChanged: this._onIsSqlCellChanged,
         sqlSources: this.sqlSources
       });
       (cell.layout as PanelLayout).insertWidget(0, toolbar);
@@ -97,6 +99,18 @@ class SQLCellToolbarFactory implements IDisposable {
     changed.newValues.forEach(model => this._addToolbar(model));
   }
 
+  private _onIsSqlCellChanged = (isSQL: boolean): void => {
+    if (isSQL) {
+      this._nSqlCells++;
+    } else {
+      this._nSqlCells = Math.max(0, this._nSqlCells - 1);
+    }
+
+    if (this._nSqlCells === 1) {
+      this._checkConfiguration();
+    }
+  };
+
   private _onModelChanged(content: Notebook): void {
     const cells = content.model?.cells;
     if (cells) {
@@ -109,8 +123,6 @@ class SQLCellToolbarFactory implements IDisposable {
       });
     }
     cells?.changed.connect(this._onCellsChanged, this);
-
-    this._checkConfiguration();
   }
 
   private _onSQLSourcesChanged(sources: ISqlSources, attribute: string): void {
