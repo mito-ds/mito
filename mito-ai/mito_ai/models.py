@@ -15,6 +15,7 @@ class AIOptimizedCells():
 # TODO: Figure out how to discriminate the 
 # CellUpdateModification and CellUpdateNew types
     
+@dataclass(frozen=True)
 class CellUpdate(BaseModel):
     type: Literal['new', 'modification']
     index: Optional[int]
@@ -29,7 +30,8 @@ class PlanOfAttack(BaseModel):
 @dataclass(frozen=True)
 class ResponseFormatInfo():
     name: str
-    format: Union[PlanOfAttack, CellUpdate]
+    # Use the type because we are actually just providing the type format, not an actual instance of the format
+    format: Union[type[PlanOfAttack], type[CellUpdate]] 
 
 
 class MessageType(Enum):
