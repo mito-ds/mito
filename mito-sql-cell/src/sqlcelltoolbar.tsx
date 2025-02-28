@@ -1,13 +1,13 @@
-import { Option, Select, TextField, Toolbar } from '@jupyter/react-components';
+import { TextField, Toolbar } from '@jupyter/react-components';
 import { CellChange } from '@jupyter/ydoc';
 import { type ICellModel, type ICodeCellModel } from '@jupyterlab/cells';
-import { addIcon, editIcon, ReactWidget } from '@jupyterlab/ui-components';
+import { editIcon, HTMLSelect, ReactWidget } from '@jupyterlab/ui-components';
 import type { CommandRegistry } from '@lumino/commands';
+import type { Widget } from '@lumino/widgets';
 import * as React from 'react';
 import { CommandIDs } from './commands';
 import { MagicLine } from './magicLineUtils';
 import { type ISqlSources } from './tokens';
-import type { Widget } from '@lumino/widgets';
 
 /**
  * The class of the toolbar.
@@ -139,84 +139,99 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
   }, [isSQL, sqlSources]);
 
   // Update the cell magic line when the database or variable name changes.
-  React.useEffect(() => {
-    const magic =
-      model.type === 'code'
-        ? MagicLine.getSQLMagic(model as ICodeCellModel)
-        : null;
+  const updateCellMagic = React.useCallback(
+    (connectionName: string, model: ICellModel, variableName: string) => {
+      const magic =
+        model.type === 'code'
+          ? MagicLine.getSQLMagic(model as ICodeCellModel)
+          : null;
 
-    if (magic) {
-      // Clear args and options to avoid unsupported combinations.
-      magic.args = [];
-      magic.options = magic.options['--section']
-        ? {
-            '--section': magic.options['--section']
-          }
-        : {};
+      if (magic) {
+        // Clear args and options to avoid unsupported combinations.
+        magic.args = [];
+        magic.options = magic.options['--section']
+          ? {
+              '--section': magic.options['--section']
+            }
+          : {};
 
-      let needsUpdate = false;
-      // Set undefined if variableName is empty string
-      const newOutput = variableName || undefined;
-      if (magic.output !== newOutput) {
-        magic.output = newOutput;
-        needsUpdate = true;
-      }
-      if (magic.options['--section'] !== connectionName) {
-        if (connectionName) {
-          magic.options['--section'] = connectionName;
-        } else {
-          delete magic.options['--section'];
+        let needsUpdate = false;
+        // Set undefined if variableName is empty string
+        const newOutput = variableName || undefined;
+        if (magic.output !== newOutput) {
+          magic.output = newOutput;
+          needsUpdate = true;
         }
-        needsUpdate = true;
+        // Set undefined if connectionName is empty string to
+        // match the missing value
+        const newConnection = connectionName || undefined;
+        if (magic.options['--section'] !== newConnection) {
+          if (newConnection) {
+            magic.options['--section'] = newConnection;
+          } else {
+            delete magic.options['--section'];
+          }
+          needsUpdate = true;
+        }
+        if (needsUpdate) {
+          MagicLine.update(model as ICodeCellModel, magic);
+        }
       }
-      if (needsUpdate) {
-        MagicLine.update(model as ICodeCellModel, magic);
+    },
+    []
+  );
+
+  const addDatabase = React.useCallback(
+    async (event: any) => {
+      if (event.target.value !== ADD_SOURCE_OPTION_VALUE) return;
+      const newSource = await commands.execute(CommandIDs.addSource);
+      const value = newSource?.connectionName;
+      if (value) {
+        setConnectionName(value);
+        updateCellMagic(value, model, variableName);
       }
-    }
-  }, [connectionName, model, variableName]);
+    },
+    [commands, model, variableName]
+  );
 
-  const onDatabaseChange = React.useCallback((event: any) => {
-    if (event.target.value !== ADD_SOURCE_OPTION_VALUE) {
-      setConnectionName(event.target.value);
-    }
-  }, []);
+  const onConnectionChange = React.useCallback(
+    (event: any) => {
+      if (event.target.value !== ADD_SOURCE_OPTION_VALUE) {
+        setConnectionName(event.target.value);
+        updateCellMagic(event.target.value, model, variableName);
+      } else {
+        addDatabase(event);
+      }
+    },
+    [model, variableName]
+  );
 
-  const onVariableChange = React.useCallback((event: any) => {
-    setVariableName(event.target.value);
-  }, []);
-
-  const addDatabase = React.useCallback(async () => {
-    const newSource = await commands.execute(CommandIDs.addSource);
-    const value = newSource?.connectionName;
-    if (value) {
-      setConnectionName(value);
-    }
-  }, [commands]);
+  const onVariableChange = React.useCallback(
+    (event: any) => {
+      setVariableName(event.target.value);
+      updateCellMagic(connectionName, model, event.target.value);
+    },
+    [connectionName, model]
+  );
 
   return isSQL ? (
     <Toolbar className={TOOLBAR_CLASS} aria-label="Cell SQL toolbar">
       <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Querying</span>
-      <Select
+      <HTMLSelect
         title="SQL source"
-        onChange={onDatabaseChange}
-        scale="xsmall"
+        onChange={onConnectionChange}
         value={connectionName}
+        onClick={addDatabase}
       >
-        <Option
-          key="add"
-          className="mito-sql-add-option"
-          value={ADD_SOURCE_OPTION_VALUE}
-          onClick={addDatabase}
-        >
-          <addIcon.react tag={null} slot="start" />
-          Create new database connection
-        </Option>
-        {sources.map(connectionName => (
-          <Option key={connectionName} value={connectionName}>
-            {connectionName}
-          </Option>
+        <option key="add" value={ADD_SOURCE_OPTION_VALUE}>
+          + Create new database connection
+        </option>
+        {sources.map(source => (
+          <option key={source} value={source}>
+            {source}
+          </option>
         ))}
-      </Select>
+      </HTMLSelect>
       <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>
         and saving the results to variable
       </span>
