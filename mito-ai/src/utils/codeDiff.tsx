@@ -19,7 +19,7 @@ export const getCodeDiffLineRanges = (originalLines: string | undefined | null, 
     const originalLinesArray = originalLines.split('\n')
     const modifiedLinesArray = modifiedLines.split('\n')
 
-    let options: IDiffComputerOpts = {
+    const options: IDiffComputerOpts = {
         shouldPostProcessCharChanges: true,
         shouldIgnoreTrimWhitespace: true,
         shouldMakePrettyDiff: true,
@@ -27,8 +27,8 @@ export const getCodeDiffLineRanges = (originalLines: string | undefined | null, 
         maxComputationTime: 0 // time in milliseconds, 0 => no computation limit.
     }
 
-    let diffComputer = new DiffComputer(originalLinesArray, modifiedLinesArray, options);
-    let lineChanges: ILineChange[] = diffComputer.computeDiff().changes;
+    const diffComputer = new DiffComputer(originalLinesArray, modifiedLinesArray, options);
+    const lineChanges: ILineChange[] = diffComputer.computeDiff().changes;
 
     return lineChanges || []
 }

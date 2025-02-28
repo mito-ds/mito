@@ -28,7 +28,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         setSelectedIndex(0);
     }, [options, filterText]);
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
         switch (event.key) {
             case 'ArrowDown':
             case 'Down':
@@ -46,13 +46,14 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 break;
             case 'Enter':
             case 'Return':
-            case 'Tab':
+            case 'Tab': {
                 event.preventDefault();
                 const selectedOption = filteredOptions[selectedIndex];
                 if (selectedOption !== undefined) {
                     onSelect(selectedOption.variable_name, selectedOption.parent_df);
                 }
                 break;
+            }
         }
     };
 
@@ -61,7 +62,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [filteredOptions, selectedIndex]);
 
-    const getShortType = (type: string) => {
+    const getShortType = (type: string): string => {
         if (type.includes("DataFrame")) {
             return "df";
         }
@@ -69,7 +70,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             return "s";
         }
         if (type.includes("<class '")) {
-            return type.split("'")[1];
+            return type.split("'")[1] ?? '';
         }
         return type;
     }

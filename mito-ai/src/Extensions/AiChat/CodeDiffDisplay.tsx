@@ -40,7 +40,7 @@ const getCodeDiffStripesDecoration = (view: EditorView): DecorationSet => {
   for (const { from, to } of view.visibleRanges) {
     for (let pos = from; pos <= to;) {
       const line = view.state.doc.lineAt(pos);
-      
+
       // The code mirror line numbers are 1-indexed, but our diff lines are 0-indexed
       if (line.number - 1 >= (unifiedDiffLinesFacet?.length ?? 0)) {
         /* 
@@ -75,7 +75,7 @@ const showStripes = ViewPlugin.fromClass(
       this.decorations = getCodeDiffStripesDecoration(view);
     }
 
-    update(update: ViewUpdate) {
+    update(update: ViewUpdate): void {
       const oldUnifiedDiffLines = update.startState.facet(unifiedDiffLines);
       const newUnifiedDiffLines = update.view.state.facet(unifiedDiffLines);
 

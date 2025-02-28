@@ -56,7 +56,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, 100);
 
     useEffect(() => {
-        const activeCellChangedListener = () => { 
+        const activeCellChangedListener = (): void => { 
             const newActiveCellID = getActiveCellID(notebookTracker);
             debouncedSetActiveCellID(newActiveCellID);
         };
@@ -73,7 +73,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
-    const adjustHeight = (resetHeight: boolean = false) => {
+    const adjustHeight = (resetHeight: boolean = false): void => {
         const textarea = textAreaRef?.current;
         if (!textarea) return;
 
@@ -87,7 +87,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         adjustHeight();
     }, [textAreaRef?.current?.value]);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
         const value = event.target.value;
         setInput(value);
 
@@ -106,7 +106,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    const handleOptionSelect = (variableName: string, parentDf?: string) => {
+    const handleOptionSelect = (variableName: string, parentDf?: string): void => {
         const textarea = textAreaRef.current;
         if (!textarea) return;
 
@@ -152,7 +152,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             ...(contextManager?.variables
                 .filter((variable) => variable.type === "pd.DataFrame")
                 .flatMap((df) =>
-                    Object.entries(df.value).map(([seriesName, details]) => ({
+                    Object.entries(df.value).map(([seriesName, _]) => ({
                         variable_name: seriesName,
                         type: "col",
                         value: "replace_me",

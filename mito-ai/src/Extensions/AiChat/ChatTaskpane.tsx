@@ -128,7 +128,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     useEffect(() => {
-        const initializeChatHistory = async () => {
+        const initializeChatHistory = async (): Promise<void> => {
             try {
                 // 1. Check that the websocket client is ready
                 await websocketClient.ready;
@@ -170,7 +170,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         };
 
-        initializeChatHistory();
+        void initializeChatHistory();
     }, [websocketClient]);
 
     useEffect(() => {
@@ -203,7 +203,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
 
 
-    const getDuplicateChatHistoryManager = () => {
+    const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
 
         /*
             We use getDuplicateChatHistoryManager() instead of directly accessing the state variable because 
@@ -270,7 +270,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        var chatMessageMetadata: IChatMessageMetadata;
+        let chatMessageMetadata: IChatMessageMetadata;
         if (messageIndex !== undefined) {
             chatMessageMetadata = newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
         } else {
@@ -343,7 +343,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
-    const handleDeleteMessage = (messageIndex: number) => {
+    const handleDeleteMessage = (messageIndex: number): void => {
         // Get a new chat history manager
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         
@@ -434,7 +434,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManager: ChatHistoryManager,
         mitoAIConnectionError: boolean = false,
         mitoAIConnectionErrorType: string | null = null
-    ) => {
+    ): void => {
         /* 
         Adds a new message to the chat history and updates the state. If we don't update the state 
         then the chat history does not update in the UI. 
@@ -445,7 +445,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const handleAgentResponse = (
         agentResponse: { actions: string[], dependencies: string[] }, newChatHistoryManager: ChatHistoryManager
-    ) => {
+    ): void => {
 
         addAIMessageFromResponseAndUpdateState(
             "Based on your request, I've outlined a step-by-step plan. Please review each step carefully. If you'd like to add details or make any changes, you can edit each step directly. Once everything looks good, press Go at the bottom of the task pane to proceed.",
@@ -479,14 +479,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         )
     }
 
-    const markAgentForStopping = () => {
+    const markAgentForStopping = (): void => {
         // Signal that the agent should stop after current task
         shouldContinueAgentExecution.current = false;
         // Update UI to show stopping state
         setAgentExecutionStatus('stopping');
     }
 
-    const finalizeAgentStop = () => {
+    const finalizeAgentStop = (): void => {
         // Notify user that agent has been stopped
         shouldContinueAgentExecution.current = false;
         const newChatHistoryManager = getDuplicateChatHistoryManager();
@@ -499,7 +499,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle');
     }
 
-    const executeAgentPlan = async () => {
+    const executeAgentPlan = async (): Promise<void> => {
         setAgentModeEnabled(false)
         setAgentExecutionStatus('working')
         // Reset the execution flag at the start of a new plan
@@ -603,7 +603,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle')
     }
 
-    const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
+    const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined): void => {
         if (!aiMessage) {
             return
         }
@@ -636,13 +636,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const previewAICode = () => {
+    const previewAICode = (): void => {
         setCodeReviewStatus('codeCellPreview')
         updateCodeDiffStripes(chatHistoryManagerRef.current.getLastAIMessage()?.message)
         updateCellToolbarButtons()
     }
 
-    const acceptAICode = () => {
+    const acceptAICode = (): void => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
 
@@ -668,7 +668,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const rejectAICode = () => {
+    const rejectAICode = (): void => {
         if (cellStateBeforeDiff.current === undefined) {
             return
         }
@@ -677,7 +677,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID)
     }
 
-    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined) => {
+    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined): void => {
         updateCodeCellsExtensions(undefined)
         cellStateBeforeDiff.current = undefined
 
@@ -687,13 +687,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const clearChatHistory = () => {
+    const clearChatHistory = async (): Promise<ChatHistoryManager> => {
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager)
         setChatHistoryManager(newChatHistoryManager);
 
         // Notify the backend to clear the prompt history
-        websocketClient.sendMessage({
+        await websocketClient.sendMessage({
             type: 'clear_history',
             message_id: UUID.uuid4(),
             metadata: {
@@ -735,16 +735,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             We use this to automatically send the message when the user adds an error to the chat. 
         */
         app.commands.addCommand(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, {
-            execute: (args?: ReadonlyPartialJSONObject) => {
+            execute: async (args?: ReadonlyPartialJSONObject) => {
                 if (args?.input) {
-                    sendDebugErrorMessage(args.input.toString())
+                    await sendDebugErrorMessage(args.input.toString())
                 }
             }
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, {
-            execute: () => {
-                sendExplainCodeMessage()
+            execute: async () => {
+                await sendExplainCodeMessage()
             }
         });
 
@@ -763,6 +763,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 try {
                     return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
                 } catch (error) {
+                    console.error('Error checking if code cell toolbar accept code is visible', error)
                     return false;
                 }
             }
@@ -777,6 +778,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 try {
                     return notebookTracker.activeCell?.model.id === cellStateBeforeDiff.current?.codeCellID
                 } catch (error) {
+                    console.error('Error checking if code cell toolbar reject code is visible', error)
                     return false;
                 }
             }
@@ -809,7 +811,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
     }, [codeReviewStatus]);
 
-    const updateCellToolbarButtons = () => {
+    const updateCellToolbarButtons = (): void => {
         // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.
         // Without this, the user needs to take some action, like switching to a different cell 
         // and then switching back in order for the Jupyter to re-evaluate if it should
@@ -822,7 +824,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
 
     // Function to update the extensions of code cells
-    const updateCodeCellsExtensions = ((unifiedDiffLines: UnifiedDiffLine[] | undefined) => {
+    const updateCodeCellsExtensions = (unifiedDiffLines: UnifiedDiffLine[] | undefined): void => {
         const notebook = notebookTracker.currentWidget?.content;
         if (!notebook) {
             return;
@@ -864,7 +866,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         });
-    });
+    };
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
@@ -882,7 +884,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <IconButton
                         icon={<ResetIcon />}
                         title="Clear the chat history"
-                        onClick={() => { clearChatHistory() }}
+                        onClick={() => {void clearChatHistory() }}
                     />
                 </div>
             </div>
@@ -907,6 +909,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     return (
                         <ChatMessage
+                            key={index}
                             message={displayOptimizedChat.message}
                             promptType={displayOptimizedChat.promptType}
                             messageType={displayOptimizedChat.type}
@@ -943,12 +946,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         className="button-base button-purple agent-start-button"
                         onClick={executeAgentPlan}
                     >
-                        Let's go!
+                        Let&apos;s go!
                     </button>
                     <button
                         className="button-base button-red agent-cancel-button"
                         onClick={() => {
-                            clearChatHistory();
+                            void clearChatHistory();
                             setAgentModeEnabled(false);
                         }}
                     >
@@ -981,7 +984,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 rightText="Agent"
                                 isLeftSelected={!agentModeEnabled}
                                 onChange={(isLeftSelected) => {
-                                    clearChatHistory();
+                                    void clearChatHistory();
                                     setAgentModeEnabled(!isLeftSelected);
                                     // Focus the chat input directly
                                     const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;

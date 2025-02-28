@@ -58,7 +58,7 @@ export const getNotebookName = (notebookTracker: INotebookTracker): string => {
     return notebook?.title.label || 'Untitled'
 }
 
-export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string) => {
+export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string): void => {
     /*
         Briefly highlights a code cell, to draw the user's attention to it.
     */

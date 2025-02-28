@@ -57,7 +57,8 @@ export class MitoAIInlineCompleter
 
 
   constructor({
-    serverSettings,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    serverSettings, 
     contextManager,
     ...clientOptions
   }: MitoAIInlineCompleter.IOptions) {
@@ -290,7 +291,7 @@ export class MitoAIInlineCompleter
     return request.text.slice(request.offset);
   }
 
-  private _notifyFreeTierLimitReached() {
+  private _notifyFreeTierLimitReached(): void {
     Notification.emit(`Your Mito AI free trial ended. Upgrade to Mito Pro to access advanced models and continue using Mito AI or supply your own key.`, 'error', {
       autoClose: false,
       actions: [
@@ -320,14 +321,14 @@ export class MitoAIInlineCompleter
     });
   }
 
-  private _notifyCompletionFailure(error: CompletionError) {
+  private _notifyCompletionFailure(error: CompletionError): void {
     Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
       autoClose: false,
       actions: [
         {
           label: 'Show Traceback',
-          callback: () => {
-            showErrorMessage('Inline completion failed on the server side', {
+          callback: async (): Promise<void> => {
+            await showErrorMessage('Inline completion failed on the server side', {
               message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
             });
           }
@@ -342,7 +343,7 @@ export class MitoAIInlineCompleter
   private _receiveStreamChunk(
     _emitter: CompletionWebsocketClient,
     chunk: ICompletionStreamChunk
-  ) {
+  ): void {
 
     if (chunk.error?.title === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
       this._notifyFreeTierLimitReached();
@@ -372,7 +373,7 @@ export class MitoAIInlineCompleter
     fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
-    let cleanedCompletion = this._cleanCompletion(fullCompletion);
+    const cleanedCompletion = this._cleanCompletion(fullCompletion);
 
     this._currentStream.emit({
       done: chunk.done,
@@ -388,7 +389,7 @@ export class MitoAIInlineCompleter
     });
   }
 
-  private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string) {
+  private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string): string {
 
     let cleanedCompletion = rawCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
@@ -416,7 +417,7 @@ export class MitoAIInlineCompleter
 
 
 
-  private _resetCurrentStream() {
+  private _resetCurrentStream(): void {
     this._currentToken = '';
     if (this._currentStream) {
       this._currentStream.stop();
@@ -440,6 +441,7 @@ export class MitoAIInlineCompleter
   */
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace MitoAIInlineCompleter {
   export interface IOptions extends ICompletionWebsocketClientOptions {
     /**
