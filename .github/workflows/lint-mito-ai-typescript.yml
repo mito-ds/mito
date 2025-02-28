@@ -42,6 +42,6 @@ jobs:
       - name: Run Linters
         run: |
           cd mito-ai
-          jlpm eslint
+          jlpm lint
 
 
