@@ -11,10 +11,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import NewChatIcon from '../../icons/NewChatIcon';
-import DeleteIcon from '../../icons/DeleteIcon';
-import HistoryIcon from '../../icons/HistoryIcon';
-import OpenIndicatorIcon from '../../icons/OpenIndicatorIcon';
+import { addIcon, historyIcon, deleteIcon } from '@jupyterlab/ui-components';
+import { OpenIndicatorLabIcon } from '../../icons';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -1000,23 +998,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         }}
                     />
                     <IconButton
-                        icon={<NewChatIcon />}
+                        icon={<addIcon.react />}
                         title="Start New Chat"
                         onClick={async () => { await startNewChat() }}
                     />
                     <DropdownMenu
                          trigger={
                              <button className="icon-button" title="Chat Threads" onClick={fetchChatThreads}>
-                                 <HistoryIcon />
+                                 <historyIcon.react />
                              </button>
                          }
                          items={chatThreads.map(thread => ({
                            label: thread.name,
-                           primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorIcon : undefined,
+                           primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
                            onClick: () => fetchChatHistoryForThread(thread.thread_id),
                            secondaryActions: [
                             {
-                                icon: DeleteIcon,
+                                icon: deleteIcon.react,
                                 onClick: () => deleteThread(thread.thread_id),
                                 tooltip: 'Delete this chat',
                             }
