@@ -20,6 +20,7 @@ from mito_ai.models import (
     CompletionRequest,
     CompletionStreamChunk,
     MessageType,
+    ResponseFormatInfo,
 )
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
@@ -209,7 +210,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
-        response_format: Optional[Type[BaseModel]] = None
+        response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
         """
         Request completions from the OpenAI API.
@@ -230,7 +231,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 model = "gpt-4o-mini"
         
             completion_function_params = get_open_ai_completion_function_params(
-                model, messages, False, response_format
+                model, messages, False, response_format_info
             )
             
             completion = None

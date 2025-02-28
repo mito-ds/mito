@@ -1,7 +1,7 @@
 from typing import List
 
 
-def create_agent_prompt(
+def create_agent_planning_prompt(
     file_type: str, columnSamples: List[str], input: str, variables: List[str], files: List[str]
 ) -> str:
     variables_str = "\n".join([f"{variable}" for variable in variables])

@@ -53,7 +53,7 @@ export class ContextManager implements IContextManager {
 
             // As soon as the notebook is opened, fetch the files so we don't have to wait for the first message.
             fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
- 
+
             // Listen to kernel messages
             notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
 

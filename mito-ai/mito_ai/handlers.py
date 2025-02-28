@@ -24,6 +24,7 @@ from mito_ai.models import (
     SmartDebugMetadata,
     CodeExplainMetadata,
     AgentPlanningMetadata,
+    AgentExecutionMetadata,
     InlineCompleterMetadata,
     MessageType
 )
@@ -145,26 +146,26 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # Get completion based on message type
             completion = None
             if type == MessageType.CHAT:
-                chatMetadata = ChatMessageMetadata(**metadata_dict)
-                completion = await get_chat_completion(chatMetadata, self._llm, message_history)
+                chat_metadata = ChatMessageMetadata(**metadata_dict)
+                completion = await get_chat_completion(chat_metadata, self._llm, message_history)
             elif type == MessageType.SMART_DEBUG:
-                smartDebugMetadata = SmartDebugMetadata(**metadata_dict)
-                completion = await get_smart_debug_completion(smartDebugMetadata, self._llm, message_history)
+                smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
+                completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, message_history)
             elif type == MessageType.CODE_EXPLAIN:
-                codeExplainMetadata = CodeExplainMetadata(**metadata_dict)
-                completion = await get_code_explain_completion(codeExplainMetadata, self._llm, message_history)
+                code_explain_metadata = CodeExplainMetadata(**metadata_dict)
+                completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_PLANNING:
-                agentPlanningMetadata = AgentPlanningMetadata(**metadata_dict)
-                completion = await get_agent_planning_completion(agentPlanningMetadata, self._llm, message_history)
+                agent_planning_metadata = AgentPlanningMetadata(**metadata_dict)
+                completion = await get_agent_planning_completion(agent_planning_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_EXECUTION:
-                agentExecutionMetadata = ChatMessageMetadata(**metadata_dict)
-                completion = await get_agent_execution_completion(agentExecutionMetadata, self._llm, message_history)
+                agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
+                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
-                agentAutoErrorFixupMetadata = SmartDebugMetadata(**metadata_dict)
-                completion = await get_agent_auto_error_fixup_completion(agentAutoErrorFixupMetadata, self._llm, message_history)
+                agent_auto_error_fixup_metadata = SmartDebugMetadata(**metadata_dict)
+                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, message_history)
             elif type == MessageType.INLINE_COMPLETION:
-                inlineCompleterMetadata = InlineCompleterMetadata(**metadata_dict)
-                completion = await get_inline_completion(inlineCompleterMetadata, self._llm, message_history)
+                inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
+                completion = await get_inline_completion(inline_completer_metadata, self._llm, message_history)
             else:
                 raise ValueError(f"Invalid message type: {type}")
             
