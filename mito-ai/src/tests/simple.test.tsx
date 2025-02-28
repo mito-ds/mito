@@ -23,8 +23,8 @@ const mockActiveCell = {
 
 // Mock the notebook utils functions
 jest.mock('../utils/notebook', () => ({
-    getActiveCellID: () => 'test-cell-id',
-    getCellCodeByID: () => 'print("Hello World")'
+    getActiveCellID: jest.fn((id) => id === 'empty-cell-id' ? 'empty-cell-id' : 'test-cell-id'),
+    getCellCodeByID: jest.fn((id) => id === 'empty-cell-id' ? '' : 'print("Hello World")')
 }));
 
 // Mock data and required props
@@ -134,4 +134,46 @@ test('active cell preview is displayed when input has content', () => {
 
     // Now preview should be visible
     expect(container.querySelector('.active-cell-preview-container')).toBeInTheDocument();
+});
+
+test('active cell preview is not displayed when active cell has no code', () => {
+    // Create a modified mock props with an empty active cell
+    const emptyActiveCellProps = {
+        ...mockProps,
+        displayActiveCellCode: false,
+        notebookTracker: {
+            ...mockProps.notebookTracker,
+            activeCell: {
+                ...mockActiveCell,
+                model: {
+                    value: {
+                        text: ''
+                    },
+                    id: 'empty-cell-id'
+                },
+                editor: {
+                    model: {
+                        value: {
+                            text: ''
+                        }
+                    }
+                }
+            } as unknown as CodeCell
+        }
+    };
+
+    const { container } = render(<ChatInput {...emptyActiveCellProps} />);
+
+    // Get the textarea and assert it exists
+    const textarea = container.querySelector('textarea');
+    expect(textarea).toBeInTheDocument();
+
+    // Focus the textarea and type something
+    if (textarea) {
+        fireEvent.focus(textarea);
+        fireEvent.change(textarea, { target: { value: 'test input' } });
+    }
+
+    // Preview should not be visible since active cell has no code
+    expect(container.querySelector('.active-cell-preview-container')).not.toBeInTheDocument();
 });
