@@ -17,12 +17,7 @@ Your colleague is going to provide you:
         cell_type: Literal['code', 'markdown']
         id: str
         code: str
-    }},
-    {{
-        cell_type: Literal['code', 'markdown']
-        id: str
-        code: str
-    }},
+    }}
 ]
 
 2. A description of an update that they want to make to the notebook. 
