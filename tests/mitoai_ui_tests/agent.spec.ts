@@ -139,7 +139,7 @@ test.describe("Agent mode print hi", () => {
             });
         });
 
-        const codeFromCells = getNotebookCode(page)
+        const codeFromCells = await getNotebookCode(page)
 
         // Ensure all code snippets are in the notebook
         codeSnippetsFromChatMessages.forEach(codeSnippet => {
