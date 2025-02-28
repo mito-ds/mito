@@ -153,7 +153,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
       const metadata: IFetchHistoryMetadata = {
         promptType: "fetch_history",
-        threadID: threadId
+        thread_id: threadId
       };
 
       const fetchHistoryCompletionRequest: IFetchHistoryCompletionRequest = {
@@ -196,7 +196,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
       const metadata: IDeleteThreadMetadata = {
         promptType: "delete_thread",
-        threadID: threadId
+        thread_id: threadId
       };
 
       const response = await websocketClient.sendMessage<

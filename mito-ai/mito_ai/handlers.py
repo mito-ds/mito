@@ -153,7 +153,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Handle delete_thread: delete the specified thread
         if type == MessageType.DELETE_THREAD:
-            thread_id_to_delete = metadata_dict.get('threadID')
+            thread_id_to_delete = metadata_dict.get('thread_id')
             if thread_id_to_delete:
                 is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
                 reply = DeleteThreadReply(
@@ -169,7 +169,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             return
         if type == MessageType.FETCH_HISTORY:
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
-            thread_id = metadata_dict.get('threadID')
+            thread_id = metadata_dict.get('thread_id')
             if thread_id:
                 _, display_history = message_history.get_histories(thread_id)
             else:
