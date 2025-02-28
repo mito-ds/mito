@@ -14,6 +14,7 @@ from mito_ai.utils.schema import MITO_FOLDER
 
 
 CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
+NEW_CHAT_NAME = "(New Chat)"
 
 async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider: OpenAIProvider) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
@@ -142,7 +143,7 @@ class GlobalMessageHistory:
                 thread_id=thread_id,
                 creation_ts=now,
                 last_interaction_ts=now,
-                name="(New Chat)",  # we'll fill this in once we have at least user & assistant messages
+                name=NEW_CHAT_NAME,  # we'll fill this in once we have at least user & assistant messages
             )
             self._chat_threads[thread_id] = new_thread
             self._save_thread_to_disk(new_thread)
@@ -282,7 +283,7 @@ class GlobalMessageHistory:
             thread.display_history.append(display_message)
             self._update_last_interaction(thread)
 
-            if thread.name == "(New Chat)" and len(thread.display_history) >= 2:
+            if thread.name == NEW_CHAT_NAME and len(thread.display_history) >= 2:
                 # Retrieve first user and assistant messages from display_history
                 user_message = None
                 assistant_message = None
@@ -305,7 +306,7 @@ class GlobalMessageHistory:
             with self._lock:
                 # Update the thread's name if still required
                 thread = self._chat_threads[thread_id]
-                if thread is not None and thread.name == "(New Chat)":
+                if thread is not None and thread.name == NEW_CHAT_NAME:
                     thread.name = new_name
                     self._save_thread_to_disk(thread)
 
