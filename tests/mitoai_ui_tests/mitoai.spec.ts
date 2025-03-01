@@ -361,7 +361,7 @@ test.describe('Mito AI Chat', () => {
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     
     await waitForIdle(page);
-    await page.waitForTimeout(4000);
+    await waitForMitoAILoadingToDisappear(page);
     
     // As you have a notebook opened, at reload a dialog shows up to 
     // select the kernel for the notebook. The dialog prevent all the tests 
