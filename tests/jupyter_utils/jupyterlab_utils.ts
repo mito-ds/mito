@@ -88,9 +88,14 @@ export const typeInNotebookCell = async (
     }
 }
 
-export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: number): Promise<string> => {
     const cellInput = await page.notebook.getCellInput(cellIndex);
-    return await cellInput?.innerText();
+    if (cellInput === null) {
+        return ''
+    }
+
+    const cellText = await cellInput.innerText();
+    return cellText
 }
 
 export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {

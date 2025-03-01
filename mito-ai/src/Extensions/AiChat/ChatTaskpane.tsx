@@ -18,7 +18,7 @@ import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import {
     ChatHistoryManager,
-    IDisplayOptimizedChatHistory,
+    IDisplayOptimizedChatItem,
     PromptType 
 } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
@@ -35,7 +35,7 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getCellCodeByID, highlightCodeCell, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCellID, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
@@ -53,13 +53,15 @@ import {
     ICompletionRequest,
     IAgentPlanningCompletionRequest,
     ICodeExplainCompletionRequest,
+    IChatCompletionRequest,
     ISmartDebugCompletionRequest,
     IFetchHistoryCompletionRequest,
+    CellUpdate,
     IAgentAutoErrorFixupCompletionRequest, 
     IAgentExecutionCompletionRequest
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
-import { acceptAndRunCode, retryIfExecutionError } from '../../utils/agentActions';
+import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
@@ -173,10 +175,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
       // Add messages to the ChatHistoryManager
       chatHistoryResponse.items.forEach(item => {
         try {
-            // If the user sent a message in agent mode, the ai response will be a JSON object
+            // If the user sent a message in agent:planning mode, the ai response will be a JSON object
             // which we need to parse. 
+            // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
             const agentResponse = JSON.parse(item.content as string);
-            handleAgentResponse(agentResponse, newChatHistoryManager);
+            if (agentResponse.hasOwnProperty('type') && agentResponse.hasOwnProperty('code')) {
+                // If it has the cellUpdate keys then it is a cell update and we should handle it as such
+                const cellUpdate: CellUpdate = agentResponse
+                newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
+            } else if (agentResponse.hasOwnProperty('actions') && agentResponse.hasOwnProperty('dependencies')) {
+                handleAgentResponse(agentResponse, newChatHistoryManager);
+            } else {
+                newChatHistoryManager.addChatMessageFromHistory(item); 
+            }
         } catch {
             newChatHistoryManager.addChatMessageFromHistory(item);
         }
@@ -354,10 +365,30 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: No post processing step needed for explaining code. 
     }
 
+    const sendAgentExecutionMessage = async (input: string): Promise<void> => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
+        // Step 1: Add the user's message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        const agentExecutionMetatada = newChatHistoryManager.addAgentExecutionMessage(input)
+        setChatHistoryManager(newChatHistoryManager)
+
+
+        // Step 2: Send the message to the AI
+        const completionRequest: IAgentExecutionCompletionRequest = {
+            type: 'agent:execution',
+            message_id: UUID.uuid4(),
+            metadata: agentExecutionMetatada,
+            stream: false
+        }
+        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
+    }
+
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number, overridePromptType?: 'agent:execution'): Promise<void> => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -369,28 +400,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } else {
             chatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
         }
-
-        // If the user is in agent mode, we override the prompt type to be 'agent:execution'
-        // This gets used in the backend for logging purposes.
-        let completionRequest: ICompletionRequest | IAgentExecutionCompletionRequest;
-        if (overridePromptType) {
-            chatMessageMetadata.promptType = overridePromptType
-            completionRequest = {
-                type: overridePromptType,
-                message_id: UUID.uuid4(),
-                metadata: chatMessageMetadata,
-                stream: false
-            }
-        } else {
-            completionRequest = {
-                type: 'chat',
-                message_id: UUID.uuid4(),
-                metadata: chatMessageMetadata,
-                stream: false
-            }
-        }
-
         setChatHistoryManager(newChatHistoryManager)
+
+        const completionRequest: IChatCompletionRequest = {
+            type: 'chat',
+            message_id: UUID.uuid4(),
+            metadata: chatMessageMetadata,
+            stream: false
+        }
 
         // Step 2: Scroll to the bottom of the chat messages container
         // Add a small delay to ensure the new message is rendered
@@ -419,7 +436,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (
         messageIndex: number,
         newContent: string,
-        messageType: IDisplayOptimizedChatHistory['type']
+        messageType: IDisplayOptimizedChatItem['type']
     ): Promise<void> => {
         if (messageType === 'openai message:agent:planning' && messageIndex !== 1) {
             // In agent planning mode we only update the message locally without sending it to the AI
@@ -494,6 +511,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // which we need to parse. 
                     const agentResponse = JSON.parse(content);
                     handleAgentResponse(agentResponse, newChatHistoryManager);
+                } else if (completionRequest.metadata.promptType === 'agent:execution') {
+                    // Agent:Execution prompts return a CellUpdate object that we need to parse
+                    const cellUpdate: CellUpdate = JSON.parse(content)
+                    newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
                 } else {
                     // For all other prompt types, we can just add the content to the chat history
                     aiResponse.items.forEach((item: any) => {
@@ -602,16 +623,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Get the plan from the chat history
         const plan = chatHistoryManager.getDisplayOptimizedHistory().filter(message => message.type === 'openai message:agent:planning')
 
-        // Move to the last cell of the notebook
-        // We don't want to overwrite any code in the notebook
-        const notebook = notebookTracker.currentWidget?.content;
-        if (notebook) {
-            notebook.activeCellIndex = notebook.widgets.length - 1;
-        }
-
-        // Insert a new cell at the bottom
-        await app.commands.execute("notebook:insert-cell-below");
-
         // Loop through each message in the plan and send it to the AI
         for (const agentMessage of plan) {
             // Check if we should continue execution
@@ -629,12 +640,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             // Send the message to the AI 
-            await sendChatInputMessage(messageContent, undefined, 'agent:execution')
+            await sendAgentExecutionMessage(messageContent)
 
             // Check the code generated by the AI for blacklisted words before running it
-            const aiMessage = chatHistoryManagerRef.current.getLastAIMessage();
-            if (aiMessage) {
-                const aiGeneratedCode = getCodeBlockFromMessage(aiMessage.message);
+            const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
+            if (aiDisplayOptimizedChatItem) {
+                const aiGeneratedCode = getCodeBlockFromMessage(aiDisplayOptimizedChatItem.message);
                 if (aiGeneratedCode) {
                     const securityCheck = checkForBlacklistedWords(aiGeneratedCode);
                     if (!securityCheck.safe) {
@@ -650,15 +661,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
 
+
+            if (aiDisplayOptimizedChatItem?.cellUpdate === undefined) {
+                // If we didn't get a cellUpdate back, stop
+                break;
+            }
+
             // Run the code and handle any errors
-            await acceptAndRunCode(app, previewAICode, acceptAICode)
+            await acceptAndRunCellUpdate(aiDisplayOptimizedChatItem.cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
             const status = await retryIfExecutionError(
                 notebookTracker,
                 app,
                 getDuplicateChatHistoryManager,
                 addAIMessageFromResponseAndUpdateState,
                 sendDebugErrorMessage,
-                previewAICode,
+                previewAICodeToActiveCell,
                 acceptAICode,
                 shouldContinueAgentExecution,
                 finalizeAgentStop
@@ -680,63 +697,60 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 )
                 break;
             }
-
-            await new Promise<void>((resolve) => {
-                // Adding a small delay to make it easier for users to follow along
-                setTimeout(async () => {
-                    await previewAICode()
-                    await acceptAICode()
-                    await app.commands.execute("notebook:run-cell-and-insert-below");
-                    resolve();
-                }, 1000);
-            });
         }
 
         setAgentExecutionStatus('idle')
     }
 
-    const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined) => {
+    const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID: string) => {
         if (!aiMessage) {
             return
         }
 
-        const codeCellID = getActiveCellID(notebookTracker)
-        const activeCellCode = getCellCodeByID(notebookTracker, codeCellID)
+        const updateCellCode = getCellCodeByID(notebookTracker, updateCellID)
 
-        if (codeCellID === undefined || activeCellCode === undefined) {
+        if (updateCellID === undefined || updateCellCode === undefined) {
             return
         }
 
         // Extract the code from the AI's message and then calculate the code diffs
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
-        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(activeCellCode, aiGeneratedCodeCleaned)
+        const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(updateCellCode, aiGeneratedCodeCleaned)
 
 
         // Store the code cell ID where we write the code diffs so that we can
         // accept or reject the code diffs to the correct cell
-        cellStateBeforeDiff.current = { codeCellID: codeCellID, code: activeCellCode }
+        cellStateBeforeDiff.current = { codeCellID: updateCellID, code: updateCellCode }
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, codeCellID)
+        writeCodeToCellByID(notebookTracker, unifiedCodeString, updateCellID)
         updateCodeCellsExtensions(unifiedDiffs)
 
         // Briefly highlight the code cell to draw the user's attention to it
-        highlightCodeCell(notebookTracker, codeCellID)
+        highlightCodeCell(notebookTracker, updateCellID)
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
-    const previewAICode = () => {
+    const previewAICodeToActiveCell = () => {
         setCodeReviewStatus('codeCellPreview')
-        updateCodeDiffStripes(chatHistoryManagerRef.current.getLastAIMessage()?.message)
+
+        const activeCellID = getActiveCellID(notebookTracker)
+        const lastAIDisplayMessage = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem()
+
+        if (activeCellID === undefined || lastAIDisplayMessage === undefined) {
+            return
+        }
+
+        updateCodeDiffStripes(lastAIDisplayMessage.message, activeCellID)
         updateCellToolbarButtons()
     }
 
     const acceptAICode = () => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
-        const lastAIMessage = latestChatHistoryManager.getLastAIMessage()
+        const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem()
 
         if (!lastAIMessage || !cellStateBeforeDiff.current) {
             return
@@ -749,14 +763,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         setCodeReviewStatus('applied')
 
+        const targetCellID = cellStateBeforeDiff.current.codeCellID
         // Write to the cell that has the code diffs
-        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellStateBeforeDiff.current.codeCellID)
+        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, targetCellID)
 
         // Focus on the active cell after the code is written
-        const notebook = notebookTracker.currentWidget?.content;
-        const activeCell = notebook?.activeCell;
-        if (activeCell) {
-            activeCell.activate();
+        const targetCell = getCellByID(notebookTracker, targetCellID)
+        if (targetCell) {
+            // Make the target cell the active cell
+            setActiveCellByID(notebookTracker, targetCellID)
+            // Focus on the active cell
+            targetCell.activate();
         }
     }
 
@@ -821,7 +838,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_LATEST_CODE, {
             execute: () => {
-                previewAICode()
+                previewAICodeToActiveCell()
             }
         });
 
@@ -1046,7 +1063,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
                             operatingSystem={operatingSystem}
-                            previewAICode={previewAICode}
+                            previewAICode={previewAICodeToActiveCell}
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}

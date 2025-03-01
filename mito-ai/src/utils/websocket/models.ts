@@ -8,6 +8,31 @@ import { File } from '../../Extensions/ContextManager/FileInspector';
 
 /* 
 
+Notebook representation sent to the AI
+
+*/
+export type AIOptimizedCell = {
+  cell_type: string,
+  id: string,
+  code: string
+}
+
+export type CellUpdateModification = {
+  type: 'modification'
+  id: string,
+  code: string
+}
+
+export type CellUpdateNew = {
+  type: 'new'
+  index: number,
+  code: string
+}
+
+export type CellUpdate = CellUpdateModification | CellUpdateNew
+
+/* 
+
 Metadata Models
 
 */
@@ -21,15 +46,24 @@ type CompletionRequestMetadata =
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
   IGetThreadsMetadata | 
-  IDeleteThreadMetadata;
+  IDeleteThreadMetadata |
+  IAgentExecutionMetadata;
 
 export interface IChatMessageMetadata {
-    promptType: 'chat' | 'agent:execution'
+    promptType: 'chat'
     variables?: Variable[];
     files?: File[];
     activeCellCode?: string;   
     input: string;
     index?: number;
+}
+
+export interface IAgentExecutionMetadata {
+  promptType: 'agent:execution'
+  aiOptimizedCells: AIOptimizedCell[]
+  variables?: Variable[];
+  files?: File[];  
+  input: string;
 }
 
 export interface ISmartDebugMetadata {
@@ -131,7 +165,7 @@ export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
 
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
   type: 'agent:execution'
-  metadata: IChatMessageMetadata
+  metadata: IAgentExecutionMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
