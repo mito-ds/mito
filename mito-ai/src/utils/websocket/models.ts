@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 import type {
   IInlineCompletionError,
   IInlineCompletionItem
@@ -42,10 +43,11 @@ type CompletionRequestMetadata =
   ICodeExplainMetadata |
   IAgentPlanningMetadata |
   IInlineCompleterMetadata |
-  IClearHistoryMetadata |
   IFetchHistoryMetadata |
-  IAgentExecutionMetadata
-
+  IStartNewChatMetadata |
+  IGetThreadsMetadata | 
+  IDeleteThreadMetadata |
+  IAgentExecutionMetadata;
 
 export interface IChatMessageMetadata {
     promptType: 'chat'
@@ -93,12 +95,22 @@ export interface IInlineCompleterMetadata {
     suffix: string;
 }
 
-export interface IClearHistoryMetadata {
-    promptType: 'clear_history'
-}
-
 export interface IFetchHistoryMetadata {
     promptType: 'fetch_history'
+    thread_id?: string;
+}
+
+export interface IStartNewChatMetadata {
+  promptType: 'start_new_chat'
+}
+
+export interface IGetThreadsMetadata {
+  promptType: 'get_threads'
+}
+
+export interface IDeleteThreadMetadata {
+  promptType: 'delete_thread'
+  thread_id: string;
 }
 
 /* 
@@ -159,11 +171,6 @@ export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
   type: 'inline_completion'
   metadata: IInlineCompleterMetadata
-}
-
-export interface IClearHistoryCompletionRequest extends ICompletionRequest {
-  type: 'clear_history'
-  metadata: IClearHistoryMetadata
 }
 
 export interface IFetchHistoryCompletionRequest extends ICompletionRequest {
@@ -307,8 +314,117 @@ export interface InlineCompletionStreamChunk
   response: IInlineCompletionItem;
 }
 
+/**
+ * Chat thread item information.
+ */
+export interface IChatThreadMetadataItem {
+  /**
+   * Unique thread identifier.
+   */
+  thread_id: string;
+
+  /**
+   * Display name of the thread.
+   */
+  name: string;
+
+  /**
+   * Thread creation timestamp.
+   */
+  creation_ts: number;
+
+  /**
+   * Last interaction timestamp.
+   */
+  last_interaction_ts: number;
+}
+
+/**
+ * Response for fetching chat history.
+ */
+export interface IFetchHistoryReply {
+  /**
+   * The type of the message.
+   */
+  type: 'fetch_history';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * List of chat messages.
+   */
+  items: OpenAI.Chat.ChatCompletionMessageParam[];
+}
+
+/**
+ * Response for starting a new chat.
+ */
+export interface IStartNewChatReply {
+  /**
+   * The type of the message.
+   */
+  type: 'start_new_chat';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * New thread ID.
+   */
+  thread_id: string;
+}
+
+/**
+ * Response for fetching chat threads.
+ */
+export interface IFetchThreadsReply {
+  /**
+   * The type of the message.
+   */
+  type: 'fetch_threads';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * List of chat threads.
+   */
+  threads: IChatThreadMetadataItem[];
+}
+
+/**
+ * Response for deleting a chat thread.
+ */
+export interface IDeleteThreadReply {
+  /**
+   * The type of the message.
+   */
+  type: 'delete_thread';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * Success status.
+   */
+  success: boolean;
+}
+
 export type CompleterMessage =
   | ErrorMessage
   | IAICapabilities
   | ICompletionReply
-  | ICompletionStreamChunk;
+  | ICompletionStreamChunk
+  | IFetchHistoryReply
+  | IStartNewChatReply
+  | IFetchThreadsReply
+  | IDeleteThreadReply;

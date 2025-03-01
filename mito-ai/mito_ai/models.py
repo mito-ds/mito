@@ -45,9 +45,11 @@ class MessageType(Enum):
     AGENT_EXECUTION = "agent:execution"
     AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
     INLINE_COMPLETION = "inline_completion"
-    CLEAR_HISTORY = "clear_history"
+    CHAT_NAME_GENERATION = "chat_name_generation"
+    START_NEW_CHAT = "start_new_chat"
     FETCH_HISTORY = "fetch_history"
-
+    GET_THREADS = "get_threads"
+    DELETE_THREAD = "delete_thread"
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
@@ -94,10 +96,6 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class ClearHistoryMetadata():
-    promptType: Literal['clear_history']
 
 @dataclass(frozen=True)
 class FetchHistoryMetadata():
@@ -275,3 +273,61 @@ class FetchHistoryReply:
     # Message type.
     type: Literal["reply"] = "reply"
 
+@dataclass(frozen=True)
+class ChatThreadMetadata:
+    """
+    Chat thread item.
+    """
+
+    thread_id: str
+
+    name: str
+
+    creation_ts: float
+
+    last_interaction_ts: float
+
+@dataclass(frozen=True)
+class StartNewChatReply:
+    """
+    Message sent from model to client after starting a new chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # Chat thread item.
+    thread_id: str
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class FetchThreadsReply:
+    """
+    Message sent from model to client with the chat threads.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # List of chat threads.
+    threads: List[ChatThreadMetadata]
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class DeleteThreadReply:
+    """
+    Message sent from model to client after deleting a chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    #Success message
+    success: bool
+
+    # Message type.
+    type: Literal["reply"] = "reply"

@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+import uuid
 from dataclasses import asdict
 from http import HTTPStatus
 from typing import Any, Dict, Optional, Union
@@ -20,6 +21,9 @@ from mito_ai.models import (
     CompletionStreamChunk,
     ErrorMessage,
     FetchHistoryReply,
+    StartNewChatReply,
+    FetchThreadsReply,
+    DeleteThreadReply,
     ChatMessageMetadata,
     SmartDebugMetadata,
     CodeExplainMetadata,
@@ -41,7 +45,6 @@ from mito_ai.completion_handlers.agent_execution_handler import get_agent_execut
 from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 
 
-__all__ = ["CompletionHandler"]
 
 # Global history instance
 message_history = GlobalMessageHistory()
@@ -126,21 +129,58 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
-
-        # Clear history if the type is "clear_history"
-        if type == MessageType.CLEAR_HISTORY:
-            message_history.clear_histories()
-            return
         
+        reply: Union[StartNewChatReply, FetchThreadsReply, DeleteThreadReply, FetchHistoryReply, CompletionReply]
+
+        # Clear history if the type is "start_new_chat"
+        if type == MessageType.START_NEW_CHAT:
+            thread = message_history.create_new_thread()
+            reply = StartNewChatReply(
+                parent_id=parsed_message.get("message_id"),
+                thread_id=thread
+            )
+            self.reply(reply)
+            return
+
+        # Handle get_threads: return list of chat threads
+        if type == MessageType.GET_THREADS:
+            threads = message_history.get_threads()
+            reply = FetchThreadsReply(
+                parent_id=parsed_message.get("message_id"),
+                threads=threads
+            )
+            self.reply(reply)
+            return
+
+        # Handle delete_thread: delete the specified thread
+        if type == MessageType.DELETE_THREAD:
+            thread_id_to_delete = metadata_dict.get('thread_id')
+            if thread_id_to_delete:
+                is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    success=is_thread_deleted
+                )
+            else:
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    success=False
+                )
+            self.reply(reply)
+            return
         if type == MessageType.FETCH_HISTORY:
-            _, display_history = message_history.get_histories()
-            fetch_history_reply = FetchHistoryReply(
+            # If a thread_id is provided, use that thread's history; otherwise, use newest.
+            thread_id = metadata_dict.get('thread_id')
+            if thread_id:
+                _, display_history = message_history.get_histories(thread_id)
+            else:
+                _, display_history = message_history.get_histories()
+            reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
             )
-            self.reply(fetch_history_reply)
+            self.reply(reply)
             return
-
         try:
             
             # Get completion based on message type
@@ -264,7 +304,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 "role": "assistant", 
                 "content": accumulated_response
             }
-            message_history.append_message(message, message)
+            await message_history.append_message(message, message, self._llm)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 
