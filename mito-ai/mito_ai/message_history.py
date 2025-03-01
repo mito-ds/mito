@@ -50,6 +50,7 @@ class ChatThread:
         self.name = name  # short name for the thread
         self.ai_optimized_history: List[ChatCompletionMessageParam] = ai_optimized_history or []
         self.display_history: List[ChatCompletionMessageParam] = display_history or []
+        self.chat_history_version = CHAT_HISTORY_VERSION
 
 class GlobalMessageHistory:
     """
@@ -189,21 +190,12 @@ class GlobalMessageHistory:
         Saves the given ChatThread to a JSON file `<thread_id>.json` in `self._chats_dir`.
         """
         path = os.path.join(self._chats_dir, f"{thread.thread_id}.json")
-        data = {
-            "chat_history_version": CHAT_HISTORY_VERSION,
-            "thread_id": thread.thread_id,
-            "creation_ts": thread.creation_ts,
-            "last_interaction_ts": thread.last_interaction_ts,
-            "name": thread.name,
-            "ai_optimized_history": thread.ai_optimized_history,
-            "display_history": thread.display_history,
-        }
         
         # Using a temporary file and rename for safer "atomic" writes
         tmp_file = path + ".tmp"
         try:
             with open(tmp_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+                json.dump(thread.__dict__, f, indent=2)
             os.replace(tmp_file, path)
         except Exception as e:
             print(f"Error saving chat thread {thread.thread_id}: {e}")
