@@ -321,17 +321,49 @@ class GlobalMessageHistory:
         """
         Deletes a chat thread by its ID. Removes both the in-memory entry and the JSON file.
         """
+
+        # Safety check: validate thread_id is a properly formatted UUID
+        if not thread_id or not isinstance(thread_id, str):
+            print(f"Invalid thread_id: {thread_id}")
+            return False
+        
+        # UUIDs should only contain alphanumeric chars and hyphens
+        if not all(c.isalnum() or c == '-' for c in thread_id):
+            print(f"Thread ID contains invalid characters: {thread_id}")
+            return False
+
         with self._lock:
+            # Remove from in-memory cache if present
             if thread_id in self._chat_threads:
                 del self._chat_threads[thread_id]
-                path = os.path.join(self._chats_dir, f"{thread_id}.json")
-                if os.path.exists(path):
-                    try:
-                        os.remove(path)
-                        return True
-                    except Exception as e:
-                        print(f"Error deleting thread {thread_id}: {e}")
-            return False
+            
+            # Construct the file path
+            path = os.path.join(self._chats_dir, f"{thread_id}.json")
+
+            # Security check: ensure path is within the expected directory
+            if not os.path.normpath(path).startswith(os.path.normpath(self._chats_dir)):
+                print(f"Path traversal attempt detected: {path}")
+                return False
+            
+            # Ensure we're only deleting .json files
+            if not path.endswith('.json'):
+                print(f"Not a .json file: {path}")
+                return False
+            
+            # Check if the file exists and is actually a file (not directory)
+        if os.path.exists(path):
+            if not os.path.isfile(path):
+                print(f"Path exists but is not a file: {path}")
+                return False
+                
+            try:
+                os.remove(path)
+                return True
+            except Exception as e:
+                print(f"Error deleting thread {thread_id}: {e}")
+                return False
+            
+        return False
 
     def get_threads(self) -> List[ChatThreadMetadata]:
         """
