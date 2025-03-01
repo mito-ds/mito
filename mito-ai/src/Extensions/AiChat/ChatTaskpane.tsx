@@ -129,8 +129,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
     const fetchChatThreads = async () => {
-      await websocketClient.ready;
-
       const metadata: IGetThreadsMetadata = {
         promptType: "get_threads"
       };
@@ -149,8 +147,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     const fetchChatHistoryForThread = async (threadId: string) => {
-      await websocketClient.ready;
-
       const metadata: IFetchHistoryMetadata = {
         promptType: "fetch_history",
         thread_id: threadId
@@ -192,8 +188,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
     
     const deleteThread = async (threadId: string) => {
-      await websocketClient.ready;
-
       const metadata: IDeleteThreadMetadata = {
         promptType: "delete_thread",
         thread_id: threadId
@@ -225,10 +219,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
       useEffect(() => {
         const initializeChatHistory = async () => {
             try {
-                // 1. Check that the websocket client is ready
-                await websocketClient.ready;
-
-                // 2. Fetch available chat threads.
+                // 1. Fetch available chat threads.
                 const chatThreadsResponse = await websocketClient.sendMessage<
                     ICompletionRequest, 
                     IFetchThreadsReply
@@ -243,7 +234,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 setChatThreads(chatThreadsResponse.threads);
 
-                // 3. If threads exist, load the latest thread; otherwise, start a new chat.
+                // 2. If threads exist, load the latest thread; otherwise, start a new chat.
                 if (chatThreadsResponse.threads.length > 0) {
                     const latestThread = chatThreadsResponse.threads[0];
                     await fetchChatHistoryForThread(latestThread.thread_id);
@@ -479,8 +470,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setLoadingAIResponse(true)
 
         try {
-            await websocketClient.ready;
-
             const aiResponse = await websocketClient.sendMessage<
                 ICompletionRequest, 
                 ICompletionReply
