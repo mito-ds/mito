@@ -798,7 +798,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const startNewChat = async () => {
         // If current thread is empty (only contains system message), do not create a new thread.
-        if (chatHistoryManager.getDisplayOptimizedHistory().length <= 1) {
+        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length <= 1) {
             return chatHistoryManager;
         }
         // Reset frontend chat history
