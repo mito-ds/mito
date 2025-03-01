@@ -127,23 +127,31 @@ export class CompletionWebsocketClient implements IDisposable {
   /**
    * Sends a message across the WebSocket. Promise resolves to the message ID
    * when the server sends the same message back, acknowledging receipt.
+   * Automatically ensures the websocket is initialized before sending.
    */
   sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(
     message: T
   ): Promise<R> {
-    const pendingReply = new PromiseDelegate<R>();
-    if (this._socket) {
-      this._socket.send(JSON.stringify(message));
-      this._pendingRepliesMap.set(
-        message.message_id, 
-        pendingReply as PromiseDelegate<CompleterMessage>
-      );
-    } else {
-      pendingReply.reject(
-        new Error('Inline completion websocket not initialized')
-      );
-    }
-    return pendingReply.promise;
+    return new Promise<R>(async (resolve, reject) => {
+      try {
+        // Ensure the websocket is initialized before sending
+        await this.ready;
+        
+        const pendingReply = new PromiseDelegate<R>();
+        if (this._socket) {
+          this._socket.send(JSON.stringify(message));
+          this._pendingRepliesMap.set(
+            message.message_id, 
+            pendingReply as PromiseDelegate<CompleterMessage>
+          );
+          pendingReply.promise.then(resolve).catch(reject);
+        } else {
+          reject(new Error('Inline completion websocket not initialized'));
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   private _onMessage(message: CompleterMessage): void {
