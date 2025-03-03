@@ -1,8 +1,8 @@
 import { removeMarkdownCodeFormatting } from "./strings";
 
-const copyToClipboard = (text: string) => {
+const copyToClipboard = async (text: string): Promise<void> => {
     const codeWithoutMarkdown = removeMarkdownCodeFormatting(text)
-    navigator.clipboard.writeText(codeWithoutMarkdown)
+    await navigator.clipboard.writeText(codeWithoutMarkdown ?? '')
 }
 
 export default copyToClipboard;

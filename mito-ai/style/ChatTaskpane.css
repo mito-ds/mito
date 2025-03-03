@@ -1,130 +1,130 @@
 .chat-taskpane {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background-color: var(--chat-background-color) !important;
-    --jp-sidebar-min-width: 350px;
-    width: 100%;
-    box-sizing: border-box;
-    overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--chat-background-color) !important;
+  --jp-sidebar-min-width: 350px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: scroll;
 
-    /* 
+  /* 
         Don't set padding on top from the taskpane so we can instead
         set the padding on the chat-taskpane-header instead to make 
         sure the sticky header covers all of the content behind it. 
     */
-    padding-top: 0px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 10px;
+  padding-top: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
 }
 
 .chat-taskpane-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    padding-top: 10px;
-    padding-bottom: 5px;
-    position: sticky;
-    /* Make the header sticky */
-    top: 0;
-    /* Stick to the top of the container */
-    background-color: var(--chat-background-color);
-    /* Ensure background color covers content behind */
-    z-index: 1;
-    /* Ensure it stays above other content */
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  position: sticky;
+  /* Make the header sticky */
+  top: 0;
+  /* Stick to the top of the container */
+  background-color: var(--chat-background-color);
+  /* Ensure background color covers content behind */
+  z-index: 1;
+  /* Ensure it stays above other content */
 }
 
 .chat-taskpane-header-title {
-    font-size: 14px;
-    font-weight: bold;
-    margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
 }
 
 .chat-taskpane-header-buttons {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 8px;
 }
 
 .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 10px;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 10px;
 }
 
 .chat-empty-message {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    text-align: center;
-    color: var(--muted-text-color);
-    padding: 20px;
-    /* Add container query support */
-    container-type: inline-size;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  color: var(--muted-text-color);
+  padding: 20px;
+  /* Add container query support */
+  container-type: inline-size;
 }
 
 .chat-empty-message .short-message {
-    display: none;
+  display: none;
 }
 
 /* Use container query instead of media query */
 @container (max-width: 300px) {
-    .chat-empty-message .long-message {
-        display: none;
-    }
-    
-    .chat-empty-message .short-message {
-        display: block;
-    }
+  .chat-empty-message .long-message {
+    display: none;
+  }
+
+  .chat-empty-message .short-message {
+    display: block;
+  }
 }
 
 .chat-loading-message {
-    margin-top: 20px;
-    margin-bottom: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .chat-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .submit-button {
-    background-color: var(--purple-400);
-    color: var(--purple-700);
-    padding: 2px 10px;
+  background-color: var(--purple-400);
+  color: var(--purple-700);
+  padding: 2px 10px;
 }
 
 .submit-button:hover {
-    background-color: var(--purple-500);
-    transition: background-color 0.2s ease-in-out;
+  background-color: var(--purple-500);
+  transition: background-color 0.2s ease-in-out;
 }
 
 .stop-agent-button {
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 .stop-agent-button-content {
-    display: flex;
-    text-align: center;
-    align-items: center;
-    gap: 8px;
-    justify-content: center;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
 }
 
 .agent-controls {
-    display: flex;
-    gap: 8px;
-    width: 100%;
+  display: flex;
+  gap: 8px;
+  width: 100%;
 }
 
 .agent-start-button {
-    flex: 1;
+  flex: 1;
 }
 
 .agent-cancel-button {
-    width: 32px;
-    padding: 0;
+  width: 32px;
+  padding: 0;
 }

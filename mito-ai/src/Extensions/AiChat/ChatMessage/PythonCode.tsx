@@ -19,10 +19,14 @@ const PythonCode: React.FC<IPythonCodeProps> = ({ code, renderMimeRegistry }) =>
     });
 
     const renderer = renderMimeRegistry.createRenderer('text/markdown');
-    renderer.renderModel(model)
-
-    const node = renderer.node
-    setNode(node)
+    
+    const renderCode = async (): Promise<void> => {
+      await renderer.renderModel(model);
+      const node = renderer.node;
+      setNode(node);
+    };
+    
+    void renderCode();
 
     // Clean up function to remove the node when component unmounts or code changes
     return () => {

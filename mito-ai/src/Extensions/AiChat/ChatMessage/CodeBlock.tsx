@@ -78,7 +78,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                                 <IconButton
                                     icon={<CopyIcon />}
                                     title="Copy"
-                                    onClick={() => {copyToClipboard(code)}}
+                                    onClick={() => {void copyToClipboard(code)}}
                                 />
                             }
                         </div>
@@ -89,7 +89,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                             <IconButton
                                 icon={<CopyIcon />}
                                 title="Copy"
-                                onClick={() => {copyToClipboard(code)}}
+                                onClick={() => {void copyToClipboard(code)}}
                             />
                         </div>
                     }

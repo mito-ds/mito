@@ -1,0 +1,47 @@
+name: Test - mito-ai src lint
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-ai/**'
+  pull_request:
+    paths:
+      - 'mito-ai/**'
+
+jobs:
+  lint-mito-ai-typescript:
+    name: Run linters
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.7.0
+        with:
+          access_token: ${{ github.token }}
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: mito-ai/package-lock.json
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install JupyterLab
+        run: |
+          python -m pip install --upgrade pip
+          pip install jupyterlab
+      - name: Install Node.js dependencies
+        run: | 
+          cd mito-ai
+          jlpm install
+      - name: Run Linters
+        run: |
+          cd mito-ai
+          jlpm eslint:check
+
+

@@ -52,7 +52,7 @@ export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: stri
     return undefined 
 }
 
-export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined) => {
+export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
     const cellIndex = getCellIndexByID(notebookTracker, cellID)
     const notebookPanel = notebookTracker.currentWidget
     if (notebookPanel !== undefined && notebookPanel !== null && cellIndex !== undefined) {
@@ -74,7 +74,7 @@ export const writeCodeToCellByID = (
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
     
-    if (cell) {
+    if (cell && codeMirrorValidCode) {
         cell.model.sharedModel.source = codeMirrorValidCode;
     }
 }
@@ -143,7 +143,7 @@ export const getNotebookName = (notebookTracker: INotebookTracker): string => {
     return notebook?.title.label || 'Untitled'
 }
 
-export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string) => {
+export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string): void => {
     /*
         Briefly highlights a code cell, to draw the user's attention to it.
     */

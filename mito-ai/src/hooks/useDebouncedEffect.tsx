@@ -11,7 +11,7 @@ export const useDebouncedEffect = (
         // Just like useEffect, you can return a result function that runs on
         // cleanup. We just default here to a noop.
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        let cleanup = () => {}
+        let cleanup = (): void => {}
         const handler = setTimeout(() => {
             const result = effect()
             if (result instanceof Object) {

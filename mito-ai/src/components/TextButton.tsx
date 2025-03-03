@@ -14,6 +14,7 @@ export interface ButtonProps {
 }
 
 // Text Button is just the basic Button Props, nothing else. 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface TextButtonProps extends ButtonProps {}
 
 const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant, width, action }) => {
