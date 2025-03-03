@@ -40,14 +40,14 @@ export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {
     await page.locator('.chat-input').fill('');
 }
 
-export const clearMitoAIChatHistory = async (page: IJupyterLabPageFixture) => {
+export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
     await waitForIdle(page);
 
     // Open the Mito AI chat tab
     await clickOnMitoAIChatTab(page);
   
     // Locate the "Clear the chat history" button
-    const clearButton = page.locator('button[title="Clear the chat history"]');
+    const clearButton = page.locator('button[title="Start New Chat"]');
     
     // Wait for the button to be visible, then click
     await clearButton.waitFor({ state: 'visible' });
