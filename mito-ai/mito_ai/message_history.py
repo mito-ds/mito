@@ -320,6 +320,7 @@ class GlobalMessageHistory:
     def delete_thread(self, thread_id: str) -> bool:
         """
         Deletes a chat thread by its ID. Removes both the in-memory entry and the JSON file.
+        Includes safety checks to ensure we're only deleting valid thread files.
         """
 
         # Safety check: validate thread_id is a properly formatted UUID
@@ -351,17 +352,17 @@ class GlobalMessageHistory:
                 return False
             
             # Check if the file exists and is actually a file (not directory)
-        if os.path.exists(path):
-            if not os.path.isfile(path):
-                print(f"Path exists but is not a file: {path}")
-                return False
-                
-            try:
-                os.remove(path)
-                return True
-            except Exception as e:
-                print(f"Error deleting thread {thread_id}: {e}")
-                return False
+            if os.path.exists(path):
+                if not os.path.isfile(path):
+                    print(f"Path exists but is not a file: {path}")
+                    return False
+                    
+                try:
+                    os.remove(path)
+                    return True
+                except Exception as e:
+                    print(f"Error deleting thread {thread_id}: {e}")
+                    return False
             
         return False
 
