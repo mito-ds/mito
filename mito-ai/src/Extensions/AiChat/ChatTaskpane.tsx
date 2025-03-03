@@ -11,7 +11,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import ResetIcon from '../../icons/ResetIcon';
+import { addIcon, historyIcon, deleteIcon } from '@jupyterlab/ui-components';
+import { OpenIndicatorLabIcon } from '../../icons';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -38,12 +39,33 @@ import { getActiveCellID, getCellByID, getCellCodeByID, highlightCodeCell, setAc
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
-import { CellUpdate, IAgentAutoErrorFixupCompletionRequest, IAgentExecutionCompletionRequest, IAgentPlanningCompletionRequest, IChatCompletionRequest, IChatMessageMetadata, ICodeExplainCompletionRequest, ICompletionRequest, IFetchHistoryCompletionRequest, ISmartDebugCompletionRequest } from '../../utils/websocket/models';
+import { 
+    IChatThreadMetadataItem, 
+    IChatMessageMetadata, 
+    IGetThreadsMetadata,
+    IFetchHistoryMetadata,
+    IDeleteThreadMetadata,
+    ICompletionReply, 
+    IDeleteThreadReply,
+    IFetchHistoryReply,
+    IFetchThreadsReply,
+    IStartNewChatReply,
+    ICompletionRequest,
+    IAgentPlanningCompletionRequest,
+    ICodeExplainCompletionRequest,
+    IChatCompletionRequest,
+    ISmartDebugCompletionRequest,
+    IFetchHistoryCompletionRequest,
+    CellUpdate,
+    IAgentAutoErrorFixupCompletionRequest, 
+    IAgentExecutionCompletionRequest
+} from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
+import DropdownMenu from '../../components/DropdownMenu';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
@@ -93,7 +115,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
-
+    const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
+    const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+    
     /* 
         Three possible states:
         1. working: the agent is working on the task
@@ -101,70 +125,134 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         3. idle: the agent is idle
     */
     const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'stopping' | 'idle'>('idle')
-    
+
     // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
-    const fetchInitialChatHistory = async (): Promise<OpenAI.Chat.ChatCompletionMessageParam[]> => {
-        await websocketClient.ready;
+    const fetchChatThreads = async () => {
+      const metadata: IGetThreadsMetadata = {
+        promptType: "get_threads"
+      };
 
-        const fetchHistoryCompletionRequest: IFetchHistoryCompletionRequest = {
-            type: 'fetch_history',
-            message_id: UUID.uuid4(),
-            metadata: {
-                promptType: 'fetch_history'
-            },
-            stream: false
-        }
-        
-        const chatHistoryResponse = await websocketClient.sendMessage(fetchHistoryCompletionRequest);
+      const chatThreadsResponse = await websocketClient.sendMessage<
+        ICompletionRequest, 
+        IFetchThreadsReply
+      >({
+         type: "get_threads",
+         message_id: UUID.uuid4(),
+         metadata: metadata,
+         stream: false
+      });
 
-        return chatHistoryResponse.items.map((item: any) => ({
-            role: item.role,
-            content: item.content
-        }));
+      setChatThreads(chatThreadsResponse.threads);
     };
 
-    useEffect(() => {
-        const initializeChatHistory = async (): Promise<void> => {
+    const fetchChatHistoryForThread = async (threadId: string) => {
+      const metadata: IFetchHistoryMetadata = {
+        promptType: "fetch_history",
+        thread_id: threadId
+      };
+
+      const fetchHistoryCompletionRequest: IFetchHistoryCompletionRequest = {
+        type: 'fetch_history',
+        message_id: UUID.uuid4(),
+        metadata: metadata,
+        stream: false
+    }
+
+      const chatHistoryResponse = await websocketClient.sendMessage<
+        ICompletionRequest, 
+        IFetchHistoryReply
+      >(fetchHistoryCompletionRequest);
+
+      // Create a fresh ChatHistoryManager and add the initial messages
+      const newChatHistoryManager = getDefaultChatHistoryManager(
+        notebookTracker,
+        contextManager
+    );
+
+      // Add messages to the ChatHistoryManager
+      chatHistoryResponse.items.forEach(item => {
+        try {
+            // If the user sent a message in agent:planning mode, the ai response will be a JSON object
+            // which we need to parse. 
+            // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
+            const agentResponse = JSON.parse(item.content as string);
+            if (Object.prototype.hasOwnProperty.call(agentResponse, 'type') && Object.prototype.hasOwnProperty.call(agentResponse, 'code')) {
+                // If it has the cellUpdate keys then it is a cell update and we should handle it as such
+                const cellUpdate: CellUpdate = agentResponse
+                newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
+            } else if (Object.prototype.hasOwnProperty.call(agentResponse, 'actions') && Object.prototype.hasOwnProperty.call(agentResponse, 'dependencies')) {
+                handleAgentResponse(agentResponse, newChatHistoryManager);
+            } else {
+                newChatHistoryManager.addChatMessageFromHistory(item); 
+            }
+        } catch {
+            newChatHistoryManager.addChatMessageFromHistory(item);
+        }
+      });
+
+      // Update the state with the new ChatHistoryManager
+      setChatHistoryManager(newChatHistoryManager);
+      setActiveThreadId(threadId);
+    };
+    
+    const deleteThread = async (threadId: string) => {
+      const metadata: IDeleteThreadMetadata = {
+        promptType: "delete_thread",
+        thread_id: threadId
+      };
+
+      const response = await websocketClient.sendMessage<
+        ICompletionRequest, 
+        IDeleteThreadReply
+      >({
+         type: "delete_thread",
+         message_id: UUID.uuid4(),
+         metadata: metadata,
+         stream: false
+      });
+
+      if(response.success) {
+         const updatedThreads = chatThreads.filter(thread => thread.thread_id !== threadId);
+         setChatThreads(updatedThreads);
+         if(activeThreadId === threadId) {
+           if(updatedThreads.length > 0) {
+              const latestThread = updatedThreads[0]!;
+              fetchChatHistoryForThread(latestThread.thread_id);
+           } else {
+              await startNewChat();
+           }
+         }
+      }
+    };
+
+      useEffect(() => {
+        const initializeChatHistory = async () => {
             try {
-                // 1. Check that the websocket client is ready
-                await websocketClient.ready;
-
-                // 2. Fetch or load the initial chat history
-                const history = await fetchInitialChatHistory();
-
-                // 3. Create a fresh ChatHistoryManager and add the initial messages
-                const newChatHistoryManager = getDefaultChatHistoryManager(
-                    notebookTracker,
-                    contextManager
-                );
-
-                // 4. Add messages to the ChatHistoryManager
-                history.forEach(item => {
-                    try {
-                        // If the user sent a message in agent:planning mode, the ai response will be a JSON object
-                        // which we need to parse. 
-                        // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
-                        const agentResponse = JSON.parse(item.content as string);
-
-                        if (Object.prototype.hasOwnProperty.call(agentResponse, 'type') && Object.prototype.hasOwnProperty.call(agentResponse, 'code')) {
-                            // If it has the cellUpdate keys then it is a cell update and we should handle it as such
-                            const cellUpdate: CellUpdate = agentResponse
-                            newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
-                        } else if (Object.prototype.hasOwnProperty.call(agentResponse, 'actions') && Object.prototype.hasOwnProperty.call(agentResponse, 'dependencies')) {
-                            handleAgentResponse(agentResponse, newChatHistoryManager);
-                        } else {
-                            newChatHistoryManager.addChatMessageFromHistory(item); 
-                        }
-                    } catch {
-                        newChatHistoryManager.addChatMessageFromHistory(item);
-                    }
+                // 1. Fetch available chat threads.
+                const chatThreadsResponse = await websocketClient.sendMessage<
+                    ICompletionRequest, 
+                    IFetchThreadsReply
+                >({
+                type: "get_threads",
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: "get_threads"
+                },
+                stream: false
                 });
 
-                // 5. Update the state with the new ChatHistoryManager
-                setChatHistoryManager(newChatHistoryManager);
+                setChatThreads(chatThreadsResponse.threads);
+
+                // 2. If threads exist, load the latest thread; otherwise, start a new chat.
+                if (chatThreadsResponse.threads.length > 0) {
+                    const latestThread = chatThreadsResponse.threads[0]!;
+                    await fetchChatHistoryForThread(latestThread.thread_id);
+                } else {
+                    await startNewChat();
+                }
             } catch (error) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
@@ -232,12 +320,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        const promptType = agent ? 'agent:autoErrorFixup' : 'smartDebug'
-
-        // Step 1: Add the error message to the chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        // Step 1. Determine prompt type and chat history manager based on if it is agent or not
+        let promptType: PromptType;
+        let newChatHistoryManager: ChatHistoryManager;
+        if (agent) {
+            promptType = 'agent:autoErrorFixup';
+            newChatHistoryManager = getDuplicateChatHistoryManager()
+        }
+        else {
+            promptType = 'smartDebug';
+            newChatHistoryManager = await startNewChat()
+        }
+            
         const smartDebugMetadata = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
-        setChatHistoryManager(newChatHistoryManager)
+        setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: ISmartDebugCompletionRequest | IAgentAutoErrorFixupCompletionRequest = {
@@ -254,7 +350,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         rejectAICode()
 
         // Step 1: Clear the chat history, and add the explain code message
-        const newChatHistoryManager = await clearChatHistory()
+        const newChatHistoryManager = await startNewChat()
         const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage()
         setChatHistoryManager(newChatHistoryManager)
 
@@ -392,9 +488,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setLoadingAIResponse(true)
 
         try {
-            await websocketClient.ready;
-
-            const aiResponse = await websocketClient.sendMessage(completionRequest);
+            const aiResponse = await websocketClient.sendMessage<
+                ICompletionRequest, 
+                ICompletionReply
+            >(completionRequest);
 
             if (aiResponse.error) {
                 console.error('Error calling OpenAI API:', aiResponse.error);
@@ -700,22 +797,37 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const clearChatHistory = async (): Promise<ChatHistoryManager> => {
+    const startNewChat = async () => {
+        // If current thread is empty (only contains system message), do not create a new thread.
+        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length <= 1) {
+            return chatHistoryManager;
+        }
         // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager)
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
         setChatHistoryManager(newChatHistoryManager);
 
-        // Notify the backend to clear the prompt history
-        await websocketClient.sendMessage({
-            type: 'clear_history',
-            message_id: UUID.uuid4(),
-            metadata: {
-                promptType: 'clear_history'
-            },
-            stream: false,
-        });
+        // Notify the backend to request a new chat thread and get its ID
+        try {
+            const response = await websocketClient.sendMessage<
+                ICompletionRequest, 
+                IStartNewChatReply
+            >({
+                type: 'start_new_chat',
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: 'start_new_chat'
+                },
+                stream: false,
+            });
 
-        return newChatHistoryManager
+            // Set the new thread ID as active
+            const newThreadId = response.thread_id;
+            setActiveThreadId(newThreadId);
+        } catch (error) {
+            console.error('Error starting new chat:', error);
+        }
+
+        return newChatHistoryManager;
     }
 
     useEffect(() => {
@@ -895,10 +1007,30 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         }}
                     />
                     <IconButton
-                        icon={<ResetIcon />}
-                        title="Clear the chat history"
-                        onClick={() => {void clearChatHistory() }}
+                        icon={<addIcon.react />}
+                        title="Start New Chat"
+                        onClick={async () => { await startNewChat() }}
                     />
+                    <DropdownMenu
+                         trigger={
+                             <button className="icon-button" title="Chat Threads" onClick={fetchChatThreads}>
+                                 <historyIcon.react />
+                             </button>
+                         }
+                         items={chatThreads.map(thread => ({
+                           label: thread.name,
+                           primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
+                           onClick: () => fetchChatHistoryForThread(thread.thread_id),
+                           secondaryActions: [
+                            {
+                                icon: deleteIcon.react,
+                                onClick: () => deleteThread(thread.thread_id),
+                                tooltip: 'Delete this chat',
+                            }
+                           ]
+                         }))}
+                         alignment="right"
+                     />
                 </div>
             </div>
             <div className="chat-messages" ref={chatMessagesRef}>
@@ -963,8 +1095,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </button>
                     <button
                         className="button-base button-red agent-cancel-button"
-                        onClick={() => {
-                            void clearChatHistory();
+                        onClick={async () => {
+                            await startNewChat(); // TODO: delete thread instead of starting new chat
                             setAgentModeEnabled(false);
                         }}
                     >
@@ -996,8 +1128,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 leftText="Chat"
                                 rightText="Agent"
                                 isLeftSelected={!agentModeEnabled}
-                                onChange={(isLeftSelected) => {
-                                    void clearChatHistory();
+                                onChange={async (isLeftSelected) => {
+                                    await startNewChat(); // TODO: delete thread instead of starting new chat
                                     setAgentModeEnabled(!isLeftSelected);
                                     // Focus the chat input directly
                                     const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;

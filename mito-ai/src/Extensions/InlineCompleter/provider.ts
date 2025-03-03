@@ -18,6 +18,8 @@ import {
 } from '../../utils/websocket/websocketClient';
 import type {
   CompletionError,
+  ICompletionRequest,
+  ICompletionReply,
   ICompletionStreamChunk,
   IInlineCompleterCompletionRequest,
   IInlineCompleterMetadata,
@@ -148,7 +150,6 @@ export class MitoAIInlineCompleter
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
-    console.log("HERE")
     if (!this.isEnabled()) {
       return Promise.reject('Mito AI completion is disabled.');
     }
@@ -197,7 +198,10 @@ export class MitoAIInlineCompleter
         metadata: metadata,
         stream: false,
       }
-      const result = await this._client.sendMessage(inlineCompleterCompletionRequest);
+      const result = await this._client.sendMessage<
+        ICompletionRequest,
+        ICompletionReply
+      >(inlineCompleterCompletionRequest);
 
       if (result.items[0]?.token) {
         this._currentToken = result.items[0].token;
