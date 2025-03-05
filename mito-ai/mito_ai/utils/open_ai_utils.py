@@ -6,10 +6,12 @@
 import json
 from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
+import os
 
+from mito_ai.utils.utils import is_running_test
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
-from mito_ai.models import MessageType
+from mito_ai.models import MessageType, ResponseFormatInfo
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITO_AI_FIRST_USAGE_DATE, UJ_AI_MITO_API_NUM_USAGES
 from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
 from mito_ai.utils.db import get_completion_count, get_first_completion_date, get_user_field, set_user_field
@@ -107,8 +109,20 @@ async def get_ai_completion_from_mito_server(
     headers = {
         "Content-Type": "application/json",
     }
-
-    http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+    
+    http_client = None
+    if is_running_test():
+        # If we are running in a test environment, setting the request_timeout fails for some reason.
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+    else:
+        
+        # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
+        # we give to OpenAI. The OpenAI timeouts are denoted in seconds, wherease the HTTP client
+        # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
+        # the time it takes to send the request, etc.
+        http_client_timeout = timeout * 1000 * max_retries + 10000
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
+    
     try:
         res = await http_client.fetch(
             # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
@@ -137,7 +151,7 @@ def get_open_ai_completion_function_params(
     model: str, 
     messages: List[ChatCompletionMessageParam], 
     stream: bool,
-    response_format: Optional[Type[BaseModel]] = None,
+    response_format_info: Optional[ResponseFormatInfo] = None,
 ) -> Dict[str, Any]:
     
     completion_function_params = {
@@ -150,12 +164,12 @@ def get_open_ai_completion_function_params(
     # Pydantic models are supported by the OpenAI API, however, we need to be able to 
     # serialize it for requests that are going to be sent to the mito server. 
     # OpenAI expects a very specific schema as seen below. 
-    if response_format:
-        json_schema = response_format.schema()
+    if response_format_info:
+        json_schema = response_format_info.format.schema()
         completion_function_params["response_format"] = {
             "type": "json_schema",
             "json_schema": {
-                "name": "plan_of_attack",
+                "name": f"{response_format_info.name}",
                 "schema": {
                     **json_schema,
                     "additionalProperties": False
