@@ -89,6 +89,20 @@ export class CompletionWebsocketClient implements IDisposable {
   }
 
   /**
+   * Stream of connection status events
+   */
+  get connectionStatus(): IStream<CompletionWebsocketClient, 'connected' | 'disconnected'> {
+    return this._connectionStatus;
+  }
+
+  /**
+   * Check if websocket is currently connected
+   */
+  get isConnected(): boolean {
+    return this._socket !== null && this._socket.readyState === WebSocket.OPEN;
+  }
+
+  /**
    * Dispose the websocket client.
    */
   dispose(): void {
@@ -134,17 +148,34 @@ export class CompletionWebsocketClient implements IDisposable {
   ): Promise<R> {
     return new Promise<R>(async (resolve, reject) => {
       try {
-        // Ensure the websocket is initialized before sending
-        await this.ready;
-        
-        const pendingReply = new PromiseDelegate<R>();
-        if (this._socket) {
-          this._socket.send(JSON.stringify(message));
+        // If the socket is not connected, try to reconnect first
+        if (this._socket === null || this._socket.readyState !== WebSocket.OPEN) {
+          try {
+            console.log('Connection is closed, attempting to reconnect before sending message...');
+            
+            // Reset the ready promise since we're going to reconnect
+            this._ready = new PromiseDelegate<void>();
+            
+            await this.reconnect();
+            console.log('Successfully reconnected, now sending message');
+          } catch (reconnectError) {
+            console.error('Failed to reconnect websocket:', reconnectError);
+            reject(new Error('Failed to reconnect websocket before sending message'));
+            return;
+          }
+        }
+
+        if (this._socket && this._socket.readyState === WebSocket.OPEN) {
+          const id = message.message_id ?? crypto.randomUUID();
+          const pendingReply = new PromiseDelegate<R>();
           this._pendingRepliesMap.set(
-            message.message_id, 
+            id,
             pendingReply as PromiseDelegate<CompleterMessage>
           );
           pendingReply.promise.then(resolve).catch(reject);
+          
+          const messageWithId = { ...message, message_id: id };
+          this._socket.send(JSON.stringify(messageWithId));
         } else {
           reject(new Error('Inline completion websocket not initialized'));
         }
@@ -185,23 +216,13 @@ export class CompletionWebsocketClient implements IDisposable {
   private _onOpen(e: Event) {
     console.log('Mito AI completion websocket connected');
     this._ready.resolve();
+    this._connectionStatus.emit('connected');
   }
 
   private _onClose(e: CloseEvent) {
     this._ready.reject(new Error('Completion websocket disconnected'));
     console.error('Completion websocket disconnected');
-    // only attempt re-connect if there was an abnormal closure
-    // WebSocket status codes defined in RFC 6455: https://www.rfc-editor.org/rfc/rfc6455.html#section-7.4.1
-    if (e.code === 1006) {
-      const delaySeconds = 1;
-      console.info(
-        `Will try to reconnect mito-ai completions in ${delaySeconds} s.`
-      );
-      setTimeout(async () => {
-        this._ready = new PromiseDelegate<void>();
-        await this._initialize();
-      }, delaySeconds * 1000);
-    }
+    this._connectionStatus.emit('disconnected');
   }
 
   private async _initialize(): Promise<void> {
@@ -268,6 +289,66 @@ export class CompletionWebsocketClient implements IDisposable {
     await this._ready.promise;
   }
 
+  /**
+   * Maximum number of reconnection attempts
+   */
+  private _maxReconnectAttempts = 5;
+
+  /**
+   * Current reconnection attempt
+   */
+  private _reconnectAttempt = 0;
+
+  /**
+   * Attempt to reconnect the websocket with exponential backoff
+   */
+  async reconnect(forceReset: boolean = true): Promise<void> {
+    if (this._isDisposed) {
+      throw new Error('Client is disposed');
+    }
+    
+    // Reset _reconnectAttempt if this is a manual reconnect
+    if (forceReset) {
+      this._reconnectAttempt = 0;
+    }
+    
+    if (this._reconnectAttempt >= this._maxReconnectAttempts) {
+      throw new Error(`Failed to reconnect after ${this._maxReconnectAttempts} attempts`);
+    }
+    
+    // Clean up any existing socket
+    if (this._socket) {
+      this._socket.close();
+      this._socket = null;
+    }
+    
+    // Calculate delay using exponential backoff
+    // First attempt is immediate, then 1s, 2s, 4s, 8s
+    const delay = this._reconnectAttempt === 0 ? 0 : Math.pow(2, this._reconnectAttempt - 1) * 1000;
+    
+    if (delay > 0) {
+      console.log(`Attempting to reconnect in ${delay / 1000}s (attempt ${this._reconnectAttempt + 1}/${this._maxReconnectAttempts})...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+    
+    this._reconnectAttempt++;
+    
+    try {
+      // Reinitialize connection
+      await this._initialize();
+      // Reset reconnect attempt counter on success
+      this._reconnectAttempt = 0;
+    } catch (error) {
+      console.error(`Reconnection attempt ${this._reconnectAttempt} failed:`, error);
+      // Try again recursively with exponential backoff if we haven't exceeded the limit
+      if (this._reconnectAttempt < this._maxReconnectAttempts) {
+        return this.reconnect(false);
+      } else {
+        throw error;
+      }
+    }
+  }
+
   private _isDisposed = false;
   private _messages = new Stream<CompletionWebsocketClient, CompleterMessage>(
     this
@@ -285,4 +366,5 @@ export class CompletionWebsocketClient implements IDisposable {
     string,
     PromiseDelegate<CompleterMessage>
   >();
+  private _connectionStatus = new Stream<CompletionWebsocketClient, 'connected' | 'disconnected'>(this);
 }
