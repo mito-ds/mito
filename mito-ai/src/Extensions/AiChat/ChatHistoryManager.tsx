@@ -16,7 +16,8 @@ export type PromptType =
     'fetch_history' |
     'start_new_chat' |
     'get_threads' |
-    'delete_thread';
+    'delete_thread' |
+    'ping';
 
 export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
 

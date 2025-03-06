@@ -47,7 +47,8 @@ type CompletionRequestMetadata =
   IStartNewChatMetadata |
   IGetThreadsMetadata | 
   IDeleteThreadMetadata |
-  IAgentExecutionMetadata;
+  IAgentExecutionMetadata |
+  IPingMetadata;
 
 export interface IChatMessageMetadata {
     promptType: 'chat'
@@ -111,6 +112,13 @@ export interface IGetThreadsMetadata {
 export interface IDeleteThreadMetadata {
   promptType: 'delete_thread'
   thread_id: string;
+}
+
+/**
+ * Metadata for ping messages to keep the WebSocket connection alive
+ */
+export interface IPingMetadata {
+  promptType: 'ping'
 }
 
 /* 
@@ -178,6 +186,13 @@ export interface IFetchHistoryCompletionRequest extends ICompletionRequest {
   metadata: IFetchHistoryMetadata
 }
 
+/**
+ * Interface for ping request to keep the connection alive
+ */
+export interface IPingRequest extends ICompletionRequest {
+  type: 'ping'
+  metadata: IPingMetadata
+}
 
 /**
  * AI capabilities.
@@ -419,6 +434,21 @@ export interface IDeleteThreadReply {
   success: boolean;
 }
 
+/**
+ * Interface for ping response
+ */
+export interface IPingReply {
+  /**
+   * The type of the message.
+   */
+  type: 'pong';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+}
+
 export type CompleterMessage =
   | ErrorMessage
   | IAICapabilities
@@ -427,4 +457,5 @@ export type CompleterMessage =
   | IFetchHistoryReply
   | IStartNewChatReply
   | IFetchThreadsReply
-  | IDeleteThreadReply;
+  | IDeleteThreadReply
+  | IPingReply;

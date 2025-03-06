@@ -487,6 +487,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setLoadingAIResponse(true)
 
         try {
+            // Skip processing for ping messages - they're only for keeping the connection alive
+            if (completionRequest.type === 'ping') {
+                await websocketClient.sendMessage(completionRequest);
+                setLoadingAIResponse(false);
+                return true;
+            }
+
             const aiResponse = await websocketClient.sendMessage<
                 ICompletionRequest, 
                 ICompletionReply

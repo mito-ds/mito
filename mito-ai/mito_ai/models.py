@@ -50,6 +50,7 @@ class MessageType(Enum):
     FETCH_HISTORY = "fetch_history"
     GET_THREADS = "get_threads"
     DELETE_THREAD = "delete_thread"
+    PING = "ping"  # New message type for keep-alive
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
@@ -331,3 +332,16 @@ class DeleteThreadReply:
 
     # Message type.
     type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class PingReply:
+    """
+    Message sent from model to client in response to a ping message.
+    Used for keep-alive to maintain the WebSocket connection.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # Message type.
+    type: Literal["pong"] = "pong"

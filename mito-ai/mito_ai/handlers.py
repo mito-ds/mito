@@ -30,7 +30,8 @@ from mito_ai.models import (
     AgentPlanningMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
-    MessageType
+    MessageType,
+    PingReply
 )
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
@@ -130,7 +131,15 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.log.error("Invalid completion request.", exc_info=e)
             return
         
-        reply: Union[StartNewChatReply, FetchThreadsReply, DeleteThreadReply, FetchHistoryReply, CompletionReply]
+        reply: Union[StartNewChatReply, FetchThreadsReply, DeleteThreadReply, FetchHistoryReply, CompletionReply, PingReply]
+
+        # Handle ping messages - respond with a pong to keep the connection alive
+        if type == MessageType.PING:
+            reply = PingReply(
+                parent_id=parsed_message.get("message_id")
+            )
+            self.reply(reply)
+            return
 
         # Clear history if the type is "start_new_chat"
         if type == MessageType.START_NEW_CHAT:

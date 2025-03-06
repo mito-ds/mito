@@ -10,6 +10,8 @@ import type {
 } from './models';
 
 const SERVICE_URL = 'mito-ai/completions';
+// Define a reasonable interval for keep-alive messages (30 seconds)
+const KEEP_ALIVE_INTERVAL = 30000;
 
 /**
  * Error thrown by Mito AI completion
@@ -58,6 +60,8 @@ export class CompletionWebsocketClient implements IDisposable {
     this.serverSettings =
       options.serverSettings ?? ServerConnection.makeSettings();
     this._ready = new PromiseDelegate<void>();
+    // Initialize keepAliveInterval as null
+    this._keepAliveInterval = null;
   }
 
   /**
@@ -96,6 +100,9 @@ export class CompletionWebsocketClient implements IDisposable {
       return;
     }
     this._isDisposed = true;
+
+    // Clear the keep-alive interval
+    this._clearKeepAlive();
 
     // Clean up socket.
     const socket = this._socket;
@@ -185,9 +192,14 @@ export class CompletionWebsocketClient implements IDisposable {
   private _onOpen(e: Event) {
     console.log('Mito AI completion websocket connected');
     this._ready.resolve();
+    // Start the keep-alive mechanism after connection is established
+    this._startKeepAlive();
   }
 
   private _onClose(e: CloseEvent) {
+    // Clear the keep-alive interval when connection closes
+    this._clearKeepAlive();
+    
     this._ready.reject(new Error('Completion websocket disconnected'));
     console.error('Completion websocket disconnected');
     // only attempt re-connect if there was an abnormal closure
@@ -268,6 +280,39 @@ export class CompletionWebsocketClient implements IDisposable {
     await this._ready.promise;
   }
 
+  /**
+   * Start sending keep-alive messages to prevent the connection from timing out
+   */
+  private _startKeepAlive(): void {
+    // Clear any existing interval first
+    this._clearKeepAlive();
+    
+    // Set up a new interval
+    this._keepAliveInterval = window.setInterval(() => {
+      if (this._socket && this._socket.readyState === WebSocket.OPEN) {
+        // Send a simple ping message
+        this._socket.send(JSON.stringify({
+          type: 'ping',
+          message_id: `ping-${Date.now()}`
+        }));
+        console.debug('Sent WebSocket keep-alive ping');
+      } else {
+        // If socket is closed, clear the interval
+        this._clearKeepAlive();
+      }
+    }, KEEP_ALIVE_INTERVAL);
+  }
+
+  /**
+   * Clear the keep-alive interval
+   */
+  private _clearKeepAlive(): void {
+    if (this._keepAliveInterval !== null) {
+      window.clearInterval(this._keepAliveInterval);
+      this._keepAliveInterval = null;
+    }
+  }
+
   private _isDisposed = false;
   private _messages = new Stream<CompletionWebsocketClient, CompleterMessage>(
     this
@@ -285,4 +330,8 @@ export class CompletionWebsocketClient implements IDisposable {
     string,
     PromiseDelegate<CompleterMessage>
   >();
+  /**
+   * Interval ID for keep-alive mechanism
+   */
+  private _keepAliveInterval: number | null = null;
 }
