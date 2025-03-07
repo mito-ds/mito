@@ -4,7 +4,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '@testing-library/jest-dom'
 import { render, fireEvent, screen, createEvent } from '@testing-library/react'
 import React from 'react';
-import ChatInput from '../Extensions/AiChat/ChatMessage/ChatInput';
+import ChatInput from '../../Extensions/AiChat/ChatMessage/ChatInput';
 
 // Mock data for test cases
 const TEST_CELL_CODE = 'print("Hello World")';
@@ -25,7 +25,7 @@ const createMockCell = (code: string, cellId: string) => ({
 });
 
 // Mock notebook utils
-jest.mock('../utils/notebook', () => ({
+jest.mock('../../utils/notebook', () => ({
     getActiveCellID: jest.fn((id) => id === EMPTY_CELL_ID ? EMPTY_CELL_ID : TEST_CELL_ID),
     getCellCodeByID: jest.fn((id) => id === EMPTY_CELL_ID ? '' : TEST_CELL_CODE)
 }));
