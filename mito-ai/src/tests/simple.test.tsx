@@ -2,7 +2,7 @@ import { CodeCell } from '@jupyterlab/cells';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '@testing-library/jest-dom'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, screen } from '@testing-library/react'
 import React from 'react';
 import ChatInput from '../Extensions/AiChat/ChatMessage/ChatInput';
 
@@ -98,17 +98,17 @@ describe('ChatInput Component', () => {
                 }
             };
 
-            const { container } = renderChatInput(props);
-            const textarea = container.querySelector('textarea');
+            renderChatInput(props);
+            
+            // Use screen.getByRole instead of container.querySelector
+            const textarea = screen.getByRole('textbox');
             expect(textarea).toBeInTheDocument();
 
             // Type in textarea
-            if (textarea) {
-                typeInTextarea(textarea, 'test input');
-            }
+            typeInTextarea(textarea, 'test input');
 
             // Preview should not be visible for empty cells
-            expect(container.querySelector('.active-cell-preview-container')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
         });
     });
 });
