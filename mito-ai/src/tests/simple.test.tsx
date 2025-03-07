@@ -2,7 +2,7 @@ import { CodeCell } from '@jupyterlab/cells';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '@testing-library/jest-dom'
-import { render, fireEvent, screen } from '@testing-library/react'
+import { render, fireEvent, screen, createEvent } from '@testing-library/react'
 import React from 'react';
 import ChatInput from '../Extensions/AiChat/ChatMessage/ChatInput';
 
@@ -107,6 +107,80 @@ describe('ChatInput Component', () => {
 
             // Preview should not be visible for empty cells
             expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Message Submission', () => {
+        it('submits message and clears input when Enter key is pressed', () => {
+            const onSaveMock = jest.fn();
+            renderChatInput({ onSave: onSaveMock });
+            
+            const textarea = screen.getByRole('textbox');
+            const testMessage = 'Hello, this is a test message';
+            
+            // Type content in the textarea
+            typeInTextarea(textarea, testMessage);
+            
+            // Simulate pressing Enter
+            fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
+            
+            // Verify onSave was called with the input content
+            expect(onSaveMock).toHaveBeenCalledWith(testMessage);
+            
+            // Verify the input was cleared
+            expect(textarea).toHaveValue('');
+        });
+
+        it('does not submit message when Shift+Enter is pressed', () => {
+            const onSaveMock = jest.fn();
+            renderChatInput({ onSave: onSaveMock });
+            
+            const textarea = screen.getByRole('textbox');
+            const testMessage = 'Hello, this is a test message';
+            
+            // Type content in the textarea
+            typeInTextarea(textarea, testMessage);
+            
+            // Simulate pressing Shift+Enter
+            fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter', shiftKey: true });
+            
+            // Verify onSave was not called
+            expect(onSaveMock).not.toHaveBeenCalled();
+            
+            // Verify the input was not cleared
+            expect(textarea).toHaveValue(testMessage);
+        });
+
+        it('allows new line when Shift+Enter is pressed', () => {
+            const onSaveMock = jest.fn();
+            renderChatInput({ onSave: onSaveMock });
+            
+            const textarea = screen.getByRole('textbox');
+            const testMessage = 'Line 1';
+            
+            // Type content in the textarea
+            typeInTextarea(textarea, testMessage);
+            
+            // Create a keydown event for Shift+Enter
+            const shiftEnterEvent = createEvent.keyDown(textarea, { 
+                key: 'Enter', 
+                code: 'Enter', 
+                shiftKey: true 
+            });
+            
+            // Fire the event and check if preventDefault was called
+            fireEvent(textarea, shiftEnterEvent);
+            expect(shiftEnterEvent.defaultPrevented).toBe(false);
+            
+            // Manually simulate adding a new line (as the browser would do)
+            // since JSDOM doesn't automatically do this
+            typeInTextarea(textarea, `${testMessage}\nLine 2`);
+            
+            // Verify the new line is in the textarea
+            expect(textarea).toHaveValue(`${testMessage}\nLine 2`);
+            
+            // Verify onSave was not called
+            expect(onSaveMock).not.toHaveBeenCalled();
         });
     });
 });
