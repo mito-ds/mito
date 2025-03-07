@@ -1,8 +1,38 @@
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Type, Union
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
+from pydantic import BaseModel
+
+@dataclass(frozen=True)
+class AIOptimizedCells():
+  cell_type: str
+  id: str
+  code: str
+  
+# Response format for agent planning
+# TODO: Figure out how to discriminate the 
+# CellUpdateModification and CellUpdateNew types
+    
+@dataclass(frozen=True)
+class CellUpdate(BaseModel):
+    type: Literal['new', 'modification']
+    index: Optional[int]
+    id: Optional[str]
+    code: str
+
+# Response format for agent planning
+class PlanOfAttack(BaseModel):
+    actions: List[str]
+    dependencies: List[str]
+  
+@dataclass(frozen=True)
+class ResponseFormatInfo():
+    name: str
+    # Use the type because we are actually just providing the type format, not an actual instance of the format
+    format: Union[type[PlanOfAttack], type[CellUpdate]] 
+
 
 class MessageType(Enum):
     """
@@ -15,18 +45,28 @@ class MessageType(Enum):
     AGENT_EXECUTION = "agent:execution"
     AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
     INLINE_COMPLETION = "inline_completion"
-    CLEAR_HISTORY = "clear_history"
+    CHAT_NAME_GENERATION = "chat_name_generation"
+    START_NEW_CHAT = "start_new_chat"
     FETCH_HISTORY = "fetch_history"
-
+    GET_THREADS = "get_threads"
+    DELETE_THREAD = "delete_thread"
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
-    promptType: Literal['chat', 'agent:execution']
+    promptType: Literal['chat']
     input: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    index: Optional[int] = None    
+    index: Optional[int] = None   
+    
+@dataclass(frozen=True)
+class AgentExecutionMetadata():
+    promptType: Literal['agent:execution']
+    input: str
+    aiOptimizedCells: List[AIOptimizedCells]
+    variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
@@ -56,10 +96,6 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class ClearHistoryMetadata():
-    promptType: Literal['clear_history']
 
 @dataclass(frozen=True)
 class FetchHistoryMetadata():
@@ -237,3 +273,61 @@ class FetchHistoryReply:
     # Message type.
     type: Literal["reply"] = "reply"
 
+@dataclass(frozen=True)
+class ChatThreadMetadata:
+    """
+    Chat thread item.
+    """
+
+    thread_id: str
+
+    name: str
+
+    creation_ts: float
+
+    last_interaction_ts: float
+
+@dataclass(frozen=True)
+class StartNewChatReply:
+    """
+    Message sent from model to client after starting a new chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # Chat thread item.
+    thread_id: str
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class FetchThreadsReply:
+    """
+    Message sent from model to client with the chat threads.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # List of chat threads.
+    threads: List[ChatThreadMetadata]
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class DeleteThreadReply:
+    """
+    Message sent from model to client after deleting a chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    #Success message
+    success: bool
+
+    # Message type.
+    type: Literal["reply"] = "reply"

@@ -1,9 +1,14 @@
 import { expect, IJupyterLabPageFixture } from "@jupyterlab/galata";
-import { selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
+import { getCodeFromCell, selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixture) => {
     const mitoAILoadingLocator = page.locator('.chat-loading-message');
     await mitoAILoadingLocator.waitFor({ state: 'hidden' });
+}
+
+export const waitForAgentToFinish = async (page: IJupyterLabPageFixture) => {
+    const agentStopButton = page.locator('.stop-agent-button');
+    await agentStopButton.waitFor({state: 'hidden'})
 }
 
 export const clickOnMitoAIChatTab = async (page: IJupyterLabPageFixture) => {
@@ -35,14 +40,14 @@ export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {
     await page.locator('.chat-input').fill('');
 }
 
-export const clearMitoAIChatHistory = async (page: IJupyterLabPageFixture) => {
+export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
     await waitForIdle(page);
 
     // Open the Mito AI chat tab
     await clickOnMitoAIChatTab(page);
   
     // Locate the "Clear the chat history" button
-    const clearButton = page.locator('button[title="Clear the chat history"]');
+    const clearButton = page.locator('button[title="Start New Chat"]');
     
     // Wait for the button to be visible, then click
     await clearButton.waitFor({ state: 'visible' });
@@ -120,3 +125,22 @@ export const clickAgentModeToggleButton = async (page: IJupyterLabPageFixture) =
     await page.locator('.toggle-button-container').getByRole('button', { name: 'Agent' }).click();
     await waitForIdle(page);
 }
+
+
+export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<string[]> => {
+    // Get count of cells in the notebook
+    const cellCount = await page.locator('.jp-Cell').count();
+
+    // Get code from every cell in the notebook
+    const codeFromCells: string[] = [];
+    for (let i = 0; i < cellCount; i++) {
+        const code = await getCodeFromCell(page, i);
+        console.log(code)
+        if (code) {
+            codeFromCells.push(code);
+        }
+    }
+    return codeFromCells
+}
+
+

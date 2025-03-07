@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../../style/DropdownMenu.css';
+import { LabIcon } from '@jupyterlab/ui-components';
 
 interface DropdownSecondaryAction {
-  icon: React.ComponentType<{ fill?: string }>;
+  icon: LabIcon.IReact;
   onClick: () => void;
   tooltip?: string;
   disabled?: boolean;
@@ -11,7 +12,7 @@ interface DropdownSecondaryAction {
 interface DropdownMenuItem {
   label: string;
   onClick: () => void; // main action
-  primaryIcon?: React.ComponentType<{ fill?: string }>;
+  primaryIcon?: LabIcon.IReact;
   disabled?: boolean;
   disabledTooltip?: string;
   secondaryActions?: DropdownSecondaryAction[];
