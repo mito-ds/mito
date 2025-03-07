@@ -1,8 +1,10 @@
-import { render, fireEvent } from '@testing-library/react'
-import '@testing-library/jest-dom'
-import ChatInput from '../Extensions/AiChat/ChatMessage/ChatInput';
-import React from 'react';
 import { CodeCell } from '@jupyterlab/cells';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import '@testing-library/jest-dom'
+import { render, fireEvent } from '@testing-library/react'
+import React from 'react';
+import ChatInput from '../Extensions/AiChat/ChatMessage/ChatInput';
 
 // Mock data for test cases
 const TEST_CELL_CODE = 'print("Hello World")';
@@ -40,74 +42,20 @@ const createMockProps = (overrides = {}) => ({
             disconnect: jest.fn()
         },
         activeCell: createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell,
-        selectionChanged: {
-            connect: jest.fn(),
-            disconnect: jest.fn()
-        },
-        widgetAdded: {
-            connect: jest.fn(),
-            disconnect: jest.fn()
-        },
-        currentWidget: null,
-        currentChanged: {
-            connect: jest.fn(),
-            disconnect: jest.fn()
-        },
-        cells: [],
-        widgets: [],
-        dispose: jest.fn(),
-        isDisposed: false,
-        add: jest.fn(),
-        remove: jest.fn(),
-        size: 0,
-        restored: Promise.resolve(),
-        widgetUpdated: {
-            connect: jest.fn(),
-            disconnect: jest.fn()
-        },
-        find: jest.fn(),
-        forEach: jest.fn(),
-        iter: jest.fn(),
-        onCurrentChanged: jest.fn(),
-        filter: jest.fn(),
-        has: jest.fn(),
-        inject: jest.fn()
-    },
+        currentWidget: {
+            content: {
+                activeCell: createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell,
+                widgets: [createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell]
+            }
+        }
+    } as unknown as INotebookTracker,
     renderMimeRegistry: {
-        sanitizer: { sanitize: jest.fn() },
-        resolver: {
-            resolve: jest.fn(),
-            resolveUrl: jest.fn(),
-            getDownloadUrl: jest.fn()
-        },
-        linkHandler: { handleLink: jest.fn() },
-        latexTypesetter: { typeset: jest.fn() },
-        markdownParser: {
-            parse: jest.fn(),
-            render: jest.fn()
-        },
         createRenderer: jest.fn().mockReturnValue({
             renderModel: jest.fn(),
             node: document.createElement('div')
         }),
-        createModel: jest.fn(),
-        preferredMimeType: jest.fn(),
-        clone: jest.fn(),
-        dispose: jest.fn(),
-        isDisposed: false,
-        addFactory: jest.fn(),
-        getFactory: jest.fn(),
-        getFactoryFor: jest.fn(),
-        defaultRendererFactories: [],
-        mimeTypes: [],
-        changed: {
-            connect: jest.fn(),
-            disconnect: jest.fn()
-        },
-        removeMimeType: jest.fn(),
-        getRank: jest.fn(),
-        setRank: jest.fn()
-    },
+        sanitizer: { sanitize: jest.fn() }
+    } as unknown as IRenderMimeRegistry,
     displayActiveCellCode: true,
     ...overrides
 });
