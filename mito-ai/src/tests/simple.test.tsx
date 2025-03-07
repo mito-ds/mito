@@ -98,7 +98,6 @@ describe('ChatInput Component', () => {
 
             renderChatInput(props);
             
-            // Use screen.getByRole instead of container.querySelector
             const textarea = screen.getByRole('textbox');
             expect(textarea).toBeInTheDocument();
 
