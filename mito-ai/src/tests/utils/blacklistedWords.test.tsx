@@ -1,4 +1,4 @@
-import { checkForBlacklistedWords } from '../utils/blacklistedWords';
+import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 
 describe('checkForBlacklistedWords', () => {
     // Basic functionality tests
