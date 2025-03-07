@@ -85,10 +85,27 @@ const typeInTextarea = (textarea: HTMLElement, value: string) => {
 };
 
 describe('ChatInput Component', () => {
+    let textarea: HTMLElement;
+    let defaultProps: ReturnType<typeof createMockProps>;
+    let onSaveMock: jest.Mock;
+
+    beforeEach(() => {
+        // Clear any previous renders
+        document.body.innerHTML = '';
+        
+        // Create fresh mocks for each test
+        onSaveMock = jest.fn();
+        defaultProps = createMockProps({ onSave: onSaveMock });
+        
+        // Render with default props
+        renderChatInput({ onSave: onSaveMock });
+        
+        // Get the textarea element that's used in most tests
+        textarea = screen.getByRole('textbox');
+    });
+
     describe('Active Cell Preview', () => {
         it('shows preview when input has content', () => {
-            renderChatInput();
-            const textarea = screen.getByRole('textbox');
             expect(textarea).toBeInTheDocument();
 
             // Initially, preview should not be visible
@@ -102,10 +119,12 @@ describe('ChatInput Component', () => {
         });
 
         it('does not show preview for empty cells', () => {
+            // Clear and re-render with custom props
+            document.body.innerHTML = '';
             const props = {
                 displayActiveCellCode: false,
                 notebookTracker: {
-                    ...createMockProps().notebookTracker,
+                    ...defaultProps.notebookTracker,
                     activeCell: createMockCell('', EMPTY_CELL_ID) as unknown as CodeCell
                 }
             };
@@ -125,10 +144,6 @@ describe('ChatInput Component', () => {
 
     describe('Keyboard Interactions', () => {
         it('submits message and clears input when Enter key is pressed', () => {
-            const onSaveMock = jest.fn();
-            renderChatInput({ onSave: onSaveMock });
-            
-            const textarea = screen.getByRole('textbox');
             const testMessage = 'Hello, this is a test message';
             
             // Type content in the textarea
@@ -145,10 +160,6 @@ describe('ChatInput Component', () => {
         });
 
         it('does not submit message when Shift+Enter is pressed', () => {
-            const onSaveMock = jest.fn();
-            renderChatInput({ onSave: onSaveMock });
-            
-            const textarea = screen.getByRole('textbox');
             const testMessage = 'Hello, this is a test message';
             
             // Type content in the textarea
@@ -165,10 +176,6 @@ describe('ChatInput Component', () => {
         });
 
         it('allows new line when Shift+Enter is pressed', () => {
-            const onSaveMock = jest.fn();
-            renderChatInput({ onSave: onSaveMock });
-            
-            const textarea = screen.getByRole('textbox');
             const testMessage = 'Line 1';
             
             // Type content in the textarea
@@ -199,15 +206,15 @@ describe('ChatInput Component', () => {
 
     describe('Edit Mode', () => {
         it('shows edit buttons only when isEditing is true', () => {
-            // First render with isEditing=false
-            const { rerender } = renderChatInput({ isEditing: false });
+            // First render with isEditing=false (already done in beforeEach)
             
             // Edit buttons should not be in the document
             expect(screen.queryByText('Save')).not.toBeInTheDocument();
             expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
             
-            // Re-render with isEditing=true
-            rerender(<ChatInput {...createMockProps({ isEditing: true })} />);
+            // Clear and re-render with isEditing=true
+            document.body.innerHTML = '';
+            renderChatInput({ isEditing: true });
             
             // Edit buttons should now be in the document
             expect(screen.getByText('Save')).toBeInTheDocument();
@@ -215,31 +222,35 @@ describe('ChatInput Component', () => {
         });
 
         it('calls onSave with current input when Save button is clicked', () => {
+            // Clear and re-render with edit mode props
+            document.body.innerHTML = '';
             const initialContent = 'Initial content';
-            const onSaveMock = jest.fn();
+            const editSaveMock = jest.fn();
             
             renderChatInput({ 
                 isEditing: true, 
                 initialContent: initialContent,
-                onSave: onSaveMock 
+                onSave: editSaveMock 
             });
             
-            const textarea = screen.getByRole('textbox');
-            expect(textarea).toHaveValue(initialContent);
+            const editTextarea = screen.getByRole('textbox');
+            expect(editTextarea).toHaveValue(initialContent);
             
             // Update the text in the textarea
             const updatedContent = 'Updated content';
-            typeInTextarea(textarea, updatedContent);
+            typeInTextarea(editTextarea, updatedContent);
             
             // Click the Save button
             const saveButton = screen.getByText('Save');
             fireEvent.click(saveButton);
             
             // Verify onSave was called with the updated content
-            expect(onSaveMock).toHaveBeenCalledWith(updatedContent);
+            expect(editSaveMock).toHaveBeenCalledWith(updatedContent);
         });
 
         it('calls onCancel when Cancel button is clicked', () => {
+            // Clear and re-render with edit mode props
+            document.body.innerHTML = '';
             const onCancelMock = jest.fn();
             
             renderChatInput({ 
@@ -257,15 +268,7 @@ describe('ChatInput Component', () => {
     });
 
     describe('Variable Dropdown', () => {
-        beforeEach(() => {
-            // Clear any previous renders
-            document.body.innerHTML = '';
-        });
-        
         it('shows dropdown when @ character is typed', async () => {
-            renderChatInput();
-            const textarea = screen.getByRole('textbox');
-            
             // Initially, dropdown should not be visible
             expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
             
@@ -287,9 +290,6 @@ describe('ChatInput Component', () => {
         });
         
         it('filters dropdown options based on text after @', async () => {
-            renderChatInput();
-            const textarea = screen.getByRole('textbox');
-            
             // Type @d in textarea to filter for variables starting with 'd'
             await act(async () => {
                 typeInTextarea(textarea, '@d');
@@ -307,9 +307,6 @@ describe('ChatInput Component', () => {
         });
         
         it('selects variable when clicked in dropdown', async () => {
-            renderChatInput();
-            const textarea = screen.getByRole('textbox');
-            
             // Type @ character in textarea
             await act(async () => {
                 typeInTextarea(textarea, '@');
