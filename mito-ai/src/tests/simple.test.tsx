@@ -73,20 +73,18 @@ const typeInTextarea = (textarea: HTMLElement, value: string) => {
 describe('ChatInput Component', () => {
     describe('Active Cell Preview', () => {
         it('shows preview when input has content', () => {
-            const { container } = renderChatInput();
-            const textarea = container.querySelector('textarea');
+            renderChatInput();
+            const textarea = screen.getByRole('textbox');
             expect(textarea).toBeInTheDocument();
 
             // Initially, preview should not be visible
-            expect(container.querySelector('.active-cell-preview-container')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
 
             // Type in textarea
-            if (textarea) {
-                typeInTextarea(textarea, 'test input');
-            }
+            typeInTextarea(textarea, 'test input');
 
             // Preview should become visible
-            expect(container.querySelector('.active-cell-preview-container')).toBeInTheDocument();
+            expect(screen.getByTestId('active-cell-preview-container')).toBeInTheDocument();
         });
 
         it('does not show preview for empty cells', () => {
