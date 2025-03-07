@@ -110,7 +110,7 @@ describe('ChatInput Component', () => {
         });
     });
 
-    describe('Message Submission', () => {
+    describe('Keyboard Interactions', () => {
         it('submits message and clears input when Enter key is pressed', () => {
             const onSaveMock = jest.fn();
             renderChatInput({ onSave: onSaveMock });
@@ -181,6 +181,65 @@ describe('ChatInput Component', () => {
             
             // Verify onSave was not called
             expect(onSaveMock).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Edit Mode', () => {
+        it('shows edit buttons only when isEditing is true', () => {
+            // First render with isEditing=false
+            const { rerender } = renderChatInput({ isEditing: false });
+            
+            // Edit buttons should not be in the document
+            expect(screen.queryByText('Save')).not.toBeInTheDocument();
+            expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+            
+            // Re-render with isEditing=true
+            rerender(<ChatInput {...createMockProps({ isEditing: true })} />);
+            
+            // Edit buttons should now be in the document
+            expect(screen.getByText('Save')).toBeInTheDocument();
+            expect(screen.getByText('Cancel')).toBeInTheDocument();
+        });
+
+        it('calls onSave with current input when Save button is clicked', () => {
+            const initialContent = 'Initial content';
+            const onSaveMock = jest.fn();
+            
+            renderChatInput({ 
+                isEditing: true, 
+                initialContent: initialContent,
+                onSave: onSaveMock 
+            });
+            
+            const textarea = screen.getByRole('textbox');
+            expect(textarea).toHaveValue(initialContent);
+            
+            // Update the text in the textarea
+            const updatedContent = 'Updated content';
+            typeInTextarea(textarea, updatedContent);
+            
+            // Click the Save button
+            const saveButton = screen.getByText('Save');
+            fireEvent.click(saveButton);
+            
+            // Verify onSave was called with the updated content
+            expect(onSaveMock).toHaveBeenCalledWith(updatedContent);
+        });
+
+        it('calls onCancel when Cancel button is clicked', () => {
+            const onCancelMock = jest.fn();
+            
+            renderChatInput({ 
+                isEditing: true, 
+                onCancel: onCancelMock 
+            });
+            
+            // Click the Cancel button
+            const cancelButton = screen.getByText('Cancel');
+            fireEvent.click(cancelButton);
+            
+            // Verify onCancel was called
+            expect(onCancelMock).toHaveBeenCalled();
         });
     });
 });
