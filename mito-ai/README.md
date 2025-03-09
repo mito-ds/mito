@@ -137,6 +137,14 @@ To run the Jest tests, just run `npm test` in the mito-ai directory.
 
 Frontend tests for mito-ai are written using Playwright and Gelata in the mito/tests directory.
 
+#### Frontend Linting
+
+Frontend linting for mito-ai is done using ESLint in the mito-ai directory.
+
+To run the ESLint tests, just run `jlpm eslint` in the mito-ai directory.
+
+
+
 
 
 

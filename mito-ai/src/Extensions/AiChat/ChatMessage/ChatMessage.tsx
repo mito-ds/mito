@@ -74,16 +74,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     const messageContentParts = splitStringWithCodeBlocks(message);
 
-    const handleEditClick = () => {
+    const handleEditClick = (): void => {
         setIsEditing(true);
     };
 
-    const handleSave = (content: string) => {
+    const handleSave = (content: string): void => {
         onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
 
-    const handleCancel = () => {
+    const handleCancel = (): void => {
         setIsEditing(false);
     };
 
@@ -149,7 +149,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             width='fit-contents'
                                         />
                                         <TextAndIconButton 
-                                            onClick={() => {copyToClipboard(messagePart)}}
+                                            onClick={() => {void copyToClipboard(messagePart)}}
                                             text={'Copy'}
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
@@ -179,12 +179,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 }
                             </>
                         )
+                    } else {
+                        // Return null for empty code blocks
+                        return null;
                     }
                 } else {
                     return (
-                        <div className={classNames('markdown-message-part')}>
+                        <div key={index + messagePart} className={classNames('markdown-message-part')}>
                             <p 
-                                key={index + messagePart} 
                                 onDoubleClick={() => {
                                     // Only allow users to edit their own messages, not the AI responses
                                     if (message.role === 'user') {

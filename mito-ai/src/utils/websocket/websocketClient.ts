@@ -132,22 +132,22 @@ export class CompletionWebsocketClient implements IDisposable {
   sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(
     message: T
   ): Promise<R> {
-    return new Promise<R>(async (resolve, reject) => {
+    return new Promise<R>((resolve, reject) => {
       try {
         // Ensure the websocket is initialized before sending
-        await this.ready;
-        
-        const pendingReply = new PromiseDelegate<R>();
-        if (this._socket) {
-          this._socket.send(JSON.stringify(message));
-          this._pendingRepliesMap.set(
-            message.message_id, 
-            pendingReply as PromiseDelegate<CompleterMessage>
-          );
-          pendingReply.promise.then(resolve).catch(reject);
-        } else {
-          reject(new Error('Inline completion websocket not initialized'));
-        }
+        this.ready.then(async () => {
+          if (this._socket) {
+            this._socket.send(JSON.stringify(message));
+            const pendingReply = new PromiseDelegate<R>();
+            this._pendingRepliesMap.set(
+              message.message_id, 
+              pendingReply as PromiseDelegate<CompleterMessage>
+            );
+            pendingReply.promise.then(resolve).catch(reject);
+          } else {
+            reject(new Error('Inline completion websocket not initialized'));
+          }
+        }).catch(reject);
       } catch (error) {
         reject(error);
       }
@@ -182,12 +182,12 @@ export class CompletionWebsocketClient implements IDisposable {
     }
   }
 
-  private _onOpen(e: Event) {
+  private _onOpen(_: Event): void {
     console.log('Mito AI completion websocket connected');
     this._ready.resolve();
   }
 
-  private _onClose(e: CloseEvent) {
+  private _onClose(e: CloseEvent): void {
     this._ready.reject(new Error('Completion websocket disconnected'));
     console.error('Completion websocket disconnected');
     // only attempt re-connect if there was an abnormal closure

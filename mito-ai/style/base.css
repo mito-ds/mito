@@ -8,47 +8,46 @@
 @import url('statusItem.css');
 
 :root {
-    --chat-background-color: var(--jp-layout-color1);
-    --chat-user-message-background-color: var(--jp-input-background);
-    --chat-user-message-font-color: var(--jp-content-font-color1);
-    --chat-assistant-message-font-color: #0E1119;
-    --muted-text-color: var(--jp-content-font-color2);
+  --chat-background-color: var(--jp-layout-color1);
+  --chat-user-message-background-color: var(--jp-input-background);
+  --chat-user-message-font-color: var(--jp-content-font-color1);
+  --chat-assistant-message-font-color: #0e1119;
+  --muted-text-color: var(--jp-content-font-color2);
 
-    --green-900: #155239;
-    --green-800: #1A7741;
-    --green-700: #239D58;
-    --green-600: #39C172;
-    --green-500: #74D99E;
-    --green-400: #A8EEC1;
-    --green-300: #E3FCEC;
+  --green-900: #155239;
+  --green-800: #1a7741;
+  --green-700: #239d58;
+  --green-600: #39c172;
+  --green-500: #74d99e;
+  --green-400: #a8eec1;
+  --green-300: #e3fcec;
 
-    --red-900: #611818;
-    --red-800: #891A1B;
-    --red-700: #B82020;
-    --red-600: #DB3130;
-    --red-500: #E46464;
-    --red-400: #F5AAAA;
-    --red-300: #FCE8E8;
+  --red-900: #611818;
+  --red-800: #891a1b;
+  --red-700: #b82020;
+  --red-600: #db3130;
+  --red-500: #e46464;
+  --red-400: #f5aaaa;
+  --red-300: #fce8e8;
 
-    --yellow-900: #5C4813;
-    --yellow-500: #FAE29F;
-    --yellow-300: #fde047;
+  --yellow-900: #5c4813;
+  --yellow-500: #fae29f;
+  --yellow-300: #fde047;
 
-    --grey-900: #222934;
-    --grey-800: #5F6B7A;
-    --grey-700: #8795A7;
-    --grey-500: #B8C4CE;
-    --grey-400: #CFD6DE;
-    --grey-300: #E1E7EB;
-    --grey-200: #F8F9FA;
+  --grey-900: #222934;
+  --grey-800: #5f6b7a;
+  --grey-700: #8795a7;
+  --grey-500: #b8c4ce;
+  --grey-400: #cfd6de;
+  --grey-300: #e1e7eb;
+  --grey-200: #f8f9fa;
 
-    --purple-700: #844AF7;
-    --purple-600: #9D6CFF;
-    --purple-500: #BA9BF8;
-    --purple-400: #D0B9FE;
-    --purple-300: #E9E0FD;
+  --purple-700: #844af7;
+  --purple-600: #9d6cff;
+  --purple-500: #ba9bf8;
+  --purple-400: #d0b9fe;
+  --purple-300: #e9e0fd;
 }
-
 
 /* 
     Jupyter tries to ensure that the cell toolbar does not overlap with the contents of the cell. 
@@ -60,9 +59,13 @@
     we hide individual buttons, excluding the Accept and Reject buttons.
 */
 .jp-toolbar-overlap .jp-cell-toolbar {
-    display: flex !important;
-} 
+  display: flex !important;
+}
 
-.jp-toolbar-overlap .jp-cell-toolbar > *:not([data-jp-item-name="accept-code"]):not([data-jp-item-name="reject-code"]) {
-    display: none !important;
+.jp-toolbar-overlap
+  .jp-cell-toolbar
+  > *:not([data-jp-item-name='accept-code']):not(
+    [data-jp-item-name='reject-code']
+  ) {
+  display: none !important;
 }

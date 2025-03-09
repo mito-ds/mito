@@ -69,7 +69,7 @@ export class ChatHistoryManager {
         return this.displayOptimizedChatHistory;
     }
 
-    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam) {
+    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam): void {
         this.displayOptimizedChatHistory.push(
             {
                 message: message, 
