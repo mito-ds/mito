@@ -73,8 +73,11 @@ export const writeCodeToCellByID = (
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+
+    console.log("codeMirrorValidCode", codeMirrorValidCode)
+    console.log("cell", cell)
     
-    if (cell && codeMirrorValidCode) {
+    if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
     }
 }

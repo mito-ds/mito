@@ -107,13 +107,22 @@ export const addMarkdownCodeFormatting = (code: string, trim?: boolean): string 
 
     Jupyter does not need the backticks. 
 */
-export const removeMarkdownCodeFormatting = (code: string): string | undefined=> {
+export const removeMarkdownCodeFormatting = (code: string): string => {
 
+    console.log("code", code)
+
+    let cleanedCode: string | undefined = undefined
     if (code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE).length > 1 ) {
-        return code.split(PYTHON_CODE_BLOCK_START_WITH_NEW_LINE)[1]?.split(PYTHON_CODE_BLOCK_END_WITH_NEW_LINE)[0]
+        cleanedCode = code.split(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)[1]?.split(PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE)[0]
     }
 
-    return code
+    console.log("cleanedCode", cleanedCode)
+
+    if (cleanedCode === undefined) {
+        return code
+    }
+
+    return cleanedCode
 }
 
 

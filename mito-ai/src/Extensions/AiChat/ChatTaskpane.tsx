@@ -784,6 +784,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         setCodeReviewStatus('chatPreview')
+
+        console.log("rejecting code")
+        console.log(cellStateBeforeDiff.current)
         writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID)
     }
 
