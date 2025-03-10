@@ -76,10 +76,10 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     }
 
     return (
-        <div className={`chat-dropdown`}>
-            <ul className="chat-dropdown-list" >
+        <div className={`chat-dropdown`} data-testid="chat-dropdown">
+            <ul className="chat-dropdown-list" data-testid="chat-dropdown-list">
                 {filteredOptions.length === 0 && (
-                    <li className="chat-dropdown-item">No variables found</li>
+                    <li className="chat-dropdown-item" data-testid="chat-dropdown-empty-item">No variables found</li>
                 )}
 
                 {filteredOptions.map((option, index) => {
@@ -92,15 +92,18 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                             key={uniqueKey}
                             className={classNames("chat-dropdown-item", { selected: index === selectedIndex })}
                             onClick={() => onSelect(option.variable_name, option.parent_df)}
+                            data-testid={`chat-dropdown-item-${option.variable_name}`}
                         >
                             <span className="chat-dropdown-item-type"
                                 title={getShortType(option.type)}
+                                data-testid={`chat-dropdown-item-type-${option.variable_name}`}
                             >
                                 {getShortType(option.type)}
                             </span>
                             <span
                                 className="chat-dropdown-item-name"
                                 title={option.variable_name}
+                                data-testid={`chat-dropdown-item-name-${option.variable_name}`}
                                 ref={(el) => {
                                     // Show full text on hover if the text is too long
                                     if (el) {
