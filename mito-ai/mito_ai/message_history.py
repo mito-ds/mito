@@ -113,7 +113,7 @@ class GlobalMessageHistory:
             Returns copies of the AI-optimized and display histories for the newest thread.
         clear_histories() -> None:
             Creates a new thread (preserving old threads).
-        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str], llm_provider) -> None:
+        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
             Appends new messages to the newest thread and saves to disk.
         truncate_histories(index: int) -> None:
             Truncates both histories at the given index in the newest thread.
@@ -123,9 +123,10 @@ class GlobalMessageHistory:
             Returns a list of threads with thread_id, name, creation_ts, and last_interaction_ts.
     """
 
-    def __init__(self, chats_dir: str = os.path.join(MITO_FOLDER, "ai-chats")):
+    def __init__(self, llm_provider: OpenAIProvider):
         self._lock = Lock()
-        self._chats_dir = chats_dir
+        self._chats_dir = os.path.join(MITO_FOLDER, "ai-chats")
+        self._llm_provider = llm_provider
         os.makedirs(self._chats_dir, exist_ok=True)
 
         # In-memory cache of all chat threads loaded from disk
@@ -258,7 +259,7 @@ class GlobalMessageHistory:
                 self._chat_threads[thread_id].display_history[:],
             )
 
-    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider) -> None:
+    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam) -> None:
         """
         Appends the messages to the newest thread. If there are no threads yet, create one.
         We also detect if we should set a short name for the thread.
@@ -295,7 +296,7 @@ class GlobalMessageHistory:
 
         # Outside the lock, await the name generation if needed
         if name_gen_input:
-            new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), llm_provider)
+            new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), self._llm_provider)
             with self._lock:
                 # Update the thread's name if still required
                 thread = self._chat_threads[thread_id]
