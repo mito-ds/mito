@@ -3,7 +3,7 @@ from mito_ai.providers import OpenAIProvider
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.prompt_builders.chat_system_message import create_chat_system_message_prompt
 
-async def add_chat_system_message(message_history: GlobalMessageHistory, llm_provider: OpenAIProvider) -> None:
+async def add_chat_system_message(message_history: GlobalMessageHistory) -> None:
     system_message_prompt = create_chat_system_message_prompt()
     
     system_message: ChatCompletionMessageParam = {
@@ -14,7 +14,6 @@ async def add_chat_system_message(message_history: GlobalMessageHistory, llm_pro
     await message_history.append_message(
         ai_optimized_message=system_message,
         display_message=system_message,
-        llm_provider=llm_provider
     )
     
     
