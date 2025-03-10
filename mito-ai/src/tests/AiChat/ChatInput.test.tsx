@@ -159,23 +159,7 @@ describe('ChatInput Component', () => {
             expect(textarea).toHaveValue('');
         });
 
-        it('does not submit message when Shift+Enter is pressed', () => {
-            const testMessage = 'Hello, this is a test message';
-            
-            // Type content in the textarea
-            typeInTextarea(textarea, testMessage);
-            
-            // Simulate pressing Shift+Enter
-            fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter', shiftKey: true });
-            
-            // Verify onSave was not called
-            expect(onSaveMock).not.toHaveBeenCalled();
-            
-            // Verify the input was not cleared
-            expect(textarea).toHaveValue(testMessage);
-        });
-
-        it('allows new line when Shift+Enter is pressed', () => {
+        it('allows new line and does not submit message on Shift+Enter', () => {
             const testMessage = 'Line 1';
             
             // Type content in the textarea
@@ -192,6 +176,12 @@ describe('ChatInput Component', () => {
             fireEvent(textarea, shiftEnterEvent);
             expect(shiftEnterEvent.defaultPrevented).toBe(false);
             
+            // Verify the input was not cleared
+            expect(textarea).toHaveValue(testMessage);
+            
+            // Verify onSave was not called
+            expect(onSaveMock).not.toHaveBeenCalled();
+            
             // Manually simulate adding a new line (as the browser would do)
             // since JSDOM doesn't automatically do this
             typeInTextarea(textarea, `${testMessage}\nLine 2`);
@@ -199,7 +189,7 @@ describe('ChatInput Component', () => {
             // Verify the new line is in the textarea
             expect(textarea).toHaveValue(`${testMessage}\nLine 2`);
             
-            // Verify onSave was not called
+            // Verify onSave was still not called
             expect(onSaveMock).not.toHaveBeenCalled();
         });
     });
