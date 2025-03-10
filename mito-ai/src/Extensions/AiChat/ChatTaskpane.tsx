@@ -661,12 +661,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
 
-            console.log(aiDisplayOptimizedChatItem)
-
             const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
 
-            if (agentResponse === undefined || agentResponse.is_finished || agentResponse.cell_update === undefined) {
-                // If the agent told us it is finished, or we got an incorrectly formatted response back, stop
+            if (agentResponse === undefined) {
+                // If the agent response is undefined, we need to send a message to the agent
+                isAgentFinished = true
+                break;
+            }
+            if (agentResponse.is_finished) {
+                // If the agent told us that it is finished, we can stop
+                isAgentFinished = true
+                break;
+            }
+            if (agentResponse.cell_update === undefined || agentResponse.cell_update === null) {
+                // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
                 isAgentFinished = true
                 break;
             }

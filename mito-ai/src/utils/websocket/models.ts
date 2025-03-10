@@ -33,7 +33,7 @@ export type CellUpdate = CellUpdateModification | CellUpdateNew
 
 export type AgentResponse = {
   is_finished: boolean;
-  cell_update?: CellUpdate;
+  cell_update: CellUpdate | undefined | null;
 }
 
 /* 
