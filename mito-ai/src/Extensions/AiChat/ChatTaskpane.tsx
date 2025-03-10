@@ -69,7 +69,6 @@ import DropdownMenu from '../../components/DropdownMenu';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
-    chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
     return chatHistoryManager
 }
 
