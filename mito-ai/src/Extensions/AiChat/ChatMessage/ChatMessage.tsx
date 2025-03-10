@@ -10,7 +10,6 @@ import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } f
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
-import GarbageIcon from '../../../icons/GarbageIcon';
 import ChatInput from './ChatInput';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
@@ -60,7 +59,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    onDeleteMessage,
     contextManager,
     codeReviewStatus
 }): JSX.Element | null => {
@@ -70,7 +68,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
-    const editable = messageType === 'openai message:agent:planning' || message.role === 'user'
+    const editable = message.role === 'user'
 
     const messageContentParts = splitStringWithCodeBlocks(message);
 
@@ -98,7 +96,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
-                displayActiveCellCode={messageType !== 'openai message:agent:planning'}
+                displayActiveCellCode={true}
             />
         );
     }
@@ -116,8 +114,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant-chat': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
-            { 'message-assistant-agent': messageType === 'openai message:agent:planning' },
+            { 'message-assistant-chat': message.role === 'assistant'},
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -219,15 +216,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     >
                         <PencilIcon />
                     </button>
-                    {messageType === 'openai message:agent:planning' &&
-                        <button
-                            className="message-delete-button"
-                            onClick={() => onDeleteMessage(messageIndex)}
-                            title="Delete message"
-                        >
-                            <GarbageIcon />
-                        </button>
-                    }
                 </div>
             }
         </div>

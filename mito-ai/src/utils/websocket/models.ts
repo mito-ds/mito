@@ -46,7 +46,6 @@ type CompletionRequestMetadata =
   IChatMessageMetadata |
   ISmartDebugMetadata |
   ICodeExplainMetadata |
-  IAgentPlanningMetadata |
   IInlineCompleterMetadata |
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
@@ -83,13 +82,6 @@ export interface ICodeExplainMetadata {
     promptType: 'codeExplain';
     variables?: Variable[];
     activeCellCode?: string;
-}
-
-export interface IAgentPlanningMetadata {
-    promptType: 'agent:planning';
-    variables?: Variable[];
-    files?: File[];
-    input: string;
 }
 
 export interface IInlineCompleterMetadata {
@@ -161,11 +153,6 @@ export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionReques
 export interface ICodeExplainCompletionRequest extends ICompletionRequest {
   type: 'codeExplain'
   metadata: ICodeExplainMetadata
-}
-
-export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
-  type: 'agent:planning'
-  metadata: IAgentPlanningMetadata
 }
 
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {

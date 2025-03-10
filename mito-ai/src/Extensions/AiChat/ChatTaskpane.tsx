@@ -51,7 +51,6 @@ import {
     IFetchThreadsReply,
     IStartNewChatReply,
     ICompletionRequest,
-    IAgentPlanningCompletionRequest,
     ICodeExplainCompletionRequest,
     IChatCompletionRequest,
     ISmartDebugCompletionRequest,
@@ -182,8 +181,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // If it has the cellUpdate keys then it is a cell update and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                } else if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'actions') && Object.prototype.hasOwnProperty.call(chatHistoryItem, 'dependencies')) {
-                    handleAgentResponse(chatHistoryItem, newChatHistoryManager);
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
                 }
@@ -437,16 +434,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         newContent: string,
         messageType: IDisplayOptimizedChatItem['type']
     ): Promise<void> => {
-        if (messageType === 'openai message:agent:planning' && messageIndex !== 1) {
-            // In agent planning mode we only update the message locally without sending it to the AI
-            // because the user has not yet confirmed that they want the AI to process these messages 
-            // until they hit the submit button.
-            const newChatHistoryManager = getDuplicateChatHistoryManager()
-            newChatHistoryManager.updateMessageAtIndex(messageIndex, newContent, true)
-            setChatHistoryManager(newChatHistoryManager)
-        } else if (agentModeEnabled && messageIndex === 1) {
+        if (agentModeEnabled && messageIndex === 1) {
             // If editing the original agent message, send it as a new agent message.
-            await sendAgentPlanningMessage(newContent)
+            await sendAgentExecutionMessage(newContent)
         } else {
             await sendChatInputMessage(newContent, messageIndex)
         }
@@ -463,24 +453,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
     }
 
-    const sendAgentPlanningMessage = async (message: string, messageIndex?: number): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
-
-        // Step 1: Add user message to chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message, messageIndex)
-        setChatHistoryManager(newChatHistoryManager)
-
-        // Step 2: Send the message to the AI
-        const agentPlanningCompletionRequest: IAgentPlanningCompletionRequest = {
-            type: 'agent:planning',
-            message_id: UUID.uuid4(),
-            metadata: agentPlanningMetadata,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(agentPlanningCompletionRequest, newChatHistoryManager)
-    }
 
     const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
@@ -505,12 +477,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } else {
                 const content = aiResponse.items[0]?.content ?? '';
 
-                if (completionRequest.metadata.promptType === 'agent:planning') {
-                    // If the user is in agent mode, the ai response is a JSON object
-                    // which we need to parse. 
-                    const agentResponse = JSON.parse(content);
-                    handleAgentResponse(agentResponse, newChatHistoryManager);
-                } else if (completionRequest.metadata.promptType === 'agent:execution') {
+                if (completionRequest.metadata.promptType === 'agent:execution') {
                     // Agent:Execution prompts return a CellUpdate object that we need to parse
                     const agentResponse: AgentResponse = JSON.parse(content)
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
@@ -555,42 +522,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         chatHistoryManager.addAIMessageFromResponse(messageContent, promptType, mitoAIConnectionError, mitoAIConnectionErrorType)
         setChatHistoryManager(chatHistoryManager)
-    }
-
-    const handleAgentResponse = (
-        agentResponse: { actions: string[], dependencies: string[] }, newChatHistoryManager: ChatHistoryManager
-    ): void => {
-
-        addAIMessageFromResponseAndUpdateState(
-            "Based on your request, I've outlined a step-by-step plan. Please review each step carefully. If you'd like to add details or make any changes, you can edit each step directly. Once everything looks good, press Go at the bottom of the task pane to proceed.",
-            'chat',
-            newChatHistoryManager
-        )
-
-        // If there are dependencies, we need to add them to the top of the chat history 
-        if (agentResponse.dependencies.length > 0) {
-            addAIMessageFromResponseAndUpdateState(
-                `Install the following dependencies: ${agentResponse.dependencies.join(', ')}`,
-                'agent:planning',
-                newChatHistoryManager
-            )
-        }
-
-        // Loop through each action in the agent response 
-        // and add it to the chat history.
-        agentResponse.actions.forEach((action: string, index: number) => {
-            addAIMessageFromResponseAndUpdateState(
-                `Step ${index + 1}: ${action}`,
-                'agent:planning',
-                newChatHistoryManager
-            );
-        });
-
-        addAIMessageFromResponseAndUpdateState(
-            "If everything looks good, use the start button at the bottom of the task pane to proceed. By doing so, you grant Mito AI permission to execute the code in this notebook.",
-            'chat',
-            newChatHistoryManager
-        )
     }
 
     const markAgentForStopping = (): void => {

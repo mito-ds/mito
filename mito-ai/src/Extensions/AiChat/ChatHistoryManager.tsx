@@ -2,14 +2,13 @@ import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
-import { AgentResponse, IAgentExecutionMetadata, IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { AgentResponse, IAgentExecutionMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 
 export type PromptType = 
     'chat' | 
     'smartDebug' | 
-    'codeExplain' | 
-    'agent:planning' | 
+    'codeExplain' |  
     'agent:execution' | 
     'agent:autoErrorFixup' |
     'inline_completion' | 
@@ -18,7 +17,7 @@ export type PromptType =
     'get_threads' |
     'delete_thread';
 
-export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
+export type ChatMessageType = 'openai message' | 'connection error'
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
@@ -129,9 +128,9 @@ export class ChatHistoryManager {
     }
 
 
-    updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IChatMessageMetadata {
+    updateMessageAtIndex(index: number, newContent: string): IChatMessageMetadata {
         const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = isAgentMessage ? undefined : getCellCodeByID(this.notebookTracker, activeCellID)
+        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
@@ -145,16 +144,11 @@ export class ChatHistoryManager {
             message: getDisplayedOptimizedUserMessage(
                 newContent, 
                 activeCellCode,
-                isAgentMessage
+                false
             ),
-            type: isAgentMessage ? 'openai message:agent:planning' : 'openai message',
+            type: 'openai message',
             codeCellID: activeCellID,
-            promptType: isAgentMessage ? 'agent:planning' : 'chat'
-        }
-
-        // Only slice the history if it's not an agent message
-        if (!isAgentMessage) {
-            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
+            promptType: 'chat'
         }
 
         return chatMessageMetadata
@@ -163,33 +157,6 @@ export class ChatHistoryManager {
     removeMessageAtIndex(index: number): void {
         // Remove the message at the specified index
         this.displayOptimizedChatHistory.splice(index, 1);
-    }
-
-    addAgentMessage(message: string, index?: number): IAgentPlanningMetadata {
-
-        const agentPlanningMetadata: IAgentPlanningMetadata = {
-            promptType: "agent:planning",
-            variables: this.contextManager.variables,
-            files: this.contextManager.files,
-            input: message
-        }
-
-        this.displayOptimizedChatHistory.push(
-            {
-                message: getDisplayedOptimizedUserMessage(message, undefined),
-                type: 'openai message',
-                codeCellID: undefined,
-                promptType: 'agent:planning'
-            }
-        )
-
-        // If editing the first agent message, the user will want a new plan.
-        // So we drop all steps in the agent's previous plan.
-        if (index === 1) {
-            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
-        }
-
-        return agentPlanningMetadata
     }
 
     addDebugErrorMessage(errorMessage: string, promptType: PromptType): ISmartDebugMetadata {
@@ -258,8 +225,6 @@ export class ChatHistoryManager {
         let type: IDisplayOptimizedChatItem['type'];
         if (mitoAIConnectionError) {
             type = 'connection error';
-        } else if (promptType === 'agent:planning') {
-            type = 'openai message:agent:planning';
         } else {
             type = 'openai message';
         }
@@ -325,7 +290,7 @@ export class ChatHistoryManager {
 const getDisplayedOptimizedUserMessage = (
     input: string, 
     activeCellCode?: string, 
-    isAgentPlanning: boolean = false
+    messageToAgent: boolean = false
 ): OpenAI.Chat.ChatCompletionMessageParam => {
 
     // Don't include the active cell code if it is an agent planning message
@@ -333,7 +298,7 @@ const getDisplayedOptimizedUserMessage = (
     // sending an agent:execution message which uses the entire notebook as context
     // instead of just the active cell
     let activeCellCodeBlock = ''
-    if (!isAgentPlanning && activeCellCode) {
+    if (!messageToAgent && activeCellCode) {
         activeCellCodeBlock = 
 `\`\`\`python
 ${activeCellCode}
