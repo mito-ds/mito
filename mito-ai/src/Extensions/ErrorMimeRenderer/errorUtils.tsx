@@ -111,6 +111,6 @@ export const getFullErrorMessageFromTraceback = (tracebackArray: string[]): stri
     } catch (error) {
         // If something goes wrong parsing the error, just return the concise error message
         console.error('Error processing traceback:', error);
-        return tracebackArray[tracebackArray.length - 1];
+        return tracebackArray[tracebackArray.length - 1] ?? '';
     }
 }

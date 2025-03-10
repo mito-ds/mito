@@ -33,7 +33,7 @@ export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
-):Promise<void> => {
+): Promise<void> => {
     /* 
         PreviewAICode applies the code to the current active code cell, 
         so make sure that correct cell is active before calling 
@@ -55,8 +55,6 @@ export const retryIfExecutionError = async (
     shouldContinueAgentExecution: MutableRefObject<boolean>,
     finalizeAgentStop: () => void,
 ): Promise<'success' | 'failure' | 'interupted'> => {
-
-    console.log("retry if execution error")
 
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
 
@@ -94,11 +92,8 @@ export const retryIfExecutionError = async (
         // Wait two seconds so the use can more easily see what is going on 
         await sleep(2000)
 
-        console.log('sending debug error')
         await sendDebugErrorMessage(errorMessage, true)
-        console.log('sente error debug')
         await acceptAndRunCode(app, previewAICode, acceptAICode)
-        console.log("accepted and retrying")
         attempts++;
 
         // If this was the last attempt and it still failed
