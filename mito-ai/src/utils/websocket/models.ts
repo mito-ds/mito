@@ -21,14 +21,12 @@ export type CellUpdateModification = {
   type: 'modification'
   id: string,
   code: string,
-  description: string
 }
 
 export type CellUpdateNew = {
   type: 'new'
   index: number,
   code: string,
-  descirption: string
 }
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
