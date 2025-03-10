@@ -27,7 +27,6 @@ from mito_ai.models import (
     ChatMessageMetadata,
     SmartDebugMetadata,
     CodeExplainMetadata,
-    AgentPlanningMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
     MessageType
@@ -40,7 +39,6 @@ from mito_ai.completion_handlers.chat_completion_handler import get_chat_complet
 from mito_ai.completion_handlers.smart_debug_handler import get_smart_debug_completion
 from mito_ai.completion_handlers.code_explain_handler import get_code_explain_completion
 from mito_ai.completion_handlers.inline_completer_handler import get_inline_completion
-from mito_ai.completion_handlers.agent_planning_handler import get_agent_planning_completion
 from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
 from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 
@@ -188,9 +186,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             elif type == MessageType.CODE_EXPLAIN:
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
                 completion = await get_code_explain_completion(code_explain_metadata, self._llm, self.message_history)
-            elif type == MessageType.AGENT_PLANNING:
-                agent_planning_metadata = AgentPlanningMetadata(**metadata_dict)
-                completion = await get_agent_planning_completion(agent_planning_metadata, self._llm, self.message_history)
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
                 completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, self.message_history)

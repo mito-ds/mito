@@ -173,12 +173,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Add messages to the ChatHistoryManager
         chatHistoryResponse.items.forEach(item => {
             try {
-                // If the user sent a message in agent:planning mode, the ai response will be a JSON object
-                // which we need to parse. 
+                // If the user sent a message in agent:execution mode, the ai response will be a JSON object which we need to parse. 
                 // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
                 const chatHistoryItem = JSON.parse(item.content as string);
                 if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'is_finished')) {
-                    // If it has the cellUpdate keys then it is a cell update and we should handle it as such
+                    // If it has the is_finished keys then it is an AgentResponse and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 } else {

@@ -28,17 +28,12 @@ class CellUpdate(BaseModel):
 class AgentResponse(BaseModel):
     is_finished: bool
     cell_update: Optional[CellUpdate]
-
-# Response format for agent planning
-class PlanOfAttack(BaseModel):
-    actions: List[str]
-    dependencies: List[str]
   
 @dataclass(frozen=True)
 class ResponseFormatInfo():
     name: str
     # Use the type because we are actually just providing the type format, not an actual instance of the format
-    format: Union[type[PlanOfAttack], type[AgentResponse]] 
+    format: type[AgentResponse]
 
 
 class MessageType(Enum):
@@ -48,7 +43,6 @@ class MessageType(Enum):
     CHAT = "chat"
     SMART_DEBUG = "smartDebug"
     CODE_EXPLAIN = "codeExplain"
-    AGENT_PLANNING = "agent:planning"
     AGENT_EXECUTION = "agent:execution"
     AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
     INLINE_COMPLETION = "inline_completion"
@@ -88,13 +82,6 @@ class CodeExplainMetadata():
     promptType: Literal['codeExplain']
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-
-@dataclass(frozen=True)
-class AgentPlanningMetadata():    
-    promptType: Literal['agent:planning']
-    input: str
-    variables: Optional[List[str]] = None
-    files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class InlineCompleterMetadata():
