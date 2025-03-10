@@ -5,7 +5,7 @@ from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.completion_handlers.utils import add_chat_system_message
+from mito_ai.completion_handlers.utils import append_chat_system_message
 __all__ = ["get_smart_debug_completion"]
 
 class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
@@ -20,7 +20,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         """Get a smart debug completion from the AI provider."""
         
         # Add the system message if it doens't alredy exist
-        await add_chat_system_message(message_history)
+        await append_chat_system_message(message_history)
         
         error_message = metadata.errorMessage
         active_cell_code = metadata.activeCellCode or ''
