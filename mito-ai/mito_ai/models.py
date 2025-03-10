@@ -27,7 +27,7 @@ class CellUpdate(BaseModel):
     
 class AgentResponse(BaseModel):
     is_finished: bool
-    cell_update: CellUpdate
+    cell_update: Optional[CellUpdate]
 
 # Response format for agent planning
 class PlanOfAttack(BaseModel):
