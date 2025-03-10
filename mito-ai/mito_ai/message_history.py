@@ -104,7 +104,7 @@ class GlobalMessageHistory:
     Attributes:
         _lock (Lock): Ensures thread-safe access.
         _chats_dir (str): Directory where chat thread files are stored.
-        _chat_threads (Dict[str, ChatThread]): In-memory cache of all chat threads.
+        _chat_threads (Dict[ThreadID, ChatThread]): In-memory cache of all chat threads.
 
     Methods:
         create_new_thread() -> str:
@@ -129,7 +129,7 @@ class GlobalMessageHistory:
         os.makedirs(self._chats_dir, exist_ok=True)
 
         # In-memory cache of all chat threads loaded from disk
-        self._chat_threads: Dict[str, ChatThread] = {}
+        self._chat_threads: Dict[ThreadID, ChatThread] = {}
 
         # Load existing threads from disk on startup
         self._load_all_threads_from_disk()
@@ -242,7 +242,7 @@ class GlobalMessageHistory:
 
             return self._chat_threads[thread_id].display_history[:]
 
-    def get_histories(self, thread_id: Optional[str] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
+    def get_histories(self, thread_id: Optional[ThreadID] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         """
         For backward compatibility: returns the LLM and display history of the newest thread.
         """
@@ -317,7 +317,7 @@ class GlobalMessageHistory:
             self._update_last_interaction(thread)
             self._save_thread_to_disk(thread)
 
-    def delete_thread(self, thread_id: str) -> bool:
+    def delete_thread(self, thread_id: ThreadID) -> bool:
         """
         Deletes a chat thread by its ID. Removes both the in-memory entry and the JSON file.
         Includes safety checks to ensure we're only deleting valid thread files.
