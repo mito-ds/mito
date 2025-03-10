@@ -4,6 +4,11 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.prompt_builders.chat_system_message import create_chat_system_message_prompt
 
 async def add_chat_system_message(message_history: GlobalMessageHistory) -> None:
+    
+    # If the system message already exists, do nothing
+    if any(msg["role"] == "system" for msg in message_history.ai_optimized_history):
+        return
+    
     system_message_prompt = create_chat_system_message_prompt()
     
     system_message: ChatCompletionMessageParam = {
@@ -17,4 +22,4 @@ async def add_chat_system_message(message_history: GlobalMessageHistory) -> None
     )
     
     
-            
+  

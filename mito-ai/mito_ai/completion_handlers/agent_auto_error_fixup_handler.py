@@ -23,6 +23,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[SmartDebugMetadata]):
         active_cell_code = metadata.activeCellCode or ''
         variables = metadata.variables or []
         files = metadata.files or []
+        
         # Create the prompt
         prompt = create_error_prompt(
             error_message, 
