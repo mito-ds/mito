@@ -12,7 +12,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
 
     useEffect(() => {
-        const renderMarkdown = async () => {
+        const renderMarkdown = async (): Promise<void> => {
             const model = new MimeModel({
                 data: { ['text/markdown']: markdown },
             });
@@ -24,7 +24,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             setRenderedContent(<div ref={(el) => el && el.appendChild(node)} />);
         };
 
-        renderMarkdown();
+        void renderMarkdown();
     }, [markdown, renderMimeRegistry]);
 
     return (

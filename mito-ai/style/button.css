@@ -5,55 +5,55 @@
 */
 
 .button-base {
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 14px;
-    /* Make sure the button grows large enough so that the text does not wrap */
-    white-space: nowrap;
-    padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  /* Make sure the button grows large enough so that the text does not wrap */
+  white-space: nowrap;
+  padding: 5px 10px;
 }
 
 .button-green {
-    background-color: var(--green-400);
-    color: var(--green-900) !important;
+  background-color: var(--green-400);
+  color: var(--green-900) !important;
 }
 
 .button-green:hover {
-    background-color: var(--green-500);
+  background-color: var(--green-500);
 }
 
 .button-red {
-    background-color: var(--red-400);
-    color: var(--red-900) !important;
+  background-color: var(--red-400);
+  color: var(--red-900) !important;
 }
 
 .button-red:hover {
-    background-color: var(--red-500);
+  background-color: var(--red-500);
 }
 
 .button-gray {
-    background-color: var(--jp-layout-color2);
-    color: var(--jp-content-font-color1) !important;
+  background-color: var(--jp-layout-color2);
+  color: var(--jp-content-font-color1) !important;
 }
 
 .button-gray:hover {
-    background-color: var(--jp-layout-color3);
+  background-color: var(--jp-layout-color3);
 }
 
 .button-purple {
-    background-color: var(--purple-700);
-    color: white !important;
+  background-color: var(--purple-700);
+  color: white !important;
 }
 
 .button-purple:hover {
-    background-color: var(--purple-600);
+  background-color: var(--purple-600);
 }
 
 .button-width-block {
-    width: 100%;
+  width: 100%;
 }
 
 .button-width-fit-contents {
-    width: fit-content;
+  width: fit-content;
 }
