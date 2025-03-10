@@ -121,8 +121,13 @@ describe('ChatInput Component', () => {
         it('does not show preview for empty cells', () => {
             // Clear and re-render with custom props
             document.body.innerHTML = '';
+            
+            // Mock getCellCodeByID to return empty string for this test
+            const { getCellCodeByID } = require('../../utils/notebook');
+            getCellCodeByID.mockImplementation(() => '');
+            
             const props = {
-                displayActiveCellCode: false,
+                displayActiveCellCode: true,
                 notebookTracker: {
                     ...defaultProps.notebookTracker,
                     activeCell: createMockCell('', EMPTY_CELL_ID) as unknown as CodeCell
