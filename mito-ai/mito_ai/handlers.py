@@ -134,11 +134,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear history if the type is "start_new_chat"
         if type == MessageType.START_NEW_CHAT:
-            thread = message_history.create_new_thread()
+            thread_id = message_history.create_new_thread()
             
             reply = StartNewChatReply(
                 parent_id=parsed_message.get("message_id"),
-                thread_id=thread
+                thread_id=thread_id
             )
             self.reply(reply)
             return

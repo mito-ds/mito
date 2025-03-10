@@ -283,7 +283,7 @@ class ChatThreadMetadata:
     Chat thread item.
     """
 
-    thread_id: str
+    thread_id: ThreadID
 
     name: str
 
@@ -301,7 +301,7 @@ class StartNewChatReply:
     parent_id: str
 
     # Chat thread item.
-    thread_id: str
+    thread_id: ThreadID
 
     # Message type.
     type: Literal["reply"] = "reply"
