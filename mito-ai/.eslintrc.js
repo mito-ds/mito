@@ -48,6 +48,10 @@ module.exports = {
             }
         ],
       '@typescript-eslint/no-explicit-any': 'warn',
+        // Allow empty interfaces that extend types (useful for future extension)
+      '@typescript-eslint/no-empty-interface': 'off',
+      // CI uses a different name for the same rule
+      '@typescript-eslint/no-empty-object-type': 'off',
         // Coding style
       'indent': 'off'
     }
