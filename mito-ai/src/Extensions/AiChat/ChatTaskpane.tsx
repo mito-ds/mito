@@ -56,9 +56,9 @@ import {
     IChatCompletionRequest,
     ISmartDebugCompletionRequest,
     IFetchHistoryCompletionRequest,
-    CellUpdate,
     IAgentAutoErrorFixupCompletionRequest,
-    IAgentExecutionCompletionRequest
+    IAgentExecutionCompletionRequest,
+    AgentResponse
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
@@ -177,13 +177,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // If the user sent a message in agent:planning mode, the ai response will be a JSON object
                 // which we need to parse. 
                 // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
-                const agentResponse = JSON.parse(item.content as string);
-                if (Object.prototype.hasOwnProperty.call(agentResponse, 'type') && Object.prototype.hasOwnProperty.call(agentResponse, 'code')) {
+                const chatHistoryItem = JSON.parse(item.content as string);
+                if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'is_finished')) {
                     // If it has the cellUpdate keys then it is a cell update and we should handle it as such
-                    const cellUpdate: CellUpdate = agentResponse
-                    newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
-                } else if (Object.prototype.hasOwnProperty.call(agentResponse, 'actions') && Object.prototype.hasOwnProperty.call(agentResponse, 'dependencies')) {
-                    handleAgentResponse(agentResponse, newChatHistoryManager);
+                    const agentResponse: AgentResponse = chatHistoryItem
+                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                } else if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'actions') && Object.prototype.hasOwnProperty.call(chatHistoryItem, 'dependencies')) {
+                    handleAgentResponse(chatHistoryItem, newChatHistoryManager);
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
                 }
@@ -513,8 +513,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     handleAgentResponse(agentResponse, newChatHistoryManager);
                 } else if (completionRequest.metadata.promptType === 'agent:execution') {
                     // Agent:Execution prompts return a CellUpdate object that we need to parse
-                    const cellUpdate: CellUpdate = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromCellUpdate(cellUpdate)
+                    const agentResponse: AgentResponse = JSON.parse(content)
+                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 } else {
                     // For all other prompt types, we can just add the content to the chat history
                     aiResponse.items.forEach((item: any) => {
@@ -661,14 +661,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
 
+            console.log(aiDisplayOptimizedChatItem)
 
-            if (aiDisplayOptimizedChatItem?.cellUpdate === undefined) {
-                // If we didn't get a cellUpdate back, stop
+            const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
+
+            if (agentResponse === undefined || agentResponse.is_finished || agentResponse.cell_update === undefined) {
+                // If the agent told us it is finished, or we got an incorrectly formatted response back, stop
                 break;
             }
 
             // Run the code and handle any errors
-            await acceptAndRunCellUpdate(aiDisplayOptimizedChatItem.cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+            await acceptAndRunCellUpdate(agentResponse.cell_update, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
             const status = await retryIfExecutionError(
                 notebookTracker,
                 app,

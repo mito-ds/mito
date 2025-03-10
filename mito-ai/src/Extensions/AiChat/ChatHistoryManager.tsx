@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
-import { CellUpdate, IAgentExecutionMetadata, IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { AgentResponse, IAgentExecutionMetadata, IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 
 export type PromptType = 
@@ -30,8 +30,8 @@ export interface IDisplayOptimizedChatItem {
     type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
-    codeCellID?: string | undefined
-    cellUpdate?: CellUpdate
+    codeCellID?: string | undefined,
+    agentResponse?: AgentResponse
 }
 
 /* 
@@ -277,11 +277,12 @@ export class ChatHistoryManager {
         );
     }
 
-    addAIMessageFromCellUpdate(
-        cellUpdate: CellUpdate
+    addAIMessageFromAgentResponse(
+        agentResponse: AgentResponse
     ): void {
 
-        const codeWithMarkdownFormatting = addMarkdownCodeFormatting(cellUpdate.code)
+        const code = agentResponse.cell_update?.code || ''
+        const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
@@ -293,7 +294,7 @@ export class ChatHistoryManager {
                 message: aiMessage, 
                 type: 'openai message',
                 promptType: 'agent:execution',
-                cellUpdate: cellUpdate
+                agentResponse: agentResponse
             }
         );
     }

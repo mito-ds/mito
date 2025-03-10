@@ -1,6 +1,6 @@
 from typing import List, Literal, Union
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import AgentExecutionMetadata, CellUpdate, MessageType, ResponseFormatInfo
+from mito_ai.models import AgentExecutionMetadata, MessageType, ResponseFormatInfo, AgentResponse
 from mito_ai.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -38,13 +38,16 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             messages=message_history.ai_optimized_history, 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_EXECUTION],
             response_format_info=ResponseFormatInfo(
-                name='cell_update',
-                format=CellUpdate
+                name='agent_response',
+                format=AgentResponse
             ),
             message_type=MessageType.AGENT_EXECUTION
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
+        
+        print('HERE4')
+        print(ai_response_message)
         await message_history.append_message(ai_response_message, ai_response_message)
 
         return completion

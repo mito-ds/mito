@@ -166,14 +166,21 @@ def get_open_ai_completion_function_params(
     # OpenAI expects a very specific schema as seen below. 
     if response_format_info:
         json_schema = response_format_info.format.schema()
+        
+        # Add additionalProperties: False to the top-level schema
+        json_schema["additionalProperties"] = False
+        
+        # Handle nested object definitions in $defs
+        if "$defs" in json_schema:
+            for def_name, def_schema in json_schema["$defs"].items():
+                if def_schema.get("type") == "object":
+                    def_schema["additionalProperties"] = False
+        
         completion_function_params["response_format"] = {
             "type": "json_schema",
             "json_schema": {
                 "name": f"{response_format_info.name}",
-                "schema": {
-                    **json_schema,
-                    "additionalProperties": False
-                },
+                "schema": json_schema,
                 "strict": True
             }
         }

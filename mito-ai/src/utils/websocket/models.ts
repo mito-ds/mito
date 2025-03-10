@@ -31,6 +31,11 @@ export type CellUpdateNew = {
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
+export type AgentResponse = {
+  is_finished: boolean;
+  cell_update?: CellUpdate;
+}
+
 /* 
 
 Metadata Models

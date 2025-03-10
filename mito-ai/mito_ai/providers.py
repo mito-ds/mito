@@ -230,9 +230,13 @@ This attribute is observed by the websocket provider to push the error to the cl
             if self._openAI_sync_client and model not in self.models:
                 model = "gpt-4o-mini"
         
+            print('HERE1')
+        
             completion_function_params = get_open_ai_completion_function_params(
                 model, messages, False, response_format_info
             )
+            
+            print('HERE2')
             
             completion = None
             if self._openAI_sync_client is not None:
@@ -252,6 +256,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
                 
                 update_mito_server_quota(message_type)
+                
+            print('HERE3')
+            print(completion)
             
             # Log the successful completion
             log_ai_completion_success(
