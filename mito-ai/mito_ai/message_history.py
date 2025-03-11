@@ -123,7 +123,7 @@ class GlobalMessageHistory:
             Returns a list of threads with thread_id, name, creation_ts, and last_interaction_ts.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = Lock()
         self._chats_dir = os.path.join(MITO_FOLDER, "ai-chats")
         os.makedirs(self._chats_dir, exist_ok=True)
