@@ -21,10 +21,10 @@ export class MitoAIError extends Error {
    */
   hint?: string;
 
-  constructor(message: string, options: { cause?: any; hint?: string } = {}) {
+  constructor(message: string, options: { cause?: unknown; hint?: string } = {}) {
     super(message, { cause: options.cause });
     this.hint = options.hint;
-    if (options.cause) {
+    if (options.cause && typeof options.cause === 'object' && 'stack' in options.cause) {
       this.stack = `${this.stack}\nCaused by: ${options.cause.stack}`;
     }
   }
@@ -146,40 +146,44 @@ export class CompletionWebsocketClient implements IDisposable {
   sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(
     message: T
   ): Promise<R> {
-    return new Promise<R>(async (resolve, reject) => {
-      try {
-        // If the socket is not connected, try to reconnect first
-        if (this._socket === null || this._socket.readyState !== WebSocket.OPEN) {
-          try {
-            console.log('Connection is closed, attempting to reconnect before sending message...');
-            
-            // Reset the ready promise since we're going to reconnect
-            this._ready = new PromiseDelegate<void>();
-            
-            await this.reconnect();
-            console.log('Successfully reconnected, now sending message');
-          } catch (reconnectError) {
-            console.error('Failed to reconnect websocket:', reconnectError);
-            reject(new Error('Failed to reconnect websocket before sending message'));
-            return;
+    // Create a Promise for the eventual result
+    return new Promise<R>((resolve, reject) => {
+      // First check if we need to reconnect
+      Promise.resolve().then(async () => {
+        try {
+          // If the socket is not connected, try to reconnect first
+          if (this._socket === null || this._socket.readyState !== WebSocket.OPEN) {
+            try {
+              console.log('Connection is closed, attempting to reconnect before sending message...');
+              
+              // Reset the ready promise since we're going to reconnect
+              this._ready = new PromiseDelegate<void>();
+              
+              await this.reconnect();
+              console.log('Successfully reconnected, now sending message');
+            } catch (reconnectError) {
+              console.error('Failed to reconnect websocket:', reconnectError);
+              reject(new Error('Failed to reconnect websocket before sending message'));
+              return;
+            }
           }
-        }
 
-        if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-          const pendingReply = new PromiseDelegate<R>();
-          this._pendingRepliesMap.set(
-            message.message_id,
-            pendingReply as PromiseDelegate<CompleterMessage>
-          );
-          pendingReply.promise.then(resolve).catch(reject);
-          // Send the message
-          this._socket.send(JSON.stringify(message));
-        } else {
-          reject(new Error('Inline completion websocket not initialized'));
+          if (this._socket && this._socket.readyState === WebSocket.OPEN) {
+            const pendingReply = new PromiseDelegate<R>();
+            this._pendingRepliesMap.set(
+              message.message_id,
+              pendingReply as PromiseDelegate<CompleterMessage>
+            );
+            pendingReply.promise.then(resolve).catch(reject);
+            // Send the message
+            this._socket.send(JSON.stringify(message));
+          } else {
+            reject(new Error('Inline completion websocket not initialized'));
+          }
+        } catch (error) {
+          reject(error);
         }
-      } catch (error) {
-        reject(error);
-      }
+      });
     });
   }
 
@@ -217,7 +221,7 @@ export class CompletionWebsocketClient implements IDisposable {
     this._connectionStatus.emit('connected');
   }
 
-  private _onClose(e: CloseEvent): void {
+  private _onClose(_e: CloseEvent): void {
     this._ready.reject(new Error('Completion websocket disconnected'));
     console.error('Completion websocket disconnected');
     this._connectionStatus.emit('disconnected');
