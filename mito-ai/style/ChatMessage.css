@@ -27,15 +27,6 @@
   color: var(--chat-assistant-message-font-color);
 }
 
-.message-assistant-agent {
-  background-color: var(--purple-300);
-  padding: 10px;
-}
-
-.message-assistant-agent p {
-  color: var(--grey-900) !important;
-}
-
 .chat-message-buttons {
   display: flex;
   flex-direction: row;

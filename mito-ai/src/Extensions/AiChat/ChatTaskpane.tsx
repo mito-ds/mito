@@ -438,10 +438,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
-            console.log('Sending agent execution message')
             await startAgentExecution(newContent, messageIndex)
         } else {
-            console.log('Sending chat input message')
             await sendChatInputMessage(newContent, messageIndex)
         }
     };
