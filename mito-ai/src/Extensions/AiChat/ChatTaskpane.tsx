@@ -16,11 +16,7 @@ import { OpenIndicatorLabIcon } from '../../icons';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import {
-    ChatHistoryManager,
-    IDisplayOptimizedChatItem,
-    PromptType
-} from './ChatHistoryManager';
+import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import ToggleButton from '../../components/ToggleButton';
 import IconButton from '../../components/IconButton';
@@ -199,10 +195,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             thread_id: threadId
         };
 
-        const response = await websocketClient.sendMessage<
-            ICompletionRequest,
-            IDeleteThreadReply
-        >({
+        const response = await websocketClient.sendMessage<ICompletionRequest, IDeleteThreadReply>({
             type: "delete_thread",
             message_id: UUID.uuid4(),
             metadata: metadata,
@@ -361,12 +354,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: No post processing step needed for explaining code. 
     }
 
-    const sendAgentExecutionMessage = async (input: string): Promise<void> => {
+    const sendAgentExecutionMessage = async (input: string, messageIndex?: number): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
+
+        if (messageIndex !== undefined) {
+            // Drop all of the messages starting at the message index
+            newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
+        }
+
         const agentExecutionMetatada = newChatHistoryManager.addAgentExecutionMessage(input)
         setChatHistoryManager(newChatHistoryManager)
 
@@ -389,12 +388,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        let chatMessageMetadata: IChatMessageMetadata;
+        
         if (messageIndex !== undefined) {
-            chatMessageMetadata = newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
-        } else {
-            chatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
+            // Drop all of the messages starting at the message index
+            newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
+        
+        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
+        
         setChatHistoryManager(newChatHistoryManager)
 
         const completionRequest: IChatCompletionRequest = {
@@ -431,36 +432,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (
         messageIndex: number,
         newContent: string,
-        messageType: IDisplayOptimizedChatItem['type']
     ): Promise<void> => {
-        if (agentModeEnabled && messageIndex === 1) {
-            // If editing the original agent message, send it as a new agent message.
-            await sendAgentExecutionMessage(newContent)
+
+        console.log("agentModeEnabled", agentModeEnabled)
+
+        // Then send the new message to replace it
+        if (agentModeEnabled) {
+            console.log('Sending agent execution message')
+            await startAgentExecution(newContent, messageIndex)
         } else {
+            console.log('Sending chat input message')
             await sendChatInputMessage(newContent, messageIndex)
         }
     };
-
-    const handleDeleteMessage = (messageIndex: number): void => {
-        // Get a new chat history manager
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-
-        // Remove the message at the specified index
-        newChatHistoryManager.removeMessageAtIndex(messageIndex)
-
-        // Update the state with the new chat history
-        setChatHistoryManager(newChatHistoryManager)
-    }
 
 
     const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
 
         try {
-            const aiResponse = await websocketClient.sendMessage<
-                ICompletionRequest,
-                ICompletionReply
-            >(completionRequest);
+            const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
             if (aiResponse.error) {
                 console.error('Error calling OpenAI API:', aiResponse.error);
@@ -543,7 +534,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle');
     }
 
-    const startAgentExecution = async (input: string): Promise<void> => {
+    const startAgentExecution = async (input: string, messageIndex?: number): Promise<void> => {
         setAgentExecutionStatus('working')
         
         // Reset the execution flag at the start of a new plan
@@ -563,7 +554,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Only the first message sent to the Agent should contain the user's input.
             // All other messages only contain updated information about the state of the notebook.
             if (agentExecutionDepth === 1) {
-                await sendAgentExecutionMessage(input)
+                await sendAgentExecutionMessage(input, messageIndex)
             } else {
                 await sendAgentExecutionMessage('')
             }
@@ -1012,7 +1003,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             acceptAICode={acceptAICode}
                             rejectAICode={rejectAICode}
                             onUpdateMessage={handleUpdateMessage}
-                            onDeleteMessage={handleDeleteMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
                         />
@@ -1049,6 +1039,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         isLeftSelected={!agentModeEnabled}
                         onChange={async (isLeftSelected) => {
                             await startNewChat(); // TODO: delete thread instead of starting new chat
+                            console.log('Calling this On Change function')
                             setAgentModeEnabled(!isLeftSelected);
                             // Focus the chat input directly
                             const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;

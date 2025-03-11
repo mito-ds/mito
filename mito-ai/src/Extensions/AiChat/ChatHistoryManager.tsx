@@ -127,37 +127,10 @@ export class ChatHistoryManager {
         return agentExecutionMetatada
     }
 
-
-    updateMessageAtIndex(index: number, newContent: string): IChatMessageMetadata {
-        const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
-
-        const chatMessageMetadata: IChatMessageMetadata = {
-            promptType: 'chat',
-            variables: this.contextManager.variables,
-            activeCellCode: activeCellCode,
-            input: newContent,
-            index: index
-        }
-        
-        this.displayOptimizedChatHistory[index] = { 
-            message: getDisplayedOptimizedUserMessage(
-                newContent, 
-                activeCellCode,
-                false
-            ),
-            type: 'openai message',
-            codeCellID: activeCellID,
-            promptType: 'chat'
-        }
-
-        return chatMessageMetadata
+    dropMessagesStartingAtIndex(index: number): void {
+        this.displayOptimizedChatHistory.splice(index)
     }
 
-    removeMessageAtIndex(index: number): void {
-        // Remove the message at the specified index
-        this.displayOptimizedChatHistory.splice(index, 1);
-    }
 
     addDebugErrorMessage(errorMessage: string, promptType: PromptType): ISmartDebugMetadata {
     

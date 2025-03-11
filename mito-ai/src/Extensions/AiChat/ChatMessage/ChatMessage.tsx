@@ -39,7 +39,6 @@ interface IChatMessageProps {
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
-    onDeleteMessage: (messageIndex: number) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
 }
