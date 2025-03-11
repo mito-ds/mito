@@ -110,16 +110,23 @@ async def get_ai_completion_from_mito_server(
         "Content-Type": "application/json",
     }
     
+    
+    # There are several types of timeout errors that can happen here. 
+    # == 504 Timeout (tornado.httpclient.HTTPClientError: 504) ==  
+    # The server (AWS Lambda) took too long to process your request
+    # == 599 Timeout (tornado.httpclient.HTTPClientError: 599) ==  
+    # The client (Tornado) gave up waiting for a response
+    
     http_client = None
     if is_running_test():
         # If we are running in a test environment, setting the request_timeout fails for some reason.
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
         http_client_timeout = None
     else:
-        # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
-        # we give to OpenAI. The OpenAI timeouts are denoted in seconds, whereas the HTTP client
-        # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
-        # the time it takes to send the request, etc.
+        # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
+        # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
+        # The OpenAI timeouts are denoted in seconds, whereas the HTTP client expects milliseconds. 
+        # We also give the HTTP client a 10 second buffer to account for
         http_client_timeout = timeout * 1000 * max_retries + 10000
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
         
