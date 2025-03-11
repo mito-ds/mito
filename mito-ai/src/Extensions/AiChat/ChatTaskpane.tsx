@@ -962,7 +962,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 </div>
             </div>
             <div className="chat-messages" ref={chatMessagesRef}>
-                {displayOptimizedChatHistory.length <= 1 &&
+                {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
                         <p className="long-message">
                             Ask your personal Python expert anything!
