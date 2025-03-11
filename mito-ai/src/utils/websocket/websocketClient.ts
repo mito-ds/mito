@@ -166,16 +166,14 @@ export class CompletionWebsocketClient implements IDisposable {
         }
 
         if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-          const id = message.message_id ?? crypto.randomUUID();
           const pendingReply = new PromiseDelegate<R>();
           this._pendingRepliesMap.set(
-            id,
+            message.message_id,
             pendingReply as PromiseDelegate<CompleterMessage>
           );
           pendingReply.promise.then(resolve).catch(reject);
-          
-          const messageWithId = { ...message, message_id: id };
-          this._socket.send(JSON.stringify(messageWithId));
+          // Send the message
+          this._socket.send(JSON.stringify(message));
         } else {
           reject(new Error('Inline completion websocket not initialized'));
         }
