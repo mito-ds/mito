@@ -345,12 +345,8 @@ export class CompletionWebsocketClient implements IDisposable {
       this._reconnectAttempt = 0;
     } catch (error) {
       console.error(`Reconnection attempt ${this._reconnectAttempt} failed:`, error);
-      // Try again recursively with exponential backoff if we haven't exceeded the limit
-      if (this._reconnectAttempt < this._maxReconnectAttempts) {
-        return this.reconnect(false);
-      } else {
-        throw error;
-      }
+      // Try again recursively with exponential backoff
+      return this.reconnect(false);
     }
   }
 
