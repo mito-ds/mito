@@ -56,7 +56,7 @@ async def run_llm_requests(
         latencies.append(latency_ms)
         completions.append(completion)
 
-        print(f"Request {i+1} latency: {latency_ms} ms")
+        print(f"Request {i+1}/{n} latency: {latency_ms} ms")
 
     # Calculate stats
     avg_latency = sum(latencies) / len(latencies)
@@ -150,10 +150,6 @@ def print_metrics_summary(request):
             ]
             print(row_format.format(*row))
 
-        print("\nDetailed latencies (ms):")
-        for test_name, metrics in ALL_METRICS.items():
-            print(f"{test_name}: {metrics['all_latencies_ms']}")
-
         print("=" * 80)
 
 
@@ -172,11 +168,11 @@ async def test_server_key_performance() -> None:
 
         # Test with small prompt
         completions_sm, metrics_sm = await run_llm_requests(llm, SMALL_TEST_MESSAGE)
-        ALL_METRICS["Server Key (Small Prompt)"] = metrics_sm
+        ALL_METRICS["Server Key (sm prompt)"] = metrics_sm
         
         # Test with large prompt
         completions_lg, metrics_lg = await run_llm_requests(llm, LARGE_TEST_MESSAGE)
-        ALL_METRICS["Server Key (Large Prompt)"] = metrics_lg
+        ALL_METRICS["Server Key (lg prompt)"] = metrics_lg
 
         # Verify we got valid responses
         for completion in completions_sm + completions_lg:
@@ -209,11 +205,11 @@ async def test_user_key_performance() -> None:
 
     # Test with small prompt
     completions_sm, metrics_sm = await run_llm_requests(llm, SMALL_TEST_MESSAGE)
-    ALL_METRICS["User Key (Small Prompt)"] = metrics_sm
+    ALL_METRICS["User Key (sm prompt)"] = metrics_sm
     
     # Test with large prompt
     completions_lg, metrics_lg = await run_llm_requests(llm, LARGE_TEST_MESSAGE)
-    ALL_METRICS["User Key (Large Prompt)"] = metrics_lg
+    ALL_METRICS["User Key (lg prompt)"] = metrics_lg
 
     # Verify we got valid responses
     for completion in completions_sm + completions_lg:
@@ -242,11 +238,11 @@ async def test_direct_openai_performance() -> None:
 
     # Test with small prompt
     completions_sm, metrics_sm = await run_direct_openai_requests(client, SMALL_TEST_MESSAGE)
-    ALL_METRICS["Direct OpenAI (Small Prompt)"] = metrics_sm
+    ALL_METRICS["Direct OpenAI (sm prompt)"] = metrics_sm
     
     # Test with large prompt
     completions_lg, metrics_lg = await run_direct_openai_requests(client, LARGE_TEST_MESSAGE)
-    ALL_METRICS["Direct OpenAI (Large Prompt)"] = metrics_lg
+    ALL_METRICS["Direct OpenAI (lg prompt)"] = metrics_lg
 
     # Verify we got valid responses
     for completion in completions_sm + completions_lg:
