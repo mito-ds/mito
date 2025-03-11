@@ -124,14 +124,13 @@ test.describe("Stop Agent", () => {
 
     test("Stop agent's plan execution", async ({ page }) => {
 
-        await sendMessageToMitoAI(page, "Create a list of 10 numbers and then find the largest number in the list.");
-        await waitForIdle(page);
+        await sendMessageToMitoAI(page, "Create a list of 10 numbers and then find the largest number in the list.", undefined, true);
 
-        // Wait for the Stop Agent button to be visible
-        await expect(page.getByRole('button', { name: 'Stop Agent' })).toBeVisible();
-
+        // Wait for the Stop Agent button to be visible before clicking it
+        await page.getByTestId('stop-agent-button').waitFor({ state: 'visible' });
+        
         // Click the Stop Agent button
-        await page.getByRole('button', { name: 'Stop Agent' }).click();
+        await page.getByTestId('stop-agent-button').click();
 
         // Expect that the message turns into Stopping 
         await expect(page.getByRole('button', { name: 'Stopping' })).toBeVisible();

@@ -1075,6 +1075,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     className="button-base button-red stop-agent-button"
                     onClick={markAgentForStopping}
                     disabled={agentExecutionStatus === 'stopping'}
+                    data-testid="stop-agent-button"
                 >
                     {agentExecutionStatus === 'stopping' ? (
                         <div className="stop-agent-button-content">Stopping<LoadingCircle /> </div>
