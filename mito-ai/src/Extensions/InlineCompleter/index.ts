@@ -63,7 +63,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
         // Check if the user has acknowledge the notification before;
         // aka if the settingsChecked flag is set to true.
         if (!state?.settingsChecked) {
-          const checkSettings = async () => {
+          const checkSettings = async (): Promise<void> => {
             const providers = (
               await settingRegistry.get(
                 JUPYTERLAB_INLINE_COMPLETER_ID,
@@ -78,7 +78,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
               )
             ).composite as any;
 
-            const updateConfig = () => {
+            const updateConfig = (): void => {
               // Set the settingsChecked flag to true to store
               // that the user has acknowledge the notification.
               config
@@ -141,7 +141,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
             const watchSettings = async (
               registry: ISettingRegistry,
               id: string
-            ) => {
+            ): Promise<void> => {
               if (id === JUPYTERLAB_INLINE_COMPLETER_ID) {
                 registry.pluginChanged.disconnect(watchSettings);
                 await checkSettings();

@@ -146,7 +146,7 @@ export class CompletionWebsocketClient implements IDisposable {
   sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(
     message: T
   ): Promise<R> {
-    return new Promise<R>(async (resolve, reject) => {
+    return new Promise<R>((resolve, reject) => {
       try {
         // If the socket is not connected, try to reconnect first
         if (this._socket === null || this._socket.readyState !== WebSocket.OPEN) {
@@ -211,13 +211,13 @@ export class CompletionWebsocketClient implements IDisposable {
     }
   }
 
-  private _onOpen(e: Event) {
+  private _onOpen(_: Event): void {
     console.log('Mito AI completion websocket connected');
     this._ready.resolve();
     this._connectionStatus.emit('connected');
   }
 
-  private _onClose(e: CloseEvent) {
+  private _onClose(e: CloseEvent): void {
     this._ready.reject(new Error('Completion websocket disconnected'));
     console.error('Completion websocket disconnected');
     this._connectionStatus.emit('disconnected');

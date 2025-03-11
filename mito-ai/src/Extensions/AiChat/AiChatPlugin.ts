@@ -35,10 +35,10 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     rendermime: IRenderMimeRegistry,
     contextManager: IContextManager,
     restorer: ILayoutRestorer | null,
-  ) => {
+  ): WidgetTracker<ChatWidget> => {
     // Define a widget creator function,
     // then call it to make a new widget
-    const newWidget = () => {
+    const newWidget = (): ChatWidget => {
       // Create a blank content widget inside of a MainAreaWidget
       const chatWidget = buildChatWidget(
         app,
@@ -68,13 +68,13 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         // Step 2: Add the widget to the widget tracker if
         // its not already there
         if (!tracker.has(widget)) {
-          tracker.add(widget);
+          void tracker.add(widget);
         }
 
         // Step 3: Attatch the widget to the app if its not
         // already there
         if (!widget.isAttached) {
-          app.shell.add(widget, 'left', { rank: 2000 });
+          void app.shell.add(widget, 'left', { rank: 2000 });
         }
 
         // Now that the widget is potentially accessible, activating the
@@ -115,7 +115,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
       namespace: widget.id
     });
     if (!tracker.has(widget)) {
-      tracker.add(widget);
+      void tracker.add(widget);
     }
 
     if (restorer) {
