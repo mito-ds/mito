@@ -112,7 +112,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     // If the message is empty, don't render anything
     const messageContent = getContentStringFromMessage(message)
-    console.log('messageContent', messageContent)
     if (messageContent === undefined || messageContent === '') {
         return <></>
     }

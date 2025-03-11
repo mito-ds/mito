@@ -46,8 +46,6 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         
-        print('HERE4')
-        print(ai_response_message)
         await message_history.append_message(ai_response_message, ai_response_message)
 
         return completion

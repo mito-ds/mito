@@ -434,8 +434,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         newContent: string,
     ): Promise<void> => {
 
-        console.log("agentModeEnabled", agentModeEnabled)
-
         // Then send the new message to replace it
         if (agentModeEnabled) {
             await startAgentExecution(newContent, messageIndex)
@@ -465,15 +463,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } else {
                 const content = aiResponse.items[0]?.content ?? '';
 
-                console.log('in sendMessageAndSaveResponse, aiResponse', completionRequest)
-                console.log('in sendMessageAndSaveResponse, content', content)
-
                 if (completionRequest.metadata.promptType === 'agent:execution') {
                     // Agent:Execution prompts return a CellUpdate object that we need to parse
                     const agentResponse: AgentResponse = JSON.parse(content)
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 } else {
-                    console.log("NON AGENT RESPONSE")
                     // For all other prompt types, we can just add the content to the chat history
                     aiResponse.items.forEach((item: any) => {
                         newChatHistoryManager.addAIMessageFromResponse(
@@ -584,8 +578,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
-
-            console.log('agentResponse', agentResponse)
 
             if (agentResponse === undefined) {
                 // If the agent response is undefined, we need to send a message to the agent
@@ -1043,7 +1035,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         isLeftSelected={!agentModeEnabled}
                         onChange={async (isLeftSelected) => {
                             await startNewChat(); // TODO: delete thread instead of starting new chat
-                            console.log('Calling this On Change function')
                             setAgentModeEnabled(!isLeftSelected);
                             // Focus the chat input directly
                             const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;

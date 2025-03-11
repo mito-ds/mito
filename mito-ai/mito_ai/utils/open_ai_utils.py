@@ -187,7 +187,7 @@ def get_open_ai_completion_function_params(
         # Add additionalProperties: False to the top-level schema
         json_schema["additionalProperties"] = False
         
-        # Handle nested object definitions in $defs
+        # Nested object definitions in $defs need to have additionalProperties set to False also
         if "$defs" in json_schema:
             for def_name, def_schema in json_schema["$defs"].items():
                 if def_schema.get("type") == "object":
