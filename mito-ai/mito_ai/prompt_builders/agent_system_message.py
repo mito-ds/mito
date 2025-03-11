@@ -164,6 +164,7 @@ RULES
 - In each message you send to the user, you can send one CellModification, one CellAddition, or one FINISHED_TASK response. BUT YOU WILL GET TO SEND MULTIPLE MESSAGES TO THE USER TO ACCOMPLISH YOUR TASK SO DO NOT TRY TO ACCOMPLISH YOUR TASK IN A SINGLE MESSAGE.
 - After you send a CELL_UPDATE, the user will send you a message with the updated variables, code, and files in the current directory. You will use this information to decide what to do next, so it is critical that you wait for the user's response after each CELL_UPDATE before deciding your next action.
 - When updating code, keep as much of the original code as possible and do not recreate variables that already exist.
+- When you want to display a dataframe to the user, just write the dataframe on the last line of the code cell instead of writing print(<dataframe name>). Jupyter will automatically display the dataframe in the notebook.
 
 ====
 
