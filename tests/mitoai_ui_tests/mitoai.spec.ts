@@ -2,9 +2,7 @@ import { expect, test } from '@jupyterlab/galata';
 import { 
   createAndRunNotebookWithCells, 
   getCodeFromCell, 
-  runCell, 
   selectCell, 
-  typeInNotebookCell, 
   waitForIdle, 
   addNewCell
 } from '../jupyter_utils/jupyterlab_utils';
@@ -14,16 +12,13 @@ import {
   clickDenyButton, 
   clickPreviewButton, 
   clickOnMitoAIChatTab,
-  closeMitoAIChat, 
   editMitoAIMessage, 
   sendMessageToMitoAI, 
   waitForMitoAILoadingToDisappear,
   startNewMitoAIChat
 } from './utils';
 
-test.describe.configure({ mode: 'parallel' });
-
-test.describe('Mito AI Chat', () => {
+test.describe.parallel('Mito AI Chat', () => {
 
   test('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
@@ -351,7 +346,9 @@ test.describe('Mito AI Chat', () => {
     // After sending the message, the active cell preview should disappear
     expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
   });
+});
 
+test.describe.serial('Mito AI Chat History', () => {
   test('Restore message history', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
@@ -380,6 +377,3 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
   });
 });
-
-
-
