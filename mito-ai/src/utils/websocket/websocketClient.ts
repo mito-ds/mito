@@ -149,7 +149,7 @@ export class CompletionWebsocketClient implements IDisposable {
     // Create a Promise for the eventual result
     return new Promise<R>((resolve, reject) => {
       // First check if we need to reconnect
-      Promise.resolve().then(async () => {
+      void Promise.resolve().then(async () => {
         try {
           // If the socket is not connected, try to reconnect first
           if (this._socket === null || this._socket.readyState !== WebSocket.OPEN) {
