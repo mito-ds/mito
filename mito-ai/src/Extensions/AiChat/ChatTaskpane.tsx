@@ -544,7 +544,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string): Promise<void> => {
-        setAgentModeEnabled(false)
         setAgentExecutionStatus('working')
         
         // Reset the execution flag at the start of a new plan
