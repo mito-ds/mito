@@ -146,7 +146,7 @@ export class CompletionWebsocketClient implements IDisposable {
   sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(
     message: T
   ): Promise<R> {
-    return new Promise<R>((resolve, reject) => {
+    return new Promise<R>(async (resolve, reject) => {
       try {
         // If the socket is not connected, try to reconnect first
         if (this._socket === null || this._socket.readyState !== WebSocket.OPEN) {
