@@ -56,6 +56,7 @@ export interface IChatMessageMetadata {
     activeCellCode?: string;   
     input: string;
     index?: number;
+    threadId?: string;
 }
 
 export interface IAgentExecutionMetadata {
@@ -64,6 +65,7 @@ export interface IAgentExecutionMetadata {
   variables?: Variable[];
   files?: File[];  
   input: string;
+  threadId?: string;
 }
 
 export interface ISmartDebugMetadata {
@@ -72,12 +74,14 @@ export interface ISmartDebugMetadata {
     files?: File[];
     activeCellCode?: string;   
     errorMessage: string;     
+    threadId?: string;
 }
 
 export interface ICodeExplainMetadata {
     promptType: 'codeExplain';
     variables?: Variable[];
     activeCellCode?: string;
+    threadId?: string;
 }
 
 export interface IAgentPlanningMetadata {
@@ -85,6 +89,7 @@ export interface IAgentPlanningMetadata {
     variables?: Variable[];
     files?: File[];
     input: string;
+    threadId?: string;
 }
 
 export interface IInlineCompleterMetadata {

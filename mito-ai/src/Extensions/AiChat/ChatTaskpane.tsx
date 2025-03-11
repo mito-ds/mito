@@ -333,6 +333,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         const smartDebugMetadata = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
+        if (activeThreadId) {
+            smartDebugMetadata.threadId = activeThreadId;
+        }
+
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
@@ -352,6 +356,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = await startNewChat()
         const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage()
+        if (activeThreadId) {
+            explainCodeMetadata.threadId = activeThreadId;
+        }
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -373,6 +380,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         const agentExecutionMetatada = newChatHistoryManager.addAgentExecutionMessage(input)
+        if (activeThreadId) {
+            agentExecutionMetatada.threadId = activeThreadId;
+        }
         setChatHistoryManager(newChatHistoryManager)
 
 
@@ -400,6 +410,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             chatMessageMetadata = newChatHistoryManager.updateMessageAtIndex(messageIndex, input)
         } else {
             chatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
+        }
+        if (activeThreadId) {
+            chatMessageMetadata.threadId = activeThreadId;
         }
         setChatHistoryManager(newChatHistoryManager)
 
@@ -472,6 +485,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1: Add user message to chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         const agentPlanningMetadata = newChatHistoryManager.addAgentMessage(message, messageIndex)
+        if (activeThreadId) {
+            agentPlanningMetadata.threadId = activeThreadId;
+        }
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI

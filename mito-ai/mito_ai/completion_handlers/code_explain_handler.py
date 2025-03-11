@@ -21,25 +21,26 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         """Get a code explain completion from the AI provider."""
         
         active_cell_code = metadata.activeCellCode or ''
+        thread_id = metadata.threadId
         
         # Create the prompt
         prompt = create_explain_code_prompt(active_cell_code)
         
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
-        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": active_cell_code}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": "Explain this code: " + (metadata.activeCellCode or '')}
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, thread_id)
         
         # Get the completion
         completion = await provider.request_completions(
-            messages=message_history.ai_optimized_history, 
+            messages=message_history.get_ai_optimized_history(thread_id), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
             message_type=MessageType.CODE_EXPLAIN
         )
         
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        await message_history.append_message(ai_response_message, ai_response_message, provider)
+        await message_history.append_message(ai_response_message, ai_response_message, provider, thread_id)
 
         return completion
 

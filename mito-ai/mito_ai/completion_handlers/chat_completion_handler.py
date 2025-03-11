@@ -20,6 +20,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
     ) -> str:
         """Get a chat completion from the AI provider."""
         
+        thread_id = metadata.threadId
+
         # Create the prompt
         prompt = create_chat_prompt(
             metadata.variables or [], 
@@ -31,17 +33,17 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": metadata.input}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, thread_id)
         
         # Get the completion
         completion = await provider.request_completions(
-            messages=message_history.ai_optimized_history, 
+            messages=message_history.get_ai_optimized_history(thread_id), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_type=MessageType.CHAT
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        await message_history.append_message(ai_response_message, ai_response_message, provider)
+        await message_history.append_message(ai_response_message, ai_response_message, provider, thread_id)
 
         return completion
 

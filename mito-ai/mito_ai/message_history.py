@@ -215,39 +215,54 @@ class GlobalMessageHistory:
     @property
     def ai_optimized_history(self) -> List[ChatCompletionMessageParam]:
         """
-        For backward compatibility: returns the LLM history of the newest thread.
+        Returns the AI-optimized message history for the newest thread.
         """
         with self._lock:
             thread_id = self._get_newest_thread_id()
+            if not thread_id:
+                return []
+            return self._chat_threads[thread_id].ai_optimized_history
+    
+    def get_ai_optimized_history(self, thread_id: Optional[str] = None) -> List[ChatCompletionMessageParam]:
+        """
+        Returns the AI-optimized message history for the specified thread or the newest thread if not specified.
+        """
+        with self._lock:
+            if thread_id is None:
+                thread_id = self._get_newest_thread_id()
             if not thread_id or thread_id not in self._chat_threads:
                 return []
-            # If history is requested, that is also considered an interaction
-            self._update_last_interaction(self._chat_threads[thread_id])
-            self._save_thread_to_disk(self._chat_threads[thread_id])
+            return self._chat_threads[thread_id].ai_optimized_history
 
-            return self._chat_threads[thread_id].ai_optimized_history[:]
-    
     @property
     def display_history(self) -> List[ChatCompletionMessageParam]:
         """
-        For backward compatibility: returns the display history of the newest thread.
+        Returns the display-optimized message history for the newest thread.
         """
         with self._lock:
             thread_id = self._get_newest_thread_id()
+            if not thread_id:
+                return []
+            return self._chat_threads[thread_id].display_history
+    
+    def get_display_history(self, thread_id: Optional[str] = None) -> List[ChatCompletionMessageParam]:
+        """
+        Returns the display-optimized message history for the specified thread or the newest thread if not specified.
+        """
+        with self._lock:
+            if thread_id is None:
+                thread_id = self._get_newest_thread_id()
             if not thread_id or thread_id not in self._chat_threads:
                 return []
-            # If history is requested, that is also considered an interaction
-            self._update_last_interaction(self._chat_threads[thread_id])
-            self._save_thread_to_disk(self._chat_threads[thread_id])
-
-            return self._chat_threads[thread_id].display_history[:]
+            return self._chat_threads[thread_id].display_history
 
     def get_histories(self, thread_id: Optional[str] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         """
-        For backward compatibility: returns the LLM and display history of the newest thread.
+        Returns the AI-optimized and display-optimized message histories as a tuple for the specified thread or the newest thread if not specified.
         """
         with self._lock:
-            thread_id = thread_id or self._get_newest_thread_id()
+            if thread_id is None:
+                thread_id = self._get_newest_thread_id()
             if not thread_id or thread_id not in self._chat_threads:
                 return [], []
             # If history is requested, that is also considered an interaction
@@ -258,15 +273,17 @@ class GlobalMessageHistory:
                 self._chat_threads[thread_id].display_history[:],
             )
 
-    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider) -> None:
+    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider, thread_id: Optional[str] = None) -> None:
         """
-        Appends the messages to the newest thread. If there are no threads yet, create one.
+        Appends the messages to the specified thread or the newest thread if not specified.
+        If there are no threads yet, create one.
         We also detect if we should set a short name for the thread.
         """
         with self._lock:
-            thread_id = self._get_newest_thread_id()
-        if not thread_id:
-            thread_id = self.create_new_thread()
+            if thread_id is None:
+                thread_id = self._get_newest_thread_id()
+            if not thread_id:
+                thread_id = self.create_new_thread()
 
         # Add messages and check if naming is needed while holding the lock
         name_gen_input = None

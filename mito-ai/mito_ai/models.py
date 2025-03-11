@@ -59,6 +59,7 @@ class ChatMessageMetadata():
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     index: Optional[int] = None   
+    threadId: Optional[str] = None
     
 @dataclass(frozen=True)
 class AgentExecutionMetadata():
@@ -67,6 +68,7 @@ class AgentExecutionMetadata():
     aiOptimizedCells: List[AIOptimizedCells]
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
+    threadId: Optional[str] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
@@ -75,12 +77,14 @@ class SmartDebugMetadata():
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
+    threadId: Optional[str] = None
     
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
+    threadId: Optional[str] = None
 
 @dataclass(frozen=True)
 class AgentPlanningMetadata():    
@@ -88,6 +92,7 @@ class AgentPlanningMetadata():
     input: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
+    threadId: Optional[str] = None
     
 @dataclass(frozen=True)
 class InlineCompleterMetadata():
@@ -96,11 +101,6 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class FetchHistoryMetadata():
-    promptType: Literal['fetch_history']
-    
     
 @dataclass(frozen=True)
 class CompletionRequest:
