@@ -69,7 +69,6 @@ import DropdownMenu from '../../components/DropdownMenu';
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
-    chatHistoryManager.addSystemMessage('You are an expert Python programmer.')
     return chatHistoryManager
 }
 
@@ -801,8 +800,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startNewChat = async (): Promise<ChatHistoryManager> => {
-        // If current thread is empty (only contains system message), do not create a new thread.
-        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length <= 1) {
+        // If current thread is empty, do not create a new thread.
+        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0) {
             return chatHistoryManager;
         }
         // Reset frontend chat history

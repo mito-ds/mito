@@ -1,9 +1,12 @@
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type, Union
+from typing import List, Literal, Optional, Type, Union, NewType
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 from pydantic import BaseModel
+
+# The ThreadID is the unique identifier for the chat thread.
+ThreadID = NewType('ThreadID', str)
 
 @dataclass(frozen=True)
 class AIOptimizedCells():
@@ -21,6 +24,7 @@ class CellUpdate(BaseModel):
     index: Optional[int]
     id: Optional[str]
     code: str
+    description: str
 
 # Response format for agent planning
 class PlanOfAttack(BaseModel):
@@ -279,7 +283,7 @@ class ChatThreadMetadata:
     Chat thread item.
     """
 
-    thread_id: str
+    thread_id: ThreadID
 
     name: str
 
@@ -297,7 +301,7 @@ class StartNewChatReply:
     parent_id: str
 
     # Chat thread item.
-    thread_id: str
+    thread_id: ThreadID
 
     # Message type.
     type: Literal["reply"] = "reply"

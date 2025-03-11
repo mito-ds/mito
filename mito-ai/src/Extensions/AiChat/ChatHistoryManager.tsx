@@ -298,19 +298,6 @@ export class ChatHistoryManager {
         );
     }
 
-    addSystemMessage(message: string): void {
-        const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'system',
-            content: message
-        }
-        this.displayOptimizedChatHistory.push({
-            message: systemMessage, 
-            type: 'openai message',
-            codeCellID: undefined,
-            promptType: 'chat'
-        });
-    }
-
     getLastAIMessageIndex = (): number | undefined => {
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
