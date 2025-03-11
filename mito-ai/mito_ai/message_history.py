@@ -113,7 +113,7 @@ class GlobalMessageHistory:
             Returns copies of the AI-optimized and display histories for the newest thread.
         clear_histories() -> None:
             Creates a new thread (preserving old threads).
-        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str], llm_provider) -> None:
+        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
             Appends new messages to the newest thread and saves to disk.
         truncate_histories(index: int) -> None:
             Truncates both histories at the given index in the newest thread.
@@ -123,9 +123,9 @@ class GlobalMessageHistory:
             Returns a list of threads with thread_id, name, creation_ts, and last_interaction_ts.
     """
 
-    def __init__(self, chats_dir: str = os.path.join(MITO_FOLDER, "ai-chats")):
+    def __init__(self) -> None:
         self._lock = Lock()
-        self._chats_dir = chats_dir
+        self._chats_dir = os.path.join(MITO_FOLDER, "ai-chats")
         os.makedirs(self._chats_dir, exist_ok=True)
 
         # In-memory cache of all chat threads loaded from disk

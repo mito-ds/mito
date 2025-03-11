@@ -5,7 +5,7 @@ from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-
+from mito_ai.completion_handlers.utils import append_agent_system_message
 __all__ = ["get_agent_auto_error_fixup_completion"]
 
 class AgentAutoErrorFixupHandler(CompletionHandler[SmartDebugMetadata]):
@@ -19,10 +19,14 @@ class AgentAutoErrorFixupHandler(CompletionHandler[SmartDebugMetadata]):
     ) -> str:
         """Get a smart debug completion from the AI provider."""
         
+        # Add the system message if it doens't alredy exist
+        await append_agent_system_message(message_history, provider)
+        
         error_message = metadata.errorMessage
         active_cell_code = metadata.activeCellCode or ''
         variables = metadata.variables or []
         files = metadata.files or []
+        
         # Create the prompt
         prompt = create_error_prompt(
             error_message, 
