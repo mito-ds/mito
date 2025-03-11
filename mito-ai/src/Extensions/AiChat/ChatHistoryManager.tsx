@@ -103,7 +103,7 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(input: string): IAgentExecutionMetadata {
+    addAgentExecutionMessage(input?: string): IAgentExecutionMetadata {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
@@ -112,15 +112,28 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             aiOptimizedCells: aiOptimizedCells,
-            input: input
+            input: input || ''
+        }
+
+        // We use this function in two ways: 
+        // 1. When the user sends the original agent:execution message to start the agent
+        // 2. When the agent sends itself information about the updated variables, etc. In this case, 
+        // we don't want to pass an input. 
+        let userMessage: OpenAI.Chat.ChatCompletionMessageParam
+        if (input) {
+            userMessage = getDisplayedOptimizedUserMessage(input)
+        } else {
+            userMessage = {
+                role: 'user',
+                content: ''
+            }
         }
 
         this.displayOptimizedChatHistory.push(
             {
-                message: getDisplayedOptimizedUserMessage(input), 
+                message: userMessage,
                 type: 'openai message',
                 promptType: 'chat',
-                codeCellID: undefined // The agent:execution is not tied to any specific code cell
             }
         )
 
@@ -224,7 +237,9 @@ export class ChatHistoryManager {
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
-            content: codeWithMarkdownFormatting
+
+            // If no cell update is provided, then the content of the message is undefined
+            content: agentResponse.cell_update ? codeWithMarkdownFormatting : undefined
         }
 
         this.displayOptimizedChatHistory.push(

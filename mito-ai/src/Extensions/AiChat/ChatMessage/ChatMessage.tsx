@@ -6,7 +6,7 @@ import CodeBlock from './CodeBlock';
 import AlertBlock from './AlertBlock';
 import MarkdownBlock from './MarkdownBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
+import { getContentStringFromMessage, PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
@@ -109,6 +109,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             </div>
         )
     }
+
+    // If the message is empty, don't render anything
+    const messageContent = getContentStringFromMessage(message)
+    console.log('messageContent', messageContent)
+    if (messageContent === undefined || messageContent === '') {
+        return <></>
+    }
+
     return (
         <div className={classNames(
             "message",
