@@ -114,6 +114,7 @@ async def get_ai_completion_from_mito_server(
     if is_running_test():
         # If we are running in a test environment, setting the request_timeout fails for some reason.
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+        http_client_timeout = None
     else:
         # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
         # we give to OpenAI. The OpenAI timeouts are denoted in seconds, whereas the HTTP client
