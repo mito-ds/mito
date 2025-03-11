@@ -300,7 +300,12 @@ export class CompletionWebsocketClient implements IDisposable {
   private _reconnectAttempt = 0;
 
   /**
-   * Attempt to reconnect the websocket with exponential backoff
+   * Attempt to reconnect the websocket with exponential backoff.
+   * @param forceReset - If true (default), resets the reconnection attempt counter to 0,
+   * effectively starting a fresh sequence of reconnection attempts. When false, maintains
+   * the current attempt count, which is used during recursive reconnection attempts within the method.
+   * @returns Promise that resolves when reconnection is successful or rejects after max attempts
+   * @throws Error if the client is disposed or max reconnection attempts are exceeded
    */
   async reconnect(forceReset: boolean = true): Promise<void> {
     if (this._isDisposed) {
