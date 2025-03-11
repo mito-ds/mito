@@ -22,7 +22,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         """Get a chat completion from the AI provider."""
         
         # Add the system message if it doens't alredy exist
-        await append_chat_system_message(message_history)
+        await append_chat_system_message(message_history, provider)
         
         # Create the prompt
         prompt = create_chat_prompt(
@@ -35,7 +35,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": metadata.input}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
         
         # Get the completion
         completion = await provider.request_completions(
@@ -45,7 +45,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        await message_history.append_message(ai_response_message, ai_response_message)
+        await message_history.append_message(ai_response_message, ai_response_message, provider)
 
         return completion
 

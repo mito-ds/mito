@@ -22,7 +22,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         """Get a chat completion from the AI provider."""
         
         # Add the system message if it doens't alredy exist
-        await append_agent_system_message(message_history)
+        await append_agent_system_message(message_history, provider)
         
         # Create the prompt
         prompt = create_agent_execution_prompt(metadata)
@@ -31,7 +31,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": metadata.input}
         
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
         
         # Get the completion
         completion = await provider.request_completions(
@@ -46,7 +46,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         
-        await message_history.append_message(ai_response_message, ai_response_message)
+        await message_history.append_message(ai_response_message, ai_response_message, provider)
 
         return completion
 

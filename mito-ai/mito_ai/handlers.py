@@ -43,6 +43,12 @@ from mito_ai.completion_handlers.agent_execution_handler import get_agent_execut
 from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 
 
+# The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
+# We create one GlobalMessageHistory per backend server instance instead of one per websocket connection so that the
+# there is one manager of the locks for the .mito/ai-chats directory. This is my current understanding and it 
+# might be incorrect!
+message_history = GlobalMessageHistory()
+
 # This handler is responsible for the mito-ai/completions endpoint.
 # It takes a message from the user, sends it to the OpenAI API, and returns the response.
 # Important: Because this is a server extension, print statements are sent to the
@@ -54,7 +60,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
-        self.message_history = GlobalMessageHistory(llm)
         self.is_pro = is_pro()
 
     @property
@@ -125,7 +130,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear history if the type is "start_new_chat"
         if type == MessageType.START_NEW_CHAT:
-            thread_id = self.message_history.create_new_thread()
+            thread_id = message_history.create_new_thread()
             
             reply = StartNewChatReply(
                 parent_id=parsed_message.get("message_id"),
@@ -136,7 +141,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Handle get_threads: return list of chat threads
         if type == MessageType.GET_THREADS:
-            threads = self.message_history.get_threads()
+            threads = message_history.get_threads()
             reply = FetchThreadsReply(
                 parent_id=parsed_message.get("message_id"),
                 threads=threads
@@ -148,7 +153,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == MessageType.DELETE_THREAD:
             thread_id_to_delete = metadata_dict.get('thread_id')
             if thread_id_to_delete:
-                is_thread_deleted = self.message_history.delete_thread(thread_id_to_delete)
+                is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
                 reply = DeleteThreadReply(
                     parent_id=parsed_message.get("message_id"),
                     success=is_thread_deleted
@@ -164,9 +169,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
             thread_id = metadata_dict.get('thread_id')
             if thread_id:
-                _, display_history = self.message_history.get_histories(thread_id)
+                _, display_history = message_history.get_histories(thread_id)
             else:
-                _, display_history = self.message_history.get_histories()
+                _, display_history = message_history.get_histories()
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
@@ -179,22 +184,22 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             completion = None
             if type == MessageType.CHAT:
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
-                completion = await get_chat_completion(chat_metadata, self._llm, self.message_history)
+                completion = await get_chat_completion(chat_metadata, self._llm, message_history)
             elif type == MessageType.SMART_DEBUG:
                 smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
-                completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, self.message_history)
+                completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, message_history)
             elif type == MessageType.CODE_EXPLAIN:
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
-                completion = await get_code_explain_completion(code_explain_metadata, self._llm, self.message_history)
+                completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
-                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, self.message_history)
+                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
                 agent_auto_error_fixup_metadata = SmartDebugMetadata(**metadata_dict)
-                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, self.message_history)
+                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
-                completion = await get_inline_completion(inline_completer_metadata, self._llm, self.message_history)
+                completion = await get_inline_completion(inline_completer_metadata, self._llm, message_history)
             else:
                 raise ValueError(f"Invalid message type: {type}")
             
@@ -293,7 +298,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 "role": "assistant", 
                 "content": accumulated_response
             }
-            await self.message_history.append_message(message, message, self._llm)
+            await message_history.append_message(message, message, self._llm)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 
