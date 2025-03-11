@@ -7,7 +7,7 @@ import json
 from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
 import os
-
+import time
 from mito_ai.utils.utils import is_running_test
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
@@ -115,14 +115,14 @@ async def get_ai_completion_from_mito_server(
         # If we are running in a test environment, setting the request_timeout fails for some reason.
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
     else:
-        
         # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
-        # we give to OpenAI. The OpenAI timeouts are denoted in seconds, wherease the HTTP client
+        # we give to OpenAI. The OpenAI timeouts are denoted in seconds, whereas the HTTP client
         # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
         # the time it takes to send the request, etc.
         http_client_timeout = timeout * 1000 * max_retries + 10000
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
-    
+        
+    start_time = time.time()
     try:
         res = await http_client.fetch(
             # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
@@ -130,8 +130,17 @@ async def get_ai_completion_from_mito_server(
             # have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
             # before merging into dev. So if you change which variable we are using here, the 
             # test will not catch our mistakes.
-            MITO_AI_URL, method="POST", headers=headers, body=json.dumps(data)
+            MITO_AI_URL, 
+            method="POST", 
+            headers=headers, 
+            body=json.dumps(data), 
+            # For some reason, we need to add the request_timeout here as well
+            request_timeout=http_client_timeout
         )
+        print(f"Request completed in {time.time() - start_time:.2f} seconds")
+    except Exception as e:
+        print(f"Request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
+        raise
     finally:
         http_client.close()
 
