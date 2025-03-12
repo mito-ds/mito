@@ -27,7 +27,6 @@ from mito_ai.models import (
     ChatMessageMetadata,
     SmartDebugMetadata,
     CodeExplainMetadata,
-    AgentPlanningMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
     MessageType
@@ -40,13 +39,14 @@ from mito_ai.completion_handlers.chat_completion_handler import get_chat_complet
 from mito_ai.completion_handlers.smart_debug_handler import get_smart_debug_completion
 from mito_ai.completion_handlers.code_explain_handler import get_code_explain_completion
 from mito_ai.completion_handlers.inline_completer_handler import get_inline_completion
-from mito_ai.completion_handlers.agent_planning_handler import get_agent_planning_completion
 from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
 from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 
 
-
-# Global history instance
+# The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
+# We create one GlobalMessageHistory per backend server instance instead of one per websocket connection so that the
+# there is one manager of the locks for the .mito/ai-chats directory. This is my current understanding and it 
+# might be incorrect!
 message_history = GlobalMessageHistory()
 
 # This handler is responsible for the mito-ai/completions endpoint.
@@ -60,7 +60,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
-        self.full_message_history: list[ChatCompletionMessageParam] = []
         self.is_pro = is_pro()
 
     @property
@@ -108,11 +107,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         # Stop observing the provider error
         self._llm.unobserve(self._send_error, "last_error")
+    
         
-        # Clear the message history
-        self.full_message_history = []
-        
-
     async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
 
@@ -135,17 +131,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # Clear history if the type is "start_new_chat"
         if type == MessageType.START_NEW_CHAT:
             thread_id = message_history.create_new_thread()
-            
-            system_message: ChatCompletionMessageParam = {
-                "role": "system",
-                "content": "You are an expert Python programmer."
-            }
-            
-            await message_history.append_message(
-                ai_optimized_message=system_message,
-                display_message=system_message,
-                llm_provider=self._llm
-            )
             
             reply = StartNewChatReply(
                 parent_id=parsed_message.get("message_id"),
@@ -206,9 +191,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             elif type == MessageType.CODE_EXPLAIN:
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
                 completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history)
-            elif type == MessageType.AGENT_PLANNING:
-                agent_planning_metadata = AgentPlanningMetadata(**metadata_dict)
-                completion = await get_agent_planning_completion(agent_planning_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
                 completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)

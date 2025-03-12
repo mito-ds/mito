@@ -10,11 +10,18 @@ export const PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE = '```'
     Given a message from the OpenAI API, returns the content as a string. 
     If the content is not a string, returns undefined.
 */
-const getContentStringFromMessage = (message: OpenAI.Chat.ChatCompletionMessageParam): string | undefined => {
+export const getContentStringFromMessage = (message: OpenAI.Chat.ChatCompletionMessageParam): string | undefined => {
     
     // TODO: We can't assume this is a string. We need to handle the other
     // return options
     if (message.role === 'user' ||  message.role === 'assistant') {
+
+        // Don't convert the message to a string if the content is undefined or null
+        // so we can continue to use type checking
+        if (message.content === undefined || message.content === null) {
+            return undefined
+        }
+
         return message.content as string
     }
 

@@ -60,7 +60,8 @@ export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
 export const sendMessageToMitoAI = async (
     page: IJupyterLabPageFixture,
     message: string,
-    activeCellIndex?: number
+    activeCellIndex?: number,
+    doNotWaitForLoading?: boolean
 ) => {
     if (activeCellIndex) {
         await selectCell(page, activeCellIndex);
@@ -69,7 +70,9 @@ export const sendMessageToMitoAI = async (
     // Fill in the message and send it
     await page.locator('.chat-input').fill(message);
     await page.keyboard.press('Enter');
-    await waitForMitoAILoadingToDisappear(page);
+    if (!doNotWaitForLoading) {
+        await waitForMitoAILoadingToDisappear(page);
+    }
 }
 
 export const editMitoAIMessage = async (

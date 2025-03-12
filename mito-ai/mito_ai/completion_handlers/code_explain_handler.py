@@ -6,6 +6,7 @@ from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
+from mito_ai.completion_handlers.utils import append_chat_system_message
 
 __all__ = ["get_code_explain_completion"]
 
@@ -19,6 +20,9 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         message_history: GlobalMessageHistory
     ) -> str:
         """Get a code explain completion from the AI provider."""
+        
+        # Add the system message if it doens't alredy exist
+        await append_chat_system_message(message_history, provider)
         
         active_cell_code = metadata.activeCellCode or ''
         
