@@ -119,9 +119,12 @@ async def get_ai_completion_from_mito_server(
     
     http_client = None
     if is_running_test():
+        # TODO: Revert this back to the original timeout (see commented out code below)
+        http_client_timeout = timeout * 1000 * max_retries + 10000
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
         # If we are running in a test environment, setting the request_timeout fails for some reason.
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
-        http_client_timeout = None
+        # http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+        # http_client_timeout = None
     else:
         # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
         # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
@@ -147,7 +150,11 @@ async def get_ai_completion_from_mito_server(
         )
         print(f"Request completed in {time.time() - start_time:.2f} seconds")
     except Exception as e:
-        print(f"Request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
+        from tornado.httpclient import HTTPError
+        if isinstance(e, HTTPError):
+            print(f"Request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}, status code: {e.code}")
+        else:
+            print(f"Request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
         raise
     finally:
         http_client.close()
