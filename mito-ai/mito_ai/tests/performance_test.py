@@ -10,6 +10,11 @@ from mito_ai.models import MessageType
 from mito_ai.tests.data.prompt_sm import prompt_sm
 from mito_ai.tests.data.prompt_lg import prompt_lg
 
+TEST_MODEL = "gpt-4o-mini"
+NUM_ITERATIONS = 10  # Number of requests to make for each test
+MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT = 10_000  # in ms
+MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT = 15_000  # in ms
+
 # Test messages for all performance tests
 SMALL_TEST_MESSAGE: List[ChatCompletionMessageParam] = [
     {"role": "user", "content": prompt_sm}
@@ -17,17 +22,15 @@ SMALL_TEST_MESSAGE: List[ChatCompletionMessageParam] = [
 LARGE_TEST_MESSAGE: List[ChatCompletionMessageParam] = [
     {"role": "user", "content": prompt_lg}
 ]
-TEST_MODEL = "gpt-4o-mini"
-NUM_ITERATIONS = 3  # Number of requests to make for each test
 
 # Dictionary to store performance metrics for all tests
 ALL_METRICS = {}
 
 
 async def run_llm_requests(
-    llm: OpenAIProvider, 
+    llm: OpenAIProvider,
     messages: List[ChatCompletionMessageParam],
-    n: int = NUM_ITERATIONS
+    n: int = NUM_ITERATIONS,
 ) -> Tuple[List[str], Dict[str, Any]]:
     """
     Run LLM requests n times and collect performance metrics.
@@ -76,7 +79,7 @@ async def run_llm_requests(
 async def run_direct_openai_requests(
     client: openai.OpenAI,
     messages: List[ChatCompletionMessageParam],
-    n: int = NUM_ITERATIONS
+    n: int = NUM_ITERATIONS,
 ) -> Tuple[List[str], Dict[str, Any]]:
     """
     Run direct OpenAI requests n times and collect performance metrics.
@@ -96,9 +99,7 @@ async def run_direct_openai_requests(
 
     for i in range(n):
         start_time = time.time()
-        response = client.chat.completions.create(
-            model=TEST_MODEL, messages=messages
-        )
+        response = client.chat.completions.create(model=TEST_MODEL, messages=messages)
         completion = response.choices[0].message.content
         end_time = time.time()
 
@@ -169,7 +170,7 @@ async def test_server_key_performance() -> None:
         # Test with small prompt
         completions_sm, metrics_sm = await run_llm_requests(llm, SMALL_TEST_MESSAGE)
         ALL_METRICS["Server Key (sm prompt)"] = metrics_sm
-        
+
         # Test with large prompt
         completions_lg, metrics_lg = await run_llm_requests(llm, LARGE_TEST_MESSAGE)
         ALL_METRICS["Server Key (lg prompt)"] = metrics_lg
@@ -180,11 +181,11 @@ async def test_server_key_performance() -> None:
 
         # Performance assertions - adjust threshold as needed
         assert (
-            metrics_sm["max_latency_ms"] < 20_000
+            metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
         ), f"Server key completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
-        
+
         assert (
-            metrics_lg["max_latency_ms"] < 20_000
+            metrics_lg["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT
         ), f"Server key completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
 
     finally:
@@ -206,7 +207,7 @@ async def test_user_key_performance() -> None:
     # Test with small prompt
     completions_sm, metrics_sm = await run_llm_requests(llm, SMALL_TEST_MESSAGE)
     ALL_METRICS["User Key (sm prompt)"] = metrics_sm
-    
+
     # Test with large prompt
     completions_lg, metrics_lg = await run_llm_requests(llm, LARGE_TEST_MESSAGE)
     ALL_METRICS["User Key (lg prompt)"] = metrics_lg
@@ -217,11 +218,11 @@ async def test_user_key_performance() -> None:
 
     # Performance assertions - adjust threshold as needed
     assert (
-        metrics_sm["max_latency_ms"] < 20_000
+        metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
     ), f"User key completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
-    
+
     assert (
-        metrics_lg["max_latency_ms"] < 20_000
+        metrics_lg["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT
     ), f"User key completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
 
 
@@ -237,11 +238,15 @@ async def test_direct_openai_performance() -> None:
     client = openai.OpenAI(api_key=api_key)
 
     # Test with small prompt
-    completions_sm, metrics_sm = await run_direct_openai_requests(client, SMALL_TEST_MESSAGE)
+    completions_sm, metrics_sm = await run_direct_openai_requests(
+        client, SMALL_TEST_MESSAGE
+    )
     ALL_METRICS["Direct OpenAI (sm prompt)"] = metrics_sm
-    
+
     # Test with large prompt
-    completions_lg, metrics_lg = await run_direct_openai_requests(client, LARGE_TEST_MESSAGE)
+    completions_lg, metrics_lg = await run_direct_openai_requests(
+        client, LARGE_TEST_MESSAGE
+    )
     ALL_METRICS["Direct OpenAI (lg prompt)"] = metrics_lg
 
     # Verify we got valid responses
@@ -250,9 +255,9 @@ async def test_direct_openai_performance() -> None:
 
     # Performance assertions - adjust threshold as needed
     assert (
-        metrics_sm["max_latency_ms"] < 20_000
+        metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
     ), f"Direct OpenAI completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
-    
+
     assert (
-        metrics_lg["max_latency_ms"] < 20_000
+        metrics_lg["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT
     ), f"Direct OpenAI completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
