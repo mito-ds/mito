@@ -48,6 +48,7 @@ async def run_llm_requests(
     completions = []
     latencies = []
     errors = []
+    error_codes = []
 
     for i in range(n):
         try:
@@ -62,10 +63,29 @@ async def run_llm_requests(
             completions.append(completion)
 
             print(f"Request {i+1}/{n} latency: {latency_ms} ms")
-        except Exception as e:
-            # Log the error and continue with the next request
+        except openai.APIError as e:
+            # Extract status code and more details from OpenAI exceptions
+            status_code = getattr(e, "status_code", None)
+            error_code = getattr(e, "code", None)
             error_msg = f"Request {i+1}/{n} failed: {str(e)}"
-            errors.append(error_msg)
+            error_details = {
+                "message": str(e),
+                "status_code": status_code,
+                "error_code": error_code,
+                "type": type(e).__name__
+            }
+            errors.append(error_details)
+            error_codes.append(status_code)
+            print(f"{error_msg} (Status Code: {status_code}, Error Code: {error_code})")
+            completions.append(None)  # Add None for failed completions
+        except Exception as e:
+            # Generic exception handling for non-OpenAI errors
+            error_msg = f"Request {i+1}/{n} failed: {str(e)}"
+            error_details = {
+                "message": str(e),
+                "type": type(e).__name__
+            }
+            errors.append(error_details)
             print(error_msg)
             completions.append(None)  # Add None for failed completions
 
@@ -78,6 +98,7 @@ async def run_llm_requests(
         "successful_requests": successful_requests,
         "failed_requests": failed_requests,
         "error_details": errors,
+        "error_codes": error_codes,
     }
 
     if successful_requests > 0:
@@ -120,6 +141,7 @@ async def run_direct_openai_requests(
     completions = []
     latencies = []
     errors = []
+    error_codes = []
 
     for i in range(n):
         try:
@@ -133,10 +155,29 @@ async def run_direct_openai_requests(
             completions.append(completion)
 
             print(f"Direct OpenAI request {i+1}/{n} latency: {latency_ms} ms")
-        except Exception as e:
-            # Log the error and continue with the next request
+        except openai.APIError as e:
+            # Extract status code and more details from OpenAI exceptions
+            status_code = getattr(e, "status_code", None)
+            error_code = getattr(e, "code", None)
             error_msg = f"Direct OpenAI request {i+1}/{n} failed: {str(e)}"
-            errors.append(error_msg)
+            error_details = {
+                "message": str(e),
+                "status_code": status_code,
+                "error_code": error_code,
+                "type": type(e).__name__
+            }
+            errors.append(error_details)
+            error_codes.append(status_code)
+            print(f"{error_msg} (Status Code: {status_code}, Error Code: {error_code})")
+            completions.append(None)  # Add None for failed completions
+        except Exception as e:
+            # Generic exception handling for non-OpenAI errors
+            error_msg = f"Direct OpenAI request {i+1}/{n} failed: {str(e)}"
+            error_details = {
+                "message": str(e),
+                "type": type(e).__name__
+            }
+            errors.append(error_details)
             print(error_msg)
             completions.append(None)  # Add None for failed completions
 
@@ -149,6 +190,7 @@ async def run_direct_openai_requests(
         "successful_requests": successful_requests,
         "failed_requests": failed_requests,
         "error_details": errors,
+        "error_codes": error_codes,
     }
 
     if successful_requests > 0:
@@ -213,6 +255,51 @@ def print_metrics_summary(request):
             print(row_format.format(*row))
 
         print("=" * 100)
+        
+        # Print error details if there are any
+        print("\nERROR DETAILS")
+        print("-" * 100)
+        
+        has_errors = False
+        for test_name, metrics in ALL_METRICS.items():
+            if metrics.get("failed_requests", 0) > 0:
+                has_errors = True
+                print(f"\n{test_name}: {metrics.get('failed_requests')} failures")
+                
+                # Group errors by error code/type for easier analysis
+                error_count = {}
+                
+                for error in metrics.get("error_details", []):
+                    if isinstance(error, dict):
+                        error_type = error.get("type", "Unknown")
+                        status_code = error.get("status_code", "N/A")
+                        error_code = error.get("error_code", "N/A")
+                        key = f"{error_type} (Status: {status_code}, Code: {error_code})"
+                        
+                        if key not in error_count:
+                            error_count[key] = {
+                                "count": 0,
+                                "example": error.get("message", "No message"),
+                                "status_code": status_code,
+                                "error_code": error_code
+                            }
+                        error_count[key]["count"] += 1
+                    else:
+                        # Handle legacy string error format
+                        if "Unknown" not in error_count:
+                            error_count["Unknown"] = {"count": 0, "example": str(error)}
+                        error_count["Unknown"]["count"] += 1
+                
+                # Print grouped errors
+                for error_type, details in error_count.items():
+                    print(f"  {error_type}: {details['count']} occurrences")
+                    print(f"  Example: {details['example']}")
+                    print()
+        
+        if not has_errors:
+            print("  No errors reported in any tests.")
+            
+        print("=" * 100)
 
 
 @pytest.mark.asyncio
@@ -238,14 +325,42 @@ async def test_server_key_performance() -> None:
 
         # Print failure statistics
         if metrics_sm["failed_requests"] > 0:
-            print(f"Small prompt failures: {metrics_sm['failed_requests']}/{metrics_sm['total_requests']}")
+            print("\nServer Key - Small prompt failures summary:")
+            print(f"  Failed requests: {metrics_sm['failed_requests']}/{metrics_sm['total_requests']}")
+            
+            # Group errors by status code for analysis
+            error_codes = {}
             for error in metrics_sm["error_details"]:
-                print(f"  {error}")
+                if isinstance(error, dict):
+                    status_code = str(error.get("status_code", "Unknown"))
+                    if status_code not in error_codes:
+                        error_codes[status_code] = 0
+                    error_codes[status_code] += 1
+            
+            # Print error code distribution
+            if error_codes:
+                print("  Error code distribution:")
+                for code, count in error_codes.items():
+                    print(f"    Status {code}: {count} occurrences")
                 
         if metrics_lg["failed_requests"] > 0:
-            print(f"Large prompt failures: {metrics_lg['failed_requests']}/{metrics_lg['total_requests']}")
+            print("\nServer Key - Large prompt failures summary:")
+            print(f"  Failed requests: {metrics_lg['failed_requests']}/{metrics_lg['total_requests']}")
+            
+            # Group errors by status code for analysis
+            error_codes = {}
             for error in metrics_lg["error_details"]:
-                print(f"  {error}")
+                if isinstance(error, dict):
+                    status_code = str(error.get("status_code", "Unknown"))
+                    if status_code not in error_codes:
+                        error_codes[status_code] = 0
+                    error_codes[status_code] += 1
+            
+            # Print error code distribution
+            if error_codes:
+                print("  Error code distribution:")
+                for code, count in error_codes.items():
+                    print(f"    Status {code}: {count} occurrences")
 
         # Verify we got at least some valid responses
         valid_completions_sm = [c for c in completions_sm if c is not None]
@@ -297,14 +412,42 @@ async def test_user_key_performance() -> None:
 
     # Print failure statistics
     if metrics_sm["failed_requests"] > 0:
-        print(f"User key small prompt failures: {metrics_sm['failed_requests']}/{metrics_sm['total_requests']}")
+        print("\nUser Key - Small prompt failures summary:")
+        print(f"  Failed requests: {metrics_sm['failed_requests']}/{metrics_sm['total_requests']}")
+        
+        # Group errors by status code for analysis
+        error_codes = {}
         for error in metrics_sm["error_details"]:
-            print(f"  {error}")
+            if isinstance(error, dict):
+                status_code = str(error.get("status_code", "Unknown"))
+                if status_code not in error_codes:
+                    error_codes[status_code] = 0
+                error_codes[status_code] += 1
+        
+        # Print error code distribution
+        if error_codes:
+            print("  Error code distribution:")
+            for code, count in error_codes.items():
+                print(f"    Status {code}: {count} occurrences")
             
     if metrics_lg["failed_requests"] > 0:
-        print(f"User key large prompt failures: {metrics_lg['failed_requests']}/{metrics_lg['total_requests']}")
+        print("\nUser Key - Large prompt failures summary:")
+        print(f"  Failed requests: {metrics_lg['failed_requests']}/{metrics_lg['total_requests']}")
+        
+        # Group errors by status code for analysis
+        error_codes = {}
         for error in metrics_lg["error_details"]:
-            print(f"  {error}")
+            if isinstance(error, dict):
+                status_code = str(error.get("status_code", "Unknown"))
+                if status_code not in error_codes:
+                    error_codes[status_code] = 0
+                error_codes[status_code] += 1
+        
+        # Print error code distribution
+        if error_codes:
+            print("  Error code distribution:")
+            for code, count in error_codes.items():
+                print(f"    Status {code}: {count} occurrences")
 
     # Verify we got at least some valid responses
     valid_completions_sm = [c for c in completions_sm if c is not None]
@@ -356,14 +499,42 @@ async def test_direct_openai_performance() -> None:
 
     # Print failure statistics
     if metrics_sm["failed_requests"] > 0:
-        print(f"Direct OpenAI small prompt failures: {metrics_sm['failed_requests']}/{metrics_sm['total_requests']}")
+        print("\nDirect OpenAI - Small prompt failures summary:")
+        print(f"  Failed requests: {metrics_sm['failed_requests']}/{metrics_sm['total_requests']}")
+        
+        # Group errors by status code for analysis
+        error_codes = {}
         for error in metrics_sm["error_details"]:
-            print(f"  {error}")
+            if isinstance(error, dict):
+                status_code = str(error.get("status_code", "Unknown"))
+                if status_code not in error_codes:
+                    error_codes[status_code] = 0
+                error_codes[status_code] += 1
+        
+        # Print error code distribution
+        if error_codes:
+            print("  Error code distribution:")
+            for code, count in error_codes.items():
+                print(f"    Status {code}: {count} occurrences")
             
     if metrics_lg["failed_requests"] > 0:
-        print(f"Direct OpenAI large prompt failures: {metrics_lg['failed_requests']}/{metrics_lg['total_requests']}")
+        print("\nDirect OpenAI - Large prompt failures summary:")
+        print(f"  Failed requests: {metrics_lg['failed_requests']}/{metrics_lg['total_requests']}")
+        
+        # Group errors by status code for analysis
+        error_codes = {}
         for error in metrics_lg["error_details"]:
-            print(f"  {error}")
+            if isinstance(error, dict):
+                status_code = str(error.get("status_code", "Unknown"))
+                if status_code not in error_codes:
+                    error_codes[status_code] = 0
+                error_codes[status_code] += 1
+        
+        # Print error code distribution
+        if error_codes:
+            print("  Error code distribution:")
+            for code, count in error_codes.items():
+                print(f"    Status {code}: {count} occurrences")
 
     # Verify we got at least some valid responses
     valid_completions_sm = [c for c in completions_sm if c is not None]
