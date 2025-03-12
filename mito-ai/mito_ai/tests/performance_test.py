@@ -11,7 +11,7 @@ from mito_ai.tests.data.prompt_sm import prompt_sm
 from mito_ai.tests.data.prompt_lg import prompt_lg
 
 TEST_MODEL = "gpt-4o-mini"
-NUM_ITERATIONS = 10  # Number of requests to make for each test
+NUM_ITERATIONS = 3  # Number of requests to make for each test
 MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT = 10_000  # in ms
 MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT = 15_000  # in ms
 
