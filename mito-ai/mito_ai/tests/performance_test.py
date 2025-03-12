@@ -180,12 +180,12 @@ async def test_server_key_performance() -> None:
 
         # Performance assertions - adjust threshold as needed
         assert (
-            metrics_sm["avg_latency_ms"] < 10000
-        ), f"Server key completion (small prompt) took too long: {metrics_sm['avg_latency_ms']} ms"
+            metrics_sm["max_latency_ms"] < 20_000
+        ), f"Server key completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
         
         assert (
-            metrics_lg["avg_latency_ms"] < 15000
-        ), f"Server key completion (large prompt) took too long: {metrics_lg['avg_latency_ms']} ms"
+            metrics_lg["max_latency_ms"] < 20_000
+        ), f"Server key completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
 
     finally:
         # Restore the original API key
@@ -217,12 +217,12 @@ async def test_user_key_performance() -> None:
 
     # Performance assertions - adjust threshold as needed
     assert (
-        metrics_sm["avg_latency_ms"] < 10000
-    ), f"User key completion (small prompt) took too long: {metrics_sm['avg_latency_ms']} ms"
+        metrics_sm["max_latency_ms"] < 20_000
+    ), f"User key completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
     
     assert (
-        metrics_lg["avg_latency_ms"] < 15000
-    ), f"User key completion (large prompt) took too long: {metrics_lg['avg_latency_ms']} ms"
+        metrics_lg["max_latency_ms"] < 20_000
+    ), f"User key completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
 
 
 @pytest.mark.asyncio
@@ -250,9 +250,9 @@ async def test_direct_openai_performance() -> None:
 
     # Performance assertions - adjust threshold as needed
     assert (
-        metrics_sm["avg_latency_ms"] < 10000
-    ), f"Direct OpenAI completion (small prompt) took too long: {metrics_sm['avg_latency_ms']} ms"
+        metrics_sm["max_latency_ms"] < 20_000
+    ), f"Direct OpenAI completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
     
     assert (
-        metrics_lg["avg_latency_ms"] < 15000
-    ), f"Direct OpenAI completion (large prompt) took too long: {metrics_lg['avg_latency_ms']} ms"
+        metrics_lg["max_latency_ms"] < 20_000
+    ), f"Direct OpenAI completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
