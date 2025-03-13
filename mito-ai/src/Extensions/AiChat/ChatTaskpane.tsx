@@ -542,7 +542,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         let agentExecutionDepth = 1
 
         // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth < AGENT_EXECUTION_DEPTH_LIMIT) {
+        while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
                 finalizeAgentStop()
@@ -627,6 +627,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 )
                 break;
             }
+        }
+
+        if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
+            addAIMessageFromResponseAndUpdateState(
+                "Since I've been working for a while now, give my work a review and then tell me how to continue.",
+                'agent:execution',
+                chatHistoryManager
+            )
         }
 
         setAgentExecutionStatus('idle')
