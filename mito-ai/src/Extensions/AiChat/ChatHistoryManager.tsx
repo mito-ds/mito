@@ -228,18 +228,19 @@ export class ChatHistoryManager {
         );
     }
 
-    addAIMessageFromAgentResponse(
-        agentResponse: AgentResponse
-    ): void {
+    addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
 
-        const code = agentResponse.cell_update?.code || ''
+        const code = agentResponse.cell_update?.code
         const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
+
+        let content = agentResponse.message
+        if (codeWithMarkdownFormatting !== undefined) {
+            content = content + '\n\n' + codeWithMarkdownFormatting
+        }
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
-
-            // If no cell update is provided, then the content of the message is undefined
-            content: agentResponse.cell_update ? codeWithMarkdownFormatting : undefined
+            content: content
         }
 
         this.displayOptimizedChatHistory.push(

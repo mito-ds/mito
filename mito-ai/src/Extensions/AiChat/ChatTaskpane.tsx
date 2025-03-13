@@ -540,7 +540,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         let agentExecutionDepth = 1
 
         // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth < 10) {
+        while (!isAgentFinished && agentExecutionDepth < 20) {
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
                 finalizeAgentStop()
@@ -587,12 +587,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentResponse.is_finished) {
                 // If the agent told us that it is finished, we can stop
                 isAgentFinished = true
-                addAIMessageFromResponseAndUpdateState(
-                    // TODO: Once we add descriptions, let the AI chooose this message
-                    "I'm ready for your next message. Either follow up on this task or start a new conversation for a new thread of work.",
-                    'agent:execution',
-                    chatHistoryManager
-                )
                 break;
             }
             if (agentResponse.cell_update === undefined || agentResponse.cell_update === null) {
