@@ -161,7 +161,7 @@ When you have completed the user's task, respond with a message in this format:
 }}
 
 Important information:
-1. The message is a short summary of the work that you've completed. It could be something like "I've created three graphs to show the relationship between the price per unit and the total price for each sale."
+1. The message is a short summary of the ALL the work that you've completed on this task. It should not just refer to the final message. It could be something like "I've completed the sales strategy analysis by exploring key relationships in the data and summarizing creating a report with three recommendations to boost sales.""
 
 ====
 
