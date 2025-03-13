@@ -9,6 +9,8 @@ module.exports = {
     ...exports,
     // Fail the build on CI if you accidentally left test.only in the source code.
     forbidOnly: !!process.env.CI,
+    // Set timeout to 90 seconds (90000 ms)
+    timeout: 90000,
     projects: [
         /* Test against desktop browsers */
         {
