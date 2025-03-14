@@ -1,202 +1,231 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
+import { Citation, CitationProps } from './Citation';
 
-// Citation button component
-interface CitationProps {
-  cellId: string;
-  line: number;
-  context?: string;
-}
-
-const Citation: React.FC<CitationProps> = ({ cellId, line, context }) => {
-  const handleClick = () => {
-    console.log({ type: "citation", cell_id: cellId, line, context });
-    // You can add navigation logic here in the future
-  };
-
-  return (
-    <span
-      className="citation-button"
-      onClick={handleClick}
-      title={context || `Line ${line}`}
-      style={{
-        backgroundColor: '#f0f7ff',
-        border: '1px solid #ccc',
-        borderRadius: '12px',
-        padding: '2px 8px',
-        fontSize: '0.75em',
-        cursor: 'pointer',
-        margin: '0 2px',
-        color: '#0366d6',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      {line}
-    </span>
-  );
-};
+/**
+ * React Portals in Markdown Rendering
+ * -----------------------------------
+ * 
+ * This component uses React Portals to integrate interactive React components (Citations) 
+ * into markdown content that's rendered by JupyterLab's renderer (non-React).
+ * 
+ * Why Portals?
+ * ------------
+ * 1. The markdown content is processed by JupyterLab's renderer which outputs regular DOM nodes,
+ *    not React components.
+ * 2. We need to insert interactive React components (Citations) at specific points within this
+ *    rendered content.
+ * 3. React's normal component hierarchy can't directly insert components into arbitrary DOM positions.
+ * 
+ * How Portals are Used Here:
+ * -------------------------
+ * 1. Citation data is extracted from the markdown and replaced with placeholder text ({{citation-n}})
+ * 2. The markdown with placeholders is rendered to HTML using JupyterLab's renderer
+ * 3. The rendered HTML is searched for placeholder text
+ * 4. When placeholders are found, they're replaced with:
+ *    - The surrounding text content
+ *    - Empty <span> elements at the placeholder positions
+ * 5. React Portals are created for each <span>, which render Citation components into those
+ *    specific DOM locations
+ * 
+ * Benefits:
+ * --------
+ * - We can use a non-React renderer while still having interactive React components
+ * - Citations appear exactly where they should in the rendered markdown
+ * - React maintains control of the Citation components (event handling, updates, etc.)
+ * - The approach is clean and maintainable compared to alternatives
+ */
 
 // Citation Portal component to render Citation into DOM
 interface CitationPortalProps extends CitationProps {
-  container: HTMLElement;
+    container: HTMLElement;
 }
 
 const CitationPortal: React.FC<CitationPortalProps> = ({ container, ...props }) => {
-  return createPortal(<Citation {...props} />, container);
+    return createPortal(<Citation {...props} />, container);
 };
 
 interface IMarkdownCodeProps {
-  markdown: string;
-  renderMimeRegistry: IRenderMimeRegistry;
+    markdown: string;
+    renderMimeRegistry: IRenderMimeRegistry;
+}
+
+interface Citation {
+    id: string;
+    data: {
+        cell_id: string;
+        line: number;
+        context?: string;
+    };
 }
 
 const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry }) => {
-  const [processedMarkdown, setProcessedMarkdown] = useState<string>(markdown);
-  const [citations, setCitations] = useState<Array<{id: string, data: any}>>([]);
-  const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
-  const [isProcessing, setIsProcessing] = useState<boolean>(true);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // First phase: Extract citations and replace them with placeholders
-  useEffect(() => {
-    const extractCitations = (text: string) => {
-      const citationRegex = /(\{\"type\"\:\s*\"citation\".*?\})/g;
-      const newCitations: Array<{id: string, data: any}> = [];
-      let counter = 0;
-      
-      // Replace each citation with a placeholder
-      const processed = text.replace(citationRegex, (match) => {
-        try {
-          const citation = JSON.parse(match);
-          const id = `citation-${counter++}`;
-          newCitations.push({ id, data: citation });
-          return `{{${id}}}`;
-        } catch (e) {
-          console.error("Failed to parse citation JSON:", e);
-          return match;
-        }
-      });
-      
-      setCitations(newCitations);
-      setProcessedMarkdown(processed);
-    };
-    
-    extractCitations(markdown);
-  }, [markdown]);
+    const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-  // Second phase: Render markdown with placeholders
-  useEffect(() => {
-    const renderMarkdown = async (): Promise<void> => {
-      if (!processedMarkdown) return;
-      
-      try {
-        const model = new MimeModel({
-          data: { ['text/markdown']: processedMarkdown },
+    // Extract citations from the markdown, returning the markdown with the JSON citations replaced with 
+    // citation placeholders {{${id}}} and an array of citation objects.
+    const extractCitations = useCallback((text: string): {processedMarkdown: string; citations: Citation[]} => {
+        const citationRegex = /(\{\"type\"\:\s*\"citation\".*?\})/g;
+        const citations: Citation[] = [];
+        let counter = 0;
+
+        // Replace each citation with a placeholder
+        const processedMarkdown = text.replace(citationRegex, (match) => {
+            try {
+                const citation = JSON.parse(match);
+                const id = `citation-${counter++}`;
+                citations.push({ id, data: citation });
+                return `{{${id}}}`;
+            } catch (e) {
+                console.error("Failed to parse citation JSON:", e);
+                return match;
+            }
         });
 
-        const renderer = renderMimeRegistry.createRenderer('text/markdown');
-        await renderer.renderModel(model);
+        return { processedMarkdown, citations };
+    }, []);
 
-        if (containerRef.current) {
-          // Clear previous content
-          containerRef.current.innerHTML = '';
-          containerRef.current.appendChild(renderer.node.cloneNode(true));
-          
-          // Signal that markdown is ready for citation processing
-          setIsProcessing(false);
+    // Uses the Jupyter markdowm MimeRenderer to render the markdown content as normal HTML
+    const renderMarkdownContent = useCallback(async (processedMarkdown: string): Promise<void> => {
+        if (!processedMarkdown || !containerRef.current) return;
+
+        try {
+            const model = new MimeModel({
+                data: { ['text/markdown']: processedMarkdown },
+            });
+
+            const renderer = renderMimeRegistry.createRenderer('text/markdown');
+            await renderer.renderModel(model);
+
+            // Clear previous content
+            containerRef.current.innerHTML = '';
+            containerRef.current.appendChild(renderer.node.cloneNode(true));
+        } catch (error) {
+            console.error("Error rendering markdown:", error);
         }
-      } catch (error) {
-        console.error("Error rendering markdown:", error);
-        setIsProcessing(false);
-      }
-    };
+    }, [renderMimeRegistry]);
 
-    if (processedMarkdown) {
-      setIsProcessing(true);
-      void renderMarkdown();
-    }
-  }, [processedMarkdown, renderMimeRegistry]);
+    // Replace the citation placeholders with Citation Components in the DOM
+const createCitationPortals = useCallback((citations: Citation[]): React.ReactElement[] => {
+    if (!containerRef.current || citations.length === 0) return [];
   
-  // Third phase: Find placeholders and create React portals for citations
-  useEffect(() => {
-    if (isProcessing || !containerRef.current) return;
+    const newPortals: React.ReactElement[] = [];
     
-    const findAndReplacePlaceholders = () => {
-      const newPortals: React.ReactElement[] = [];
+    // Create a map of placeholder to citation for faster lookup
+    const citationMap = new Map(citations.map(citation => [`{{${citation.id}}}`, citation]));
+    
+    // Find all text nodes that contain our placeholder like {{citation-id}}).
+    // Since these placeholders exist within the text content (not as separate DOM elements):
+    //  - Find all text nodes in the rendered markdown
+    //  - Check each one to see if it contains any of your placeholders
+    //  - Process those that do contain placeholders
+    const textNodes: Text[] = [];
+    const walker = document.createTreeWalker(containerRef.current, NodeFilter.SHOW_TEXT);
+    
+    let textNode;
+    while ((textNode = walker.nextNode() as Text)) {
+      textNodes.push(textNode);
+    }
+    
+    // Process all text nodes in a single pass
+    textNodes.forEach(node => {
+      if (!node.nodeValue) return;
       
-      citations.forEach(citation => {
-        const placeholder = `{{${citation.id}}}`;
-        const textNodes: Text[] = [];
+      // Check if this node contains any placeholders
+      let containsPlaceholder = false;
+      for (const placeholder of citationMap.keys()) {
+        if (node.nodeValue.includes(placeholder)) {
+          containsPlaceholder = true;
+          break;
+        }
+      }
+      
+      if (!containsPlaceholder) return;
+      
+      // Create a regex to match all placeholders
+      const placeholderPattern = /\{\{citation-\d+\}\}/g;
+      const matches = [...node.nodeValue.matchAll(placeholderPattern)];
+      
+      if (matches.length === 0) return;
+      
+      // Split the text by all placeholders and create a fragment
+      const fragment = document.createDocumentFragment();
+      let lastIndex = 0;
+      
+      matches.forEach(match => {
+        const placeholder = match[0];
+        const citation = citationMap.get(placeholder);
+        if (!citation) return;
         
-        // Find all text nodes that contain our placeholder
-        const walker = document.createTreeWalker(
-          containerRef.current!,
-          NodeFilter.SHOW_TEXT
+        const startIndex = match.index!;
+        
+        // Add text before the placeholder
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(node.nodeValue!.substring(lastIndex, startIndex))
+          );
+        }
+        
+        // Create span for the citation
+        const span = document.createElement('span');
+        span.classList.add('citation-container');
+        span.dataset.citationId = citation.id;
+        fragment.appendChild(span);
+        
+        // Create React portal for this span
+        newPortals.push(
+          <CitationPortal
+            key={citation.id + '-' + matches.indexOf(match)}
+            container={span}
+            cellId={citation.data.cell_id}
+            line={citation.data.line}
+            context={citation.data.context}
+          />
         );
         
-        let textNode;
-        while ((textNode = walker.nextNode() as Text)) {
-          if (textNode.nodeValue?.includes(placeholder)) {
-            textNodes.push(textNode);
-          }
-        }
-        
-        // Process found text nodes
-        textNodes.forEach(node => {
-          if (!node.nodeValue) return;
-          
-          const parts = node.nodeValue.split(placeholder);
-          if (parts.length > 1) {
-            const fragment = document.createDocumentFragment();
-            
-            parts.forEach((part, i) => {
-              // Add the text part
-              if (part) {
-                fragment.appendChild(document.createTextNode(part));
-              }
-              
-              // Add citation portal between parts (except after the last part)
-              if (i < parts.length - 1) {
-                const span = document.createElement('span');
-                span.classList.add('citation-container');
-                span.dataset.citationId = citation.id;
-                fragment.appendChild(span);
-                
-                // Create React portal for this span
-                newPortals.push(
-                  <CitationPortal
-                    key={citation.id + '-' + i}
-                    container={span}
-                    cellId={citation.data.cell_id}
-                    line={citation.data.line}
-                    context={citation.data.context}
-                  />
-                );
-              }
-            });
-            
-            // Replace the original text node with our fragment
-            if (node.parentNode) {
-              node.parentNode.replaceChild(fragment, node);
-            }
-          }
-        });
+        lastIndex = startIndex + placeholder.length;
       });
       
-      setCitationPortals(newPortals);
-    };
+      // Add any remaining text after the last placeholder
+      if (lastIndex < node.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(node.nodeValue.substring(lastIndex))
+        );
+      }
+      
+      // Replace the original text node with our fragment
+      if (node.parentNode) {
+        node.parentNode.replaceChild(fragment, node);
+      }
+    });
     
-    findAndReplacePlaceholders();
-  }, [isProcessing, citations]);
+    return newPortals;
+  }, []);
 
-  return (
-    <div ref={containerRef} className="markdown-block-with-citations">
-      {citationPortals}
-    </div>
-  );
+    // Process everything in one effect, but with clear separation via helper functions
+    useEffect(() => {
+        const processMarkdown = async () => {
+            // Step 1: Extract citations and get processed markdown
+            const { processedMarkdown, citations } = extractCitations(markdown);
+
+            // Step 2: Render markdown with placeholders
+            await renderMarkdownContent(processedMarkdown);
+
+            // Step 3: Create and insert citation portals
+            const portals = createCitationPortals(citations);
+            setCitationPortals(portals);
+        };
+
+        processMarkdown();
+    }, [markdown, extractCitations, renderMarkdownContent, createCitationPortals]);
+
+    return (
+        <div ref={containerRef} className="markdown-block-with-citations">
+            {citationPortals}
+        </div>
+    );
 };
 
 export default MarkdownBlock;
