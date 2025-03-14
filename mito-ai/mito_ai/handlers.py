@@ -14,6 +14,7 @@ from tornado.websocket import WebSocketHandler
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.models import (
+    AgentSmartDebugMetadata,
     CompletionError,
     CompletionItem,
     CompletionReply,
@@ -195,7 +196,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
                 completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
-                agent_auto_error_fixup_metadata = SmartDebugMetadata(**metadata_dict)
+                agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
                 completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 ThreadID = NewType('ThreadID', str)
 
 @dataclass(frozen=True)
-class AIOptimizedCells():
+class AIOptimizedCell():
   cell_type: str
   id: str
   code: str
@@ -65,7 +65,16 @@ class ChatMessageMetadata():
 class AgentExecutionMetadata():
     promptType: Literal['agent:execution']
     input: str
-    aiOptimizedCells: List[AIOptimizedCells]
+    aiOptimizedCells: List[AIOptimizedCell]
+    variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
+    
+@dataclass(frozen=True)
+class AgentSmartDebugMetadata():
+    promptType: Literal['agent:autoErrorFixup']
+    aiOptimizedCells: List[AIOptimizedCell]
+    errorMessage: str
+    error_message_producing_code_cell_id: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     
