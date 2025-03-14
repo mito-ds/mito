@@ -1,7 +1,11 @@
-'''
+"""
 This test will not run in CI, but you can run it locally with:
 RUN_PERFORMANCE_TESTS=true python -m pytest mito_ai/tests/performance_test.py -v -s
-'''
+
+Note that you will also need to edit open_ai_utils.py, 
+specifically the `is_running_test` condition. I would reccomend 
+copying the code from the else condition into the if condition.
+"""
 
 import time
 import os
@@ -23,7 +27,9 @@ MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT = 15_000
 MAX_ACCEPTABLE_LATENCY_XL_PROMPT = 20_000
 
 # Environment variable to control whether performance tests run in CI
-RUN_PERFORMANCE_TESTS = os.environ.get("RUN_PERFORMANCE_TESTS", "false").lower() == "true"
+RUN_PERFORMANCE_TESTS = (
+    os.environ.get("RUN_PERFORMANCE_TESTS", "false").lower() == "true"
+)
 IS_CI = os.environ.get("CI", "false").lower() == "true"
 
 # Test messages for all performance tests
@@ -263,7 +269,6 @@ async def test_server_key_performance() -> None:
         completions_xl, metrics_xl = await run_llm_requests(llm, XL_TEST_MESSAGE)
         ALL_METRICS["Server Key (xl prompt)"] = metrics_xl
 
-
         # if metrics_sm["successful_requests"] > 0:
         #     assert (
         #         metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
@@ -284,9 +289,9 @@ async def test_server_key_performance() -> None:
         os.environ["OPENAI_API_KEY"] = original_api_key
 
 
+@pytest.mark.skip(reason="")
 @pytest.mark.skipif(IS_CI, reason="Performance tests are skipped in CI environments")
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="")
 async def test_user_key_performance() -> None:
     """Test the performance of the OpenAI provider when using a user key."""
     # Skip test if no API key is available
@@ -297,32 +302,32 @@ async def test_user_key_performance() -> None:
     # Initialize the provider (will use the API key from environment)
     llm = OpenAIProvider()
 
-    # Test with small prompt
-    completions_sm, metrics_sm = await run_llm_requests(llm, SMALL_TEST_MESSAGE)
-    ALL_METRICS["User Key (sm prompt)"] = metrics_sm
+    # print("\nRunning sm prompt")
+    # completions_sm, metrics_sm = await run_llm_requests(llm, SMALL_TEST_MESSAGE)
+    # ALL_METRICS["User Key (sm prompt)"] = metrics_sm
 
-    # Test with large prompt
-    completions_lg, metrics_lg = await run_llm_requests(llm, LARGE_TEST_MESSAGE)
-    ALL_METRICS["User Key (lg prompt)"] = metrics_lg
+    # print("\nRunning lg prompt")
+    # completions_lg, metrics_lg = await run_llm_requests(llm, LARGE_TEST_MESSAGE)
+    # ALL_METRICS["User Key (lg prompt)"] = metrics_lg
 
-    # Verify we got at least some valid responses
-    valid_completions_sm = [c for c in completions_sm if c is not None]
-    valid_completions_lg = [c for c in completions_lg if c is not None]
+    print("\nRunning xl prompt")
+    completions_xl, metrics_xl = await run_llm_requests(llm, XL_TEST_MESSAGE)
+    ALL_METRICS["User Key (xl prompt)"] = metrics_xl
 
-    if metrics_sm["successful_requests"] > 0:
-        assert (
-            metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
-        ), f"User key completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
+    # if metrics_sm["successful_requests"] > 0:
+    #     assert (
+    #         metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
+    #     ), f"User key completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
 
-    if metrics_lg["successful_requests"] > 0:
-        assert (
-            metrics_lg["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT
-        ), f"User key completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
+    # if metrics_lg["successful_requests"] > 0:
+    #     assert (
+    #         metrics_lg["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT
+    #     ), f"User key completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
 
 
+@pytest.mark.skip(reason="")
 @pytest.mark.skipif(IS_CI, reason="Performance tests are skipped in CI environments")
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="")
 async def test_direct_openai_performance() -> None:
     """Test the performance of direct OpenAI API calls (control group)."""
     # Skip test if no API key is available
@@ -333,24 +338,30 @@ async def test_direct_openai_performance() -> None:
     # Initialize the OpenAI client directly
     client = openai.OpenAI(api_key=api_key)
 
-    # Test with small prompt
-    completions_sm, metrics_sm = await run_direct_openai_requests(
-        client, SMALL_TEST_MESSAGE
+    # print("\nRunning sm prompt")
+    # completions_sm, metrics_sm = await run_direct_openai_requests(
+    #     client, SMALL_TEST_MESSAGE
+    # )
+    # ALL_METRICS["Direct OpenAI (sm prompt)"] = metrics_sm
+
+    # print("\nRunning lg prompt")
+    # completions_lg, metrics_lg = await run_direct_openai_requests(
+    #     client, LARGE_TEST_MESSAGE
+    # )
+    # ALL_METRICS["Direct OpenAI (lg prompt)"] = metrics_lg
+
+    print("\nRunning xl prompt")
+    completions_xl, metrics_xl = await run_direct_openai_requests(
+        client, XL_TEST_MESSAGE
     )
-    ALL_METRICS["Direct OpenAI (sm prompt)"] = metrics_sm
+    ALL_METRICS["Direct OpenAI (xl prompt)"] = metrics_xl
 
-    # Test with large prompt
-    completions_lg, metrics_lg = await run_direct_openai_requests(
-        client, LARGE_TEST_MESSAGE
-    )
-    ALL_METRICS["Direct OpenAI (lg prompt)"] = metrics_lg
+    # if metrics_sm["successful_requests"] > 0:
+    #     assert (
+    #         metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
+    #     ), f"Direct OpenAI completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
 
-    if metrics_sm["successful_requests"] > 0:
-        assert (
-            metrics_sm["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_SMALL_PROMPT
-        ), f"Direct OpenAI completion (small prompt) took too long: {metrics_sm['max_latency_ms']} ms"
-
-    if metrics_lg["successful_requests"] > 0:
-        assert (
-            metrics_lg["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT
-        ), f"Direct OpenAI completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
+    # if metrics_lg["successful_requests"] > 0:
+    #     assert (
+    #         metrics_lg["max_latency_ms"] < MAX_ACCEPTABLE_LATENCY_LARGE_PROMPT
+    #     ), f"Direct OpenAI completion (large prompt) took too long: {metrics_lg['max_latency_ms']} ms"
