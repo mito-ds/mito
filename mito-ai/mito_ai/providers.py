@@ -238,6 +238,9 @@ This attribute is observed by the websocket provider to push the error to the cl
             if self._openAI_sync_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
+                # TODO: We need to handle the case where this returns None. I think it is leading to 
+                # builtins.AttributeError: 'NoneType' object has no attribute 'get' error. 
+                # We should try to add the timeout and max_retries here too.
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                 completion = completion.choices[0].message.content or ""
             else: 
