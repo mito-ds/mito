@@ -308,26 +308,36 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1. Determine prompt type and chat history manager based on if it is agent or not
-        let promptType: PromptType;
-        let newChatHistoryManager: ChatHistoryManager;
-        if (agent) {
-            promptType = 'agent:autoErrorFixup';
-            newChatHistoryManager = getDuplicateChatHistoryManager()
-        }
-        else {
-            promptType = 'smartDebug';
-            newChatHistoryManager = await startNewChat()
-        }
+        // Step 1. Clear the chat when there is a new error to debug
+        const newChatHistoryManager = await startNewChat()
 
-        const smartDebugMetadata = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
+        const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: ISmartDebugCompletionRequest | IAgentAutoErrorFixupCompletionRequest = {
-            type: promptType,
+        const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
+            type: 'smartDebug',
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
+            stream: false
+        }
+        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
+    }
+
+    const sendAgentSmartDebugMessage = async (errorMessage: string, agent?: boolean): Promise<void> => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
+        // Step 1: Create message metadata
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(errorMessage)
+        setChatHistoryManager(newChatHistoryManager);
+
+        // Step 2: Send the message to the AI
+        const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
+            type: 'agent:autoErrorFixup',
+            message_id: UUID.uuid4(),
+            metadata: agentSmartDebugMessage,
             stream: false
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
@@ -608,11 +618,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 app,
                 getDuplicateChatHistoryManager,
                 addAIMessageFromResponseAndUpdateState,
-                sendDebugErrorMessage,
+                sendAgentSmartDebugMessage,
                 previewAICodeToActiveCell,
                 acceptAICode,
                 shouldContinueAgentExecution,
-                finalizeAgentStop
+                finalizeAgentStop,
+                chatHistoryManagerRef
             )
 
             if (status === 'interupted') {

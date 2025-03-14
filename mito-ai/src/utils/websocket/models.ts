@@ -49,52 +49,63 @@ type CompletionRequestMetadata =
   IInlineCompleterMetadata |
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
-  IGetThreadsMetadata | 
+  IGetThreadsMetadata |
   IDeleteThreadMetadata |
-  IAgentExecutionMetadata;
+  IAgentExecutionMetadata | 
+  IAgentSmartDebugMetadata
 
 export interface IChatMessageMetadata {
-    promptType: 'chat'
-    variables?: Variable[];
-    files?: File[];
-    activeCellCode?: string;   
-    input: string;
-    index?: number;
+  promptType: 'chat'
+  variables?: Variable[];
+  files?: File[];
+  activeCellCode?: string;
+  input: string;
+  index?: number;
 }
 
 export interface IAgentExecutionMetadata {
   promptType: 'agent:execution'
   aiOptimizedCells: AIOptimizedCell[]
   variables?: Variable[];
-  files?: File[];  
+  files?: File[];
   input: string;
 }
 
+export interface IAgentSmartDebugMetadata {
+  promptType: 'agent:autoErrorFixup'
+  aiOptimizedCells: AIOptimizedCell[]
+  variables?: Variable[];
+  files?: File[];
+  errorMessage: string;
+  error_message_producing_code_cell_id: string
+}
+
+
 export interface ISmartDebugMetadata {
-    promptType: 'smartDebug' | 'agent:autoErrorFixup';
-    variables?: Variable[];
-    files?: File[];
-    activeCellCode?: string;   
-    errorMessage: string;     
+  promptType: 'smartDebug'
+  variables?: Variable[];
+  files?: File[];
+  activeCellCode?: string;
+  errorMessage: string;
 }
 
 export interface ICodeExplainMetadata {
-    promptType: 'codeExplain';
-    variables?: Variable[];
-    activeCellCode?: string;
+  promptType: 'codeExplain';
+  variables?: Variable[];
+  activeCellCode?: string;
 }
 
 export interface IInlineCompleterMetadata {
-    promptType: 'inline_completion';
-    variables?: Variable[]; 
-    files?: File[];
-    prefix: string;
-    suffix: string;
+  promptType: 'inline_completion';
+  variables?: Variable[];
+  files?: File[];
+  prefix: string;
+  suffix: string;
 }
 
 export interface IFetchHistoryMetadata {
-    promptType: 'fetch_history'
-    thread_id?: string;
+  promptType: 'fetch_history'
+  thread_id?: string;
 }
 
 export interface IStartNewChatMetadata {
@@ -147,7 +158,7 @@ export interface ISmartDebugCompletionRequest extends ICompletionRequest {
 
 export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
   type: 'agent:autoErrorFixup'
-  metadata: ISmartDebugMetadata
+  metadata: IAgentSmartDebugMetadata
 }
 
 export interface ICodeExplainCompletionRequest extends ICompletionRequest {
