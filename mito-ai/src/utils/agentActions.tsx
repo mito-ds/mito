@@ -25,8 +25,6 @@ export const acceptAndRunCellUpdate = async (
         setActiveCellByID(notebookTracker, cellUpdate.id)
     }
 
-    console.log(cellUpdate)
-
     // The target cell should now be the active cell
     await acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
 }

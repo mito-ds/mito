@@ -1,5 +1,5 @@
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import AgentSmartDebugMetadata, MessageType
+from mito_ai.models import AgentResponse, AgentSmartDebugMetadata, MessageType, ResponseFormatInfo
 from mito_ai.prompt_builders.agent_smart_debug_prompt import create_agent_smart_debug_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -36,6 +36,10 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_AUTO_ERROR_FIXUP],
+            response_format_info=ResponseFormatInfo(
+                name='agent_response',
+                format=AgentResponse
+            ),
             message_type=MessageType.AGENT_AUTO_ERROR_FIXUP
         )
         

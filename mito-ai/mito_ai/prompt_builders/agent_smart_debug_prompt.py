@@ -1,7 +1,13 @@
 from typing import List
 from mito_ai.models import AgentSmartDebugMetadata
 
-# TODO: In the future, it might make sense to pass the previous CELL_UPDATE to this prompt?
+# TODO:
+# 1. In the future, it might make sense to pass the previous CELL_UPDATE to this prompt?
+# 2. In the future, we should let the agent fix up the error by updating a different cell. This is sometimes a better solution. 
+# However, to do this, we then need to know which code cells to run in order to validate the update is correct! If the error was 
+# produced by code cell 3, and the agent corrects the source of the error in code cell 2, we then need to run cell 2 and 3 to validate
+# the cell update worked properly. This could be many cells if there are intermediate cells. It might require something like a dependency 
+# graph of cells that we calculate ourselves, not relying on the AI. 
 
 def create_agent_smart_debug_prompt(md: AgentSmartDebugMetadata) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
@@ -12,7 +18,7 @@ def create_agent_smart_debug_prompt(md: AgentSmartDebugMetadata) -> str:
 
 Use this strategy for this message only. After this message, continue using the original set of instructions that I provided you.
 
-It is very important that When fixing this error, you you do not change the original intent of the code cell. 
+It is very important that When fixing this error, you do not change the original intent of the code cell. 
 
 To fix this error, take the following approach: 
 Step 1: ERROR ANALYSIS: Analyze the error message to identify why the code cell errored.
@@ -24,7 +30,7 @@ Step 3: ERROR CORRECTION: Respond with a new CELL_UPDATE that is applied to the 
 ERROR ANALYSIS:
 
 - Identify error type (Syntax, Runtime, Logic).
-- Use the defined variables and Jupyter Notebook cell to understand the error.
+- Use the defined variables and Jupyter Notebook to understand the error.
 - Consider kernel state and execution order
 
 INTENT PRESERVATION:
@@ -33,7 +39,7 @@ INTENT PRESERVATION:
 
 ERROR CORRECTION:
 
-- Return the full code cell with the error fixed and a short explanation of the error.
+- Return the full, updated version of cell {md.error_message_producing_code_cell_id} with the error fixed and a short explanation of the error.
 - You can only update code in {md.error_message_producing_code_cell_id}. You are unable to edit the code in any other cell when resolving this error.
 - Propose a solution that fixes the error and does not change the user's intent.
 - Make the solution as simple as possible.
