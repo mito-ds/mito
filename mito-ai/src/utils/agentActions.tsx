@@ -25,6 +25,8 @@ export const acceptAndRunCellUpdate = async (
         setActiveCellByID(notebookTracker, cellUpdate.id)
     }
 
+    console.log(cellUpdate)
+
     // The target cell should now be the active cell
     await acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
 }
@@ -99,7 +101,7 @@ export const retryIfExecutionError = async (
         if (cellUpdate !== undefined && cellUpdate !== null) {
             await acceptAndRunCellUpdate(cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
         }
-        
+
         attempts++;
 
         // If this was the last attempt and it still failed
