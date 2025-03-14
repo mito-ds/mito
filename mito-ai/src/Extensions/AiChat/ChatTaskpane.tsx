@@ -62,6 +62,8 @@ import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 
+const AGENT_EXECUTION_DEPTH_LIMIT = 20
+
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
     return chatHistoryManager
@@ -540,7 +542,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         let agentExecutionDepth = 1
 
         // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth < 10) {
+        while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
                 finalizeAgentStop()
@@ -587,12 +589,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentResponse.is_finished) {
                 // If the agent told us that it is finished, we can stop
                 isAgentFinished = true
-                addAIMessageFromResponseAndUpdateState(
-                    // TODO: Once we add descriptions, let the AI chooose this message
-                    "I'm ready for your next message. Either follow up on this task or start a new conversation for a new thread of work.",
-                    'agent:execution',
-                    chatHistoryManager
-                )
                 break;
             }
             if (agentResponse.cell_update === undefined || agentResponse.cell_update === null) {
@@ -631,6 +627,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 )
                 break;
             }
+        }
+
+        if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
+            addAIMessageFromResponseAndUpdateState(
+                "Since I've been working for a while now, give my work a review and then tell me how to continue.",
+                'agent:execution',
+                chatHistoryManager
+            )
         }
 
         setAgentExecutionStatus('idle')

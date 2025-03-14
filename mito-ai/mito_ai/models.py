@@ -27,6 +27,7 @@ class CellUpdate(BaseModel):
     
 class AgentResponse(BaseModel):
     is_finished: bool
+    message: str
     cell_update: Optional[CellUpdate]
   
 @dataclass(frozen=True)
