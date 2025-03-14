@@ -304,7 +304,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         This is useful when we want to send the error message from the MIME renderer directly
         to the AI chat.
     */
-    const sendDebugErrorMessage = async (errorMessage: string, agent?: boolean): Promise<void> => {
+    const sendSmartDebugMessage = async (errorMessage: string) : Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -324,7 +324,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
 
-    const sendAgentSmartDebugMessage = async (errorMessage: string, agent?: boolean): Promise<void> => {
+    const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -809,7 +809,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, {
             execute: async (args?: ReadonlyPartialJSONObject) => {
                 if (args?.input) {
-                    await sendDebugErrorMessage(args.input.toString())
+                    await sendSmartDebugMessage(args.input.toString())
                 }
             }
         });
