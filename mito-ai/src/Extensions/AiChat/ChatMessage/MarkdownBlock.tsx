@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
 import { Citation, CitationProps } from './Citation';
+import { INotebookTracker } from '@jupyterlab/notebook';
 
 /**
  * React Portals in Markdown Rendering
@@ -49,6 +50,7 @@ const CitationPortal: React.FC<CitationPortalProps> = ({ container, ...props }) 
 interface IMarkdownCodeProps {
     markdown: string;
     renderMimeRegistry: IRenderMimeRegistry;
+    notebookTracker: INotebookTracker;
 }
 
 interface Citation {
@@ -60,13 +62,13 @@ interface Citation {
     };
 }
 
-const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry }) => {
+const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker }) => {
     const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Extract citations from the markdown, returning the markdown with the JSON citations replaced with 
     // citation placeholders {{${id}}} and an array of citation objects.
-    const extractCitations = useCallback((text: string): {processedMarkdown: string; citations: Citation[]} => {
+    const extractCitations = useCallback((text: string): { processedMarkdown: string; citations: Citation[] } => {
         const citationRegex = /(\{\"type\"\:\s*\"citation\".*?\})/g;
         const citations: Citation[] = [];
         let counter = 0;
@@ -108,101 +110,102 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     }, [renderMimeRegistry]);
 
     // Replace the citation placeholders with Citation Components in the DOM
-const createCitationPortals = useCallback((citations: Citation[]): React.ReactElement[] => {
-    if (!containerRef.current || citations.length === 0) return [];
-  
-    const newPortals: React.ReactElement[] = [];
-    
-    // Create a map of placeholder to citation for faster lookup
-    const citationMap = new Map(citations.map(citation => [`{{${citation.id}}}`, citation]));
-    
-    // Find all text nodes that contain our placeholder like {{citation-id}}).
-    // Since these placeholders exist within the text content (not as separate DOM elements):
-    //  - Find all text nodes in the rendered markdown
-    //  - Check each one to see if it contains any of your placeholders
-    //  - Process those that do contain placeholders
-    const textNodes: Text[] = [];
-    const walker = document.createTreeWalker(containerRef.current, NodeFilter.SHOW_TEXT);
-    
-    let textNode;
-    while ((textNode = walker.nextNode() as Text)) {
-      textNodes.push(textNode);
-    }
-    
-    // Process all text nodes in a single pass
-    textNodes.forEach(node => {
-      if (!node.nodeValue) return;
-      
-      // Check if this node contains any placeholders
-      let containsPlaceholder = false;
-      for (const placeholder of citationMap.keys()) {
-        if (node.nodeValue.includes(placeholder)) {
-          containsPlaceholder = true;
-          break;
+    const createCitationPortals = useCallback((citations: Citation[]): React.ReactElement[] => {
+        if (!containerRef.current || citations.length === 0) return [];
+
+        const newPortals: React.ReactElement[] = [];
+
+        // Create a map of placeholder to citation for faster lookup
+        const citationMap = new Map(citations.map(citation => [`{{${citation.id}}}`, citation]));
+
+        // Find all text nodes that contain our placeholder like {{citation-id}}).
+        // Since these placeholders exist within the text content (not as separate DOM elements):
+        //  - Find all text nodes in the rendered markdown
+        //  - Check each one to see if it contains any of your placeholders
+        //  - Process those that do contain placeholders
+        const textNodes: Text[] = [];
+        const walker = document.createTreeWalker(containerRef.current, NodeFilter.SHOW_TEXT);
+
+        let textNode;
+        while ((textNode = walker.nextNode() as Text)) {
+            textNodes.push(textNode);
         }
-      }
-      
-      if (!containsPlaceholder) return;
-      
-      // Create a regex to match all placeholders
-      const placeholderPattern = /\{\{citation-\d+\}\}/g;
-      const matches = [...node.nodeValue.matchAll(placeholderPattern)];
-      
-      if (matches.length === 0) return;
-      
-      // Split the text by all placeholders and create a fragment
-      const fragment = document.createDocumentFragment();
-      let lastIndex = 0;
-      
-      matches.forEach(match => {
-        const placeholder = match[0];
-        const citation = citationMap.get(placeholder);
-        if (!citation) return;
-        
-        const startIndex = match.index!;
-        
-        // Add text before the placeholder
-        if (startIndex > lastIndex) {
-          fragment.appendChild(
-            document.createTextNode(node.nodeValue!.substring(lastIndex, startIndex))
-          );
-        }
-        
-        // Create span for the citation
-        const span = document.createElement('span');
-        span.classList.add('citation-container');
-        span.dataset.citationId = citation.id;
-        fragment.appendChild(span);
-        
-        // Create React portal for this span
-        newPortals.push(
-          <CitationPortal
-            key={citation.id + '-' + matches.indexOf(match)}
-            container={span}
-            cellId={citation.data.cell_id}
-            line={citation.data.line}
-            context={citation.data.context}
-          />
-        );
-        
-        lastIndex = startIndex + placeholder.length;
-      });
-      
-      // Add any remaining text after the last placeholder
-      if (lastIndex < node.nodeValue.length) {
-        fragment.appendChild(
-          document.createTextNode(node.nodeValue.substring(lastIndex))
-        );
-      }
-      
-      // Replace the original text node with our fragment
-      if (node.parentNode) {
-        node.parentNode.replaceChild(fragment, node);
-      }
-    });
-    
-    return newPortals;
-  }, []);
+
+        // Process all text nodes in a single pass
+        textNodes.forEach(node => {
+            if (!node.nodeValue) return;
+
+            // Check if this node contains any placeholders
+            let containsPlaceholder = false;
+            for (const placeholder of citationMap.keys()) {
+                if (node.nodeValue.includes(placeholder)) {
+                    containsPlaceholder = true;
+                    break;
+                }
+            }
+
+            if (!containsPlaceholder) return;
+
+            // Create a regex to match all placeholders
+            const placeholderPattern = /\{\{citation-\d+\}\}/g;
+            const matches = [...node.nodeValue.matchAll(placeholderPattern)];
+
+            if (matches.length === 0) return;
+
+            // Split the text by all placeholders and create a fragment
+            const fragment = document.createDocumentFragment();
+            let lastIndex = 0;
+
+            matches.forEach(match => {
+                const placeholder = match[0];
+                const citation = citationMap.get(placeholder);
+                if (!citation) return;
+
+                const startIndex = match.index!;
+
+                // Add text before the placeholder
+                if (startIndex > lastIndex) {
+                    fragment.appendChild(
+                        document.createTextNode(node.nodeValue!.substring(lastIndex, startIndex))
+                    );
+                }
+
+                // Create span for the citation
+                const span = document.createElement('span');
+                span.classList.add('citation-container');
+                span.dataset.citationId = citation.id;
+                fragment.appendChild(span);
+
+                // Create React portal for this span
+                newPortals.push(
+                    <CitationPortal
+                        key={citation.id + '-' + matches.indexOf(match)}
+                        container={span}
+                        cellId={citation.data.cell_id}
+                        line={citation.data.line}
+                        context={citation.data.context}
+                        notebookTracker={notebookTracker}
+                    />
+                );
+
+                lastIndex = startIndex + placeholder.length;
+            });
+
+            // Add any remaining text after the last placeholder
+            if (lastIndex < node.nodeValue.length) {
+                fragment.appendChild(
+                    document.createTextNode(node.nodeValue.substring(lastIndex))
+                );
+            }
+
+            // Replace the original text node with our fragment
+            if (node.parentNode) {
+                node.parentNode.replaceChild(fragment, node);
+            }
+        });
+
+        return newPortals;
+    }, []);
 
     // Process everything in one effect, but with clear separation via helper functions
     useEffect(() => {

@@ -116,6 +116,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return <></>
     }
 
+    console.log('messageContentParts', messageContentParts);
+
     return (
         <div className={classNames(
             "message",
@@ -206,6 +208,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     <MarkdownBlock
                                         markdown={messagePart}
                                         renderMimeRegistry={renderMimeRegistry}
+                                        notebookTracker={notebookTracker}
                                     />
                                 )}
                             </p>

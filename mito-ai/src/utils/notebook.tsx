@@ -167,3 +167,45 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
     }
 }
 
+export const scrollToCellLine = (notebookTracker: INotebookTracker, cellID: string, lineNumber: number): void => {
+    /*
+        Scrolls to a specific line in a specific cell. 
+        Steps:
+        1. Set the active cell to the target cell
+        2. Get the cell's editor
+        3. Set the cursor position to the target line
+        4. Make sure the cell is visible
+    */
+    // First activate the cell
+    setActiveCellByID(notebookTracker, cellID);
+    
+    // Get the cell
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return;
+    }
+    
+    // Get the cell's editor
+    const editor = cell.editor;
+    if (!editor) {
+        return;
+    }
+    
+    // Adjust line number to be within bounds (0-indexed)
+    const lines = editor.model.sharedModel.source.split('\n');
+    const targetLine = Math.min(Math.max(0, lineNumber - 1), lines.length - 1);
+    
+    // Set cursor to the target line
+    const position = { line: targetLine, column: 0 };
+    editor.setCursorPosition(position);
+    
+    // Make the cell node visible by scrolling to it
+    const cellNode = cell.node;
+    if (cellNode) {
+        cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Highlight the cell to make it visible
+    highlightCodeCell(notebookTracker, cellID);
+}
+
