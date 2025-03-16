@@ -187,12 +187,11 @@ It is important that the user is able to verify any insights that you share with
 
 Citation Rules:
 
-1. Every fact or statement derived from the user's notebook must include a citation.
-2. Place the citation immediately after the statement it supports.
-3. For the "line" field, use the line number within the cell (starting from 1).
-4. If information comes from multiple cells, include multiple citations. Each should be a separate citation json object.
-5. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
-6. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
+1. Every fact or statement derived from the user's notebook must include a citation. 
+2. Place the citation immediately after the statement it supports. Do not explain the citation with phrases like "See", "Derived from", etc. Just provide the citation object.
+3. For the "line" field, use the line number within the cell that is most relevant to the citation. The cell line number should be 0-indexed and should not skip comments.
+4. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
+5. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
 
 <Citation Example>
 
@@ -281,8 +280,8 @@ Your task:
 Output:
 {{
     is_finished: true, 
-    message: "The all time high tesla stock closing price was $265.91 {"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": 2}
- on 2025-03-16 {"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": 3}.",
+    message: "The all time high tesla stock closing price was $265.91 {"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": 1}
+ on 2025-03-16 {"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": 2}.",
     cell_update: null
 }}
 
