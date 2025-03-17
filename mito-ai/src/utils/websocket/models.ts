@@ -20,16 +20,22 @@ export type AIOptimizedCell = {
 export type CellUpdateModification = {
   type: 'modification'
   id: string,
-  code: string
+  code: string,
 }
 
 export type CellUpdateNew = {
   type: 'new'
   index: number,
-  code: string
+  code: string,
 }
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
+
+export type AgentResponse = {
+  is_finished: boolean;
+  message: string;
+  cell_update: CellUpdate | undefined | null;
+}
 
 /* 
 
@@ -41,68 +47,70 @@ type CompletionRequestMetadata =
   IChatMessageMetadata |
   ISmartDebugMetadata |
   ICodeExplainMetadata |
-  IAgentPlanningMetadata |
   IInlineCompleterMetadata |
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
-  IGetThreadsMetadata | 
+  IGetThreadsMetadata |
   IDeleteThreadMetadata |
-  IAgentExecutionMetadata;
+  IAgentExecutionMetadata | 
+  IAgentSmartDebugMetadata
 
 export interface IChatMessageMetadata {
-    promptType: 'chat'
-    variables?: Variable[];
-    files?: File[];
-    activeCellCode?: string;   
-    input: string;
-    index?: number;
-    threadId?: string;
+  promptType: 'chat'
+  variables?: Variable[];
+  files?: File[];
+  activeCellCode?: string;
+  input: string;
+  index?: number;
+  threadId?: string;
 }
 
 export interface IAgentExecutionMetadata {
   promptType: 'agent:execution'
   aiOptimizedCells: AIOptimizedCell[]
   variables?: Variable[];
-  files?: File[];  
+  files?: File[];
   input: string;
   threadId?: string;
 }
 
+export interface IAgentSmartDebugMetadata {
+  promptType: 'agent:autoErrorFixup'
+  aiOptimizedCells: AIOptimizedCell[]
+  variables?: Variable[];
+  files?: File[];
+  errorMessage: string;
+  error_message_producing_code_cell_id: string
+}
+
+
 export interface ISmartDebugMetadata {
-    promptType: 'smartDebug' | 'agent:autoErrorFixup';
-    variables?: Variable[];
-    files?: File[];
-    activeCellCode?: string;   
-    errorMessage: string;     
-    threadId?: string;
+  promptType: 'smartDebug'
+  variables?: Variable[];
+  files?: File[];
+  activeCellCode?: string;
+  errorMessage: string;
+  threadId?: string;
 }
 
 export interface ICodeExplainMetadata {
-    promptType: 'codeExplain';
-    variables?: Variable[];
-    activeCellCode?: string;
-    threadId?: string;
-}
-
-export interface IAgentPlanningMetadata {
-    promptType: 'agent:planning';
-    variables?: Variable[];
-    files?: File[];
-    input: string;
-    threadId?: string;
+  promptType: 'codeExplain';
+  variables?: Variable[];
+  activeCellCode?: string;
+  threadId?: string;
 }
 
 export interface IInlineCompleterMetadata {
-    promptType: 'inline_completion';
-    variables?: Variable[]; 
-    files?: File[];
-    prefix: string;
-    suffix: string;
+  promptType: 'inline_completion';
+  variables?: Variable[];
+  files?: File[];
+  prefix: string;
+  suffix: string;
 }
 
 export interface IFetchHistoryMetadata {
-    promptType: 'fetch_history'
-    thread_id?: string;
+  promptType: 'fetch_history'
+  thread_id?: string;
 }
 
 export interface IStartNewChatMetadata {
@@ -155,17 +163,12 @@ export interface ISmartDebugCompletionRequest extends ICompletionRequest {
 
 export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
   type: 'agent:autoErrorFixup'
-  metadata: ISmartDebugMetadata
+  metadata: IAgentSmartDebugMetadata
 }
 
 export interface ICodeExplainCompletionRequest extends ICompletionRequest {
   type: 'codeExplain'
   metadata: ICodeExplainMetadata
-}
-
-export interface IAgentPlanningCompletionRequest extends ICompletionRequest {
-  type: 'agent:planning'
-  metadata: IAgentPlanningMetadata
 }
 
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {

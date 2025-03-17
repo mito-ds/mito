@@ -1,12 +1,15 @@
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type, Union
+from typing import List, Literal, Optional, Type, Union, NewType
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 from pydantic import BaseModel
 
+# The ThreadID is the unique identifier for the chat thread.
+ThreadID = NewType('ThreadID', str)
+
 @dataclass(frozen=True)
-class AIOptimizedCells():
+class AIOptimizedCell():
   cell_type: str
   id: str
   code: str
@@ -15,23 +18,23 @@ class AIOptimizedCells():
 # TODO: Figure out how to discriminate the 
 # CellUpdateModification and CellUpdateNew types
     
-@dataclass(frozen=True)
 class CellUpdate(BaseModel):
     type: Literal['new', 'modification']
     index: Optional[int]
     id: Optional[str]
     code: str
-
-# Response format for agent planning
-class PlanOfAttack(BaseModel):
-    actions: List[str]
-    dependencies: List[str]
+    description: str
+    
+class AgentResponse(BaseModel):
+    is_finished: bool
+    message: str
+    cell_update: Optional[CellUpdate]
   
 @dataclass(frozen=True)
 class ResponseFormatInfo():
     name: str
     # Use the type because we are actually just providing the type format, not an actual instance of the format
-    format: Union[type[PlanOfAttack], type[CellUpdate]] 
+    format: type[AgentResponse]
 
 
 class MessageType(Enum):
@@ -41,7 +44,6 @@ class MessageType(Enum):
     CHAT = "chat"
     SMART_DEBUG = "smartDebug"
     CODE_EXPLAIN = "codeExplain"
-    AGENT_PLANNING = "agent:planning"
     AGENT_EXECUTION = "agent:execution"
     AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
     INLINE_COMPLETION = "inline_completion"
@@ -65,7 +67,17 @@ class ChatMessageMetadata():
 class AgentExecutionMetadata():
     promptType: Literal['agent:execution']
     input: str
-    aiOptimizedCells: List[AIOptimizedCells]
+    aiOptimizedCells: List[AIOptimizedCell]
+    variables: Optional[List[str]] = None
+    files: Optional[List[str]] = None
+    threadId: Optional[str] = None
+    
+@dataclass(frozen=True)
+class AgentSmartDebugMetadata():
+    promptType: Literal['agent:autoErrorFixup']
+    aiOptimizedCells: List[AIOptimizedCell]
+    errorMessage: str
+    error_message_producing_code_cell_id: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     threadId: Optional[str] = None
@@ -279,7 +291,7 @@ class ChatThreadMetadata:
     Chat thread item.
     """
 
-    thread_id: str
+    thread_id: ThreadID
 
     name: str
 
@@ -297,7 +309,7 @@ class StartNewChatReply:
     parent_id: str
 
     # Chat thread item.
-    thread_id: str
+    thread_id: ThreadID
 
     # Message type.
     type: Literal["reply"] = "reply"

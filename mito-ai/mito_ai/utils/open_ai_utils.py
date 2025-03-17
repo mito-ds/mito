@@ -7,7 +7,7 @@ import json
 from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
 import os
-
+import time
 from mito_ai.utils.utils import is_running_test
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
@@ -110,19 +110,27 @@ async def get_ai_completion_from_mito_server(
         "Content-Type": "application/json",
     }
     
+    
+    # There are several types of timeout errors that can happen here. 
+    # == 504 Timeout (tornado.httpclient.HTTPClientError: 504) ==  
+    # The server (AWS Lambda) took too long to process your request
+    # == 599 Timeout (tornado.httpclient.HTTPClientError: 599) ==  
+    # The client (Tornado) gave up waiting for a response
+    
     http_client = None
     if is_running_test():
         # If we are running in a test environment, setting the request_timeout fails for some reason.
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+        http_client_timeout = None
     else:
-        
-        # The HTTP client timesout after 20 seconds by default. We update this to match the timeout
-        # we give to OpenAI. The OpenAI timeouts are denoted in seconds, wherease the HTTP client
-        # expects milliseconds. We also give the HTTP client a 10 second buffer to account for
-        # the time it takes to send the request, etc.
+        # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
+        # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
+        # The OpenAI timeouts are denoted in seconds, whereas the HTTP client expects milliseconds. 
+        # We also give the HTTP client a 10 second buffer to account for
         http_client_timeout = timeout * 1000 * max_retries + 10000
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
-    
+        
+    start_time = time.time()
     try:
         res = await http_client.fetch(
             # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
@@ -130,8 +138,17 @@ async def get_ai_completion_from_mito_server(
             # have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
             # before merging into dev. So if you change which variable we are using here, the 
             # test will not catch our mistakes.
-            MITO_AI_URL, method="POST", headers=headers, body=json.dumps(data)
+            MITO_AI_URL, 
+            method="POST", 
+            headers=headers, 
+            body=json.dumps(data), 
+            # For some reason, we need to add the request_timeout here as well
+            request_timeout=http_client_timeout
         )
+        print(f"Request completed in {time.time() - start_time:.2f} seconds")
+    except Exception as e:
+        print(f"Request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
+        raise
     finally:
         http_client.close()
 
@@ -166,14 +183,21 @@ def get_open_ai_completion_function_params(
     # OpenAI expects a very specific schema as seen below. 
     if response_format_info:
         json_schema = response_format_info.format.schema()
+        
+        # Add additionalProperties: False to the top-level schema
+        json_schema["additionalProperties"] = False
+        
+        # Nested object definitions in $defs need to have additionalProperties set to False also
+        if "$defs" in json_schema:
+            for def_name, def_schema in json_schema["$defs"].items():
+                if def_schema.get("type") == "object":
+                    def_schema["additionalProperties"] = False
+        
         completion_function_params["response_format"] = {
             "type": "json_schema",
             "json_schema": {
                 "name": f"{response_format_info.name}",
-                "schema": {
-                    **json_schema,
-                    "additionalProperties": False
-                },
+                "schema": json_schema,
                 "strict": True
             }
         }

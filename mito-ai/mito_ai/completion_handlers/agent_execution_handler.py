@@ -1,12 +1,12 @@
 from typing import List, Literal, Union
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import AgentExecutionMetadata, CellUpdate, MessageType, ResponseFormatInfo
+from mito_ai.models import AgentExecutionMetadata, MessageType, ResponseFormatInfo, AgentResponse
 from mito_ai.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from pydantic import BaseModel
+from mito_ai.completion_handlers.utils import append_agent_system_message
 
 __all__ = ["get_agent_execution_completion"]
 
@@ -23,6 +23,9 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
 
         thread_id = metadata.threadId
         
+        # Add the system message if it doens't alredy exist
+        await append_agent_system_message(message_history, provider, thread_id)
+        
         # Create the prompt
         prompt = create_agent_execution_prompt(metadata)
         
@@ -37,13 +40,14 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             messages=message_history.get_ai_optimized_history(thread_id), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_EXECUTION],
             response_format_info=ResponseFormatInfo(
-                name='cell_update',
-                format=CellUpdate
+                name='agent_response',
+                format=AgentResponse
             ),
             message_type=MessageType.AGENT_EXECUTION
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
+        
         await message_history.append_message(ai_response_message, ai_response_message, provider, thread_id)
 
         return completion
