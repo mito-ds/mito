@@ -13,7 +13,7 @@ export interface CitationProps {
 
 // Citation button component
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }): JSX.Element => {
-  const handleClick = () => {
+  const handleClick = (): void => {
     scrollToCell(notebookTracker, cellId, line);
   };
 
