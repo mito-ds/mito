@@ -207,6 +207,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     <MarkdownBlock
                                         markdown={messagePart}
                                         renderMimeRegistry={renderMimeRegistry}
+                                        notebookTracker={notebookTracker}
                                     />
                                 )}
                             </p>
