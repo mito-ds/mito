@@ -28,10 +28,11 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         
         # Create the prompt
         prompt = create_explain_code_prompt(active_cell_code)
+        display_prompt = f"```python{metadata.activeCellCode or ''}```Explain this code"
         
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
-        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": active_cell_code}
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
         
         # Get the completion
