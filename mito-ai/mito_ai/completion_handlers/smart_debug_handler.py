@@ -35,10 +35,11 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
             variables,
             files
         )
+        display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
         
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
-        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": error_message}
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, thread_id)
         
         # Get the completion
