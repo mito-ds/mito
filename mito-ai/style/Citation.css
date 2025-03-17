@@ -12,6 +12,7 @@
     position: relative;
     top: -0.5em; /* Makes it appear as superscript */
     vertical-align: baseline;
+    margin-right: 2px;
 }
 
 .citation-button:hover {

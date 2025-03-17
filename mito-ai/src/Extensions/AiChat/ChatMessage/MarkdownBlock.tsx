@@ -56,9 +56,9 @@ interface IMarkdownCodeProps {
 interface Citation {
     id: string;
     data: {
+        citation_index: number;
         cell_id: string;
         line: number;
-        context?: string;
     };
 }
 
@@ -78,7 +78,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             try {
                 const citation = JSON.parse(match);
                 const id = `citation-${counter++}`;
-                citations.push({ id, data: citation });
+                citations.push({ id, data: { citation_index: counter, ...citation} });
                 return `{{${id}}}`;
             } catch (e) {
                 console.error("Failed to parse citation JSON:", e);
@@ -181,9 +181,9 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                     <CitationPortal
                         key={citation.id + '-' + matches.indexOf(match)}
                         container={span}
+                        citationIndex={citation.data.citation_index}
                         cellId={citation.data.cell_id}
                         line={citation.data.line}
-                        context={citation.data.context}
                         notebookTracker={notebookTracker}
                     />
                 );

@@ -233,6 +233,7 @@ export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, 
         3. Make sure the cell is visible
     */
     // First activate the cell
+    console.log("scrollToCell", notebookTracker, cellID, lineNumber)
     setActiveCellByID(notebookTracker, cellID);
     
     // Get the cell
