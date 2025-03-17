@@ -37,10 +37,10 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         completion = await provider.request_completions(
             messages=message_history.ai_optimized_history, 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_EXECUTION],
-            response_format_info=ResponseFormatInfo(
-                name='agent_response',
-                format=AgentResponse
-            ),
+            # response_format_info=ResponseFormatInfo(
+            #     name='agent_response',
+            #     format=AgentResponse
+            # ),
             message_type=MessageType.AGENT_EXECUTION
         )
         
@@ -48,6 +48,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         
         await message_history.append_message(ai_response_message, ai_response_message, provider)
 
+        print("HERE: COMPLETION", completion)
         return completion
 
 # Use the static method directly

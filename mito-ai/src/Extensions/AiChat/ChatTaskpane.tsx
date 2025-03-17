@@ -461,6 +461,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         try {
             const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
+            console.log("HERE: AI RESPONSE", aiResponse)
+
             if (aiResponse.error) {
                 console.error('Error calling OpenAI API:', aiResponse.error);
                 addAIMessageFromResponseAndUpdateState(
@@ -477,8 +479,31 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
                     // Agent:Execution prompts return a CellUpdate object that we need to parse
-                    const agentResponse: AgentResponse = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+
+                    try {
+                        // First remove anything that is not part of the JSON response. 
+                        const jsonStartIndex = content.indexOf('{');
+                        const jsonContent = jsonStartIndex >= 0 ? content.substring(jsonStartIndex) : content;
+                        
+                        // Attempt to find and fix any obvious JSON formatting issues
+                        let cleanedJsonContent = jsonContent;
+                        
+                        // Log the content for debugging
+                        console.log("Attempting to parse JSON:", cleanedJsonContent);
+                        
+                        const agentResponse: AgentResponse = JSON.parse(cleanedJsonContent);
+                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse);
+                    } catch (parseError: unknown) {
+                        console.error("JSON Parse error:", parseError);
+                        
+                        // Add a user-friendly error message
+                        addAIMessageFromResponseAndUpdateState(
+                            `I encountered an error parsing the response. The AI returned malformed JSON. Please try again or rephrase your request. Technical details: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+                            completionRequest.metadata.promptType,
+                            newChatHistoryManager,
+                            true
+                        );
+                    }
                 } else {
                     // For all other prompt types, we can just add the content to the chat history
                     aiResponse.items.forEach((item: any) => {

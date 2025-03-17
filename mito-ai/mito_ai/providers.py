@@ -49,7 +49,7 @@ class OpenAIProvider(LoggingConfigurable):
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
     
-    models: List[str] = ['gpt-4o-mini', 'o3-mini']
+    models: List[str] = ['claude-3-5-sonnet-20240620']
     
     last_error = Instance(
         CompletionError,
@@ -87,15 +87,18 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             return None
 
-        client = openai.OpenAI(api_key=api_key)
-        models = []
+        client = openai.OpenAI(base_url="https://api.anthropic.com/v1/", api_key=api_key)
+        print("HERE: CLIENT")
+        # Check if the API key is for Anthropic
+        models = ['claude-3-5-sonnet-20240620']
         try:
             # Make an http request to OpenAI to get the models available
             # for this API key.
             # And then handle the exceptions if they are thrown.
-            for model in client.models.list():
-                models.append(model.id)
+            # for model in client.models.list():
+            #     models.append(model.id)
             self._models = models
+            print("HERE: FOUND MODELS")
         except openai.AuthenticationError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
@@ -197,6 +200,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         if not self._sync_client or self._sync_client.is_closed():
             self._sync_client = openai.OpenAI(
+                base_url="https://api.anthropic.com/v1/",
                 api_key=self.api_key,
                 max_retries=self.max_retries,
                 timeout=self.timeout
