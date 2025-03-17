@@ -3,7 +3,7 @@ from mito_ai.models import MessageType
 # Model name constants
 GPT4O_MINI = "gpt-4o-mini"
 O3_MINI = "o3-mini"
-CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
+CLAUDE_3_5_SONNET = "claude-3-7-sonnet-20250219"
 
 # Mapping from message type to model name
 MESSAGE_TYPE_TO_MODEL = {

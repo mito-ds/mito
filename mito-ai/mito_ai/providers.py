@@ -49,7 +49,7 @@ class OpenAIProvider(LoggingConfigurable):
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
     
-    models: List[str] = ['claude-3-5-sonnet-20240620']
+    models: List[str] = ['claude-3-7-sonnet-20250219']
     
     last_error = Instance(
         CompletionError,
@@ -90,7 +90,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         client = openai.OpenAI(base_url="https://api.anthropic.com/v1/", api_key=api_key)
         print("HERE: CLIENT")
         # Check if the API key is for Anthropic
-        models = ['claude-3-5-sonnet-20240620']
+        models = ['claude-3-7-sonnet-20250219']
         try:
             # Make an http request to OpenAI to get the models available
             # for this API key.
