@@ -116,8 +116,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return <></>
     }
 
-    console.log('messageContentParts', messageContentParts);
-
     return (
         <div className={classNames(
             "message",

@@ -14,7 +14,6 @@ export interface CitationProps {
 // Citation button component
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }) => {
   const handleClick = () => {
-    console.log("citationIndex", citationIndex)
     scrollToCell(notebookTracker, cellId, line);
   };
 
