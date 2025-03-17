@@ -193,7 +193,7 @@ Citation Rules:
 4. For the "line" field, use the line number within the cell that is most relevant to the citation. The cell line number should be 0-indexed and should not skip comments.
 5. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
 6. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
-7. Do not include the citation in the code block. ONLY include the citation in the message field of your response.
+7. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 
 <Citation Example>
 
