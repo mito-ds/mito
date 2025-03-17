@@ -36,7 +36,7 @@ export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: stri
     const cellList = notebookTracker.currentWidget?.model?.cells
 
     if (cellList === undefined) {
-        return undefined 
+        return undefined
     }
 
     // In order to get the cell index, we need to iterate over the cells and call the `get` method
@@ -49,7 +49,7 @@ export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: stri
         }
     }
 
-    return undefined 
+    return undefined
 }
 
 export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
@@ -62,8 +62,8 @@ export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: str
 
 
 export const writeCodeToCellByID = (
-    notebookTracker: INotebookTracker, 
-    code: string | undefined, 
+    notebookTracker: INotebookTracker,
+    code: string | undefined,
     codeCellID: string,
 ): void => {
     if (code === undefined) {
@@ -76,7 +76,7 @@ export const writeCodeToCellByID = (
 
     console.log("codeMirrorValidCode", codeMirrorValidCode)
     console.log("cell", cell)
-    
+
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
     }
@@ -97,7 +97,7 @@ export const getAIOptimizedCells = (
     const cells: AIOptimizedCell[] = []
     for (let i = 0; i < cellList.length; i++) {
         const cellModel = cellList.get(i)
-        
+
         const cell: AIOptimizedCell = {
             id: cellModel.id,
             cell_type: cellModel.type,
@@ -155,14 +155,101 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
     if (cell) {
         const cellElement = cell.node;
         const originalBackground = cellElement.style.background;
-        
+
         // Add a yellow highlight
         cellElement.style.background = 'var(--purple-400)';
-        
+
         // Remove highlight after 500ms
         cellElement.style.transition = 'background 0.5s ease';
         setTimeout(() => {
             cellElement.style.background = originalBackground;
+        }, 500);
+    }
+}
+
+export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker, codeCellID: string, lineNumber: number): void => {
+    /*
+        Briefly highlights a specific line in a code cell, to draw the user's attention to it.
+        
+        Args:
+            notebookTracker: The notebook tracker.
+            codeCellID: The ID of the code cell.
+            lineNumber: The 0-indexed line number to highlight.
+    */
+    // Get the cell with the given ID
+    const cell = getCellByID(notebookTracker, codeCellID);
+    if (!cell) {
+        return;
+    }
+
+    // Get the cell's editor
+    const editor = cell.editor;
+    if (!editor) {
+        return;
+    }
+
+    // We expect the line number to be 0-indexed. To be safe, if the line number is out of bounds, we clamp it.
+    const lines = editor.model.sharedModel.source.split('\n');
+    const targetLine = Math.min(Math.max(lineNumber, 0), lines.length - 1);
+
+    // Find the line element in the DOM
+    const cmEditor = cell.node.querySelector('.jp-Editor');
+    if (!cmEditor) {
+        return;
+    }
+
+    // Find all line elements and get the one at the target index
+    const lineElements = cmEditor.querySelectorAll('.cm-line');
+    if (targetLine >= lineElements.length) {
+        return;
+    }
+
+    const lineElement = lineElements[targetLine] as HTMLElement;
+    if (!lineElement) {
+        return;
+    }
+
+    // Store the original background color
+    const originalBackground = lineElement.style.background;
+
+    // Change the background color to highlight the line
+    lineElement.style.background = 'var(--purple-400)';
+    lineElement.style.transition = 'background 0.5s ease';
+
+    // Reset the background color after a delay
+    setTimeout(() => {
+        lineElement.style.background = originalBackground;
+    }, 2000);
+}
+
+export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, lineNumber?: number): void => {
+
+    // First activate the cell
+    setActiveCellByID(notebookTracker, cellID);
+
+    // Get the cell
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return;
+    }
+
+    // Get the cell's editor
+    const editor = cell.editor;
+    if (!editor) {
+        return;
+    }
+
+    // Make the cell node visible by scrolling to it
+    const cellNode = cell.node;
+    if (cellNode) {
+        cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Wait for the scroll animation to complete before highlighting the line
+        // The default smooth scroll takes about 300-500ms to complete
+        setTimeout(() => {
+            if (lineNumber !== undefined) {
+                highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
+            }
         }, 500);
     }
 }
