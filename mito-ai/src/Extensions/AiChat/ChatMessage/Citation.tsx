@@ -1,5 +1,5 @@
 import React from 'react';
-import { scrollToCellLine } from '../../../utils/notebook';
+import { scrollToCell } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import '../../../../style/Citation.css';
 
@@ -19,7 +19,7 @@ export const Citation: React.FC<CitationProps> = ({ cellId, line, context, noteb
     console.log('scorlling to cell', cellId, 'line', line);
     
     // Use the new utility to scroll to the specific line in the cell
-    scrollToCellLine(notebookTracker, cellId, line);
+    scrollToCell(notebookTracker, cellId, line);
   };
 
   return (

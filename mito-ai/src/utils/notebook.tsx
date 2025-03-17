@@ -188,12 +188,11 @@ export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker,
         return;
     }
     
-    // Adjust line number to be within bounds (0-indexed for internal use)
+    // We expect the line number to be 0-indexed. To be safe, if the line number is out of bounds, we clamp it.
     const lines = editor.model.sharedModel.source.split('\n');
     const targetLine = Math.min(Math.max(0, lineNumber - 1), lines.length - 1);
     
     // Find the line element in the DOM
-    // The CodeMirror editor uses CSS classes like .cm-line for line elements
     const cmEditor = cell.node.querySelector('.jp-Editor');
     if (!cmEditor) {
         return;
@@ -220,10 +219,10 @@ export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker,
     // Reset the background color after a delay
     setTimeout(() => {
         lineElement.style.background = originalBackground;
-    }, 500);
+    }, 2000);
 }
 
-export const scrollToCellLine = (notebookTracker: INotebookTracker, cellID: string, lineNumber: number): void => {
+export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, lineNumber?: number): void => {
     /*
         Scrolls to a specific line in a specific cell. 
         Steps:
@@ -247,40 +246,18 @@ export const scrollToCellLine = (notebookTracker: INotebookTracker, cellID: stri
         return;
     }
     
-    // Adjust line number to be within bounds (0-indexed)
-    const lines = editor.model.sharedModel.source.split('\n');
-    const targetLine = Math.min(Math.max(0, lineNumber - 1), lines.length - 1);
-    
-    // Set cursor to the target line
-    const position = { line: targetLine, column: 0 };
-    editor.setCursorPosition(position);
-    
     // Make the cell node visible by scrolling to it
     const cellNode = cell.node;
     if (cellNode) {
-        // First, make sure the notebook panel is activated to ensure DOM is fully initialized
-        const notebookPanel = notebookTracker.currentWidget;
-        if (notebookPanel) {
-            // Activate the notebook panel to ensure it's in the foreground
-            notebookPanel.activate();
-            
-            // Use a small delay to ensure the activation has completed before scrolling
-            setTimeout(() => {
-                // Try scrolling after a short delay
-                cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // Highlight the specific line of code
+        cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Wait for the scroll animation to complete before highlighting the line
+        // The default smooth scroll takes about 300-500ms to complete
+        setTimeout(() => {
+            if (lineNumber) {
                 highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
-            }, 100);
-        } else {
-            // Fallback if no panel is available
-            cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
-        }
-    } else {
-        // Even if we can't scroll, still try to highlight the line
-        highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
+            }
+        }, 500);
     }
-    
 }
 
