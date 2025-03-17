@@ -1,6 +1,7 @@
 import React from 'react';
 import { scrollToCellLine } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import '../../../../style/Citation.css';
 
 // Citation component props interface
 export interface CitationProps {
@@ -26,19 +27,6 @@ export const Citation: React.FC<CitationProps> = ({ cellId, line, context, noteb
       className="citation-button"
       onClick={handleClick}
       title={context || `Line ${line}`}
-      style={{
-        backgroundColor: '#f0f7ff',
-        border: '1px solid #ccc',
-        borderRadius: '12px',
-        padding: '2px 8px',
-        fontSize: '0.75em',
-        cursor: 'pointer',
-        margin: '0 2px',
-        color: '#0366d6',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
     >
       {line}
     </span>
