@@ -69,6 +69,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     // Extract citations from the markdown, returning the markdown with the JSON citations replaced with 
     // citation placeholders {{${id}}} and an array of citation objects.
     const extractCitations = useCallback((text: string): { processedMarkdown: string; citations: Citation[] } => {
+        // eslint-disable-next-line no-useless-escape
         const citationRegex = /(\{\"type\"\:\s*\"citation\".*?\})/g;
         const citations: Citation[] = [];
         let counter = 0;
@@ -209,7 +210,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
     // Process everything in one effect, but with clear separation via helper functions
     useEffect(() => {
-        const processMarkdown = async () => {
+        const processMarkdown = async (): Promise<void> => {
             // Step 1: Extract citations and get processed markdown
             const { processedMarkdown, citations } = extractCitations(markdown);
 
@@ -221,7 +222,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             setCitationPortals(portals);
         };
 
-        processMarkdown();
+        void processMarkdown();
     }, [markdown, extractCitations, renderMarkdownContent, createCitationPortals]);
 
     return (
