@@ -167,6 +167,62 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
     }
 }
 
+export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker, codeCellID: string, lineNumber: number): void => {
+    /*
+        Briefly highlights a specific line in a code cell, to draw the user's attention to it.
+        
+        Args:
+            notebookTracker: The notebook tracker.
+            codeCellID: The ID of the code cell.
+            lineNumber: The 1-indexed line number to highlight.
+    */
+    // Get the cell with the given ID
+    const cell = getCellByID(notebookTracker, codeCellID);
+    if (!cell) {
+        return;
+    }
+    
+    // Get the cell's editor
+    const editor = cell.editor;
+    if (!editor) {
+        return;
+    }
+    
+    // Adjust line number to be within bounds (0-indexed for internal use)
+    const lines = editor.model.sharedModel.source.split('\n');
+    const targetLine = Math.min(Math.max(0, lineNumber - 1), lines.length - 1);
+    
+    // Find the line element in the DOM
+    // The CodeMirror editor uses CSS classes like .cm-line for line elements
+    const cmEditor = cell.node.querySelector('.jp-Editor');
+    if (!cmEditor) {
+        return;
+    }
+    
+    // Find all line elements and get the one at the target index
+    const lineElements = cmEditor.querySelectorAll('.cm-line');
+    if (targetLine >= lineElements.length) {
+        return;
+    }
+    
+    const lineElement = lineElements[targetLine] as HTMLElement;
+    if (!lineElement) {
+        return;
+    }
+    
+    // Store the original background color
+    const originalBackground = lineElement.style.background;
+    
+    // Change the background color to highlight the line
+    lineElement.style.background = 'var(--purple-400)';
+    lineElement.style.transition = 'background 0.5s ease';
+    
+    // Reset the background color after a delay
+    setTimeout(() => {
+        lineElement.style.background = originalBackground;
+    }, 500);
+}
+
 export const scrollToCellLine = (notebookTracker: INotebookTracker, cellID: string, lineNumber: number): void => {
     /*
         Scrolls to a specific line in a specific cell. 
@@ -202,10 +258,29 @@ export const scrollToCellLine = (notebookTracker: INotebookTracker, cellID: stri
     // Make the cell node visible by scrolling to it
     const cellNode = cell.node;
     if (cellNode) {
-        cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // First, make sure the notebook panel is activated to ensure DOM is fully initialized
+        const notebookPanel = notebookTracker.currentWidget;
+        if (notebookPanel) {
+            // Activate the notebook panel to ensure it's in the foreground
+            notebookPanel.activate();
+            
+            // Use a small delay to ensure the activation has completed before scrolling
+            setTimeout(() => {
+                // Try scrolling after a short delay
+                cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Highlight the specific line of code
+                highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
+            }, 100);
+        } else {
+            // Fallback if no panel is available
+            cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
+        }
+    } else {
+        // Even if we can't scroll, still try to highlight the line
+        highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
     }
     
-    // Highlight the cell to make it visible
-    highlightCodeCell(notebookTracker, cellID);
 }
 
