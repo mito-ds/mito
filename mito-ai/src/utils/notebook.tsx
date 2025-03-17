@@ -174,7 +174,7 @@ export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker,
         Args:
             notebookTracker: The notebook tracker.
             codeCellID: The ID of the code cell.
-            lineNumber: The 1-indexed line number to highlight.
+            lineNumber: The 0-indexed line number to highlight.
     */
     // Get the cell with the given ID
     const cell = getCellByID(notebookTracker, codeCellID);
@@ -228,8 +228,7 @@ export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, 
         Steps:
         1. Set the active cell to the target cell
         2. Get the cell's editor
-        3. Set the cursor position to the target line
-        4. Make sure the cell is visible
+        3. Make sure the cell is visible
     */
     // First activate the cell
     setActiveCellByID(notebookTracker, cellID);
@@ -254,7 +253,7 @@ export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, 
         // Wait for the scroll animation to complete before highlighting the line
         // The default smooth scroll takes about 300-500ms to complete
         setTimeout(() => {
-            if (lineNumber) {
+            if (lineNumber !== undefined) {
                 highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
             }
         }, 500);
