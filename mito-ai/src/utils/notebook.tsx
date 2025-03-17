@@ -190,7 +190,7 @@ export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker,
     
     // We expect the line number to be 0-indexed. To be safe, if the line number is out of bounds, we clamp it.
     const lines = editor.model.sharedModel.source.split('\n');
-    const targetLine = Math.min(Math.max(0, lineNumber - 1), lines.length - 1);
+    const targetLine = Math.min(Math.max(lineNumber, 0), lines.length - 1);
     
     // Find the line element in the DOM
     const cmEditor = cell.node.querySelector('.jp-Editor');
@@ -204,6 +204,8 @@ export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker,
         return;
     }
     
+    console.log("lineElements", lineElements)
+    console.log("targetLine", targetLine)
     const lineElement = lineElements[targetLine] as HTMLElement;
     if (!lineElement) {
         return;
