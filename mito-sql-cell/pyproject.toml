@@ -23,8 +23,11 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+    "ipython>=8.0.0",
     "jupysql-plugin>=0.4.5",
-    "jupyter_server>=2.4.0,<3"
+    "jupyter_server>=2.4.0,<3",
+    "pandas~=2.0",
+    "sqlalchemy"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
