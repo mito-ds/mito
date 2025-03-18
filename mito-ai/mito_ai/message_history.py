@@ -241,11 +241,11 @@ class GlobalMessageHistory:
         """
         with self._lock:
             thread_id = self._get_newest_thread_id()
-            if not thread_id:
+            if not thread_id or thread_id not in self._chat_threads:
                 return []
             return self._chat_threads[thread_id].display_history
     
-    def get_display_history(self, thread_id: Optional[str] = None) -> List[ChatCompletionMessageParam]:
+    def get_display_history(self, thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
         """
         Returns the display-optimized message history for the specified thread or the newest thread if not specified.
         """
