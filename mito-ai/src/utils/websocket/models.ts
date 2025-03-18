@@ -81,6 +81,7 @@ export interface IAgentSmartDebugMetadata {
   files?: File[];
   errorMessage: string;
   error_message_producing_code_cell_id: string
+  threadId?: string;
 }
 
 
