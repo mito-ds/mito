@@ -20,7 +20,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         message_history: GlobalMessageHistory
     ) -> str:
         """Get a code explain completion from the AI provider."""
-        
+
         active_cell_code = metadata.activeCellCode or ''
         thread_id = metadata.threadId
 
