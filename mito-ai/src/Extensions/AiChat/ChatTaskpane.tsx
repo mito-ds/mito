@@ -158,15 +158,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         const chatHistoryResponse = await websocketClient.sendMessage<
-            ICompletionRequest,
+        ICompletionRequest,
             IFetchHistoryReply
         >(fetchHistoryCompletionRequest);
 
         // Create a fresh ChatHistoryManager and add the initial messages
-        const newChatHistoryManager = getDefaultChatHistoryManager(
-            notebookTracker,
-            contextManager
-        );
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+
+        let isAgentChat: boolean = false
 
         // Add messages to the ChatHistoryManager
         chatHistoryResponse.items.forEach(item => {
@@ -178,6 +177,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // If it has the is_finished keys then it is an AgentResponse and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                    isAgentChat = true
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
                 }
@@ -187,6 +187,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         // Update the state with the new ChatHistoryManager
+        setAgentModeEnabled(isAgentChat)
         setChatHistoryManager(newChatHistoryManager);
         setActiveThreadId(threadId);
     };
