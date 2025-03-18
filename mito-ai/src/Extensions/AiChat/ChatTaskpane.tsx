@@ -468,6 +468,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         try {
             const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
+            console.log("HERE: AI RESPONSE", aiResponse)
+
             if (aiResponse.error) {
                 console.error('Error calling OpenAI API:', aiResponse.error);
                 addAIMessageFromResponseAndUpdateState(
@@ -484,8 +486,64 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
                     // Agent:Execution prompts return a CellUpdate object that we need to parse
-                    const agentResponse: AgentResponse = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+
+                    try {
+                        // Enhanced preprocessing for different JSON formats the AI might return
+                        console.log("Raw content:", content);
+                        
+                        // Find where the JSON object begins
+                        const jsonStartIndex = content.indexOf('{');
+                        let jsonContent = jsonStartIndex >= 0 ? content.substring(jsonStartIndex) : content;
+                        
+                        // Handle double curly braces that some models use
+                        jsonContent = jsonContent.replace(/{{/g, '{').replace(/}}/g, '}');
+                        
+                        // Handle multiline code blocks with triple quotes
+                        // First find all instances of triple quotes and replace them with special markers
+                        let processedJson = jsonContent;
+                        let tripleQuoteMatches = [];
+                        const tripleQuoteRegex = /"""([\s\S]*?)"""/g;
+                        let match;
+                        
+                        // Extract all triple-quoted content
+                        while ((match = tripleQuoteRegex.exec(jsonContent)) !== null) {
+                            tripleQuoteMatches.push(match[1]);
+                        }
+                        
+                        // Replace triple-quoted sections with properly escaped JSON strings
+                        if (tripleQuoteMatches.length > 0) {
+                            processedJson = jsonContent.replace(tripleQuoteRegex, (_, codeBlock) => {
+                                // Escape newlines and quotes for JSON
+                                const escapedCode = codeBlock
+                                    .replace(/\\/g, '\\\\')  // Escape backslashes first
+                                    .replace(/"/g, '\\"')    // Escape double quotes
+                                    .replace(/\n/g, '\\n')   // Replace newlines with \n escape sequence
+                                    .replace(/\r/g, '\\r')   // Replace carriage returns
+                                    .replace(/\t/g, '\\t');  // Replace tabs
+                                
+                                return '"' + escapedCode + '"';
+                            });
+                        } else {
+                            // If no triple quotes found, just replace them simply
+                            processedJson = jsonContent.replace(/"""/g, '"');
+                        }
+                        
+                        console.log("Preprocessed JSON:", processedJson);
+                        
+                        const agentResponse: AgentResponse = JSON.parse(processedJson);
+                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse);
+                    } catch (parseError: unknown) {
+                        console.error("JSON Parse error:", parseError);
+                        console.error("Problematic content:", content);
+                        
+                        // Add a user-friendly error message
+                        addAIMessageFromResponseAndUpdateState(
+                            `I encountered an error parsing the AI response. The model may have returned malformed JSON. Please try again or rephrase your request. Technical details: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+                            completionRequest.metadata.promptType,
+                            newChatHistoryManager,
+                            true
+                        );
+                    }
                 } else {
                     // For all other prompt types, we can just add the content to the chat history
                     aiResponse.items.forEach((item: any) => {

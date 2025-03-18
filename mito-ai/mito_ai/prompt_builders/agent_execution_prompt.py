@@ -17,6 +17,9 @@ Files in the current directory:
 {files_str}"""
 
     task_str = '' if md.input == '' else f"""Your task: 
-{md.input}"""
+{md.input}
+
+
+Your response should not include preamble and should be a valid JSON object starting with {{"""
 
     return '\n\n'.join([context_str, task_str]).strip()
