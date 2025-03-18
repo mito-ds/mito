@@ -219,7 +219,7 @@ class GlobalMessageHistory:
         """
         with self._lock:
             thread_id = self._get_newest_thread_id()
-            if not thread_id:
+            if not thread_id or thread_id not in self._chat_threads:
                 return []
             return self._chat_threads[thread_id].ai_optimized_history
 
@@ -260,8 +260,7 @@ class GlobalMessageHistory:
         Returns the AI-optimized and display-optimized message histories as a tuple for the specified thread or the newest thread if not specified.
         """
         with self._lock:
-            if thread_id is None:
-                thread_id = self._get_newest_thread_id()
+            thread_id = thread_id or self._get_newest_thread_id()
             if not thread_id or thread_id not in self._chat_threads:
                 return [], []
             # If history is requested, that is also considered an interaction
