@@ -20,7 +20,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         message_history: GlobalMessageHistory
     ) -> str:
         """Get a smart debug completion from the AI provider."""
-        
+
         thread_id = metadata.threadId
 
         # Add the system message if it doens't alredy exist
