@@ -1,5 +1,6 @@
 from typing import Optional
 from mito_ai.message_history import GlobalMessageHistory
+from mito_ai.models import ThreadID
 from mito_ai.providers import OpenAIProvider
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.prompt_builders.chat_system_message import create_chat_system_message_prompt
@@ -9,7 +10,7 @@ from mito_ai.prompt_builders.agent_system_message import create_agent_system_mes
 async def append_chat_system_message(
         message_history: GlobalMessageHistory,
         provider: OpenAIProvider,
-        thread_id: Optional[str] = None
+        thread_id: Optional[ThreadID] = None
 ) -> None:
     
     # If the system message already exists, do nothing
@@ -34,7 +35,7 @@ async def append_chat_system_message(
 async def append_agent_system_message(
         message_history: GlobalMessageHistory,
         provider: OpenAIProvider,
-        thread_id: Optional[str] = None
+        thread_id: Optional[ThreadID] = None
 ) -> None:
     
     # If the system message already exists, do nothing
