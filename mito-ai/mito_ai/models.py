@@ -61,7 +61,7 @@ class ChatMessageMetadata():
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     index: Optional[int] = None   
-    threadId: Optional[str] = None
+    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class AgentExecutionMetadata():
@@ -70,7 +70,7 @@ class AgentExecutionMetadata():
     aiOptimizedCells: List[AIOptimizedCell]
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    threadId: Optional[str] = None
+    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():
@@ -80,7 +80,7 @@ class AgentSmartDebugMetadata():
     error_message_producing_code_cell_id: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    threadId: Optional[str] = None
+    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
@@ -89,14 +89,14 @@ class SmartDebugMetadata():
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    threadId: Optional[str] = None
+    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    threadId: Optional[str] = None
+    threadId: Optional[ThreadID] = None
 
 @dataclass(frozen=True)
 class AgentPlanningMetadata():    
@@ -104,7 +104,7 @@ class AgentPlanningMetadata():
     input: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    threadId: Optional[str] = None
+    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class InlineCompleterMetadata():
