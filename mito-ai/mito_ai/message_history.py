@@ -222,14 +222,13 @@ class GlobalMessageHistory:
             if not thread_id:
                 return []
             return self._chat_threads[thread_id].ai_optimized_history
-    
+
     def get_ai_optimized_history(self, thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
         """
         Returns the AI-optimized message history for the specified thread or the newest thread if not specified.
         """
         with self._lock:
-            if thread_id is None:
-                thread_id = self._get_newest_thread_id()
+            thread_id = thread_id or self._get_newest_thread_id()
             if not thread_id or thread_id not in self._chat_threads:
                 return []
             return self._chat_threads[thread_id].ai_optimized_history
@@ -277,7 +276,7 @@ class GlobalMessageHistory:
             self, 
             ai_optimized_message: ChatCompletionMessageParam, 
             display_message: ChatCompletionMessageParam, 
-            llm_provider: OpenAIProvider, 
+            llm_provider: OpenAIProvider,
             thread_id: Optional[ThreadID] = None
     ) -> None:
         """
@@ -285,11 +284,11 @@ class GlobalMessageHistory:
         If there are no threads yet, create one.
         We also detect if we should set a short name for the thread.
         """
-        with self._lock:
-            if thread_id is None:
+        if thread_id is None:
+            with self._lock:
                 thread_id = self._get_newest_thread_id()
-            if not thread_id:
-                thread_id = self.create_new_thread()
+        if not thread_id:
+            thread_id = self.create_new_thread()
 
         # Add messages and check if naming is needed while holding the lock
         name_gen_input = None
