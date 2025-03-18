@@ -223,7 +223,7 @@ class GlobalMessageHistory:
                 return []
             return self._chat_threads[thread_id].ai_optimized_history
     
-    def get_ai_optimized_history(self, thread_id: Optional[str] = None) -> List[ChatCompletionMessageParam]:
+    def get_ai_optimized_history(self, thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
         """
         Returns the AI-optimized message history for the specified thread or the newest thread if not specified.
         """
@@ -273,7 +273,13 @@ class GlobalMessageHistory:
                 self._chat_threads[thread_id].display_history[:],
             )
 
-    async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider, thread_id: Optional[str] = None) -> None:
+    async def append_message(
+            self, 
+            ai_optimized_message: ChatCompletionMessageParam, 
+            display_message: ChatCompletionMessageParam, 
+            llm_provider: OpenAIProvider, 
+            thread_id: Optional[ThreadID] = None
+    ) -> None:
         """
         Appends the messages to the specified thread or the newest thread if not specified.
         If there are no threads yet, create one.

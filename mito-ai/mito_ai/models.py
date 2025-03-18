@@ -97,14 +97,6 @@ class CodeExplainMetadata():
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     threadId: Optional[ThreadID] = None
-
-@dataclass(frozen=True)
-class AgentPlanningMetadata():    
-    promptType: Literal['agent:planning']
-    input: str
-    variables: Optional[List[str]] = None
-    files: Optional[List[str]] = None
-    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class InlineCompleterMetadata():
