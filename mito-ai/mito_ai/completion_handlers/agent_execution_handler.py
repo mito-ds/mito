@@ -26,10 +26,11 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         
         # Create the prompt
         prompt = create_agent_execution_prompt(metadata)
+        display_prompt = metadata.input
         
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
-        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": metadata.input}
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
         

@@ -21,6 +21,7 @@ import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
+import '../../../../style/MarkdownMessage.css'
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -206,6 +207,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     <MarkdownBlock
                                         markdown={messagePart}
                                         renderMimeRegistry={renderMimeRegistry}
+                                        notebookTracker={notebookTracker}
                                     />
                                 )}
                             </p>

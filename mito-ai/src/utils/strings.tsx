@@ -76,7 +76,11 @@ export const getCodeBlockFromMessage = (message: OpenAI.Chat.ChatCompletionMessa
     This is important for showing diffs. If the code cell contains no code, the first line will be marked as 
     removed in the code diff. To ensure the diff lines up with the code, we need to leave this whitespace line.
 */
-export const addMarkdownCodeFormatting = (code: string, trim?: boolean): string => {
+export const addMarkdownCodeFormatting = (code: string | undefined, trim?: boolean): string | undefined => {
+
+    if (code === undefined) {
+        return undefined
+    }
     
     let codeWithoutBackticks = code
     

@@ -49,11 +49,12 @@ export const retryIfExecutionError = async (
     app: JupyterFrontEnd,
     getDuplicateChatHistoryManager: () => ChatHistoryManager,
     addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager, mitoAIConnectionError?: boolean, mitoAIConnectionErrorType?: string | null) => void,
-    sendDebugErrorMessage: (errorMessage: string, agent?: boolean) => Promise<void>,
-    previewAICode: () => void,
+    sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>,
+    previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
     shouldContinueAgentExecution: MutableRefObject<boolean>,
     finalizeAgentStop: () => void,
+    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
     const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
@@ -64,7 +65,6 @@ export const retryIfExecutionError = async (
     let attempts = 0;
 
     while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
-        console.log("code errored")
 
         if (!shouldContinueAgentExecution.current) {
             finalizeAgentStop()
@@ -92,8 +92,14 @@ export const retryIfExecutionError = async (
         // Wait two seconds so the use can more easily see what is going on 
         await sleep(2000)
 
-        await sendDebugErrorMessage(errorMessage, true)
-        await acceptAndRunCode(app, previewAICode, acceptAICode)
+        await sendAgentSmartDebugMessage(errorMessage)
+        const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
+        const cellUpdate = aiDisplayOptimizedChatItem?.agentResponse?.cell_update
+
+        if (cellUpdate !== undefined && cellUpdate !== null) {
+            await acceptAndRunCellUpdate(cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+        }
+
         attempts++;
 
         // If this was the last attempt and it still failed

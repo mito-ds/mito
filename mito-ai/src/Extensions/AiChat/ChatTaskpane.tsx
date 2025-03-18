@@ -62,6 +62,8 @@ import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 
+const AGENT_EXECUTION_DEPTH_LIMIT = 20
+
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
     return chatHistoryManager
@@ -155,16 +157,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: false
         }
 
-        const chatHistoryResponse = await websocketClient.sendMessage<
-            ICompletionRequest,
-            IFetchHistoryReply
-        >(fetchHistoryCompletionRequest);
+        const chatHistoryResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchHistoryReply>(fetchHistoryCompletionRequest);
 
         // Create a fresh ChatHistoryManager and add the initial messages
-        const newChatHistoryManager = getDefaultChatHistoryManager(
-            notebookTracker,
-            contextManager
-        );
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+
+        // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
+        // when the user switches mode. When the user reloads a chat, we want to put them back into the same
+        // chat mode so that we use the correct system message and preserve this one-type of message invariant.
+        let isAgentChat: boolean = false
 
         // Add messages to the ChatHistoryManager
         chatHistoryResponse.items.forEach(item => {
@@ -176,6 +177,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // If it has the is_finished keys then it is an AgentResponse and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                    isAgentChat = true
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
                 }
@@ -185,6 +187,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         // Update the state with the new ChatHistoryManager
+        setAgentModeEnabled(isAgentChat)
         setChatHistoryManager(newChatHistoryManager);
         setActiveThreadId(threadId);
     };
@@ -247,6 +250,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     contextManager
                 );
                 addAIMessageFromResponseAndUpdateState(
+                    (error as any).title ? (error as any).title : `${error}`,
+                    'chat',
+                    newChatHistoryManager,
+                    false
+                );                
+                addAIMessageFromResponseAndUpdateState(
                     (error as any).hint ? (error as any).hint : `${error}`,
                     'chat',
                     newChatHistoryManager,
@@ -304,30 +313,40 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         This is useful when we want to send the error message from the MIME renderer directly
         to the AI chat.
     */
-    const sendDebugErrorMessage = async (errorMessage: string, agent?: boolean): Promise<void> => {
+    const sendSmartDebugMessage = async (errorMessage: string) : Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1. Determine prompt type and chat history manager based on if it is agent or not
-        let promptType: PromptType;
-        let newChatHistoryManager: ChatHistoryManager;
-        if (agent) {
-            promptType = 'agent:autoErrorFixup';
-            newChatHistoryManager = getDuplicateChatHistoryManager()
-        }
-        else {
-            promptType = 'smartDebug';
-            newChatHistoryManager = await startNewChat()
-        }
+        // Step 1. Clear the chat when there is a new error to debug
+        const newChatHistoryManager = await startNewChat()
 
-        const smartDebugMetadata = newChatHistoryManager.addDebugErrorMessage(errorMessage, promptType)
+        const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(errorMessage)
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: ISmartDebugCompletionRequest | IAgentAutoErrorFixupCompletionRequest = {
-            type: promptType,
+        const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
+            type: 'smartDebug',
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
+            stream: false
+        }
+        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
+    }
+
+    const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
+        // Step 0: Reject the previous Ai generated code if they did not accept it
+        rejectAICode()
+
+        // Step 1: Create message metadata
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(errorMessage)
+        setChatHistoryManager(newChatHistoryManager);
+
+        // Step 2: Send the message to the AI
+        const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
+            type: 'agent:autoErrorFixup',
+            message_id: UUID.uuid4(),
+            metadata: agentSmartDebugMessage,
             stream: false
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
@@ -463,7 +482,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } else {
                 const content = aiResponse.items[0]?.content ?? '';
 
-                if (completionRequest.metadata.promptType === 'agent:execution') {
+                if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
                     // Agent:Execution prompts return a CellUpdate object that we need to parse
                     const agentResponse: AgentResponse = JSON.parse(content)
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
@@ -479,6 +498,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         } catch (error) {
+            addAIMessageFromResponseAndUpdateState(
+                (error as any).title ? (error as any).title : `${error}`,
+                'chat',
+                newChatHistoryManager,
+                false
+            );
             addAIMessageFromResponseAndUpdateState(
                 (error as any).hint ? (error as any).hint : `${error}`,
                 completionRequest.metadata.promptType,
@@ -540,7 +565,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         let agentExecutionDepth = 1
 
         // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth < 10) {
+        while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
                 finalizeAgentStop()
@@ -560,6 +585,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Check the code generated by the AI for blacklisted words before running it
             const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
+
+            // # TODO: Make this is a helper function so we can also use it in the auto error fixup! 
             if (aiDisplayOptimizedChatItem) {
                 const aiGeneratedCode = getCodeBlockFromMessage(aiDisplayOptimizedChatItem.message);
                 if (aiGeneratedCode) {
@@ -587,12 +614,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentResponse.is_finished) {
                 // If the agent told us that it is finished, we can stop
                 isAgentFinished = true
-                addAIMessageFromResponseAndUpdateState(
-                    // TODO: Once we add descriptions, let the AI chooose this message
-                    "I'm ready for your next message. Either follow up on this task or start a new conversation for a new thread of work.",
-                    'agent:execution',
-                    chatHistoryManager
-                )
                 break;
             }
             if (agentResponse.cell_update === undefined || agentResponse.cell_update === null) {
@@ -608,11 +629,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 app,
                 getDuplicateChatHistoryManager,
                 addAIMessageFromResponseAndUpdateState,
-                sendDebugErrorMessage,
+                sendAgentSmartDebugMessage,
                 previewAICodeToActiveCell,
                 acceptAICode,
                 shouldContinueAgentExecution,
-                finalizeAgentStop
+                finalizeAgentStop,
+                chatHistoryManagerRef
             )
 
             if (status === 'interupted') {
@@ -631,6 +653,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 )
                 break;
             }
+        }
+
+        if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
+            addAIMessageFromResponseAndUpdateState(
+                "Since I've been working for a while now, give my work a review and then tell me how to continue.",
+                'agent:execution',
+                chatHistoryManager
+            )
         }
 
         setAgentExecutionStatus('idle')
@@ -796,7 +826,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, {
             execute: async (args?: ReadonlyPartialJSONObject) => {
                 if (args?.input) {
-                    await sendDebugErrorMessage(args.input.toString())
+                    await sendSmartDebugMessage(args.input.toString())
                 }
             }
         });

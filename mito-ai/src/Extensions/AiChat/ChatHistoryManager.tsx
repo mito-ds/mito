@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
-import { AgentResponse, IAgentExecutionMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 
 export type PromptType = 
@@ -145,7 +145,7 @@ export class ChatHistoryManager {
     }
 
 
-    addDebugErrorMessage(errorMessage: string, promptType: PromptType): ISmartDebugMetadata {
+    addSmartDebugMessage(errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -163,11 +163,37 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: promptType
+                promptType: 'smartDebug'
             }
         );
 
         return smartDebugMetadata
+    }
+
+    addAgentSmartDebugMessage(errorMessage: string): IAgentSmartDebugMetadata {
+
+        const activeCellID = getActiveCellID(this.notebookTracker)
+        const activeCellCode = getActiveCellCode(this.notebookTracker)
+
+        const agentSmartDebugMetadata: IAgentSmartDebugMetadata = {
+            promptType: 'agent:autoErrorFixup',
+            aiOptimizedCells: getAIOptimizedCells(this.notebookTracker),
+            variables: this.contextManager.variables,
+            files: this.contextManager.files,
+            errorMessage: errorMessage,
+            error_message_producing_code_cell_id: activeCellID || ''
+        }
+
+        this.displayOptimizedChatHistory.push(
+            {
+                message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
+                type: 'openai message',
+                codeCellID: activeCellID,
+                promptType: 'agent:autoErrorFixup'
+            }
+        );
+
+        return agentSmartDebugMetadata
     }
 
     addExplainCodeMessage(): ICodeExplainMetadata {
@@ -228,18 +254,19 @@ export class ChatHistoryManager {
         );
     }
 
-    addAIMessageFromAgentResponse(
-        agentResponse: AgentResponse
-    ): void {
+    addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
 
-        const code = agentResponse.cell_update?.code || ''
+        const code = agentResponse.cell_update?.code
         const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
+
+        let content = agentResponse.message
+        if (codeWithMarkdownFormatting !== undefined) {
+            content = content + '\n\n' + codeWithMarkdownFormatting
+        }
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
-
-            // If no cell update is provided, then the content of the message is undefined
-            content: agentResponse.cell_update ? codeWithMarkdownFormatting : undefined
+            content: content
         }
 
         this.displayOptimizedChatHistory.push(

@@ -31,10 +31,11 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellCode or '', 
             metadata.input
         )
+        display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
-        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": metadata.input}
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
         
         # Get the completion
