@@ -12,6 +12,7 @@ on:
       - 'mito-ai/**'
       - 'tests/mitoai_ui_tests/**'
       - '.github/workflows/test-mito-ai.yml'
+  workflow_dispatch:
 jobs:
   test-mitoai-frontend-jupyterlab:
     runs-on: ubuntu-20.04
