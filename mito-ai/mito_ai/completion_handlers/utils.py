@@ -6,7 +6,11 @@ from mito_ai.prompt_builders.chat_system_message import create_chat_system_messa
 from mito_ai.prompt_builders.agent_system_message import create_agent_system_message_prompt
 
 
-async def append_chat_system_message(message_history: GlobalMessageHistory, provider: OpenAIProvider, thread_id: Optional[str] = None) -> None:
+async def append_chat_system_message(
+        message_history: GlobalMessageHistory,
+        provider: OpenAIProvider,
+        thread_id: Optional[str] = None
+) -> None:
     
     # If the system message already exists, do nothing
     if any(msg["role"] == "system" for msg in message_history.ai_optimized_history):
@@ -27,7 +31,11 @@ async def append_chat_system_message(message_history: GlobalMessageHistory, prov
     )
     
     
-async def append_agent_system_message(message_history: GlobalMessageHistory, provider: OpenAIProvider, thread_id: Optional[str] = None) -> None:
+async def append_agent_system_message(
+        message_history: GlobalMessageHistory,
+        provider: OpenAIProvider,
+        thread_id: Optional[str] = None
+) -> None:
     
     # If the system message already exists, do nothing
     if any(msg["role"] == "system" for msg in message_history.ai_optimized_history):
