@@ -380,3 +380,4 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
   });
 });
+
