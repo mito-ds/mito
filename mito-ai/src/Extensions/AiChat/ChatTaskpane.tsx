@@ -249,6 +249,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     contextManager
                 );
                 addAIMessageFromResponseAndUpdateState(
+                    (error as any).title ? (error as any).title : `${error}`,
+                    'chat',
+                    newChatHistoryManager,
+                    false
+                );                
+                addAIMessageFromResponseAndUpdateState(
                     (error as any).hint ? (error as any).hint : `${error}`,
                     'chat',
                     newChatHistoryManager,
@@ -491,6 +497,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         } catch (error) {
+            addAIMessageFromResponseAndUpdateState(
+                (error as any).title ? (error as any).title : `${error}`,
+                'chat',
+                newChatHistoryManager,
+                false
+            );
             addAIMessageFromResponseAndUpdateState(
                 (error as any).hint ? (error as any).hint : `${error}`,
                 completionRequest.metadata.promptType,

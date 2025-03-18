@@ -163,7 +163,12 @@ export class CompletionWebsocketClient implements IDisposable {
               console.log('Successfully reconnected, now sending message');
             } catch (reconnectError) {
               console.error('Failed to reconnect websocket:', reconnectError);
-              reject(new Error('Failed to reconnect websocket before sending message'));
+              // If the error is a MitoAIError, propagate it directly to preserve the helpful message
+              if (reconnectError instanceof MitoAIError) {
+                reject(reconnectError);
+              } else {
+                reject(new Error('Failed to reconnect websocket before sending message'));
+              }
               return;
             }
           }
@@ -347,6 +352,13 @@ export class CompletionWebsocketClient implements IDisposable {
       this._reconnectAttempt = 0;
     } catch (error) {
       console.error(`Reconnection attempt ${this._reconnectAttempt} failed:`, error);
+      
+      // If the error is a MitoAIError (like the extension not being enabled),
+      // propagate it immediately instead of retrying
+      if (error instanceof MitoAIError) {
+        throw error;
+      }
+      
       // Try again recursively with exponential backoff
       return this.reconnect(false);
     }
