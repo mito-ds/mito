@@ -60,7 +60,7 @@ class ChatMessageMetadata():
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    index: Optional[int] = None   
+    index: Optional[int] = None
     threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
