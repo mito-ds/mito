@@ -2,7 +2,9 @@ import { expect, test } from '@jupyterlab/galata';
 import { 
   createAndRunNotebookWithCells, 
   getCodeFromCell, 
+  runCell, 
   selectCell, 
+  typeInNotebookCell, 
   waitForIdle, 
   addNewCell
 } from '../jupyter_utils/jupyterlab_utils';
@@ -12,6 +14,7 @@ import {
   clickDenyButton, 
   clickPreviewButton, 
   clickOnMitoAIChatTab,
+  closeMitoAIChat, 
   editMitoAIMessage, 
   sendMessageToMitoAI, 
   waitForMitoAILoadingToDisappear,
@@ -348,34 +351,32 @@ test.describe('Mito AI Chat', () => {
     // After sending the message, the active cell preview should disappear
     expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
   });
+
+  test('Restore message history', async ({ page }) => {
+    await createAndRunNotebookWithCells(page, ['print(1)']);
+    await waitForIdle(page);
+
+    await selectCell(page, 0);
+
+    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
+    
+    await waitForIdle(page);
+    await waitForMitoAILoadingToDisappear(page);
+    
+    // As you have a notebook opened, at reload a dialog shows up to 
+    // select the kernel for the notebook. The dialog prevent all the tests 
+    // carried out at page load to be performed as it capture the focus.
+    // One way around it is to set the option waitForIsReady (specific to JupyterLab):
+    // When that option is set, we don't wait for addition checks specific to JupyterLab
+    await page.reload({waitForIsReady: false});
+    await Promise.all([
+      page.getByRole('button', { name: 'Select Kernel' }).click(),
+      waitForIdle(page)
+    ]);
+
+    // 1 from the previous message, 1 for the new chat input since we use
+    // the message-user class on the chat input also
+    await expect(page.locator('.message-user')).toHaveCount(2); 
+    await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
+  });
 });
-
-// test.describe.serial('Mito AI Chat History', () => {
-//   test('Restore message history', async ({ page }) => {
-//     await createAndRunNotebookWithCells(page, ['print(1)']);
-//     await waitForIdle(page);
-
-//     await selectCell(page, 0);
-
-//     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
-    
-//     await waitForIdle(page);
-//     await waitForMitoAILoadingToDisappear(page);
-    
-//     // As you have a notebook opened, at reload a dialog shows up to 
-//     // select the kernel for the notebook. The dialog prevent all the tests 
-//     // carried out at page load to be performed as it capture the focus.
-//     // One way around it is to set the option waitForIsReady (specific to JupyterLab):
-//     // When that option is set, we don't wait for addition checks specific to JupyterLab
-//     await page.reload({waitForIsReady: false});
-//     await Promise.all([
-//       page.getByRole('button', { name: 'Select Kernel' }).click(),
-//       waitForIdle(page)
-//     ]);
-
-//     // 1 from the previous message, 1 for the new chat input since we use
-//     // the message-user class on the chat input also
-//     await expect(page.locator('.message-user')).toHaveCount(2); 
-//     await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
-//   });
-// });
