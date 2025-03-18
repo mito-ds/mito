@@ -419,7 +419,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeThreadId) {
             chatMessageMetadata.threadId = activeThreadId;
         }
-        
+
         setChatHistoryManager(newChatHistoryManager)
 
         const completionRequest: IChatCompletionRequest = {
