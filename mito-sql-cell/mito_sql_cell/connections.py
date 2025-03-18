@@ -11,6 +11,21 @@ DEFAULT_CONFIGURATION_FILE = "~/.mito/connections.ini"
 """Default database connection configuration file."""
 
 
+def _filter_url_params(config: dict) -> dict:
+    return {
+        k: v
+        for k, v in config.items()
+        if k in {
+            "username",
+            "password",
+            "host",
+            "port",
+            "database",
+            "query",
+        }
+    }
+
+
 class SqlConnections:
     """Handle database connections."""
 
@@ -31,7 +46,9 @@ class SqlConnections:
 
                 url = snowflake_url(**parameters)
             else:
-                url = URL(**parameters)
+                # SQLAlchemy URL.create locks allowed named parameters
+                # https://docs.sqlalchemy.org/en/20/core/engines.html#sqlalchemy.engine.URL.create
+                url = URL.create(driver, **_filter_url_params(parameters))
             self._engines[name] = engine = create_engine(url)
 
         with engine.connect() as connection:
