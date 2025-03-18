@@ -157,14 +157,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: false
         }
 
-        const chatHistoryResponse = await websocketClient.sendMessage<
-        ICompletionRequest,
-            IFetchHistoryReply
-        >(fetchHistoryCompletionRequest);
+        const chatHistoryResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchHistoryReply>(fetchHistoryCompletionRequest);
 
         // Create a fresh ChatHistoryManager and add the initial messages
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
 
+        // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
+        // when the user switches mode. When the user reloads a chat, we want to put them back into the same
+        // chat mode so that we use the correct system message and preserve this one-type of message invariant.
         let isAgentChat: boolean = false
 
         // Add messages to the ChatHistoryManager
