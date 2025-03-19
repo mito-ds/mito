@@ -91,6 +91,7 @@ setup(
         "tornado>=6.2.0",
         "traitlets",
         "pydantic",
+        "packaging",
     ],
     extras_require = {
         'deploy': [
