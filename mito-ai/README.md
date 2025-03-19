@@ -143,7 +143,13 @@ Frontend linting for mito-ai is done using ESLint in the mito-ai directory.
 
 To run the ESLint tests, just run `jlpm eslint` in the mito-ai directory.
 
+#### Performance Tests
 
+Performance tests for mito-ai are written using pytest in the mito-ai/tests directory.
+
+To run the performance tests, just run `python -m pytest mito_ai/tests/performance_test.py -v -s` in the mito-ai directory.
+
+Note that you'll have to edit `open_ai_utils.py`, specifically the `is_running_test` condition.
 
 
 
