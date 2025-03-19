@@ -133,19 +133,33 @@ describe('ChatMessage Component', () => {
             expect(messageContainer).toHaveClass('message-assistant-chat');
         });
 
-        it('renders a code block in an assistant message', () => {
+        it('renders a code block with action buttons when it is the last AI message', () => {
             renderChatMessage({
                 message: createMockMessage('assistant', 'Here is a pandas example:\n```python\nimport pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})\nprint(df)\n```'),
-                messageType: 'openai message'
+                messageType: 'openai message',
+                isLastAiMessage: true,
+                codeReviewStatus: 'chatPreview'
             });
 
             // Check for the text part
             expect(screen.getByText(/Here is a pandas example:/)).toBeInTheDocument();
 
-            // The code part will be rendered in the real component
+            // Check for the container
             const container = screen.getByText(/Here is a pandas example:/).closest('.message');
             expect(container).toBeInTheDocument();
             expect(container).toHaveClass('message-assistant-chat');
+
+            // Check for the action buttons that should appear with the code block
+            const buttons = screen.getAllByRole('button');
+            const buttonTexts = buttons.map(button => button.textContent || '');
+
+            // Verify the specific button texts for code actions
+            expect(buttonTexts).toContain('Overwrite Active Cell');
+            expect(buttonTexts).toContain('Copy');
+
+            // Verify the buttons are in the chat-message-buttons container
+            const buttonContainer = screen.getByText('Overwrite Active Cell').closest('.chat-message-buttons');
+            expect(buttonContainer).toBeInTheDocument();
         });
 
         it('renders an agent planning message correctly', () => {
