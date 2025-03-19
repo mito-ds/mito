@@ -6,11 +6,10 @@ import CodeBlock from './CodeBlock';
 import AlertBlock from './AlertBlock';
 import MarkdownBlock from './MarkdownBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
+import { getContentStringFromMessage, PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
-import GarbageIcon from '../../../icons/GarbageIcon';
 import ChatInput from './ChatInput';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
@@ -22,6 +21,7 @@ import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
+import '../../../../style/MarkdownMessage.css'
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -40,7 +40,6 @@ interface IChatMessageProps {
     acceptAICode: () => void
     rejectAICode: () => void
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
-    onDeleteMessage: (messageIndex: number) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
 }
@@ -60,7 +59,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    onDeleteMessage,
     contextManager,
     codeReviewStatus
 }): JSX.Element | null => {
@@ -70,7 +68,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
-    const editable = messageType === 'openai message:agent:planning' || message.role === 'user'
+    const editable = message.role === 'user'
 
     const messageContentParts = splitStringWithCodeBlocks(message);
 
@@ -98,7 +96,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
-                displayActiveCellCode={messageType !== 'openai message:agent:planning'}
+                displayActiveCellCode={true}
             />
         );
     }
@@ -112,12 +110,18 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             </div>
         )
     }
+
+    // If the message is empty, don't render anything
+    const messageContent = getContentStringFromMessage(message)
+    if (messageContent === undefined || messageContent === '') {
+        return <></>
+    }
+
     return (
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant-chat': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
-            { 'message-assistant-agent': messageType === 'openai message:agent:planning' },
+            { 'message-assistant-chat': message.role === 'assistant'},
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -203,6 +207,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     <MarkdownBlock
                                         markdown={messagePart}
                                         renderMimeRegistry={renderMimeRegistry}
+                                        notebookTracker={notebookTracker}
                                     />
                                 )}
                             </p>
@@ -219,15 +224,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     >
                         <PencilIcon />
                     </button>
-                    {messageType === 'openai message:agent:planning' &&
-                        <button
-                            className="message-delete-button"
-                            onClick={() => onDeleteMessage(messageIndex)}
-                            title="Delete message"
-                        >
-                            <GarbageIcon />
-                        </button>
-                    }
                 </div>
             }
         </div>

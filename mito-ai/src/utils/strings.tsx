@@ -10,11 +10,18 @@ export const PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE = '```'
     Given a message from the OpenAI API, returns the content as a string. 
     If the content is not a string, returns undefined.
 */
-const getContentStringFromMessage = (message: OpenAI.Chat.ChatCompletionMessageParam): string | undefined => {
+export const getContentStringFromMessage = (message: OpenAI.Chat.ChatCompletionMessageParam): string | undefined => {
     
     // TODO: We can't assume this is a string. We need to handle the other
     // return options
     if (message.role === 'user' ||  message.role === 'assistant') {
+
+        // Don't convert the message to a string if the content is undefined or null
+        // so we can continue to use type checking
+        if (message.content === undefined || message.content === null) {
+            return undefined
+        }
+
         return message.content as string
     }
 
@@ -69,7 +76,11 @@ export const getCodeBlockFromMessage = (message: OpenAI.Chat.ChatCompletionMessa
     This is important for showing diffs. If the code cell contains no code, the first line will be marked as 
     removed in the code diff. To ensure the diff lines up with the code, we need to leave this whitespace line.
 */
-export const addMarkdownCodeFormatting = (code: string, trim?: boolean): string => {
+export const addMarkdownCodeFormatting = (code: string | undefined, trim?: boolean): string | undefined => {
+
+    if (code === undefined) {
+        return undefined
+    }
     
     let codeWithoutBackticks = code
     

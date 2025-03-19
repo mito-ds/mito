@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.models import CompletionRequest, ChatThreadMetadata, MessageType
+from mito_ai.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.schema import MITO_FOLDER
@@ -37,7 +37,7 @@ class ChatThread:
     """
     def __init__(
         self,
-        thread_id: str,
+        thread_id: ThreadID,
         creation_ts: float,
         last_interaction_ts: float,
         name: str,
@@ -104,7 +104,7 @@ class GlobalMessageHistory:
     Attributes:
         _lock (Lock): Ensures thread-safe access.
         _chats_dir (str): Directory where chat thread files are stored.
-        _chat_threads (Dict[str, ChatThread]): In-memory cache of all chat threads.
+        _chat_threads (Dict[ThreadID, ChatThread]): In-memory cache of all chat threads.
 
     Methods:
         create_new_thread() -> str:
@@ -113,33 +113,33 @@ class GlobalMessageHistory:
             Returns copies of the AI-optimized and display histories for the newest thread.
         clear_histories() -> None:
             Creates a new thread (preserving old threads).
-        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str], llm_provider) -> None:
+        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
             Appends new messages to the newest thread and saves to disk.
         truncate_histories(index: int) -> None:
             Truncates both histories at the given index in the newest thread.
-        delete_thread(thread_id: str) -> None:
+        delete_thread(thread_id: ThreadID) -> None:
             Deletes a chat thread by its ID from memory and disk.
         get_threads() -> List[dict]:
             Returns a list of threads with thread_id, name, creation_ts, and last_interaction_ts.
     """
 
-    def __init__(self, chats_dir: str = os.path.join(MITO_FOLDER, "ai-chats")):
+    def __init__(self) -> None:
         self._lock = Lock()
-        self._chats_dir = chats_dir
+        self._chats_dir = os.path.join(MITO_FOLDER, "ai-chats")
         os.makedirs(self._chats_dir, exist_ok=True)
 
         # In-memory cache of all chat threads loaded from disk
-        self._chat_threads: Dict[str, ChatThread] = {}
+        self._chat_threads: Dict[ThreadID, ChatThread] = {}
 
         # Load existing threads from disk on startup
         self._load_all_threads_from_disk()
 
-    def create_new_thread(self) -> str:
+    def create_new_thread(self) -> ThreadID:
         """
         Creates a new empty chat thread and saves it immediately.
         """
         with self._lock:
-            thread_id = str(uuid.uuid4())
+            thread_id = ThreadID(str(uuid.uuid4()))
             now = time.time()
             new_thread = ChatThread(
                 thread_id=thread_id,
@@ -167,7 +167,7 @@ class GlobalMessageHistory:
                     file_version = data.get("chat_history_version", 0)
                     if file_version == CHAT_HISTORY_VERSION:
                         thread = ChatThread(
-                            thread_id=data["thread_id"],
+                            thread_id=ThreadID(data["thread_id"]),
                             creation_ts=data["creation_ts"],
                             last_interaction_ts=data["last_interaction_ts"],
                             name=data["name"],
@@ -200,7 +200,7 @@ class GlobalMessageHistory:
         except Exception as e:
             print(f"Error saving chat thread {thread.thread_id}: {e}")
     
-    def _get_newest_thread_id(self) -> Optional[str]:
+    def _get_newest_thread_id(self) -> Optional[ThreadID]:
         """
         Returns the thread_id of the thread with the latest 'last_interaction_ts'.
         If no threads exist, return None.
@@ -242,7 +242,7 @@ class GlobalMessageHistory:
 
             return self._chat_threads[thread_id].display_history[:]
 
-    def get_histories(self, thread_id: Optional[str] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
+    def get_histories(self, thread_id: Optional[ThreadID] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         """
         For backward compatibility: returns the LLM and display history of the newest thread.
         """
@@ -317,7 +317,7 @@ class GlobalMessageHistory:
             self._update_last_interaction(thread)
             self._save_thread_to_disk(thread)
 
-    def delete_thread(self, thread_id: str) -> bool:
+    def delete_thread(self, thread_id: ThreadID) -> bool:
         """
         Deletes a chat thread by its ID. Removes both the in-memory entry and the JSON file.
         Includes safety checks to ensure we're only deleting valid thread files.
