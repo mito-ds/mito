@@ -81,7 +81,7 @@ class StatusPopUp extends VDomRenderer<StatusModel> {
         {this.model.lastError?.title == FREE_TIER_LIMIT_REACHED_ERROR_TITLE && (
           <>
             <p>
-              ⚠️ You've used up your free Mito AI completions for this month. Upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> or supply your own Open AI Key to continue using Mito AI.
+              ⚠️ You&apos;ve used up your free Mito AI completions for this month. Upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> or supply your own Open AI Key to continue using Mito AI.
             </p>
             <TextButton
               title="Upgrade to Pro"
