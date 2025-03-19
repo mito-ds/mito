@@ -72,7 +72,6 @@ def check_mito_server_quota(message_type: MessageType) -> None:
     if message_type == MessageType.INLINE_COMPLETION:
         # Check autocomplete limit
         autocomplete_count = get_autocomplete_count()
-        print('autocomplete_count', autocomplete_count)
         
         if autocomplete_count >= OS_MONTHLY_AUTOCOMPLETE_LIMIT:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
@@ -80,7 +79,6 @@ def check_mito_server_quota(message_type: MessageType) -> None:
     else:
         # Check chat completion limit
         completion_count = get_chat_completion_count()
-        print('completion_count', completion_count)
         
         if completion_count >= OS_MONTHLY_AI_COMPLETIONS_LIMIT:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
