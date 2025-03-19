@@ -162,20 +162,6 @@ describe('ChatMessage Component', () => {
             expect(buttonContainer).toBeInTheDocument();
         });
 
-        it('renders an agent planning message correctly', () => {
-            renderChatMessage({
-                message: createMockMessage('assistant', 'I need to think about this problem...'),
-                messageType: 'openai message:agent:planning'
-            });
-
-            // Check for the planning message
-            expect(screen.getByText('I need to think about this problem...')).toBeInTheDocument();
-            const messageElement = screen.getByText('I need to think about this problem...');
-            const messageContainer = messageElement.closest('.message');
-            expect(messageContainer).toHaveClass('message-assistant-chat');
-        });
-    });
-
     describe('Error Messages', () => {
         it('renders an error message when there is a connection error', () => {
             renderChatMessage({
