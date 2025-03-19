@@ -21,9 +21,7 @@ import {
   startNewMitoAIChat
 } from './utils';
 
-test.describe.configure({ mode: 'parallel' });
-
-test.describe('Mito AI Chat', () => {
+test.describe.parallel('Mito AI Chat', () => {
 
   test('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
@@ -90,6 +88,8 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
+    await startNewMitoAIChat(page);
+
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
@@ -108,6 +108,8 @@ test.describe('Mito AI Chat', () => {
   test('Edit Message', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
+
+    await startNewMitoAIChat(page);
 
     // Send the first message
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
@@ -144,6 +146,8 @@ test.describe('Mito AI Chat', () => {
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print("cell 0")']);
     await waitForIdle(page);
+
+    await startNewMitoAIChat(page);
 
     // Send a first message in cell 1
     await sendMessageToMitoAI(page, 'Write the code x = 1');
@@ -199,6 +203,9 @@ test.describe('Mito AI Chat', () => {
 
     // Send the first message with the first cell active
     selectCell(page, 0);
+
+    await startNewMitoAIChat(page);
+
     await sendMessageToMitoAI(page, 'Write the code x = 1');
 
     // Preview the changes
@@ -281,6 +288,7 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
 
     await clickOnMitoAIChatTab(page);
+    await startNewMitoAIChat(page);
     await page.locator('.chat-input').click();
 
     // The fill() command doesn't trigger input events that the dropdown relies on
@@ -302,6 +310,7 @@ test.describe('Mito AI Chat', () => {
 
     await waitForIdle(page);
     await clickOnMitoAIChatTab(page);
+    await startNewMitoAIChat(page);
 
     // The fill() command doesn't trigger input events that the dropdown relies on
     // So we need to type it character by character instead
@@ -330,6 +339,7 @@ test.describe('Mito AI Chat', () => {
     await selectCell(page, 0);
 
     await clickOnMitoAIChatTab(page);
+    await startNewMitoAIChat(page);
 
     // The active cell preview should not be visible before the user focusses on the chat input
     await expect.soft(page.locator('.active-cell-preview-container')).not.toBeVisible();
@@ -358,7 +368,9 @@ test.describe('Mito AI Chat', () => {
     // After sending the message, the active cell preview should disappear
     expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
   });
+});
 
+test.describe.serial('Mito AI Chat - Restore history', () => {
   test('Restore message history', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
@@ -387,4 +399,3 @@ test.describe('Mito AI Chat', () => {
     await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
   });
 });
-

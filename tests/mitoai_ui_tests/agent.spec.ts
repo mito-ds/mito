@@ -30,10 +30,11 @@ test.describe("Agent mode print hi", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
+        await startNewMitoAIChat(page);
+        await waitForIdle(page);
+
         // Switch to agent mode 
         await clickAgentModeToggleButton(page);
-
-        await startNewMitoAIChat(page);
 
         await sendMessageToMitoAI(page, "print hi");
         await waitForIdle(page);
@@ -118,6 +119,9 @@ test.describe("Stop Agent", () => {
         await waitForIdle(page);
 
         await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        await startNewMitoAIChat(page);
         await waitForIdle(page);
 
         // Switch to agent mode 
@@ -220,6 +224,9 @@ test.describe("Agent mode auto error fixup", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
+        await startNewMitoAIChat(page);
+        await waitForIdle(page);
+
         // Switch to agent mode 
         await clickAgentModeToggleButton(page);
     });
@@ -252,6 +259,9 @@ test.describe("Agent mode blacklisted words", () => {
         await waitForIdle(page);
 
         await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        await startNewMitoAIChat(page);
         await waitForIdle(page);
 
         // Switch to agent mode 
