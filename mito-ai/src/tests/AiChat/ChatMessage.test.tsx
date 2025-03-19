@@ -192,7 +192,7 @@ describe('ChatMessage Component', () => {
             expect(screen.getByText('I need to think about this problem...')).toBeInTheDocument();
             const messageElement = screen.getByText('I need to think about this problem...');
             const messageContainer = messageElement.closest('.message');
-            expect(messageContainer).toHaveClass('message-assistant-agent');
+            expect(messageContainer).toHaveClass('message-assistant-chat');
         });
     });
 
