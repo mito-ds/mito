@@ -381,7 +381,7 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      One month trial with 500 Chats
+                      30 AI Chat and Agent Usages
                     </p>
                   </PlanBullet>
                   <PlanBullet>
