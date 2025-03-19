@@ -1,10 +1,13 @@
+import sqlite3
+from faker import Faker
+from pathlib import Path
+
+import pandas
+import pytest
 from IPython.core.interactiveshell import InteractiveShell
 from traitlets.config import Config
 
-import pytest
-
 from mito_sql_cell.magic import SqlMagic
-from pathlib import Path
 
 HERE = Path(__file__).parent
 
@@ -63,3 +66,15 @@ def ipython_shell(config_file):
     shell.register_magics(sql_magic)
 
     return shell
+
+
+@pytest.fixture
+def sqlite_db(tmp_path):
+    db = tmp_path / "test.db"
+    connection = sqlite3.connect(db)
+
+    fake = Faker()
+    data = pandas.DataFrame([fake.simple_profile() for _ in range(20)])
+    data.to_sql("profiles", connection, index=False)
+
+    return db

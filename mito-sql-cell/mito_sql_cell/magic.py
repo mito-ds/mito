@@ -19,6 +19,8 @@ from .connections import MitoConnectorManager, SqlConnections
 MAGIC_OPTION_PREFIX = re.compile(r"-{1,2}\w+")
 """Prefix for magic command options."""
 
+DEFAULT_VARIABLE_NAME = "sql_out"
+"""Default variable name for storing the result of the SQL query."""
 
 def _option_strings_from_parser(parser: MagicArgumentParser) -> set[str]:
     """Extracts the expected option strings (-x, --xyz, etc) from argparse parser
@@ -77,7 +79,7 @@ class SqlMagic(Magics):
     @argument(
         "-o",
         "--out",
-        default="sql_out",
+        default=DEFAULT_VARIABLE_NAME,
         type=str,
         help="Name of the variable to store the result into.",
     )
@@ -132,6 +134,7 @@ class SqlMagic(Magics):
             try:
                 result = _run_statements(conn, cell)
 
+                # Store the result in the user's namespace
                 self.shell.user_ns.update({args.out: result})
 
                 # Return results into the default ipython _ variable

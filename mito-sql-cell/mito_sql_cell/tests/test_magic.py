@@ -1,4 +1,7 @@
 import pandas
+import pytest
+
+from mito_sql_cell.magic import DEFAULT_VARIABLE_NAME
 
 
 def test_basic_magic(ipython_shell):
@@ -6,3 +9,34 @@ def test_basic_magic(ipython_shell):
 
     assert isinstance(r, pandas.DataFrame)
     assert len(r) == 5
+
+    assert DEFAULT_VARIABLE_NAME in ipython_shell.user_ns
+    assert ipython_shell.user_ns[DEFAULT_VARIABLE_NAME] is r
+
+
+@pytest.mark.parametrize("option", ["-o", "--out"])
+def test_magic_custom_out(ipython_shell, option):
+    VARIABLE_NAME = "dfsql"
+
+    r = ipython_shell.run_cell_magic(
+        "sql", f"{option} {VARIABLE_NAME} db", "SELECT * FROM repositories"
+    )
+
+    assert VARIABLE_NAME in ipython_shell.user_ns
+    assert ipython_shell.user_ns[VARIABLE_NAME] is r
+
+
+@pytest.mark.parametrize("option", ["-c", "--configfile"])
+def test_magic_custom_config(tmp_path, ipython_shell, sqlite_db, option):
+    CONFIG_FILE = tmp_path / "custom_db.ini"
+    CONFIG_FILE.write_text(f"""[fake]
+database = {sqlite_db.absolute()!s}
+driver = sqlite
+""")
+
+    r = ipython_shell.run_cell_magic(
+        "sql", f"{option} {CONFIG_FILE.absolute()!s} fake", "SELECT * FROM profiles"
+    )
+
+    assert isinstance(r, pandas.DataFrame)
+    assert len(r) == 20
