@@ -12,10 +12,10 @@ from mito_ai.utils.utils import is_running_test
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
 from mito_ai.models import MessageType, ResponseFormatInfo
-from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_MITO_AI_FIRST_USAGE_DATE, UJ_AI_MITO_API_NUM_USAGES
-from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
-from mito_ai.utils.db import get_completion_count, get_first_completion_date, get_user_field, set_user_field
+from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
+from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro
+from mito_ai.utils.server_limits import check_mito_server_quota
 from openai.types.chat import ChatCompletionMessageParam
 MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
@@ -25,70 +25,19 @@ MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaw
 # before merging into dev because we always want our users to be using the prod endpoint!
 MITO_AI_URL: Final[str] = MITO_AI_PROD_URL
 
-OPEN_SOURCE_AI_COMPLETIONS_LIMIT: Final[int] = 500
-OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT: Final[int] = 30 # days
-
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
-    
-
-def check_mito_server_quota() -> None:
-    """
-    Checks if the user has exceeded their Mito server quota. Pro users have no limits.
-    Raises PermissionError if the user has exceeded their quota.
-    """
-    if is_pro():
-        return
-
-    # Using these helper functions lets us mock their results in tests so 
-    # we can test the logic of this function.
-    completion_count = get_completion_count()
-    first_completion_date = get_first_completion_date()
-
-    if completion_count >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
-        log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-        raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-
-    if first_completion_date != "":
-        first_use = datetime.strptime(first_completion_date, "%Y-%m-%d")
-        one_month_later = first_use + timedelta(days=OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT)
-        if datetime.now() > one_month_later:
-            log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-            raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-
-def update_mito_server_quota(message_type: MessageType) -> None:
-    """Update the user's quota for the Mito Server."""
-    
-    n_counts = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-    first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
-    
-    if n_counts is None:
-        n_counts = 0
-    
-    if message_type != MessageType.INLINE_COMPLETION:
-        # We don't increment the count for inline completions because they are not
-        # counted towards the quota.
-        n_counts = n_counts + 1
-    
-    if first_usage_date is None:
-        first_usage_date = datetime.now().strftime("%Y-%m-%d")
-        
-    try: 
-        set_user_field(UJ_AI_MITO_API_NUM_USAGES, n_counts)
-        set_user_field(UJ_MITO_AI_FIRST_USAGE_DATE, first_usage_date)
-    except Exception as e:
-        raise e
-        
 
 async def get_ai_completion_from_mito_server(
     last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
     timeout: int,
     max_retries: int,
+    message_type: MessageType,
 ) -> str:
     
     # First check that the user is allowed to use the Mito Server
-    check_mito_server_quota()
+    check_mito_server_quota(message_type)
     
     global __user_email, __user_id
 
