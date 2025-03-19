@@ -122,7 +122,7 @@ test.describe("Stop Agent", () => {
 
     test("Stop agent's plan execution", async ({ page }) => {
 
-        await sendMessageToAgent(page, "Create a list of 10 numbers and then find the largest number in the list.", undefined, true);
+        await sendMessageToAgent(page, "Create a list of 10 numbers and then find the largest number in the list.", true);
 
         // Wait for the Stop Agent button to be visible before clicking it
         await page.getByTestId('stop-agent-button').waitFor({ state: 'visible' });
