@@ -161,6 +161,7 @@ describe('ChatMessage Component', () => {
             const buttonContainer = screen.getByText('Overwrite Active Cell').closest('.chat-message-buttons');
             expect(buttonContainer).toBeInTheDocument();
         });
+    });
 
     describe('Error Messages', () => {
         it('renders an error message when there is a connection error', () => {
