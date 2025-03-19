@@ -26,8 +26,9 @@ or we will no longer be able to provide this free tier.
 """
 # Monthly chat completions limit for free tier users
 OS_MONTHLY_AI_COMPLETIONS_LIMIT: Final[int] = 30
+
 # Monthly autocomplete limit for free tier users
-OS_MONTHLY_AUTOCOMPLETE_LIMIT: Final[int] = 500 
+OS_MONTHLY_AUTOCOMPLETE_LIMIT: Final[int] = 5000
 
 def check_mito_server_quota(message_type: MessageType) -> None:
     """
