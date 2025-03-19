@@ -209,7 +209,7 @@ describe('ChatMessage Component', () => {
         });
     });
 
-    describe('Interaction', () => {
+    describe('User Actions and UI Responses', () => {
         it('shows edit button for user messages', () => {
             renderChatMessage({
                 message: createMockMessage('user', 'Hello, can you help me with pandas?')
