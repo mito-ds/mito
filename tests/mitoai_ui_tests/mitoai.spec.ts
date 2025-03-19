@@ -53,6 +53,8 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
+    await startNewMitoAIChat(page);
+
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
@@ -70,6 +72,8 @@ test.describe('Mito AI Chat', () => {
   test('Reject AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
+    
+    await startNewMitoAIChat(page);
 
     await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
 
@@ -168,6 +172,9 @@ test.describe('Mito AI Chat', () => {
 
     // Send the first message with the first cell active
     selectCell(page, 0);
+
+    await startNewMitoAIChat(page);
+
     await sendMessageToMitoAI(page, 'Write the code x = 1');
 
     // Preview the changes

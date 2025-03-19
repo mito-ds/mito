@@ -14,6 +14,7 @@ import {
     clickAgentModeToggleButton,
     getNotebookCode,
     waitForAgentToFinish,
+    startNewMitoAIChat
 } from './utils';
 
 test.describe("Agent mode print hi", () => {
@@ -31,6 +32,8 @@ test.describe("Agent mode print hi", () => {
 
         // Switch to agent mode 
         await clickAgentModeToggleButton(page);
+
+        await startNewMitoAIChat(page);
 
         await sendMessageToMitoAI(page, "print hi");
         await waitForIdle(page);
