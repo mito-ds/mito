@@ -25,7 +25,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         files = metadata.files or []
         thread_id = metadata.threadId
 
-        # Add the system message if it doens't alredy exist
+        # Add the system message if it doesn't alredy exist
         await append_chat_system_message(message_history, provider, thread_id)
         
         # Create the prompt

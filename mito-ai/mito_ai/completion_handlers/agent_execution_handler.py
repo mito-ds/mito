@@ -22,8 +22,8 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         """Get a chat completion from the AI provider."""
 
         thread_id = metadata.threadId
-        
-        # Add the system message if it doens't alredy exist
+
+        # Add the system message if it doesn't alredy exist
         await append_agent_system_message(message_history, provider, thread_id)
         
         # Create the prompt

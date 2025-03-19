@@ -384,9 +384,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetatada = newChatHistoryManager.addAgentExecutionMessage(input)
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(input)
         if (activeThreadId) {
-            agentExecutionMetatada.threadId = activeThreadId;
+            agentExecutionMetadata.threadId = activeThreadId;
         }
         setChatHistoryManager(newChatHistoryManager)
 
@@ -394,7 +394,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const completionRequest: IAgentExecutionCompletionRequest = {
             type: 'agent:execution',
             message_id: UUID.uuid4(),
-            metadata: agentExecutionMetatada,
+            metadata: agentExecutionMetadata,
             stream: false
         }
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
