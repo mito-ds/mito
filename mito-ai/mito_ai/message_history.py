@@ -133,7 +133,7 @@ class GlobalMessageHistory:
 
         # Load existing threads from disk on startup
         self._load_all_threads_from_disk()
-        self._active_thread_id = self._get_newest_thread_id()
+        self._active_thread_id = self._get_newest_thread_id() or self.create_new_thread()
 
     def create_new_thread(self) -> ThreadID:
         """
