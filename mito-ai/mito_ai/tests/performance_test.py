@@ -1,9 +1,9 @@
 """
 This test will not run in CI, but you can run it locally with:
-RUN_PERFORMANCE_TESTS=true python -m pytest mito_ai/tests/performance_test.py -v -s
+python -m pytest mito_ai/tests/performance_test.py -v -s
 
 Note that you will also need to edit open_ai_utils.py,
-specifically the `is_running_test` condition. I would reccomend
+specifically the `is_running_test` condition. I would recommend
 copying the code from the else condition into the if condition.
 """
 
@@ -24,9 +24,6 @@ TEST_MODEL = "o3-mini"
 NUM_ITERATIONS = 10  # Number of requests to make for each test
 
 # Environment variable to control whether performance tests run in CI
-RUN_PERFORMANCE_TESTS = (
-    os.environ.get("RUN_PERFORMANCE_TESTS", "false").lower() == "true"
-)
 IS_CI = os.environ.get("CI", "false").lower() == "true"
 
 # Test messages for all performance tests
