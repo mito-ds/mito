@@ -19,7 +19,7 @@ TODAY = datetime.now().strftime("%Y-%m-%d")
 
 def test_check_mito_server_quota_open_source_user() -> None:
     # Under chat completions limit
-    with patch("mito_ai.utils.db.get_completion_count", return_value=1) as mock_count, \
+    with patch("mito_ai.utils.db.get_chat_completion_count", return_value=1) as mock_count, \
          patch("mito_ai.utils.db.get_last_reset_date", return_value=TODAY) as mock_date:
         check_mito_server_quota(MessageType.CHAT)
         assert mock_count.called
@@ -38,7 +38,7 @@ def test_check_mito_server_quota_open_source_user() -> None:
 
     # Over chat completions limit
     with pytest.raises(PermissionError), \
-         patch("mito_ai.utils.db.get_completion_count", return_value=OS_MONTHLY_AI_COMPLETIONS_LIMIT + 1) as mock_count, \
+         patch("mito_ai.utils.db.get_chat_completion_count", return_value=OS_MONTHLY_AI_COMPLETIONS_LIMIT + 1) as mock_count, \
          patch("mito_ai.utils.db.get_last_reset_date", return_value=TODAY) as mock_date:
         check_mito_server_quota(MessageType.CHAT)
         assert mock_count.called
@@ -60,7 +60,7 @@ def test_check_mito_server_quota_open_source_user() -> None:
 def test_check_mito_server_quota_pro_user() -> None:
     # No error should be thrown since pro users don't have limits
     with patch("mito_ai.utils.version_utils.is_pro", return_value=True), \
-         patch("mito_ai.utils.db.get_completion_count", return_value=1000), \
+         patch("mito_ai.utils.db.get_chat_completion_count", return_value=1000), \
          patch("mito_ai.utils.db.get_last_reset_date", return_value=REALLY_OLD_DATE):
         check_mito_server_quota(MessageType.CHAT)
 

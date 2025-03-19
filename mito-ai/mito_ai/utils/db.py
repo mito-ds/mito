@@ -37,7 +37,7 @@ def set_user_field(field: str, value: Any) -> None:
         with open(USER_JSON_PATH, 'w+') as f:
             f.write(json.dumps(old_user_json))
             
-def get_completion_count() -> int:
+def get_chat_completion_count() -> int:
     """
     Returns the number of AI completions the user has made in the current 30-day period.
     
