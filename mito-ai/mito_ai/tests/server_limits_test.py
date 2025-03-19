@@ -8,9 +8,11 @@ from mito_ai.utils.server_limits import (
     OS_MONTHLY_AI_COMPLETIONS_LIMIT,
     OS_MONTHLY_AUTOCOMPLETE_LIMIT,
     check_mito_server_quota,
+    update_mito_server_quota,
     UJ_AI_MITO_API_NUM_USAGES,
     UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES,
-    UJ_MITO_AI_LAST_RESET_DATE
+    UJ_MITO_AI_LAST_RESET_DATE,
+    UJ_MITO_AI_FIRST_USAGE_DATE
 )
 from mito_ai.utils.telemetry_utils import MITO_SERVER_FREE_TIER_LIMIT_REACHED
 
@@ -196,3 +198,164 @@ def test_zero_limits_configured():
         with pytest.raises(PermissionError) as exc_info:
             check_mito_server_quota(MessageType.INLINE_COMPLETION)
         assert str(exc_info.value) == MITO_SERVER_FREE_TIER_LIMIT_REACHED
+
+# New test cases for update_mito_server_quota function
+# Each case is (first_usage_date, last_reset_date, current_completion_count, current_autocomplete_count, message_type, expected_operations)
+# The expected_operations is a dict specifying what operations should happen: reset_counters, update_first_date, increment_chat, increment_autocomplete
+UPDATE_QUOTA_TEST_CASES = [
+    # Basic cases - incrementing counters
+    (
+        CURRENT_DATE, CURRENT_DATE, 10, 20, MessageType.CHAT, 
+        {"reset_counters": False, "update_first_date": False, "increment_chat": True, "increment_autocomplete": False}
+    ),
+    (
+        CURRENT_DATE, CURRENT_DATE, 10, 20, MessageType.INLINE_COMPLETION, 
+        {"reset_counters": False, "update_first_date": False, "increment_chat": False, "increment_autocomplete": True}
+    ),
+    
+    # First usage initialization
+    (
+        None, CURRENT_DATE, 10, 20, MessageType.CHAT, 
+        {"reset_counters": False, "update_first_date": True, "increment_chat": True, "increment_autocomplete": False}
+    ),
+    
+    # Reset date initialization
+    (
+        CURRENT_DATE, None, 10, 20, MessageType.CHAT, 
+        {"reset_counters": False, "update_first_date": False, "increment_chat": True, "increment_autocomplete": False}
+    ),
+    
+    # Both dates missing
+    (
+        None, None, 10, 20, MessageType.CHAT, 
+        {"reset_counters": False, "update_first_date": True, "increment_chat": True, "increment_autocomplete": False}
+    ),
+    
+    # Old reset date - should reset counters before updating
+    (
+        CURRENT_DATE, OLD_DATE, 10, 20, MessageType.CHAT, 
+        {"reset_counters": True, "update_first_date": False, "increment_chat": True, "increment_autocomplete": False}
+    ),
+    (
+        CURRENT_DATE, OLD_DATE, 10, 20, MessageType.INLINE_COMPLETION, 
+        {"reset_counters": True, "update_first_date": False, "increment_chat": False, "increment_autocomplete": True}
+    ),
+    
+    # None counts - should be handled as 0
+    (
+        CURRENT_DATE, CURRENT_DATE, None, 20, MessageType.CHAT, 
+        {"reset_counters": False, "update_first_date": False, "increment_chat": True, "increment_autocomplete": False}
+    ),
+    (
+        CURRENT_DATE, CURRENT_DATE, 10, None, MessageType.INLINE_COMPLETION, 
+        {"reset_counters": False, "update_first_date": False, "increment_chat": False, "increment_autocomplete": True}
+    ),
+]
+
+@pytest.mark.parametrize(
+    "first_usage_date, last_reset_date, completion_count, autocomplete_count, message_type, expected_ops",
+    UPDATE_QUOTA_TEST_CASES
+)
+def test_update_mito_server_quota(first_usage_date, last_reset_date, completion_count, autocomplete_count, message_type, expected_ops):
+    """Test the update_mito_server_quota function with various input combinations."""
+    # Mock set_user_field to track calls
+    mock_set_user_field = MagicMock()
+    
+    with (
+        patch("mito_ai.utils.server_limits.get_first_completion_date", return_value=first_usage_date),
+        patch("mito_ai.utils.server_limits.get_last_reset_date", return_value=last_reset_date),
+        patch("mito_ai.utils.server_limits.get_chat_completion_count", return_value=completion_count),
+        patch("mito_ai.utils.server_limits.get_autocomplete_count", return_value=autocomplete_count),
+        patch("mito_ai.utils.server_limits.set_user_field", mock_set_user_field)
+    ):
+        # Call the function
+        update_mito_server_quota(message_type)
+        
+        # Prepare expected calls based on test case
+        expected_calls = []
+        
+        # Check initialization of first usage date
+        if first_usage_date is None or expected_ops["update_first_date"]:
+            assert any(call[0][0] == UJ_MITO_AI_FIRST_USAGE_DATE for call in mock_set_user_field.call_args_list), \
+                "First usage date should have been initialized"
+        
+        # Check initialization of reset date
+        if last_reset_date is None:
+            assert any(call[0][0] == UJ_MITO_AI_LAST_RESET_DATE for call in mock_set_user_field.call_args_list), \
+                "Reset date should have been initialized"
+        
+        # Check counter reset operations
+        if expected_ops["reset_counters"]:
+            reset_calls = [
+                call(UJ_AI_MITO_API_NUM_USAGES, 0),
+                call(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, 0)
+            ]
+            for reset_call in reset_calls:
+                assert reset_call in mock_set_user_field.call_args_list, \
+                    f"Expected reset call {reset_call} not found"
+            
+            # Reset date should also be updated
+            assert any(call[0][0] == UJ_MITO_AI_LAST_RESET_DATE for call in mock_set_user_field.call_args_list), \
+                "Reset date should have been updated"
+        
+        # Check counter increment operations
+        if expected_ops["increment_chat"]:
+            expected_count = 1 if completion_count is None else completion_count + 1
+            chat_call = call(UJ_AI_MITO_API_NUM_USAGES, expected_count)
+            assert chat_call in mock_set_user_field.call_args_list, \
+                f"Expected chat completion increment call {chat_call} not found"
+        
+        if expected_ops["increment_autocomplete"]:
+            expected_count = 1 if autocomplete_count is None else autocomplete_count + 1
+            autocomplete_call = call(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, expected_count)
+            assert autocomplete_call in mock_set_user_field.call_args_list, \
+                f"Expected autocomplete increment call {autocomplete_call} not found"
+
+# Special edge cases for update_mito_server_quota
+def test_update_quota_exception_handling():
+    """Test that exceptions from set_user_field are properly propagated."""
+    
+    with (
+        patch("mito_ai.utils.server_limits.get_first_completion_date", return_value=CURRENT_DATE),
+        patch("mito_ai.utils.server_limits.get_last_reset_date", return_value=CURRENT_DATE),
+        patch("mito_ai.utils.server_limits.get_chat_completion_count", return_value=10),
+        patch("mito_ai.utils.server_limits.get_autocomplete_count", return_value=20),
+        patch("mito_ai.utils.server_limits.set_user_field", side_effect=ValueError("Test error"))
+    ):
+        # Test with chat completion
+        with pytest.raises(ValueError) as exc_info:
+            update_mito_server_quota(MessageType.CHAT)
+        assert str(exc_info.value) == "Test error"
+        
+        # Test with inline completion
+        with pytest.raises(ValueError) as exc_info:
+            update_mito_server_quota(MessageType.INLINE_COMPLETION)
+        assert str(exc_info.value) == "Test error"
+
+def test_update_quota_future_reset_date():
+    """Test behavior when reset date is in the future."""
+    
+    mock_set_user_field = MagicMock()
+    
+    with (
+        patch("mito_ai.utils.server_limits.get_first_completion_date", return_value=CURRENT_DATE),
+        patch("mito_ai.utils.server_limits.get_last_reset_date", return_value=FUTURE_DATE),
+        patch("mito_ai.utils.server_limits.get_chat_completion_count", return_value=10),
+        patch("mito_ai.utils.server_limits.set_user_field", mock_set_user_field)
+    ):
+        # Call the function
+        update_mito_server_quota(MessageType.CHAT)
+        
+        # Check that counters weren't reset
+        reset_calls = [
+            call(UJ_AI_MITO_API_NUM_USAGES, 0),
+            call(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, 0)
+        ]
+        for reset_call in reset_calls:
+            assert reset_call not in mock_set_user_field.call_args_list, \
+                "Counters should not be reset when reset date is in the future"
+        
+        # Chat count should still be incremented
+        chat_call = call(UJ_AI_MITO_API_NUM_USAGES, 11)
+        assert chat_call in mock_set_user_field.call_args_list, \
+            "Chat completion count should still be incremented"

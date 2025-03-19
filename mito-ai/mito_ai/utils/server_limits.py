@@ -108,19 +108,20 @@ def update_mito_server_quota(message_type: MessageType) -> None:
     if last_reset_date_str is None:
         last_reset_date_str = current_date.strftime("%Y-%m-%d")
         set_user_field(UJ_MITO_AI_LAST_RESET_DATE, last_reset_date_str)
-    else:
-        # Convert the last reset date string to a datetime object
-        last_reset_date = datetime.strptime(last_reset_date_str, "%Y-%m-%d")
         
-        # Calculate the date one month from the last reset
-        one_month_later = last_reset_date + timedelta(days=30)
-        
-        # If it's been more than a month since the last reset, reset both counters
-        if current_date >= one_month_later:
-            set_user_field(UJ_AI_MITO_API_NUM_USAGES, 0)
-            set_user_field(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, 0)
-            last_reset_date_str = current_date.strftime("%Y-%m-%d")
-            set_user_field(UJ_MITO_AI_LAST_RESET_DATE, last_reset_date_str)
+    # Convert the last reset date string to a datetime object
+    last_reset_date = datetime.strptime(last_reset_date_str, "%Y-%m-%d")
+    
+    # Calculate the date one month from the last reset
+    one_month_later = last_reset_date + timedelta(days=30)
+    
+    # If it's been more than a month since the last reset, reset both counters
+    # and make today's date the new reset date
+    if current_date >= one_month_later:
+        set_user_field(UJ_AI_MITO_API_NUM_USAGES, 0)
+        set_user_field(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, 0)
+        last_reset_date_str = current_date.strftime("%Y-%m-%d")
+        set_user_field(UJ_MITO_AI_LAST_RESET_DATE, last_reset_date_str)
     
     # Update the appropriate usage counter based on message type
     if message_type == MessageType.INLINE_COMPLETION:
