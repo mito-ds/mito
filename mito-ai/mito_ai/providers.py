@@ -26,8 +26,8 @@ from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,
-    update_mito_server_quota,
 )
+from mito_ai.utils.server_limits import update_mito_server_quota
 
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
@@ -162,7 +162,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
         try:
-            check_mito_server_quota()
+            # Default to chat completion for capabilities check
+            check_mito_server_quota(MessageType.CHAT)
         except Exception as e:
             self.log.warning("Failed to set first usage date in user.json", exc_info=e)
             self.last_error = CompletionError.from_exception(e)
@@ -249,6 +250,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     completion_function_params,
                     self.timeout,
                     self.max_retries,
+                    message_type,
                 )
                 
                 update_mito_server_quota(message_type)
