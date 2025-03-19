@@ -11,7 +11,7 @@
     "test:dash": "playwright test dash_ui_tests --retries=3 --project=\"chromium\"",
     "test:jupyterlab": "playwright test jupyterlab_ui_tests --retries=3 --project=\"chromium\"",
     "test:notebook": "playwright test notebook_ui_tests --retries=3 --project=\"chromium\"",
-    "test:mitoai": "playwright test mitoai_ui_tests --retries=3 --workers=5 --project=\"chromium\""
+    "test:mitoai": "playwright test mitoai_ui_tests --retries=3 --workers=1 --project=\"chromium\""
   },
   "author": "",
   "license": "ISC",
