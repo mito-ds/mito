@@ -40,7 +40,6 @@ def check_mito_server_quota(message_type: MessageType) -> None:
     or we will no longer be able to provide this free tier.
     """
     if is_pro():
-        print('pro')
         return
 
     # Get current date
@@ -54,7 +53,6 @@ def check_mito_server_quota(message_type: MessageType) -> None:
         set_user_field(UJ_MITO_AI_LAST_RESET_DATE, current_date.strftime("%Y-%m-%d"))
         set_user_field(UJ_AI_MITO_API_NUM_USAGES, 0)
         set_user_field(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, 0)
-        print('no last reset date')
         return
     
     # Convert the last reset date string to a datetime object
@@ -68,26 +66,25 @@ def check_mito_server_quota(message_type: MessageType) -> None:
         set_user_field(UJ_AI_MITO_API_NUM_USAGES, 0)
         set_user_field(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, 0)
         set_user_field(UJ_MITO_AI_LAST_RESET_DATE, current_date.strftime("%Y-%m-%d"))
-        print('reset')
+        
     # Check the appropriate limit based on message type
     if message_type == MessageType.INLINE_COMPLETION:
         # Check autocomplete limit
         autocomplete_count = get_autocomplete_count()
+        print('autocomplete_count', autocomplete_count)
         
         if autocomplete_count >= OS_MONTHLY_AUTOCOMPLETE_LIMIT:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
             raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
     else:
-        print('not inline completion')
         # Check chat completion limit
         completion_count = get_chat_completion_count()
-        print('completion count', completion_count)
+        print('completion_count', completion_count)
         
         if completion_count >= OS_MONTHLY_AI_COMPLETIONS_LIMIT:
             log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
             raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
         
-    print('no error')
 
 def update_mito_server_quota(message_type: MessageType) -> None:
     """
