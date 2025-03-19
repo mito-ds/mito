@@ -30,8 +30,7 @@ async def append_chat_system_message(
         llm_provider=provider,
         thread_id=thread_id
     )
-    
-    
+
 async def append_agent_system_message(
         message_history: GlobalMessageHistory,
         provider: OpenAIProvider,
