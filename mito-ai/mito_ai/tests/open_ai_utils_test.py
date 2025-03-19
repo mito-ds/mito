@@ -67,7 +67,7 @@ def test_check_mito_server_quota_open_source_user() -> None:
 
 def test_check_mito_server_quota_pro_user() -> None:
     # No error should be thrown since pro users don't have limits
-    with patch("mito_ai.utils.version_utils.is_pro", return_value=True), \
+    with patch("mito_ai.utils.server_limits.is_pro", return_value=True), \
          patch("mito_ai.utils.server_limits.get_chat_completion_count", return_value=1000), \
          patch("mito_ai.utils.server_limits.get_last_reset_date", return_value=REALLY_OLD_DATE):
         
