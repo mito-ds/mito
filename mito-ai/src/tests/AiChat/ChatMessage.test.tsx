@@ -4,12 +4,11 @@ import { render, screen, fireEvent, cleanup, act } from '@testing-library/react'
 import ChatMessage from '../../Extensions/AiChat/ChatMessage/ChatMessage';
 import { CodeReviewStatus } from '../../Extensions/AiChat/ChatTaskpane';
 import { ChatMessageType, PromptType } from '../../Extensions/AiChat/ChatHistoryManager';
-import OpenAI from 'openai';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { IContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
 import { OperatingSystem } from '../../utils/user';
+import { createMockMessage } from '../__mocks__/openaiMocks';
+import { createMockNotebookTracker, createMockRenderMimeRegistry } from '../__mocks__/jupyterMocks';
 
 jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     return {
@@ -63,39 +62,6 @@ jest.mock('../../utils/notebook', () => ({
 jest.mock('../../utils/copyToClipboard', () => {
     return jest.fn().mockResolvedValue(undefined);
 });
-
-// Create mock data for tests
-const createMockMessage = (role: 'user' | 'assistant' | 'system', content: string): OpenAI.Chat.ChatCompletionMessageParam => ({
-    role,
-    content
-});
-
-// Mock notebook tracker with minimal required properties
-const createMockNotebookTracker = () => ({
-    currentWidget: {
-        content: {
-            activeCellIndex: 0,
-            widgets: [{
-                model: {
-                    id: 'test-cell-id'
-                }
-            }]
-        }
-    },
-    // Add the required activeCellChanged signal
-    activeCellChanged: {
-        connect: jest.fn(),
-        disconnect: jest.fn()
-    }
-}) as unknown as INotebookTracker;
-
-// Mock renderMimeRegistry with minimal implementation
-const createMockRenderMimeRegistry = () => ({
-    createRenderer: jest.fn(() => ({
-        renderModel: jest.fn(),
-        node: document.createElement('div')
-    }))
-}) as unknown as IRenderMimeRegistry;
 
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
