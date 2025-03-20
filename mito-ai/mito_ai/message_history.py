@@ -224,7 +224,7 @@ class GlobalMessageHistory:
         with self._lock:
             if self._active_thread_id not in self._chat_threads:
                 return []
-            return self._chat_threads[thread_id].ai_optimized_history
+            return self._chat_threads[self._active_thread_id].ai_optimized_history
 
     def get_ai_optimized_history(self, thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
         """
@@ -244,7 +244,7 @@ class GlobalMessageHistory:
         with self._lock:
             if self._active_thread_id not in self._chat_threads:
                 return []
-            return self._chat_threads[thread_id].display_history
+            return self._chat_threads[self._active_thread_id].display_history
     
     def get_display_history(self, thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
         """
