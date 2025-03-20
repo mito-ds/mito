@@ -21,7 +21,14 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
     ) -> str:
         """Get a chat completion from the AI provider."""
 
+        index = metadata.index
         thread_id = metadata.threadId
+
+        if index is not None:
+            message_history.truncate_histories(
+                thread_id=thread_id,
+                index=index
+            )
 
         # Add the system message if it doesn't alredy exist
         await append_agent_system_message(message_history, provider, thread_id)

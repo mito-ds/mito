@@ -14,7 +14,7 @@ async def append_chat_system_message(
 ) -> None:
     
     # If the system message already exists, do nothing
-    if any(msg["role"] == "system" for msg in message_history.ai_optimized_history):
+    if any(msg["role"] == "system" for msg in message_history.get_ai_optimized_history(thread_id)):
         return
     
     system_message_prompt = create_chat_system_message_prompt()
@@ -38,7 +38,7 @@ async def append_agent_system_message(
 ) -> None:
     
     # If the system message already exists, do nothing
-    if any(msg["role"] == "system" for msg in message_history.ai_optimized_history):
+    if any(msg["role"] == "system" for msg in message_history.get_ai_optimized_history(thread_id)):
         return
     
     system_message_prompt = create_agent_system_message_prompt()

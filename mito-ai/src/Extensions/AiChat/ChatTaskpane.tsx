@@ -395,6 +395,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeThreadId) {
             agentExecutionMetadata.threadId = activeThreadId;
         }
+        if (messageIndex !== undefined) {
+            agentExecutionMetadata.index = messageIndex
+        }
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -425,6 +428,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
         if (activeThreadId) {
             chatMessageMetadata.threadId = activeThreadId;
+        }
+        if (messageIndex !== undefined) {
+            chatMessageMetadata.index = messageIndex
         }
 
         setChatHistoryManager(newChatHistoryManager)

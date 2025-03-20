@@ -70,6 +70,7 @@ class AgentExecutionMetadata():
     aiOptimizedCells: List[AIOptimizedCell]
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
+    index: Optional[int] = None
     threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
