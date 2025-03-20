@@ -17,7 +17,7 @@ from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
 from openai.types.chat import ChatCompletionMessageParam
-MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/REMOVE_ME"
 MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
 # If you want to test the dev endpoint, change this to MITO_AI_DEV_URL.

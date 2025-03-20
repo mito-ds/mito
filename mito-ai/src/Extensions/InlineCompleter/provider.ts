@@ -330,14 +330,14 @@ export class MitoAIInlineCompleter
   private _notifyCompletionFailure(error: CompletionError): void {
     // Only show the notification if we haven't shown one already
     if (!this._displayed_completion_failure_notification) {
-      Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
+      Notification.emit(`AI code completion failed. We're experiencing some technical difficulties.`, 'error', {
         autoClose: false,
         actions: [
           {
-            label: 'Show Traceback',
+            label: 'Show Technical Details',
             callback: async (): Promise<void> => {
-              await showErrorMessage('Inline completion failed on the server side', {
-                message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
+              await showErrorMessage('Completion Service Error Details', {
+                message: error.traceback ?? 'No additional error information is available.'
               });
             }
           }
