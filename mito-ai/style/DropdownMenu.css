@@ -17,7 +17,7 @@
   white-space: nowrap;
   height: 400px;
   width: 300px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 /* Left-aligned dropdown */
@@ -39,6 +39,7 @@
   align-items: center;
   gap: 8px;
   padding: 4px 2px;
+  padding-right: 20px; /* Add padding to leave space for the scrollbar */
   cursor: pointer;
 }
 
