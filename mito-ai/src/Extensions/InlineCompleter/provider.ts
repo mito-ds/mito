@@ -56,6 +56,8 @@ export class MitoAIInlineCompleter
   // We only want to display the free tier limit reached notification once 
   // per session to avoid spamming the user. 
   private _displayed_free_tier_limit_reached_notification = false;
+  // Similarly, we only want to show the general completion failure notification once
+  private _displayed_completion_failure_notification = false;
 
 
   constructor({
@@ -296,7 +298,7 @@ export class MitoAIInlineCompleter
   }
 
   private _notifyFreeTierLimitReached(): void {
-    Notification.emit(`You've used up your free Mito AI completions for this month. Upgrade to Mito Pro to or supply your own key.`, 'error', {
+    Notification.emit(`You've used up your free Mito AI completions for this month. Upgrade to Mito Pro or supply your own key.`, 'error', {
       autoClose: false,
       actions: [
         {
@@ -326,19 +328,51 @@ export class MitoAIInlineCompleter
   }
 
   private _notifyCompletionFailure(error: CompletionError): void {
-    Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
-      autoClose: false,
-      actions: [
-        {
-          label: 'Show Traceback',
-          callback: async (): Promise<void> => {
-            await showErrorMessage('Inline completion failed on the server side', {
-              message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
-            });
+    // Only show the notification if we haven't shown one already
+    if (!this._displayed_completion_failure_notification) {
+      Notification.emit(`AI code completion failed. We're experiencing some technical difficulties.`, 'error', {
+        autoClose: false,
+        actions: [
+          {
+            label: 'Show Technical Details',
+            callback: async (event: Event): Promise<void> => {
+              // Prevent the default action which might close the notification
+              event.preventDefault();
+              event.stopPropagation();
+              
+              // Show the error details in a separate dialog
+              await showErrorMessage('Completion Service Error Details', {
+                message: error.traceback ?? 'No additional error information is available.'
+              });
+            }
+          },
+          {
+            label: 'Get Help',
+            callback: (): void => {
+              // Create the body text with error details
+              const bodyText = `Hello Mito team,
+
+I encountered an error while using the AI code completion feature:
+
+Error type: ${error.error_type || 'Unknown'}
+${error.traceback ? `\nTraceback:\n${error.traceback}` : ''}
+
+Additional details about what I was doing:
+[User can add details here]
+
+Thanks for your help!
+`;
+              // URL encode the body text
+              const encodedBody = encodeURIComponent(bodyText);
+              // Open email client with pre-filled recipients, subject, and body
+              window.open(`mailto:founders@sagacollab.com?subject=AI%20Completion%20Error%20Support&body=${encodedBody}`, '_blank');
+            }
           }
-        }
-      ]
-    });
+        ]
+      });
+      // Set the flag to true so we don't show this notification again
+      this._displayed_completion_failure_notification = true;
+    }
   }
 
   /**
