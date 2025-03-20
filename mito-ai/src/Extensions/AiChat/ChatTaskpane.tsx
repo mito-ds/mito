@@ -981,18 +981,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 <historyIcon.react />
                             </button>
                         }
-                        items={chatThreads.map(thread => ({
-                            label: thread.name,
-                            primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
-                            onClick: () => fetchChatHistoryForThread(thread.thread_id),
-                            secondaryActions: [
-                                {
-                                    icon: deleteIcon.react,
-                                    onClick: () => deleteThread(thread.thread_id),
-                                    tooltip: 'Delete this chat',
-                                }
-                            ]
-                        }))}
+                        items={chatThreads.length > 0 
+                            ? chatThreads.map(thread => ({
+                                label: thread.name,
+                                primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
+                                onClick: () => fetchChatHistoryForThread(thread.thread_id),
+                                secondaryActions: [
+                                    {
+                                        icon: deleteIcon.react,
+                                        onClick: () => deleteThread(thread.thread_id),
+                                        tooltip: 'Delete this chat',
+                                    }
+                                ]
+                            }))
+                            : [{
+                                label: "No chat history available",
+                                disabled: true,
+                                onClick: () => {}
+                            }]
+                        }
                         alignment="right"
                     />
                 </div>
