@@ -381,7 +381,12 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      One month trial with 500 Chats
+                      50 AI Completions per month
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      AI Chat, Agent, and Autocomplete
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -417,12 +422,7 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      Unlimited AI Chat Completions
-                    </p>
-                  </PlanBullet>
-                  <PlanBullet>
-                    <p>
-                      Advanced reasoning with o3 models
+                      Unlimited AI Completions
                     </p>
                   </PlanBullet>
                   <PlanBullet>
@@ -433,6 +433,11 @@ const Plans: NextPage = () => {
                   <PlanBullet>
                     <p>
                       Advanced Mito Spreadsheet
+                    </p>
+                  </PlanBullet>
+                  <PlanBullet>
+                    <p>
+                      Dedicated Support
                     </p>
                   </PlanBullet>
                 </div>

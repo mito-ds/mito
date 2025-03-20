@@ -140,6 +140,7 @@
   border-radius: 5px;
   padding: 10px;
   border: 1px solid var(--purple-500);
+  color: var(--grey-900);
 }
 
 .chat-message-alert a {

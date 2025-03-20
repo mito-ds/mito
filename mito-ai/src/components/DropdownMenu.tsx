@@ -70,17 +70,14 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className={
-                    `dropdown-item-row ${item.disabled ? 'dropdown-item-disabled' : ''}`
-                }
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px' }}
+                  className={`dropdown-item-row ${item.disabled ? 'dropdown-item-disabled' : ''}`}
                 >
 
                   <button
                     className="dropdown-item-main"
                     onClick={() => handlePrimaryClick(item.onClick, item.disabled)}
                     disabled={item.disabled}
-                    title={item.disabled ? item.disabledTooltip : undefined}
+                    title={item.disabled ? item.disabledTooltip : item.label}
                   >
                     {/* Optional primary icon on the left */}
                     <span className="dropdown-item-icon">

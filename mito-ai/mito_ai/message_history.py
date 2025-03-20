@@ -133,6 +133,9 @@ class GlobalMessageHistory:
 
         # Load existing threads from disk on startup
         self._load_all_threads_from_disk()
+        
+        # If there are no threads yet, create a new one
+        self._active_thread_id = self._get_newest_thread_id() or self.create_new_thread()
 
     def create_new_thread(self) -> ThreadID:
         """
@@ -149,6 +152,7 @@ class GlobalMessageHistory:
             )
             self._chat_threads[thread_id] = new_thread
             self._save_thread_to_disk(new_thread)
+            self._active_thread_id = thread_id
             return thread_id
     
     def _load_all_threads_from_disk(self) -> None:
@@ -218,8 +222,7 @@ class GlobalMessageHistory:
         Returns the AI-optimized message history for the newest thread.
         """
         with self._lock:
-            thread_id = self._get_newest_thread_id()
-            if not thread_id or thread_id not in self._chat_threads:
+            if self._active_thread_id not in self._chat_threads:
                 return []
             return self._chat_threads[thread_id].ai_optimized_history
 
@@ -239,8 +242,7 @@ class GlobalMessageHistory:
         Returns the display-optimized message history for the newest thread.
         """
         with self._lock:
-            thread_id = self._get_newest_thread_id()
-            if not thread_id or thread_id not in self._chat_threads:
+            if self._active_thread_id not in self._chat_threads:
                 return []
             return self._chat_threads[thread_id].display_history
     
@@ -260,12 +262,13 @@ class GlobalMessageHistory:
         Returns the AI-optimized and display-optimized message histories as a tuple for the specified thread or the newest thread if not specified.
         """
         with self._lock:
-            thread_id = thread_id or self._get_newest_thread_id()
-            if not thread_id or thread_id not in self._chat_threads:
+            if thread_id not in self._chat_threads:
                 return [], []
+            
             # If history is requested, that is also considered an interaction
             self._update_last_interaction(self._chat_threads[thread_id])
             self._save_thread_to_disk(self._chat_threads[thread_id])
+            
             return (
                 self._chat_threads[thread_id].ai_optimized_history[:],
                 self._chat_threads[thread_id].display_history[:],
@@ -294,7 +297,7 @@ class GlobalMessageHistory:
         # Add messages and check if naming is needed while holding the lock
         name_gen_input = None
         with self._lock:
-            thread = self._chat_threads[thread_id]
+            thread = self._chat_threads[self._active_thread_id]
             thread.ai_optimized_history.append(ai_optimized_message)
             thread.display_history.append(display_message)
             self._update_last_interaction(thread)
@@ -321,7 +324,7 @@ class GlobalMessageHistory:
             new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), llm_provider)
             with self._lock:
                 # Update the thread's name if still required
-                thread = self._chat_threads[thread_id]
+                thread = self._chat_threads[self._active_thread_id]
                 if thread is not None and thread.name == NEW_CHAT_NAME:
                     thread.name = new_name
                     self._save_thread_to_disk(thread)
@@ -331,10 +334,7 @@ class GlobalMessageHistory:
         For the newest thread, truncate messages at the given index.
         """
         with self._lock:
-            thread_id = self._get_newest_thread_id()
-            if not thread_id:
-                return
-            thread = self._chat_threads[thread_id]
+            thread = self._chat_threads[self._active_thread_id]
             thread.ai_optimized_history = thread.ai_optimized_history[:index]
             thread.display_history = thread.display_history[:index]
             self._update_last_interaction(thread)

@@ -15,6 +15,10 @@
   flex-direction: column;
   min-width: 200px;
   white-space: nowrap;
+  height: 400px;
+  min-width: 225px;
+  max-width: 350px;
+  overflow-y: auto;
 }
 
 /* Left-aligned dropdown */
@@ -29,21 +33,32 @@
   left: auto;
 }
 
+.dropdown-item-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  padding-right: 20px; /* Add padding to leave space for the scrollbar */
+}
+
+.dropdown-item-row:hover {
+  background-color: var(--jp-layout-color2);
+}
+
 .dropdown-item-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
   border: none;
   background: none;
-  cursor: pointer;
   color: var(--jp-ui-font-color1);
-  text-align: left;
-  display: flex;
-  align-items: center;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.dropdown-item:hover {
-  background-color: var(--jp-layout-color3);
+  cursor: pointer;
 }
 
 .dropdown-item-icon {
@@ -62,4 +77,14 @@
 .dropdown-item-disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* 
+  When using Lab Icons, we seem to get an extra div around the svg icon
+  This makes sure the svg is aligned properly in that div
+*/
+.dropdown-item-icon > div, 
+.dropdown-item-secondary > div{
+  display: flex;
+  align-items: center;
 }

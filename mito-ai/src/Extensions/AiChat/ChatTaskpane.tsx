@@ -157,16 +157,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: false
         }
 
-        const chatHistoryResponse = await websocketClient.sendMessage<
-            ICompletionRequest,
-            IFetchHistoryReply
-        >(fetchHistoryCompletionRequest);
+        const chatHistoryResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchHistoryReply>(fetchHistoryCompletionRequest);
 
         // Create a fresh ChatHistoryManager and add the initial messages
-        const newChatHistoryManager = getDefaultChatHistoryManager(
-            notebookTracker,
-            contextManager
-        );
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+
+        // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
+        // when the user switches mode. When the user reloads a chat, we want to put them back into the same
+        // chat mode so that we use the correct system message and preserve this one-type of message invariant.
+        let isAgentChat: boolean = false
 
         // Add messages to the ChatHistoryManager
         chatHistoryResponse.items.forEach(item => {
@@ -178,6 +177,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // If it has the is_finished keys then it is an AgentResponse and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                    isAgentChat = true
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
                 }
@@ -187,6 +187,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         // Update the state with the new ChatHistoryManager
+        setAgentModeEnabled(isAgentChat)
         setChatHistoryManager(newChatHistoryManager);
         setActiveThreadId(threadId);
     };
@@ -248,6 +249,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker,
                     contextManager
                 );
+                addAIMessageFromResponseAndUpdateState(
+                    (error as any).title ? (error as any).title : `${error}`,
+                    'chat',
+                    newChatHistoryManager,
+                    false
+                );                
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).hint ? (error as any).hint : `${error}`,
                     'chat',
@@ -502,6 +509,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
         } catch (error) {
+            addAIMessageFromResponseAndUpdateState(
+                (error as any).title ? (error as any).title : `${error}`,
+                'chat',
+                newChatHistoryManager,
+                false
+            );
             addAIMessageFromResponseAndUpdateState(
                 (error as any).hint ? (error as any).hint : `${error}`,
                 completionRequest.metadata.promptType,
@@ -979,18 +992,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 <historyIcon.react />
                             </button>
                         }
-                        items={chatThreads.map(thread => ({
-                            label: thread.name,
-                            primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
-                            onClick: () => fetchChatHistoryForThread(thread.thread_id),
-                            secondaryActions: [
-                                {
-                                    icon: deleteIcon.react,
-                                    onClick: () => deleteThread(thread.thread_id),
-                                    tooltip: 'Delete this chat',
-                                }
-                            ]
-                        }))}
+                        items={chatThreads.length > 0 
+                            ? chatThreads.map(thread => ({
+                                label: thread.name,
+                                primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
+                                onClick: () => fetchChatHistoryForThread(thread.thread_id),
+                                secondaryActions: [
+                                    {
+                                        icon: deleteIcon.react,
+                                        onClick: () => deleteThread(thread.thread_id),
+                                        tooltip: 'Delete this chat',
+                                    }
+                                ]
+                            }))
+                            : [{
+                                label: "No chat history available",
+                                disabled: true,
+                                onClick: () => {}
+                            }]
+                        }
                         alignment="right"
                     />
                 </div>
