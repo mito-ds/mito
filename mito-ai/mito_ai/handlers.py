@@ -173,6 +173,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 _, display_history = message_history.get_histories(thread_id)
             else:
                 _, display_history = message_history.get_histories()
+            
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history

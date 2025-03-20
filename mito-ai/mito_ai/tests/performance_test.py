@@ -11,7 +11,7 @@ import time
 import os
 import pytest
 import openai
-from typing import List, Dict, Any, Tuple, Optional, cast
+from typing import Generator, List, Dict, Any, Tuple, Optional, cast
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.providers import OpenAIProvider
@@ -194,7 +194,7 @@ async def run_direct_openai_requests(
 
 # This fixture runs after all tests and prints the metrics summary
 @pytest.fixture(scope="session", autouse=True)
-def print_metrics_summary(request):
+def print_metrics_summary() -> Generator[None, Any, None]:
     """Print a summary of all collected metrics after all tests have run."""
     yield  # This ensures the code below runs after all tests
 

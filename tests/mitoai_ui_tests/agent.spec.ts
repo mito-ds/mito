@@ -6,12 +6,10 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import {
     clickOnMitoAIChatTab,
-    clickPreviewButton,
-    clickAcceptButton,
-    sendMessageToMitoAI,
+    sendMessageToAgent,
     editMitoAIMessage,
     waitForMitoAILoadingToDisappear,
-    clickAgentModeToggleButton,
+    turnOnAgentMode,
     getNotebookCode,
     waitForAgentToFinish,
 } from './utils';
@@ -30,9 +28,9 @@ test.describe("Agent mode print hi", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
 
-        await sendMessageToMitoAI(page, "print hi");
+        await sendMessageToAgent(page, "print hi");
         await waitForIdle(page);
     });
 
@@ -92,7 +90,7 @@ test.describe("Agent mode print hi", () => {
         expect(codeFromCellsString).toContain('hi');
 
         // Send a follow up chat message
-        await sendMessageToMitoAI(page, "Update the print statement to print goodbye");
+        await sendMessageToAgent(page, "Update the print statement to print goodbye");
         await waitForAgentToFinish(page);
 
         // Look for the code in the last cell
@@ -118,13 +116,13 @@ test.describe("Stop Agent", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
     });
 
 
     test("Stop agent's plan execution", async ({ page }) => {
 
-        await sendMessageToMitoAI(page, "Create a list of 10 numbers and then find the largest number in the list.", undefined, true);
+        await sendMessageToAgent(page, "Create a list of 10 numbers and then find the largest number in the list.", true);
 
         // Wait for the Stop Agent button to be visible before clicking it
         await page.getByTestId('stop-agent-button').waitFor({ state: 'visible' });
@@ -144,7 +142,7 @@ test.describe("Stop Agent", () => {
 
     test("Stop agent during error fixup", async ({ page }) => {
         // This is hopefully an impossible thing for the agent to pass. 
-        await sendMessageToMitoAI(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
+        await sendMessageToAgent(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
         await waitForIdle(page);
 
         // Wait for the "trying again" message to appear
@@ -188,9 +186,9 @@ test.describe("Agent overwrite existing cells", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
 
-        await sendMessageToMitoAI(page, "Update the print hello world statement to print goodbye world");
+        await sendMessageToAgent(page, "Update the print hello world statement to print goodbye world");
         await waitForAgentToFinish(page)
 
         // Check that the final notebook has print goodbye world and not print hello world
@@ -218,12 +216,12 @@ test.describe("Agent mode auto error fixup", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
     });
 
     test("Auto Error Fixup", async ({ page }) => {
 
-        await sendMessageToMitoAI(page, "Import the file nba_data.csv");
+        await sendMessageToAgent(page, "Import the file nba_data.csv");
         await waitForIdle(page);
 
         // Check that the agent eventually sends a message that says it is trying again
@@ -252,12 +250,12 @@ test.describe("Agent mode blacklisted words", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
     });
 
     test("Blacklisted command shows error and prevents execution", async ({ page }) => {
         // Send a message containing a blacklisted command
-        await sendMessageToMitoAI(page, "write the SQL code: DROP TABLE nba_data");
+        await sendMessageToAgent(page, "write the SQL code: DROP TABLE nba_data");
         await waitForIdle(page);
 
         // Check that the agent eventually sends a message that says it cannot execute the code

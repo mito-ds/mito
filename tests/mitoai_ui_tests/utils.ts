@@ -57,7 +57,28 @@ export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
     await waitForIdle(page);
   };
 
-export const sendMessageToMitoAI = async (
+export const sendMessagetoAIChat = async (
+    page: IJupyterLabPageFixture,
+    message: string,
+    activeCellIndex?: number,
+    doNotWaitForLoading?: boolean
+) => {  
+    await clickOnMitoAIChatTab(page);
+    await turnOnChatMode(page);
+    await _sendMessageToMitoAI(page, message, activeCellIndex, doNotWaitForLoading);
+}
+
+export const sendMessageToAgent = async (
+    page: IJupyterLabPageFixture,
+    message: string,
+    doNotWaitForLoading?: boolean
+) => {
+    await clickOnMitoAIChatTab(page);
+    await turnOnAgentMode(page);
+    await _sendMessageToMitoAI(page, message, undefined, doNotWaitForLoading);
+}
+
+export const _sendMessageToMitoAI = async (
     page: IJupyterLabPageFixture,
     message: string,
     activeCellIndex?: number,
@@ -124,8 +145,13 @@ export const clickDenyButton = async (
     await waitForIdle(page);
 }
 
-export const clickAgentModeToggleButton = async (page: IJupyterLabPageFixture) => {
+export const turnOnAgentMode = async (page: IJupyterLabPageFixture) => {
     await page.locator('.toggle-button-container').getByRole('button', { name: 'Agent' }).click();
+    await waitForIdle(page);
+}
+
+export const turnOnChatMode = async (page: IJupyterLabPageFixture) => {
+    await page.locator('.toggle-button-container').getByRole('button', { name: 'Chat' }).click();
     await waitForIdle(page);
 }
 
