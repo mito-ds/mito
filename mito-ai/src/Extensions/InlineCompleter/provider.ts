@@ -56,6 +56,8 @@ export class MitoAIInlineCompleter
   // We only want to display the free tier limit reached notification once 
   // per session to avoid spamming the user. 
   private _displayed_free_tier_limit_reached_notification = false;
+  // Similarly, we only want to show the general completion failure notification once
+  private _displayed_completion_failure_notification = false;
 
 
   constructor({
@@ -326,19 +328,24 @@ export class MitoAIInlineCompleter
   }
 
   private _notifyCompletionFailure(error: CompletionError): void {
-    Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
-      autoClose: false,
-      actions: [
-        {
-          label: 'Show Traceback',
-          callback: async (): Promise<void> => {
-            await showErrorMessage('Inline completion failed on the server side', {
-              message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
-            });
+    // Only show the notification if we haven't shown one already
+    if (!this._displayed_completion_failure_notification) {
+      Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
+        autoClose: false,
+        actions: [
+          {
+            label: 'Show Traceback',
+            callback: async (): Promise<void> => {
+              await showErrorMessage('Inline completion failed on the server side', {
+                message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
+              });
+            }
           }
-        }
-      ]
-    });
+        ]
+      });
+      // Set the flag to true so we don't show this notification again
+      this._displayed_completion_failure_notification = true;
+    }
   }
 
   /**
