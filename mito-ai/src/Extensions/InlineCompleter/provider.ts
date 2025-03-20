@@ -298,7 +298,7 @@ export class MitoAIInlineCompleter
   }
 
   private _notifyFreeTierLimitReached(): void {
-    Notification.emit(`You've used up your free Mito AI completions for this month. Upgrade to Mito Pro to or supply your own key.`, 'error', {
+    Notification.emit(`You've used up your free Mito AI completions for this month. Upgrade to Mito Pro or supply your own key.`, 'error', {
       autoClose: false,
       actions: [
         {
