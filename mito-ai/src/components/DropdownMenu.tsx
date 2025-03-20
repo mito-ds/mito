@@ -77,7 +77,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                     className="dropdown-item-main"
                     onClick={() => handlePrimaryClick(item.onClick, item.disabled)}
                     disabled={item.disabled}
-                    title={item.disabled ? item.disabledTooltip : undefined}
+                    title={item.disabled ? item.disabledTooltip : item.label}
                   >
                     {/* Optional primary icon on the left */}
                     <span className="dropdown-item-icon">

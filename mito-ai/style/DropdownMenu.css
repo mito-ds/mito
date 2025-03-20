@@ -16,7 +16,8 @@
   min-width: 200px;
   white-space: nowrap;
   height: 400px;
-  width: 300px;
+  min-width: 225px;
+  max-width: 350px;
   overflow-y: auto;
 }
 
@@ -40,7 +41,6 @@
   gap: 8px;
   padding: 4px 2px;
   padding-right: 20px; /* Add padding to leave space for the scrollbar */
-  cursor: pointer;
 }
 
 .dropdown-item-row:hover {
@@ -58,6 +58,7 @@
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .dropdown-item-icon {
