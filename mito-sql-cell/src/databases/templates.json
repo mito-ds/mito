@@ -221,20 +221,17 @@
                     "type": "string",
                     "title": "Password"
                 },
-                "host": {
+                "account": {
                     "type": "string",
-                    "title": "Host",
-                    "description": "Your account identifier. It typically follows this format: [account].[region].snowflakecomputing.com"
-                },
-                "port": {
-                    "type": "integer",
-                    "title": "Port",
-                    "description": "The default Snowflake port is 443",
-                    "default": 443
+                    "title": "Account"
                 },
                 "database": {
                     "type": "string",
                     "title": "Database"
+                },
+                "schema": {
+                    "type": "string",
+                    "title": "Schema"
                 },
                 "warehouse": {
                     "type": "string",
@@ -249,58 +246,8 @@
                 "connectionName",
                 "username",
                 "password",
-                "host",
-                "port",
                 "driver",
-                "warehouse"
-            ],
-            "additionalProperties": false
-        }
-    },
-    "Oracle": {
-        "schema": {
-            "type": "object",
-            "properties": {
-                "driver": {
-                    "type": "string",
-                    "default": "oracle+oracledb"
-                },
-                "connectionName": {
-                    "type": "string",
-                    "title": "Source Name",
-                    "default": "oracle",
-                    "pattern": "^\\w[\\w\\.]*$"
-                },
-                "username": {
-                    "type": "string",
-                    "title": "Username"
-                },
-                "password": {
-                    "type": "string",
-                    "title": "Password"
-                },
-                "host": {
-                    "type": "string",
-                    "title": "Host"
-                },
-                "port": {
-                    "type": "integer",
-                    "title": "Port",
-                    "default": 1521
-                },
-                "database": {
-                    "type": "string",
-                    "title": "Database"
-                }
-            },
-            "required": [
-                "connectionName",
-                "username",
-                "password",
-                "host",
-                "port",
-                "database",
-                "driver"
+                "account"
             ],
             "additionalProperties": false
         }
@@ -335,54 +282,6 @@
                     "type": "integer",
                     "title": "Port",
                     "default": 1433
-                },
-                "database": {
-                    "type": "string",
-                    "title": "Database"
-                }
-            },
-            "required": [
-                "connectionName",
-                "username",
-                "password",
-                "host",
-                "port",
-                "database",
-                "driver"
-            ],
-            "additionalProperties": false
-        }
-    },
-    "Redshift": {
-        "schema": {
-            "type": "object",
-            "properties": {
-                "driver": {
-                    "type": "string",
-                    "default": "redshift+redshift_connector"
-                },
-                "connectionName": {
-                    "type": "string",
-                    "title": "Source Name",
-                    "default": "redshift",
-                    "pattern": "^\\w[\\w\\.]*$"
-                },
-                "username": {
-                    "type": "string",
-                    "title": "Username"
-                },
-                "password": {
-                    "type": "string",
-                    "title": "Password"
-                },
-                "host": {
-                    "type": "string",
-                    "title": "Host"
-                },
-                "port": {
-                    "type": "integer",
-                    "title": "Port",
-                    "default": 5439
                 },
                 "database": {
                     "type": "string",
