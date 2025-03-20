@@ -70,10 +70,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className={
-                    `dropdown-item-row ${item.disabled ? 'dropdown-item-disabled' : ''}`
-                }
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px' }}
+                  className={`dropdown-item-row ${item.disabled ? 'dropdown-item-disabled' : ''}`}
                 >
 
                   <button
