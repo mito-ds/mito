@@ -335,7 +335,12 @@ export class MitoAIInlineCompleter
         actions: [
           {
             label: 'Show Technical Details',
-            callback: async (): Promise<void> => {
+            callback: async (event: Event): Promise<void> => {
+              // Prevent the default action which might close the notification
+              event.preventDefault();
+              event.stopPropagation();
+              
+              // Show the error details in a separate dialog
               await showErrorMessage('Completion Service Error Details', {
                 message: error.traceback ?? 'No additional error information is available.'
               });
@@ -345,8 +350,7 @@ export class MitoAIInlineCompleter
             label: 'Get Help',
             callback: (): void => {
               // Create the body text with error details
-              const bodyText = `
-Hello Mito team,
+              const bodyText = `Hello Mito team,
 
 I encountered an error while using the AI code completion feature:
 
