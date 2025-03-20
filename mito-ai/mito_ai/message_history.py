@@ -159,7 +159,8 @@ class GlobalMessageHistory:
         """
         Loads each .json file in `self._chats_dir` into self._chat_threads.
         """
-        for file_name in os.listdir(self._chats_dir):
+        files = os.listdir(self._chats_dir)
+        for file_name in files:
             if not file_name.endswith(".json"):
                 continue
             path = os.path.join(self._chats_dir, file_name)
@@ -244,17 +245,21 @@ class GlobalMessageHistory:
 
             return self._chat_threads[self._active_thread_id].display_history[:]
 
-    def get_histories(self, thread_id: Optional[ThreadID] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
+    def get_histories_and_set_active_thread(self, thread_id: Optional[ThreadID] = None) -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
         """
         For backward compatibility: returns the LLM and display history of the newest thread.
         """
         with self._lock:
+            if thread_id is None:
+                thread_id = self._get_newest_thread_id()
+            
             if thread_id not in self._chat_threads:
                 return [], []
             
             # If history is requested, that is also considered an interaction
             self._update_last_interaction(self._chat_threads[thread_id])
             self._save_thread_to_disk(self._chat_threads[thread_id])
+            self._active_thread_id = thread_id
             
             return (
                 self._chat_threads[thread_id].ai_optimized_history[:],
