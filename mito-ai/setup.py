@@ -103,7 +103,7 @@ setup(
             'pytest==8.3.4',
             'pytest-asyncio==0.25.3',
             'mypy>=1.8.0',
-            'types-setuptools>=69.0.0',
+            'types-setuptools==69.0.0',
             'types-tornado>=5.1.1',
         ],
     },
