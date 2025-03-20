@@ -340,6 +340,29 @@ export class MitoAIInlineCompleter
                 message: error.traceback ?? 'No additional error information is available.'
               });
             }
+          },
+          {
+            label: 'Get Help',
+            callback: (): void => {
+              // Create the body text with error details
+              const bodyText = `
+Hello Mito team,
+
+I encountered an error while using the AI code completion feature:
+
+Error type: ${error.error_type || 'Unknown'}
+${error.traceback ? `\nTraceback:\n${error.traceback}` : ''}
+
+Additional details about what I was doing:
+[User can add details here]
+
+Thanks for your help!
+`;
+              // URL encode the body text
+              const encodedBody = encodeURIComponent(bodyText);
+              // Open email client with pre-filled recipients, subject, and body
+              window.open(`mailto:founders@sagacollab.com?subject=AI%20Completion%20Error%20Support&body=${encodedBody}`, '_blank');
+            }
           }
         ]
       });
