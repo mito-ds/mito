@@ -133,6 +133,8 @@ class GlobalMessageHistory:
 
         # Load existing threads from disk on startup
         self._load_all_threads_from_disk()
+        
+        # If there are no threads yet, create a new one
         self._active_thread_id = self._get_newest_thread_id() or self.create_new_thread()
 
     def create_new_thread(self) -> ThreadID:
@@ -220,7 +222,7 @@ class GlobalMessageHistory:
         For backward compatibility: returns the LLM history of the newest thread.
         """
         with self._lock:
-            if not self._active_thread_id or self._active_thread_id not in self._chat_threads:
+            if self._active_thread_id not in self._chat_threads:
                 return []
             # If history is requested, that is also considered an interaction
             self._update_last_interaction(self._chat_threads[self._active_thread_id])
@@ -234,7 +236,7 @@ class GlobalMessageHistory:
         For backward compatibility: returns the display history of the newest thread.
         """
         with self._lock:
-            if not self._active_thread_id or self._active_thread_id not in self._chat_threads:
+            if self._active_thread_id not in self._chat_threads:
                 return []
             # If history is requested, that is also considered an interaction
             self._update_last_interaction(self._chat_threads[self._active_thread_id])
@@ -247,14 +249,16 @@ class GlobalMessageHistory:
         For backward compatibility: returns the LLM and display history of the newest thread.
         """
         with self._lock:
-            if not self._active_thread_id or self._active_thread_id not in self._chat_threads:
+            if thread_id not in self._chat_threads:
                 return [], []
+            
             # If history is requested, that is also considered an interaction
-            self._update_last_interaction(self._chat_threads[self._active_thread_id])
-            self._save_thread_to_disk(self._chat_threads[self._active_thread_id])
+            self._update_last_interaction(self._chat_threads[thread_id])
+            self._save_thread_to_disk(self._chat_threads[thread_id])
+            
             return (
-                self._chat_threads[self._active_thread_id].ai_optimized_history[:],
-                self._chat_threads[self._active_thread_id].display_history[:],
+                self._chat_threads[thread_id].ai_optimized_history[:],
+                self._chat_threads[thread_id].display_history[:],
             )
 
     async def append_message(self, ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider) -> None:
