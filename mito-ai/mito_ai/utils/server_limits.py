@@ -25,7 +25,7 @@ free tier, but running AI models is expensive, so we need to limit the usage
 or we will no longer be able to provide this free tier.
 """
 # Monthly chat completions limit for free tier users
-OS_MONTHLY_AI_COMPLETIONS_LIMIT: Final[int] = 30
+OS_MONTHLY_AI_COMPLETIONS_LIMIT: Final[int] = 50
 
 # Monthly autocomplete limit for free tier users
 OS_MONTHLY_AUTOCOMPLETE_LIMIT: Final[int] = 5000
