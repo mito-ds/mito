@@ -60,6 +60,7 @@ jobs:
       run: |
         cd tests
         source venv/bin/activate
+        pip install setuptools==68.0.0
         cd ../mito-ai
         jupyter labextension develop . --overwrite
         jupyter server extension enable --py mito_ai
