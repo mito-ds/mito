@@ -91,13 +91,14 @@ setup(
         "tornado>=6.2.0",
         "traitlets",
         "pydantic",
-        "packaging",
+        "packaging>=23.1,<24.0"
     ],
     extras_require = {
         'deploy': [
             'wheel==0.42.0', 
             'twine==5.1.1',
-            'setuptools==68.0.0'
+            'setuptools==68.0.0',
+            'packaging==23.2'
         ],
         'test': [
             'pytest==8.3.4',
@@ -105,6 +106,7 @@ setup(
             'mypy>=1.8.0',
             'types-setuptools==69.0.0',
             'types-tornado>=5.1.1',
+            'packaging==23.2'
         ],
     },
     keywords=["AI", "Jupyter", "Mito"],
