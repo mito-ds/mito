@@ -92,7 +92,7 @@ class DatabaseHandler(APIHandler):
 
         if connection:
             body = self.get_json_body() or {}
-            connection.pop("name")
+            connection.pop("connectionName")
             new_connection = connection.copy()
             new_connection.update(body)
             self.manager[connection_name] = new_connection

@@ -55,6 +55,7 @@ def config_file(monkeypatch, tmp_path):
 database = {HERE}/gh.sqlite
 driver = sqlite
 """)
+    return config_file
 
 
 @pytest.fixture

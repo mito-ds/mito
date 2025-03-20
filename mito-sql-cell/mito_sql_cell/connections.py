@@ -1,11 +1,13 @@
 from collections.abc import MutableMapping
-from configparser import ConfigParser, SectionProxy
+from configparser import ConfigParser, DEFAULTSECT, SectionProxy
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterator
 
 from sqlalchemy.engine.url import URL
 from sqlalchemy import Connection, Engine, create_engine
+
+from .logger import get_logger
 
 DEFAULT_CONFIGURATION_FILE = "~/.mito/connections.ini"
 """Default database connection configuration file."""
@@ -15,7 +17,8 @@ def _filter_url_params(config: dict) -> dict:
     return {
         k: v
         for k, v in config.items()
-        if k in {
+        if k
+        in {
             "username",
             "password",
             "host",
@@ -62,11 +65,11 @@ class MitoConnectorManager(MutableMapping):
         self._configuration_file = Path(
             configuration_file or DEFAULT_CONFIGURATION_FILE
         ).expanduser()
-        self._parser = ConfigParser()
+        self._parser = ConfigParser(interpolation=None)
 
         if not self._configuration_file.parent.exists():
             self._configuration_file.parent.mkdir(parents=True)
-
+        get_logger().info(f"Connection file is {self._configuration_file}.")
         self._reset()
 
     @property
@@ -82,34 +85,45 @@ class MitoConnectorManager(MutableMapping):
     def _reset(self) -> None:
         """Reset from the configuration file."""
         if self._configuration_file.exists():
-            self._parser = ConfigParser()
-            self._parser.read(self._configuration_file)
+            get_logger().debug(f"Reading connections from {self._configuration_file}")
+            self._parser = ConfigParser(interpolation=None)
+            with open(self._configuration_file, "r") as f:
+                self._parser.read_file(f)
 
     def __len__(self) -> int:
         self._reset()
-        return len(self._parser)
+        # Remove default section
+        return len(self._parser) - 1
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         self._reset()
-        return iter(self._parser)
+        # Remove default section
+        for section in self._parser.sections():
+            yield section
 
     def __contains__(self, connection_name: str) -> bool:
         self._reset()
         return connection_name in self._parser.sections()
 
     def __delitem__(self, connection_name: str) -> None:
+        if connection_name == DEFAULTSECT:
+            raise KeyError("Default section is not allowed")
+
         self._reset()
         self._parser.remove_section(connection_name)
         self._dump()
 
     def __getitem__(self, connection_name: str) -> dict:
+        if connection_name == DEFAULTSECT:
+            raise KeyError("Default section is not allowed")
         self._reset()
         return dict(self._parser[connection_name])
 
     def __setitem__(self, connection_name: str, connection_data: dict) -> None:
+        if connection_name == DEFAULTSECT:
+            raise KeyError("Default section is not allowed")
+
         self._reset()
-        if connection_name in self._parser:
-            raise ValueError(f"A connection named {connection_name} already exists")
         self._parser[connection_name] = connection_data
         self._dump()
 
@@ -128,6 +142,7 @@ class MitoConnectorManager(MutableMapping):
         connections = [
             _config_section_to_dict(section, value)
             for section, value in self._parser.items()
+            if section != DEFAULTSECT
         ]
 
         return connections
