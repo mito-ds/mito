@@ -107,20 +107,20 @@ class GlobalMessageHistory:
         _chat_threads (Dict[ThreadID, ChatThread]): In-memory cache of all chat threads.
 
     Methods:
-        create_new_thread() -> str:
+        create_new_thread() -> ThreadID:
             Creates a new empty chat thread and returns its ID.
-        get_histories() -> tuple[List[ChatCompletionMessageParam], List[ChatCompletionMessageParam]]:
-            Returns copies of the AI-optimized and display histories for the newest thread.
-        clear_histories() -> None:
-            Creates a new thread (preserving old threads).
-        append_message(ai_optimized_message: Dict[str, str], display_message: Dict[str, str]) -> None:
-            Appends new messages to the newest thread and saves to disk.
-        truncate_histories(index: int) -> None:
-            Truncates both histories at the given index in the newest thread.
-        delete_thread(thread_id: ThreadID) -> None:
-            Deletes a chat thread by its ID from memory and disk.
-        get_threads() -> List[dict]:
-            Returns a list of threads with thread_id, name, creation_ts, and last_interaction_ts.
+        get_ai_optimized_history(thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
+            Returns the AI-optimized history for the specified thread or newest thread.
+        get_display_history(thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
+            Returns the display-optimized history for the specified thread or newest thread.
+        append_message(ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider, thread_id: Optional[ThreadID] = None) -> None:
+            Appends messages to the specified thread (or newest thread) and generates a name if needed.
+        truncate_histories(index: int, thread_id: Optional[ThreadID] = None) -> None:
+            Truncates messages at the given index for the specified thread.
+        delete_thread(thread_id: ThreadID) -> bool:
+            Deletes a chat thread by its ID from memory and disk, returns success status.
+        get_threads() -> List[ChatThreadMetadata]:
+            Returns a list of threads with metadata, sorted by last interaction (newest first).
     """
 
     def __init__(self) -> None:
