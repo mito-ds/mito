@@ -16,7 +16,7 @@ on:
       - 'mito-ai/src/tests/**'
 jobs:
   test-mitoai-frontend:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
@@ -25,17 +25,17 @@ jobs:
       with:
         access_token: ${{ github.token }}
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v2
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
       with:
-        node-version: 18.x
+        node-version: 22.x
         cache: 'npm'
         cache-dependency-path: mito-ai/package-lock.json
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
