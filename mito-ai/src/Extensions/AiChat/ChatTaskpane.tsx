@@ -321,6 +321,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = await startNewChat()
 
         const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(errorMessage)
+        if (activeThreadId) {
+            smartDebugMetadata.threadId = activeThreadId;
+        }
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
@@ -359,6 +362,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = await startNewChat()
         const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage()
+        if (activeThreadId) {
+            explainCodeMetadata.threadId = activeThreadId;
+        }
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -385,14 +391,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetatada = newChatHistoryManager.addAgentExecutionMessage(input)
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(input)
+        if (activeThreadId) {
+            agentExecutionMetadata.threadId = activeThreadId;
+        }
+        if (messageIndex !== undefined) {
+            agentExecutionMetadata.index = messageIndex
+        }
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
         const completionRequest: IAgentExecutionCompletionRequest = {
             type: 'agent:execution',
             message_id: UUID.uuid4(),
-            metadata: agentExecutionMetatada,
+            metadata: agentExecutionMetadata,
             stream: false
         }
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
@@ -414,7 +426,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
         
         const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
-        
+        if (activeThreadId) {
+            chatMessageMetadata.threadId = activeThreadId;
+        }
+        if (messageIndex !== undefined) {
+            chatMessageMetadata.index = messageIndex
+        }
+
         setChatHistoryManager(newChatHistoryManager)
 
         const completionRequest: IChatCompletionRequest = {
@@ -460,7 +478,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             await sendChatInputMessage(newContent, messageIndex)
         }
     };
-
 
     const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)

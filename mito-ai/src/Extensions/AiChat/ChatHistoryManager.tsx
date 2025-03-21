@@ -107,7 +107,7 @@ export class ChatHistoryManager {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
-        const agentExecutionMetatada: IAgentExecutionMetadata = {
+        const agentExecutionMetadata: IAgentExecutionMetadata = {
             promptType: 'agent:execution',
             variables: this.contextManager.variables,
             files: this.contextManager.files,
@@ -137,7 +137,7 @@ export class ChatHistoryManager {
             }
         )
 
-        return agentExecutionMetatada
+        return agentExecutionMetadata
     }
 
     dropMessagesStartingAtIndex(index: number): void {
