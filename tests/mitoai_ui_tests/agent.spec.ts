@@ -6,15 +6,13 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import {
     clickOnMitoAIChatTab,
-    clickPreviewButton,
-    clickAcceptButton,
-    sendMessageToMitoAI,
+    sendMessageToAgent,
     editMitoAIMessage,
     waitForMitoAILoadingToDisappear,
-    clickAgentModeToggleButton,
+    turnOnAgentMode,
+    getNotebookCode,
+    waitForAgentToFinish,
 } from './utils';
-
-const AGENT_PLAN_SUBMIT_BUTTON_TEXT = 'Let\'s go!';
 
 test.describe("Agent mode print hi", () => {
 
@@ -30,25 +28,29 @@ test.describe("Agent mode print hi", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
 
-        await sendMessageToMitoAI(page, "print hi");
+        await sendMessageToAgent(page, "print hi");
         await waitForIdle(page);
     });
 
-    test("Switch to agent mode, and send a message", async ({ page }) => {
-        // It's hard to know exactly how many items will be in the agent's plan,
-        // but we can assume there will be at least one message. 
-        const messageCount = await page.locator('.message-assistant-agent').count();
-        expect(messageCount).toBeGreaterThanOrEqual(1);
-    })
+    test("Run agent's plan", async ({ page }) => {
+
+        // Wait until the agent is done executing
+        await waitForAgentToFinish(page);
+
+        // Make sure that the agent wrote code to the notebook
+        const codeFromCells = await getNotebookCode(page)
+        const codeFromCellsString = codeFromCells.join('')
+        expect(codeFromCellsString).toContain('hi');
+    });
 
     test("Edit original message", async ({ page }) => {
         const newMessage = "print bye";
 
         // Keep track of the original messages in the agent's plan.
         const oldPlanMessages: string[] = [];
-        const messages = await page.locator('.message-assistant-agent').all();
+        const messages = await page.locator('.message-assistant-chat').all();
         messages.forEach(async (message) => {
             const messageText = await message.textContent();
             if (messageText) {
@@ -62,7 +64,7 @@ test.describe("Agent mode print hi", () => {
 
         // Track new plan.  
         const newPlanMessages: string[] = [];
-        const newMessages = await page.locator('.message-assistant-agent').all();
+        const newMessages = await page.locator('.message-assistant-chat').all();
         newMessages.forEach(async (message) => {
             const messageText = await message.textContent();
             if (messageText) {
@@ -77,114 +79,25 @@ test.describe("Agent mode print hi", () => {
         });
     });
 
-    test("Edit message in agent's plan", async ({ page }) => {
-        const newMessage = "print bye";
+    test("Run agent's plan then send a follow up message", async ({ page }) => {
+        
+        // Wait until the agent is done executing
+        await waitForAgentToFinish(page);
 
-        // Get the last agent message, and click on it's edit button 
-        const lastAgentMessage = await page.locator('.message-assistant-agent').last();
-        await lastAgentMessage.locator('.message-start-editing-button').click();
-
-        // Make sure the active cell preview is not visible
-        await expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
-
-        // Edit the message
-        await page.locator('.chat-input').fill(newMessage);
-        await page.keyboard.press('Enter');
-
-        const lastAgentMessageContent = await lastAgentMessage.textContent();
-        expect(lastAgentMessageContent).toContain(newMessage);
-    });
-
-    test("Delete message in agent's plan", async ({ page }) => {
-        // Get initial count of agent messages
-        const initialMessageCount = await page.locator('.message-assistant-agent').count();
-
-        // Get the last agent message and delete it
-        const lastAgentMessage = await page.locator('.message-assistant-agent').last();
-        await lastAgentMessage.locator('.message-delete-button').click();
-        await waitForIdle(page);
-
-        // Verify the message count has decreased by 1
-        const finalMessageCount = await page.locator('.message-assistant-agent').count();
-        expect(finalMessageCount).toBe(initialMessageCount - 1);
-    });
-
-    test("Run agent's plan", async ({ page }) => {
-        const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
-        const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
-
-        // Run the plan of attack
-        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
-
-        // Wait for all chat messages to appear
-        await page.waitForFunction(
-            ([expectedCount, startingCount]) => {
-                const currentCount = document.querySelectorAll('.message-assistant-chat').length;
-                return currentCount === startingCount + expectedCount;
-            },
-            [numOfStepsInAgentsPlan, startingNumOfChatMessages]
-        );
-
-        // Ensure all steps in the agent's plan have been executed
-        const finalNumOfChatMessages = await page.locator('.message-assistant-chat').count();
-        expect(finalNumOfChatMessages).toEqual(startingNumOfChatMessages + numOfStepsInAgentsPlan);
-
-        // Extract code snippets from chat messages
-        const codeSnippetsFromChatMessages = await page.$$eval('.code-block-python-code pre code', elements => {
-            return elements.map(element => {
-                // Remove any HTML tags and combine text content
-                return element.textContent?.replace(/\s+/g, ' ').trim() || '';
-            });
-        });
-
-        // Get count of cells in the notebook
-        const cellCount = await page.locator('.jp-Cell').count();
-
-        // Get code from every cell in the notebook
-        const codeFromCells: string[] = [];
-        for (let i = 0; i < cellCount; i++) {
-            const code = await getCodeFromCell(page, i);
-            if (code) {
-                codeFromCells.push(code);
-            }
-        }
-
-        // Ensure all code snippets are in the notebook
-        codeSnippetsFromChatMessages.forEach(codeSnippet => {
-            expect(codeFromCells).toContain(codeSnippet);
-        });
-    });
-
-    test("Run agent's plan then send a follow up chat message", async ({ page }) => {
-        const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
-        const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
-
-        // Run the plan of attack
-        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
-
-        // Wait for all chat messages to appear
-        await page.waitForFunction(
-            ([expectedCount, startingCount]) => {
-                const currentCount = document.querySelectorAll('.message-assistant-chat').length;
-                return currentCount === startingCount + expectedCount;
-            },
-            [numOfStepsInAgentsPlan, startingNumOfChatMessages]
-        );
+        // Make sure that the agent wrote code to the notebook
+        const codeFromCells = await getNotebookCode(page)
+        const codeFromCellsString = codeFromCells.join(' ')
+        expect(codeFromCellsString).toContain('hi');
 
         // Send a follow up chat message
-        await sendMessageToMitoAI(page, "print bye");
-        await waitForIdle(page);
-
-        // Accept the follow up chat message
-        await clickPreviewButton(page);
-        await clickAcceptButton(page, { useCellToolbar: true });
-        await waitForIdle(page);
+        await sendMessageToAgent(page, "Update the print statement to print goodbye");
+        await waitForAgentToFinish(page);
 
         // Look for the code in the last cell
-        const cellCount = await page.locator('.jp-Cell').count();
-        const code = await getCodeFromCell(page, cellCount - 1);
-        expect(code).toContain('print');
-        expect(code).toContain('bye');
+        const newCodeFromCells = await getNotebookCode(page)
+        const newCodeFromCellsString = newCodeFromCells.join(' ')
+        expect(newCodeFromCellsString).toContain('print');
+        expect(newCodeFromCellsString).toContain('bye');
     });
 });
 
@@ -203,32 +116,19 @@ test.describe("Stop Agent", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
     });
 
 
     test("Stop agent's plan execution", async ({ page }) => {
 
-        await sendMessageToMitoAI(page, "Create a list of 10 numbers and then find the largest number in the list.");
-        await waitForIdle(page);
+        await sendMessageToAgent(page, "Create a list of 10 numbers and then find the largest number in the list.", true);
 
-        const numOfStepsInAgentsPlan = await page.locator('.message-assistant-agent').count();
-        const startingNumOfChatMessages = await page.locator('.message-assistant-chat').count();
-
-        // Run the plan of attack
-        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
-
-        // Wait for at least one chat message to appear to ensure the plan has started
-        await page.waitForFunction(
-            ([startingCount]) => {
-                const currentCount = document.querySelectorAll('.message-assistant-chat').length;
-                return currentCount > startingCount;
-            },
-            [startingNumOfChatMessages]
-        );
-
+        // Wait for the Stop Agent button to be visible before clicking it
+        await page.getByTestId('stop-agent-button').waitFor({ state: 'visible' });
+        
         // Click the Stop Agent button
-        await page.getByRole('button', { name: 'Stop Agent' }).click();
+        await page.getByTestId('stop-agent-button').click();
 
         // Expect that the message turns into Stopping 
         await expect(page.getByRole('button', { name: 'Stopping' })).toBeVisible();
@@ -236,23 +136,14 @@ test.describe("Stop Agent", () => {
         // Wait for the current message to finish
         await waitForMitoAILoadingToDisappear(page);
 
-        // Get the final number of chat messages
-        const finalNumOfChatMessages = await page.locator('.message-assistant-chat').count();
-
-        // Verify that not all steps were executed (there should be fewer chat messages than planned steps)
-        expect(finalNumOfChatMessages - startingNumOfChatMessages).toBeLessThan(numOfStepsInAgentsPlan);
-
         // Verify that the message "Agent stopped" is visible
         await expect(page.getByText('Agent execution stopped')).toBeVisible();
     });
 
     test("Stop agent during error fixup", async ({ page }) => {
         // This is hopefully an impossible thing for the agent to pass. 
-        await sendMessageToMitoAI(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
+        await sendMessageToAgent(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
         await waitForIdle(page);
-
-        // Run the plan of attack
-        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Wait for the "trying again" message to appear
         await expect(async () => {
@@ -284,6 +175,32 @@ test.describe("Stop Agent", () => {
     });
 })
 
+test.describe("Agent overwrite existing cells", () => {
+    test("Update existing print statement", async ({ page }) => {
+
+        // Create a notebok with a few cells
+        await createAndRunNotebookWithCells(page, ['print("hello world")', '']);
+        await waitForIdle(page);
+
+        await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        // Switch to agent mode 
+        await turnOnAgentMode(page);
+
+        await sendMessageToAgent(page, "Update the print hello world statement to print goodbye world");
+        await waitForAgentToFinish(page)
+
+        // Check that the final notebook has print goodbye world and not print hello world
+        const codeFromCells = await getNotebookCode(page)
+
+        // Join all of the code content into one big string to make searching easier
+        const codeFromCellsString = codeFromCells.join(' ')
+        expect(codeFromCellsString).toContain('goodbye world');
+        expect(codeFromCellsString).not.toContain('hello world');
+    })
+})
+
 
 test.describe("Agent mode auto error fixup", () => {
 
@@ -299,16 +216,13 @@ test.describe("Agent mode auto error fixup", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
     });
 
     test("Auto Error Fixup", async ({ page }) => {
 
-        await sendMessageToMitoAI(page, "Import the file nba_data.csv");
+        await sendMessageToAgent(page, "Import the file nba_data.csv");
         await waitForIdle(page);
-
-        // Run the plan of attack
-        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Check that the agent eventually sends a message that says it is trying again
         await expect(async () => {
@@ -336,15 +250,13 @@ test.describe("Agent mode blacklisted words", () => {
         await waitForIdle(page);
 
         // Switch to agent mode 
-        await clickAgentModeToggleButton(page);
+        await turnOnAgentMode(page);
     });
 
     test("Blacklisted command shows error and prevents execution", async ({ page }) => {
         // Send a message containing a blacklisted command
-        await sendMessageToMitoAI(page, "write the SQL code: DROP TABLE nba_data");
+        await sendMessageToAgent(page, "write the SQL code: DROP TABLE nba_data");
         await waitForIdle(page);
-
-        await page.getByRole('button', { name: AGENT_PLAN_SUBMIT_BUTTON_TEXT }).click();
 
         // Check that the agent eventually sends a message that says it cannot execute the code
         await expect(async () => {

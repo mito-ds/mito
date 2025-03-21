@@ -30,7 +30,9 @@ UJ_EXPERIMENT = 'experiment'
 UJ_RECEIVED_CHECKLISTS = 'received_checklists'
 UJ_AI_PRIVACY_POLICY = 'ai_privacy_policy'
 UJ_AI_MITO_API_NUM_USAGES = 'ai_mito_api_num_usages'
+UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES = 'ai_mito_autocomplete_num_usages'
 UJ_MITO_AI_FIRST_USAGE_DATE = 'mito_ai_first_usage_date'
+UJ_MITO_AI_LAST_RESET_DATE = 'mito_ai_last_reset_date'
 
 MITO_CONFIG_KEY_HOME_FOLDER = 'MITO_CONFIG_HOME_FOLDER'
 if MITO_CONFIG_KEY_HOME_FOLDER in os.environ:
@@ -71,7 +73,9 @@ USER_JSON_VERSION_10 = {
     UJ_RECEIVED_CHECKLISTS: {},
     UJ_AI_PRIVACY_POLICY: False,
     UJ_AI_MITO_API_NUM_USAGES: 0,
+    UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES: 0,
     UJ_MITO_AI_FIRST_USAGE_DATE: datetime.today().strftime('%Y-%m-%d'),
+    UJ_MITO_AI_LAST_RESET_DATE: datetime.today().strftime('%Y-%m-%d'),
 }
 
 # This is the most up to date user json, and you must update it when

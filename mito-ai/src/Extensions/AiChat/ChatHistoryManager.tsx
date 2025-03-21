@@ -1,35 +1,37 @@
 import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, getActiveCellID, getCellCodeByID } from "../../utils/notebook";
-import { IAgentPlanningMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
+import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
+import { addMarkdownCodeFormatting } from "../../utils/strings";
 
 export type PromptType = 
     'chat' | 
     'smartDebug' | 
-    'codeExplain' | 
-    'agent:planning' | 
+    'codeExplain' |  
     'agent:execution' | 
     'agent:autoErrorFixup' |
     'inline_completion' | 
-    'clear_history' | 
-    'fetch_history'
+    'fetch_history' |
+    'start_new_chat' |
+    'get_threads' |
+    'delete_thread';
 
-export type ChatMessageType = 'openai message' | 'openai message:agent:planning' | 'connection error'
+export type ChatMessageType = 'openai message' | 'connection error'
 
 // The display optimized chat history is what we display to the user. Each message
 // is a subset of the corresponding message in aiOptimizedChatHistory. Note that in the 
 // displayOptimizedChatHistory, we also include connection error messages so that we can 
 // display them in the chat interface. For example, if the user does not have an API key set, 
 // we add a message to the chat ui that tells them to set an API key.
-export interface IDisplayOptimizedChatHistory {
+export interface IDisplayOptimizedChatItem {
     message: OpenAI.Chat.ChatCompletionMessageParam
     type: ChatMessageType,
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
-    codeCellID: string | undefined
+    codeCellID?: string | undefined,
+    agentResponse?: AgentResponse
 }
-
 
 /* 
     The ChatHistoryManager is responsible for managing the AI chat history.
@@ -43,11 +45,11 @@ export interface IDisplayOptimizedChatHistory {
     Whenever, the chatHistoryManager is updated, it should automatically send a message to the AI. 
 */
 export class ChatHistoryManager {
-    private displayOptimizedChatHistory: IDisplayOptimizedChatHistory[];
+    private displayOptimizedChatHistory: IDisplayOptimizedChatItem[];
     private contextManager: IContextManager;
     private notebookTracker: INotebookTracker;
 
-    constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatHistory[]) {
+    constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatItem[]) {
         // Initialize the history
         this.displayOptimizedChatHistory = initialHistory || [];
 
@@ -62,11 +64,11 @@ export class ChatHistoryManager {
         return new ChatHistoryManager(this.contextManager, this.notebookTracker, this.displayOptimizedChatHistory);
     }
 
-    getDisplayOptimizedHistory(): IDisplayOptimizedChatHistory[] {
+    getDisplayOptimizedHistory(): IDisplayOptimizedChatItem[] {
         return this.displayOptimizedChatHistory;
     }
 
-    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam) {
+    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam): void {
         this.displayOptimizedChatHistory.push(
             {
                 message: message, 
@@ -101,70 +103,49 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    updateMessageAtIndex(index: number, newContent: string, isAgentMessage: boolean = false): IChatMessageMetadata {
-        const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = isAgentMessage ? undefined : getCellCodeByID(this.notebookTracker, activeCellID)
+    addAgentExecutionMessage(input?: string): IAgentExecutionMetadata {
 
-        const chatMessageMetadata: IChatMessageMetadata = {
-            promptType: 'chat',
-                variables: this.contextManager.variables,
-            activeCellCode: activeCellCode,
-            input: newContent,
-            index: index
-        }
-        
-        this.displayOptimizedChatHistory[index] = { 
-            message: getDisplayedOptimizedUserMessage(
-                newContent, 
-                activeCellCode,
-                isAgentMessage
-            ),
-            type: isAgentMessage ? 'openai message:agent:planning' : 'openai message',
-            codeCellID: activeCellID,
-            promptType: isAgentMessage ? 'agent:planning' : 'chat'
-        }
+        const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
-        // Only slice the history if it's not an agent message
-        if (!isAgentMessage) {
-            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
-        }
-
-        return chatMessageMetadata
-    }
-
-    removeMessageAtIndex(index: number): void {
-        // Remove the message at the specified index
-        this.displayOptimizedChatHistory.splice(index, 1);
-    }
-
-    addAgentMessage(message: string, index?: number): IAgentPlanningMetadata {
-
-        const agentPlanningMetadata: IAgentPlanningMetadata = {
-            promptType: "agent:planning",
+        const agentExecutionMetatada: IAgentExecutionMetadata = {
+            promptType: 'agent:execution',
             variables: this.contextManager.variables,
             files: this.contextManager.files,
-            input: message
+            aiOptimizedCells: aiOptimizedCells,
+            input: input || ''
+        }
+
+        // We use this function in two ways: 
+        // 1. When the user sends the original agent:execution message to start the agent
+        // 2. When the agent sends itself information about the updated variables, etc. In this case, 
+        // we don't want to pass an input. 
+        let userMessage: OpenAI.Chat.ChatCompletionMessageParam
+        if (input) {
+            userMessage = getDisplayedOptimizedUserMessage(input)
+        } else {
+            userMessage = {
+                role: 'user',
+                content: ''
+            }
         }
 
         this.displayOptimizedChatHistory.push(
             {
-                message: getDisplayedOptimizedUserMessage(message, undefined),
+                message: userMessage,
                 type: 'openai message',
-                codeCellID: undefined,
-                promptType: 'agent:planning'
+                promptType: 'chat',
             }
         )
 
-        // If editing the first agent message, the user will want a new plan.
-        // So we drop all steps in the agent's previous plan.
-        if (index === 1) {
-            this.displayOptimizedChatHistory = this.displayOptimizedChatHistory.slice(0, index + 1);
-        }
-
-        return agentPlanningMetadata
+        return agentExecutionMetatada
     }
 
-    addDebugErrorMessage(errorMessage: string, promptType: PromptType): ISmartDebugMetadata {
+    dropMessagesStartingAtIndex(index: number): void {
+        this.displayOptimizedChatHistory.splice(index)
+    }
+
+
+    addSmartDebugMessage(errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -182,11 +163,37 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: promptType
+                promptType: 'smartDebug'
             }
         );
 
         return smartDebugMetadata
+    }
+
+    addAgentSmartDebugMessage(errorMessage: string): IAgentSmartDebugMetadata {
+
+        const activeCellID = getActiveCellID(this.notebookTracker)
+        const activeCellCode = getActiveCellCode(this.notebookTracker)
+
+        const agentSmartDebugMetadata: IAgentSmartDebugMetadata = {
+            promptType: 'agent:autoErrorFixup',
+            aiOptimizedCells: getAIOptimizedCells(this.notebookTracker),
+            variables: this.contextManager.variables,
+            files: this.contextManager.files,
+            errorMessage: errorMessage,
+            error_message_producing_code_cell_id: activeCellID || ''
+        }
+
+        this.displayOptimizedChatHistory.push(
+            {
+                message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
+                type: 'openai message',
+                codeCellID: activeCellID,
+                promptType: 'agent:autoErrorFixup'
+            }
+        );
+
+        return agentSmartDebugMetadata
     }
 
     addExplainCodeMessage(): ICodeExplainMetadata {
@@ -227,11 +234,9 @@ export class ChatHistoryManager {
             content: messageContent
         }
 
-        let type: IDisplayOptimizedChatHistory['type'];
+        let type: IDisplayOptimizedChatItem['type'];
         if (mitoAIConnectionError) {
             type = 'connection error';
-        } else if (promptType === 'agent:planning') {
-            type = 'openai message:agent:planning';
         } else {
             type = 'openai message';
         }
@@ -249,17 +254,29 @@ export class ChatHistoryManager {
         );
     }
 
-    addSystemMessage(message: string): void {
-        const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'system',
-            content: message
+    addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
+
+        const code = agentResponse.cell_update?.code
+        const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
+
+        let content = agentResponse.message
+        if (codeWithMarkdownFormatting !== undefined) {
+            content = content + '\n\n' + codeWithMarkdownFormatting
         }
-        this.displayOptimizedChatHistory.push({
-            message: systemMessage, 
-            type: 'openai message',
-            codeCellID: undefined,
-            promptType: 'chat'
-        });
+
+        const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+            role: 'assistant',
+            content: content
+        }
+
+        this.displayOptimizedChatHistory.push(
+            {
+                message: aiMessage, 
+                type: 'openai message',
+                promptType: 'agent:execution',
+                agentResponse: agentResponse
+            }
+        );
     }
 
     getLastAIMessageIndex = (): number | undefined => {
@@ -274,7 +291,7 @@ export class ChatHistoryManager {
         return aiMessageIndexes[aiMessageIndexes.length - 1]
     }
 
-    getLastAIMessage = (): IDisplayOptimizedChatHistory | undefined=> {
+    getLastAIDisplayOptimizedChatItem = (): IDisplayOptimizedChatItem | undefined=> {
         const lastAIMessagesIndex = this.getLastAIMessageIndex()
         if (!lastAIMessagesIndex) {
             return
@@ -288,15 +305,26 @@ export class ChatHistoryManager {
 const getDisplayedOptimizedUserMessage = (
     input: string, 
     activeCellCode?: string, 
-    isAgentPlanning: boolean = false
+    messageToAgent: boolean = false
 ): OpenAI.Chat.ChatCompletionMessageParam => {
-    return {
-        role: 'user',
-        content: (!isAgentPlanning && activeCellCode) ? 
+
+    // Don't include the active cell code if it is an agent planning message
+    // or if the there is no active cell code provided, which occurs when
+    // sending an agent:execution message which uses the entire notebook as context
+    // instead of just the active cell
+    let activeCellCodeBlock = ''
+    if (!messageToAgent && activeCellCode) {
+        activeCellCodeBlock = 
 `\`\`\`python
 ${activeCellCode}
-\`\`\`
+\`\`\``
 
-${input}` : input
+    }
+
+    return {
+        role: 'user',
+        content:
+`${activeCellCodeBlock}
+${input}`
     };
 }

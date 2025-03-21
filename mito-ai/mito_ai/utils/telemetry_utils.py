@@ -189,7 +189,7 @@ def log_ai_completion_success(
         num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
     except:
         # Most user prompts will have an associated code cell that serves as the input context.
-        # However, types like agent:planning do not have a code cell input.
+        # However, types like agent:planning (RIP) do not have a code cell input.
         code_cell_input = ""
         num_usages = -1
 
@@ -239,17 +239,6 @@ def log_ai_completion_success(
             final_params[chunk_key] = chunk_value
 
         log("mito_ai_chat_success", params=final_params)
-    elif message_type == MessageType.AGENT_PLANNING:
-        final_params = base_params
-
-        # Chunk the user input
-        user_input = last_message_content.split("Your task: ")[-1]
-        user_input_chunks = chunk_param(user_input, "user_input")
-        
-        for chunk_key, chunk_value in user_input_chunks.items():
-            final_params[chunk_key] = chunk_value
-
-        log("mito_ai_agent_planning_success", params=final_params)
     elif message_type == MessageType.AGENT_EXECUTION:
         final_params = base_params
 

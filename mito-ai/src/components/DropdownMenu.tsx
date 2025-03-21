@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../../style/DropdownMenu.css';
+import { LabIcon } from '@jupyterlab/ui-components';
 
 interface DropdownSecondaryAction {
-  icon: React.ComponentType<{ fill?: string }>;
+  icon: LabIcon.IReact;
   onClick: () => void;
   tooltip?: string;
   disabled?: boolean;
@@ -11,7 +12,7 @@ interface DropdownSecondaryAction {
 interface DropdownMenuItem {
   label: string;
   onClick: () => void; // main action
-  primaryIcon?: React.ComponentType<{ fill?: string }>;
+  primaryIcon?: LabIcon.IReact;
   disabled?: boolean;
   disabledTooltip?: string;
   secondaryActions?: DropdownSecondaryAction[];
@@ -35,7 +36,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent): void => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -49,7 +50,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   }, []);
 
   // Handle the main click (primary action)
-  const handlePrimaryClick = (onClick: () => void, disabled?: boolean) => {
+  const handlePrimaryClick = (onClick: () => void, disabled?: boolean): void => {
     if (disabled) return;
     onClick();
     setIsOpen(false);
@@ -69,17 +70,14 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className={
-                    `dropdown-item-row ${item.disabled ? 'dropdown-item-disabled' : ''}`
-                }
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px' }}
+                  className={`dropdown-item-row ${item.disabled ? 'dropdown-item-disabled' : ''}`}
                 >
 
                   <button
                     className="dropdown-item-main"
                     onClick={() => handlePrimaryClick(item.onClick, item.disabled)}
                     disabled={item.disabled}
-                    title={item.disabled ? item.disabledTooltip : undefined}
+                    title={item.disabled ? item.disabledTooltip : item.label}
                   >
                     {/* Optional primary icon on the left */}
                     <span className="dropdown-item-icon">

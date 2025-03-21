@@ -5,7 +5,7 @@ from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-
+from mito_ai.completion_handlers.utils import append_chat_system_message
 __all__ = ["get_smart_debug_completion"]
 
 class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
@@ -19,6 +19,9 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
     ) -> str:
         """Get a smart debug completion from the AI provider."""
         
+        # Add the system message if it doens't alredy exist
+        await append_chat_system_message(message_history, provider)
+        
         error_message = metadata.errorMessage
         active_cell_code = metadata.activeCellCode or ''
         variables = metadata.variables or []
@@ -31,11 +34,12 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
             variables,
             files
         )
+        display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
         
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
-        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": error_message}
-        message_history.append_message(new_ai_optimized_message, new_display_optimized_message)
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
         
         # Get the completion
         completion = await provider.request_completions(
@@ -50,7 +54,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         display_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": display_completion}
-        message_history.append_message(ai_response_message, display_response_message)
+        await message_history.append_message(ai_response_message, display_response_message, provider)
 
         return display_completion
 

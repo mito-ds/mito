@@ -5,8 +5,8 @@ import {
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
 import { 
-    sendMessageToMitoAI,
-    clearMitoAIChatHistory
+    sendMessagetoAIChat,
+    startNewMitoAIChat
  } from './utils';
 
 const modifierKey = process.platform === 'darwin' ? 'Meta' : 'Control';
@@ -25,9 +25,9 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test('Accept AI generated code', async ({ page }) => {
-        await clearMitoAIChatHistory(page);
+        await startNewMitoAIChat(page);
 
-        await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+        await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
         await page.keyboard.press(`${modifierKey}+Y`);
@@ -48,9 +48,9 @@ test.describe('Mito AI Shortcuts', () => {
     });
 
     test('Reject AI generated code', async ({ page }) => {
-        await clearMitoAIChatHistory(page);
+        await startNewMitoAIChat(page);
 
-        await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+        await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
         // Preview the code
         await page.keyboard.press(`${modifierKey}+Y`);

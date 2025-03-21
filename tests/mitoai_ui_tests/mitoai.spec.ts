@@ -14,11 +14,11 @@ import {
   clickDenyButton, 
   clickPreviewButton, 
   clickOnMitoAIChatTab,
-  closeMitoAIChat, 
+
   editMitoAIMessage, 
-  sendMessageToMitoAI, 
+  sendMessagetoAIChat, 
   waitForMitoAILoadingToDisappear,
-  clearMitoAIChatHistory
+  startNewMitoAIChat
 } from './utils';
 
 test.describe.configure({ mode: 'parallel' });
@@ -29,9 +29,9 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
-    await clearMitoAIChatHistory(page);
+    await startNewMitoAIChat(page);
 
-    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
     // No code diffs should be visible before the user clicks preview
     await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
@@ -53,7 +53,7 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
-    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
     await page.waitForTimeout(1000);
@@ -71,7 +71,7 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
-    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
     await clickDenyButton(page);
@@ -86,7 +86,7 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
-    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
     await page.waitForTimeout(1000);
@@ -106,14 +106,14 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
 
     // Send the first message
-    await sendMessageToMitoAI(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
     await clickPreviewButton(page);
     await clickAcceptButton(page);
     await waitForIdle(page);
 
     // Send the second message
-    await sendMessageToMitoAI(page, 'Write the code df["D"] = [10, 11, 12]');
+    await sendMessagetoAIChat(page, 'Write the code df["D"] = [10, 11, 12]');
     await clickPreviewButton(page);
     await clickAcceptButton(page);
     await waitForIdle(page);
@@ -142,13 +142,13 @@ test.describe('Mito AI Chat', () => {
     await waitForIdle(page);
 
     // Send a first message in cell 1
-    await sendMessageToMitoAI(page, 'Write the code x = 1');
+    await sendMessagetoAIChat(page, 'Write the code x = 1');
 
     // Create a new cell w/o accepting the first message
     await addNewCell(page);
 
     // Send a second message in cell 2
-    await sendMessageToMitoAI(page, 'Write the code x = 2');
+    await sendMessagetoAIChat(page, 'Write the code x = 2');
     await clickPreviewButton(page);
     await clickAcceptButton(page);
     await waitForIdle(page);
@@ -168,7 +168,7 @@ test.describe('Mito AI Chat', () => {
 
     // Send the first message with the first cell active
     selectCell(page, 0);
-    await sendMessageToMitoAI(page, 'Write the code x = 1');
+    await sendMessagetoAIChat(page, 'Write the code x = 1');
 
     // Preview the changes
     await clickPreviewButton(page);
@@ -192,7 +192,7 @@ test.describe('Mito AI Chat', () => {
 
     // Send the first message with the first cell active
     selectCell(page, 0);
-    await sendMessageToMitoAI(page, 'Write the code x = 1');
+    await sendMessagetoAIChat(page, 'Write the code x = 1');
 
     // Preview the changes
     await clickPreviewButton(page);
@@ -215,9 +215,9 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, []);
     await waitForIdle(page);
 
-    await clearMitoAIChatHistory(page);
+    await startNewMitoAIChat(page);
 
-    await sendMessageToMitoAI(page, 'Add print (1)');
+    await sendMessagetoAIChat(page, 'Add print (1)');
 
     // Since the active cell is empty, there should only be one code message part container.
     // It should be in the AI response message, which means that it is not in the user's message.
@@ -356,15 +356,10 @@ test.describe('Mito AI Chat', () => {
     await createAndRunNotebookWithCells(page, ['print(1)']);
     await waitForIdle(page);
 
-    await clearMitoAIChatHistory(page);
-    await waitForIdle(page);
-
     await selectCell(page, 0);
 
-    await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
-    
+    await sendMessagetoAIChat(page, 'print(2)');
     await waitForIdle(page);
-    await page.waitForTimeout(2000);
     
     // As you have a notebook opened, at reload a dialog shows up to 
     // select the kernel for the notebook. The dialog prevent all the tests 
