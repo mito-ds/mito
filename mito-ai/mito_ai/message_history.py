@@ -155,7 +155,8 @@ class GlobalMessageHistory:
         """
         Loads each .json file in `self._chats_dir` into self._chat_threads.
         """
-        for file_name in os.listdir(self._chats_dir):
+        files = os.listdir(self._chats_dir)
+        for file_name in files:
             if not file_name.endswith(".json"):
                 continue
             path = os.path.join(self._chats_dir, file_name)

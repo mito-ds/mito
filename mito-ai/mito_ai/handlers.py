@@ -167,6 +167,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             self.reply(reply)
             return
         if type == MessageType.FETCH_HISTORY:
+            
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
             thread_id = metadata_dict.get('thread_id')
             display_history = message_history.get_display_history(thread_id)

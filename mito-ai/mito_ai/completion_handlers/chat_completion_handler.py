@@ -20,6 +20,13 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         message_history: GlobalMessageHistory
     ) -> str:
         """Get a chat completion from the AI provider."""
+
+        index = metadata.index
+
+        if index is not None:
+            message_history.truncate_histories(
+                index=index
+            )
         
         index = metadata.index
         thread_id = metadata.threadId
