@@ -385,14 +385,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetatada = newChatHistoryManager.addAgentExecutionMessage(input)
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(input)
+        if (messageIndex !== undefined) {
+            agentExecutionMetadata.index = messageIndex
+        }
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
         const completionRequest: IAgentExecutionCompletionRequest = {
             type: 'agent:execution',
             message_id: UUID.uuid4(),
-            metadata: agentExecutionMetatada,
+            metadata: agentExecutionMetadata,
             stream: false
         }
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
@@ -414,7 +417,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
         
         const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
-        
+        if (messageIndex !== undefined) {
+            chatMessageMetadata.index = messageIndex
+        }
         setChatHistoryManager(newChatHistoryManager)
 
         const completionRequest: IChatCompletionRequest = {
