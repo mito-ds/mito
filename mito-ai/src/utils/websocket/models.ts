@@ -70,6 +70,7 @@ export interface IAgentExecutionMetadata {
   variables?: Variable[];
   files?: File[];
   input: string;
+  index?: number;
 }
 
 export interface IAgentSmartDebugMetadata {
