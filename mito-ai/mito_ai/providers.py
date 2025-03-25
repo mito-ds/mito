@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
+from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type, TYPE_CHECKING
 
 import openai
 from openai._streaming import AsyncStream
@@ -37,6 +37,10 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
+
+# Use TYPE_CHECKING to avoid circular imports
+if TYPE_CHECKING:
+    from mito_ai.message_history import GlobalMessageHistory
 
 __all__ = ["OpenAIProvider"]
 
@@ -351,3 +355,56 @@ This attribute is observed by the websocket provider to push the error to the cl
                     error=CompletionError.from_exception(e),
                 )
                 break
+
+    async def stream_and_save_completions(
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        model: str,
+        message_id: str,
+        message_history: Optional["GlobalMessageHistory"] = None,
+        response_format_info: Optional[ResponseFormatInfo] = None
+    ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
+        """
+        Stream completions from the OpenAI API and save the accumulated response to message history.
+        
+        Args:
+            message_type: The type of message to request completions for.
+            messages: The messages to request completions for.
+            model: The model to request completions for.
+            message_id: The message ID to track the request.
+            message_history: Optional message history to append the result to.
+            response_format_info: Optional response format information.
+            
+        Returns:
+            An async generator yielding completion chunks.
+        """
+        # Create a request object for the streaming
+        request = CompletionRequest(
+            type=message_type,
+            message_id=message_id,
+            messages=messages,
+            stream=True
+        )
+        
+        # Use a string buffer to accumulate the full response
+        accumulated_response = ""
+        
+        # Stream completions 
+        async for reply in self.stream_completions(request, message_type, model):
+            if isinstance(reply, CompletionStreamChunk):
+                accumulated_response += reply.chunk.content
+            
+            # Yield the chunk to the caller
+            yield reply
+        
+        # Save the accumulated response to the message history if provided
+        if message_history is not None and message_type != MessageType.INLINE_COMPLETION:
+            ai_response_message: ChatCompletionMessageParam = {
+                "role": "assistant", 
+                "content": accumulated_response
+            }
+            # Note: We need to import message_history inside the function to avoid circular imports
+            await message_history.append_message(ai_response_message, ai_response_message, self)
+        
+        return

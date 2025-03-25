@@ -36,12 +36,13 @@ from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completion_handlers.chat_completion_handler import get_chat_completion
+from mito_ai.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
 from mito_ai.completion_handlers.smart_debug_handler import get_smart_debug_completion
 from mito_ai.completion_handlers.code_explain_handler import get_code_explain_completion
 from mito_ai.completion_handlers.inline_completer_handler import get_inline_completion
 from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
 from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
+from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
 
 # The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
@@ -181,13 +182,34 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             )
             self.reply(reply)
             return
+        
         try:
-            
             # Get completion based on message type
             completion = None
+            message_id = parsed_message.get('message_id')
+            
+            # Handle the chat completion (with optional streaming)
             if type == MessageType.CHAT:
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
-                completion = await get_chat_completion(chat_metadata, self._llm, message_history)
+                
+                # Handle streaming if requested and available
+                if chat_metadata.stream and self._llm.can_stream:
+                    # Use stream_chat_completion to stream the response
+                    start = time.time()
+                    async for chunk in stream_chat_completion(
+                        chat_metadata, 
+                        self._llm, 
+                        message_history, 
+                        message_id
+                    ):
+                        self.reply(chunk)
+                    
+                    latency_ms = round((time.time() - start) * 1000)
+                    self.log.info(f"Chat completion streaming completed in {latency_ms} ms.")
+                    return
+                else:
+                    # Regular non-streaming completion
+                    completion = await get_chat_completion(chat_metadata, self._llm, message_history)
             elif type == MessageType.SMART_DEBUG:
                 smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
                 completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, message_history)
@@ -209,7 +231,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # Create and send reply
             reply = CompletionReply(
                 items=[CompletionItem(content=completion, isIncomplete=False)],
-                parent_id=parsed_message.get('message_id')
+                parent_id=message_id
             )
             self.reply(reply)
             
@@ -225,7 +247,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=parsed_message.get('message_id')
             )
             self.reply(reply)
-            
 
     def open(self, *args: str, **kwargs: str) -> None:
         """Invoked when a new WebSocket is opened.
@@ -282,29 +303,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.reply(reply)
         
 
-    async def _handle_stream_request(self, request: CompletionRequest, message_type: MessageType, model: str) -> None:
-        """Handle stream completion request."""
-        start = time.time()
-
-        # Use a string buffer to accumulate the full response from streaming chunks.
-        # We need to accumulate the response on the backend so that we can save it to
-        # the message history after the streaming is complete.
-        accumulated_response = ""
-        async for reply in self._llm.stream_completions(request, message_type, model):
-            if isinstance(reply, CompletionStreamChunk):
-                accumulated_response += reply.chunk.content
-
-            self.reply(reply)
-        
-        if request.type != "inline_completion":
-            message: ChatCompletionMessageParam = {
-                "role": "assistant", 
-                "content": accumulated_response
-            }
-            await message_history.append_message(message, message, self._llm)
-        latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Completion streaming completed in {latency_ms} ms.")
-
     def reply(self, reply: Any) -> None:
         """Write a reply object to the WebSocket connection.
 
@@ -315,7 +313,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         message = asdict(reply)
         super().write_message(message)
 
-    def _send_error(self, change: Dict[str, Optional[CompletionError]]) -> None:
+    def _send_error(self, change: Dict[str, Any]) -> None:
         """Send an error message to the client."""
         error = change["new"]
 
