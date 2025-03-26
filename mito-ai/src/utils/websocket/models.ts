@@ -62,6 +62,7 @@ export interface IChatMessageMetadata {
   activeCellCode?: string;
   input: string;
   index?: number;
+  stream: boolean;
 }
 
 export interface IAgentExecutionMetadata {
