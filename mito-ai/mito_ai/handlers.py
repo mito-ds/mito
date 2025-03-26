@@ -188,24 +188,19 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             completion = None
             message_id = parsed_message.get('message_id')
             
-            # Handle the chat completion (with optional streaming)
             if type == MessageType.CHAT:
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
                 
                 # Handle streaming if requested and available
                 if chat_metadata.stream and self._llm.can_stream:
                     # Use stream_chat_completion to stream the response
-                    start = time.time()
                     async for chunk in stream_chat_completion(
                         chat_metadata, 
                         self._llm, 
                         message_history, 
-                        message_id
+                        message_id,
                     ):
-                        self.reply(chunk)
-                    
-                    latency_ms = round((time.time() - start) * 1000)
-                    self.log.info(f"Chat completion streaming completed in {latency_ms} ms.")
+                        self.reply(chunk)                    
                     return
                 else:
                     # Regular non-streaming completion
