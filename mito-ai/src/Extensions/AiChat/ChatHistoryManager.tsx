@@ -89,7 +89,6 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
             input: input,
-            stream: false
         }
 
         this.displayOptimizedChatHistory.push(

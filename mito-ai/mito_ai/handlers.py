@@ -187,12 +187,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # Get completion based on message type
             completion = None
             message_id = parsed_message.get('message_id')
-            
+            stream = parsed_message.get('stream')
+
             if type == MessageType.CHAT:
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
                 
                 # Handle streaming if requested and available
-                if chat_metadata.stream and self._llm.can_stream:
+                if stream and self._llm.can_stream:
                     # Use stream_chat_completion to stream the response
                     async for chunk in stream_chat_completion(
                         chat_metadata, 
