@@ -108,7 +108,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         addAIMessageFromResponseAndUpdateState,
         streamingRefs
     } = useStreamingManager(websocketClient, setChatHistoryManager);
-    
+
     // Store the original cell before diff so that we can revert to it if the user rejects the AI's code
     const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined)
 
@@ -265,7 +265,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     'chat',
                     newChatHistoryManager,
                     false
-                );                
+                );
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).hint ? (error as any).hint : `${error}`,
                     'chat',
@@ -357,7 +357,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         This is useful when we want to send the error message from the MIME renderer directly
         to the AI chat.
     */
-    const sendSmartDebugMessage = async (errorMessage: string) : Promise<void> => {
+    const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -454,12 +454,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        
+
         if (messageIndex !== undefined) {
             // Drop all of the messages starting at the message index
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
-        
+
         const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
         if (messageIndex !== undefined) {
             chatMessageMetadata.index = messageIndex
@@ -498,12 +498,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
 
     const _sendMessageAndSaveResponse = async (
-        completionRequest: ICompletionRequest, 
+        completionRequest: ICompletionRequest,
         newChatHistoryManager: ChatHistoryManager,
     ): Promise<boolean> => {
         setLoadingAIResponse(true);
 
-        try {            
+        try {
             // Only set up streaming state if the request is actually streaming
             if (completionRequest.stream) {
                 // Setup streaming for this request
@@ -532,7 +532,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     true,
                     aiResponse.error.title
                 );
-                
+
                 // Reset loading state for errors
                 setLoadingAIResponse(false);
             } else if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
@@ -543,7 +543,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Add the agent response to the chat history
                 newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse);
                 setChatHistoryManager(newChatHistoryManager);
-                
+
                 // Reset loading for non-streaming responses
                 if (!completionRequest.stream) {
                     setLoadingAIResponse(false);
@@ -558,7 +558,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     completionRequest.metadata.promptType
                 );
                 setChatHistoryManager(newChatHistoryManager);
-                
+
                 // Reset loading for non-streaming responses
                 setLoadingAIResponse(false);
             }
@@ -566,7 +566,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // and reset the loading state when done
         } catch (error) {
             console.error('Error in _sendMessageAndSaveResponse:', error);
-            
+
             addAIMessageFromResponseAndUpdateState(
                 (error as any).title ? (error as any).title : `${error}`,
                 'chat',
@@ -579,13 +579,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 newChatHistoryManager,
                 true
             );
-            
+
             // Always reset loading state for errors
             setLoadingAIResponse(false);
         } finally {
             // Reset states to allow future messages to show the "Apply" button
             setCodeReviewStatus('chatPreview');
-            
+
             // Double check that loading state is reset for non-streaming requests
             if (!completionRequest.stream) {
                 setLoadingAIResponse(false);
@@ -617,7 +617,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const startAgentExecution = async (input: string, messageIndex?: number): Promise<void> => {
         setAgentExecutionStatus('working')
-        
+
         // Reset the execution flag at the start of a new plan
         shouldContinueAgentExecution.current = true;
 
@@ -1049,7 +1049,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 <historyIcon.react />
                             </button>
                         }
-                        items={chatThreads.length > 0 
+                        items={chatThreads.length > 0
                             ? chatThreads.map(thread => ({
                                 label: thread.name,
                                 primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
@@ -1065,7 +1065,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             : [{
                                 label: "No chat history available",
                                 disabled: true,
-                                onClick: () => {}
+                                onClick: () => { }
                             }]
                         }
                         alignment="right"
@@ -1146,7 +1146,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 codeReviewStatus={codeReviewStatus}
                             />
                         ) : (
-                            <div className="chat-loading-message inline-loading">
+                            <div className="chat-loading-message">
                                 Thinking <LoadingDots />
                             </div>
                         )}

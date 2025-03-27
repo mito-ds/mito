@@ -155,17 +155,6 @@
   overflow: hidden;
 }
 
-/* Inline loading message within the streaming-message container */
-.streaming-message .inline-loading {
-  padding: 10px 15px;
-  background: var(--jp-layout-color2);
-  border-radius: 6px;
-  color: var(--jp-ui-font-color1);
-  font-style: italic;
-  display: inline-flex;
-  align-items: center;
-}
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
