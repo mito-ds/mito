@@ -308,7 +308,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
 
     // Helper function to scroll to bottom smoothly
-    const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    const scrollToBottom = (behavior: ScrollBehavior = 'smooth'): void => {
         const chatContainer = chatMessagesRef.current;
         if (chatContainer) {
             requestAnimationFrame(() => {
