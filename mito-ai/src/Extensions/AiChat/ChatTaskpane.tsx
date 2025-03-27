@@ -16,11 +16,12 @@ import { OpenIndicatorLabIcon } from '../../icons';
 import SupportIcon from '../../icons/SupportIcon';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
+import { ChatHistoryManager } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import ToggleButton from '../../components/ToggleButton';
 import IconButton from '../../components/IconButton';
 import LoadingDots from '../../components/LoadingDots';
+import { useStreamingManager } from './StreamingManager';
 import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
@@ -96,8 +97,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
-    const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
-
+    // Set up the streaming manager
+    const {
+        isStreamingResponse,
+        streamingDisplay,
+        loadingAIResponse,
+        setLoadingAIResponse,
+        setupStreamingForRequest,
+        cleanupStreaming,
+        addAIMessageFromResponseAndUpdateState,
+        streamingRefs
+    } = useStreamingManager(websocketClient, setChatHistoryManager);
+    
     // Store the original cell before diff so that we can revert to it if the user rejects the AI's code
     const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined)
 
@@ -296,9 +307,42 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         scrollToDiv(chatMessagesRef);
     }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
 
+    // Helper function to scroll to bottom smoothly
+    const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+        const chatContainer = chatMessagesRef.current;
+        if (chatContainer) {
+            requestAnimationFrame(() => {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior
+                });
+            });
+        }
+    };
+
+    // Scroll to streaming content as it updates
+    useEffect(() => {
+        if (isStreamingResponse) {
+            const chatContainer = chatMessagesRef.current;
+            if (chatContainer) {
+                // Check if user is near bottom (within 150px)
+                const isNearBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 150;
+
+                if (isNearBottom) {
+                    // Use requestAnimationFrame to ensure smooth scrolling
+                    // that doesn't compete with rendering
+                    requestAnimationFrame(() => {
+                        chatContainer.scrollTo({
+                            top: chatContainer.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    });
+                }
+            }
+        }
+    }, [streamingDisplay, isStreamingResponse]);
 
     const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
-
         /*
             We use getDuplicateChatHistoryManager() instead of directly accessing the state variable because 
             the COMMAND_MITO_AI_SEND_MESSAGE is registered in a useEffect on initial render, which
@@ -426,31 +470,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'chat',
             message_id: UUID.uuid4(),
             metadata: chatMessageMetadata,
-            stream: false
+            stream: true
         }
 
         // Step 2: Scroll to the bottom of the chat messages container
-        // Add a small delay to ensure the new message is rendered
-        setTimeout(() => {
-            chatMessagesRef.current?.scrollTo({
-                top: chatMessagesRef.current.scrollHeight,
-                behavior: 'smooth'
-            });
-        }, 100);
+        scrollToBottom('smooth');
 
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
         // Step 4: Scroll to the bottom of the chat smoothly
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
+        scrollToBottom('smooth');
     }
 
     const handleUpdateMessage = async (
@@ -467,42 +497,76 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
 
-    const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
-        setLoadingAIResponse(true)
+    const _sendMessageAndSaveResponse = async (
+        completionRequest: ICompletionRequest, 
+        newChatHistoryManager: ChatHistoryManager,
+    ): Promise<boolean> => {
+        setLoadingAIResponse(true);
 
-        try {
+        try {            
+            // Only set up streaming state if the request is actually streaming
+            if (completionRequest.stream) {
+                // Setup streaming for this request
+                setupStreamingForRequest(
+                    completionRequest.message_id,
+                    newChatHistoryManager,
+                    completionRequest.metadata.promptType
+                );
+            }
+
+            // Add the user's message to the chat history
+            setChatHistoryManager(newChatHistoryManager);
+
+            // Send the message to the AI
             const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
+            // Handle the response based on whether it was streaming or not
             if (aiResponse.error) {
                 console.error('Error calling OpenAI API:', aiResponse.error);
                 addAIMessageFromResponseAndUpdateState(
                     aiResponse.error.hint
                         ? aiResponse.error.hint
                         : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
-                    completionRequest.metadata.promptType, // #TODO: Why are we storing the prompt type in the AI response?
+                    completionRequest.metadata.promptType,
                     newChatHistoryManager,
                     true,
                     aiResponse.error.title
                 );
-            } else {
+                
+                // Reset loading state for errors
+                setLoadingAIResponse(false);
+            } else if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
+                // For agent responses, we need to parse the JSON content
                 const content = aiResponse.items[0]?.content ?? '';
+                const agentResponse: AgentResponse = JSON.parse(content);
 
-                if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
-                    // Agent:Execution prompts return a CellUpdate object that we need to parse
-                    const agentResponse: AgentResponse = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                } else {
-                    // For all other prompt types, we can just add the content to the chat history
-                    aiResponse.items.forEach((item: any) => {
-                        newChatHistoryManager.addAIMessageFromResponse(
-                            item.content || '',
-                            completionRequest.metadata.promptType
-                        );
-                    });
-                    setChatHistoryManager(newChatHistoryManager);
+                // Add the agent response to the chat history
+                newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse);
+                setChatHistoryManager(newChatHistoryManager);
+                
+                // Reset loading for non-streaming responses
+                if (!completionRequest.stream) {
+                    setLoadingAIResponse(false);
                 }
+            } else if (!completionRequest.stream) {
+                // For non-streaming regular chat messages, manually add the response to chat history
+                // We only need to do this for non-streaming requests since streaming ones 
+                // update the chat history in the streaming callback
+                const content = aiResponse.items[0]?.content ?? '';
+                newChatHistoryManager.addAIMessageFromResponse(
+                    content,
+                    completionRequest.metadata.promptType
+                );
+                setChatHistoryManager(newChatHistoryManager);
+                
+                // Reset loading for non-streaming responses
+                setLoadingAIResponse(false);
             }
+            // For streaming chat messages, the handleStreamChunk function will update the chat history
+            // and reset the loading state when done
         } catch (error) {
+            console.error('Error in _sendMessageAndSaveResponse:', error);
+            
             addAIMessageFromResponseAndUpdateState(
                 (error as any).title ? (error as any).title : `${error}`,
                 'chat',
@@ -514,31 +578,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 completionRequest.metadata.promptType,
                 newChatHistoryManager,
                 true
-            )
+            );
+            
+            // Always reset loading state for errors
+            setLoadingAIResponse(false);
         } finally {
             // Reset states to allow future messages to show the "Apply" button
             setCodeReviewStatus('chatPreview');
-
-            setLoadingAIResponse(false);
+            
+            // Double check that loading state is reset for non-streaming requests
+            if (!completionRequest.stream) {
+                setLoadingAIResponse(false);
+            }
         }
 
-        return true
-    }
-
-    const addAIMessageFromResponseAndUpdateState = (
-        messageContent: string,
-        promptType: PromptType,
-        chatHistoryManager: ChatHistoryManager,
-        mitoAIConnectionError: boolean = false,
-        mitoAIConnectionErrorType: string | null = null
-    ): void => {
-        /* 
-        Adds a new message to the chat history and updates the state. If we don't update the state 
-        then the chat history does not update in the UI. 
-        */
-        chatHistoryManager.addAIMessageFromResponse(messageContent, promptType, mitoAIConnectionError, mitoAIConnectionErrorType)
-        setChatHistoryManager(chatHistoryManager)
-    }
+        return true;
+    };
 
     const markAgentForStopping = (): void => {
         // Signal that the agent should stop after current task
@@ -964,6 +1019,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
+    // Clean up on component unmount
+    useEffect(() => {
+        return () => {
+            // Clean up streaming state
+            cleanupStreaming();
+        };
+    }, []);
+
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
@@ -1052,11 +1115,43 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         />
                     )
                 }).filter(message => message !== null)}
-                {loadingAIResponse &&
+                {loadingAIResponse && !isStreamingResponse &&
                     <div className="chat-loading-message">
                         Thinking <LoadingDots />
                     </div>
                 }
+                {/* Render the streaming message separately - this prevents flickering */}
+                {isStreamingResponse && (
+                    <div className="streaming-message">
+                        {streamingDisplay ? (
+                            <ChatMessage
+                                key="streaming-message"
+                                message={{ role: 'assistant', content: streamingDisplay }}
+                                promptType={streamingRefs.streamingPromptTypeRef.current}
+                                messageType="openai message"
+                                codeCellID={undefined}
+                                mitoAIConnectionError={false}
+                                mitoAIConnectionErrorType={null}
+                                messageIndex={-1}
+                                notebookTracker={notebookTracker}
+                                renderMimeRegistry={renderMimeRegistry}
+                                app={app}
+                                isLastAiMessage={true}
+                                operatingSystem={operatingSystem}
+                                previewAICode={previewAICodeToActiveCell}
+                                acceptAICode={acceptAICode}
+                                rejectAICode={rejectAICode}
+                                onUpdateMessage={handleUpdateMessage}
+                                contextManager={contextManager}
+                                codeReviewStatus={codeReviewStatus}
+                            />
+                        ) : (
+                            <div className="chat-loading-message inline-loading">
+                                Thinking <LoadingDots />
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
             <ChatInput
                 initialContent={''}
