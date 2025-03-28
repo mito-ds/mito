@@ -58,6 +58,10 @@ jobs:
     - name: Execute unit tests
       working-directory: mito-sql-cell
       run: |
+        pushd ../tests
+        source venv/bin/activate
+        popd
+
         # Execute JavaScript unit tests
         jlpm run test
 
