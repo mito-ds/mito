@@ -56,6 +56,7 @@
         "watch:src": "tsc -w --sourceMap",
         "watch:labextension": "jupyter labextension watch ."
     },
+    "packageManager": "yarn@3.5.0",
     "dependencies": {
         "@codemirror/view": "^6.9.6",
         "@jupyter/react-components": "*",
