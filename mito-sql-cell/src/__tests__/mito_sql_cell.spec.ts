@@ -4,7 +4,7 @@ describe('mito-sql-cell', () => {
   describe('MagicLine', () => {
     it.each([
       ['%%sql', true],
-      ['%%sql --section a --close df <<', true],
+      ['%%sql --out df a', true],
       ['', false],
       ['%sql', false],
       ['def f():\n    return 22\n%%sql', false]
@@ -15,39 +15,73 @@ describe('mito-sql-cell', () => {
     });
 
     it.each([
-      ['%%sql', { isSQL: true, output: undefined, args: [], options: {} }],
       [
-        '%%sql --section a -x df <<',
-        {
-          isSQL: true,
-          output: 'df',
-          args: [],
-          options: { '--section': 'a', '--close': undefined }
-        }
-      ],
-      [
-        '%%sql -s a df <<',
-        { isSQL: true, output: 'df', args: [], options: { '--section': 'a' } }
-      ],
-      [
-        '%%sql -s a df= <<',
-        { isSQL: true, output: 'df', args: [], options: { '--section': 'a' } }
-      ],
-      [
-        '%%sql -s a df',
+        '%%sql',
         {
           isSQL: true,
           output: undefined,
-          args: ['df'],
-          options: { '--section': 'a' }
+          connectionName: '',
+          configurationFile: undefined
         }
       ],
-      ['%sql', { isSQL: false, output: undefined, args: [], options: {} }],
-      ['', { isSQL: false, output: undefined, args: [], options: {} }]
+      [
+        '%%sql -o df a',
+        {
+          isSQL: true,
+          output: 'df',
+          connectionName: 'a',
+          configurationFile: undefined
+        }
+      ],
+      [
+        '%%sql --out df a',
+        {
+          isSQL: true,
+          output: 'df',
+          connectionName: 'a',
+          configurationFile: undefined
+        }
+      ],
+      [
+        '%%sql -c f.ini -o df a',
+        {
+          isSQL: true,
+          output: 'df',
+          connectionName: 'a',
+          configurationFile: 'f.ini'
+        }
+      ],
+      [
+        '%%sql --configfile f.ini -o df a',
+        {
+          isSQL: true,
+          output: 'df',
+          connectionName: 'a',
+          configurationFile: 'f.ini'
+        }
+      ],
+      [
+        '%sql',
+        {
+          isSQL: false,
+          output: undefined,
+          connectionName: '',
+          configurationFile: undefined
+        }
+      ],
+      [
+        '',
+        {
+          isSQL: false,
+          output: undefined,
+          connectionName: '',
+          configurationFile: undefined
+        }
+      ]
     ])('%s parse to %j', (text, expected) => {
-      expect(MagicLine.getSQLMagic({ sharedModel: { source: text } } as any)).toEqual(
-        expected
-      );
+      expect(
+        MagicLine.getSQLMagic({ sharedModel: { source: text } } as any)
+      ).toEqual(expected);
     });
 
     it.each([
@@ -56,62 +90,49 @@ describe('mito-sql-cell', () => {
         {
           isSQL: true,
           output: 'db',
-          args: ['line'],
-          options: { '--section': 'sqlite1' }
+          connectionName: 'sqlite1',
         },
-        '%%sql --section sqlite1 line db= <<\n'
+        '%%sql --out db sqlite1\n'
       ],
       [
         '%%sql',
         {
           isSQL: true,
           output: 'db',
-          args: ['line'],
-          options: { '--section': 'sqlite1', '--close': undefined }
+          connectionName: 'sqlite1',
         },
-        '%%sql --section sqlite1 --close line db= <<'
+        '%%sql --out db sqlite1'
+      ],
+      [
+        '%%sql --section a',
+        {
+          isSQL: true,
+          output: 'db',
+          connectionName: 'sqlite1',
+        },
+        '%%sql --out db sqlite1'
       ],
       [
         '%%sql --section a df <<',
         {
           isSQL: true,
           output: 'db',
-          args: ['line'],
-          options: { '--section': 'sqlite1' }
+          connectionName: 'sqlite1',
+          configurationFile: 'f1'
         },
-        '%%sql --section sqlite1 line db= <<'
-      ],
-      [
-        '%%sql --section a df <<',
-        {
-          isSQL: true,
-          output: 'db',
-          args: ['line'],
-          options: { '--file': 'f1' }
-        },
-        '%%sql --file f1 line db= <<'
-      ],
-      [
-        '%%sql --section a df <<',
-        {
-          isSQL: true,
-          output: undefined,
-          args: [],
-          options: { '--file': 'f1' }
-        },
-        '%%sql --file f1'
+        '%%sql --configfile "f1" --out db sqlite1'
       ],
       [
         'def f(a, b):\n  return a + b',
         {
           isSQL: true,
           output: 'db',
-          args: ['line'],
-          options: { '--section': 'sqlite1' }
+          connectionName: 'sqlite1',
+          configurationFile: 'f1'
         },
-        '%%sql --section sqlite1 line db= <<\ndef f(a, b):\n  return a + b'
+        '%%sql --configfile "f1" --out db sqlite1\ndef f(a, b):\n  return a + b'
       ]
-    ])('%s parse to %j', (text, magic, expected) => {
+    ])('%s with magic %s update to %j', (text, magic, expected) => {
       const fakeCell = { sharedModel: { source: text } } as any;
       MagicLine.update(fakeCell, magic);
       expect(fakeCell.sharedModel.source).toEqual(expected);
