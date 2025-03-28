@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 /**
  * A utility that fuzzy matches strings by similarity, and returns
  * a number between [0, 1]. 0 means the strings are not similar, and

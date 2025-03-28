@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import copy
 from typing import Dict, List, Optional
 from evals.ai_api_calls.get_open_ai_completion import get_open_ai_completion_code_block

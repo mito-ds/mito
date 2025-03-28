@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 """
 Mito aims to provide incredibly easy extension points. For now, Mito allows you to 
 type a function variable with a ColumnHeader, and this will generate a UI for selecting

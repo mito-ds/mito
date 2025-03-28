@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Any, Callable
 from mitosheet.mito_dash.v1.spreadsheet import (ID_TYPE,
                                                 WRONG_CALLBACK_ERROR_MESSAGE,

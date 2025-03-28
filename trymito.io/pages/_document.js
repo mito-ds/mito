@@ -1,4 +1,9 @@
 /*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/*
     This is a Custom Document. A custom Document is commonly used to 
     augment your application's <html> and <body> tags. This is necessary 
     because Next.js pages skip the definition of the surrounding document's markup.

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 """
 The Mito Installer package contains utils for installing
 Mito within your Python environment.

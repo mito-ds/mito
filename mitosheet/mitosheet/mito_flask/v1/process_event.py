@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Any, Dict, Optional
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.mito_flask.v1.flatten_utils import (flatten_mito_backend_to_json, read_backend_state_string_to_mito_backend)

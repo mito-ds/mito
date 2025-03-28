@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react';
 import { DOCUMENTATION_LINK_SPREADSHEET_FORMULAS, DOCUMENTATION_LINK_TUTORIAL } from '../../data/documentationLinks';
 

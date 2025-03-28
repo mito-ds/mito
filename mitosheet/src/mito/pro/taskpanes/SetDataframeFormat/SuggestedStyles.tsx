@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react';
 import { ROW_TEXT_COLOR_DEFAULT } from '../../../components/endo/GridData';
 import SuggestedStyleIcon from '../../../components/icons/SuggestedStyleIcon';

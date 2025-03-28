@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from evals.prompts.chat_prompts.single_shot_prompt import single_shot_prompt_generator
 from evals.prompts.chat_prompts.multi_shot_prompt import multi_shot_prompt_generator
 from evals.prompts.chat_prompts.production_prompt_v1 import production_prompt_v1_generator

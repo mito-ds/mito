@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 // Helper function for creating default graph params. Defaults to a Bar chart, 
 import React from "react"
 import { MitoAPI, getRandomId } from "../../../api/api"

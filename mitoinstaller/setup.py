@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from distutils.core import setup
 from mitoinstaller import __version__
 from setuptools import find_packages

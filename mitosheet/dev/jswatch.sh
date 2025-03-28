@@ -1,4 +1,7 @@
 #!/bin/bash -eu
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 
 # checktestpypi.sh: this script should be run in the monorepo/mitosheet folder
 # and will just run the javascript watch command

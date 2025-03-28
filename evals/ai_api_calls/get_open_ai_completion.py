@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import os
 from typing import Any, Dict, Optional
 from evals.test_cases.agent_find_and_update_tests.simple import CellUpdate

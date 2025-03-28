@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import Link from 'next/link';
 import Image from "next/image"
 import footerStyle from './Footer.module.css'

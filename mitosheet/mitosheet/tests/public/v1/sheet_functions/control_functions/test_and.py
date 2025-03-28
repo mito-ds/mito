@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 
 # Copyright (c) Mito.
 # Distributed under the terms of the Modoried BSD License.
