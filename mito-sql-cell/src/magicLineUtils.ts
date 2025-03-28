@@ -9,9 +9,7 @@ import type { ICodeCellModel } from '@jupyterlab/cells';
 export function magicConfiguration(filename: string): string {
   return `# DO NOT EDIT this cell; it is required for Mito SQL cells to work.
 # It must be executed prior to any SQL cell.
-%load_ext sql
-%config SqlMagic.autopandas=True
-%config SqlMagic.dsn_filename="${filename}"`;
+%load_ext mito_sql_cell`;
 }
 
 /**
@@ -34,23 +32,9 @@ export interface IMitoCodeCell {
 }
 
 // Normalize magic options from short to long
-// See list at https://github.com/ploomber/jupysql/blob/6be0d4b5171dc4051eb36691067070b132e5ae61/src/sql/magic.py#L257
 const NORMALIZE_OPTIONS: Record<string, string> = {
-  '-l': '--connections',
-  '-x': '--close',
-  '-c': '--creator',
-  '-s': '--section',
-  '-p': '--persist',
-  '-P': '--persist-replace',
-  '-n': '--no-index',
-  '--append': '--append',
-  '-a': '--connection_arguments',
-  '-f': '--file',
-  '-S': '--save',
-  '-w': '--with',
-  '-N': '--no-execute',
-  '-A': '--alias',
-  '--interact': '--interact'
+  '-c': '--configfile',
+  '-o': '--out'
 };
 
 /**
@@ -66,17 +50,17 @@ export namespace MagicLine {
      */
     isSQL: boolean;
     /**
+     * The SQL database connection name.
+     */
+    connectionName: string;
+    /**
      * The variable name in which to store the SQL query result.
      */
     output?: string;
     /**
-     * Magic arguments.
+     * The SQL connections configuration file.
      */
-    args: string[];
-    /**
-     * Magic options.
-     */
-    options: Record<string, string | undefined>;
+    configurationFile?: string;
   }
 
   /**
@@ -89,19 +73,14 @@ export namespace MagicLine {
    */
   export function getSQLMagic(cellModel: ICodeCellModel): ISQLMagic {
     const isSQL = isSQLCell(cellModel);
-    let output: string | undefined;
     const options: Record<string, string | undefined> = {};
     const args = new Array<string>();
     if (isSQL) {
       const firstLine = cellModel.sharedModel.source.split('\n', 1)[0];
       const parts = firstLine.split(/\s+/);
-      const hasOutput = parts[parts.length - 1] == '<<';
-      if (hasOutput) {
-        output = parts[parts.length - 2].replace(/=?$/, '');
-      }
 
       let option: string | null = null;
-      for (const part of parts.slice(1, hasOutput ? -2 : undefined)) {
+      for (const part of parts.slice(1)) {
         if (part.startsWith('-')) {
           option = part.startsWith('--')
             ? part
@@ -119,9 +98,9 @@ export namespace MagicLine {
     }
     return {
       isSQL,
-      output,
-      args,
-      options
+      connectionName: args[0] ?? '',
+      output: options['--out'],
+      configurationFile: options['--configfile'],
     };
   }
 
@@ -144,23 +123,13 @@ export namespace MagicLine {
 
     let line = MAGIC;
 
-    for (const [key, value] of Object.entries(magic.options)) {
-      if (value) {
-        line += ` ${key} ${value}`;
-      } else {
-        line += ` ${key}`;
-      }
+    if(magic.configurationFile) {
+      line += ` --configfile "${magic.configurationFile}"`;
     }
-
-    for (const arg of magic.args) {
-      line += ` ${arg}`;
+    if(magic.output) {
+      line += ` --out ${magic.output}`;
     }
-
-    if (magic.output) {
-      // Equals sign is optional but it allows to display
-      // the query result as cell output
-      line += ` ${magic.output}= <<`;
-    }
+    line += ` ${magic.connectionName}`;
 
     return line;
   }

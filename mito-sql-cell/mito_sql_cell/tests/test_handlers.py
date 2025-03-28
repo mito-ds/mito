@@ -38,12 +38,12 @@ driver = snowflake
     assert payload == {
         "connections": [
             {
-                "name": "sqlite",
+                "connectionName": "sqlite",
                 "database": "gh.sqlite",
                 "driver": "sqlite",
             },
             {
-                "name": "snowflake",
+                "connectionName": "snowflake",
                 "username": "johnsmith",
                 "password": "unbreakable12345",
                 "account": "john-smith-account",

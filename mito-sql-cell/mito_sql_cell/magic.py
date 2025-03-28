@@ -22,6 +22,7 @@ MAGIC_OPTION_PREFIX = re.compile(r"-{1,2}\w+")
 DEFAULT_VARIABLE_NAME = "sql_out"
 """Default variable name for storing the result of the SQL query."""
 
+
 def _option_strings_from_parser(parser: MagicArgumentParser) -> set[str]:
     """Extracts the expected option strings (-x, --xyz, etc) from argparse parser
 
@@ -126,7 +127,9 @@ class SqlMagic(Magics):
         databases = MitoConnectorManager(config_file)
 
         if not args.section or args.section not in databases:
-            raise ValueError(f"Unknown database connection selected: {args.section}.")
+            raise ValueError(
+                f"Unknown database connection '{args.section}' in {databases.configuration_file}.\nKnown connections: {', '.join(databases)}"
+            )
 
         connect_arguments = databases[args.section]
 

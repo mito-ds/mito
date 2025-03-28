@@ -44,7 +44,11 @@ class SqlConnections:
         engine = self._engines.get(name)
         if engine is None:
             driver = parameters["driver"]
+            # Snowflake driver is not supported by SQLAlchemy URL.create. But
+            # it is provided by snowflake.sqlalchemy.URL. So we need to distinguish
+            # between the two.
             if driver == "snowflake":
+
                 from snowflake.sqlalchemy import URL as snowflake_url
 
                 url = snowflake_url(**parameters)
@@ -135,7 +139,7 @@ class MitoConnectorManager(MutableMapping):
 
         def _config_section_to_dict(section: str, value: SectionProxy) -> dict:
             d = dict(value)
-            d["name"] = section
+            d["connectionName"] = section
 
             return d
 

@@ -14,7 +14,7 @@ test.describe("Mito SQL cell", () => {
     await expect
       .soft(firstCell)
       .toHaveText(
-        /# DO NOT EDIT this cell; it is required for Mito SQL cells to work.# It must be executed prior to any SQL cell.%load_ext sql%config SqlMagic.autopandas=True%config SqlMagic.dsn_filename=\"[\w\/]+\/.mito\/connections.ini\"/
+        /# DO NOT EDIT this cell; it is required for Mito SQL cells to work.# It must be executed prior to any SQL cell.%load_ext mito_sql_cell/
       );
 
     await firstCell.click();

@@ -71,7 +71,7 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
 
         if (magic?.isSQL) {
           setIsSQL(true);
-          setConnectionName(magic.options['--section'] ?? '');
+          setConnectionName(magic.connectionName ?? '');
           setVariableName(magic.output ?? '');
         } else {
           setIsSQL(false);
@@ -147,34 +147,30 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
           : null;
 
       if (magic) {
-        // Clear args and options to avoid unsupported combinations.
-        magic.args = [];
-        magic.options = magic.options['--section']
-          ? {
-              '--section': magic.options['--section']
-            }
-          : {};
+        const newMagic = {
+          isSQL: true,
+          connectionName: '',
+          configurationFile: sqlSources.configurationFile
+        } as MagicLine.ISQLMagic;
 
         let needsUpdate = false;
         // Set undefined if variableName is empty string
         const newOutput = variableName || undefined;
-        if (magic.output !== newOutput) {
-          magic.output = newOutput;
+        if (newMagic.output !== newOutput) {
+          newMagic.output = newOutput;
           needsUpdate = true;
         }
         // Set undefined if connectionName is empty string to
         // match the missing value
         const newConnection = connectionName || undefined;
-        if (magic.options['--section'] !== newConnection) {
+        if (newMagic.connectionName !== newConnection) {
           if (newConnection) {
-            magic.options['--section'] = newConnection;
-          } else {
-            delete magic.options['--section'];
+            newMagic.connectionName = newConnection;
           }
           needsUpdate = true;
         }
         if (needsUpdate) {
-          MagicLine.update(model as ICodeCellModel, magic);
+          MagicLine.update(model as ICodeCellModel, newMagic);
         }
       }
     },

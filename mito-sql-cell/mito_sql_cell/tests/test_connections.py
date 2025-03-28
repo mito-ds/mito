@@ -58,12 +58,12 @@ driver = snowflake
 
     assert manager.serialize() == [
         {
-            "name": "sqlite",
+            "connectionName": "sqlite",
             "database": "gh.sqlite",
             "driver": "sqlite",
         },
         {
-            "name": "snowflake",
+            "connectionName": "snowflake",
             "username": "johnsmith",
             "password": "unbreakable12345",
             "account": "john-smith-account",

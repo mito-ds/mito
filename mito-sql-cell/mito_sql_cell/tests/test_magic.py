@@ -35,7 +35,7 @@ driver = sqlite
 """)
 
     r = ipython_shell.run_cell_magic(
-        "sql", f"{option} {CONFIG_FILE.absolute()!s} fake", "SELECT * FROM profiles"
+        "sql", f"{option} \"{CONFIG_FILE.absolute()!s}\" fake", "SELECT * FROM profiles"
     )
 
     assert isinstance(r, pandas.DataFrame)

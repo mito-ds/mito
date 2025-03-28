@@ -60,9 +60,8 @@ class CellTypeSelector extends ReactWidget {
         newType = 'code';
         if (this._notebook.activeCell) {
           MagicLine.update(this._notebook.activeCell.model as ICodeCellModel, {
-            args: [],
             isSQL: true,
-            options: {}
+            connectionName: ''
           });
         }
       }
@@ -81,9 +80,8 @@ class CellTypeSelector extends ReactWidget {
           newType !== this._currentType
         ) {
           MagicLine.update(this._notebook.activeCell.model as ICodeCellModel, {
-            args: [],
-            isSQL: false,
-            options: {}
+            connectionName: '',
+            isSQL: false
           });
         }
         NotebookActions.changeCellType(this._notebook, newType as CellType);

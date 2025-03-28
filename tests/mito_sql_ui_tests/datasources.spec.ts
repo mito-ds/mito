@@ -13,7 +13,7 @@ async function writeSources(file: string, data: any[]) {
   for (const source of data) {
     content += `[${source.connectionName}]\n`;
     content += `database = ${source.database}\n`;
-    content += `drivername = ${source.driver}\n`;
+    content += `driver = ${source.driver}\n`;
     if (source.host) content += `host = ${source.host}\n`;
     if (source.port) content += `port = ${source.port}\n`;
     if (source.username) content += `username = ${source.username}\n`;
@@ -41,7 +41,7 @@ test.describe("Mito SQL datasources", () => {
     );
 
     const content = await fs.readFile(configurationFile, "utf-8");
-    console.info(`Configuration file for ${testFolder} content:\n`, content);
+    console.info(`Configuration file for ${configurationFile} content:\n`, content);
     await fs.unlink(configurationFile);
   });
 
@@ -236,7 +236,7 @@ test.describe("Mito SQL datasources", () => {
     await page.getByLabel("Cell type").selectOption("SQL");
     // Execute the first cell that should contain the configuration
     const firstCell = page.getByLabel("Code Cell Content").first();
-    await firstCell.getByRole("textbox").getByText("%load_ext sql").waitFor();
+    await firstCell.getByRole("textbox").getByText("%load_ext mito_sql_cell").waitFor();
     await firstCell.click();
     await page.keyboard.press("Shift+Enter");
 
@@ -247,6 +247,7 @@ test.describe("Mito SQL datasources", () => {
       .selectOption("test");
     await sqlCell.getByLabel("Variable name").getByRole("textbox").fill("df");
     await sqlCell.locator(".cm-editor").click();
+    await page.keyboard.press("ArrowRight");
     await page.keyboard.type("\nSELECT\n*\nFROM repositories");
     await page.keyboard.press("Shift+Enter");
     await expect
@@ -269,7 +270,7 @@ test.describe("Mito SQL datasources", () => {
     const sqlCell = page.getByLabel("Code Cell Content").last();
     await sqlCell.waitFor({ state: "visible" });
     // Set valid jupysql magic with unsupported mito options
-    await sqlCell.getByRole("textbox").fill(`%%sql --save not_nulls --no-execute
+    await sqlCell.getByRole("textbox").fill(`%%sql
 SELECT
   name,
   user
@@ -279,7 +280,7 @@ WHERE
 
     // Execute the first cell that should contain the configuration
     const firstCell = page.getByLabel("Code Cell Content").first();
-    await firstCell.getByRole("textbox").getByText("%load_ext sql").waitFor();
+    await firstCell.getByRole("textbox").getByText("%load_ext mito_sql_cell").waitFor();
     await firstCell.click();
     await page.keyboard.press("Shift+Enter");
 
@@ -294,7 +295,7 @@ WHERE
 
     await sqlCell.click();
     await page.keyboard.press("Shift+Enter");
-
+    await page.pause()
     await expect
       .soft(page.getByLabel("Code Cell Content with Output").last())
       .toContainText("Connecting to 'test'");
