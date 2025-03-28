@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "mito_sql_cell"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
@@ -32,13 +32,17 @@ dependencies = [
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 [project.optional-dependencies]
+optional_features = [
+    "snowflake-sqlalchemy",
+]
 test = [
     "coverage",
     "Faker",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "pytest-jupyter[server]>=0.6.0"
+    "pytest-jupyter[server]>=0.6.0",
+    "mito_sql_cell[optional_features]",
 ]
 
 [tool.hatch.version]
