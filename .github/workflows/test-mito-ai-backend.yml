@@ -8,6 +8,11 @@ on:
   pull_request:
     paths:
       - 'mito-ai/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-mitoai-backend:
     runs-on: ubuntu-24.04
@@ -18,10 +23,6 @@ jobs:
       fail-fast: false
 
     steps:
-    - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action@0.7.0
-      with:
-        access_token: ${{ github.token }}
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
