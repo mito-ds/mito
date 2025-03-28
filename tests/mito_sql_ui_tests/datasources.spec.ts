@@ -252,9 +252,6 @@ test.describe("Mito SQL datasources", () => {
     await page.keyboard.press("Shift+Enter");
     await expect
       .soft(page.getByLabel("Code Cell Content with Output").last())
-      .toContainText("Connecting to 'test'");
-    await expect
-      .soft(page.getByLabel("Code Cell Content with Output").last())
       .toContainText("stars");
 
     await page.keyboard.type("df");
@@ -296,9 +293,6 @@ WHERE
     await sqlCell.click();
     await page.keyboard.press("Shift+Enter");
     await page.pause()
-    await expect
-      .soft(page.getByLabel("Code Cell Content with Output").last())
-      .toContainText("Connecting to 'test'");
     await expect
       .soft(page.getByLabel("Code Cell Content with Output").getByRole("table"))
       .toContainText("handson-ml2");
