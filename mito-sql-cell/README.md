@@ -84,6 +84,15 @@ By default, the `jlpm build` command generates the source maps for this extensio
 jupyter lab build --minimize=False
 ```
 
+> [!TIP]
+> If you execute with the option `--debug`, you will have more logs from the server extension (aka the SQL sources handling). But
+> it won't display logs for the kernel (aka the magic execution). To display those, you should update ipython kernel config:
+
+1. Create default configuration file: `ipython profile create`
+2. Open the created file `ipython_kernel_config.py`
+3. Look for the line `# c.Application.log_level = ...`
+4. Set the value to _DEBUG_ and uncomment the line: `c.Application.log_level = 'DEBUG'`
+
 ### Development uninstall
 
 ```bash

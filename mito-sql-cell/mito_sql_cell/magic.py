@@ -123,7 +123,10 @@ class SqlMagic(Magics):
 
         args = self._parse_args(line)
 
-        config_file = args.configfile if args.configfile else None
+        config_file = None
+        # Unquote the config file
+        if (args.configfile or "").strip("\"'"):
+            config_file = args.configfile.strip("\"'")
         databases = MitoConnectorManager(config_file)
 
         if not args.section or args.section not in databases:
