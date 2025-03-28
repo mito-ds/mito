@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
-          cache-dependency-path: mito-ai/yarn.lock
+          cache-dependency-path: mitosheet/yarn.lock
       - name: Install Node.js dependencies
         run: | 
           cd mitosheet
