@@ -35,11 +35,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: pip
         cache-dependency-path: mitosheet/setup.py
+    # Needed to enable proper yarn in setup-node for correct caching
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: 'npm'
-        cache-dependency-path: mitosheet/package-lock.json
+        cache: 'yarn'
+        cache-dependency-path: mitosheet/yarn.lock
     - name: Install dependencies
       run: |
         cd mitosheet

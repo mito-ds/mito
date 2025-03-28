@@ -24,6 +24,7 @@
     "type": "git"
   },
   "version": "0.2.1",
+  "packageManager": "yarn@3.5.0",
   "dependencies": {
     "@jupyterlab/application": "^4.0.0",
     "@jupyterlab/notebook": "^4.2.4",

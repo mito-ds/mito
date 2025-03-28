@@ -37,11 +37,13 @@ jobs:
         cache-dependency-path: |
           mito-ai/setup.py
           tests/requirements.txt
+    # Needed to enable proper yarn in setup-node for correct caching
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: 'npm'
-        cache-dependency-path: mito-ai/package-lock.json
+        cache: 'yarn'
+        cache-dependency-path: mito-ai/yarn.lock
     - name: Upgrade pip
       run: |
         python -m pip install --upgrade pip

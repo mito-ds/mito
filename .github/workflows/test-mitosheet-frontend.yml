@@ -37,11 +37,13 @@ jobs:
         cache-dependency-path: |
           mitosheet/setup.py
           tests/requirements.txt
+    # Needed to enable proper yarn in setup-node for correct caching
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: 'npm'
-        cache-dependency-path: mitosheet/package-lock.json
+        cache: 'yarn'
+        cache-dependency-path: mitosheet/yarn.lock
     - name: Install dependencies
       run: |
         cd tests
@@ -88,11 +90,13 @@ jobs:
         cache-dependency-path: |
           mitosheet/setup.py
           tests/requirements.txt
+    # Needed to enable proper yarn in setup-node for correct caching
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: 'npm'
-        cache-dependency-path: mitosheet/package-lock.json
+        cache: 'yarn'
+        cache-dependency-path: mitosheet/yarn.lock
     - name: Install dependencies
       run: |
         cd tests
@@ -163,11 +167,13 @@ jobs:
           mitosheet/setup.py
           tests/requirements.txt
           tests/extra-requirements.txt
+    # Needed to enable proper yarn in setup-node for correct caching
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: 'npm'
-        cache-dependency-path: mitosheet/package-lock.json
+        cache: 'yarn'
+        cache-dependency-path: mitosheet/yarn.lock
     - name: Install dependencies (ubuntu, macos)
       if: matrix.os != 'windows-latest-l'
       run: |
@@ -257,11 +263,13 @@ jobs:
           mitosheet/setup.py
           tests/requirements.txt
           tests/extra-requirements.txt
+    # Needed to enable proper yarn in setup-node for correct caching
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: 'npm'
-        cache-dependency-path: mitosheet/package-lock.json
+        cache: 'yarn'
+        cache-dependency-path: mitosheet/yarn.lock
     - name: Install dependencies
       run: |
         cd tests
