@@ -213,9 +213,9 @@
                     "default": "snowflake",
                     "pattern": "^\\w[\\w\\.]*$"
                 },
-                "username": {
+                "user": {
                     "type": "string",
-                    "title": "Username"
+                    "title": "User"
                 },
                 "password": {
                     "type": "string",
