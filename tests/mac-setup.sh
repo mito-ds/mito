@@ -35,6 +35,6 @@ jlpm run build
 
 # Install mito-sql-cell and build JS
 cd ../mito-sql-cell
-pip install -e ".[test]"
+pip install -e ".[test,optional_features]"
 jlpm install
 jlpm run build
