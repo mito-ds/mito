@@ -109,20 +109,26 @@ folder is located. Then you can remove the symlink named `mito-sql-cell` within 
 
 #### Frontend
 
-The extension is building on top of [jupysql](https://jupysql.ploomber.io/en/latest/). That tool provides
+The extension is inspired by [jupysql](https://jupysql.ploomber.io/en/latest/). That tool provides
 [Jupyter magics](https://ipython.readthedocs.io/en/stable/config/custommagics.html) to execute SQL queries
 within Python code cell.
 
-This extension uses only a subset of features provided by `jupysql`; namely:
-- Cell magic `%%sql`: Allow to define code cell containing only a multilines SQL query
-- SQL database connection in a configuration: This allows to not add connection details in the notebook; in particular user credentials.
-- Save SQL query results in pandas.DataFrame: This is not the default type used by `jupysql` to store the SQL query results.
+The mito magic has a more focused scope:
+- Cell magic `%%sql` only: Allow to define code cell containing a multilines SQL query
+- SQL database connection in a configuration: This allows to not add connection details in the notebook; in particular user credentials.  
+  The configuration file can be set through the magic option `-c/--configfile`.
+- Save SQL query results in pandas.DataFrame. The variable name of the dataframe can be set with the magic option `-o/--out`.
 
-To use the cell magic and that subset of features, special magics must be executed for this extension to work.
-Those magics are automatically inserted within a cell at the top of the notebook if not found using a `DocumentRegistry.WidgetExtension` for the notebook panel;
+The SQL query is actually executed using [pandas.read_sql](https://pandas.pydata.org/docs/reference/api/pandas.read_sql.html).
+
+To load the cell magic, a special magic must be executed for this extension to work.
+That special magic is automatically inserted within a cell at the top of the notebook if not found.
+This is using a `DocumentRegistry.WidgetExtension` for the notebook panel;
 see `SQLToolbarFactory._checkConfiguration` in [./src/sqlextension.ts](./src/sqlextension.ts).  
 The cell is tagged with _mito-sql-cell-configuration_ to be more easily
 found and updated (instead of adding a new cell if the configuration changes slightly; e.g. the configuration file path).
+
+> The configuration is only added if the notebook contains a SQL cell.
 
 The same widget extension also adds a toolbar at the top of code cell if it is starting
 with the SQL magics. The toolbar contains two elements; a datasource selector and a text
@@ -167,13 +173,15 @@ them into the configuration file.
 #### Known limitations
 
 - The configuration file is handled by a server extension but it is also consumed by the
-  magic that lives within the kernel. Hence if the kernel does not run on the same machine as the server, the configuration won't be found by the magic and the SQL cell
-  won't work.
+  magic that lives within the kernel. Hence if the kernel does not run on the same machine as the server,
+  the configuration won't be found by the magic and the SQL cell won't work.
 - All datasource types are not supported out of the box. They may require to install additional
-  python library. `jupysql` does a good job at suggesting what to install in such cases.
-- When a failure occurs `jupysql` does a good job to provide hints on how to fix or debug
-  the error. Unfortunately it works against this extension as it often requires adding/changing
-  magic options that is hidden by this extension.
+  python library. `jupysql` does a good job at suggesting what to install in such cases; we should get inspired
+  by it to do that too.
+- When a failure occurs `jupysql` does a good job to hide useless error trace within the magic code (that the user
+  don't see or know about) and to provide hints on how to fix or debug
+  the error. This implies to mess around with IPython exception but it brings additional usage
+  for the end user. We should do something similar.
 - The need for the configuration cell is annoying - especially as you may forget to execute
   it prior to run SQL cells.
 - There is an open question about where should the datasource connection details resides.
@@ -192,7 +200,7 @@ This extension is using [Pytest](https://docs.pytest.org/) for Python code testi
 Install test dependencies (needed only once):
 
 ```sh
-pip install -e ".[test]"
+pip install -e ".[test,optional_features]"
 # Each time you install the Python package, you need to restore the front-end extension link
 jupyter labextension develop . --overwrite
 ```
