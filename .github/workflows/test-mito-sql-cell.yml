@@ -36,6 +36,7 @@ jobs:
         cache-dependency-path: |
           mito-sql-cell/pyproject.toml
           tests/requirements.txt
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version: 22
