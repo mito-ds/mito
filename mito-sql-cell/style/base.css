@@ -1,9 +1,28 @@
 /* TOOLBAR */
 
 .mito-sqlcell-toolbar {
+
+  /* 
+  Move the toolbar so that it starts at the same horizontal position as the cell,
+  accounting for the collapser and prompt width.
+  */
   margin-left: calc(
     var(--jp-cell-collapser-width) + var(--jp-cell-prompt-width)
   );
+
+  /* Make sure the toolbar is the full width of the cell */
+  display: flex; 
+  background-color: var(--jp-input-background);
+
+  /* Apply the same border styling as the inpute cell */ 
+  border: var(--jp-border-width) solid var(--jp-cell-editor-border-color);
+  border-radius: var(--jp-border-radius);
+  padding: 10px 5px;
+
+  border-top-left-radius: var(--jp-border-radius);
+  border-top-left-radius: var(--jp-border-radius);
+  border-bottom-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
