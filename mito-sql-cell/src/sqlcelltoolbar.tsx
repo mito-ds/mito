@@ -212,7 +212,7 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
 
   return isSQL ? (
     <Toolbar className={TOOLBAR_CLASS} aria-label="Cell SQL toolbar">
-      <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Connected to</span>
+      <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Querying</span>
       <HTMLSelect
         title="SQL source"
         onChange={onConnectionChange}
@@ -229,11 +229,11 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
         </option>
       </HTMLSelect>
       <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>
-        saving to df
+        saving to 
       </span>
       <TextField
-        aria-label="Variable name"
-        title="Variable name"
+        aria-label="Dataframe name"
+        title="Dataframe name"
         onInput={onVariableChange}
         onChange={onVariableChange}
         placeholder="Variable name"
