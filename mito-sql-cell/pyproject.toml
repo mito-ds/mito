@@ -27,7 +27,7 @@ dependencies = [
     "jupysql-plugin>=0.4.5",
     "jupyter_server>=2.4.0,<3",
     "pandas~=2.0",
-    "sqlalchemy"
+    "sqlalchemy>=2.0.0"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
