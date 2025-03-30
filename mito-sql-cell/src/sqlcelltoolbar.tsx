@@ -212,24 +212,24 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
 
   return isSQL ? (
     <Toolbar className={TOOLBAR_CLASS} aria-label="Cell SQL toolbar">
-      <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Querying</span>
+      <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>Connected to</span>
       <HTMLSelect
         title="SQL source"
         onChange={onConnectionChange}
         value={connectionName}
         onClick={addDatabase}
       >
-        <option key="add" value={ADD_SOURCE_OPTION_VALUE}>
-          + Create new database connection
-        </option>
         {sources.map(source => (
           <option key={source} value={source}>
             {source}
           </option>
         ))}
+        <option key="add" value={ADD_SOURCE_OPTION_VALUE}>
+          + Create new connection
+        </option>
       </HTMLSelect>
       <span style={{ margin: 'auto var(--toolbar-item-gap)' }}>
-        and saving the results to variable
+        saving to df
       </span>
       <TextField
         aria-label="Variable name"
