@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 // Function to check for blacklisted words that could be dangerous for the agent to execute
 
 export const checkForBlacklistedWords = (code: string): { safe: boolean, reason?: string } => {

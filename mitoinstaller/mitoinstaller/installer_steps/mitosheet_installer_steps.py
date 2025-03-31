@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import sys
 from time import perf_counter
 from mitoinstaller.commands import (get_jupyterlab_metadata,

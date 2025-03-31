@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import type { GetStaticProps } from 'next'
 import { getPosts } from '../utils/posts'
 import { PostOrPage, PostsOrPages } from '@tryghost/content-api'

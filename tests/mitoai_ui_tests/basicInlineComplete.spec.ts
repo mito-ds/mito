@@ -1,4 +1,9 @@
 /*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/*
 Basic integration test for inline completion. These tests are closer
 to the actual user experience of typing in a notebook and seeing
 inline completions. 

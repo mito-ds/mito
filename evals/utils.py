@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import List, Dict, Any, Optional, Sequence
 from evals.test_cases.agent_find_and_update_tests.simple import AgentFindAndUpdateTestCase
 from prettytable import PrettyTable

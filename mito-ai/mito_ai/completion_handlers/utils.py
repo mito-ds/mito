@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.providers import OpenAIProvider
 from openai.types.chat import ChatCompletionMessageParam

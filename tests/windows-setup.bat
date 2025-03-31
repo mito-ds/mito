@@ -1,3 +1,6 @@
+rem Copyright (c) Saga Inc.
+rem Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 @echo off
 
 REM Create and activate virtual environment

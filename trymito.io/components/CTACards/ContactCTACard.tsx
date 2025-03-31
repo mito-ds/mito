@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import titleStyles from '../../styles/Title.module.css'
 import ctaCardStyles from './CTACard.module.css'
 import CTAButtons from '../CTAButtons/CTAButtons';

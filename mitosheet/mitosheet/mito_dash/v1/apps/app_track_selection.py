@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from dash import Dash, html, dcc, Output, Input
 from dash.exceptions import PreventUpdate
 import plotly.express as px

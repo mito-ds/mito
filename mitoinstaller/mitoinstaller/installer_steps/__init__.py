@@ -1,3 +1,5 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mitoinstaller.installer_steps.installer_step_utils import run_installer_steps
 

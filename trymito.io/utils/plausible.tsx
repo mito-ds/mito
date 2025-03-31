@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 /* 
   In order to measure the effectiveness of the docs CTA, we add a custom css tag to all docs cta buttons 
   which plausible will track as a custom event. See here for more info: https://plausible.io/docs/custom-event-goals

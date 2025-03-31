@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 /**
  * Utilities for figuring out what type the dtype string is.
  * NOTE: these should be identical to the Python utilities in mitosheet/sheet_functions/types/utils.py

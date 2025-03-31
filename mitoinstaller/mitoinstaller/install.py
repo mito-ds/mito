@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from mitoinstaller.installer_steps import (ALL_INSTALLER_STEPS,
                                            run_installer_steps)
 from mitoinstaller.installer_steps.initial_installer_steps import initial_install_step_create_user

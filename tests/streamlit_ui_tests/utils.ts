@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 
 import { expect, Page, FrameLocator, Locator } from '@playwright/test';
 import { FormulaType } from './types';

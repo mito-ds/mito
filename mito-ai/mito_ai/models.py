@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import traceback
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional, Type, Union, NewType

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from evals.eval_types import CodeGenTestCaseCore, InlineCodeCompletionTestCase
 from evals.notebook_states import EMPTY_NOTEBOOK
 from evals.test_cases.chat_tests.dataframe_transformation_tests import NUMBER_OF_BMW_FORD_TOYOTA_FIRST_OWNER_FUNCTION

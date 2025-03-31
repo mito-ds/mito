@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';

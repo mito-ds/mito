@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 // Copyright (c) Mito
 import { ICellModel } from "@jupyterlab/cells";
 import { CellList, INotebookTracker, Notebook, NotebookActions } from '@jupyterlab/notebook';
