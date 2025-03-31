@@ -3,9 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// Copyright (c) Mito
-// Distributed under the terms of the Modified BSD License.
-
 import React, { useState } from 'react';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import { MitoAPI } from '../../../api/api';

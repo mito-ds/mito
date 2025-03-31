@@ -3,10 +3,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
 """
 Generates a JSON list of function documentation objects from doc strings
 of sheet functions in mitosheet/sheet_functions.py. See docs/README for 

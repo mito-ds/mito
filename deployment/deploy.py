@@ -3,10 +3,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
 """
 File that contains utilities for deploying a new version of Mito to PyPi,
 assuming the correct PyPi credentials are on the machine.

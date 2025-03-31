@@ -3,10 +3,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
 import os
 from mitosheet.enterprise.license_key import encode_date_to_license
 from mitosheet.enterprise.mito_config import (

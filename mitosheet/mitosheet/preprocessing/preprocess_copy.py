@@ -3,9 +3,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Dict, Collection, List, Optional, Tuple
 import pandas as pd

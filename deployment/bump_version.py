@@ -3,10 +3,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-
-# Copyright (c) Mito.
-# Distributed under the terms of the Modified BSD License.
-
 """
 Contains utilities for bumping the version of a Mito project, across
 all the files where it needs to be bumped. 
