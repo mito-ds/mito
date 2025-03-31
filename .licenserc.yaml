@@ -35,5 +35,6 @@ header:
     - 'binder/start'
     - 'LICENSE'
     - 'yarn.lock'
+    - '*.webmanifest'
 
   comment: on-failure
