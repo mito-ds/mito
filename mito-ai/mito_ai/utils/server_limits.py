@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Final
 from mito_ai.utils.db import (
     get_chat_completion_count, 

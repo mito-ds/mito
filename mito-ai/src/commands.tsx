@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 const MITO_AI = 'mito_ai'
 
 export const COMMAND_MITO_AI_OPEN_CHAT = `${MITO_AI}:open-chat`

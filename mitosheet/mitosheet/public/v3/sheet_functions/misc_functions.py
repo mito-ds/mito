@@ -1,3 +1,5 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from datetime import datetime, timedelta
 from typing import Any

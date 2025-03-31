@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from "react";
 import { AnalysisData, GraphParamsBackend, MitoAPI, SheetData } from "../../..";
 import { ActionEnum, ColumnID, RecursivePartial, UIState } from "../../../types";

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 .calendar_day_card {
     background-color: var(--color-light-background);
     padding: 1rem;

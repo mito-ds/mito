@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import Image from "next/image"
 import tweetsStyles from './Tweets.module.css'
 import CodingMuffinTwitterProfilePicture from '../../public/twitter/CodingMuffinTwitterProfilePicture.png'

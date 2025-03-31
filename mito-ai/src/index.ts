@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import AiChatPlugin from './Extensions/AiChat/AiChatPlugin';
 import ContextManagerPlugin from './Extensions/ContextManager/ContextManagerPlugin';
 import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRendererPlugin';

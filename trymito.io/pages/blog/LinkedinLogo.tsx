@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 const LinkedinLogo = () => {
         return <svg width="29" height="36" viewBox="0 0 35 36" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
         <mask id="mask0_2854_36" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="35" height="36">

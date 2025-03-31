@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.models import AgentResponse, AgentSmartDebugMetadata, MessageType, ResponseFormatInfo
 from mito_ai.prompt_builders.agent_smart_debug_prompt import create_agent_smart_debug_prompt

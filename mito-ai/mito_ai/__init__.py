@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.handlers import CompletionHandler

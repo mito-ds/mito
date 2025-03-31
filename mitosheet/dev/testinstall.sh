@@ -1,4 +1,7 @@
 #!/bin/bash -eu
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 
 # testinstall.sh: this is a script that you can run from anywhere on your 
 # computer, and it will create a new folder, a clean virtual environment,

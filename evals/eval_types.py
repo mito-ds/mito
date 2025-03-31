@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel

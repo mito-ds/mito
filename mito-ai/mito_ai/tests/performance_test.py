@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 """
 This test will not run in CI, but you can run it locally with:
 python -m pytest mito_ai/tests/performance_test.py -v -s

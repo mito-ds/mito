@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 /* 
     The following two css rules are used to style the Create new Mitosheet button in the notebook toolbar. 
     The pure css selectors are used for the JLab button, and the id selection is used for the notebook 

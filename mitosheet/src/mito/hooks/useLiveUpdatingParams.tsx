@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useCallback, useState } from "react";
 import { MitoAPI,  getRandomId } from "../api/api";
 import { AnalysisData, SheetData } from "../types";

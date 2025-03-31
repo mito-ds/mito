@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 /* 
     A utility for constructing a valid classnames string, you can either pass
     a string, or an object that maps a string to a boolean value, indicating if

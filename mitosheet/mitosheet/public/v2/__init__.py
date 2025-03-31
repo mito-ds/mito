@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 # V2 is the same as V1, but it has a new module, for testing reasons
 from mitosheet.public.v1 import (
     sheet_functions, utils, flatten_column_header, deduplicate_column_headers,
