@@ -238,20 +238,13 @@ class GlobalMessageHistory:
             ai_optimized_message: ChatCompletionMessageParam, 
             display_message: ChatCompletionMessageParam, 
             llm_provider: OpenAIProvider,
-            thread_id: Optional[ThreadID] = None
+            thread_id: ThreadID
     ) -> None:
         """
         Appends the messages to the specified thread or the newest thread if not specified.
         If there are no threads yet, create one.
         We also detect if we should set a short name for the thread.
         """
-
-        if thread_id is None:
-            with self._lock:
-                thread_id = self._get_newest_thread_id()
-
-        if not thread_id:
-            thread_id = self.create_new_thread()
 
         # Add messages and check if naming is needed while holding the lock
         name_gen_input = None

@@ -62,7 +62,7 @@ export interface IChatMessageMetadata {
   activeCellCode?: string;
   input: string;
   index?: number;
-  threadId?: string;
+  threadId: string;
 }
 
 export interface IAgentExecutionMetadata {
@@ -72,7 +72,7 @@ export interface IAgentExecutionMetadata {
   files?: File[];
   input: string;
   index?: number;
-  threadId?: string;
+  threadId: string;
 }
 
 export interface IAgentSmartDebugMetadata {
@@ -82,7 +82,7 @@ export interface IAgentSmartDebugMetadata {
   files?: File[];
   errorMessage: string;
   error_message_producing_code_cell_id: string
-  threadId?: string;
+  threadId: string;
 }
 
 
@@ -92,14 +92,14 @@ export interface ISmartDebugMetadata {
   files?: File[];
   activeCellCode?: string;
   errorMessage: string;
-  threadId?: string;
+  threadId: string;
 }
 
 export interface ICodeExplainMetadata {
   promptType: 'codeExplain';
   variables?: Variable[];
   activeCellCode?: string;
-  threadId?: string;
+  threadId: string;
 }
 
 export interface IInlineCompleterMetadata {
@@ -112,7 +112,7 @@ export interface IInlineCompleterMetadata {
 
 export interface IFetchHistoryMetadata {
   promptType: 'fetch_history'
-  thread_id?: string;
+  thread_id: string;
 }
 
 export interface IStartNewChatMetadata {
@@ -187,7 +187,6 @@ export interface IFetchHistoryCompletionRequest extends ICompletionRequest {
   type: 'fetch_history'
   metadata: IFetchHistoryMetadata
 }
-
 
 /**
  * AI capabilities.

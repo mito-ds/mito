@@ -56,48 +56,48 @@ class MessageType(Enum):
 @dataclass(frozen=True)
 class ChatMessageMetadata():
     promptType: Literal['chat']
+    threadId: ThreadID
     input: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     index: Optional[int] = None
-    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class AgentExecutionMetadata():
     promptType: Literal['agent:execution']
+    threadId: ThreadID
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None
-    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():
     promptType: Literal['agent:autoErrorFixup']
+    threadId: ThreadID
     aiOptimizedCells: List[AIOptimizedCell]
     errorMessage: str
     error_message_producing_code_cell_id: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
     promptType: Literal['smartDebug']
+    threadId: ThreadID
     errorMessage: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
+    threadId: ThreadID
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    threadId: Optional[ThreadID] = None
     
 @dataclass(frozen=True)
 class InlineCompleterMetadata():

@@ -79,7 +79,7 @@ export class ChatHistoryManager {
         );
     }
 
-    addChatInputMessage(input: string): IChatMessageMetadata {
+    addChatInputMessage(input: string, activeThreadId: string): IChatMessageMetadata {
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
 
@@ -88,7 +88,8 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
-            input: input
+            input: input,
+            threadId: activeThreadId
         }
 
         this.displayOptimizedChatHistory.push(
@@ -103,7 +104,7 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(input?: string): IAgentExecutionMetadata {
+    addAgentExecutionMessage(activeThreadId: string, input?: string): IAgentExecutionMetadata {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
@@ -112,7 +113,8 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             aiOptimizedCells: aiOptimizedCells,
-            input: input || ''
+            input: input || '',
+            threadId: activeThreadId
         }
 
         // We use this function in two ways: 
@@ -145,7 +147,7 @@ export class ChatHistoryManager {
     }
 
 
-    addSmartDebugMessage(errorMessage: string): ISmartDebugMetadata {
+    addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -155,7 +157,8 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
-            errorMessage: errorMessage
+            errorMessage: errorMessage,
+            threadId: activeThreadId
         }
 
         this.displayOptimizedChatHistory.push(
@@ -170,7 +173,7 @@ export class ChatHistoryManager {
         return smartDebugMetadata
     }
 
-    addAgentSmartDebugMessage(errorMessage: string): IAgentSmartDebugMetadata {
+    addAgentSmartDebugMessage(activeThreadId: string, errorMessage: string): IAgentSmartDebugMetadata {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getActiveCellCode(this.notebookTracker)
@@ -181,7 +184,8 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             errorMessage: errorMessage,
-            error_message_producing_code_cell_id: activeCellID || ''
+            error_message_producing_code_cell_id: activeCellID || '',
+            threadId: activeThreadId
         }
 
         this.displayOptimizedChatHistory.push(
@@ -196,7 +200,7 @@ export class ChatHistoryManager {
         return agentSmartDebugMetadata
     }
 
-    addExplainCodeMessage(): ICodeExplainMetadata {
+    addExplainCodeMessage(activeThreadId: string): ICodeExplainMetadata {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -204,7 +208,8 @@ export class ChatHistoryManager {
         const codeExplainMetadata: ICodeExplainMetadata = {
             promptType: 'codeExplain',
             variables: this.contextManager.variables,
-            activeCellCode
+            activeCellCode,
+            threadId: activeThreadId
         }
 
         this.displayOptimizedChatHistory.push(

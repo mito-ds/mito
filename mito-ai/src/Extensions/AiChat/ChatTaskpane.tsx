@@ -53,7 +53,7 @@ import {
     IFetchHistoryCompletionRequest,
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
-    AgentResponse
+    AgentResponse,
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
@@ -112,7 +112,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
-    const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+    // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
+    // the last active thread or create a new thread if there are no previously existing threads. So that
+    // we don't need to handle the undefined case everywhere, we just default to an empty string knowing that
+    // it will always be set to a valid thread id before it is used.
+    const [activeThreadId, setActiveThreadId] = useState<string>('');
 
     /* 
         Three possible states:
@@ -144,7 +148,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatThreads(chatThreadsResponse.threads);
     };
 
-    const fetchChatHistoryForThread = async (threadId: string): Promise<void> => {
+    const fetchChatHistoryAndSetActiveThread = async (threadId: string): Promise<void> => {
         const metadata: IFetchHistoryMetadata = {
             promptType: "fetch_history",
             thread_id: threadId
@@ -211,7 +215,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (activeThreadId === threadId) {
                 if (updatedThreads.length > 0) {
                     const latestThread = updatedThreads[0]!;
-                    await fetchChatHistoryForThread(latestThread.thread_id);
+                    await fetchChatHistoryAndSetActiveThread(latestThread.thread_id);
                 } else {
                     await startNewChat();
                 }
@@ -223,10 +227,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const initializeChatHistory = async (): Promise<void> => {
             try {
                 // 1. Fetch available chat threads.
-                const chatThreadsResponse = await websocketClient.sendMessage<
-                    ICompletionRequest,
-                    IFetchThreadsReply
-                >({
+                const chatThreadsResponse = await websocketClient.sendMessage<ICompletionRequest,IFetchThreadsReply>({
                     type: "get_threads",
                     message_id: UUID.uuid4(),
                     metadata: {
@@ -240,7 +241,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // 2. If threads exist, load the latest thread; otherwise, start a new chat.
                 if (chatThreadsResponse.threads.length > 0) {
                     const latestThread = chatThreadsResponse.threads[0]!;
-                    await fetchChatHistoryForThread(latestThread.thread_id);
+                    await fetchChatHistoryAndSetActiveThread(latestThread.thread_id);
                 } else {
                     await startNewChat();
                 }
@@ -320,10 +321,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1. Clear the chat when there is a new error to debug
         const newChatHistoryManager = await startNewChat()
 
-        const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(errorMessage)
-        if (activeThreadId) {
-            smartDebugMetadata.threadId = activeThreadId;
-        }
+        const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(activeThreadId, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
@@ -342,7 +340,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(errorMessage)
+        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(activeThreadId, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
@@ -361,7 +359,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = await startNewChat()
-        const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage()
+        const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage(activeThreadId)
         if (activeThreadId) {
             explainCodeMetadata.threadId = activeThreadId;
         }
@@ -391,7 +389,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(input)
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadId, input)
         if (activeThreadId) {
             agentExecutionMetadata.threadId = activeThreadId;
         }
@@ -425,7 +423,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
         
-        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input)
+        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input, activeThreadId)
         if (activeThreadId) {
             chatMessageMetadata.threadId = activeThreadId;
         }
@@ -789,10 +787,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Notify the backend to request a new chat thread and get its ID
         try {
-            const response = await websocketClient.sendMessage<
-                ICompletionRequest,
-                IStartNewChatReply
-            >({
+            const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
                 type: 'start_new_chat',
                 message_id: UUID.uuid4(),
                 metadata: {
@@ -1002,7 +997,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             ? chatThreads.map(thread => ({
                                 label: thread.name,
                                 primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
-                                onClick: () => fetchChatHistoryForThread(thread.thread_id),
+                                onClick: () => fetchChatHistoryAndSetActiveThread(thread.thread_id),
                                 secondaryActions: [
                                     {
                                         icon: deleteIcon.react,

@@ -21,10 +21,8 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
     ) -> str:
         """Get a smart debug completion from the AI provider."""
 
-        thread_id = metadata.threadId
-
         # Add the system message if it doesn't already exist
-        await append_agent_system_message(message_history, provider, thread_id)
+        await append_agent_system_message(message_history, provider, metadata.threadId)
         
         # Create the prompt
         prompt = create_agent_smart_debug_prompt(metadata)
@@ -33,11 +31,11 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, thread_id)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Get the completion
         completion = await provider.request_completions(
-            messages=message_history.get_ai_optimized_history(thread_id), 
+            messages=message_history.get_ai_optimized_history(metadata.threadId), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_AUTO_ERROR_FIXUP],
             response_format_info=ResponseFormatInfo(
                 name='agent_response',
@@ -49,7 +47,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         display_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        await message_history.append_message(ai_response_message, display_response_message, provider, thread_id)
+        await message_history.append_message(ai_response_message, display_response_message, provider, metadata.threadId)
 
         return completion
 
