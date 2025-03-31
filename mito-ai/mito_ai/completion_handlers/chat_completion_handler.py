@@ -23,7 +23,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
 
         if metadata.index is not None:
             message_history.truncate_histories(
-                index=metadata.index
+                index=metadata.index,
+                thread_id=metadata.threadId
             )
 
         # Add the system message if it doesn't alredy exist

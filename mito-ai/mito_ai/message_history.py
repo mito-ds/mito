@@ -213,23 +213,21 @@ class GlobalMessageHistory:
     def _update_last_interaction(self, thread: ChatThread) -> None:
         thread.last_interaction_ts = time.time()
 
-    def get_ai_optimized_history(self, thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
+    def get_ai_optimized_history(self, thread_id: ThreadID) -> List[ChatCompletionMessageParam]:
         """
         Returns the AI-optimized message history for the specified thread or the newest thread if not specified.
         """
         with self._lock:
-            thread_id = thread_id or self._get_newest_thread_id()
-            if not thread_id or thread_id not in self._chat_threads:
+            if thread_id not in self._chat_threads:
                 return []
             return self._chat_threads[thread_id].ai_optimized_history
     
-    def get_display_history(self, thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
+    def get_display_history(self, thread_id: ThreadID) -> List[ChatCompletionMessageParam]:
         """
         Returns the display-optimized message history for the specified thread or the newest thread if not specified.
         """
         with self._lock:
-            thread_id = thread_id or self._get_newest_thread_id()
-            if not thread_id or thread_id not in self._chat_threads:
+            if thread_id not in self._chat_threads:
                 return []
             return self._chat_threads[thread_id].display_history
 
@@ -281,11 +279,11 @@ class GlobalMessageHistory:
                     thread.name = new_name
                     self._save_thread_to_disk(thread)
 
-    def truncate_histories(self, index: int, thread_id: Optional[ThreadID] = None) -> None:
+    def truncate_histories(self, index: int, thread_id: ThreadID) -> None:
         """
         For the newest thread, truncate messages at the given index.
         """
-        if not thread_id or index < 0:
+        if index < 0:
             return
         
         with self._lock:

@@ -10,7 +10,7 @@ from mito_ai.prompt_builders.agent_system_message import create_agent_system_mes
 async def append_chat_system_message(
         message_history: GlobalMessageHistory,
         provider: OpenAIProvider,
-        thread_id: Optional[ThreadID] = None
+        thread_id: ThreadID
 ) -> None:
     
     # If the system message already exists, do nothing
@@ -34,7 +34,7 @@ async def append_chat_system_message(
 async def append_agent_system_message(
         message_history: GlobalMessageHistory,
         provider: OpenAIProvider,
-        thread_id: Optional[ThreadID] = None
+        thread_id: ThreadID
 ) -> None:
     
     # If the system message already exists, do nothing
