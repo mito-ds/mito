@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// Copyright (c) Mito
 
 /**
  * This file handles creating comms within both JupyterLab and Notebooks. There is a fair

@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// Copyright (c) Mito
 import React, { useEffect, useRef } from 'react';
 import '../../../../../css/elements/Input.css';
 import '../../../../../css/taskpanes/Import/FileBrowser.css';

@@ -31,7 +31,10 @@ def get_tsx_svg_with_props(svg_code: str) -> str:
 
 def get_icon_tsx_code(icon_name: str, svg_code: str) -> str:
     return f"""
-// Copyright (c) Mito
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
 
 import React from 'react';
 

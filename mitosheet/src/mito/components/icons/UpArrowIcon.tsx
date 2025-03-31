@@ -4,7 +4,6 @@
  */
 
 
-// Copyright (c) Mito
 
 import React from 'react';
 

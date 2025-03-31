@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// Copyright (c) Mito
 
 import React, { CSSProperties } from 'react';
 import { CONDITIONS_WITH_NO_INPUT, DATETIME_SELECT_OPTIONS } from './filterConditions';

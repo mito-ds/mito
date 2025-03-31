@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// Copyright (c) Mito
 
 /**
  * By exporting this plugin directly, JLab 4 can get access 

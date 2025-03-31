@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// Copyright (c) Mito
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const data = require('../package.json');

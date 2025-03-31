@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// Copyright (c) Mito
 
 import React, { useCallback, useState } from 'react';
 import "../../../../../css/taskpanes/ControlPanel/ControlPanelTaskpane.css";
