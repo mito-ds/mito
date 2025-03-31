@@ -794,7 +794,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             });
 
             // Set the new thread ID as active
-            activeThreadIdRef.current = response.thread_id;;
+            activeThreadIdRef.current = response.thread_id;
         } catch (error) {
             console.error('Error starting new chat:', error);
         }

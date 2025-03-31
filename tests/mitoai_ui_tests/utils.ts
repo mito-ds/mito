@@ -62,6 +62,7 @@ export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
   
     // Wait for the extension to return to idle
     await waitForIdle(page);
+    await page.waitForTimeout(1000);
   };
 
 export const sendMessagetoAIChat = async (
