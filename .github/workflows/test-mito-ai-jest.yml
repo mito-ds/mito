@@ -14,17 +14,17 @@ on:
       - 'mito-ai/package.json'
       - 'mito-ai/jest.config.js'
       - 'mito-ai/src/tests/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-mitoai-frontend:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
-    - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action@0.7.0
-      with:
-        access_token: ${{ github.token }}
-
     - uses: actions/checkout@v4
 
     - name: Use Node.js 22.x
