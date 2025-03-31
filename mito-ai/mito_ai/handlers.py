@@ -301,7 +301,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 "role": "assistant", 
                 "content": accumulated_response
             }
-            await message_history.append_message(message, message, self._llm)
+            
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 
