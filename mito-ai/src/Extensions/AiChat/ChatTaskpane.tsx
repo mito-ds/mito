@@ -121,7 +121,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // the last active thread or create a new thread if there are no previously existing threads. So that
     // we don't need to handle the undefined case everywhere, we just default to an empty string knowing that
     // it will always be set to a valid thread id before it is used.
-    const [activeThreadId, setActiveThreadId] = useState<string>('');
+    const activeThreadIdRef = useRef<string>('');
 
     /* 
         Three possible states:
@@ -198,7 +198,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Update the state with the new ChatHistoryManager
         setAgentModeEnabled(isAgentChat)
         setChatHistoryManager(newChatHistoryManager);
-        setActiveThreadId(threadId);
+        activeThreadIdRef.current = threadId;
     };
 
     const deleteThread = async (threadId: string): Promise<void> => {
@@ -217,7 +217,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (response.success) {
             const updatedThreads = chatThreads.filter(thread => thread.thread_id !== threadId);
             setChatThreads(updatedThreads);
-            if (activeThreadId === threadId) {
+            if (activeThreadIdRef.current === threadId) {
                 if (updatedThreads.length > 0) {
                     const latestThread = updatedThreads[0]!;
                     await fetchChatHistoryAndSetActiveThread(latestThread.thread_id);
@@ -326,7 +326,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1. Clear the chat when there is a new error to debug
         const newChatHistoryManager = await startNewChat()
 
-        const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(activeThreadId, errorMessage)
+        const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
@@ -345,7 +345,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(activeThreadId, errorMessage)
+        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
 
         // Step 2: Send the message to the AI
@@ -364,10 +364,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Clear the chat history, and add the explain code message
         const newChatHistoryManager = await startNewChat()
-        const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage(activeThreadId)
-        if (activeThreadId) {
-            explainCodeMetadata.threadId = activeThreadId;
-        }
+        const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage(activeThreadIdRef.current)
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -394,10 +391,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadId, input)
-        if (activeThreadId) {
-            agentExecutionMetadata.threadId = activeThreadId;
-        }
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input)
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
         }
@@ -428,10 +422,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
         
-        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input, activeThreadId)
-        if (activeThreadId) {
-            chatMessageMetadata.threadId = activeThreadId;
-        }
+        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current)
         if (messageIndex !== undefined) {
             chatMessageMetadata.index = messageIndex
         }
@@ -782,8 +773,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startNewChat = async (): Promise<ChatHistoryManager> => {
-        // If current thread is empty, do not create a new thread.
-        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0) {
+
+        // If current thread is empty and we already have an active thread id, do not create a new thread.
+        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
             return chatHistoryManager;
         }
         // Reset frontend chat history
@@ -802,8 +794,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             });
 
             // Set the new thread ID as active
-            const newThreadId = response.thread_id;
-            setActiveThreadId(newThreadId);
+            activeThreadIdRef.current = response.thread_id;;
         } catch (error) {
             console.error('Error starting new chat:', error);
         }
@@ -1001,7 +992,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         items={chatThreads.length > 0 
                             ? chatThreads.map(thread => ({
                                 label: thread.name,
-                                primaryIcon: activeThreadId === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
+                                primaryIcon: activeThreadIdRef.current === thread.thread_id ? OpenIndicatorLabIcon.react : undefined,
                                 onClick: () => fetchChatHistoryAndSetActiveThread(thread.thread_id),
                                 secondaryActions: [
                                     {
