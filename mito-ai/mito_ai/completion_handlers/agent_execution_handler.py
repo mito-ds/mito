@@ -22,17 +22,16 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory
     ) -> str:
-        """Get a chat completion from the AI provider."""
+        """Get an agent execution completion from the AI provider."""
 
-        index = metadata.index
-
-        if index is not None:
+        if metadata.index is not None:
             message_history.truncate_histories(
-                index=index
+                thread_id=metadata.threadId,
+                index=metadata.index
             )
-        
-        # Add the system message if it doens't alredy exist
-        await append_agent_system_message(message_history, provider)
+
+        # Add the system message if it doesn't alredy exist
+        await append_agent_system_message(message_history, provider, metadata.threadId)
         
         # Create the prompt
         prompt = create_agent_execution_prompt(metadata)
@@ -42,11 +41,11 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Get the completion
         completion = await provider.request_completions(
-            messages=message_history.ai_optimized_history, 
+            messages=message_history.get_ai_optimized_history(metadata.threadId), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_EXECUTION],
             response_format_info=ResponseFormatInfo(
                 name='agent_response',
@@ -57,7 +56,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         
-        await message_history.append_message(ai_response_message, ai_response_message, provider)
+        await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)
 
         return completion
 
