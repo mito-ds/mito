@@ -68,12 +68,12 @@ def telemetry_turned_on(key_type: Optional[Literal['mito_server_key', 'user_key'
     
     return bool(telemetry)
 
-def identify() -> None:
+def identify(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> None:
     """
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
     """
-    if not telemetry_turned_on():
+    if not telemetry_turned_on(key_type):
         return
 
     static_user_id = get_user_field(UJ_STATIC_USER_ID)
@@ -83,6 +83,7 @@ def identify() -> None:
     params = {
         'version_mitoai': __version__,
         'email': user_email,
+        'is_pro': is_pro(),
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
 
