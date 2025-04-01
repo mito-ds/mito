@@ -475,7 +475,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
-    const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
+    const _sendMessageAndSaveResponse = async (
+        completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
+    ): Promise<boolean> => {
         setLoadingAIResponse(true)
 
         if (completionRequest.stream) {
