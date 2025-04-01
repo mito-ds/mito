@@ -47,10 +47,7 @@ def telemetry_turned_on(key_type: Optional[Literal['mito_server_key', 'user_key'
     # If the user is on the Mito server, then they are sending
     # us their information already
     if key_type == 'mito_server_key':
-        print('HERE: Returning True')
         return True
-    
-    print("HERE: Moving on with regular checks")
     
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
@@ -185,7 +182,6 @@ def log_ai_completion_success(
         response: The response received from the AI
     """
 
-    print('ley type', key_type)
     # Params that every log has
     base_params = {
         KEY_TYPE_PARAM: key_type,
