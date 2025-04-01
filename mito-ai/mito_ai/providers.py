@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
+from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Union, Type
 
 import openai
 from openai._streaming import AsyncStream
@@ -207,8 +207,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
         return self._sync_client
-        
-        
+    
+    @property
+    def key_type(self) -> Literal['mito_server_key', 'user_key']:
+        if self._openAI_sync_client is None:
+            return 'mito_server_key'
+        else:
+            return 'user_key'
+    
     async def request_completions(
         self,
         message_type: MessageType,
@@ -239,7 +245,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
             completion = None
-            if self._openAI_sync_client is not None:
+            if self.key_type == 'user_key':
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
@@ -260,7 +266,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
+                key_type=self.key_type,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
 from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from mito_ai.utils.db import get_user_field
@@ -39,11 +39,19 @@ MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'
 MITO_SERVER_FREE_TIER_LIMIT_REACHED = 'mito_server_free_tier_limit_reached'
 #################################
 
-def telemetry_turned_on() -> bool:
+def telemetry_turned_on(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> bool:
     """
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
+    # If the user is on the Mito server, then they are sending
+    # us their information already
+    if key_type == 'mito_server_key':
+        print('HERE: Returning True')
+        return True
+    
+    print("HERE: Moving on with regular checks")
+    
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
         return False
@@ -117,6 +125,7 @@ def log(
         log_event: str, 
         params: Optional[Dict[str, Any]]=None, 
         error: Optional[BaseException]=None, 
+        key_type: Optional[Literal['mito_server_key', 'user_key']] = None
     ) -> None:
     """
     This function is the entry point for all logging. 
@@ -136,7 +145,7 @@ def log(
 
     # Finally, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
-    if not is_running_test() and telemetry_turned_on():
+    if not is_running_test() and telemetry_turned_on(key_type):
         # TODO: If the user is in JupyterLite, we need to do some extra work.
         # You can see this in the mitosheet package. 
         try:
@@ -160,7 +169,7 @@ def log(
     # so enterprises can log usage if they want to.
 
 def log_ai_completion_success(
-    key_type: str,
+    key_type: Literal['mito_server_key', 'user_key'],
     message_type: MessageType,
     last_message_content: str,
     response: Dict[str, Any],
@@ -175,6 +184,7 @@ def log_ai_completion_success(
         response: The response received from the AI
     """
 
+    print('ley type', key_type)
     # Params that every log has
     base_params = {
         KEY_TYPE_PARAM: key_type,
@@ -226,11 +236,11 @@ def log_ai_completion_success(
         final_params["error_message"] = error_message
         final_params["error_type"] = error_type
 
-        log("mito_ai_smart_debug_success", params=final_params)
+        log("mito_ai_smart_debug_success", params=final_params, key_type=key_type)
     elif message_type == MessageType.CODE_EXPLAIN:
         final_params = base_params
 
-        log("mito_ai_code_explain_success", params=final_params)
+        log("mito_ai_code_explain_success", params=final_params, key_type=key_type)
     elif message_type == MessageType.CHAT:
         final_params = base_params
 
@@ -241,7 +251,7 @@ def log_ai_completion_success(
         for chunk_key, chunk_value in user_input_chunks.items():
             final_params[chunk_key] = chunk_value
 
-        log("mito_ai_chat_success", params=final_params)
+        log("mito_ai_chat_success", params=final_params, key_type=key_type)
     elif message_type == MessageType.AGENT_EXECUTION:
         final_params = base_params
 
@@ -252,18 +262,18 @@ def log_ai_completion_success(
         for chunk_key, chunk_value in user_input_chunks.items():
             final_params[chunk_key] = chunk_value
 
-        log("mito_ai_agent_execution_success", params=final_params)
+        log("mito_ai_agent_execution_success", params=final_params, key_type=key_type)
     elif message_type == MessageType.INLINE_COMPLETION:
         final_params = base_params
-        log("mito_ai_inline_completion_success", params=final_params)
+        log("mito_ai_inline_completion_success", params=final_params, key_type=key_type)
     elif message_type == MessageType.AGENT_AUTO_ERROR_FIXUP:
         final_params = base_params
-        log("mito_ai_agent_auto_error_fixup_success", params=final_params)
+        log("mito_ai_agent_auto_error_fixup_success", params=final_params, key_type=key_type)
     else:
         final_params = base_params
         final_params["note"] = (
             "This input_location has not been accounted for in `telemetry_utils.py`."
         )
 
-        log(f"mito_ai_{message_type.value}_success", params=final_params)
+        log(f"mito_ai_{message_type.value}_success", params=final_params, key_type=key_type)
         
