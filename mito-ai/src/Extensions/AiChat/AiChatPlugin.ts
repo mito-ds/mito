@@ -129,13 +129,15 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     if (restorer) {
       restorer.add(widget, 'mito_ai');
     }    
-
-    // Automatically open the app chat sidebar! I think we need to do this 
-    // after the app is restored, so that app restoration process does not overwrite
-    // the activation, but I'm not 100% sure I follow this.
+    
+    // Instead of immediately activating the chat widget, wait for app restoration to complete
+    // This ensures our widget activation happens after JupyterLab's initial setup which by 
+    // default tries to open the file browser instead. 
     // TODO: It might be nice to only open to chat if a notebook is already open. If a 
     // notebook is not already open, then users might want to open to the file browser, 
-    app.restored.then(() => {
+    void app.restored.then(() => {
+      // Activate our chat widget after JupyterLab has fully initialized
+      // This will override the default file browser selection
       labShell.activateById(widget.id);
     });
 
