@@ -476,6 +476,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
 
+        // Subscribe to the stream to log chunks
+        websocketClient.stream.connect((_, chunk) => {
+            console.log(`[Mito AI Stream] ${chunk.done ? 'FINAL' : ''} Chunk:`, chunk.chunk.content);
+        });
+
         try {
             const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
