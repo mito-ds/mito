@@ -24,6 +24,7 @@ from mito_ai.models import (
     CompletionStreamChunk,
     MessageType,
     ResponseFormatInfo,
+    ThreadID
 )
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
@@ -365,6 +366,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         messages: List[ChatCompletionMessageParam],
         model: str,
         message_id: str,
+        thread_id: ThreadID,
         message_history: Optional["GlobalMessageHistory"] = None,
         response_format_info: Optional[ResponseFormatInfo] = None
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
@@ -376,6 +378,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             messages: The messages to request completions for.
             model: The model to request completions for.
             message_id: The message ID to track the request.
+            thread_id: The thread ID to track the request.
             message_history: Optional message history to append the result to.
             response_format_info: Optional response format information.
             
@@ -408,6 +411,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                 "content": accumulated_response
             }
             # Note: We need to import message_history inside the function to avoid circular imports
-            await message_history.append_message(ai_response_message, ai_response_message, self)
+            await message_history.append_message(
+                ai_optimized_message=ai_response_message,
+                display_message=ai_response_message,
+                llm_provider=self,
+                thread_id=thread_id
+            )
         
         return
