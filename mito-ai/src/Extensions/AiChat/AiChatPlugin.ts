@@ -20,7 +20,7 @@ import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 // The Widget Rank determins where the ChatIcon is displayed
 // in the left hand toolbar
-const WIDGET_RANK = 1
+const WIDGET_RANK = 2000
 
 
 /**
@@ -74,36 +74,30 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
 
         // Step 1: Create the widget if its not already created
         if (!widget || widget.isDisposed) {
-          console.log(1)
           widget = newWidget();
         }
 
         // Step 2: Add the widget to the widget tracker if
         // its not already there
         if (!tracker.has(widget)) {
-          console.log(2)
           void tracker.add(widget);
         }
 
         // Step 3: Attatch the widget to the app if its not already there
         if (!widget.isAttached) {
-          console.log(3)
           void app.shell.add(widget, 'left', { rank: WIDGET_RANK });
         }
 
         // Now that the widget is added to the shell, activating it will open the taskpane
-        console.log(4)
         app.shell.activateById(widget.id);
 
         // If the command is called with focus on chat input set to false, 
         // don't focus. This is useful when we don't want to active cell 
         // preview to be displayed when using the smart debugger.
         if (args?.focusChatInput === false) {
-          console.log(5)
           return;
         }
 
-        console.log(6)
         // Set focus on the chat input
         const chatInput: HTMLTextAreaElement | null = widget.node.querySelector('.chat-input');
         chatInput?.focus();
@@ -117,7 +111,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     });
 
     app.shell.add(widget, 'left', { rank: WIDGET_RANK });
-
 
     // Add the command to the palette.
     palette.addItem({
@@ -137,44 +130,15 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
       restorer.add(widget, 'mito_ai');
     }    
 
-    app.shell.activateById(widget.id);
-
-    console.log('Battatched: ', widget.isAttached)
-    console.log('Bvisible: ', widget.isVisible)
-    console.log('widget id', widget.id)
-    if (widget.id) {
-      console.log("activging!!!!")
-      app.shell.activate()
-    }
-
-    console.log('Aattatched: ', widget.isAttached)
-    console.log('Avisible: ', widget.isVisible)
-
-    console.log("mito-ai: AiChatPlugin activated");
-
-    console.log('active widget', labShell.activeWidget)
-    console.log(widget)
-    widget.activate()
-    labShell.activateById(widget.id)
-    labShell.collapseLeft()
-    console.log('active widget', labShell.activeWidget)
-
-
-    // By returning a tracker token, we can require the token in other 
-    // plugins. This allows us to force plugin load order. For example, 
-    // we can ensure that the COMMAND_MITO_AI_OPEN_CHAT is created 
-    // before trying to use it in other plugins
-
-    console.log(notebookTracker.activeCell)
-
-    console.log("WIDETS")
-    console.log(labShell.widgets('menu'))
-
     // Automatically open the app chat sidebar! 
     app.restored.then(() => {
       labShell.activateById(widget.id);
     });
 
+    // By returning a tracker token, we can require the token in other 
+    // plugins. This allows us to force plugin load order. For example, 
+    // we can ensure that the COMMAND_MITO_AI_OPEN_CHAT is created 
+    // before trying to use it in other plugins
     return tracker;
   }
 };
