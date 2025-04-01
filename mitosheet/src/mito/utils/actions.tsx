@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import fscreen from "fscreen";
 import { getCodeString } from "../../jupyter/code";
 import { MitoAPI, getRandomId } from "../api/api";

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 .container {
     /* Add padding to the top so that the page is not cut off by the navbar */
     padding: 6rem 2rem;

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';

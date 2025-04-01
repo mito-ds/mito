@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { AggregationType, BackendPivotParams, ColumnID, FilterType, FrontendPivotParams, SheetData } from "../../../types";
 import { isDatetimeDtype, isStringDtype, isTimedeltaDtype } from '../../../utils/dtypes';
 import { getFiltersToApply } from "../ControlPanel/FilterAndSortTab/filter/filterUtils";

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from mitosheet.mito_dash.v1 import Spreadsheet, mito_callback, activate_mito
 from dash import Dash, html, Input, Output
 import pandas as pd

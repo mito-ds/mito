@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import json
 from mitosheet.mito_backend import MitoBackend
 from mitosheet.saved_analyses import get_saved_analysis_string

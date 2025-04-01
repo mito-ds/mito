@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 .case_study_card_container {
     transition: transform .25s ease-in-out; /* Adjust duration as needed */
     cursor: pointer;

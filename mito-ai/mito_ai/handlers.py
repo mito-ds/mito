@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import json
 import logging
 import time
@@ -171,10 +174,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
             thread_id = metadata_dict.get('thread_id')
-            if thread_id:
-                _, display_history = message_history.get_histories_and_set_active_thread(thread_id)
-            else:
-                _, display_history = message_history.get_histories_and_set_active_thread()
+            display_history = message_history.get_display_history(thread_id)
             
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
@@ -298,7 +298,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             )
         self.reply(reply)
         
-
     def reply(self, reply: Any) -> None:
         """Write a reply object to the WebSocket connection.
 

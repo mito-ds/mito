@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from dash import Dash, html, Input, Output, Patch, callback
 from mitosheet.mito_dash.v1 import Spreadsheet, activate_mito
 

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Any, Dict, List, Union
 from mitosheet.saved_analyses.save_utils import read_analysis
 from mitosheet.types import StepsManagerType

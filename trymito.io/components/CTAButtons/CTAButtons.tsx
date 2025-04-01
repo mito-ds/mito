@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import Link from 'next/link';
 import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 import TextButton from '../Buttons/TextButton/TextButton';

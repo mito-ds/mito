@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 .expandable_card_container {
     /* 
         Reduce the padding so we can increase the size of the header to 

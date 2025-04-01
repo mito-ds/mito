@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.models import CodeExplainMetadata, MessageType
@@ -20,11 +23,12 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         message_history: GlobalMessageHistory
     ) -> str:
         """Get a code explain completion from the AI provider."""
-        
-        # Add the system message if it doens't alredy exist
-        await append_chat_system_message(message_history, provider)
-        
+
         active_cell_code = metadata.activeCellCode or ''
+        thread_id = metadata.threadId
+
+        # Add the system message if it doesn't alredy exist
+        await append_chat_system_message(message_history, provider, thread_id)
         
         # Create the prompt
         prompt = create_explain_code_prompt(active_cell_code)
@@ -33,18 +37,18 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, thread_id)
         
         # Get the completion
         completion = await provider.request_completions(
-            messages=message_history.ai_optimized_history, 
+            messages=message_history.get_ai_optimized_history(thread_id), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
             message_type=MessageType.CODE_EXPLAIN
         )
         
         # Add the response to message history
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        await message_history.append_message(ai_response_message, ai_response_message, provider)
+        await message_history.append_message(ai_response_message, ai_response_message, provider, thread_id)
 
         return completion
 

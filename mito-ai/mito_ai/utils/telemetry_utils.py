@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import json
 from typing import Any, Dict, Optional
 from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro

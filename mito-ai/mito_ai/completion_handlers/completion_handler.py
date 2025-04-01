@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Protocol, TypeVar
 from abc import abstractmethod, ABCMeta
 from mito_ai.models import ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, InlineCompleterMetadata, AgentSmartDebugMetadata

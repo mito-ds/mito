@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { expect, galata, test } from '@jupyterlab/galata';
 import {
     createAndRunNotebookWithCells,
@@ -12,6 +17,7 @@ import {
     turnOnAgentMode,
     getNotebookCode,
     waitForAgentToFinish,
+    startNewMitoAIChat
 } from './utils';
 
 test.describe("Agent mode print hi", () => {
@@ -25,6 +31,9 @@ test.describe("Agent mode print hi", () => {
         await waitForIdle(page);
 
         await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        await startNewMitoAIChat(page);
         await waitForIdle(page);
 
         // Switch to agent mode 
@@ -113,6 +122,9 @@ test.describe("Stop Agent", () => {
         await waitForIdle(page);
 
         await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        await startNewMitoAIChat(page);
         await waitForIdle(page);
 
         // Switch to agent mode 
@@ -215,6 +227,9 @@ test.describe("Agent mode auto error fixup", () => {
         await clickOnMitoAIChatTab(page);
         await waitForIdle(page);
 
+        await startNewMitoAIChat(page);
+        await waitForIdle(page);
+
         // Switch to agent mode 
         await turnOnAgentMode(page);
     });
@@ -247,6 +262,9 @@ test.describe("Agent mode blacklisted words", () => {
         await waitForIdle(page);
 
         await clickOnMitoAIChatTab(page);
+        await waitForIdle(page);
+
+        await startNewMitoAIChat(page);
         await waitForIdle(page);
 
         // Switch to agent mode 

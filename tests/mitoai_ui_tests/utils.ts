@@ -1,9 +1,16 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { expect, IJupyterLabPageFixture } from "@jupyterlab/galata";
 import { getCodeFromCell, selectCell, waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 export const waitForMitoAILoadingToDisappear = async (page: IJupyterLabPageFixture) => {
     const mitoAILoadingLocator = page.locator('.chat-loading-message');
     await mitoAILoadingLocator.waitFor({ state: 'hidden' });
+
+    await page.waitForTimeout(1000);
 }
 
 export const waitForAgentToFinish = async (page: IJupyterLabPageFixture) => {
@@ -55,6 +62,7 @@ export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
   
     // Wait for the extension to return to idle
     await waitForIdle(page);
+    await page.waitForTimeout(1000);
   };
 
 export const sendMessagetoAIChat = async (
@@ -164,7 +172,6 @@ export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<str
     const codeFromCells: string[] = [];
     for (let i = 0; i < cellCount; i++) {
         const code = await getCodeFromCell(page, i);
-        console.log(code)
         if (code) {
             codeFromCells.push(code);
         }

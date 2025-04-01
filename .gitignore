@@ -14,6 +14,7 @@ tests/.ipynb_checkpoints/*
 # These get generated when creating plotly graphs
 mitosheet/iframe_figures/*
 mito-ai/iframe_figures/*
+mito-sql-cell
 
 # Mac Specific 
 

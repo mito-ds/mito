@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { AnalysisData, ExperimentID } from "../types";
 
 export const isExperimentActive = (analysisData: AnalysisData, experimentID: ExperimentID) => {

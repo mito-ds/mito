@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from copy import copy
 import pprint
 from typing import Any, Dict, List, Literal, Optional, Union

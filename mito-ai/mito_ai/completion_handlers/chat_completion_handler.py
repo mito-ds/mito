@@ -1,4 +1,8 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import List, Union, Optional, AsyncGenerator
+
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
 from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
@@ -21,15 +25,14 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
     ) -> str:
         """Get a chat completion from the AI provider."""
 
-        index = metadata.index
-
-        if index is not None:
+        if metadata.index is not None:
             message_history.truncate_histories(
-                index=index
+                index=metadata.index,
+                thread_id=metadata.threadId
             )
-        
-        # Add the system message if it doens't alredy exist
-        await append_chat_system_message(message_history, provider)
+
+        # Add the system message if it doesn't alredy exist
+        await append_chat_system_message(message_history, provider, metadata.threadId)
         
         # Create the prompt
         prompt = create_chat_prompt(
@@ -43,17 +46,17 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Get the completion (non-streaming)
         completion = await provider.request_completions(
-            messages=message_history.ai_optimized_history, 
+            messages=message_history.get_ai_optimized_history(metadata.threadId), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_type=MessageType.CHAT
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        await message_history.append_message(ai_response_message, ai_response_message, provider)
+        await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)
 
         return completion
     

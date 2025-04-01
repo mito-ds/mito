@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import traceback
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional, Type, Union, NewType
@@ -56,16 +59,17 @@ class MessageType(Enum):
 @dataclass(frozen=True)
 class ChatMessageMetadata():
     promptType: Literal['chat']
+    threadId: ThreadID
     input: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     index: Optional[int] = None
-    stream: bool = False
     
 @dataclass(frozen=True)
 class AgentExecutionMetadata():
     promptType: Literal['agent:execution']
+    threadId: ThreadID
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
     variables: Optional[List[str]] = None
@@ -75,6 +79,7 @@ class AgentExecutionMetadata():
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():
     promptType: Literal['agent:autoErrorFixup']
+    threadId: ThreadID
     aiOptimizedCells: List[AIOptimizedCell]
     errorMessage: str
     error_message_producing_code_cell_id: str
@@ -84,6 +89,7 @@ class AgentSmartDebugMetadata():
 @dataclass(frozen=True)
 class SmartDebugMetadata():
     promptType: Literal['smartDebug']
+    threadId: ThreadID
     errorMessage: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
@@ -92,6 +98,7 @@ class SmartDebugMetadata():
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
+    threadId: ThreadID
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     
@@ -102,11 +109,6 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class FetchHistoryMetadata():
-    promptType: Literal['fetch_history']
-    
     
 @dataclass(frozen=True)
 class CompletionRequest:

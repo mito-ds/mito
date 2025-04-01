@@ -1,5 +1,5 @@
-
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mitosheet.public.v3.sheet_functions.number_functions import *
 from mitosheet.public.v3.sheet_functions.string_functions import *
