@@ -135,6 +135,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
+    const [, setStreamingResponse] = useState<string>('');
+
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
             promptType: "get_threads"
@@ -473,24 +475,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
-    // TODO: Move this up to the top of the component
-    const [streamingResponse, setStreamingResponse] = useState<string>('');
-
-    useEffect(() => {
-        console.log('streamingResponse', streamingResponse)
-    }, [streamingResponse])
-
-
     const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
 
         if (completionRequest.stream) {
-            // Reset the streaming response
+            // Reset the streaming response and set streaming state
             setStreamingResponse('')
 
-            // Subscribe to the stream to log chunks
             websocketClient.stream.connect((_, chunk) => {
-                setStreamingResponse(chunk.chunk.content)
+                setStreamingResponse(prev => {
+                    // TODO: Figure out why this messes up markdown formatting. 
+                    const newContent = prev.includes(chunk.chunk.content) ? prev : prev + chunk.chunk.content;
+                    
+                    // Update chat history
+                    newChatHistoryManager.addStreamingAIMessage(newContent, completionRequest.metadata.promptType);
+                    setChatHistoryManager(newChatHistoryManager);
+
+                    // This triggers a re-render. We need to do this so that the streaming response is displayed in the chat.
+                    return newContent;  
+                });
             });
 
             try {
