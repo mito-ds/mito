@@ -433,7 +433,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'chat',
             message_id: UUID.uuid4(),
             metadata: chatMessageMetadata,
-            stream: false
+            stream: true
         }
 
         // Step 2: Scroll to the bottom of the chat messages container

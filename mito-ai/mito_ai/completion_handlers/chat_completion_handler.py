@@ -82,11 +82,12 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
 
         if index is not None:
             message_history.truncate_histories(
-                index=index
+                index=index,
+                thread_id=metadata.threadId
             )
         
         # Add the system message if it doesn't already exist
-        await append_chat_system_message(message_history, provider)
+        await append_chat_system_message(message_history, provider, metadata.threadId)
         
         # Create the prompt
         prompt = create_chat_prompt(
@@ -100,12 +101,12 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Stream the completions using the provider's stream method
         async for chunk in provider.stream_and_save_completions(
             message_type=MessageType.CHAT,
-            messages=message_history.ai_optimized_history,
+            messages=message_history.get_ai_optimized_history(metadata.threadId),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_id=message_id,
             message_history=message_history
