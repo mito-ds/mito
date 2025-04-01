@@ -245,7 +245,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
             completion = None
-            if self.key_type == 'user_key':
+            if self._openAI_sync_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
@@ -321,7 +321,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY,
+                key_type='user_key',
                 message_type=message_type,
                 last_message_content=str(request.messages[-1].get('content', '')),
                 response={"completion": "not available for streamed completions"},

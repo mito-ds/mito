@@ -184,7 +184,7 @@ def log_ai_completion_success(
 
     # Params that every log has
     base_params = {
-        KEY_TYPE_PARAM: key_type,
+        KEY_TYPE_PARAM: str(key_type),
     }
 
     try:
