@@ -218,6 +218,7 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
         onChange={onConnectionChange}
         value={connectionName}
         onClick={addDatabase}
+        data-testid="sql-source-select"
       >
         {sources.map(source => (
           <option key={source} value={source}>
@@ -238,6 +239,7 @@ function SQLCellToolbar(props: ISQLCellToolbarProps): JSX.Element | null {
         onChange={onVariableChange}
         placeholder="Variable name"
         value={variableName}
+        data-testid="sql-variable-name-input"
       >
         <editIcon.react slot="end" tag={null} />
       </TextField>

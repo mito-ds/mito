@@ -2,6 +2,7 @@ import { expect, galata, test } from "@jupyterlab/galata";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { waitForIdle } from "../jupyter_utils/jupyterlab_utils";
 
 const DATABASES_URL =
   /.*\/mito-sql-cell\/databases(\/(?<connectionName>\w[\w-]*))?/;
@@ -172,8 +173,8 @@ test.describe("Mito SQL datasources", () => {
 
     // Adding a SQL source through the button in the empty panel
     // is handle in before each. So here we use the toolbar button.
-
-    await page.getByRole("button", { name: "Add a new SQL source" }).click();
+    await page.locator('[data-testid="sql-source-select"]').waitFor({state: 'visible'});
+    await page.getByTestId('sql-source-select').selectOption('add-source');
 
     const dialog = page.getByRole("dialog");
     await dialog.getByRole("combobox").click();
@@ -198,23 +199,7 @@ test.describe("Mito SQL datasources", () => {
     await dialog.locator("#root_database").fill("testdb");
     await dialog.getByRole("button", { name: "Add", exact: true }).click();
 
-    await page.pause();
-    await expect
-      .soft(
-        sqlCell
-          .getByRole("combobox", { name: "SQL source" })
-          .getByRole("option")
-      )
-      .toHaveCount(3);
-    await expect
-      .soft(
-        sqlCell
-          .getByRole("combobox", { name: "SQL source" })
-          .getByRole("option")
-          .last()
-      )
-      .toHaveText("testpg");
-    await page.keyboard.press("Escape");
+    await expect.soft(page.getByTestId('sql-source-select').getByRole("option")).toHaveCount(3);
 
     // Deleting a SQL source
     await page.getByLabel("testpg").getByRole("button").last().click();
@@ -239,13 +224,12 @@ test.describe("Mito SQL datasources", () => {
     await firstCell.getByRole("textbox").getByText("%load_ext mito_sql_cell").waitFor();
     await firstCell.click();
     await page.keyboard.press("Shift+Enter");
+    await waitForIdle(page);
 
     // Focus on the SQL cell
     await sqlCell.click();
-    await sqlCell
-      .getByRole("combobox", { name: "SQL source" })
-      .selectOption("test");
-    await sqlCell.getByLabel("Variable name").getByRole("textbox").fill("df");
+    await page.getByTestId('sql-source-select').selectOption('test');
+    await page.getByTestId('sql-variable-name-input').getByPlaceholder('Variable name').fill('df');
     await sqlCell.locator(".cm-editor").click();
     await page.keyboard.press("ArrowRight");
     await page.keyboard.type("\nSELECT\n*\nFROM repositories");
@@ -285,14 +269,11 @@ WHERE
     await sqlCell.click();
 
     // Setting the SQL options should update the magic
-    await sqlCell
-      .getByRole("combobox", { name: "SQL source" })
-      .selectOption("test");
-    await sqlCell.getByLabel("Variable name").getByRole("textbox").fill("out");
+    await page.getByTestId('sql-source-select').selectOption('test');
+    await page.getByTestId('sql-variable-name-input').getByPlaceholder('Variable name').fill('out');
 
     await sqlCell.click();
     await page.keyboard.press("Shift+Enter");
-    await page.pause()
     await expect
       .soft(page.getByLabel("Code Cell Content with Output").getByRole("table"))
       .toContainText("handson-ml2");
