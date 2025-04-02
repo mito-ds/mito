@@ -1,0 +1,303 @@
+{
+    "DuckDB": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "duckdb"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Source Name",
+                    "default": "duckdb",
+                    "pattern": "^\\w[\\w\\.]*$"
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Path to database",
+                    "default": ":memory:"
+                }
+            },
+            "required": [
+                "connectionName",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "SQLite": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "sqlite"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Source Name",
+                    "default": "sqlite",
+                    "pattern": "^\\w[\\w\\.]*$"
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Path to database",
+                    "default": ":memory:"
+                }
+            },
+            "required": [
+                "connectionName",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "PostgreSQL": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "postgresql"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Source Name",
+                    "default": "postgresql",
+                    "pattern": "^\\w[\\w\\.]*$"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 5432
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "MySQL": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "mysql+pymysql"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Source Name",
+                    "default": "mysql",
+                    "pattern": "^\\w[\\w\\.]*$"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 3306
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "MariaDB": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "mysql+pymysql"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Source Name",
+                    "default": "mariadb",
+                    "pattern": "^\\w[\\w\\.]*$"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 3306
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "Snowflake": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "snowflake"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Source Name",
+                    "default": "snowflake",
+                    "pattern": "^\\w[\\w\\.]*$"
+                },
+                "user": {
+                    "type": "string",
+                    "title": "User"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "account": {
+                    "type": "string",
+                    "title": "Account"
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                },
+                "schema": {
+                    "type": "string",
+                    "title": "Schema"
+                },
+                "warehouse": {
+                    "type": "string",
+                    "title": "Warehouse"
+                },
+                "role": {
+                    "type": "string",
+                    "title": "Role"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "driver",
+                "account"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "MSSQL": {
+        "schema": {
+            "type": "object",
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "default": "mssql+pyodbc"
+                },
+                "connectionName": {
+                    "type": "string",
+                    "title": "Source Name",
+                    "default": "mssql",
+                    "pattern": "^\\w[\\w\\.]*$"
+                },
+                "username": {
+                    "type": "string",
+                    "title": "Username"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password"
+                },
+                "host": {
+                    "type": "string",
+                    "title": "Host"
+                },
+                "port": {
+                    "type": "integer",
+                    "title": "Port",
+                    "default": 1433
+                },
+                "database": {
+                    "type": "string",
+                    "title": "Database"
+                }
+            },
+            "required": [
+                "connectionName",
+                "username",
+                "password",
+                "host",
+                "port",
+                "database",
+                "driver"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

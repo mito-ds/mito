@@ -1,0 +1,5 @@
+{
+  "packageManager": "python",
+  "packageName": "mito_sql_cell",
+  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package mito_sql_cell"
+}

@@ -1,0 +1,137 @@
+/* TOOLBAR */
+
+.mito-sqlcell-toolbar {
+
+  /* 
+  Move the toolbar so that it starts at the same horizontal position as the cell,
+  accounting for the collapser and prompt width.
+  */
+  margin-left: calc(
+    var(--jp-cell-collapser-width) + var(--jp-cell-prompt-width)
+  );
+
+  /* Make sure the toolbar is the full width of the cell */
+  display: flex; 
+  background-color: var(--jp-input-background);
+
+  /* Apply the same border styling as the inpute cell */ 
+  border: var(--jp-border-width) solid var(--jp-cell-editor-border-color);
+  border-radius: var(--jp-border-radius);
+  padding: 10px 5px;
+
+  border-top-left-radius: var(--jp-border-radius);
+  border-top-left-radius: var(--jp-border-radius);
+  border-bottom-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.mito-sqlcell-toolbar.jp-Toolbar {
+  --toolbar-item-gap: 4px;
+  border-bottom: none;
+  align-items: center;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.mito-sqlcell-toolbar.jp-Toolbar .mito-sqlcell-variable {
+  display: flex;
+  align-items: center;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.mito-sqlcell-toolbar.jp-Toolbar input {
+  height: 63%;
+}
+
+.mito-sqlcell-toolbar .jp-HTMLSelect {
+  position: relative;
+  border: var(--jp-border-width) solid var(--jp-inverse-border-color);
+  border-radius: var(--jp-border-radius);
+}
+
+.mito-sqlcell-toolbar .jp-HTMLSelect > span > svg {
+  top: 4px;
+}
+
+.mito-sql-sources-header {
+  padding: 2px 4px;
+  display: flex;
+  font-size: var(--jp-ui-font-size0);
+}
+
+.mito-sql-sources-header h2 {
+  font-size: 100%;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 auto 0 0;
+  padding: 4px 10px;
+}
+
+.mito-sql-sources-placeholder {
+  color: var(--jp-content-font-color2);
+  padding: 8px;
+  text-align: center;
+}
+
+.mito-sql-sources-placeholder > h3 {
+  margin-bottom: var(--jp-content-heading-margin-bottom);
+}
+
+.mito-sql-add-source-btn > svg .jp-icon3 {
+  fill: var(--jp-ui-inverse-font-color1);
+}
+
+.mito-sql-sources-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mito-sql-source-item {
+  padding: 4px;
+  border-bottom: 1px solid var(--jp-border-color2);
+}
+
+.mito-sql-btn-source-delete {
+  float: right;
+}
+
+.mito-sql-source-name {
+  font-size: var(--jp-ui-font-size2);
+}
+
+.mito-sql-source-database {
+  color: var(--jp-ui-font-color2);
+}
+
+.mito-sql-add-source-dialog .jp-Dialog-content {
+  overflow: visible;
+}
+
+.jp-Dialog-body.mito-sql-add-source-dialog-body {
+  overflow: visible;
+}
+
+.mito-sql-source-type-lbl {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 7px 9px;
+}
+
+.mito-sql-source-type-span {
+  font-size: var(--jp-content-font-size1);
+  min-width: 120px;
+}
+
+.mito-sql-source-type-select {
+  margin-left: 7px;
+  min-width: 220px;
+}
+
+.jp-Dialog-body.mito-sql-add-source-dialog-body
+  #root
+  > div.form-group:first-child {
+  /* Hide the database driver - it is anyway disabled for edition */
+  display: none;
+}
