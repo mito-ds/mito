@@ -48,10 +48,15 @@ class SqlConnections:
             # it is provided by snowflake.sqlalchemy.URL. So we need to distinguish
             # between the two.
             if driver == "snowflake":
-
-                from snowflake.sqlalchemy import URL as snowflake_url
-
-                url = snowflake_url(**parameters)
+                try:
+                    from snowflake.sqlalchemy import URL as snowflake_url
+                    url = snowflake_url(**parameters)
+                except ImportError:
+                    raise ImportError(
+                        "The snowflake-sqlalchemy package is required for Snowflake connections. "
+                        "Install it with 'pip install snowflake-sqlalchemy' or "
+                        "'pip install mito_sql_cell[optional_features]'"
+                    )
             else:
                 # SQLAlchemy URL.create locks allowed named parameters
                 # https://docs.sqlalchemy.org/en/20/core/engines.html#sqlalchemy.engine.URL.create
