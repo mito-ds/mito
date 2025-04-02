@@ -5,6 +5,7 @@ import os
 import time
 import json
 import uuid
+import re
 from threading import Lock
 from typing import Dict, List, Optional
 
@@ -234,6 +235,68 @@ class GlobalMessageHistory:
                 return []
             return self._chat_threads[thread_id].display_history
 
+    def _trim_sections_from_message_content(self, content):
+        """
+        Removes specific sections from message content to reduce token count.
+        Sections to be trimmed:
+        - Files in the current directory
+        - Defined Variables
+        - Code in the active code cell
+        
+        These sections are replaced with a placeholder text.
+        
+        Args:
+            content: The message content, which could be a string or another type
+            
+        Returns:
+            The trimmed content if it's a string, otherwise the original content
+        """
+        if not isinstance(content, str):
+            return content
+            
+        # Replace "Files in the current directory:" section
+        content = re.sub(
+            r'Files in the current directory:\n(?:.+\n)+',
+            'Files in the current directory: Content removed to save space\n',
+            content
+        )
+        
+        # Replace "Defined Variables:" section
+        content = re.sub(
+            r'Defined Variables:\n(?:.+\n)+',
+            'Defined Variables: Content removed to save space\n',
+            content
+        )
+        
+        # Replace "Code in the active code cell:" section including the python code block
+        content = re.sub(
+            r'Code in the active code cell:\n```python\n(?:.+\n)+```',
+            'Code in the active code cell: Content removed to save space',
+            content
+        )
+        
+        return content
+        
+    def _trim_old_messages(self, messages: List[ChatCompletionMessageParam], keep_recent: int = 3) -> None:
+        """
+        Trims specific sections from messages that are older than the specified number of recent messages.
+        
+        Args:
+            messages: List of messages to process
+            keep_recent: Number of recent messages to keep untouched (default: 3)
+        """
+        if len(messages) <= keep_recent:
+            return
+            
+        # Process all messages except the keep_recent most recent ones
+        for i in range(len(messages) - keep_recent):
+            content = messages[i].get("content")
+            if content is not None:
+                messages[i]["content"] = self._trim_sections_from_message_content(content)
+                
+        # Log that we've trimmed messages for debugging
+        print(f"Trimmed {len(messages) - keep_recent} messages to save token space")
+
     async def append_message(
             self, 
             ai_optimized_message: ChatCompletionMessageParam, 
@@ -254,6 +317,9 @@ class GlobalMessageHistory:
             thread.ai_optimized_history.append(ai_optimized_message)
             thread.display_history.append(display_message)
             self._update_last_interaction(thread)
+            
+            # Trim old messages in ai_optimized_history to reduce token count
+            self._trim_old_messages(thread.ai_optimized_history)
 
             if thread.name == NEW_CHAT_NAME and len(thread.display_history) >= 2:
                 # Retrieve first user and assistant messages from display_history
