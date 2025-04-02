@@ -59,6 +59,7 @@ import {
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     AgentResponse,
+    ICompletionStreamChunk
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
@@ -136,6 +137,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
     const [, setStreamingResponse] = useState<string>('');
+    const streamingContentRef = useRef<string>('');
+    const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
 
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
@@ -483,20 +486,37 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (completionRequest.stream) {
             // Reset the streaming response and set streaming state
             setStreamingResponse('')
+            streamingContentRef.current = '';
+            
+            // Disconnect any existing stream handler
+            if (streamHandlerRef.current) {
+                websocketClient.stream.disconnect(streamHandlerRef.current, null);
+                streamHandlerRef.current = null;
+            }
 
-            websocketClient.stream.connect((_, chunk) => {
-                setStreamingResponse(prev => {
-                    // TODO: Figure out why this messes up markdown formatting. 
-                    const newContent = prev.includes(chunk.chunk.content) ? prev : prev + chunk.chunk.content;
-                    
-                    // Update chat history
-                    newChatHistoryManager.addStreamingAIMessage(newContent, completionRequest.metadata.promptType);
-                    setChatHistoryManager(newChatHistoryManager);
+            // Create the stream handler function and store it in the ref
+            const streamHandler = (
+                _: CompletionWebsocketClient, chunk: ICompletionStreamChunk
+            ) => {                
+                // Use a ref to accumulate the content properly
+                streamingContentRef.current += chunk.chunk.content;
+                
+                // Update state to trigger a re-render
+                setStreamingResponse(streamingContentRef.current);
 
-                    // This triggers a re-render. We need to do this so that the streaming response is displayed in the chat.
-                    return newContent;  
-                });
-            });
+                // Update chat history with the complete accumulated content
+                newChatHistoryManager.addStreamingAIMessage(
+                    streamingContentRef.current, 
+                    completionRequest.metadata.promptType,
+                );
+                setChatHistoryManager(newChatHistoryManager);
+            };
+            
+            // Store the handler for later cleanup
+            streamHandlerRef.current = streamHandler;
+            
+            // Connect the handler
+            websocketClient.stream.connect(streamHandler, null);
 
             try {
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
