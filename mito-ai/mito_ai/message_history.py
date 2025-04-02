@@ -13,6 +13,13 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
+from mito_ai.prompt_builders.prompt_constants import (
+    FILES_SECTION_HEADING,
+    JUPYTER_NOTEBOOK_SECTION_HEADING,
+    VARIABLES_SECTION_HEADING,
+    CODE_SECTION_HEADING,
+    CONTENT_REMOVED_PLACEHOLDER
+)
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.schema import MITO_FOLDER
 
@@ -237,41 +244,32 @@ class GlobalMessageHistory:
 
     def _trim_sections_from_message_content(self, content):
         """
-        Removes specific sections from message content to reduce token count.
-        Sections to be trimmed:
-        - Files in the current directory
-        - Defined Variables
-        - Code in the active code cell
+        Removes specific metadata sections from message content to reduce token count so 
+        that users don't exceed the token limit for the LLM. 
         
         These sections are replaced with a placeholder text.
-        
-        Args:
-            content: The message content, which could be a string or another type
-            
-        Returns:
-            The trimmed content if it's a string, otherwise the original content
         """
         if not isinstance(content, str):
             return content
             
         # Replace "Files in the current directory:" section
         content = re.sub(
-            r'Files in the current directory:\n(?:.+\n)+',
-            'Files in the current directory: Content removed to save space\n',
+            f'{re.escape(FILES_SECTION_HEADING)}\n(?:.+\n)+',
+            f'{FILES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n',
             content
         )
         
         # Replace "Defined Variables:" section
         content = re.sub(
-            r'Defined Variables:\n(?:.+\n)+',
-            'Defined Variables: Content removed to save space\n',
+            f'{re.escape(VARIABLES_SECTION_HEADING)}\n(?:.+\n)+',
+            f'{VARIABLES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n',
             content
         )
         
-        # Replace "Code in the active code cell:" section including the python code block
+        # Replace "{JUPYTER_NOTEBOOK_SECTION_HEADING}" section
         content = re.sub(
-            r'Code in the active code cell:\n```python\n(?:.+\n)+```',
-            'Code in the active code cell: Content removed to save space',
+            f'{re.escape(JUPYTER_NOTEBOOK_SECTION_HEADING)}\n(?:.+\n)+',
+            f'{JUPYTER_NOTEBOOK_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n',
             content
         )
         
@@ -288,10 +286,13 @@ class GlobalMessageHistory:
         if len(messages) <= keep_recent:
             return
             
-        # Process all messages except the keep_recent most recent ones
+        # Process all messages except the keep_recent most recent ones. 
+        # Only trim user messages, which is where this metadata lives. 
+        # We want to not edit the system messages, as they contain important information / examples.
         for i in range(len(messages) - keep_recent):
             content = messages[i].get("content")
-            if content is not None:
+            is_user_message = messages[i].get("role") == "user"
+            if is_user_message and content is not None:
                 messages[i]["content"] = self._trim_sections_from_message_content(content)
                 
         # Log that we've trimmed messages for debugging

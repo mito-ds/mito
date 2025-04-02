@@ -2,6 +2,11 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
+from mito_ai.prompt_builders.prompt_constants import (
+    FILES_SECTION_HEADING,
+    VARIABLES_SECTION_HEADING,
+    CODE_SECTION_HEADING
+)
 
 
 def create_chat_prompt(
@@ -25,10 +30,10 @@ When responding:
 
 <Example>
 
-Files in the current directory:
+{FILES_SECTION_HEADING}
 file_name: sales.csv
 
-Defined Variables:
+{VARIABLES_SECTION_HEADING}
 {{
     'loan_multiplier': 1.5,
     'sales_df': pd.DataFrame({{
@@ -39,7 +44,7 @@ Defined Variables:
     }})
 }}
 
-Code in the active code cell:
+{CODE_SECTION_HEADING}
 ```python
 import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
@@ -59,13 +64,13 @@ Converted the `transaction_date` column to datetime using the built-in pd.to_dat
 
 </Example>
 
-Files in the current directory:
+{FILES_SECTION_HEADING}
 {files_str}
 
-Defined Variables:
+{VARIABLES_SECTION_HEADING}
 {variables_str}
 
-Code in the active code cell:
+{CODE_SECTION_HEADING}
 ```python
 {active_cell_code}
 ```
