@@ -11,7 +11,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 import { Compartment, StateEffect } from '@codemirror/state';
 import OpenAI from "openai";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useReducer } from 'react';
 
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
@@ -136,7 +136,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
-    const [, setStreamingResponse] = useState<string>('');
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
 
@@ -485,7 +485,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         if (completionRequest.stream) {
             // Reset the streaming response and set streaming state
-            setStreamingResponse('')
             streamingContentRef.current = '';
             
             // Disconnect any existing stream handler
@@ -501,8 +500,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
-                // Update state to trigger a re-render
-                setStreamingResponse(streamingContentRef.current);
+                // Force a re-render to update the UI
+                forceUpdate();
 
                 // Update chat history with the complete accumulated content
                 newChatHistoryManager.addStreamingAIMessage(
