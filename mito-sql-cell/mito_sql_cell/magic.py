@@ -16,11 +16,11 @@ from IPython.core.magic_arguments import MagicArgumentParser, argument, magic_ar
 
 from .connections import MitoConnectorManager, SqlConnections
 
+# Prefix for magic command options.
 MAGIC_OPTION_PREFIX = re.compile(r"-{1,2}\w+")
-"""Prefix for magic command options."""
 
+# Default variable name for storing the result of the SQL query.
 DEFAULT_VARIABLE_NAME = "sql_out"
-"""Default variable name for storing the result of the SQL query."""
 
 
 def _option_strings_from_parser(parser: MagicArgumentParser) -> set[str]:

@@ -179,9 +179,8 @@ them into the configuration file.
   python library. `jupysql` does a good job at suggesting what to install in such cases; we should get inspired
   by it to do that too.
 - When a failure occurs `jupysql` does a good job to hide useless error trace within the magic code (that the user
-  don't see or know about) and to provide hints on how to fix or debug
-  the error. This implies to mess around with IPython exception but it brings additional usage
-  for the end user. We should do something similar.
+  don't see or know about) and to provide hints on how to fix or debug the error. This implies to mess around with
+  IPython exception but it brings additional usage for the end user. We should do something similar.
 - The need for the configuration cell is annoying - especially as you may forget to execute
   it prior to run SQL cells.
 - There is an open question about where should the datasource connection details resides.
