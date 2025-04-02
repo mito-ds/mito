@@ -277,11 +277,8 @@ class GlobalMessageHistory:
         
     def _trim_old_messages(self, messages: List[ChatCompletionMessageParam], keep_recent: int = 3) -> None:
         """
-        Trims specific sections from messages that are older than the specified number of recent messages.
-        
-        Args:
-            messages: List of messages to process
-            keep_recent: Number of recent messages to keep untouched (default: 3)
+        Trims metadata sections from messages that are older than the specified number of recent messages.
+        We do this in order to reduce the token count of the messages, which helps us stay under the token limit for the LLM.
         """
         if len(messages) <= keep_recent:
             return
@@ -294,16 +291,13 @@ class GlobalMessageHistory:
             is_user_message = messages[i].get("role") == "user"
             if is_user_message and content is not None:
                 messages[i]["content"] = self._trim_sections_from_message_content(content)
-                
-        # Log that we've trimmed messages for debugging
-        print(f"Trimmed {len(messages) - keep_recent} messages to save token space")
 
     async def append_message(
-            self, 
-            ai_optimized_message: ChatCompletionMessageParam, 
-            display_message: ChatCompletionMessageParam, 
-            llm_provider: OpenAIProvider,
-            thread_id: ThreadID
+        self, 
+        ai_optimized_message: ChatCompletionMessageParam, 
+        display_message: ChatCompletionMessageParam, 
+        llm_provider: OpenAIProvider,
+        thread_id: ThreadID
     ) -> None:
         """
         Appends the messages to the specified thread or the newest thread if not specified.

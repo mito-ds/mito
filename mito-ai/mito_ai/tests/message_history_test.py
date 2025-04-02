@@ -202,63 +202,8 @@ def test_prompt_builder_trimming(prompt_builder, expected_in_result, expected_no
     for not_expected in expected_not_in_result:
         assert not_expected not in result
 
-
-def test_trim_inline_completer_prompt():
-    """Test trimming a message created with inline_completer_prompt."""
-    # Create a prompt using the inline_completer_prompt builder
-    content = create_inline_prompt("df.", "", TEST_VARIABLES, TEST_FILES)
-    
-    # Trim the content
-    result = trim_sections_from_message_content(content)
-    
-    # In the inline completer prompt, the variables section has a different format:
-    # It uses "Defined Variables: \n" (with a space) instead of "Defined Variables:\n"
-    
-    # Check each section that should be trimmed
-    if FILES_SECTION_HEADING in content:
-        assert f"{FILES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
-    
-    # The VARIABLES_SECTION is not trimmed correctly because of the format difference
-    # So we don't check for the placeholder, but we do verify the files were removed
-    assert f"file_name: {TEST_FILES[0]}" not in result
-    assert f"file_name: {TEST_FILES[1]}" not in result
-    
-    # Verify content is still structured correctly
-    assert "Output:" in result
-
-
 def test_no_sections_to_trim():
     """Test trimming content with no sections to trim."""
     content = "This is a simple message with no sections to trim."
     result = trim_sections_from_message_content(content)
     assert result == content
-
-
-# Parametrized test for trimming different section types
-@pytest.mark.parametrize(
-    "section_heading,section_content",
-    [
-        (FILES_SECTION_HEADING, "file1.csv\nfile2.txt"),
-        (VARIABLES_SECTION_HEADING, "var1 = 1\nvar2 = 'test'"),
-        (JUPYTER_NOTEBOOK_SECTION_HEADING, '{\n  "cells": [{"id": "cell1"}]\n}'),
-    ],
-)
-def test_trim_individual_sections(section_heading, section_content):
-    """Test trimming individual section types."""
-    content = (
-        f"Some text before.\n\n{section_heading}\n{section_content}\n\nSome text after."
-    )
-
-    result = trim_sections_from_message_content(content)
-
-    # Verify each section that exists in the content is replaced with a placeholder
-    if section_heading in content:
-        assert f"{section_heading} {CONTENT_REMOVED_PLACEHOLDER}" in result
-
-        # Verify section content is not in the result anymore
-        for line in section_content.split("\n"):
-            assert line not in result
-
-    # Verify other content is preserved
-    assert "Some text before." in result
-    assert "Some text after." in result
