@@ -5,7 +5,6 @@ import os
 import time
 import json
 import uuid
-import re
 from threading import Lock
 from typing import Dict, List, Optional
 
@@ -13,16 +12,9 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
-from mito_ai.prompt_builders.prompt_constants import (
-    FILES_SECTION_HEADING,
-    JUPYTER_NOTEBOOK_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING,
-    CONTENT_REMOVED_PLACEHOLDER
-)
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.schema import MITO_FOLDER
-
+from mito_ai.utils.message_history_utils import trim_old_messages
 
 CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 NEW_CHAT_NAME = "(New Chat)"
@@ -242,56 +234,6 @@ class GlobalMessageHistory:
                 return []
             return self._chat_threads[thread_id].display_history
 
-    def _trim_sections_from_message_content(self, content):
-        """
-        Removes specific metadata sections from message content to reduce token count so 
-        that users don't exceed the token limit for the LLM. 
-        
-        These sections are replaced with a placeholder text.
-        """
-        if not isinstance(content, str):
-            return content
-            
-        # Replace "Files in the current directory:" section
-        content = re.sub(
-            f'{re.escape(FILES_SECTION_HEADING)}\n(?:.+\n)+',
-            f'{FILES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n',
-            content
-        )
-        
-        # Replace "Defined Variables:" section
-        content = re.sub(
-            f'{re.escape(VARIABLES_SECTION_HEADING)}\n(?:.+\n)+',
-            f'{VARIABLES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n',
-            content
-        )
-        
-        # Replace "{JUPYTER_NOTEBOOK_SECTION_HEADING}" section
-        content = re.sub(
-            f'{re.escape(JUPYTER_NOTEBOOK_SECTION_HEADING)}\n(?:.+\n)+',
-            f'{JUPYTER_NOTEBOOK_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n',
-            content
-        )
-        
-        return content
-        
-    def _trim_old_messages(self, messages: List[ChatCompletionMessageParam], keep_recent: int = 3) -> None:
-        """
-        Trims metadata sections from messages that are older than the specified number of recent messages.
-        We do this in order to reduce the token count of the messages, which helps us stay under the token limit for the LLM.
-        """
-        if len(messages) <= keep_recent:
-            return
-            
-        # Process all messages except the keep_recent most recent ones. 
-        # Only trim user messages, which is where this metadata lives. 
-        # We want to not edit the system messages, as they contain important information / examples.
-        for i in range(len(messages) - keep_recent):
-            content = messages[i].get("content")
-            is_user_message = messages[i].get("role") == "user"
-            if is_user_message and content is not None:
-                messages[i]["content"] = self._trim_sections_from_message_content(content)
-
     async def append_message(
         self, 
         ai_optimized_message: ChatCompletionMessageParam, 
@@ -314,7 +256,7 @@ class GlobalMessageHistory:
             self._update_last_interaction(thread)
             
             # Trim old messages in ai_optimized_history to reduce token count
-            self._trim_old_messages(thread.ai_optimized_history)
+            thread.ai_optimized_history = trim_old_messages(thread.ai_optimized_history)
 
             if thread.name == NEW_CHAT_NAME and len(thread.display_history) >= 2:
                 # Retrieve first user and assistant messages from display_history
