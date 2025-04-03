@@ -493,9 +493,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             // Create the stream handler function and store it in the ref
-            const streamHandler = (
-                _: CompletionWebsocketClient, chunk: ICompletionStreamChunk
-            ) => {                
+            const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {                
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
