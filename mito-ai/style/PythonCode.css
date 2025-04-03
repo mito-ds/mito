@@ -1,22 +1,27 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 .code-block-python-code pre {
-    flex-grow: 1;
-    height: 100%;
-    width: 100%;
-    margin: 0 !important;
-    padding: 10px !important;
-    font-size: 12px !important;
-    overflow-x: auto;
+  flex-grow: 1;
+  height: 100%;
+  width: 100%;
+  margin: 0 !important;
+  padding: 10px !important;
+  font-size: 12px !important;
+  overflow-x: auto;
 }
 
 .code-block-python-code code {
-    white-space: pre !important;
+  white-space: pre !important;
 }
 
 .code-block-python-code .jp-RenderedHTMLCommon > *:last-child {
-    /* 
+  /* 
         Remove the default Jupyter ending margin 
         so that the rendered code is flush with the bottom
         of the CodeMessagePart
     */
-    margin-bottom: 0px;
+  margin-bottom: 0px;
 }

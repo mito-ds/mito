@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { Facet, type Extension } from '@codemirror/state';
 import {
   Decoration,
@@ -30,6 +35,7 @@ const adviceTheme = EditorView.baseTheme({
  * A facet that stores the chat shortcut.
  */
 const adviceText = Facet.define<string, string>({
+  // @ts-expect-error - Ignoring this error because I don't want to mess with codemirror for now
   combine: values => (values.length ? values[values.length - 1] : '')
 });
 
@@ -38,11 +44,11 @@ class AdviceWidget extends WidgetType {
     super();
   }
 
-  eq(other: AdviceWidget) {
+  eq(_: AdviceWidget): boolean {
     return false;
   }
 
-  toDOM() {
+  toDOM(): HTMLElement {
     const wrap = document.createElement('span');
     wrap.className = 'cm-mito-advice';
     wrap.innerHTML = this.advice;
@@ -71,7 +77,7 @@ export const showAdvice = ViewPlugin.fromClass(
       this.decorations = shouldDisplayAdvice(view);
     }
 
-    update(update: ViewUpdate) {
+    update(update: ViewUpdate): void {
       const advice = update.view.state.facet(adviceText);
       if (
         update.docChanged ||

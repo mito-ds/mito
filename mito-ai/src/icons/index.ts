@@ -1,6 +1,12 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { LabIcon } from '@jupyterlab/ui-components';
 import LightbulbIcon from '../../src/icons/LightbulbIcon.svg';
 import NucleusIcon from '../../src/icons/NucleusIcon.svg';
+import OpenIndicatorIcon from '../../src/icons/OpenIndicatorIcon.svg';
 
 export const lightBulbLabIcon = new LabIcon({
   name: 'lightbulb-icon',
@@ -10,4 +16,9 @@ export const lightBulbLabIcon = new LabIcon({
 export const NucleusLabIcon = new LabIcon({
   name: 'nucleus-icon',
   svgstr: NucleusIcon
+});
+
+export const OpenIndicatorLabIcon = new LabIcon({
+  name: 'open-indicator-icon',
+  svgstr: OpenIndicatorIcon
 });

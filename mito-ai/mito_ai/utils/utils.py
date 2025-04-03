@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import uuid
 import os
 
@@ -16,6 +19,7 @@ def is_running_test() -> bool:
     """
     # Pytest injects PYTEST_CURRENT_TEST into the current environment when running
     running_pytests = "PYTEST_CURRENT_TEST" in os.environ
+    
     # Github injects CI into the environment when running
     running_ci = 'CI' in os.environ and os.environ['CI'] is not None
 

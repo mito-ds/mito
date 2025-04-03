@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import type { WidgetTracker } from '@jupyterlab/apputils';
 import { Token } from '@lumino/coreutils';
 import type { ISignal } from '@lumino/signaling';

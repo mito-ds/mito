@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
-import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
-import { Variable } from '../../VariableManager/VariableInspector';
 import { getActiveCellID, getCellCodeByID, getCellOutputByID } from '../../../utils/notebook';
+import { Variable } from '../../ContextManager/VariableInspector';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import PythonCode from './PythonCode';
@@ -18,10 +23,12 @@ interface ChatInputProps {
     onSave: (content: string) => void;
     onCancel?: () => void;
     isEditing: boolean;
-    variableManager?: IVariableManager;
+    contextManager?: IContextManager;
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
     app: JupyterFrontEnd
+    displayActiveCellCode?: boolean;
+    agentModeEnabled?: boolean;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -34,10 +41,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onSave,
     onCancel,
     isEditing,
-    variableManager,
+    contextManager,
     notebookTracker,
     renderMimeRegistry,
-    app
+    app,
+    displayActiveCellCode = true,
+    agentModeEnabled = false,
 }) => {
 
     const [input, setInput] = useState(initialContent);
@@ -55,7 +64,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, 100);
 
     useEffect(() => {
-        const activeCellChangedListener = () => { 
+        const activeCellChangedListener = (): void => { 
             const newActiveCellID = getActiveCellID(notebookTracker);
             debouncedSetActiveCellID(newActiveCellID);
         };
@@ -72,7 +81,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
     // so instead we re-adjust the height as the content changes here. 
-    const adjustHeight = (resetHeight: boolean = false) => {
+    const adjustHeight = (resetHeight: boolean = false): void => {
         const textarea = textAreaRef?.current;
         if (!textarea) return;
 
@@ -86,7 +95,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         adjustHeight();
     }, [textAreaRef?.current?.value]);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
         const value = event.target.value;
         setInput(value);
 
@@ -95,7 +104,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const words = textBeforeCursor.split(/\s+/);
         const currentWord = words[words.length - 1];
 
-        if (currentWord.startsWith("@")) {
+        if (currentWord && currentWord.startsWith("@")) {
             const query = currentWord.slice(1);
             setDropdownFilter(query);
             setDropdownVisible(true);
@@ -105,7 +114,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    const handleOptionSelect = (variableName: string, parentDf?: string) => {
+    const handleOptionSelect = (variableName: string, parentDf?: string): void => {
         const textarea = textAreaRef.current;
         if (!textarea) return;
 
@@ -144,14 +153,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
     useEffect(() => {
         const expandedVariables: ExpandedVariable[] = [
             // Add base variables (excluding DataFrames)
-            ...(variableManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
+            ...(contextManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
             // Add DataFrames
-            ...(variableManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
+            ...(contextManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
             // Add series with parent DataFrame references
-            ...(variableManager?.variables
+            ...(contextManager?.variables
                 .filter((variable) => variable.type === "pd.DataFrame")
                 .flatMap((df) =>
-                    Object.entries(df.value).map(([seriesName, details]) => ({
+                    Object.entries(df.value).map(([seriesName, _]) => ({
                         variable_name: seriesName,
                         type: "col",
                         value: "replace_me",
@@ -160,7 +169,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ) || [])
         ];
         setExpandedVariables(expandedVariables);
-    }, [variableManager?.variables]);
+    }, [contextManager?.variables]);
 
     // If there are more than 8 lines, show the first 8 lines and add a "..."
     const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
@@ -180,9 +189,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }}
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
-            {activeCellCodePreview.length > 0 
+            {displayActiveCellCode && activeCellCodePreview.length > 0 
                 && (isFocused || input.length > 0)
-                && <div className='active-cell-preview-container'>
+                && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
                     <div className='code-block-container'>
                         <PythonCode
                             code={activeCellCodePreview}
@@ -201,7 +210,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div style={{ position: 'relative', height: 'min-content'}}>
                 <textarea
                     ref={textAreaRef}
-                    className={classNames("message", "message-user", 'chat-input')}
+                    className={classNames("message", "message-user", 'chat-input', {"agent-mode": agentModeEnabled})}
                     placeholder={placeholder}
                     value={input}
                     onChange={handleInputChange}

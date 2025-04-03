@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { Extension, Facet, RangeSetBuilder } from '@codemirror/state';
 import {
   Decoration,
@@ -40,10 +45,9 @@ const getCodeDiffStripesDecoration = (view: EditorView): DecorationSet => {
   for (const { from, to } of view.visibleRanges) {
     for (let pos = from; pos <= to;) {
       const line = view.state.doc.lineAt(pos);
-      // console.log('unifiedDiffLinesFacet[line.number - 1]', unifiedDiffLinesFacet[line.number - 1])
-      // console.log('line', line.number)
+
       // The code mirror line numbers are 1-indexed, but our diff lines are 0-indexed
-      if (line.number - 1 >= unifiedDiffLinesFacet.length) {
+      if (line.number - 1 >= (unifiedDiffLinesFacet?.length ?? 0)) {
         /* 
           Because we need to rerender the decorations each time the doc changes or viewport updates
           (maybe we don't need to, but the code mirror examples does this so we will to for now) there
@@ -55,10 +59,10 @@ const getCodeDiffStripesDecoration = (view: EditorView): DecorationSet => {
         */ 
         break
       }
-      if (unifiedDiffLinesFacet[line.number - 1].type === 'removed') {
+      if (unifiedDiffLinesFacet?.[line.number - 1]?.type === 'removed') {
         builder.add(line.from, line.from, removedStripe);
       }
-      if (unifiedDiffLinesFacet[line.number - 1].type === 'inserted') {
+      if (unifiedDiffLinesFacet?.[line.number - 1]?.type === 'inserted') {
         builder.add(line.from, line.from, insertedStripe);
       }
       pos = line.to + 1;
@@ -76,14 +80,14 @@ const showStripes = ViewPlugin.fromClass(
       this.decorations = getCodeDiffStripesDecoration(view);
     }
 
-    update(update: ViewUpdate) {
+    update(update: ViewUpdate): void {
       const oldUnifiedDiffLines = update.startState.facet(unifiedDiffLines);
       const newUnifiedDiffLines = update.view.state.facet(unifiedDiffLines);
 
       if (
         update.docChanged ||
         update.viewportChanged ||
-        !deepEqualArrays(oldUnifiedDiffLines[0], newUnifiedDiffLines[0])
+        !deepEqualArrays(oldUnifiedDiffLines[0] ?? [], newUnifiedDiffLines[0] ?? [])
       ) {
         this.decorations = getCodeDiffStripesDecoration(update.view);
       }

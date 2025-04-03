@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import type {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -32,7 +37,7 @@ export const emptyCellPlaceholder: JupyterFrontEndPlugin<void> = {
     const pythonAdvice = `Start writing python or Press ${CommandRegistry.formatKeystroke(
       keyBindings?.keys[0] ?? 'Accel E'
     )
-      .split(/[\+\s]/)
+      .split(/[+\s]/)
       .map(s => `<kbd>${s}</kbd>`)
       .join(' + ')} to ask Mito AI to write code for you.`;
     extensions.addExtension({

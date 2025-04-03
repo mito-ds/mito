@@ -1,7 +1,197 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+import OpenAI from "openai";
 import type {
   IInlineCompletionError,
   IInlineCompletionItem
 } from '@jupyterlab/completer';
+import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { File } from '../../Extensions/ContextManager/FileInspector';
+
+/* 
+
+Notebook representation sent to the AI
+
+*/
+export type AIOptimizedCell = {
+  cell_type: string,
+  id: string,
+  code: string
+}
+
+export type CellUpdateModification = {
+  type: 'modification'
+  id: string,
+  code: string,
+}
+
+export type CellUpdateNew = {
+  type: 'new'
+  index: number,
+  code: string,
+}
+
+export type CellUpdate = CellUpdateModification | CellUpdateNew
+
+export type AgentResponse = {
+  is_finished: boolean;
+  message: string;
+  cell_update: CellUpdate | undefined | null;
+}
+
+/* 
+
+Metadata Models
+
+*/
+
+type CompletionRequestMetadata =
+  IChatMessageMetadata |
+  ISmartDebugMetadata |
+  ICodeExplainMetadata |
+  IInlineCompleterMetadata |
+  IFetchHistoryMetadata |
+  IStartNewChatMetadata |
+  IGetThreadsMetadata |
+  IDeleteThreadMetadata |
+  IAgentExecutionMetadata | 
+  IAgentSmartDebugMetadata
+
+export interface IChatMessageMetadata {
+  promptType: 'chat'
+  variables?: Variable[];
+  files?: File[];
+  activeCellCode?: string;
+  input: string;
+  index?: number;
+  threadId: string;
+}
+
+export interface IAgentExecutionMetadata {
+  promptType: 'agent:execution'
+  aiOptimizedCells: AIOptimizedCell[]
+  variables?: Variable[];
+  files?: File[];
+  input: string;
+  index?: number;
+  threadId: string;
+}
+
+export interface IAgentSmartDebugMetadata {
+  promptType: 'agent:autoErrorFixup'
+  aiOptimizedCells: AIOptimizedCell[]
+  variables?: Variable[];
+  files?: File[];
+  errorMessage: string;
+  error_message_producing_code_cell_id: string
+  threadId: string;
+}
+
+
+export interface ISmartDebugMetadata {
+  promptType: 'smartDebug'
+  variables?: Variable[];
+  files?: File[];
+  activeCellCode?: string;
+  errorMessage: string;
+  threadId: string;
+}
+
+export interface ICodeExplainMetadata {
+  promptType: 'codeExplain';
+  variables?: Variable[];
+  activeCellCode?: string;
+  threadId: string;
+}
+
+export interface IInlineCompleterMetadata {
+  promptType: 'inline_completion';
+  variables?: Variable[];
+  files?: File[];
+  prefix: string;
+  suffix: string;
+}
+
+export interface IFetchHistoryMetadata {
+  promptType: 'fetch_history'
+  thread_id: string;
+}
+
+export interface IStartNewChatMetadata {
+  promptType: 'start_new_chat'
+}
+
+export interface IGetThreadsMetadata {
+  promptType: 'get_threads'
+}
+
+export interface IDeleteThreadMetadata {
+  promptType: 'delete_thread'
+  thread_id: string;
+}
+
+/* 
+
+Completion Request Models
+
+*/
+export interface ICompletionRequest {
+  /**
+   * The type of the message.
+   */
+  type: string;
+  /**
+   * The message ID.
+   */
+  message_id: string;
+  /**
+   * The metadata containing structured data for backend prompt generation.
+   */
+  metadata: CompletionRequestMetadata;
+  /**
+   * Whether to stream the completion or not.
+   */
+  stream: boolean;
+}
+
+
+export interface IChatCompletionRequest extends ICompletionRequest {
+  type: 'chat',
+  metadata: IChatMessageMetadata
+}
+
+export interface ISmartDebugCompletionRequest extends ICompletionRequest {
+  type: 'smartDebug'
+  metadata: ISmartDebugMetadata
+}
+
+export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
+  type: 'agent:autoErrorFixup'
+  metadata: IAgentSmartDebugMetadata
+}
+
+export interface ICodeExplainCompletionRequest extends ICompletionRequest {
+  type: 'codeExplain'
+  metadata: ICodeExplainMetadata
+}
+
+export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
+  type: 'agent:execution'
+  metadata: IAgentExecutionMetadata
+}
+
+export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
+  type: 'inline_completion'
+  metadata: IInlineCompleterMetadata
+}
+
+export interface IFetchHistoryCompletionRequest extends ICompletionRequest {
+  type: 'fetch_history'
+  metadata: IFetchHistoryMetadata
+}
 
 /**
  * AI capabilities.
@@ -138,8 +328,117 @@ export interface InlineCompletionStreamChunk
   response: IInlineCompletionItem;
 }
 
+/**
+ * Chat thread item information.
+ */
+export interface IChatThreadMetadataItem {
+  /**
+   * Unique thread identifier.
+   */
+  thread_id: string;
+
+  /**
+   * Display name of the thread.
+   */
+  name: string;
+
+  /**
+   * Thread creation timestamp.
+   */
+  creation_ts: number;
+
+  /**
+   * Last interaction timestamp.
+   */
+  last_interaction_ts: number;
+}
+
+/**
+ * Response for fetching chat history.
+ */
+export interface IFetchHistoryReply {
+  /**
+   * The type of the message.
+   */
+  type: 'fetch_history';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * List of chat messages.
+   */
+  items: OpenAI.Chat.ChatCompletionMessageParam[];
+}
+
+/**
+ * Response for starting a new chat.
+ */
+export interface IStartNewChatReply {
+  /**
+   * The type of the message.
+   */
+  type: 'start_new_chat';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * New thread ID.
+   */
+  thread_id: string;
+}
+
+/**
+ * Response for fetching chat threads.
+ */
+export interface IFetchThreadsReply {
+  /**
+   * The type of the message.
+   */
+  type: 'fetch_threads';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * List of chat threads.
+   */
+  threads: IChatThreadMetadataItem[];
+}
+
+/**
+ * Response for deleting a chat thread.
+ */
+export interface IDeleteThreadReply {
+  /**
+   * The type of the message.
+   */
+  type: 'delete_thread';
+
+  /**
+   * The parent message ID.
+   */
+  parent_id: string;
+
+  /**
+   * Success status.
+   */
+  success: boolean;
+}
+
 export type CompleterMessage =
   | ErrorMessage
   | IAICapabilities
   | ICompletionReply
-  | ICompletionStreamChunk;
+  | ICompletionStreamChunk
+  | IFetchHistoryReply
+  | IStartNewChatReply
+  | IFetchThreadsReply
+  | IDeleteThreadReply;

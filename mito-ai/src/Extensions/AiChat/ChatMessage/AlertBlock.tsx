@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react';
 import TextButton from '../../../components/TextButton';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../../utils/errors';
@@ -15,11 +20,11 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
         return (
             <div className="chat-message-alert">
                 <p>
-                    Your Mito AI free trial has ended. To continue using Mito AI, upgrade to <a href="https://www.trymito.io/plans" target="_blank">Mito Pro</a> and get access to:
+                    You&apos;ve used up your free trial of Mito AI for this month. To continue using Mito AI now, upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> and get access to:
                 </p>
                 <ul>
-                    <li>Unlimited AI Completions</li>
-                    <li>Advanced reasoning with o3 models</li>
+                    <li>Unlimited AI Chat and Agent</li>
+                    <li>Unlimited AI Autocompletes</li>
                     <li>All Mito Spreadsheet Pro features</li>
                 </ul>
                 <p>

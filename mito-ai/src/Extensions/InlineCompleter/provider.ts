@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { Notification, showErrorMessage } from '@jupyterlab/apputils';
 import {
   InlineCompletionTriggerKind,
@@ -11,17 +16,20 @@ import type { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { PromiseDelegate, type JSONValue } from '@lumino/coreutils';
 import type { IDisposable } from '@lumino/disposable';
 import { Signal, Stream } from '@lumino/signaling';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
 } from '../../utils/websocket/websocketClient';
 import type {
   CompletionError,
+  ICompletionRequest,
+  ICompletionReply,
   ICompletionStreamChunk,
+  IInlineCompleterCompletionRequest,
+  IInlineCompleterMetadata,
   InlineCompletionStreamChunk
 } from '../../utils/websocket/models';
-import { IChatMessageMetadata } from '../AiChat/ChatHistoryManager';
 import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 
@@ -48,19 +56,22 @@ export class MitoAIInlineCompleter
    */
   private _completionLock = new PromiseDelegate<void>();
   private _fullCompletionMap = new WeakMap<Stream<MitoAIInlineCompleter, InlineCompletionStreamChunk>, string>();
-  private _variableManager: IVariableManager;
+  private _contextManager: IContextManager;
 
   // We only want to display the free tier limit reached notification once 
   // per session to avoid spamming the user. 
   private _displayed_free_tier_limit_reached_notification = false;
+  // Similarly, we only want to show the general completion failure notification once
+  private _displayed_completion_failure_notification = false;
 
 
   constructor({
-    serverSettings,
-    variableManager,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    serverSettings, 
+    contextManager,
     ...clientOptions
   }: MitoAIInlineCompleter.IOptions) {
-    this._variableManager = variableManager;
+    this._contextManager = contextManager;
     this._client = new CompletionWebsocketClient(clientOptions);
 
     this._client
@@ -146,7 +157,6 @@ export class MitoAIInlineCompleter
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
-    console.log("HERE")
     if (!this.isEnabled()) {
       return Promise.reject('Mito AI completion is disabled.');
     }
@@ -182,18 +192,23 @@ export class MitoAIInlineCompleter
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
 
-      const variables = this._variableManager.variables;
-      const metadata: IChatMessageMetadata = {
-        variables: variables,
+      const metadata: IInlineCompleterMetadata = {
+        promptType: 'inline_completion',
+        variables: this._contextManager.variables,
+        files: this._contextManager.files,
         prefix: prefix,
         suffix: suffix
       }
-      const result = await this._client.sendMessage({
+      const inlineCompleterCompletionRequest: IInlineCompleterCompletionRequest = {
         type: 'inline_completion',
         message_id: messageId.toString(),
         metadata: metadata,
         stream: false,
-      });
+      }
+      const result = await this._client.sendMessage<
+        ICompletionRequest,
+        ICompletionReply
+      >(inlineCompleterCompletionRequest);
 
       if (result.items[0]?.token) {
         this._currentToken = result.items[0].token;
@@ -287,8 +302,8 @@ export class MitoAIInlineCompleter
     return request.text.slice(request.offset);
   }
 
-  private _notifyFreeTierLimitReached() {
-    Notification.emit(`Your Mito AI free trial ended. Upgrade to Mito Pro to access advanced models and continue using Mito AI or supply your own key.`, 'error', {
+  private _notifyFreeTierLimitReached(): void {
+    Notification.emit(`You've used up your free Mito AI completions for this month. Upgrade to Mito Pro or supply your own key.`, 'error', {
       autoClose: false,
       actions: [
         {
@@ -317,20 +332,52 @@ export class MitoAIInlineCompleter
     });
   }
 
-  private _notifyCompletionFailure(error: CompletionError) {
-    Notification.emit(`Inline completion failed: ${error.error_type}`, 'error', {
-      autoClose: false,
-      actions: [
-        {
-          label: 'Show Traceback',
-          callback: () => {
-            showErrorMessage('Inline completion failed on the server side', {
-              message: error.traceback ?? 'An unknown failure happened when requesting a completion.'
-            });
+  private _notifyCompletionFailure(error: CompletionError): void {
+    // Only show the notification if we haven't shown one already
+    if (!this._displayed_completion_failure_notification) {
+      Notification.emit(`AI code completion failed. We're experiencing some technical difficulties.`, 'error', {
+        autoClose: false,
+        actions: [
+          {
+            label: 'Show Technical Details',
+            callback: async (event: Event): Promise<void> => {
+              // Prevent the default action which might close the notification
+              event.preventDefault();
+              event.stopPropagation();
+              
+              // Show the error details in a separate dialog
+              await showErrorMessage('Completion Service Error Details', {
+                message: error.traceback ?? 'No additional error information is available.'
+              });
+            }
+          },
+          {
+            label: 'Get Help',
+            callback: (): void => {
+              // Create the body text with error details
+              const bodyText = `Hello Mito team,
+
+I encountered an error while using the AI code completion feature:
+
+Error type: ${error.error_type || 'Unknown'}
+${error.traceback ? `\nTraceback:\n${error.traceback}` : ''}
+
+Additional details about what I was doing:
+[User can add details here]
+
+Thanks for your help!
+`;
+              // URL encode the body text
+              const encodedBody = encodeURIComponent(bodyText);
+              // Open email client with pre-filled recipients, subject, and body
+              window.open(`mailto:founders@sagacollab.com?subject=AI%20Completion%20Error%20Support&body=${encodedBody}`, '_blank');
+            }
           }
-        }
-      ]
-    });
+        ]
+      });
+      // Set the flag to true so we don't show this notification again
+      this._displayed_completion_failure_notification = true;
+    }
   }
 
   /**
@@ -339,7 +386,7 @@ export class MitoAIInlineCompleter
   private _receiveStreamChunk(
     _emitter: CompletionWebsocketClient,
     chunk: ICompletionStreamChunk
-  ) {
+  ): void {
 
     if (chunk.error?.title === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
       this._notifyFreeTierLimitReached();
@@ -369,7 +416,7 @@ export class MitoAIInlineCompleter
     fullCompletion += chunk.chunk.content;
     this._fullCompletionMap.set(this._currentStream, fullCompletion);
 
-    let cleanedCompletion = this._cleanCompletion(fullCompletion);
+    const cleanedCompletion = this._cleanCompletion(fullCompletion);
 
     this._currentStream.emit({
       done: chunk.done,
@@ -385,7 +432,7 @@ export class MitoAIInlineCompleter
     });
   }
 
-  private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string) {
+  private _cleanCompletion(rawCompletion: string, prefix?: string, suffix?: string): string {
 
     let cleanedCompletion = rawCompletion
       .replace(/^```python\n?/, '')  // Remove opening code fence with optional python language
@@ -395,7 +442,7 @@ export class MitoAIInlineCompleter
     // Remove duplicate prefix content
     if (prefix) {
       const lastPrefixLine = prefix.split('\n').slice(-1)[0];
-      if (cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
+      if (lastPrefixLine && cleanedCompletion.startsWith(lastPrefixLine) && lastPrefixLine !== '') {
         cleanedCompletion = cleanedCompletion.slice(lastPrefixLine.length);
       }
     }
@@ -403,7 +450,7 @@ export class MitoAIInlineCompleter
     // Remove duplicate suffix content
     if (suffix) {
       const firstSuffixLine = suffix.split('\n')[0];
-      if (cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
+      if (firstSuffixLine && cleanedCompletion.endsWith(firstSuffixLine) && firstSuffixLine !== '') {
         cleanedCompletion = cleanedCompletion.slice(0, -firstSuffixLine.length);
       }
     }
@@ -413,7 +460,7 @@ export class MitoAIInlineCompleter
 
 
 
-  private _resetCurrentStream() {
+  private _resetCurrentStream(): void {
     this._currentToken = '';
     if (this._currentStream) {
       this._currentStream.stop();
@@ -437,12 +484,13 @@ export class MitoAIInlineCompleter
   */
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace MitoAIInlineCompleter {
   export interface IOptions extends ICompletionWebsocketClientOptions {
     /**
      * CodeMirror language registry.
      */
-    variableManager: IVariableManager;
+    contextManager: IContextManager;
   }
 
   export interface ISettings {

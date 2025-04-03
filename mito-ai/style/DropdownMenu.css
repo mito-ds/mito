@@ -1,34 +1,95 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 .dropdown-container {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .dropdown-menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    z-index: 1000;
-    background-color: var(--jp-layout-color1);
-    border: 1px solid var(--jp-layout-color2);
-    border-radius: 3px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    min-width: 150px;
+  position: absolute;
+  top: calc(100% + 4px);
+  z-index: 1000;
+  background-color: var(--jp-layout-color1);
+  border: 1px solid var(--jp-layout-color2);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  white-space: nowrap;
+  height: 400px;
+  min-width: 225px;
+  max-width: 350px;
+  overflow-y: auto;
 }
 
-.dropdown-item {
-    padding: 8px 12px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: var(--jp-ui-font-color1);
-    text-align: left;
-    height: 36px;
-    line-height: 20px;
-    box-sizing: border-box;
+/* Left-aligned dropdown */
+.dropdown-menu-left {
+  left: 0;
+  right: auto;
 }
 
-.dropdown-item:hover {
-    background-color: var(--jp-layout-color3);
+/* Right-aligned dropdown */
+.dropdown-menu-right {
+  right: 0;
+  left: auto;
+}
+
+.dropdown-item-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  padding-right: 20px; /* Add padding to leave space for the scrollbar */
+}
+
+.dropdown-item-row:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.dropdown-item-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--jp-ui-font-color1);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.dropdown-item-icon {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-item-label {
+  padding-left: 3px; /* Add consistent padding */
+}
+
+.dropdown-item-disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 
+  When using Lab Icons, we seem to get an extra div around the svg icon
+  This makes sure the svg is aligned properly in that div
+*/
+.dropdown-item-icon > div, 
+.dropdown-item-secondary > div{
+  display: flex;
+  align-items: center;
 }

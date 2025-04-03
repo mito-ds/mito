@@ -1,42 +1,47 @@
-.code-block-container {
-    display: flex;
-    flex-direction: column;
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
 
-    background-color: var(--chat-background-color);
-    border-radius: 3px;
-    border: 1px solid var(--grey-300);
-    overflow: hidden;
+.code-block-container {
+  display: flex;
+  flex-direction: column;
+
+  background-color: var(--chat-background-color);
+  border-radius: 3px;
+  border: 1px solid var(--grey-300);
+  overflow: hidden;
 }
 
 .code-block-toolbar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: end;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: end;
 
-    width: 100%;
-    background-color: var(--chat-user-message-background-color);
-    border-bottom: 1px solid var(--grey-300);;
-    font-size: 0.8em;
+  width: 100%;
+  background-color: var(--chat-user-message-background-color);
+  border-bottom: 1px solid var(--grey-300);
+  font-size: 0.8em;
 }
 
 .code-location {
-    flex-grow: 1;
-    margin-left: 5px;
-    color: var(--chat-user-message-font-color);
+  flex-grow: 1;
+  margin-left: 5px;
+  color: var(--chat-user-message-font-color);
 }
 
 .code-block-toolbar button {
-    background-color: var(--chat-user-message-background-color);
-    border: none;
-    border-left: 1px solid var(--grey-300);;
-    border-radius: 0px;
+  background-color: var(--chat-user-message-background-color);
+  border: none;
+  border-left: 1px solid var(--grey-300);
+  border-radius: 0px;
 
-    font-size: 0.8em;
-    color: var(--chat-user-message-font-color);
+  font-size: 0.8em;
+  color: var(--chat-user-message-font-color);
 }
 
 .code-block-toolbar button:hover {
-    background-color: var(--chat-background-color);
-    color: var(--chat-assistant-message-font-color);
+  background-color: var(--chat-background-color);
+  color: var(--chat-assistant-message-font-color);
 }

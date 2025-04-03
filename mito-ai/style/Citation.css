@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.citation-button {
+    background-color: var(--purple-400);
+    color: var(--purple-700);
+    height: 14px;
+    width: 14px;
+    border-radius: 2px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: -0.5em; /* Makes it appear as superscript */
+    vertical-align: baseline;
+    margin-right: 2px;
+}
+
+.citation-button:hover {
+    background-color: var(--purple-500);
+}

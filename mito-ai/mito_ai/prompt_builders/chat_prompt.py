@@ -1,12 +1,17 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import List
 
 
 def create_chat_prompt(
     variables: List[str],
+    files: List[str],
     active_cell_code: str, 
     input: str
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
+    files_str = '\n'.join([f"{file}" for file in files])
     prompt = f"""You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
 
 There are two possible types of responses you might give:
@@ -19,6 +24,9 @@ When responding:
 - Keep as much of the original code as possible
 
 <Example>
+
+Files in the current directory:
+file_name: sales.csv
 
 Defined Variables:
 {{
@@ -50,6 +58,9 @@ sales_df['total_price'] = sales_df['total_price'] * sales_multiplier
 Converted the `transaction_date` column to datetime using the built-in pd.to_datetime function and multiplied the `total_price` column by the `sales_multiplier` variable.
 
 </Example>
+
+Files in the current directory:
+{files_str}
 
 Defined Variables:
 {variables_str}

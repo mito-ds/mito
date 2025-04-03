@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from __future__ import annotations
 
 import os
@@ -5,7 +8,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 
 import openai
 from openai._streaming import AsyncStream
-from openai.types.chat import ChatCompletionChunk
+from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 from traitlets import  Instance, Unicode, default, validate
 from pydantic import BaseModel
 from traitlets.config import LoggingConfigurable
@@ -19,15 +22,16 @@ from mito_ai.models import (
     CompletionReply,
     CompletionRequest,
     CompletionStreamChunk,
+    MessageType,
+    ResponseFormatInfo,
 )
-from mito_ai.utils.db import get_user_field, set_user_field
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,
 )
+from mito_ai.utils.server_limits import update_mito_server_quota
 
-from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITO_AI_FIRST_USAGE_DATE
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
@@ -38,8 +42,6 @@ from mito_ai.utils.telemetry_utils import (
 )
 
 __all__ = ["OpenAIProvider"]
-_num_usages = None
-_first_usage_date = None
 
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -162,25 +164,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="OpenAI (user key)",
             )
 
-        # Get the number of usages
-        global _num_usages
-        if _num_usages is None:
-            _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
-
-        # Get the first usage date
-        global _first_usage_date
-        _first_usage_date = get_user_field(UJ_MITO_AI_FIRST_USAGE_DATE)
-        if _first_usage_date is None:
-            from datetime import datetime
-            today = datetime.today().strftime('%Y-%m-%d')
-            try:
-                set_user_field(UJ_MITO_AI_FIRST_USAGE_DATE, today)
-            except Exception as e:
-                self.log.warning("Failed to set first usage date in user.json", exc_info=e)
-
         try:
-            check_mito_server_quota(_num_usages or 0, _first_usage_date or "")
+            # Default to chat completion for capabilities check
+            check_mito_server_quota(MessageType.CHAT)
         except Exception as e:
+            self.log.warning("Failed to set first usage date in user.json", exc_info=e)
             self.last_error = CompletionError.from_exception(e)
 
         return AICapabilities(
@@ -219,112 +207,84 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
         return self._sync_client
-
+        
+        
     async def request_completions(
         self,
-        request: CompletionRequest,
-        prompt_type: str,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam], 
         model: str,
-        response_format: Optional[Type[BaseModel]] = None
-    ) -> CompletionReply:
-        """Get a completion from the OpenAI API.
-
-        Args:
-            request: The completion request description.
-            prompt_type: The type of prompt that was sent to the AI (e.g. "chat", "smart_debug", "explain")
-        Returns:
-            The completion
+        response_format_info: Optional[ResponseFormatInfo] = None
+    ) -> str:
         """
-        self.last_error = None
+        Request completions from the OpenAI API.
+        
+        Args:
+            message_type: The type of message to request completions for.
+            messages: The messages to request completions for.
+            model: The model to request completions for.
+        Returns:
+            The completion from the OpenAI API.
+        """
         try:
-            if self._openAI_sync_client:
+            # Reset the last error
+            self.last_error = None
+            
+            # If we're using the user's key, make sure the model is supported.
+            if self._openAI_sync_client and model not in self.models:
+                model = "gpt-4o-mini"
+        
+            completion_function_params = get_open_ai_completion_function_params(
+                model, messages, False, response_format_info
+            )
+            
+            completion = None
+            if self._openAI_sync_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
-                # Validate that the model is supported. If not fall back to gpt-4o-mini
-                if model not in self.models:
-                    model = "gpt-4o-mini"
-                
-                if response_format:
-                    completion_function_params = get_open_ai_completion_function_params(
-                        model, request.messages, False, response_format
-                    )
-                    completion = self._openAI_sync_client.beta.chat.completions.parse(**completion_function_params)
-                else:
-                    completion_function_params = get_open_ai_completion_function_params(model, request.messages, False)
-                    completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-                                
-                if prompt_type == "agent:planning":
-                    pass # TODO: Add logging for agents 
-                else:
-                    # Log the successful completion
-                    log_ai_completion_success(
-                        key_type=USER_KEY,
-                        prompt_type=prompt_type,
-                        last_message_content=str(request.messages[-1].get('content', '')),
-                        response={"completion": completion.choices[0].message.content}
-                    )
-
-                return CompletionReply(
-                    parent_id=request.message_id,
-                    items=[
-                        CompletionItem(
-                            content=completion.choices[0].message.content or "",
-                            isIncomplete=False,
-                        )
-                    ]
-                )
-            else:
-                # If they don't have an Open AI key, use the mito server to get a completion
+                completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
+                completion = completion.choices[0].message.content or ""
+            else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
-                global _num_usages
-                if _num_usages is None:
-                    _num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
                 
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages, False, response_format)
-                
-                last_message_content = str(request.messages[-1].get("content", "")) if request.messages else None
-                ai_response = await get_ai_completion_from_mito_server(
+                last_message_content = str(messages[-1].get("content", "")) if messages else None
+                completion = await get_ai_completion_from_mito_server(
                     last_message_content,
                     completion_function_params,
                     self.timeout,
                     self.max_retries,
-                    _num_usages or 0,
-                    _first_usage_date or "",
+                    message_type,
                 )
-
-                # Increment the number of usages for everything EXCEPT inline completions.
-                if prompt_type != "inline_completion":
-                    _num_usages = (_num_usages or 0) + 1
-                    set_user_field(UJ_AI_MITO_API_NUM_USAGES, _num_usages)
-
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type=MITO_SERVER_KEY,
-                    prompt_type=prompt_type,
-                    last_message_content=str(request.messages[-1].get('content', '')),
-                    response={"completion": ai_response},
-                    num_usages=_num_usages,
-                )
-
-                return CompletionReply(
-                    parent_id=request.message_id,
-                    items=[
-                        CompletionItem(
-                            content=ai_response,
-                            isIncomplete=False,
-                        )
-                    ],
-                )
-
+                
+                update_mito_server_quota(message_type)
+            
+            # Log the successful completion
+            log_ai_completion_success(
+                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
+                message_type=message_type,
+                last_message_content=str(messages[-1].get('content', '')),
+                response={"completion": completion},
+            )
+            
+            # Finally, return the completion
+            return completion # type: ignore
+                
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+            log(
+                MITO_AI_COMPLETION_ERROR, 
+                params={
+                    KEY_TYPE_PARAM: key_type,
+                    'message_type': message_type.value,
+                },
+                error=e
+            )
             raise
 
 
     async def stream_completions(
-        self, request: CompletionRequest, prompt_type: str, model: str
+        self, request: CompletionRequest, message_type: MessageType, model: str
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
@@ -363,14 +323,21 @@ This attribute is observed by the websocket provider to push the error to the cl
             # Log the successful completion
             log_ai_completion_success(
                 key_type=USER_KEY,
-                prompt_type=prompt_type,
+                message_type=message_type,
                 last_message_content=str(request.messages[-1].get('content', '')),
                 response={"completion": "not available for streamed completions"},
             )
             
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: USER_KEY}, error=e)
+            log(
+                MITO_AI_COMPLETION_ERROR, 
+                params={
+                    KEY_TYPE_PARAM: USER_KEY,
+                    'message_type': message_type.value,
+                },
+                error=e
+            )
             raise
 
         async for chunk in stream:

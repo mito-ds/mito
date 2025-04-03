@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { ExpandedVariable } from './ChatInput';
 
 interface ChatDropdownProps {
     options: ExpandedVariable[];
-    onSelect: (variableName: string, parentDf?: string) => void;
+    onSelect: (variableName: string, parentDf: string | undefined) => void;
     filterText: string;
     maxDropdownItems?: number;
     position?: 'above' | 'below';
@@ -28,7 +33,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         setSelectedIndex(0);
     }, [options, filterText]);
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
         switch (event.key) {
             case 'ArrowDown':
             case 'Down':
@@ -46,12 +51,14 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 break;
             case 'Enter':
             case 'Return':
-            case 'Tab':
+            case 'Tab': {
                 event.preventDefault();
-                if (filteredOptions[selectedIndex]) {
-                    onSelect(filteredOptions[selectedIndex].variable_name, filteredOptions[selectedIndex].parent_df);
+                const selectedOption = filteredOptions[selectedIndex];
+                if (selectedOption !== undefined) {
+                    onSelect(selectedOption.variable_name, selectedOption.parent_df);
                 }
                 break;
+            }
         }
     };
 
@@ -60,7 +67,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [filteredOptions, selectedIndex]);
 
-    const getShortType = (type: string) => {
+    const getShortType = (type: string): string => {
         if (type.includes("DataFrame")) {
             return "df";
         }
@@ -68,16 +75,16 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             return "s";
         }
         if (type.includes("<class '")) {
-            return type.split("'")[1];
+            return type.split("'")[1] ?? '';
         }
         return type;
     }
 
     return (
-        <div className={`chat-dropdown`}>
-            <ul className="chat-dropdown-list" >
+        <div className={`chat-dropdown`} data-testid="chat-dropdown">
+            <ul className="chat-dropdown-list" data-testid="chat-dropdown-list">
                 {filteredOptions.length === 0 && (
-                    <li className="chat-dropdown-item">No variables found</li>
+                    <li className="chat-dropdown-item" data-testid="chat-dropdown-empty-item">No variables found</li>
                 )}
 
                 {filteredOptions.map((option, index) => {
@@ -90,15 +97,18 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                             key={uniqueKey}
                             className={classNames("chat-dropdown-item", { selected: index === selectedIndex })}
                             onClick={() => onSelect(option.variable_name, option.parent_df)}
+                            data-testid={`chat-dropdown-item-${option.variable_name}`}
                         >
                             <span className="chat-dropdown-item-type"
                                 title={getShortType(option.type)}
+                                data-testid={`chat-dropdown-item-type-${option.variable_name}`}
                             >
                                 {getShortType(option.type)}
                             </span>
                             <span
                                 className="chat-dropdown-item-name"
                                 title={option.variable_name}
+                                data-testid={`chat-dropdown-item-name-${option.variable_name}`}
                                 ref={(el) => {
                                     // Show full text on hover if the text is too long
                                     if (el) {

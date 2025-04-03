@@ -1,0 +1,154 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.message {
+  position: relative;
+  height: min-content;
+  box-sizing: border-box;
+  width: 100%;
+  font-size: 14px;
+  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.message:not(.chat-input) {
+  margin-bottom: 20px;
+}
+
+.message:hover .message-start-editing-button {
+  opacity: 1 !important;
+}
+
+.message-user {
+  background-color: var(--chat-user-message-background-color);
+  color: var(--chat-user-message-font-color);
+  padding: 10px;
+}
+
+.message-assistant-chat {
+  color: var(--chat-assistant-message-font-color);
+}
+
+.chat-message-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.chat-taskpane-smart-debug-error-message {
+  white-space: pre;
+  font-family: monospace;
+  margin: 0;
+  overflow-x: auto;
+}
+
+.message-text {
+  align-items: center;
+}
+
+/* Message Action Buttons Container */
+.message-action-buttons {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden; /* Ensures inner buttons don't break the rounded corners */
+}
+
+/* Common styles for action buttons */
+.message-action-buttons button,
+.message-start-editing-button {
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  background-color: var(--jp-layout-color3);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--jp-content-font-color1);
+}
+
+/* Action buttons in the group */
+.message-action-buttons button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 0; /* Remove individual button radius */
+}
+
+/* Add subtle separator between buttons */
+.message-action-buttons button:not(:last-child) {
+  border-right: 1px solid var(--jp-border-color1);
+}
+
+/* Remove the individual button radius styles since we're handling it at the container level */
+.message-action-buttons button:first-child,
+.message-action-buttons button:last-child {
+  border-radius: 0;
+}
+
+/* Standalone edit button */
+.message-start-editing-button {
+  position: relative;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+/* SVG icon color */
+.message-action-buttons button svg {
+  color: var(--jp-content-font-color1);
+}
+
+/* Hover states */
+.message-action-buttons button:hover,
+.message-start-editing-button:hover {
+  background-color: var(--jp-layout-color4);
+}
+
+/* Show buttons on message hover */
+.message:hover .message-action-buttons button,
+.message:hover .message-start-editing-button {
+  opacity: 1;
+}
+
+.message-edit-buttons {
+  display: flex;
+  gap: 8px;
+  padding: 5px;
+}
+
+.message-edit-buttons button {
+  padding: 4px 12px;
+  border-radius: 4px;
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-content-font-color1);
+  border: 1px solid var(--jp-border-color1);
+  cursor: pointer;
+}
+
+.message-edit-buttons button:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.chat-message-alert {
+  background-color: var(--purple-300);
+  border-radius: 5px;
+  padding: 10px;
+  border: 1px solid var(--purple-500);
+  color: var(--grey-900);
+}
+
+.chat-message-alert a {
+  color: var(--purple-700);
+  text-decoration: underline;
+}

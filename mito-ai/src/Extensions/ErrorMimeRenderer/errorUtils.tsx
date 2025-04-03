@@ -1,6 +1,10 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { stripAnsiCodes } from '../../utils/strings';
-
 
 /* 
 Get the error string from the model. 
@@ -77,12 +81,16 @@ Cell In[3], line 3
 AttributeError: Can only use .dt accessor with datetimelike values
 
 */
-export const getFullErrorMessage = (model: IRenderMime.IMimeModel): string => {
+
+export const getFullErrorMessageFromModel = (model: IRenderMime.IMimeModel): string => {
+    const error = model.data['application/vnd.jupyter.error'] as {traceback: string[]}
+    return getFullErrorMessageFromTraceback(error['traceback'])
+}
+
+
+export const getFullErrorMessageFromTraceback = (tracebackArray: string[]): string => {
 
     try {
-        const error = model.data['application/vnd.jupyter.error'] as {traceback: string[]}
-        const tracebackArray = error['traceback']
-
         // Strip ANSI codes from each line
         const cleanedArray = tracebackArray.map(line => stripAnsiCodes(line));
         
@@ -108,6 +116,6 @@ export const getFullErrorMessage = (model: IRenderMime.IMimeModel): string => {
     } catch (error) {
         // If something goes wrong parsing the error, just return the concise error message
         console.error('Error processing traceback:', error);
-        return getConciseErrorMessage(model);
+        return tracebackArray[tracebackArray.length - 1] ?? '';
     }
 }

@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState } from 'react';
 
 interface CollapsibleWarningBlockProps {
     message: string;
 }
 
-export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProps) => {
+export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProps): JSX.Element => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const lines = message.split('\n');

@@ -1,23 +1,23 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import json
 import logging
 import time
+import uuid
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, Optional, Union
 import tornado
 import tornado.ioloop
 import tornado.web
-from pydantic import BaseModel
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.models import (
-    AgentMessageBuilder,
-    ChatMessageBuilder,
-    IncomingMessageTypes,
-    CodeExplainMessageBuilder,
+    AgentSmartDebugMetadata,
     CompletionError,
     CompletionItem,
     CompletionReply,
@@ -25,20 +25,32 @@ from mito_ai.models import (
     CompletionStreamChunk,
     ErrorMessage,
     FetchHistoryReply,
-    InlineCompletionMessageBuilder,
-    SmartDebugMessageBuilder
+    StartNewChatReply,
+    FetchThreadsReply,
+    DeleteThreadReply,
+    ChatMessageMetadata,
+    SmartDebugMetadata,
+    CodeExplainMetadata,
+    AgentExecutionMetadata,
+    InlineCompleterMetadata,
+    MessageType
 )
-from mito_ai.prompt_builders.smart_debug_prompt import remove_inner_thoughts_from_message
-from mito_ai.providers import OpenAIProvider
-from mito_ai.utils.create import initialize_user
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from openai.types.chat import ChatCompletionMessageParam
+from mito_ai.completion_handlers.chat_completion_handler import get_chat_completion
+from mito_ai.completion_handlers.smart_debug_handler import get_smart_debug_completion
+from mito_ai.completion_handlers.code_explain_handler import get_code_explain_completion
+from mito_ai.completion_handlers.inline_completer_handler import get_inline_completion
+from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
+from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 
-__all__ = ["CompletionHandler"]
 
-# Global history instance
+# The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
+# We create one GlobalMessageHistory per backend server instance instead of one per websocket connection so that the
+# there is one manager of the locks for the .mito/ai-chats directory. This is my current understanding and it 
+# might be incorrect!
 message_history = GlobalMessageHistory()
 
 # This handler is responsible for the mito-ai/completions endpoint.
@@ -52,7 +64,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
-        self.full_message_history: list[ChatCompletionMessageParam] = []
         self.is_pro = is_pro()
 
     @property
@@ -100,112 +111,121 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         # Stop observing the provider error
         self._llm.unobserve(self._send_error, "last_error")
+    
         
-        # Clear the message history
-        self.full_message_history = []
-        
-
     async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
 
         Args:
             message: The message received on the WebSocket.
         """
-        
-        # first, verify that the message is an `CompletionRequest`.
+        start = time.time()
         self.log.debug("Message received: %s", message)
+        
         try:
             parsed_message = json.loads(message)
-
             metadata_dict = parsed_message.get('metadata', {})
-            type: IncomingMessageTypes = parsed_message.get('type')
+            type: MessageType = MessageType(parsed_message.get('type'))
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
-
-        # Clear history if the type is "clear_history"
-        if type == "clear_history":
-            message_history.clear_histories()
-            return
         
-        if type == "fetch_history":
-            _, display_history = message_history.get_histories()
+        reply: Union[StartNewChatReply, FetchThreadsReply, DeleteThreadReply, FetchHistoryReply, CompletionReply]
+
+        # Clear history if the type is "start_new_chat"
+        if type == MessageType.START_NEW_CHAT:
+            thread_id = message_history.create_new_thread()
+            
+            reply = StartNewChatReply(
+                parent_id=parsed_message.get("message_id"),
+                thread_id=thread_id
+            )
+            self.reply(reply)
+            return
+
+        # Handle get_threads: return list of chat threads
+        if type == MessageType.GET_THREADS:
+            threads = message_history.get_threads()
+            reply = FetchThreadsReply(
+                parent_id=parsed_message.get("message_id"),
+                threads=threads
+            )
+            self.reply(reply)
+            return
+
+        # Handle delete_thread: delete the specified thread
+        if type == MessageType.DELETE_THREAD:
+            thread_id_to_delete = metadata_dict.get('thread_id')
+            if thread_id_to_delete:
+                is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    success=is_thread_deleted
+                )
+            else:
+                reply = DeleteThreadReply(
+                    parent_id=parsed_message.get("message_id"),
+                    success=False
+                )
+            self.reply(reply)
+            return
+        if type == MessageType.FETCH_HISTORY:
+            
+            # If a thread_id is provided, use that thread's history; otherwise, use newest.
+            thread_id = metadata_dict.get('thread_id')
+            display_history = message_history.get_display_history(thread_id)
+            
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
                 items=display_history
             )
-            
             self.reply(reply)
             return
-        
-        response_format = None
-
-        # Generate new message based on message type
-        if type == "inline_completion":
-            # Reset the message history for the inline completion 
-            # because they are ephemeral
-            self.full_message_history = []
+        try:
             
-            inlineCompletionPromptBuilder = InlineCompletionMessageBuilder(**metadata_dict)
-            prompt = inlineCompletionPromptBuilder.prompt
-            model = inlineCompletionPromptBuilder.pro_model if self.is_pro else inlineCompletionPromptBuilder.os_model
-            
-            ai_optimized_history: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
-            
-        else:
-            if type == "chat":
-                chatMessagePromptBuilder = ChatMessageBuilder(**metadata_dict)
-                prompt = chatMessagePromptBuilder.prompt
-                display_message = chatMessagePromptBuilder.display_message
-                model = chatMessagePromptBuilder.pro_model if self.is_pro else chatMessagePromptBuilder.os_model
-
-                if chatMessagePromptBuilder.index is not None:
-                    # Clear the chat history after the specified index (inclusive)
-                    self.full_message_history = self.full_message_history[:chatMessagePromptBuilder.index]
-
-            elif type == "codeExplain":
-                codeExplainPromptBuilder = CodeExplainMessageBuilder(**metadata_dict)
-                prompt = codeExplainPromptBuilder.prompt
-                display_message = codeExplainPromptBuilder.display_message
-                model = codeExplainPromptBuilder.pro_model if self.is_pro else codeExplainPromptBuilder.os_model
-            elif type == "smartDebug":
-                smartDebugPromptBuilder = SmartDebugMessageBuilder(**metadata_dict)
-                prompt = smartDebugPromptBuilder.prompt
-                display_message = smartDebugPromptBuilder.display_message
-                model = smartDebugPromptBuilder.pro_model if self.is_pro else smartDebugPromptBuilder.os_model
-            elif type == "agent:planning":
-                agentMessageBuilder = AgentMessageBuilder(**metadata_dict)
-                prompt = agentMessageBuilder.prompt
-                display_message = agentMessageBuilder.display_message
-                model = agentMessageBuilder.pro_model if self.is_pro else agentMessageBuilder.os_model
-                response_format = agentMessageBuilder.response_format
+            # Get completion based on message type
+            completion = None
+            if type == MessageType.CHAT:
+                chat_metadata = ChatMessageMetadata(**metadata_dict)
+                completion = await get_chat_completion(chat_metadata, self._llm, message_history)
+            elif type == MessageType.SMART_DEBUG:
+                smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
+                completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, message_history)
+            elif type == MessageType.CODE_EXPLAIN:
+                code_explain_metadata = CodeExplainMetadata(**metadata_dict)
+                completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history)
+            elif type == MessageType.AGENT_EXECUTION:
+                agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
+                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)
+            elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
+                agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
+                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, message_history)
+            elif type == MessageType.INLINE_COMPLETION:
+                inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
+                completion = await get_inline_completion(inline_completer_metadata, self._llm, message_history)
             else:
                 raise ValueError(f"Invalid message type: {type}")
+            
+            # Create and send reply
+            reply = CompletionReply(
+                items=[CompletionItem(content=completion, isIncomplete=False)],
+                parent_id=parsed_message.get('message_id')
+            )
+            self.reply(reply)
+            
+            latency_ms = round((time.time() - start) * 1000)
+            self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
-            new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
-            new_display_message: ChatCompletionMessageParam = {"role": "user", "content": display_message}
-            message_history.append_message(new_ai_optimized_message, new_display_message)
-            ai_optimized_history, display_history = message_history.get_histories()
-
-        request = CompletionRequest(
-            type=type,
-            message_id=parsed_message.get('message_id'),
-            messages=ai_optimized_history,
-            stream=parsed_message.get('stream', False)
-        )
-
-        try:
-            if request.stream and self._llm.can_stream:
-                await self._handle_stream_request(request, prompt_type=request.type, model=model)
-            else:
-                await self._handle_request(
-                    request,
-                    prompt_type=request.type,
-                    model=model,
-                    response_format=response_format
-                )
         except Exception as e:
-            await self.handle_exception(e, request)
+            error = CompletionError.from_exception(e)
+            self._send_error({"new": error})
+            reply = CompletionReply(
+                items=[],
+                error=error,
+                parent_id=parsed_message.get('message_id')
+            )
+            self.reply(reply)
+            
 
     def open(self, *args: str, **kwargs: str) -> None:
         """Invoked when a new WebSocket is opened.
@@ -223,6 +243,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._llm.observe(self._send_error, "last_error")
         # Send the server capabilities to the client.
         self.reply(self._llm.capabilities)
+        
 
     async def handle_exception(self, e: Exception, request: CompletionRequest) -> None:
         """
@@ -259,53 +280,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=request.message_id,
             )
         self.reply(reply)
-
-    async def _handle_request(
-        self,
-        request: CompletionRequest,
-        prompt_type: str,
-        model: str,
-        response_format: Optional[Type[BaseModel]] = None,
-    ) -> None:
-        """Handle completion request.
-
-        Args:
-            request: The completion request description.
-        """
-        start = time.time()
-        reply = await self._llm.request_completions(request, prompt_type, model, response_format)
-
-        # Save to the message history
-        # Inline completion is ephemeral and does not need to be saved
-        if request.type != "inline_completion":
-            response = reply.items[0].content if reply.items else ""
-
-            ai_optimized_message: ChatCompletionMessageParam = {
-                "role": "assistant", 
-                "content": response
-            }
-            display_message: ChatCompletionMessageParam = {
-                "role": "assistant", 
-                "content": response
-            }
-
-            if request.type == "smartDebug":
-                # Remove inner thoughts from the response
-                response = remove_inner_thoughts_from_message(response)
-                display_message["content"] = response
-
-                # Modify reply so the display message in the frontend is also have inner thoughts removed
-                reply.items[0] = CompletionItem(content=response, isIncomplete=reply.items[0].isIncomplete)
-
-            message_history.append_message(ai_optimized_message, display_message)
-
-
-        self.reply(reply)
         
-        latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Completion handler resolved in {latency_ms} ms.")
 
-    async def _handle_stream_request(self, request: CompletionRequest, prompt_type: str, model: str) -> None:
+    async def _handle_stream_request(self, request: CompletionRequest, message_type: MessageType, model: str) -> None:
         """Handle stream completion request."""
         start = time.time()
 
@@ -313,7 +290,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # We need to accumulate the response on the backend so that we can save it to
         # the message history after the streaming is complete.
         accumulated_response = ""
-        async for reply in self._llm.stream_completions(request, prompt_type, model):
+        async for reply in self._llm.stream_completions(request, message_type, model):
             if isinstance(reply, CompletionStreamChunk):
                 accumulated_response += reply.chunk.content
 
@@ -324,7 +301,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 "role": "assistant", 
                 "content": accumulated_response
             }
-            message_history.append_message(message, message)
+            
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Completion streaming completed in {latency_ms} ms.")
 

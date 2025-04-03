@@ -1,16 +1,26 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import {
+  ILabShell,
   ILayoutRestorer,
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+
+// The Widget Rank determins where the ChatIcon is displayed
+// in the left hand toolbar
+const WIDGET_RANK = 2000
 
 
 /**
@@ -21,30 +31,32 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
   description: 'AI chat for JupyterLab',
   autoStart: true,
   requires: [
+    ILabShell,
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IVariableManager,
+    IContextManager,
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
   activate: (
     app: JupyterFrontEnd,
+    labShell: ILabShell,
     notebookTracker: INotebookTracker,
     palette: ICommandPalette,
     rendermime: IRenderMimeRegistry,
-    variableManager: IVariableManager,
-    restorer: ILayoutRestorer | null
-  ) => {
+    contextManager: IContextManager,
+    restorer: ILayoutRestorer | null,
+  ): WidgetTracker<ChatWidget> => {
     // Define a widget creator function,
     // then call it to make a new widget
-    const newWidget = () => {
+    const newWidget = (): ChatWidget => {
       // Create a blank content widget inside of a MainAreaWidget
       const chatWidget = buildChatWidget(
         app,
         notebookTracker,
         rendermime,
-        variableManager,
+        contextManager,
       );
       return chatWidget;
     };
@@ -68,19 +80,16 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         // Step 2: Add the widget to the widget tracker if
         // its not already there
         if (!tracker.has(widget)) {
-          tracker.add(widget);
+          void tracker.add(widget);
         }
 
-        // Step 3: Attatch the widget to the app if its not
-        // already there
+        // Step 3: Attatch the widget to the app if its not already there
         if (!widget.isAttached) {
-          app.shell.add(widget, 'left', { rank: 2000 });
+          void app.shell.add(widget, 'left', { rank: WIDGET_RANK });
         }
 
-        // Now that the widget is potentially accessible, activating the
-        // widget opens the taskpane
+        // Now that the widget is added to the shell, activating it will open the taskpane
         app.shell.activateById(widget.id);
-
 
         // If the command is called with focus on chat input set to false, 
         // don't focus. This is useful when we don't want to active cell 
@@ -90,8 +99,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         }
 
         // Set focus on the chat input
-        const chatInput: HTMLTextAreaElement | null =
-          widget.node.querySelector('.chat-input');
+        const chatInput: HTMLTextAreaElement | null = widget.node.querySelector('.chat-input');
         chatInput?.focus();
       }
     });
@@ -102,7 +110,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
       selector: 'body'
     });
 
-    app.shell.add(widget, 'left', { rank: 2000 });
+    app.shell.add(widget, 'left', { rank: WIDGET_RANK });
 
     // Add the command to the palette.
     palette.addItem({
@@ -115,15 +123,28 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
       namespace: widget.id
     });
     if (!tracker.has(widget)) {
-      tracker.add(widget);
+      void tracker.add(widget);
     }
 
     if (restorer) {
       restorer.add(widget, 'mito_ai');
-    }
+    }    
+    
+    // Instead of immediately activating the chat widget, wait for app restoration to complete
+    // This ensures our widget activation happens after JupyterLab's initial setup which by 
+    // default tries to open the file browser instead. 
+    // TODO: It might be nice to only open to chat if a notebook is already open. If a 
+    // notebook is not already open, then users might want to open to the file browser, 
+    void app.restored.then(() => {
+      // Activate our chat widget after JupyterLab has fully initialized
+      // This will override the default file browser selection
+      labShell.activateById(widget.id);
+    });
 
-    // This allows us to force plugin load order
-    console.log("mito-ai: AiChatPlugin activated");
+    // By returning a tracker token, we can require the token in other 
+    // plugins. This allows us to force plugin load order. For example, 
+    // we can ensure that the COMMAND_MITO_AI_OPEN_CHAT is created 
+    // before trying to use it in other plugins
     return tracker;
   }
 };

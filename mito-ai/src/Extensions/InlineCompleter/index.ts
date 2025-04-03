@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import type {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -7,7 +12,7 @@ import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ConfigSection } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { MitoAIInlineCompleter } from './provider';
-import { IVariableManager } from '../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 
 /**
  * Interface for the Mito AI configuration settings.
@@ -29,13 +34,13 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
   requires: [
     ICompletionProviderManager,
     ISettingRegistry,
-    IVariableManager,
+    IContextManager,
   ],
   activate: (
     app: JupyterFrontEnd,
     completionManager: ICompletionProviderManager,
     settingRegistry: ISettingRegistry,
-    variableManager: IVariableManager,
+    contextManager: IContextManager,
   ) => {
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
@@ -63,7 +68,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
         // Check if the user has acknowledge the notification before;
         // aka if the settingsChecked flag is set to true.
         if (!state?.settingsChecked) {
-          const checkSettings = async () => {
+          const checkSettings = async (): Promise<void> => {
             const providers = (
               await settingRegistry.get(
                 JUPYTERLAB_INLINE_COMPLETER_ID,
@@ -78,7 +83,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
               )
             ).composite as any;
 
-            const updateConfig = () => {
+            const updateConfig = (): void => {
               // Set the settingsChecked flag to true to store
               // that the user has acknowledge the notification.
               config
@@ -141,7 +146,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
             const watchSettings = async (
               registry: ISettingRegistry,
               id: string
-            ) => {
+            ): Promise<void> => {
               if (id === JUPYTERLAB_INLINE_COMPLETER_ID) {
                 registry.pluginChanged.disconnect(watchSettings);
                 await checkSettings();
@@ -161,7 +166,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     // Register the Mito AI inline completer
     const provider = new MitoAIInlineCompleter({
       serverSettings: app.serviceManager.serverSettings,
-      variableManager
+      contextManager: contextManager
     });
     completionManager.registerInlineProvider(provider);
 

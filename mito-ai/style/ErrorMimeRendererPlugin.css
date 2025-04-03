@@ -1,57 +1,61 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 .error-mime-renderer-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    align-items: start;
-    background-color: var(--jp-rendermime-error-background);
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: start;
+  background-color: var(--jp-rendermime-error-background);
+  width: 100%;
 }
 
 .error-mime-renderer-button {
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
 
-    background-color: var(--jp-error-color3);
-    border: var(--jp-error-color0) 1px solid;
-    color: var(--jp-error-color0);
+  background-color: var(--jp-error-color3);
+  border: var(--jp-error-color0) 1px solid;
+  color: var(--jp-error-color0);
 
-    margin: 10px;
-    box-sizing: border-box;
+  margin: 10px;
+  box-sizing: border-box;
 
-    border-radius: 3px;
-    font-size: 14px;
+  border-radius: 3px;
+  font-size: 14px;
 }
 
 .error-mime-renderer-button:hover {
-    background-color: var(--jp-error-color4);
-    cursor: pointer;
-}   
-
+  background-color: var(--jp-error-color4);
+  cursor: pointer;
+}
 
 .error-mime-renderer-button svg {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 .error-mime-renderer-button p {
-    margin: 0;
+  margin: 0;
 }
 
 .output-block {
-    padding: 10px;
-    background-color: var(--yellow-500);
-    border-radius: 3px;
+  padding: 10px;
+  background-color: var(--yellow-500);
+  border-radius: 3px;
 }
 
 .output-block pre {
-    color: var(--yellow-900)!important;
+  color: var(--yellow-900) !important;
 }
 
 .collapse-button {
-    background-color: transparent;
-    border: none;
-    color: var(--yellow-900);
-    padding: 0;
-    cursor: pointer;
+  background-color: transparent;
+  border: none;
+  color: var(--yellow-900);
+  padding: 0;
+  cursor: pointer;
 }

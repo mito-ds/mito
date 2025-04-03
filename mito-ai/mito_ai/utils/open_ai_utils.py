@@ -1,24 +1,25 @@
 #!/usr/bin/env python
 # coding: utf-8
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 
 # Copyright (c) Saga Inc.
 
 import json
 from typing import Any, Dict, List, Optional, Type, Final, Union
 from datetime import datetime, timedelta
-
+import os
+import time
+from mito_ai.utils.utils import is_running_test
 from pydantic import BaseModel
 from tornado.httpclient import AsyncHTTPClient
-
-from .db import get_user_field
-from .schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
-from .telemetry_utils import (
-    MITO_SERVER_FREE_TIER_LIMIT_REACHED,
-    log,
-)
-from .version_utils import is_pro
+from mito_ai.models import MessageType, ResponseFormatInfo
+from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
+from mito_ai.utils.db import get_user_field
+from mito_ai.utils.version_utils import is_pro
+from mito_ai.utils.server_limits import check_mito_server_quota
 from openai.types.chat import ChatCompletionMessageParam
-
 MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
@@ -27,55 +28,26 @@ MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaw
 # before merging into dev because we always want our users to be using the prod endpoint!
 MITO_AI_URL: Final[str] = MITO_AI_PROD_URL
 
-OPEN_SOURCE_AI_COMPLETIONS_LIMIT: Final[int] = 500
-OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT: Final[int] = 30 # days
-
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
-
-
-def check_mito_server_quota(n_counts: int, first_usage_date: str) -> None:
-    """Check whether the user has reached the limit of completions for the free tier or not.
-
-    Args:
-        n_counts: The number of completions the user has made so far.
-        first_usage_date: The date of the user's first usage.
-    Raises:
-        PermissionError: If the user has reached the limit.
-    """
-    pro = is_pro()
-
-    if pro:
-        return
-
-    if n_counts >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
-        log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-        raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-
-    if first_usage_date != "":
-        first_use = datetime.strptime(first_usage_date, "%Y-%m-%d")
-        one_month_later = first_use + timedelta(days=OPEN_SOURCE_INLINE_COMPLETIONS_LIMIT)
-        if datetime.now() > one_month_later:
-            log(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-            raise PermissionError(MITO_SERVER_FREE_TIER_LIMIT_REACHED)
-
 
 async def get_ai_completion_from_mito_server(
     last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
     timeout: int,
     max_retries: int,
-    n_counts: int,
-    first_usage_date: str,
+    message_type: MessageType,
 ) -> str:
+    
+    # First check that the user is allowed to use the Mito Server
+    check_mito_server_quota(message_type)
+    
     global __user_email, __user_id
 
     if __user_email is None:
         __user_email = get_user_field(UJ_USER_EMAIL)
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
-
-    check_mito_server_quota(n_counts, first_usage_date)
 
     data = {
         "timeout": timeout,
@@ -89,8 +61,28 @@ async def get_ai_completion_from_mito_server(
     headers = {
         "Content-Type": "application/json",
     }
-
-    http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+    
+    
+    # There are several types of timeout errors that can happen here. 
+    # == 504 Timeout (tornado.httpclient.HTTPClientError: 504) ==  
+    # The server (AWS Lambda) took too long to process your request
+    # == 599 Timeout (tornado.httpclient.HTTPClientError: 599) ==  
+    # The client (Tornado) gave up waiting for a response
+    
+    http_client = None
+    if is_running_test():
+        # If we are running in a test environment, setting the request_timeout fails for some reason.
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+        http_client_timeout = None
+    else:
+        # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
+        # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
+        # The OpenAI timeouts are denoted in seconds, whereas the HTTP client expects milliseconds. 
+        # We also give the HTTP client a 10 second buffer to account for
+        http_client_timeout = timeout * 1000 * max_retries + 10000
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
+        
+    start_time = time.time()
     try:
         res = await http_client.fetch(
             # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
@@ -98,8 +90,17 @@ async def get_ai_completion_from_mito_server(
             # have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
             # before merging into dev. So if you change which variable we are using here, the 
             # test will not catch our mistakes.
-            MITO_AI_URL, method="POST", headers=headers, body=json.dumps(data)
+            MITO_AI_URL, 
+            method="POST", 
+            headers=headers, 
+            body=json.dumps(data), 
+            # For some reason, we need to add the request_timeout here as well
+            request_timeout=http_client_timeout
         )
+        print(f"Request completed in {time.time() - start_time:.2f} seconds")
+    except Exception as e:
+        print(f"Request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
+        raise
     finally:
         http_client.close()
 
@@ -119,23 +120,42 @@ def get_open_ai_completion_function_params(
     model: str, 
     messages: List[ChatCompletionMessageParam], 
     stream: bool,
-    response_format: Optional[Type[BaseModel]] = None,
+    response_format_info: Optional[ResponseFormatInfo] = None,
 ) -> Dict[str, Any]:
     
     completion_function_params = {
         "model": model,
         "stream": stream,
         "messages": messages,
-        "response_format": response_format,
     }
+    
+    # If a response format is provided, we need to convert it to a json schema.
+    # Pydantic models are supported by the OpenAI API, however, we need to be able to 
+    # serialize it for requests that are going to be sent to the mito server. 
+    # OpenAI expects a very specific schema as seen below. 
+    if response_format_info:
+        json_schema = response_format_info.format.schema()
+        
+        # Add additionalProperties: False to the top-level schema
+        json_schema["additionalProperties"] = False
+        
+        # Nested object definitions in $defs need to have additionalProperties set to False also
+        if "$defs" in json_schema:
+            for def_name, def_schema in json_schema["$defs"].items():
+                if def_schema.get("type") == "object":
+                    def_schema["additionalProperties"] = False
+        
+        completion_function_params["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": f"{response_format_info.name}",
+                "schema": json_schema,
+                "strict": True
+            }
+        }
     
     # o3-mini will error if we try setting the temperature
     if model == "gpt-4o-mini":
         completion_function_params["temperature"] = 0.0
-
-    # Remove "stream" key if response_format is set.
-    # beta.chat.completions.parse will error if we try to pass it as a param. 
-    if response_format:
-        completion_function_params.pop("stream", None)
 
     return completion_function_params

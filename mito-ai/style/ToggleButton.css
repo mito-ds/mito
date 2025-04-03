@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.toggle-button-container {
+  display: flex;
+  gap: 1px;
+  background-color: var(--jp-layout-color2);
+  border: 1px solid var(--jp-ui-font-color3);
+  border-radius: 2px;
+  width: 120px;
+  overflow: hidden;
+}
+
+.toggle-button-half {
+  flex: 0 0 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 20px;
+  font-size: 12px;
+  padding: 2px 10px;
+}
+
+.toggle-button-half:first-child {
+  border-radius: 0px;
+}
+
+.toggle-button-half:last-child {
+  border-radius: 0px;
+}
+
+.toggle-button-half.selected {
+  opacity: 1;
+  background-color: var(--purple-400);
+  color: var(--purple-700) !important;
+}
+
+.toggle-button-half.unselected {
+  opacity: 0.6;
+  background-color: transparent !important;
+  color: var(--jp-ui-font-color2) !important;
+}
+
+.toggle-button-icon {
+  width: 16px;
+  height: 16px;
+}

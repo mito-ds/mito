@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { JupyterFrontEndPlugin } from '@jupyterlab/application';
 import type { WidgetTracker } from '@jupyterlab/apputils';
 import { IStatusBar, Popup, showPopup } from '@jupyterlab/statusbar';
@@ -81,7 +86,7 @@ class StatusPopUp extends VDomRenderer<StatusModel> {
         {this.model.lastError?.title == FREE_TIER_LIMIT_REACHED_ERROR_TITLE && (
           <>
             <p>
-              ⚠️ Your Mito AI free trial has ended. Upgrade to <a href="https://www.trymito.io/plans" target="_blank">Mito Pro</a> or supply your own Open AI Key to get access to more advanced models and continue using Mito AI.
+              ⚠️ You&apos;ve used up your free Mito AI completions for this month. Upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> or supply your own Open AI Key to continue using Mito AI.
             </p>
             <TextButton
               title="Upgrade to Pro"
@@ -177,7 +182,8 @@ export const statusItem: JupyterFrontEndPlugin<void> = {
     statusBar: IStatusBar
   ) => {
     let registered = false;
-    const registerMitoStatus = (chatPanel: IChatWidget) => {
+    
+    const registerMitoStatus = (chatPanel: IChatWidget): void => {
       if (registered) {
         return;
       }

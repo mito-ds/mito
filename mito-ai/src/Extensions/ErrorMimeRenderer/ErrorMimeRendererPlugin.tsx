@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
@@ -8,7 +13,7 @@ import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE } f
 import MagicWandIcon from '../../icons/MagicWand';
 import '../../../style/ErrorMimeRendererPlugin.css'
 import { CollapsibleWarningBlock } from './CollapsibleWarningBlock';
-import { getFullErrorMessage } from './errorUtils';
+import { getFullErrorMessageFromModel } from './errorUtils';
 
 interface ErrorMessageProps {
     onDebugClick: () => void;
@@ -109,11 +114,11 @@ class AugmentedStderrRenderer extends Widget implements IRenderMime.IRenderer {
         Open the chat interface and preload the error message into 
         the user input.
     */
-    openChatInterfaceWithError(model: IRenderMime.IMimeModel): void {
-        const structuredError = getFullErrorMessage(model);
+    async openChatInterfaceWithError(model: IRenderMime.IMimeModel): Promise<void> {
+        const structuredError = getFullErrorMessageFromModel(model);
 
-        this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
-        this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: structuredError });
+        await this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
+        await this.app.commands.execute(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, { input: structuredError });
     }
 }
   

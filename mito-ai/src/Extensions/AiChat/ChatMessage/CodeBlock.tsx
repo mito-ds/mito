@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -78,7 +83,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                                 <IconButton
                                     icon={<CopyIcon />}
                                     title="Copy"
-                                    onClick={() => {copyToClipboard(code)}}
+                                    onClick={() => {void copyToClipboard(code)}}
                                 />
                             }
                         </div>
@@ -89,7 +94,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                             <IconButton
                                 icon={<CopyIcon />}
                                 title="Copy"
-                                onClick={() => {copyToClipboard(code)}}
+                                onClick={() => {void copyToClipboard(code)}}
                             />
                         </div>
                     }

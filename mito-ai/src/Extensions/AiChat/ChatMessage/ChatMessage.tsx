@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState } from 'react';
 import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
@@ -6,24 +11,26 @@ import CodeBlock from './CodeBlock';
 import AlertBlock from './AlertBlock';
 import MarkdownBlock from './MarkdownBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
+import { getContentStringFromMessage, PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../../utils/strings';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../../utils/user';
 import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
-import { IVariableManager } from '../../VariableManager/VariableManagerPlugin';
+import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
-import { PromptType } from '../ChatHistoryManager';
+import { ChatMessageType, PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
-import { IDisplayOptimizedChatHistory } from '../ChatHistoryManager';
+import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
+import '../../../../style/ChatMessage.css';
+import '../../../../style/MarkdownMessage.css'
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
-    messageType: IDisplayOptimizedChatHistory['type']
+    messageType: IDisplayOptimizedChatItem['type']
     codeCellID: string | undefined
     messageIndex: number
     promptType: PromptType
@@ -37,16 +44,16 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, messageType: IDisplayOptimizedChatHistory['type']) => void
-    variableManager?: IVariableManager
+    onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
+    contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
     messageType,
-    messageIndex,
     promptType,
+    messageIndex,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
     notebookTracker,
@@ -57,9 +64,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
-    variableManager,
-    codeReviewStatus,
-    app
+    app,
+    contextManager,
+    codeReviewStatus
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -67,20 +74,20 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return null;
     }
 
-    const editable = messageType === 'openai message:agent:planning' || message.role === 'user'
+    const editable = message.role === 'user'
 
     const messageContentParts = splitStringWithCodeBlocks(message);
 
-    const handleEditClick = () => {
+    const handleEditClick = (): void => {
         setIsEditing(true);
     };
 
-    const handleSave = (content: string) => {
+    const handleSave = (content: string): void => {
         onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
 
-    const handleCancel = () => {
+    const handleCancel = (): void => {
         setIsEditing(false);
     };
 
@@ -92,10 +99,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 onSave={handleSave}
                 onCancel={handleCancel}
                 isEditing={isEditing}
-                variableManager={variableManager}
+                contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
                 app={app}
+                displayActiveCellCode={true}
             />
         );
     }
@@ -109,12 +117,18 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             </div>
         )
     }
+
+    // If the message is empty, don't render anything
+    const messageContent = getContentStringFromMessage(message)
+    if (messageContent === undefined || messageContent === '') {
+        return <></>
+    }
+
     return (
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant-chat': message.role === 'assistant' && messageType !== 'openai message:agent:planning' },
-            { 'message-assistant-agent': messageType === 'openai message:agent:planning' },
+            { 'message-assistant-chat': message.role === 'assistant'},
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
@@ -146,7 +160,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             width='fit-contents'
                                         />
                                         <TextAndIconButton 
-                                            onClick={() => {copyToClipboard(messagePart)}}
+                                            onClick={() => {void copyToClipboard(messagePart)}}
                                             text={'Copy'}
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
@@ -176,12 +190,14 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 }
                             </>
                         )
+                    } else {
+                        // Return null for empty code blocks
+                        return null;
                     }
                 } else {
                     return (
-                        <div className={classNames('markdown-message-part')} style={{ position: 'relative' }}>
+                        <div key={index + messagePart} className={classNames('markdown-message-part')}>
                             <p 
-                                key={index + messagePart} 
                                 onDoubleClick={() => {
                                     // Only allow users to edit their own messages, not the AI responses
                                     if (message.role === 'user') {
@@ -198,25 +214,25 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     <MarkdownBlock
                                         markdown={messagePart}
                                         renderMimeRegistry={renderMimeRegistry}
+                                        notebookTracker={notebookTracker}
                                     />
                                 )}
                             </p>
-                            {editable && (
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                    <button
-                                        className="message-edit-button"
-                                        onClick={handleEditClick}
-                                        style={{ cursor: 'pointer' }}
-                                        title="Edit message"
-                                    >
-                                        <PencilIcon />
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     )
                 }
             })}
+            {editable && 
+                <div className="message-action-buttons">
+                    <button
+                        className="message-start-editing-button"
+                        onClick={handleEditClick}
+                        title="Edit message"
+                    >
+                        <PencilIcon />
+                    </button>
+                </div>
+            }
         </div>
     )
 }

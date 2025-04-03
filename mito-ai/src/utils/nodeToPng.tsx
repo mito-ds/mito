@@ -19,7 +19,7 @@ import html2canvas from 'html2canvas';
  * // Use base64Image...
  * ```
  */
-export const captureNode = async (node: HTMLElement): Promise<string> => {
+export const captureNode = async (node: HTMLElement): Promise<string | undefined> => {
     try {
         if (!node) {
             throw new Error('No node provided');
@@ -39,7 +39,7 @@ export const captureNode = async (node: HTMLElement): Promise<string> => {
         try {
             // Perform the capture
             const canvas = await html2canvas(clone, getHtml2CanvasOptions(node));
-            return canvas.toDataURL('image/png').split(',')[1];
+            return canvas.toDataURL('image/png').split(',')[1]
         } finally {
             // Clean up
             wrapper.parentNode?.removeChild(wrapper);
@@ -87,6 +87,11 @@ const preserveStyles = (sourceElement: HTMLElement, targetElement: HTMLElement):
     
     for (let i = 0; i < computed.length; i++) {
         const property = computed[i];
+
+        if (property === undefined) {
+            continue;
+        }
+
         const value = computed.getPropertyValue(property);
         if (value) {
             stylesText += `${property}: ${value} !important; `;

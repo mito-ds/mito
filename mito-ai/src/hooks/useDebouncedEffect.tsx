@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { useEffect } from "react";
 
 /* 
@@ -11,7 +16,7 @@ export const useDebouncedEffect = (
         // Just like useEffect, you can return a result function that runs on
         // cleanup. We just default here to a noop.
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        let cleanup = () => {}
+        let cleanup = (): void => {}
         const handler = setTimeout(() => {
             const result = effect()
             if (result instanceof Object) {
