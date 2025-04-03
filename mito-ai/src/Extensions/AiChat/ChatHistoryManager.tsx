@@ -271,7 +271,10 @@ export class ChatHistoryManager {
         // Find the last AI message in the history
         const lastAIMessageIndex = this.getLastAIMessageIndex();
         
-        if (lastAIMessageIndex === undefined) {
+        if (
+            lastAIMessageIndex === undefined || 
+            this.displayOptimizedChatHistory.length !== lastAIMessageIndex + 1
+        ) {
             // If no AI message exists, create a new one
             this.addAIMessageFromResponse(messageContent, promptType);
         } else {

@@ -535,15 +535,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         // Agent:Execution prompts return a CellUpdate object that we need to parse
                         const agentResponse: AgentResponse = JSON.parse(content)
                         newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                    } else {
-                        // For all other prompt types, we can just add the content to the chat history
-                        aiResponse.items.forEach((item: any) => {
-                            newChatHistoryManager.addAIMessageFromResponse(
-                                item.content || '',
-                                completionRequest.metadata.promptType
-                            );
-                        });
-                        setChatHistoryManager(newChatHistoryManager);
                     }
                 }
             } catch (error) {
