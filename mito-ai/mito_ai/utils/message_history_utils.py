@@ -18,26 +18,19 @@ def trim_sections_from_message_content(content) -> str:
     if not isinstance(content, str):
         return content
 
-    # Replace "Files in the current directory:" section
-    content = re.sub(
-        f"{re.escape(FILES_SECTION_HEADING)}\n(?:.+\n)+",
-        f"{FILES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n",
-        content,
-    )
-
-    # Replace "Defined Variables:" section
-    content = re.sub(
-        f"{re.escape(VARIABLES_SECTION_HEADING)}\n(?:.+\n)+",
-        f"{VARIABLES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n",
-        content,
-    )
-
-    # Replace "{JUPYTER_NOTEBOOK_SECTION_HEADING}" section
-    content = re.sub(
-        f"{re.escape(JUPYTER_NOTEBOOK_SECTION_HEADING)}\n(?:.+\n)+",
-        f"{JUPYTER_NOTEBOOK_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}\n",
-        content,
-    )
+    # Replace metadata sections with placeholders
+    section_headings = [
+        FILES_SECTION_HEADING,
+        VARIABLES_SECTION_HEADING,
+        JUPYTER_NOTEBOOK_SECTION_HEADING
+    ]
+    
+    for heading in section_headings:
+        content = re.sub(
+            f"{re.escape(heading)}\n(?:.+\n)+",
+            f"{heading} {CONTENT_REMOVED_PLACEHOLDER}\n",
+            content,
+        )
 
     return content
 
