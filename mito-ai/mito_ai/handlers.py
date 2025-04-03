@@ -97,7 +97,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         # This method ensure to call `pre_get` before opening the socket.
         await ensure_async(self.pre_get()) # type: ignore
 
-        initialize_user()
+        initialize_user(self._llm.key_type)
 
         reply = super().get(*args, **kwargs)
         if reply is not None:

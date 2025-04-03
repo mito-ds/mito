@@ -11,6 +11,7 @@ file with the current schema
 
 import json
 import os
+from typing import Literal, Optional
 
 from mito_ai.utils.db import (MITO_FOLDER, USER_JSON_PATH, set_user_field)
 from mito_ai.utils.schema import (GITHUB_ACTION_EMAIL, GITHUB_ACTION_ID,
@@ -56,7 +57,7 @@ def try_create_user_json_file() -> None:
             set_user_field(UJ_USER_EMAIL, GITHUB_ACTION_EMAIL)
 
 
-def initialize_user() -> None:
+def initialize_user(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> None:
     """
     Internal helper function that gets called whenever a ai completion is requested.
 
@@ -68,7 +69,7 @@ def initialize_user() -> None:
     try_create_user_json_file()
 
     # Identify the user 
-    identify()
+    identify(key_type)
 
     # Note, its possible that a user has a previous version of the user.json file if they 
     # downloaded Mito >1 year ago and have not yet upgraded. In this case, we would like to 
