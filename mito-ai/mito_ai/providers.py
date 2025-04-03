@@ -277,7 +277,14 @@ This attribute is observed by the websocket provider to push the error to the cl
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+            log(
+                MITO_AI_COMPLETION_ERROR, 
+                params={
+                    KEY_TYPE_PARAM: key_type,
+                    'message_type': message_type.value,
+                },
+                error=e
+            )
             raise
 
 
@@ -328,7 +335,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: USER_KEY}, error=e)
+            log(
+                MITO_AI_COMPLETION_ERROR, 
+                params={
+                    KEY_TYPE_PARAM: USER_KEY,
+                    'message_type': message_type.value,
+                },
+                error=e
+            )
             raise
 
         async for chunk in stream:

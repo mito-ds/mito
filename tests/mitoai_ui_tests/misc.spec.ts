@@ -14,7 +14,6 @@ import {
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
 
-
 test('Make sure collapsed warnings can be read', async ({ page }) => {
     const warningMessage = 'This is a warning message.';
 
