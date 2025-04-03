@@ -423,7 +423,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
         
-        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current)
+        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current)
         if (messageIndex !== undefined) {
             chatMessageMetadata.index = messageIndex
         }

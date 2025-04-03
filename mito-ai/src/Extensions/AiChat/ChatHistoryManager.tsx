@@ -6,7 +6,7 @@
 import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
+import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID, getCellOutputByID } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 
@@ -84,15 +84,17 @@ export class ChatHistoryManager {
         );
     }
 
-    addChatInputMessage(input: string, activeThreadId: string): IChatMessageMetadata {
+    async addChatInputMessage(input: string, activeThreadId: string): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
+        const activeCellOutput = await getCellOutputByID(this.notebookTracker, activeCellID)
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
+            activeCellOutput: activeCellOutput,
             input: input,
             threadId: activeThreadId
         }

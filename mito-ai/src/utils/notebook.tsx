@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
@@ -39,7 +38,7 @@ export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: s
     return cell?.model.sharedModel.source
 }
 
-export const getCellOutputByID = async (app: JupyterFrontEnd, notebookTracker: INotebookTracker, codeCellID: string | undefined): Promise<string | undefined> => {
+export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeCellID: string | undefined): Promise<string | undefined> => {
     if (codeCellID === undefined) {
         return undefined
     }
@@ -54,10 +53,10 @@ export const getCellOutputByID = async (app: JupyterFrontEnd, notebookTracker: I
         if (outputNode) {
             console.log('outputNode', outputNode)
             const image = await captureNode(outputNode);
-            console.log('image', image)
+            return image;
         }
     }
-    return 'test'
+    return undefined
 }
 
 export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {

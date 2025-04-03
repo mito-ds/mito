@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
-import { getActiveCellID, getCellCodeByID, getCellOutputByID } from '../../../utils/notebook';
+import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
 import { Variable } from '../../ContextManager/VariableInspector';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -175,21 +175,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
-
-    const [activeCellOutput, setActiveCellOutput] = useState<any>(null);
-
-    useEffect(() => {
-        // Only get and set the cell output when activeCellID changes
-        const output = getCellOutputByID(app, notebookTracker, activeCellID);
-        setActiveCellOutput(output);
-        
-        // Only log when the output changes
-        if (output) {
-            console.log('Cell output updated:', output);
-        }
-    }, [activeCellID, app, notebookTracker]);
-
-    console.log(activeCellOutput)
 
     return (
         <div 

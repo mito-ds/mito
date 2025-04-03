@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import List, Optional
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.models import ChatMessageMetadata, MessageType
 from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
@@ -38,12 +38,13 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.variables or [], 
             metadata.files or [],
             metadata.activeCellCode or '', 
+            metadata.activeCellOutput is not None and metadata.activeCellOutput != '',
             metadata.input
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.activeCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
@@ -61,3 +62,27 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
 
 # Use the static method directly
 get_chat_completion = ChatCompletionHandler.get_completion
+
+
+def create_ai_optimized_message(text: str, active_cell_output: Optional[str] = None) -> ChatCompletionMessageParam:
+    
+    # TODO: Rename param to base_64_active_cell_output
+    # TODO: Remove the image_url when cleaning old messages as well
+    if active_cell_output is not None and active_cell_output != '':
+       content = [
+            {
+                "type": "text",
+                "text": "What is in this image?",
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{active_cell_output}"},
+            }
+       ]
+    else:
+        content = text
+        
+    return {
+        "role": "user",
+        "content": content
+    }
