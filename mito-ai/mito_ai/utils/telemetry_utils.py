@@ -139,6 +139,7 @@ def log(
     if not is_running_test() and telemetry_turned_on():
         # TODO: If the user is in JupyterLite, we need to do some extra work.
         # You can see this in the mitosheet package. 
+        
         try:
             analytics.track(
                 get_user_field(UJ_STATIC_USER_ID), 

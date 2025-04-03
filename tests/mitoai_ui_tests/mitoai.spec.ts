@@ -28,6 +28,18 @@ import {
 
 test.describe.parallel('Mito AI Chat', () => {
 
+  test('AI Chat should open on Jupyter Launch', async ({ page }) => {
+
+    await createAndRunNotebookWithCells(page, []);
+    await waitForIdle(page);
+
+    // Expect the AI Chat is open
+    // Locate the "Clear the chat history" button
+    const clearButton = page.locator('button[title="Start New Chat"]');
+    expect(clearButton).toBeVisible()
+  
+  })
+
   test('Preview and Accept AI Generated Code', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);

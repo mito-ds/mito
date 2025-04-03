@@ -1,0 +1,85 @@
+name: Test - Mito SQL Cell
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-sql-cell/**'
+      - 'tests/mito_sql_ui_tests/**'
+      - '.github/workflows/test-mito-sql-cell.yml'
+  pull_request:
+    paths:
+      - 'mito-sql-cell/**'
+      - 'tests/mito_sql_ui_tests/**'
+      - '.github/workflows/test-mito-sql-cell.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-mito-sql-cell-jupyterlab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: |
+          mito-sql-cell/pyproject.toml
+          tests/requirements.txt
+    - run: corepack enable
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'yarn'
+        cache-dependency-path: |
+          mito-sql-cell/yarn.lock
+    - name: Upgrade pip
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install dependencies
+      run: |
+        cd tests
+        bash mac-setup.sh
+    - name: Setup JupyterLab
+      run: |
+        cd tests
+        source venv/bin/activate
+        cd ../mito-sql-cell
+        jupyter labextension develop . --overwrite
+        jupyter server extension enable --py mito_sql_cell
+    - name: Execute unit tests
+      working-directory: mito-sql-cell
+      run: |
+        pushd ../tests
+        source venv/bin/activate
+        popd
+
+        # Execute JavaScript unit tests
+        jlpm run test
+
+        # Execute Python unit tests
+        pytest
+      
+    - name: Start a server and run integration tests
+      run: |
+        cd tests
+        source venv/bin/activate
+        jupyter lab --config jupyter_server_test_config.py &
+        npm run test:mito-sql-cell
+    - name: Upload test-results
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: mitoai-jupyterlab-playwright-report-${{ matrix.python-version }}-${{ github.run_id }}
+        path: tests/playwright-report/
+        retention-days: 14
