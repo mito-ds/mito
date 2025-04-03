@@ -4,8 +4,17 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
-
+from typing import (
+    Any,
+    AsyncGenerator,
+    Dict,
+    List,
+    Optional,
+    Union,
+    Type,
+    TYPE_CHECKING,
+    Callable
+)
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
@@ -24,6 +33,7 @@ from mito_ai.models import (
     CompletionStreamChunk,
     MessageType,
     ResponseFormatInfo,
+    ThreadID
 )
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
@@ -40,6 +50,10 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
+
+# Use TYPE_CHECKING to avoid circular imports
+if TYPE_CHECKING:
+    from mito_ai.message_history import GlobalMessageHistory
 
 __all__ = ["OpenAIProvider"]
 
@@ -368,3 +382,48 @@ This attribute is observed by the websocket provider to push the error to the cl
                     error=CompletionError.from_exception(e),
                 )
                 break
+
+    async def stream_and_save_completions(
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        model: str,
+        message_id: str,
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None
+    ) -> str:
+        """
+        Stream completions from the OpenAI API and return the accumulated response.
+        
+        Args:
+            message_type: The type of message to request completions for.
+            messages: The messages to request completions for.
+            model: The model to request completions for.
+            message_id: The message ID to track the request.
+            response_format_info: Optional response format information.
+            reply_fn: Optional function to call with each chunk for streaming replies.
+            
+        Returns:
+            The accumulated response string.
+        """
+        # Create a request object for the streaming
+        request = CompletionRequest(
+            type=message_type,
+            message_id=message_id,
+            messages=messages,
+            stream=True
+        )
+        
+        # Use a string buffer to accumulate the full response
+        accumulated_response = ""
+        
+        # Stream completions 
+        async for reply in self.stream_completions(request, message_type, model):
+            if isinstance(reply, CompletionStreamChunk):
+                accumulated_response += reply.chunk.content
+                if reply_fn:
+                    reply_fn(reply)
+            elif reply_fn:
+                reply_fn(reply)
+        
+        return accumulated_response

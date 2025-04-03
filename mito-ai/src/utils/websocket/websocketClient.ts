@@ -208,6 +208,8 @@ export class CompletionWebsocketClient implements IDisposable {
      */
     switch (message.type) {
       case 'chunk': {
+        // To see the stream in action, uncomment the following line
+        // console.log(`[Mito AI Stream] ${message.done ? 'FINAL' : ''} Chunk:`, message.chunk.content);
         this._stream.emit(message);
         break;
       }
