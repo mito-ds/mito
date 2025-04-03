@@ -389,8 +389,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         messages: List[ChatCompletionMessageParam],
         model: str,
         message_id: str,
-        thread_id: ThreadID,
-        message_history: Optional["GlobalMessageHistory"] = None,
         response_format_info: Optional[ResponseFormatInfo] = None,
         reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None
     ) -> str:
@@ -402,8 +400,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             messages: The messages to request completions for.
             model: The model to request completions for.
             message_id: The message ID to track the request.
-            thread_id: The thread ID to track the request.
-            message_history: Optional message history to append the result to.
             response_format_info: Optional response format information.
             reply_fn: Optional function to call with each chunk for streaming replies.
             

@@ -111,7 +111,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             messages=message_history.get_ai_optimized_history(metadata.threadId),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_id=message_id,
-            thread_id=metadata.threadId,
             reply_fn=reply_fn
         )
 
