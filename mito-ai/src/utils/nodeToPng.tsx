@@ -9,8 +9,12 @@ import html2canvas from 'html2canvas';
  * 3. Capturing the clone using html2canvas
  * 4. Converting the result to a base64-encoded PNG
  * 
+ * Note: This function is optimized for Chrome browsers and may be slow or 
+ * unreliable in other browsers like Safari.
+ * 
  * @param node - The DOM element to capture
  * @returns Promise<string> - Base64-encoded PNG data (without data URL prefix)
+ *         or undefined if capture is skipped (non-Chrome browsers) or fails
  * @throws Error if node is null or capture fails
  * 
  * @example
@@ -20,6 +24,16 @@ import html2canvas from 'html2canvas';
  * ```
  */
 export const captureNode = async (node: HTMLElement): Promise<string | undefined> => {
+    // Check if browser is Chrome
+    // TODO: Turn this into a helper function
+    const isChrome = /chrome/i.test(navigator.userAgent) && !/edge|edg/i.test(navigator.userAgent);
+    
+    if (!isChrome) {
+        console.log('Node capture skipped: This feature is optimized for Chrome browsers');
+        return undefined;
+    }
+
+    console.log('capturing node')
     try {
         if (!node) {
             throw new Error('No node provided');
@@ -38,7 +52,9 @@ export const captureNode = async (node: HTMLElement): Promise<string | undefined
 
         try {
             // Perform the capture
+            console.log('performing capture')
             const canvas = await html2canvas(clone, getHtml2CanvasOptions(node));
+            console.log('capture complete')
             return canvas.toDataURL('image/png').split(',')[1]
         } finally {
             // Clean up

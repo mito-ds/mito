@@ -8,6 +8,7 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from './websocket/models';
+import { captureNode } from './nodeToPng';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
@@ -45,20 +46,18 @@ export const getCellOutputByID = async (app: JupyterFrontEnd, notebookTracker: I
 
     console.log('calling this function')
 
-    return 
-
-    // const notebook = notebookTracker.currentWidget?.content;
-    // const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
-    // if (cell instanceof CodeCell) {
-    //     console.log('cell', cell.outputArea?.node);
-    //     const outputNode = cell.outputArea?.node;
-    //     if (outputNode) {
-    //         console.log('outputNode', outputNode)
-    //         const image = await captureNode(outputNode);
-    //         console.log('image', image)
-    //     }
-    // }
-    // return 'test'
+    const notebook = notebookTracker.currentWidget?.content;
+    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    if (cell instanceof CodeCell) {
+        console.log('cell', cell.outputArea?.node);
+        const outputNode = cell.outputArea?.node;
+        if (outputNode) {
+            console.log('outputNode', outputNode)
+            const image = await captureNode(outputNode);
+            console.log('image', image)
+        }
+    }
+    return 'test'
 }
 
 export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
