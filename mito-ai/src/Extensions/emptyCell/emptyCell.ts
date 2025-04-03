@@ -35,7 +35,6 @@ const adviceTheme = EditorView.baseTheme({
  * A facet that stores the chat shortcut.
  */
 const adviceText = Facet.define<string, string>({
-  // @ts-expect-error - Ignoring this error because I don't want to mess with codemirror for now
   combine: values => (values.length ? values[values.length - 1] : '')
 });
 

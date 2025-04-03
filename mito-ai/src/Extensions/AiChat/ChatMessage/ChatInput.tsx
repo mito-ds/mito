@@ -176,8 +176,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
+    const [activeCellOutput, setActiveCellOutput] = useState<any>(null);
 
-    const activeCellOutput = getCellOutputByID(app, notebookTracker, activeCellID)
+    useEffect(() => {
+        // Only get and set the cell output when activeCellID changes
+        const output = getCellOutputByID(app, notebookTracker, activeCellID);
+        setActiveCellOutput(output);
+        
+        // Only log when the output changes
+        if (output) {
+            console.log('Cell output updated:', output);
+        }
+    }, [activeCellID, app, notebookTracker]);
+
     console.log(activeCellOutput)
 
     return (
