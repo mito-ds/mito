@@ -38,6 +38,11 @@ export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: s
     return cell?.model.sharedModel.source
 }
 
+export const getActiveCellOutput = async (notebookTracker: INotebookTracker): Promise<string | undefined> => {
+    const activeCellID = getActiveCellID(notebookTracker)
+    return getCellOutputByID(notebookTracker, activeCellID)
+}
+
 export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeCellID: string | undefined): Promise<string | undefined> => {
     if (codeCellID === undefined) {
         return undefined
