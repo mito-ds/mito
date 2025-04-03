@@ -2,6 +2,11 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mito_ai.models import AgentExecutionMetadata
+from mito_ai.prompt_builders.prompt_constants import (
+    FILES_SECTION_HEADING,
+    JUPYTER_NOTEBOOK_SECTION_HEADING,
+    VARIABLES_SECTION_HEADING
+)
 
 
 def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
@@ -10,13 +15,13 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
     
     context_str = f"""
-Jupyter Notebook:
+{JUPYTER_NOTEBOOK_SECTION_HEADING}
 {ai_optimized_cells_str}
 
-Defined Variables:
+{VARIABLES_SECTION_HEADING}
 {variables_str}
 
-Files in the current directory:
+{FILES_SECTION_HEADING}
 {files_str}"""
 
     task_str = '' if md.input == '' else f"""Your task: 
