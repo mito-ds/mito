@@ -11,7 +11,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 import { Compartment, StateEffect } from '@codemirror/state';
 import OpenAI from "openai";
-import React, { useEffect, useRef, useState, useReducer } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
@@ -136,7 +136,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
-    const [, forceUpdate] = useReducer(x => x + 1, 0);
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
 
@@ -500,15 +499,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
-                // Force a re-render to update the UI
-                forceUpdate();
-
-                // Update chat history with the complete accumulated content
-                newChatHistoryManager.addStreamingAIMessage(
+                // Create a new chat history manager instance to ensure React detects the state change
+                const updatedChatHistoryManager = newChatHistoryManager.createDuplicateChatHistoryManager();
+                updatedChatHistoryManager.addStreamingAIMessage(
                     streamingContentRef.current, 
                     completionRequest.metadata.promptType,
                 );
-                setChatHistoryManager(newChatHistoryManager);
+                setChatHistoryManager(updatedChatHistoryManager);
             };
             
             // Store the handler for later cleanup
