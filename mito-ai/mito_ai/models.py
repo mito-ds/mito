@@ -65,6 +65,7 @@ class ChatMessageMetadata():
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     index: Optional[int] = None
+    stream: bool = False
     
 @dataclass(frozen=True)
 class AgentExecutionMetadata():
