@@ -338,7 +338,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'smartDebug',
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
