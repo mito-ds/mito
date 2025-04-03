@@ -195,13 +195,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 # Handle streaming if requested and available
                 if stream and self._llm.can_stream:
                     # Use stream_chat_completion to stream the response
-                    async for chunk in stream_chat_completion(
+                    await stream_chat_completion(
                         chat_metadata, 
                         self._llm, 
                         message_history, 
                         message_id,
-                    ):
-                        self.reply(chunk)                    
+                        self.reply
+                    )
                     return
                 else:
                     # Regular non-streaming completion

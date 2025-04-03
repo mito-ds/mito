@@ -4,8 +4,17 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type, TYPE_CHECKING
-
+from typing import (
+    Any,
+    AsyncGenerator,
+    Dict,
+    List,
+    Optional,
+    Union,
+    Type,
+    TYPE_CHECKING,
+    Callable
+)
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
@@ -382,8 +391,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         message_id: str,
         thread_id: ThreadID,
         message_history: Optional["GlobalMessageHistory"] = None,
-        response_format_info: Optional[ResponseFormatInfo] = None
-    ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None
+    ) -> str:
         """
         Stream completions from the OpenAI API and save the accumulated response to message history.
         
@@ -395,9 +405,10 @@ This attribute is observed by the websocket provider to push the error to the cl
             thread_id: The thread ID to track the request.
             message_history: Optional message history to append the result to.
             response_format_info: Optional response format information.
+            reply_fn: Optional function to call with each chunk for streaming replies.
             
         Returns:
-            An async generator yielding completion chunks.
+            The accumulated response string.
         """
         # Create a request object for the streaming
         request = CompletionRequest(
@@ -414,9 +425,10 @@ This attribute is observed by the websocket provider to push the error to the cl
         async for reply in self.stream_completions(request, message_type, model):
             if isinstance(reply, CompletionStreamChunk):
                 accumulated_response += reply.chunk.content
-            
-            # Yield the chunk to the caller
-            yield reply
+                if reply_fn:
+                    reply_fn(reply)
+            elif reply_fn:
+                reply_fn(reply)
         
         # Save the accumulated response to the message history if provided
         if message_history is not None and message_type != MessageType.INLINE_COMPLETION:
@@ -432,4 +444,4 @@ This attribute is observed by the websocket provider to push the error to the cl
                 thread_id=thread_id
             )
         
-        return
+        return accumulated_response

@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Union, Optional, AsyncGenerator
+from typing import List, Union, Optional, AsyncGenerator, Callable
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
@@ -65,8 +65,9 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         metadata: ChatMessageMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        message_id: str
-    ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
+        message_id: str,
+        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]
+    ) -> str:
         """Stream chat completions from the AI provider.
         
         Args:
@@ -74,9 +75,10 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             provider: The AI provider to use.
             message_history: The message history for this conversation.
             message_id: The ID of the message being processed.
+            reply_fn: Function to call with each chunk for streaming replies.
             
         Returns:
-            An async generator yielding completion chunks.
+            The accumulated response string.
         """
         index = metadata.index
 
@@ -104,15 +106,15 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Stream the completions using the provider's stream method
-        async for chunk in provider.stream_and_save_completions(
+        return await provider.stream_and_save_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_id=message_id,
             thread_id=metadata.threadId,
-            message_history=message_history
-        ):
-            yield chunk
+            message_history=message_history,
+            reply_fn=reply_fn
+        )
 
 # Use the static methods directly
 get_chat_completion = ChatCompletionHandler.get_completion
