@@ -376,7 +376,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'codeExplain',
             message_id: UUID.uuid4(),
             metadata: explainCodeMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(explainCompletionRequest, newChatHistoryManager)
 
