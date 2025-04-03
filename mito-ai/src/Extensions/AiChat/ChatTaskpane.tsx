@@ -554,6 +554,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
                 setLoadingAIResponse(false);
+                console.log('Loading AI response set to false');
             }
         } else {
             // NON-STREAMING RESPONSES
