@@ -480,7 +480,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
             if (aiResponse.error) {
-                console.error('Error calling OpenAI API:', aiResponse.error);
+                console.group('Error calling OpenAI API:');
+                console.error('Title:', aiResponse.error.title);
+                console.error('Type:', aiResponse.error.error_type);
+                console.error('Hint:', aiResponse.error.hint);
+                console.log('Full Error Details:', aiResponse.error);
+                console.groupEnd();
+                
+                // Log traceback separately to preserve formatting
+                if (aiResponse.error.traceback) {
+                    console.group('Error Traceback:');
+                    console.error(aiResponse.error.traceback);
+                    console.groupEnd();
+                }
+
                 addAIMessageFromResponseAndUpdateState(
                     aiResponse.error.hint
                         ? aiResponse.error.hint
