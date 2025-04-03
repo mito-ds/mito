@@ -395,7 +395,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None
     ) -> str:
         """
-        Stream completions from the OpenAI API and save the accumulated response to message history.
+        Stream completions from the OpenAI API and return the accumulated response.
         
         Args:
             message_type: The type of message to request completions for.
@@ -429,19 +429,5 @@ This attribute is observed by the websocket provider to push the error to the cl
                     reply_fn(reply)
             elif reply_fn:
                 reply_fn(reply)
-        
-        # Save the accumulated response to the message history if provided
-        if message_history is not None and message_type != MessageType.INLINE_COMPLETION:
-            ai_response_message: ChatCompletionMessageParam = {
-                "role": "assistant", 
-                "content": accumulated_response
-            }
-            # Note: We need to import message_history inside the function to avoid circular imports
-            await message_history.append_message(
-                ai_optimized_message=ai_response_message,
-                display_message=ai_response_message,
-                llm_provider=self,
-                thread_id=thread_id
-            )
         
         return accumulated_response

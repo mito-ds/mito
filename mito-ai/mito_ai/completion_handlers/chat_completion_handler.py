@@ -106,15 +106,25 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Stream the completions using the provider's stream method
-        return await provider.stream_and_save_completions(
+        accumulated_response = await provider.stream_and_save_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_id=message_id,
             thread_id=metadata.threadId,
-            message_history=message_history,
             reply_fn=reply_fn
         )
+
+        # Save the accumulated response to message history
+        ai_response_message: ChatCompletionMessageParam = {
+            "role": "assistant",
+            "content": accumulated_response,
+        }
+        await message_history.append_message(
+            ai_response_message, ai_response_message, provider, metadata.threadId
+        )
+
+        return accumulated_response
 
 # Use the static methods directly
 get_chat_completion = ChatCompletionHandler.get_completion
