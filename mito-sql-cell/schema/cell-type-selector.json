@@ -1,0 +1,20 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "jupyter.lab.toolbars": {
+    "Notebook": [
+      {
+        "name": "cellType",
+        "disabled": true
+      },
+      {
+        "name": "cellTypeSelector",
+        "rank": 40
+      }
+    ]
+  },
+  "title": "mito-sql-cell",
+  "description": "mito-sql-cell settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}

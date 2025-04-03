@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Union, Type
+from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Union, Callable
 
 import openai
 from openai._streaming import AsyncStream
@@ -24,6 +24,7 @@ from mito_ai.models import (
     CompletionStreamChunk,
     MessageType,
     ResponseFormatInfo,
+    ThreadID
 )
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
@@ -278,7 +279,14 @@ This attribute is observed by the websocket provider to push the error to the cl
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+            log(
+                MITO_AI_COMPLETION_ERROR, 
+                params={
+                    KEY_TYPE_PARAM: key_type,
+                    'message_type': message_type.value,
+                },
+                error=e
+            )
             raise
 
 
@@ -329,7 +337,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: USER_KEY}, error=e)
+            log(
+                MITO_AI_COMPLETION_ERROR, 
+                params={
+                    KEY_TYPE_PARAM: USER_KEY,
+                    'message_type': message_type.value,
+                },
+                error=e
+            )
             raise
 
         async for chunk in stream:
@@ -360,3 +375,50 @@ This attribute is observed by the websocket provider to push the error to the cl
                     error=CompletionError.from_exception(e),
                 )
                 break
+
+    async def stream_and_save_completions(
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        model: str,
+        message_id: str,
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None
+    ) -> str:
+        """
+        Stream completions from the OpenAI API and return the accumulated response.
+        
+        Args:
+            message_type: The type of message to request completions for.
+            messages: The messages to request completions for.
+            model: The model to request completions for.
+            message_id: The message ID to track the request.
+            response_format_info: Optional response format information.
+            reply_fn: Optional function to call with each chunk for streaming replies.
+            
+        Returns:
+            The accumulated response string.
+        """
+        # Create a request object for the streaming
+        request = CompletionRequest(
+            type=message_type,
+            message_id=message_id,
+            messages=messages,
+            stream=True
+        )
+        
+        # Use a string buffer to accumulate the full response
+        accumulated_response = ""
+        
+        # Stream completions 
+        async for reply in self.stream_completions(request, message_type, model):
+            
+            # Always call reply_fn if it exists, regardless of reply type
+            if reply_fn:
+                reply_fn(reply)
+            
+            # Only accumulate content from actual completion chunks
+            if isinstance(reply, CompletionStreamChunk):
+                accumulated_response += reply.chunk.content
+        
+        return accumulated_response
