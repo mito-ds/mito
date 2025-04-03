@@ -129,7 +129,7 @@ def update_mito_server_quota(message_type: MessageType) -> None:
     if message_type == MessageType.INLINE_COMPLETION:
         # Increment autocomplete count
         autocomplete_count = get_autocomplete_count()
-        autocomplete_count = autocomplete_count + 1
+        autocomplete_count = 1 if autocomplete_count is None else autocomplete_count + 1
         
         try:
             set_user_field(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, autocomplete_count)
@@ -138,7 +138,7 @@ def update_mito_server_quota(message_type: MessageType) -> None:
     else:
         # Increment chat completion count
         completion_count = get_chat_completion_count()
-        completion_count = completion_count + 1
+        completion_count = 1 if completion_count is None else completion_count + 1
         
         try:
             set_user_field(UJ_AI_MITO_API_NUM_USAGES, completion_count)
