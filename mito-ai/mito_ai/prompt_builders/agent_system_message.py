@@ -192,7 +192,7 @@ RULES FOR CITING YOUR WORK
 
 It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use the following JSON format inline in your response:
 
-{"type": "citation", "cell_id": "[cell_id]", "line": [line_number]}
+{{"type": "citation", "cell_id": "<cell_id>", "line": "<line_number>"}}
 
 Citation Rules:
 
@@ -291,8 +291,8 @@ Your task:
 Output:
 {{
     is_finished: true, 
-    message: "The all time high tesla stock closing price was $265.91 {"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": 1}
- on 2025-03-16 {"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": 2}.",
+    message: "The all time high tesla stock closing price was $265.91 {{"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": "1"}}
+ on 2025-03-16 {{"type": "citation", "cell_id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8", "line": "2"}}.",
     cell_update: null
 }}
 
