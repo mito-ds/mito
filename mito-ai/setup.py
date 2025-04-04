@@ -94,6 +94,8 @@ setup(
         "tornado>=6.2.0",
         "traitlets",
         "pydantic",
+        "ollama",
+        "aiohttp",
     ],
     extras_require = {
         'deploy': [
