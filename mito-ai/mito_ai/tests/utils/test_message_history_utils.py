@@ -348,7 +348,7 @@ def test_trim_old_messages_fewer_than_keep_recent():
     assistant_content = result[1].get("content")
     assert isinstance(assistant_content, str)
     assert assistant_content == "Assistant message 1"
-    
+
 
 def test_trim_mixed_content_messages():
     """

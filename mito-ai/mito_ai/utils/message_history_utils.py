@@ -71,8 +71,6 @@ def trim_old_messages(messages: List[ChatCompletionMessageParam], keep_recent: i
                     text_content = section["text"]
                     break
                 
-            # TODO: We need to write tests for this!
-                
             messages[i]["content"] = trim_sections_from_message_content(text_content)        
 
 

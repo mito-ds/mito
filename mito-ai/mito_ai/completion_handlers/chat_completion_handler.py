@@ -39,13 +39,13 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.variables or [], 
             metadata.files or [],
             metadata.activeCellCode or '', 
-            metadata.activeCellOutput is not None and metadata.activeCellOutput != '',
+            metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
             metadata.input
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.activeCellOutput)
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         
         
@@ -100,13 +100,13 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.variables or [], 
             metadata.files or [],
             metadata.activeCellCode or '', 
-            metadata.activeCellOutput is not None and metadata.activeCellOutput != '',
+            metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
             metadata.input
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.activeCellOutput)
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         

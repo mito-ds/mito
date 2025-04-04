@@ -65,7 +65,7 @@ export interface IChatMessageMetadata {
   variables?: Variable[];
   files?: File[];
   activeCellCode?: string;
-  activeCellOutput?: string;
+  base64EncodedActiveCellOutput?: string;
   input: string;
   index?: number;
   threadId: string;

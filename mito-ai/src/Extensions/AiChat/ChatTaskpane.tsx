@@ -438,7 +438,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // to the chat.
         const activeCellOutput = await getActiveCellOutput(notebookTracker)
         if (activeCellOutput !== undefined) {
-            chatMessageMetadata.activeCellOutput = activeCellOutput
+            chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
         }
         
         const completionRequest: IChatCompletionRequest = {
