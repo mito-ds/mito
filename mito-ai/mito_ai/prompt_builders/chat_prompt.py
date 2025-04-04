@@ -5,7 +5,8 @@ from typing import List
 from mito_ai.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING
+    CODE_SECTION_HEADING,
+    get_active_cell_output_str
 )
 
 
@@ -18,7 +19,7 @@ def create_chat_prompt(
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
-    # TODO: If there is active cell output, share it with the AI. 
+    
     prompt = f"""You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
 
 There are two possible types of responses you might give:
@@ -76,6 +77,8 @@ Converted the `transaction_date` column to datetime using the built-in pd.to_dat
 ```python
 {active_cell_code}
 ```
+
+{get_active_cell_output_str(has_active_cell_output)}
 
 Your task: {input}
 """
