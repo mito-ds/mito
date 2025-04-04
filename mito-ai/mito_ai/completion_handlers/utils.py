@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import Optional
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.models import ThreadID
 from mito_ai.providers import OpenAIProvider
@@ -56,3 +57,24 @@ async def append_agent_system_message(
         llm_provider=provider,
         thread_id=thread_id
     )
+    
+def create_ai_optimized_message(text: str, active_cell_output: Optional[str] = None) -> ChatCompletionMessageParam:
+
+    if active_cell_output is not None and active_cell_output != '':
+       content = [
+            {
+                "type": "text",
+                "text": text,
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{active_cell_output}"},
+            }
+       ]
+    else:
+        content = text
+        
+    return {
+        "role": "user",
+        "content": content
+    }

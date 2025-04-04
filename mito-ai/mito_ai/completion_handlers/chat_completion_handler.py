@@ -1,16 +1,16 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Union, Optional, AsyncGenerator, Callable
+from typing import Union, Callable
 
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
+from mito_ai.models import ChatMessageMetadata, MessageType, CompletionStreamChunk, CompletionReply
 from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.completion_handlers.utils import append_chat_system_message
+from mito_ai.completion_handlers.utils import append_chat_system_message, create_ai_optimized_message
 
 __all__ = ["get_chat_completion", "stream_chat_completion"]
 
@@ -135,26 +135,3 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
 # Use the static methods directly
 get_chat_completion = ChatCompletionHandler.get_completion
 stream_chat_completion = ChatCompletionHandler.stream_completion
-
-def create_ai_optimized_message(text: str, active_cell_output: Optional[str] = None) -> ChatCompletionMessageParam:
-    
-    # TODO: Remove the image_url when cleaning old messages as well
-    # TODO: Move to utils somewhere relevant for other chat types
-    if active_cell_output is not None and active_cell_output != '':
-       content = [
-            {
-                "type": "text",
-                "text": "What is in this image?",
-            },
-            {
-                "type": "image_url",
-                "image_url": {"url": f"data:image/png;base64,{active_cell_output}"},
-            }
-       ]
-    else:
-        content = text
-        
-    return {
-        "role": "user",
-        "content": content
-    }

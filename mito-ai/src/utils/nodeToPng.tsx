@@ -1,4 +1,5 @@
 import html2canvas from 'html2canvas';
+import { isChromeBasedBrowser } from './user';
 
 /**
  * Captures a DOM element as a PNG image with preserved styles.
@@ -10,30 +11,16 @@ import html2canvas from 'html2canvas';
  * 4. Converting the result to a base64-encoded PNG
  * 
  * Note: This function is optimized for Chrome browsers and may be slow or 
- * unreliable in other browsers like Safari.
- * 
- * @param node - The DOM element to capture
- * @returns Promise<string> - Base64-encoded PNG data (without data URL prefix)
- *         or undefined if capture is skipped (non-Chrome browsers) or fails
- * @throws Error if node is null or capture fails
- * 
- * @example
- * ```typescript
- * const base64Image = await captureNode(document.querySelector('.my-element'));
- * // Use base64Image...
- * ```
+ * unreliable in other browsers like Safari, so we skip the capture if the 
+ * browser is not Chrome based.
  */
 export const captureNode = async (node: HTMLElement): Promise<string | undefined> => {
-    // Check if browser is Chrome
-    // TODO: Turn this into a helper function
-    const isChrome = /chrome/i.test(navigator.userAgent) && !/edge|edg/i.test(navigator.userAgent);
-    
-    if (!isChrome) {
+
+    if (!isChromeBasedBrowser()) {
         console.log('Node capture skipped: This feature is optimized for Chrome browsers');
         return undefined;
     }
-
-    console.log('capturing node')
+    
     try {
         if (!node) {
             throw new Error('No node provided');
