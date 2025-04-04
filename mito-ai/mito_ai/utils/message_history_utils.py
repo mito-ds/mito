@@ -8,6 +8,7 @@ from mito_ai.prompt_builders.prompt_constants import (
     CONTENT_REMOVED_PLACEHOLDER
 )
 
+
 def trim_sections_from_message_content(content) -> str:
     """
     Removes specific metadata sections from message content to reduce token count so
@@ -48,8 +49,31 @@ def trim_old_messages(messages: List[ChatCompletionMessageParam], keep_recent: i
     # We want to not edit the system messages, as they contain important information / examples.
     for i in range(len(messages) - keep_recent):
         content = messages[i].get("content")
+        
         is_user_message = messages[i].get("role") == "user"
-        if is_user_message and content is not None:
+        if not is_user_message: 
+            continue
+        
+        content = messages[i].get("content")
+        
+        if content is None:
+            continue
+        
+        if isinstance(content, str):
+            # If content is just a string, then we just trim the metadata sections
             messages[i]["content"] = trim_sections_from_message_content(content)
+        else: 
+            # Otherwise, we get rid of the image_url section and just keep the trimmed text
+            # We assume that there is only one text section in the content
+            text_content = ""
+            for section in content:
+                if section.get("type") == "text" and "text" in section:
+                    text_content = section["text"]
+                    break
+                
+            # TODO: We need to write tests for this!
+                
+            messages[i]["content"] = trim_sections_from_message_content(text_content)        
+
 
     return messages

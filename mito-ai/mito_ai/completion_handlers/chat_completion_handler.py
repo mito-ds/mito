@@ -105,9 +105,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
-        
-        print("ACTIVE CELL OUTPUT", metadata.activeCellOutput)
-        
         # Add the prompt to the message history
         new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.activeCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
