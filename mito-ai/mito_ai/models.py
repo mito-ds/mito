@@ -64,6 +64,8 @@ class ChatMessageMetadata():
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
+    # Rename to something with base64 encoded
+    activeCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
     

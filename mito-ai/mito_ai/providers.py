@@ -221,7 +221,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
-        response_format_info: Optional[ResponseFormatInfo] = None
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        last_message_content: Optional[str] = None,
+        user_input: Optional[str] = None
     ) -> str:
         """
         Request completions from the OpenAI API.
@@ -269,7 +271,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             log_ai_completion_success(
                 key_type=self.key_type,
                 message_type=message_type,
-                last_message_content=str(messages[-1].get('content', '')),
+                user_input=user_input,
+                last_message_content=last_message_content,
                 response={"completion": completion},
             )
             

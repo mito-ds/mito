@@ -84,7 +84,7 @@ export class ChatHistoryManager {
         );
     }
 
-    addChatInputMessage(input: string, activeThreadId: string): IChatMessageMetadata {
+    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
 
@@ -94,7 +94,8 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
             input: input,
-            threadId: activeThreadId
+            threadId: activeThreadId,
+            index: messageIndex
         }
 
         this.displayOptimizedChatHistory.push(
@@ -264,28 +265,6 @@ export class ChatHistoryManager {
         );
     }
 
-    addStreamingAIMessage(
-        messageContent: string,
-        promptType: PromptType
-    ): void {
-        // Find the last AI message in the history
-        const lastAIMessageIndex = this.getLastAIMessageIndex();
-        
-        if (
-            lastAIMessageIndex === undefined || 
-            this.displayOptimizedChatHistory.length !== lastAIMessageIndex + 1
-        ) {
-            // If no AI message exists, create a new one
-            this.addAIMessageFromResponse(messageContent, promptType);
-        } else {
-            // Update the last AI message with the new content
-            const lastMessage = this.displayOptimizedChatHistory[lastAIMessageIndex];
-            if (lastMessage) {
-                lastMessage.message.content = messageContent;
-            }
-        }
-    }
-
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
 
         const code = agentResponse.cell_update?.code
@@ -312,10 +291,6 @@ export class ChatHistoryManager {
     }
 
     getLastAIMessageIndex = (): number | undefined => {
-        // We assume that assistant messages are always separated by user messages.
-        // This allows us to simply find the last assistant message in the history.
-        // If this invariant changes (e.g., if we need to support consecutive assistant messages),
-        // we should modify this to use message IDs instead.
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
             if (chatEntry.message.role === 'assistant') {

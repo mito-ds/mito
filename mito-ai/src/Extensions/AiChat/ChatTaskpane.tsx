@@ -36,7 +36,7 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
@@ -59,7 +59,6 @@ import {
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     AgentResponse,
-    ICompletionStreamChunk
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
@@ -135,9 +134,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
     const shouldContinueAgentExecution = useRef<boolean>(true);
-
-    const streamingContentRef = useRef<string>('');
-    const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
 
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
@@ -231,6 +227,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         }
     };
+
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
@@ -415,7 +412,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
+        // Step 0: Reject the previous AI generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add the user's message to the chat history
@@ -426,18 +423,29 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
         
-        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current)
-        if (messageIndex !== undefined) {
-            chatMessageMetadata.index = messageIndex
-        }
+        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current, messageIndex)
 
         setChatHistoryManager(newChatHistoryManager)
+        setLoadingAIResponse(true)
 
+        // Yield control briefly to allow React to re-render the UI
+        // A timeout of 0ms pushes the rest of the function to the next event loop cycle
+        // so we don't get stuck behind the slow getActiveCellOutput function.
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Add the active cell output to the metadata afterwards setting the chatHistoryManager so that 
+        // we don't have to wait on turning the output into a base64 image before we can add the user's message
+        // to the chat.
+        const activeCellOutput = await getActiveCellOutput(notebookTracker)
+        if (activeCellOutput !== undefined) {
+            chatMessageMetadata.activeCellOutput = activeCellOutput
+        }
+        
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',
             message_id: UUID.uuid4(),
             metadata: chatMessageMetadata,
-            stream: true
+            stream: false
         }
 
         // Step 2: Scroll to the bottom of the chat messages container
@@ -452,6 +460,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
+        // TODO: Can we move this into the _sendMessageAndSaveResponse function?
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
             const chatContainer = chatMessagesRef.current;
@@ -477,163 +486,59 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
-    const _sendMessageAndSaveResponse = async (
-        completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
-    ): Promise<boolean> => {
+    const _sendMessageAndSaveResponse = async (completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager): Promise<boolean> => {
         setLoadingAIResponse(true)
 
-        if (completionRequest.stream) {
-            // Reset the streaming response and set streaming state
-            streamingContentRef.current = '';
-            
-            // Disconnect any existing stream handler
-            if (streamHandlerRef.current) {
-                websocketClient.stream.disconnect(streamHandlerRef.current, null);
-                streamHandlerRef.current = null;
-            }
+        try {
+            const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
-            // Create the stream handler function and store it in the ref
-            const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {                
-                // Use a ref to accumulate the content properly
-                streamingContentRef.current += chunk.chunk.content;
-                
-                // Create a new chat history manager instance to ensure React detects the state change
-                const updatedChatHistoryManager = newChatHistoryManager.createDuplicateChatHistoryManager();
-                updatedChatHistoryManager.addStreamingAIMessage(
-                    streamingContentRef.current, 
-                    completionRequest.metadata.promptType,
+            if (aiResponse.error) {
+                console.error('Error calling OpenAI API:', aiResponse.error);
+                addAIMessageFromResponseAndUpdateState(
+                    aiResponse.error.hint
+                        ? aiResponse.error.hint
+                        : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
+                    completionRequest.metadata.promptType, // #TODO: Why are we storing the prompt type in the AI response?
+                    newChatHistoryManager,
+                    true,
+                    aiResponse.error.title
                 );
-                setChatHistoryManager(updatedChatHistoryManager);
-            };
-            
-            // Store the handler for later cleanup
-            streamHandlerRef.current = streamHandler;
-            
-            // Connect the handler
-            websocketClient.stream.connect(streamHandler, null);
+            } else {
+                const content = aiResponse.items[0]?.content ?? '';
 
-            try {
-                const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
-
-                if (aiResponse.error) {
-
-                    console.group('Error calling OpenAI API:');
-                    console.error('Title:', aiResponse.error.title);
-                    console.error('Type:', aiResponse.error.error_type);
-                    console.error('Hint:', aiResponse.error.hint);
-                    console.log('Full Error Details:', aiResponse.error);
-                    console.groupEnd();
-                    
-                    // Log traceback separately to preserve formatting
-                    if (aiResponse.error.traceback) {
-                        console.group('Error Traceback:');
-                        console.error(aiResponse.error.traceback);
-                        console.groupEnd();
-                    }
-
-                    addAIMessageFromResponseAndUpdateState(
-                        aiResponse.error.hint
-                            ? aiResponse.error.hint
-                            : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
-                        completionRequest.metadata.promptType,
-                        newChatHistoryManager,
-                        true,
-                        aiResponse.error.title
-                    );
+                if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
+                    // Agent:Execution prompts return a CellUpdate object that we need to parse
+                    const agentResponse: AgentResponse = JSON.parse(content)
+                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 } else {
-                    const content = aiResponse.items[0]?.content ?? '';
-
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
-                        // Agent:Execution prompts return a CellUpdate object that we need to parse
-                        const agentResponse: AgentResponse = JSON.parse(content)
-                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                    }
+                    // For all other prompt types, we can just add the content to the chat history
+                    aiResponse.items.forEach((item: any) => {
+                        newChatHistoryManager.addAIMessageFromResponse(
+                            item.content || '',
+                            completionRequest.metadata.promptType
+                        );
+                    });
+                    setChatHistoryManager(newChatHistoryManager);
                 }
-            } catch (error) {
-                addAIMessageFromResponseAndUpdateState(
-                    (error as any).title ? (error as any).title : `${error}`,
-                    'chat',
-                    newChatHistoryManager,
-                    false
-                );
-                addAIMessageFromResponseAndUpdateState(
-                    (error as any).hint ? (error as any).hint : `${error}`,
-                    completionRequest.metadata.promptType,
-                    newChatHistoryManager,
-                    true
-                )
-            } finally {
-                // Reset states to allow future messages to show the "Apply" button
-                setCodeReviewStatus('chatPreview');
-                setLoadingAIResponse(false);
             }
-        } else {
-            // NON-STREAMING RESPONSES
-            // Once we move everything to streaming, we can remove everything in this else block
-            try {
-                const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+        } catch (error) {
+            addAIMessageFromResponseAndUpdateState(
+                (error as any).title ? (error as any).title : `${error}`,
+                'chat',
+                newChatHistoryManager,
+                false
+            );
+            addAIMessageFromResponseAndUpdateState(
+                (error as any).hint ? (error as any).hint : `${error}`,
+                completionRequest.metadata.promptType,
+                newChatHistoryManager,
+                true
+            )
+        } finally {
+            // Reset states to allow future messages to show the "Apply" button
+            setCodeReviewStatus('chatPreview');
 
-                if (aiResponse.error) {
-
-                    console.group('Error calling OpenAI API:');
-                    console.error('Title:', aiResponse.error.title);
-                    console.error('Type:', aiResponse.error.error_type);
-                    console.error('Hint:', aiResponse.error.hint);
-                    console.log('Full Error Details:', aiResponse.error);
-                    console.groupEnd();
-                    
-                    // Log traceback separately to preserve formatting
-                    if (aiResponse.error.traceback) {
-                        console.group('Error Traceback:');
-                        console.error(aiResponse.error.traceback);
-                        console.groupEnd();
-                    }
-                    
-                    addAIMessageFromResponseAndUpdateState(
-                        aiResponse.error.hint
-                            ? aiResponse.error.hint
-                            : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
-                        completionRequest.metadata.promptType,
-                        newChatHistoryManager,
-                        true,
-                        aiResponse.error.title
-                    );
-                } else {
-                    const content = aiResponse.items[0]?.content ?? '';
-
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
-                        // Agent:Execution prompts return a CellUpdate object that we need to parse
-                        const agentResponse: AgentResponse = JSON.parse(content)
-                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                    } else {
-                        // For all other prompt types, we can just add the content to the chat history
-                        aiResponse.items.forEach((item: any) => {
-                            newChatHistoryManager.addAIMessageFromResponse(
-                                item.content || '',
-                                completionRequest.metadata.promptType
-                            );
-                        });
-                        setChatHistoryManager(newChatHistoryManager);
-                    }
-                }
-            } catch (error) {
-                addAIMessageFromResponseAndUpdateState(
-                    (error as any).title ? (error as any).title : `${error}`,
-                    'chat',
-                    newChatHistoryManager,
-                    false
-                );
-                addAIMessageFromResponseAndUpdateState(
-                    (error as any).hint ? (error as any).hint : `${error}`,
-                    completionRequest.metadata.promptType,
-                    newChatHistoryManager,
-                    true
-                )
-            } finally {
-                // Reset states to allow future messages to show the "Apply" button
-                setCodeReviewStatus('chatPreview');
-                setLoadingAIResponse(false);
-            }
+            setLoadingAIResponse(false);
         }
 
         return true

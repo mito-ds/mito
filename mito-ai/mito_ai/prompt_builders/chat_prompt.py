@@ -13,10 +13,12 @@ def create_chat_prompt(
     variables: List[str],
     files: List[str],
     active_cell_code: str, 
+    has_active_cell_output: bool,
     input: str
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
+    # TODO: If there is active cell output, share it with the AI. 
     prompt = f"""You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
 
 There are two possible types of responses you might give:

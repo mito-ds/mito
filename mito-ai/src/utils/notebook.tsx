@@ -7,6 +7,7 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from './websocket/models';
+import { captureNode } from './nodeToPng';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
@@ -35,6 +36,32 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
 export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {
     const cell = getCellByID(notebookTracker, codeCellID)
     return cell?.model.sharedModel.source
+}
+
+export const getActiveCellOutput = async (notebookTracker: INotebookTracker): Promise<string | undefined> => {
+    const activeCellID = getActiveCellID(notebookTracker)
+    return getCellOutputByID(notebookTracker, activeCellID)
+}
+
+export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeCellID: string | undefined): Promise<string | undefined> => {
+    if (codeCellID === undefined) {
+        return undefined
+    }
+
+    console.log('calling this function')
+
+    const notebook = notebookTracker.currentWidget?.content;
+    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    if (cell instanceof CodeCell) {
+        console.log('cell', cell.outputArea?.node);
+        const outputNode = cell.outputArea?.node;
+        if (outputNode) {
+            console.log('outputNode', outputNode)
+            const image = await captureNode(outputNode);
+            return image;
+        }
+    }
+    return undefined
 }
 
 export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
@@ -258,4 +285,3 @@ export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, 
         }, 500);
     }
 }
-

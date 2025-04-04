@@ -51,7 +51,8 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
                 name='agent_response',
                 format=AgentResponse
             ),
-            message_type=MessageType.AGENT_EXECUTION
+            message_type=MessageType.AGENT_EXECUTION,
+            user_input=metadata.input
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}

@@ -39,20 +39,24 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.variables or [], 
             metadata.files or [],
             metadata.activeCellCode or '', 
+            metadata.activeCellOutput is not None and metadata.activeCellOutput != '',
             metadata.input
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.activeCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
+        
+        
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Get the completion (non-streaming)
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
-            message_type=MessageType.CHAT
+            message_type=MessageType.CHAT,
+            user_input=metadata.input
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
@@ -96,12 +100,16 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.variables or [], 
             metadata.files or [],
             metadata.activeCellCode or '', 
+            metadata.activeCellOutput is not None and metadata.activeCellOutput != '',
             metadata.input
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
+        
+        print("ACTIVE CELL OUTPUT", metadata.activeCellOutput)
+        
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.activeCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
@@ -119,6 +127,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             "role": "assistant",
             "content": accumulated_response,
         }
+        
+        
         await message_history.append_message(
             ai_response_message, ai_response_message, provider, metadata.threadId
         )
@@ -128,3 +138,26 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
 # Use the static methods directly
 get_chat_completion = ChatCompletionHandler.get_completion
 stream_chat_completion = ChatCompletionHandler.stream_completion
+
+def create_ai_optimized_message(text: str, active_cell_output: Optional[str] = None) -> ChatCompletionMessageParam:
+    
+    # TODO: Remove the image_url when cleaning old messages as well
+    # TODO: Move to utils somewhere relevant for other chat types
+    if active_cell_output is not None and active_cell_output != '':
+       content = [
+            {
+                "type": "text",
+                "text": "What is in this image?",
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{active_cell_output}"},
+            }
+       ]
+    else:
+        content = text
+        
+    return {
+        "role": "user",
+        "content": content
+    }
