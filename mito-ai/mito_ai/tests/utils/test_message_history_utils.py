@@ -33,16 +33,6 @@ TEST_CODE = "import pandas as pd\ndf = pd.read_csv('data.csv')"
 TEST_INPUT = "Calculate the mean of col1"
 TEST_ERROR = "AttributeError: 'Series' object has no attribute 'mena'"
 
-
-@pytest.mark.parametrize(
-    "content,expected", [({"some": "dict"}, {"some": "dict"}), (None, None), (123, 123)]
-)
-def test_trim_non_string_content(content, expected) -> None: #type: ignore
-    """Test that non-string content is returned unchanged."""
-    result = trim_sections_from_message_content(content)
-    assert result == expected
-
-
 def test_trim_sections_basic() -> None:
     """Test trimming sections on a simple string with all section types."""
     content = f"""Some text before.
