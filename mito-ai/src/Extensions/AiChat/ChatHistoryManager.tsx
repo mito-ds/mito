@@ -265,6 +265,28 @@ export class ChatHistoryManager {
         );
     }
 
+    addStreamingAIMessage(
+        messageContent: string,
+        promptType: PromptType
+    ): void {
+        // Find the last AI message in the history
+        const lastAIMessageIndex = this.getLastAIMessageIndex();
+        
+        if (
+            lastAIMessageIndex === undefined || 
+            this.displayOptimizedChatHistory.length !== lastAIMessageIndex + 1
+        ) {
+            // If no AI message exists, create a new one
+            this.addAIMessageFromResponse(messageContent, promptType);
+        } else {
+            // Update the last AI message with the new content
+            const lastMessage = this.displayOptimizedChatHistory[lastAIMessageIndex];
+            if (lastMessage) {
+                lastMessage.message.content = messageContent;
+            }
+        }
+    }
+
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
 
         const code = agentResponse.cell_update?.code

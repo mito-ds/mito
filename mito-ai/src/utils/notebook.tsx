@@ -48,15 +48,11 @@ export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeC
         return undefined
     }
 
-    console.log('calling this function')
-
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
     if (cell instanceof CodeCell) {
-        console.log('cell', cell.outputArea?.node);
         const outputNode = cell.outputArea?.node;
         if (outputNode) {
-            console.log('outputNode', outputNode)
             const image = await captureNode(outputNode);
             return image;
         }
@@ -105,9 +101,6 @@ export const writeCodeToCellByID = (
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
-
-    console.log("codeMirrorValidCode", codeMirrorValidCode)
-    console.log("cell", cell)
 
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;

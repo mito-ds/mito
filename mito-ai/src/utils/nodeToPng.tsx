@@ -39,9 +39,7 @@ export const captureNode = async (node: HTMLElement): Promise<string | undefined
 
         try {
             // Perform the capture
-            console.log('performing capture')
             const canvas = await html2canvas(clone, getHtml2CanvasOptions(node));
-            console.log('capture complete')
             return canvas.toDataURL('image/png').split(',')[1]
         } finally {
             // Clean up
