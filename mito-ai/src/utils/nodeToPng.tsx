@@ -117,6 +117,7 @@ const preserveStyles = (sourceElement: HTMLElement, targetElement: HTMLElement):
  * @param node - Reference node for dimensioning
  * @returns html2canvas configuration object
  */
+// eslint-disable-next-line  @typescript-eslint/explicit-function-return-type
 const getHtml2CanvasOptions = (node: HTMLElement) => ({
     scale: window.devicePixelRatio,
     useCORS: true,
