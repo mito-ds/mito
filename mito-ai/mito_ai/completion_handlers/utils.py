@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Optional
+from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.models import ThreadID
 from mito_ai.providers import OpenAIProvider
@@ -60,8 +60,9 @@ async def append_agent_system_message(
     
 def create_ai_optimized_message(text: str, base64EncodedActiveCellOutput: Optional[str] = None) -> ChatCompletionMessageParam:
 
+    message_content: Union[str, List[Dict[str, Any]]]
     if base64EncodedActiveCellOutput is not None and base64EncodedActiveCellOutput != '':
-       content = [
+       message_content = [
             {
                 "type": "text",
                 "text": text,
@@ -72,9 +73,9 @@ def create_ai_optimized_message(text: str, base64EncodedActiveCellOutput: Option
             }
        ]
     else:
-        content = text
+        message_content = text
         
-    return {
+    return cast(ChatCompletionMessageParam, {
         "role": "user",
-        "content": content
-    }
+        "content": message_content
+    })

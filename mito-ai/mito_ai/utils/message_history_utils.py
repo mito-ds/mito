@@ -9,15 +9,13 @@ from mito_ai.prompt_builders.prompt_constants import (
 )
 
 
-def trim_sections_from_message_content(content) -> str:
+def trim_sections_from_message_content(content: str) -> str:
     """
     Removes specific metadata sections from message content to reduce token count so
     that users don't exceed the token limit for the LLM.
 
     These sections are replaced with a placeholder text.
     """
-    if not isinstance(content, str):
-        return content
 
     # Replace metadata sections with placeholders
     section_headings = [
@@ -68,7 +66,7 @@ def trim_old_messages(messages: List[ChatCompletionMessageParam], keep_recent: i
             text_content = ""
             for section in content:
                 if section.get("type") == "text" and "text" in section:
-                    text_content = section["text"]
+                    text_content = section["text"] #type: ignore
                     break
                 
             messages[i]["content"] = trim_sections_from_message_content(text_content)        
