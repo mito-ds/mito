@@ -11,6 +11,7 @@ FILES_SECTION_HEADING = "Files in the current directory:"
 VARIABLES_SECTION_HEADING = "Defined Variables:"
 CODE_SECTION_HEADING = "Code in the active code cell:"
 ACTIVE_CELL_OUTPUT_SECTION_HEADING = "Output of the active code cell:"
+CELL_UPDATE_OUTPUT_SECTION_HEADING = "Output of the code cell you just applied the CELL_UPDATE to:"
 JUPYTER_NOTEBOOK_SECTION_HEADING = "Jupyter Notebook:"
 
 # Placeholder text used when trimming content from messages

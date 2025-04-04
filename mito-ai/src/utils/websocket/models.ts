@@ -36,11 +36,25 @@ export type CellUpdateNew = {
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
-export type AgentResponse = {
-  is_finished: boolean;
-  message: string;
-  cell_update: CellUpdate | undefined | null;
+export type CellUpdateTool = {
+  type: 'cell_update'
+  message: string,
+  cell_update: CellUpdate,
 }
+
+export type GetCellOutputTool = {
+  type: 'get_cell_output'
+  message: string,
+  cell_id: string,
+}
+
+export type FinishedTaskTool = {
+  type: 'finished_task'
+  message: string,
+}
+
+export type AgentResponse = CellUpdateTool | GetCellOutputTool | FinishedTaskTool
+
 
 /* 
 
@@ -74,6 +88,7 @@ export interface IChatMessageMetadata {
 export interface IAgentExecutionMetadata {
   promptType: 'agent:execution'
   aiOptimizedCells: AIOptimizedCell[]
+  base64EncodedActiveCellOutput?: string;
   variables?: Variable[];
   files?: File[];
   input: string;

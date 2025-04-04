@@ -3,21 +3,18 @@
 
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type, Union, NewType
+from typing import Annotated, List, Literal, Optional, Type, Union, NewType
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # The ThreadID is the unique identifier for the chat thread.
 ThreadID = NewType('ThreadID', str)
-
-@dataclass(frozen=True)
-class AIOptimizedCell():
-  cell_type: str
-  id: str
-  code: str
   
-# Response format for agent planning
+########################################################
+# Agent Response formats
+########################################################
+
 # TODO: Figure out how to discriminate the 
 # CellUpdateModification and CellUpdateNew types
     
@@ -26,12 +23,27 @@ class CellUpdate(BaseModel):
     index: Optional[int]
     id: Optional[str]
     code: str
-    description: str
     
-class AgentResponse(BaseModel):
-    is_finished: bool
+# Define the new response types
+class CellUpdateResponse(BaseModel):
+    type: Literal['cell_update']
     message: str
-    cell_update: Optional[CellUpdate]
+    cell_update: CellUpdate
+
+class GetCellOutputResponse(BaseModel):
+    type: Literal['get_cell_output']
+    message: str
+    cell_id: str
+
+class FinishedTaskResponse(BaseModel):
+    type: Literal['finished_task']
+    message: str
+
+# Define the TaggedUnion
+AgentResponse = Annotated[
+    Union[CellUpdateResponse, GetCellOutputResponse, FinishedTaskResponse],
+    Field(discriminator='type')
+]
   
 @dataclass(frozen=True)
 class ResponseFormatInfo():
@@ -39,6 +51,10 @@ class ResponseFormatInfo():
     # Use the type because we are actually just providing the type format, not an actual instance of the format
     format: type[AgentResponse]
 
+
+########################################################
+# Message Types and Metadata
+########################################################
 
 class MessageType(Enum):
     """
@@ -55,6 +71,13 @@ class MessageType(Enum):
     FETCH_HISTORY = "fetch_history"
     GET_THREADS = "get_threads"
     DELETE_THREAD = "delete_thread"
+    
+@dataclass(frozen=True)
+class AIOptimizedCell():
+  cell_type: str
+  id: str
+  code: str
+  
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
@@ -74,6 +97,7 @@ class AgentExecutionMetadata():
     threadId: ThreadID
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
+    base64EncodedActiveCellOutput: Optional[str] = None
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None

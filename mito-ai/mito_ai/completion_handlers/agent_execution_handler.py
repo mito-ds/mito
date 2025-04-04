@@ -9,7 +9,7 @@ from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.completion_handlers.utils import append_agent_system_message
+from mito_ai.completion_handlers.utils import append_agent_system_message, create_ai_optimized_message
 
 __all__ = ["get_agent_execution_completion"]
 
@@ -38,7 +38,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         display_prompt = metadata.input
         
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)

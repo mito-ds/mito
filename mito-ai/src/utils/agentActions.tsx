@@ -46,6 +46,10 @@ export const acceptAndRunCode = async (
     */
     previewAICodeToActiveCell()
     acceptAICode()
+
+    // Note that it is important that we just run the cell and don't run and advance the cell. 
+    // We rely on the active cell remaining the same after running the cell in order to get the output
+    // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
     await app.commands.execute("notebook:run-cell");
 }
 
@@ -99,6 +103,15 @@ export const retryIfExecutionError = async (
 
         await sendAgentSmartDebugMessage(errorMessage)
         const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
+
+        // TODO: We expect that the agent responds with a cell_update if they are prompted to fix an error. 
+        // But we are not enforcing that right now. We can fix this by setting the response_format for agent:smartDebug
+        // to only allow cell_updates and then we can return the agentResponse from sendAgentSmartDebugMessage so 
+        // typescript knows what type it is. 
+        if (aiDisplayOptimizedChatItem?.agentResponse?.type !== 'cell_update') {
+            return 'failure'
+        }
+
         const cellUpdate = aiDisplayOptimizedChatItem?.agentResponse?.cell_update
 
         if (cellUpdate !== undefined && cellUpdate !== null) {
@@ -115,3 +128,4 @@ export const retryIfExecutionError = async (
 
     return 'success'
 }
+

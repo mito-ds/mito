@@ -289,12 +289,17 @@ export class ChatHistoryManager {
 
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
 
-        const code = agentResponse.cell_update?.code
-        const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
-
         let content = agentResponse.message
-        if (codeWithMarkdownFormatting !== undefined) {
-            content = content + '\n\n' + codeWithMarkdownFormatting
+        if (agentResponse.type === 'cell_update') {
+            // We want to display the code the agent wrote and the message it sent
+            // For get_cell_output and finished_task, we don't want to display 
+            // anything except the message
+            const code = agentResponse.cell_update?.code
+            const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
+
+            if (codeWithMarkdownFormatting !== undefined) {
+                content = content + '\n\n' + codeWithMarkdownFormatting
+            }
         }
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
