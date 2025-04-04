@@ -100,7 +100,7 @@ Some text after."""
 PROMPT_BUILDER_TEST_CASES = [
     # Chat prompt
     (
-        lambda: create_chat_prompt(TEST_VARIABLES, TEST_FILES, TEST_CODE, TEST_INPUT),
+        lambda: create_chat_prompt(TEST_VARIABLES, TEST_FILES, TEST_CODE, False, TEST_INPUT),
         ["Your task: Calculate the mean of col1"],
         ["data.csv\nscript.py", f"{VARIABLES_SECTION_HEADING}\n'df': pd.DataFrame"],
     ),
@@ -348,3 +348,43 @@ def test_trim_old_messages_fewer_than_keep_recent():
     assistant_content = result[1].get("content")
     assert isinstance(assistant_content, str)
     assert assistant_content == "Assistant message 1"
+    
+
+def test_trim_mixed_content_messages():
+    """
+    Tests that when a message contains sections other than text (like image_url),
+    those sections are removed completely, leaving only the text content.
+    """
+    # Create sample message with mixed content (text and image)
+    mixed_content_message = {
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "What is in this image?"
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": "data:image/png;base64,someimagedata"}
+            }
+        ]
+    }
+    
+    # Create sample message list with one old message (the mixed content)
+    # and one recent message (to not be trimmed)
+    message_list = [
+        mixed_content_message,  # This should get trimmed
+        {"role": "assistant", "content": "That's a chart showing data trends"},
+        {"role": "user", "content": "Can you explain more?"}  # Recent message, should not be trimmed
+    ]
+    
+    # Apply the trimming function
+    trimmed_messages = trim_old_messages(message_list, keep_recent=2)
+    
+    # Verify that the first message has been trimmed properly
+    assert trimmed_messages[0]["role"] == "user"
+    assert trimmed_messages[0]["content"] == "What is in this image?"
+    
+    # Verify that the recent messages are untouched
+    assert trimmed_messages[1] == message_list[1]
+    assert trimmed_messages[2] == message_list[2]
