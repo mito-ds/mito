@@ -95,7 +95,6 @@ setup(
         "traitlets",
         "pydantic",
         "ollama",
-        "aiohttp",
     ],
     extras_require = {
         'deploy': [
