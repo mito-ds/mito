@@ -1162,7 +1162,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
-                    console.log('displayOptimizedChat', displayOptimizedChat)
                     return (
                         <ChatMessage
                             key={index}
