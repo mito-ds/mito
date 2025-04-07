@@ -7,9 +7,8 @@ import React from 'react';
 import MagnifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import '../../../style/GetCellOutputToolUI.css';
 
-interface GetCellOutputProps {}
 
-const GetCellOutputToolUI: React.FC<GetCellOutputProps> = ({}) => {
+const GetCellOutputToolUI: React.FC = () => {
 
     return (
         <div className="get-cell-output-container">
