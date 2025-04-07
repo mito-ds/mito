@@ -92,6 +92,7 @@ export interface IAgentSmartDebugMetadata {
   errorMessage: string;
   error_message_producing_code_cell_id: string
   threadId: string;
+  isChromeBrowser: boolean;
 }
 
 

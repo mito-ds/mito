@@ -193,7 +193,8 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             errorMessage: errorMessage,
             error_message_producing_code_cell_id: activeCellID || '',
-            threadId: activeThreadId
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         this.displayOptimizedChatHistory.push(

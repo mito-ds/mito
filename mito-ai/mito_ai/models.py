@@ -96,6 +96,7 @@ class AgentSmartDebugMetadata():
     aiOptimizedCells: List[AIOptimizedCell]
     errorMessage: str
     error_message_producing_code_cell_id: str
+    isChromeBrowser: bool
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     

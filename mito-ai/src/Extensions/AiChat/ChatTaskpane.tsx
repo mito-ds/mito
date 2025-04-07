@@ -384,7 +384,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: No post processing step needed for explaining code. 
     }
 
-    const sendAgentExecutionMessage = async (input: string, messageIndex?: number): Promise<void> => {
+    const sendAgentExecutionMessage = async (input: string, messageIndex?: number, sendActiveCellOutput: boolean = false): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -399,6 +399,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input)
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
+        }
+
+        if (sendActiveCellOutput) {
+            const activeCellOutput = await getActiveCellOutput(notebookTracker)
+            if (activeCellOutput !== undefined) {
+                agentExecutionMetadata.base64EncodedActiveCellOutput = activeCellOutput
+            }
         }
 
         setChatHistoryManager(newChatHistoryManager)
@@ -696,6 +703,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         let isAgentFinished = false
         let agentExecutionDepth = 1
+        let sendActiveCellOutput = false
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
@@ -710,7 +718,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex)
             } else {
-                await sendAgentExecutionMessage('')
+                await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
             }
 
             // Iterate the agent execution depth
@@ -793,8 +801,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'get_cell_output') {
-                // TODO: Implement this!
-                console.log('get_cell_output', agentResponse)
+                // Mark that we should send the active cell output to the agent 
+                // in the next loop iteration
+                sendActiveCellOutput = true
             }
         }
 
