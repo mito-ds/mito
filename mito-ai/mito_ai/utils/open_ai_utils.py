@@ -20,7 +20,6 @@ from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
 
-# MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 MITO_AI_PROD_URL: Final[str] = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws/openai/completions"
 # TODO: Create a dev endpoint for streaming
 MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
