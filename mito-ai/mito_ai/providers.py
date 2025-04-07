@@ -251,7 +251,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             if self._openAI_sync_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
-                completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
+                if response_format_info:
+                    del completion_function_params['stream']
+                    completion = self._openAI_sync_client.beta.chat.completions.parse(**completion_function_params)
+                else:
+                    completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                 completion = completion.choices[0].message.content or ""
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")

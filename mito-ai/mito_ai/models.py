@@ -23,27 +23,13 @@ class CellUpdate(BaseModel):
     index: Optional[int]
     id: Optional[str]
     code: str
-    
-# Define the new response types
-class CellUpdateResponse(BaseModel):
-    type: Literal['cell_update']
-    message: str
-    cell_update: CellUpdate
-
-class GetCellOutputResponse(BaseModel):
-    type: Literal['get_cell_output']
-    message: str
-    cell_id: str
-
-class FinishedTaskResponse(BaseModel):
-    type: Literal['finished_task']
-    message: str
 
 # Define the TaggedUnion
-AgentResponse = Annotated[
-    Union[CellUpdateResponse, GetCellOutputResponse, FinishedTaskResponse],
-    Field(discriminator='type')
-]
+class AgentResponse(BaseModel):
+    type: Literal['cell_update', 'get_cell_output', 'finished_task']
+    message: str
+    cell_update: Optional[CellUpdate]
+    cell_id: Optional[str]
   
 @dataclass(frozen=True)
 class ResponseFormatInfo():

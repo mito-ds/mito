@@ -401,15 +401,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        if (input === '') {
-            // When the input is an empty message, it is the agent getting a response from a previous message
-            // that is just sent. After the agent sends a CELL_UPDATE, we respond with the output of the cell 
-            // that it just executed so it can decide how to proceed.
-            const activeCellOutput = await getActiveCellOutput(notebookTracker)
-            if (activeCellOutput !== undefined) {
-                agentExecutionMetadata.base64EncodedActiveCellOutput = activeCellOutput
-            }
-        }
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -766,7 +757,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 break;
             }
 
-            if (agentResponse.type === 'cell_update') {
+            if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
                 // Run the code and handle any errors
                 await acceptAndRunCellUpdate(agentResponse.cell_update, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
                 const status = await retryIfExecutionError(

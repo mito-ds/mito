@@ -36,25 +36,12 @@ export type CellUpdateNew = {
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
-export type CellUpdateTool = {
-  type: 'cell_update'
+export type AgentResponse = {
+  type: 'cell_update' | 'get_cell_output' | 'finished_task'
   message: string,
-  cell_update: CellUpdate,
+  cell_update?: CellUpdate,
+  cell_id?: string,
 }
-
-export type GetCellOutputTool = {
-  type: 'get_cell_output'
-  message: string,
-  cell_id: string,
-}
-
-export type FinishedTaskTool = {
-  type: 'finished_task'
-  message: string,
-}
-
-export type AgentResponse = CellUpdateTool | GetCellOutputTool | FinishedTaskTool
-
 
 /* 
 

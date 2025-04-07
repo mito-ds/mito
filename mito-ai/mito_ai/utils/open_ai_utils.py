@@ -134,8 +134,16 @@ def get_open_ai_completion_function_params(
     # serialize it for requests that are going to be sent to the mito server. 
     # OpenAI expects a very specific schema as seen below. 
     if response_format_info:
-        # Get the schema using our custom method that properly formats it
-        json_schema = response_format_info.get_schema()
+        json_schema = response_format_info.format.schema()
+        
+        # Add additionalProperties: False to the top-level schema
+        json_schema["additionalProperties"] = False
+        
+        # Nested object definitions in $defs need to have additionalProperties set to False also
+        if "$defs" in json_schema:
+            for def_name, def_schema in json_schema["$defs"].items():
+                if def_schema.get("type") == "object":
+                    def_schema["additionalProperties"] = False
         
         completion_function_params["response_format"] = {
             "type": "json_schema",
