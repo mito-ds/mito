@@ -103,6 +103,7 @@ PROMPT_BUILDER_TEST_CASES = [
                 input=TEST_INPUT,
                 promptType="agent:execution",
                 threadId=ThreadID("test-thread-id"),
+                isChromeBrowser=True
             )
         ),
         ["Your task: \nCalculate the mean of col1"],
