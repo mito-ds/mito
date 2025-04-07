@@ -24,6 +24,15 @@ jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     };
 });
 
+jest.mock('../../components/AgentToolComponents/GetCellOutputToolUI', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(() => (
+            <div data-testid="get-cell-output-tool">Taking a look at the cell output</div>
+        ))
+    };
+});
+
 jest.mock('../../Extensions/AiChat/ChatMessage/ChatInput', () => {
     return {
         __esModule: true,
@@ -323,6 +332,17 @@ describe('ChatMessage Component', () => {
             } else {
                 fail('Reject button not found');
             }
+        });
+
+        it('displays the GetCellOutputToolUI component when agentResponse type is get_cell_output', () => {
+            renderChatMessage({
+                message: createMockMessage('assistant', 'Looking at your cell output...'),
+                agentResponse: { type: 'get_cell_output' }
+            });
+
+            // Check that the GetCellOutputToolUI component is rendered
+            expect(screen.getByTestId('get-cell-output-tool')).toBeInTheDocument();
+            expect(screen.getByText('Taking a look at the cell output')).toBeInTheDocument();
         });
     });
 }); 
