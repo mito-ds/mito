@@ -221,7 +221,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
-        response_format_info: Optional[ResponseFormatInfo] = None
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        last_message_content: Optional[str] = None,
+        user_input: Optional[str] = None
     ) -> str:
         """
         Request completions from the OpenAI API.
@@ -269,7 +271,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             log_ai_completion_success(
                 key_type=self.key_type,
                 message_type=message_type,
-                last_message_content=str(messages[-1].get('content', '')),
+                user_input=user_input or "",
+                last_message_content=last_message_content or "",
                 response={"completion": completion},
             )
             
@@ -291,7 +294,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
 
     async def stream_completions(
-        self, request: CompletionRequest, message_type: MessageType, model: str
+        self, request: CompletionRequest, message_type: MessageType, model: str, user_input: Optional[str] = None
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
@@ -332,6 +335,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 key_type='user_key',
                 message_type=message_type,
                 last_message_content=str(request.messages[-1].get('content', '')),
+                user_input=user_input or "",
                 response={"completion": "not available for streamed completions"},
             )
             
@@ -383,7 +387,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         model: str,
         message_id: str,
         response_format_info: Optional[ResponseFormatInfo] = None,
-        reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None
+        reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
+        user_input: Optional[str] = None
     ) -> str:
         """
         Stream completions from the OpenAI API and return the accumulated response.
@@ -411,7 +416,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         accumulated_response = ""
         
         # Stream completions 
-        async for reply in self.stream_completions(request, message_type, model):
+        async for reply in self.stream_completions(request, message_type, model, user_input):
             
             # Always call reply_fn if it exists, regardless of reply type
             if reply_fn:

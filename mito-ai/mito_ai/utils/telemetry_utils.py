@@ -171,6 +171,7 @@ def log_ai_completion_success(
     key_type: Literal['mito_server_key', 'user_key'],
     message_type: MessageType,
     last_message_content: str,
+    user_input: str,
     response: Dict[str, Any],
 ) -> None:
     """
@@ -206,13 +207,9 @@ def log_ai_completion_success(
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
-    full_prompt_chunks = chunk_param(last_message_content, "full_prompt")
     response_chunks = chunk_param(response["completion"], "response")
 
     for chunk_key, chunk_value in code_cell_input_chunks.items():
-        base_params[chunk_key] = chunk_value
-
-    for chunk_key, chunk_value in full_prompt_chunks.items():
         base_params[chunk_key] = chunk_value
 
     for chunk_key, chunk_value in response_chunks.items():
@@ -243,7 +240,6 @@ def log_ai_completion_success(
         final_params = base_params
 
         # Chunk the user input
-        user_input = last_message_content.split("Your task: ")[-1]
         user_input_chunks = chunk_param(user_input, "user_input")
         
         for chunk_key, chunk_value in user_input_chunks.items():
@@ -254,7 +250,6 @@ def log_ai_completion_success(
         final_params = base_params
 
         # Chunk the user input
-        user_input = last_message_content.split("Your task: ")[-1]
         user_input_chunks = chunk_param(user_input, "user_input")
         
         for chunk_key, chunk_value in user_input_chunks.items():
