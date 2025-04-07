@@ -98,6 +98,10 @@ def update_mito_server_quota(message_type: MessageType) -> None:
     or we will no longer be able to provide this free tier.
     """
     
+    if message_type == MessageType.CHAT_NAME_GENERATION:
+        # We do not count the Chat Name Generation message type towards the quota
+        return
+    
     current_date = datetime.now()
     first_usage_date = get_first_completion_date()
     last_reset_date_str = get_last_reset_date()
