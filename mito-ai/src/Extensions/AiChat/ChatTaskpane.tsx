@@ -1162,12 +1162,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
+                    console.log('displayOptimizedChat', displayOptimizedChat)
                     return (
                         <ChatMessage
                             key={index}
                             message={displayOptimizedChat.message}
                             promptType={displayOptimizedChat.promptType}
                             messageType={displayOptimizedChat.type}
+                            agentResponse={displayOptimizedChat.agentResponse}
                             codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}

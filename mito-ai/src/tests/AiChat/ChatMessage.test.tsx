@@ -75,6 +75,7 @@ const createMockProps = (overrides = {}) => ({
     codeCellID: 'test-cell-id',
     messageIndex: 0,
     promptType: 'chat' as PromptType,
+    agentResponse: undefined,
     mitoAIConnectionError: false,
     mitoAIConnectionErrorType: null,
     notebookTracker: createMockNotebookTracker(),
