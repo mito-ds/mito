@@ -1,3 +1,0 @@
-#!/bin/bash
-
-python -m pip install mitosheet mito-ai
