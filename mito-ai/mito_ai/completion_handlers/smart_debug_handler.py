@@ -68,6 +68,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
             messages=message_history.get_ai_optimized_history(thread_id),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
             message_type=MessageType.SMART_DEBUG,
+            user_input=metadata.errorMessage
         )
 
         # Process the completion to remove inner thoughts

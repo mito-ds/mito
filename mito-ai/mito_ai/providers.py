@@ -4,17 +4,8 @@
 from __future__ import annotations
 
 import os
-from typing import (
-    Any,
-    AsyncGenerator,
-    Dict,
-    List,
-    Optional,
-    Union,
-    Type,
-    TYPE_CHECKING,
-    Callable
-)
+from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Union, Callable
+
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
@@ -50,10 +41,6 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
-
-# Use TYPE_CHECKING to avoid circular imports
-if TYPE_CHECKING:
-    from mito_ai.message_history import GlobalMessageHistory
 
 __all__ = ["OpenAIProvider"]
 
@@ -221,14 +208,22 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
         return self._sync_client
-        
-        
+    
+    @property
+    def key_type(self) -> Literal['mito_server_key', 'user_key']:
+        if self._openAI_sync_client is None:
+            return 'mito_server_key'
+        else:
+            return 'user_key'
+    
     async def request_completions(
         self,
         message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
-        response_format_info: Optional[ResponseFormatInfo] = None
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        last_message_content: Optional[str] = None,
+        user_input: Optional[str] = None
     ) -> str:
         """
         Request completions from the OpenAI API.
@@ -274,9 +269,10 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
+                key_type=self.key_type,
                 message_type=message_type,
-                last_message_content=str(messages[-1].get('content', '')),
+                user_input=user_input or "",
+                last_message_content=last_message_content or "",
                 response={"completion": completion},
             )
             
@@ -298,7 +294,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
 
     async def stream_completions(
-        self, request: CompletionRequest, message_type: MessageType, model: str
+        self, request: CompletionRequest, message_type: MessageType, model: str, user_input: Optional[str] = None
     ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
         """Stream completions from the OpenAI API.
 
@@ -336,9 +332,10 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY,
+                key_type='user_key',
                 message_type=message_type,
                 last_message_content=str(request.messages[-1].get('content', '')),
+                user_input=user_input or "",
                 response={"completion": "not available for streamed completions"},
             )
             
@@ -390,7 +387,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         model: str,
         message_id: str,
         response_format_info: Optional[ResponseFormatInfo] = None,
-        reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None
+        reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
+        user_input: Optional[str] = None
     ) -> str:
         """
         Stream completions from the OpenAI API and return the accumulated response.
@@ -418,12 +416,14 @@ This attribute is observed by the websocket provider to push the error to the cl
         accumulated_response = ""
         
         # Stream completions 
-        async for reply in self.stream_completions(request, message_type, model):
+        async for reply in self.stream_completions(request, message_type, model, user_input):
+            
+            # Always call reply_fn if it exists, regardless of reply type
+            if reply_fn:
+                reply_fn(reply)
+            
+            # Only accumulate content from actual completion chunks
             if isinstance(reply, CompletionStreamChunk):
                 accumulated_response += reply.chunk.content
-                if reply_fn:
-                    reply_fn(reply)
-            elif reply_fn:
-                reply_fn(reply)
         
         return accumulated_response

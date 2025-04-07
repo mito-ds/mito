@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.models import ThreadID
 from mito_ai.providers import OpenAIProvider
@@ -56,3 +57,25 @@ async def append_agent_system_message(
         llm_provider=provider,
         thread_id=thread_id
     )
+    
+def create_ai_optimized_message(text: str, base64EncodedActiveCellOutput: Optional[str] = None) -> ChatCompletionMessageParam:
+
+    message_content: Union[str, List[Dict[str, Any]]]
+    if base64EncodedActiveCellOutput is not None and base64EncodedActiveCellOutput != '':
+       message_content = [
+            {
+                "type": "text",
+                "text": text,
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{base64EncodedActiveCellOutput}"},
+            }
+       ]
+    else:
+        message_content = text
+        
+    return cast(ChatCompletionMessageParam, {
+        "role": "user",
+        "content": message_content
+    })

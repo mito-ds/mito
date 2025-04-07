@@ -36,7 +36,7 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
@@ -59,7 +59,7 @@ import {
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     AgentResponse,
-    ICompletionStreamChunk
+    ICompletionStreamChunk,
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
@@ -231,6 +231,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         }
     };
+
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
@@ -415,7 +416,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
+        // Step 0: Reject the previous AI generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add the user's message to the chat history
@@ -426,18 +427,29 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
         
-        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current)
-        if (messageIndex !== undefined) {
-            chatMessageMetadata.index = messageIndex
-        }
+        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current, messageIndex)
 
         setChatHistoryManager(newChatHistoryManager)
+        setLoadingAIResponse(true)
 
+        // Yield control briefly to allow React to re-render the UI
+        // A timeout of 0ms pushes the rest of the function to the next event loop cycle
+        // so we don't get stuck behind the slow getActiveCellOutput function.
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Add the active cell output to the metadata afterwards setting the chatHistoryManager so that 
+        // we don't have to wait on turning the output into a base64 image before we can add the user's message
+        // to the chat.
+        const activeCellOutput = await getActiveCellOutput(notebookTracker)
+        if (activeCellOutput !== undefined) {
+            chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
+        }
+        
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',
             message_id: UUID.uuid4(),
             metadata: chatMessageMetadata,
-            stream: true
+            stream: false
         }
 
         // Step 2: Scroll to the bottom of the chat messages container
@@ -452,6 +464,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
+        // TODO: Can we move this into the _sendMessageAndSaveResponse function?
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
             const chatContainer = chatMessagesRef.current;
@@ -493,9 +506,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             // Create the stream handler function and store it in the ref
-            const streamHandler = (
-                _: CompletionWebsocketClient, chunk: ICompletionStreamChunk
-            ) => {                
+            const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {                
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
@@ -518,7 +529,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
                 if (aiResponse.error) {
-                    console.error('Error calling OpenAI API:', aiResponse.error);
+
+                    console.group('Error calling OpenAI API:');
+                    console.error('Title:', aiResponse.error.title);
+                    console.error('Type:', aiResponse.error.error_type);
+                    console.error('Hint:', aiResponse.error.hint);
+                    console.log('Full Error Details:', aiResponse.error);
+                    console.groupEnd();
+                    
+                    // Log traceback separately to preserve formatting
+                    if (aiResponse.error.traceback) {
+                        console.group('Error Traceback:');
+                        console.error(aiResponse.error.traceback);
+                        console.groupEnd();
+                    }
+
                     addAIMessageFromResponseAndUpdateState(
                         aiResponse.error.hint
                             ? aiResponse.error.hint
@@ -562,7 +587,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
                 if (aiResponse.error) {
-                    console.error('Error calling OpenAI API:', aiResponse.error);
+
+                    console.group('Error calling OpenAI API:');
+                    console.error('Title:', aiResponse.error.title);
+                    console.error('Type:', aiResponse.error.error_type);
+                    console.error('Hint:', aiResponse.error.hint);
+                    console.log('Full Error Details:', aiResponse.error);
+                    console.groupEnd();
+                    
+                    // Log traceback separately to preserve formatting
+                    if (aiResponse.error.traceback) {
+                        console.group('Error Traceback:');
+                        console.error(aiResponse.error.traceback);
+                        console.groupEnd();
+                    }
+                    
                     addAIMessageFromResponseAndUpdateState(
                         aiResponse.error.hint
                             ? aiResponse.error.hint

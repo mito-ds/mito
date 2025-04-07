@@ -8,6 +8,7 @@ node_modules/
 .ipynb_checkpoints
 *.tsbuildinfo
 mito_ai/labextension
+.vscode/
 
 # Integration tests
 ui-tests/test-results/

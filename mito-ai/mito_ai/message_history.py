@@ -14,7 +14,7 @@ from mito_ai.models import CompletionRequest, ChatThreadMetadata, MessageType, T
 from mito_ai.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.schema import MITO_FOLDER
-
+from mito_ai.utils.message_history_utils import trim_old_messages
 
 CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 NEW_CHAT_NAME = "(New Chat)"
@@ -235,11 +235,11 @@ class GlobalMessageHistory:
             return self._chat_threads[thread_id].display_history
 
     async def append_message(
-            self, 
-            ai_optimized_message: ChatCompletionMessageParam, 
-            display_message: ChatCompletionMessageParam, 
-            llm_provider: OpenAIProvider,
-            thread_id: ThreadID
+        self, 
+        ai_optimized_message: ChatCompletionMessageParam, 
+        display_message: ChatCompletionMessageParam, 
+        llm_provider: OpenAIProvider,
+        thread_id: ThreadID
     ) -> None:
         """
         Appends the messages to the specified thread or the newest thread if not specified.
@@ -254,6 +254,9 @@ class GlobalMessageHistory:
             thread.ai_optimized_history.append(ai_optimized_message)
             thread.display_history.append(display_message)
             self._update_last_interaction(thread)
+            
+            # Trim old messages in ai_optimized_history to reduce token count
+            thread.ai_optimized_history = trim_old_messages(thread.ai_optimized_history)
 
             if thread.name == NEW_CHAT_NAME and len(thread.display_history) >= 2:
                 # Retrieve first user and assistant messages from display_history

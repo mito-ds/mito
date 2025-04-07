@@ -13,3 +13,7 @@ export const getOperatingSystem = (): OperatingSystem => {
         return 'windows'
     }
 }
+
+export const isChromeBasedBrowser = (): boolean => {
+    return /chrome/i.test(navigator.userAgent) && !/edge|edg/i.test(navigator.userAgent);
+}
