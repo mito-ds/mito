@@ -6,21 +6,23 @@
 
 # Copyright (c) Saga Inc.
 
+import asyncio
 import json
-from typing import Any, Dict, List, Optional, Type, Final, Union
-from datetime import datetime, timedelta
-import os
 import time
-from mito_ai.utils.utils import is_running_test
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator
 from tornado.httpclient import AsyncHTTPClient
+from openai.types.chat import ChatCompletionMessageParam
+
+from mito_ai.utils.utils import is_running_test
 from mito_ai.models import MessageType, ResponseFormatInfo
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
-from openai.types.chat import ChatCompletionMessageParam
-MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+
+# MITO_AI_PROD_URL: Final[str] = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+MITO_AI_PROD_URL: Final[str] = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws/"
+# TODO: Create a dev endpoint for streaming
 MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
 
 # If you want to test the dev endpoint, change this to MITO_AI_DEV_URL.
@@ -159,3 +161,133 @@ def get_open_ai_completion_function_params(
         completion_function_params["temperature"] = 0.0
 
     return completion_function_params
+
+async def stream_ai_completion_from_mito_server(
+    last_message_content: Union[str, None],
+    ai_completion_data: Dict[str, Any],
+    timeout: int,
+    max_retries: int,
+    message_type: MessageType,
+) -> AsyncGenerator[str, None]:
+    """
+    Stream AI completions from the Mito server.
+    
+    This function is similar to get_ai_completion_from_mito_server but handles streaming responses.
+    It yields the streamed content as it arrives.
+    
+    Args:
+        last_message_content: The last message content
+        ai_completion_data: The AI completion data
+        timeout: The timeout in seconds
+        max_retries: The maximum number of retries
+        message_type: The message type
+        
+    Yields:
+        Chunks of text from the streaming response
+    """
+    # ===== STEP 1: Prepare request data and headers =====
+    # Check that the user is allowed to use the Mito Server
+    check_mito_server_quota(message_type)
+    
+    global __user_email, __user_id
+
+    if __user_email is None:
+        __user_email = get_user_field(UJ_USER_EMAIL)
+    if __user_id is None:
+        __user_id = get_user_field(UJ_STATIC_USER_ID)
+
+    data = {
+        "timeout": timeout,
+        "max_retries": max_retries,
+        "email": __user_email,
+        "user_id": __user_id,
+        "data": ai_completion_data,
+        "user_input": last_message_content or "",  # We add this just for logging purposes
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+    }
+    
+    # ===== STEP 2: Create HTTP client with appropriate timeout settings =====
+    if is_running_test():
+        # If we are running in a test environment, setting the request_timeout fails for some reason.
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+        http_client_timeout = None
+    else:
+        # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
+        # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
+        # The OpenAI timeouts are denoted in seconds, whereas the HTTP client expects milliseconds. 
+        # We also give the HTTP client a 10 second buffer to account for
+        http_client_timeout = timeout * 1000 * max_retries + 10000
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
+    
+    # ===== STEP 3: Set up streaming infrastructure =====
+    start_time = time.time()
+    chunk_queue = asyncio.Queue()
+    streaming_complete = False
+    fetch_complete = False
+    
+    # Define a callback to process chunks and add them to the queue
+    def chunk_callback(chunk: bytes) -> None:
+        try:
+            chunk_str = chunk.decode('utf-8')
+            asyncio.create_task(chunk_queue.put(chunk_str))
+        except Exception as e:
+            print(f"Error processing streaming chunk: {str(e)}")
+    
+    # ===== STEP 4: Execute the streaming request =====
+    fetch_future = None
+    try:
+        # Use fetch with streaming_callback to handle streaming responses
+        fetch_future = http_client.fetch(
+            MITO_AI_URL, 
+            method="POST", 
+            headers=headers, 
+            body=json.dumps(data), 
+            request_timeout=http_client_timeout,
+            streaming_callback=chunk_callback
+        )
+        
+        # Create a task to wait for the fetch to complete
+        async def wait_for_fetch():
+            try:
+                await fetch_future
+                nonlocal fetch_complete
+                fetch_complete = True
+                print("Fetch completed")
+            except Exception as e:
+                print(f"Error in fetch: {str(e)}")
+                raise
+        
+        # Start the task to wait for fetch completion
+        fetch_task = asyncio.create_task(wait_for_fetch())
+        
+        # ===== STEP 5: Yield chunks as they arrive =====
+        while not (fetch_complete and chunk_queue.empty()):
+            try:
+                # Wait for a chunk with a timeout
+                chunk = await asyncio.wait_for(chunk_queue.get(), timeout=0.1)
+                yield chunk
+            except asyncio.TimeoutError:
+                # No chunk available within timeout, check if fetch is complete
+                if fetch_complete and chunk_queue.empty():
+                    break
+                # Otherwise continue waiting for chunks
+                continue
+                
+        print(f"\nStream completed in {time.time() - start_time:.2f} seconds")
+    except Exception as e:
+        print(f"\nStream failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
+        raise
+    finally:
+        # ===== STEP 6: Clean up resources =====
+        # Mark streaming as complete
+        streaming_complete = True
+        # Wait for the fetch future to complete if it exists
+        if fetch_future:
+            try:
+                await fetch_future
+            except Exception:
+                pass
+        http_client.close()

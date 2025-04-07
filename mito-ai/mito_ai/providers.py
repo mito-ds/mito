@@ -30,9 +30,9 @@ from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,
+    stream_ai_completion_from_mito_server,
 )
 from mito_ai.utils.server_limits import update_mito_server_quota
-
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
@@ -144,7 +144,8 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         Streaming is only supported if an OpenAI API key is provided.
         """
-        return bool(self.api_key)
+        # return bool(self.api_key)
+        return True
 
     @property
     def capabilities(self) -> AICapabilities:
@@ -302,9 +303,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             An async generator yielding first an acknowledge completion reply without
             completion and then completion chunks from the third-party provider.
         """
-        # The streaming completion has two steps:
-        # Step 1: Acknowledge the request
-        # Step 2: Stream the completion chunks coming from the OpenAI API
+        # Reset the last error
         self.last_error = None
 
         # Acknowledge the request
@@ -319,12 +318,28 @@ This attribute is observed by the websocket provider to push the error to the cl
         if model not in self.models:
             model = "gpt-4o-mini"
 
-        # Send the completion request to the OpenAI API and returns a stream of completion chunks
+        completion_function_params = get_open_ai_completion_function_params(model, request.messages, True)
+
+        # Stream completions based on the available client
+        if self._openAI_sync_client is not None:
+            async for chunk in self._stream_from_openai(request, message_type, completion_function_params):
+                yield chunk
+        else:
+            async for chunk in self._stream_from_mito_server(request, message_type, completion_function_params):
+                yield chunk
+
+    async def _stream_from_openai(
+        self, 
+        request: CompletionRequest, 
+        message_type: MessageType, 
+        completion_function_params: Dict[str, Any]
+    ) -> AsyncGenerator[CompletionStreamChunk, None]:
+        """Stream completions from OpenAI API."""
         try:
-            completion_function_params = get_open_ai_completion_function_params(model, request.messages, stream=True)
             client = self._openAI_async_client
             if client is None:
                 raise ValueError("OpenAI client not initialized")
+                
             stream: AsyncStream[ChatCompletionChunk] = await client.chat.completions.create(**completion_function_params)
             
             # Log the successful completion
@@ -375,6 +390,54 @@ This attribute is observed by the websocket provider to push the error to the cl
                     error=CompletionError.from_exception(e),
                 )
                 break
+
+    async def _stream_from_mito_server(
+        self, 
+        request: CompletionRequest, 
+        message_type: MessageType, 
+        completion_function_params: Dict[str, Any]
+    ) -> AsyncGenerator[CompletionStreamChunk, None]:
+        """Stream completions from Mito server."""
+        # Get the last message content for logging
+        last_message_content = str(request.messages[-1].get("content", "")) if request.messages else ""
+        
+        # Stream the completion from the Mito server
+        async for chunk in stream_ai_completion_from_mito_server(
+            last_message_content,
+            completion_function_params,
+            self.timeout,
+            self.max_retries,
+            message_type,
+        ):
+            # Yield each chunk as a CompletionStreamChunk
+            yield CompletionStreamChunk(
+                parent_id=request.message_id,
+                chunk=CompletionItem(
+                    content=chunk,
+                    isIncomplete=True,
+                    token=request.message_id,
+                ),
+                done=False,
+            )
+        
+        # Send a final chunk to indicate completion
+        yield CompletionStreamChunk(
+            parent_id=request.message_id,
+            chunk=CompletionItem(
+                content="",
+                isIncomplete=False,
+                token=request.message_id,
+            ),
+            done=True,
+        )
+        
+        # Log the successful completion
+        log_ai_completion_success(
+            key_type='mito_server_key',
+            message_type=message_type,
+            last_message_content=last_message_content,
+            response={"completion": "not available for streamed completions"},
+        )
 
     async def stream_and_save_completions(
         self,
