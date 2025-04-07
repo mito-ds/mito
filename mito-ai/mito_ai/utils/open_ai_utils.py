@@ -116,51 +116,6 @@ async def get_ai_completion_from_mito_server(
     else:
         raise Exception(f"No completion found in response: {content}")
 
-
-def get_open_ai_completion_function_params(
-    model: str, 
-    messages: List[ChatCompletionMessageParam], 
-    stream: bool,
-    response_format_info: Optional[ResponseFormatInfo] = None,
-) -> Dict[str, Any]:
-    
-    completion_function_params = {
-        "model": model,
-        "stream": stream,
-        "messages": messages,
-    }
-    
-    # If a response format is provided, we need to convert it to a json schema.
-    # Pydantic models are supported by the OpenAI API, however, we need to be able to 
-    # serialize it for requests that are going to be sent to the mito server. 
-    # OpenAI expects a very specific schema as seen below. 
-    if response_format_info:
-        json_schema = response_format_info.format.schema()
-        
-        # Add additionalProperties: False to the top-level schema
-        json_schema["additionalProperties"] = False
-        
-        # Nested object definitions in $defs need to have additionalProperties set to False also
-        if "$defs" in json_schema:
-            for def_name, def_schema in json_schema["$defs"].items():
-                if def_schema.get("type") == "object":
-                    def_schema["additionalProperties"] = False
-        
-        completion_function_params["response_format"] = {
-            "type": "json_schema",
-            "json_schema": {
-                "name": f"{response_format_info.name}",
-                "schema": json_schema,
-                "strict": True
-            }
-        }
-    
-    # o3-mini will error if we try setting the temperature
-    if model == "gpt-4o-mini":
-        completion_function_params["temperature"] = 0.0
-
-    return completion_function_params
-
 async def stream_ai_completion_from_mito_server(
     last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
@@ -265,13 +220,16 @@ async def stream_ai_completion_from_mito_server(
         # ===== STEP 5: Yield chunks as they arrive =====
         while not (fetch_complete and chunk_queue.empty()):
             try:
-                # Wait for a chunk with a timeout
+                # Wait for a chunk with a timeout. By setting the timeout, we 1. prevent deadlocks
+                # which could happen if fetch_complete has not been set to true yet, and 2. it enables
+                # periodic checking if the queue has a new chunk.
                 chunk = await asyncio.wait_for(chunk_queue.get(), timeout=0.1)
                 yield chunk
             except asyncio.TimeoutError:
                 # No chunk available within timeout, check if fetch is complete
                 if fetch_complete and chunk_queue.empty():
                     break
+                
                 # Otherwise continue waiting for chunks
                 continue
                 
@@ -290,3 +248,48 @@ async def stream_ai_completion_from_mito_server(
             except Exception:
                 pass
         http_client.close()
+
+
+def get_open_ai_completion_function_params(
+    model: str, 
+    messages: List[ChatCompletionMessageParam], 
+    stream: bool,
+    response_format_info: Optional[ResponseFormatInfo] = None,
+) -> Dict[str, Any]:
+    
+    completion_function_params = {
+        "model": model,
+        "stream": stream,
+        "messages": messages,
+    }
+    
+    # If a response format is provided, we need to convert it to a json schema.
+    # Pydantic models are supported by the OpenAI API, however, we need to be able to 
+    # serialize it for requests that are going to be sent to the mito server. 
+    # OpenAI expects a very specific schema as seen below. 
+    if response_format_info:
+        json_schema = response_format_info.format.schema()
+        
+        # Add additionalProperties: False to the top-level schema
+        json_schema["additionalProperties"] = False
+        
+        # Nested object definitions in $defs need to have additionalProperties set to False also
+        if "$defs" in json_schema:
+            for def_name, def_schema in json_schema["$defs"].items():
+                if def_schema.get("type") == "object":
+                    def_schema["additionalProperties"] = False
+        
+        completion_function_params["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": f"{response_format_info.name}",
+                "schema": json_schema,
+                "strict": True
+            }
+        }
+    
+    # o3-mini will error if we try setting the temperature
+    if model == "gpt-4o-mini":
+        completion_function_params["temperature"] = 0.0
+
+    return completion_function_params
