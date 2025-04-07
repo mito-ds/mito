@@ -139,15 +139,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             return api_key
 
     @property
-    def can_stream(self) -> bool:
-        """Whether the provider supports streaming completions.
-
-        Streaming is only supported if an OpenAI API key is provided.
-        """
-        # return bool(self.api_key)
-        return True
-
-    @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities.
 

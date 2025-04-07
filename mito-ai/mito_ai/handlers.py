@@ -193,7 +193,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
                 
                 # Handle streaming if requested and available
-                if stream and self._llm.can_stream:
+                if stream:
                     # Use stream_chat_completion to stream the response
                     await stream_chat_completion(
                         chat_metadata, 
