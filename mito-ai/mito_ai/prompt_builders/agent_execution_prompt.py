@@ -3,18 +3,12 @@
 
 from mito_ai.models import AgentExecutionMetadata
 from mito_ai.prompt_builders.prompt_constants import (
-    CELL_UPDATE_OUTPUT_SECTION_HEADING,
+    GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING
+    VARIABLES_SECTION_HEADING,
+    cell_update_output_str
 )
-
-def cell_update_output_str(md: AgentExecutionMetadata) -> str:
-    if md.base64EncodedActiveCellOutput:
-        return f"{CELL_UPDATE_OUTPUT_SECTION_HEADING}\nAttatched is an image of the output of the code cell you just applied the CELL_UPDATE to."
-    else:
-        return ""
-
 
 def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
@@ -32,7 +26,7 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
 {FILES_SECTION_HEADING}
 {files_str}
 
-{cell_update_output_str(md)}"""
+{cell_update_output_str(md.base64EncodedActiveCellOutput is not None)}"""
 
     task_str = '' if md.input == '' else f"""Your task: 
 {md.input}"""

@@ -108,11 +108,11 @@ export const retryIfExecutionError = async (
         // But we are not enforcing that right now. We can fix this by setting the response_format for agent:smartDebug
         // to only allow cell_updates and then we can return the agentResponse from sendAgentSmartDebugMessage so 
         // typescript knows what type it is. 
-        if (aiDisplayOptimizedChatItem?.agentResponse?.type !== 'cell_update') {
+        if (aiDisplayOptimizedChatItem?.agentResponse?.type !== 'cell_update' || aiDisplayOptimizedChatItem?.agentResponse?.cell_update === undefined) {
             return 'failure'
         }
 
-        const cellUpdate = aiDisplayOptimizedChatItem?.agentResponse?.cell_update
+        const cellUpdate = aiDisplayOptimizedChatItem.agentResponse.cell_update
 
         if (cellUpdate !== undefined && cellUpdate !== null) {
             await acceptAndRunCellUpdate(cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
