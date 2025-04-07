@@ -31,7 +31,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             )
 
         # Add the system message if it doesn't alredy exist
-        await append_agent_system_message(message_history, provider, metadata.threadId)
+        await append_agent_system_message(message_history, provider, metadata.threadId, metadata.isChromeBrowser)
         
         # Create the prompt
         prompt = create_agent_execution_prompt(metadata)

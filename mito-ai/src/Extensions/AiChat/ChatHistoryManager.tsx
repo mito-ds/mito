@@ -9,6 +9,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
+import { isChromeBasedBrowser } from "../../utils/user";
 
 export type PromptType = 
     'chat' | 
@@ -120,7 +121,8 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             aiOptimizedCells: aiOptimizedCells,
             input: input || '',
-            threadId: activeThreadId
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         // We use this function in two ways: 

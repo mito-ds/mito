@@ -37,14 +37,15 @@ async def append_chat_system_message(
 async def append_agent_system_message(
         message_history: GlobalMessageHistory,
         provider: OpenAIProvider,
-        thread_id: ThreadID
+        thread_id: ThreadID,
+        isChromeBrowser: bool
 ) -> None:
     
     # If the system message already exists, do nothing
     if any(msg["role"] == "system" for msg in message_history.get_ai_optimized_history(thread_id)):
         return
     
-    system_message_prompt = create_agent_system_message_prompt()
+    system_message_prompt = create_agent_system_message_prompt(isChromeBrowser)
     
     system_message: ChatCompletionMessageParam = {
         "role": "system",
