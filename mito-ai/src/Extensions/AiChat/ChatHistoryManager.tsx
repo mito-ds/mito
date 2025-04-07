@@ -291,9 +291,9 @@ export class ChatHistoryManager {
 
         let content = agentResponse.message
         if (agentResponse.type === 'cell_update') {
-            // We want to display the code the agent wrote and the message it sent
-            // For get_cell_output and finished_task, we don't want to display 
-            // anything except the message
+            // For cell_update messages, we want to display the code the agent wrote along with 
+            // the message it sent. For all other agent responses, we ignore all other fields
+            // and just display the message.
             const code = agentResponse.cell_update?.code
             const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
 

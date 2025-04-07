@@ -14,9 +14,6 @@ ThreadID = NewType('ThreadID', str)
 ########################################################
 # Agent Response formats
 ########################################################
-
-# TODO: Figure out how to discriminate the 
-# CellUpdateModification and CellUpdateNew types
     
 class CellUpdate(BaseModel):
     type: Literal['new', 'modification']
@@ -24,7 +21,10 @@ class CellUpdate(BaseModel):
     id: Optional[str]
     code: str
 
-# Define the TaggedUnion
+# Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
+# so instead we just combine all of the possible response types into a single class 
+# for now and rely on the AI to respond with the correct types, following the format
+# that we show it in the system prompt.
 class AgentResponse(BaseModel):
     type: Literal['cell_update', 'get_cell_output', 'finished_task']
     message: str
@@ -36,7 +36,6 @@ class ResponseFormatInfo():
     name: str
     # Use the type because we are actually just providing the type format, not an actual instance of the format
     format: type[AgentResponse]
-
 
 ########################################################
 # Message Types and Metadata
