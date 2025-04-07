@@ -51,10 +51,6 @@ from mito_ai.utils.telemetry_utils import (
     log_ai_completion_success,
 )
 
-# Use TYPE_CHECKING to avoid circular imports
-if TYPE_CHECKING:
-    from mito_ai.message_history import GlobalMessageHistory
-
 __all__ = ["OpenAIProvider"]
 
 class OpenAIProvider(LoggingConfigurable):
