@@ -29,8 +29,9 @@ class AgentResponse(BaseModel):
     type: Literal['cell_update', 'get_cell_output', 'finished_task']
     message: str
     cell_update: Optional[CellUpdate]
-    cell_id: Optional[str]
-  
+    get_cell_output_cell_id: Optional[str]
+    
+    
 @dataclass(frozen=True)
 class ResponseFormatInfo():
     name: str

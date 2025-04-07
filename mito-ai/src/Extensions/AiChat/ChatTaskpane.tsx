@@ -794,6 +794,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (agentResponse.type === 'get_cell_output') {
                 // TODO: Implement this!
+                console.log('get_cell_output', agentResponse)
             }
         }
 

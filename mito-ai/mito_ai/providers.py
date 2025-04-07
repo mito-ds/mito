@@ -68,8 +68,8 @@ This attribute is observed by the websocket provider to push the error to the cl
     # We will try a total of 3 times. Once on the initial request, 
     # and then twice more if the first request fails.
     # Note that max_retries cannot be set to None. If we want to disable it, set it to 0.
-    timeout = 45
-    max_retries = 2
+    timeout = 15
+    max_retries = 1
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(log=get_logger(), **kwargs)
@@ -252,6 +252,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                 completion = completion.choices[0].message.content or ""
+                print(f"Completion: {completion}")
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
