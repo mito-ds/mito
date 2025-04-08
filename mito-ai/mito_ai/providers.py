@@ -390,5 +390,13 @@ This attribute is observed by the websocket provider to push the error to the cl
                 message_id=message_id,
             ):
                 accumulated_response += chunk
+                
+            # Log the successful completion for Mito server
+            log_ai_completion_success(
+                key_type=MITO_SERVER_KEY,
+                message_type=message_type,
+                last_message_content=last_message_content,
+                response={"completion": "not available for streamed completions"},
+            )
         
         return accumulated_response

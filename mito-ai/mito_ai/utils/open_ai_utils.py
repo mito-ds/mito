@@ -289,14 +289,6 @@ async def stream_ai_completion_from_mito_server(
                 ),
                 done=True,
             ))
-            
-        # Log the successful completion
-        log_ai_completion_success(
-            key_type='mito_server_key',
-            message_type=message_type,
-            last_message_content=last_message_content or "",
-            response={"completion": "not available for streamed completions"},
-        )
     except Exception as e:
         print(f"\nStream failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
         # If an exception occurred, ensure the fetch future is awaited to properly clean up
