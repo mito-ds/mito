@@ -326,14 +326,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     
                 stream: AsyncStream[ChatCompletionChunk] = await client.chat.completions.create(**completion_function_params)
                 
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type=USER_KEY,
-                    message_type=message_type,
-                    last_message_content=last_message_content,
-                    response={"completion": "not available for streamed completions"},
-                )
-                
             except BaseException as e:
                 self.last_error = CompletionError.from_exception(e)
                 log(
@@ -390,13 +382,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                 message_id=message_id,
             ):
                 accumulated_response += chunk
-                
-            # Log the successful completion for Mito server
-            log_ai_completion_success(
-                key_type=MITO_SERVER_KEY,
-                message_type=message_type,
-                last_message_content=last_message_content,
-                response={"completion": "not available for streamed completions"},
-            )
+        
+        # Log the successful completion 
+        key_type = USER_KEY if self._openAI_async_client is not None else MITO_SERVER_KEY
+        log_ai_completion_success(
+            key_type=key_type,
+            message_type=message_type,
+            last_message_content=last_message_content,
+            response={"completion": accumulated_response},
+        )
         
         return accumulated_response
