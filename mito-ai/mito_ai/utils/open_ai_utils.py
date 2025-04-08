@@ -204,6 +204,7 @@ async def stream_ai_completion_from_mito_server(
     # Define a callback to process chunks and add them to the queue
     def chunk_callback(chunk: bytes) -> None:
         try:
+            print(f"Received chunk: {chunk}")
             chunk_str = chunk.decode('utf-8')
             asyncio.create_task(chunk_queue.put(chunk_str))
         except Exception as e:
@@ -212,7 +213,13 @@ async def stream_ai_completion_from_mito_server(
     # ===== STEP 4: Execute the streaming request =====
     fetch_future = None
     try:
-        # Use fetch with streaming_callback to handle streaming responses
+        # Use fetch with streaming_callback to handle streaming responses.
+        # The streaming_callback is not sent as part of the POST request.
+        # It's a parameter for the Tornado AsyncHTTPClient.fetch() method that specifies
+        # how to handle incoming data chunks as they arrive from the server.
+        # When the server sends data in chunks, this callback function is called each time
+        # a new chunk arrives, allowing for immediate processing without waiting for the
+        # entire response to complete.
         fetch_future = http_client.fetch(
             MITO_AI_URL, 
             method="POST", 
