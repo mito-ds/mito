@@ -1,13 +1,9 @@
-# Copyright (c) Saga Inc.
-# Distributed under the terms of the GNU Affero General Public License v3.0 License.
-
 from __future__ import annotations
 
 import os
 from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 
 import openai
-import ollama
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
@@ -43,9 +39,11 @@ from mito_ai.utils.telemetry_utils import (
 )
 
 __all__ = ["OpenAIProvider"]
-use_ollama = os.environ.get("USE_OLLAMA", False)
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "mistral")
-OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+
+# New environment variables - remove USE_OLLAMA
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL")
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+
 
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -78,7 +76,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
         self._sync_client: Optional[openai.OpenAI] = None
-        self._ollama_client_instance = None
         self._models: Optional[List[str]] = None
 
     @default("api_key")
@@ -145,9 +142,9 @@ This attribute is observed by the websocket provider to push the error to the cl
     def can_stream(self) -> bool:
         """Whether the provider supports streaming completions.
 
-        Streaming is only supported if an OpenAI API key is provided.
+        Streaming is supported if either OpenAI API key or Ollama model is provided.
         """
-        return bool(self.api_key)
+        return bool(self.api_key or OLLAMA_MODEL)
 
     @property
     def capabilities(self) -> AICapabilities:
@@ -156,12 +153,12 @@ This attribute is observed by the websocket provider to push the error to the cl
         Returns:
             The provider capabilities.
         """
-        if use_ollama:
+        if OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
                 configuration={
                     "model": OLLAMA_MODEL
                 },
-                provider="Ollama"
+                provider="Ollama (via OpenAI compatibility)",
             )
 
         if self._models is None:
@@ -193,46 +190,62 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def _openAI_async_client(self) -> Optional[openai.AsyncOpenAI]:
         """Get the asynchronous OpenAI client."""
-        if not self.api_key:
+        if self.api_key:
+            # Standard OpenAI setup with user's API key
+            if not self._async_client or self._async_client.is_closed():
+                self._async_client = openai.AsyncOpenAI(
+                    api_key=self.api_key,
+                    max_retries=self.max_retries,
+                    timeout=self.timeout
+                )
+        elif OLLAMA_MODEL:
+            # Ollama via OpenAI compatibility
+            if not self._async_client or self._async_client.is_closed():
+                self._async_client = openai.AsyncOpenAI(
+                    base_url=OLLAMA_BASE_URL,
+                    api_key="ollama",  # required but unused
+                    max_retries=self.max_retries,
+                    timeout=self.timeout
+                )
+        else:
             return None
-
-        if not self._async_client or self._async_client.is_closed():
-            self._async_client = openai.AsyncOpenAI(
-                api_key=self.api_key,
-                max_retries=self.max_retries,
-                timeout=self.timeout
-            )
 
         return self._async_client
 
     @property
     def _openAI_sync_client(self) -> Optional[openai.OpenAI]:
         """Get the synchronous OpenAI client."""
-        if not self.api_key:
+        if self.api_key:
+            # Standard OpenAI setup with user's API key
+            if not self._sync_client or self._sync_client.is_closed():
+                self._sync_client = openai.OpenAI(
+                    api_key=self.api_key,
+                    max_retries=self.max_retries,
+                    timeout=self.timeout
+                )
+        elif OLLAMA_MODEL:
+            # Ollama via OpenAI compatibility
+            if not self._sync_client or self._sync_client.is_closed():
+                self._sync_client = openai.OpenAI(
+                    base_url=OLLAMA_BASE_URL,
+                    api_key="ollama",  # required but unused
+                    max_retries=self.max_retries,
+                    timeout=self.timeout
+                )
+        else:
             return None
-
-        if not self._sync_client or self._sync_client.is_closed():
-            self._sync_client = openai.OpenAI(
-                api_key=self.api_key,
-                max_retries=self.max_retries,
-                timeout=self.timeout
-            )
 
         return self._sync_client
 
     @property
-    def _ollama_client(self):
-        """Get initialized Ollama client"""
-        if not self._ollama_client_instance:
-            self._ollama_client_instance = ollama.Client(host=OLLAMA_HOST)
-        return self._ollama_client_instance
-
-    @property
     def key_type(self) -> str:
         """Returns the authentication key type being used."""
-        if use_ollama:
+        if self.api_key:
+            return USER_KEY
+        elif OLLAMA_MODEL:
             return "ollama"
-        return USER_KEY if self.api_key else MITO_SERVER_KEY
+        else:
+            return MITO_SERVER_KEY
 
     async def request_completions(
             self,
@@ -255,34 +268,12 @@ This attribute is observed by the websocket provider to push the error to the cl
             # Reset the last error
             self.last_error = None
 
-            if use_ollama:
+            # If using Ollama, override the model parameter with OLLAMA_MODEL
+            if OLLAMA_MODEL and not self.api_key:
+                model = OLLAMA_MODEL
                 self.log.debug(f"Requesting completion from Ollama with model: {model}")
-
-                # Convert OpenAI message format to Ollama format if needed
-                last_message_content = str(messages[-1].get("content", "")) if messages else ""
-
-                # Call Ollama API
-                response = self._ollama_client.chat(
-                    model=OLLAMA_MODEL,
-                    messages=messages
-                )
-
-                completion = response['message']['content']
-
-                return completion
-
-                # # Log the successful completion
-                # log_ai_completion_success(
-                #     key_type="ollama",
-                #     message_type=message_type,
-                #     last_message_content=last_message_content,
-                #     response={"completion": completion},
-                # )
-                #
-                # return completion
-
             # If we're using the user's key, make sure the model is supported.
-            if self._openAI_sync_client and model not in self.models:
+            elif self._openAI_sync_client and model not in self.models:
                 model = "gpt-4o-mini"
 
             completion_function_params = get_open_ai_completion_function_params(
@@ -291,7 +282,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
             completion = None
             if self._openAI_sync_client is not None:
-                self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
+                self.log.debug(f"Requesting completion using OpenAI API with model: {model}")
 
                 completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
                 completion = completion.choices[0].message.content or ""
@@ -311,7 +302,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
+                key_type=self.key_type,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
@@ -322,8 +313,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
-            key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type}, error=e)
+            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
             raise
 
     async def stream_completions(
@@ -333,7 +323,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         Args:
             request: The completion request description.
-            prompt_type: The type of prompt that was sent to the AI (e.g. "chat", "smart_debug", "explain")
+            message_type: The type of message that was sent to the AI (e.g. "chat", "smart_debug", "explain")
         Returns:
             An async generator yielding first an acknowledge completion reply without
             completion and then completion chunks from the third-party provider.
@@ -351,111 +341,63 @@ This attribute is observed by the websocket provider to push the error to the cl
             parent_id=request.message_id,
         )
 
-        if use_ollama:
-            try:
-                # Use Ollama streaming
-                stream = self._ollama_client.chat(
-                    messages=request.messages,
-                    stream=True
-                )
-
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type="ollama",
-                    message_type=message_type,
-                    last_message_content=str(request.messages[-1].get('content', '')),
-                    response={"completion": "not available for streamed completions"},
-                )
-
-                async for chunk in stream:
-                    try:
-                        content = chunk['message']['content'] if 'message' in chunk and 'content' in chunk[
-                            'message'] else ""
-                        is_finished = chunk.get('done', False)
-
-                        yield CompletionStreamChunk(
-                            parent_id=request.message_id,
-                            chunk=CompletionItem(
-                                content=content,
-                                isIncomplete=True,
-                                token=request.message_id,
-                            ),
-                            done=is_finished,
-                        )
-                    except BaseException as e:
-                        self.last_error = CompletionError.from_exception(e)
-                        yield CompletionStreamChunk(
-                            parent_id=request.message_id,
-                            chunk=CompletionItem(
-                                content="",
-                                isIncomplete=True,
-                                error=CompletionItemError(
-                                    message=f"Failed to parse Ollama chunk completion: {e!r}"
-                                ),
-                                token=request.message_id,
-                            ),
-                            done=True,
-                            error=CompletionError.from_exception(e),
-                        )
-                        break
-
-            except BaseException as e:
-                self.last_error = CompletionError.from_exception(e)
-                log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: "ollama"}, error=e)
-                raise
-        else:
+        # If using Ollama, override the model parameter with OLLAMA_MODEL
+        if OLLAMA_MODEL and not self.api_key:
+            model = OLLAMA_MODEL
+            self.log.debug(f"Streaming completion from Ollama with model: {model}")
+        elif model not in self.models:
             # Validate that the model is supported. If not fall back to gpt-4o-mini
-            if model not in self.models:
-                model = "gpt-4o-mini"
+            model = "gpt-4o-mini"
 
-            # Send the completion request to the OpenAI API and returns a stream of completion chunks
+        # Send the completion request to the OpenAI API and returns a stream of completion chunks
+        try:
+            completion_function_params = get_open_ai_completion_function_params(
+                model, request.messages, stream=True
+            )
+            client = self._openAI_async_client
+            if client is None:
+                raise ValueError("OpenAI client not initialized")
+
+            stream = await client.chat.completions.create(**completion_function_params)
+
+            # Log the successful completion
+            log_ai_completion_success(
+                key_type=self.key_type,
+                message_type=message_type,
+                last_message_content=str(request.messages[-1].get('content', '')),
+                response={"completion": "not available for streamed completions"},
+            )
+
+        except BaseException as e:
+            self.last_error = CompletionError.from_exception(e)
+            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
+            raise
+
+        async for chunk in stream:
             try:
-                completion_function_params = get_open_ai_completion_function_params(model, request.messages,
-                                                                                    stream=True)
-                client = self._openAI_async_client
-                if client is None:
-                    raise ValueError("OpenAI client not initialized")
-                stream: AsyncStream[ChatCompletionChunk] = await client.chat.completions.create(
-                    **completion_function_params)
-
-                # Log the successful completion
-                log_ai_completion_success(
-                    key_type=USER_KEY,
-                    message_type=message_type,
-                    last_message_content=str(request.messages[-1].get('content', '')),
-                    response={"completion": "not available for streamed completions"},
+                is_finished = chunk.choices[0].finish_reason is not None
+                yield CompletionStreamChunk(
+                    parent_id=request.message_id,
+                    chunk=CompletionItem(
+                        content=chunk.choices[0].delta.content or "",
+                        isIncomplete=True,
+                        token=request.message_id,
+                    ),
+                    done=is_finished,
                 )
-
             except BaseException as e:
                 self.last_error = CompletionError.from_exception(e)
-                log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: USER_KEY}, error=e)
-                raise
-
-            async for chunk in stream:
-                try:
-                    is_finished = chunk.choices[0].finish_reason is not None
-                    yield CompletionStreamChunk(
-                        parent_id=request.message_id,
-                        chunk=CompletionItem(
-                            content=chunk.choices[0].delta.content or "",
-                            isIncomplete=True,
-                            token=request.message_id,
+                yield CompletionStreamChunk(
+                    parent_id=request.message_id,
+                    chunk=CompletionItem(
+                        content="",
+                        isIncomplete=True,
+                        error=CompletionItemError(
+                            message=f"Failed to parse chunk completion: {e!r}"
                         ),
-                        done=is_finished,
-                    )
-                except BaseException as e:
-                    self.last_error = CompletionError.from_exception(e)
-                    yield CompletionStreamChunk(
-                        parent_id=request.message_id,
-                        chunk=CompletionItem(
-                            content="",
-                            isIncomplete=True,
-                            error=CompletionItemError(
-                                message=f"Failed to parse chunk completion: {e!r}"
-                            ),
-                            token=request.message_id,
-                        ),
-                        done=True,
-                        error=CompletionError.from_exception(e),
-                    )
-                    break
+                        token=request.message_id,
+                    ),
+                    done=True,
+                    error=CompletionError.from_exception(e),
+                )
+                break
