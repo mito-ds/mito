@@ -204,7 +204,6 @@ async def stream_ai_completion_from_mito_server(
     # Define a callback to process chunks and add them to the queue
     def chunk_callback(chunk: bytes) -> None:
         try:
-            print(f"Received chunk: {chunk}")
             chunk_str = chunk.decode('utf-8')
             asyncio.create_task(chunk_queue.put(chunk_str))
         except Exception as e:
