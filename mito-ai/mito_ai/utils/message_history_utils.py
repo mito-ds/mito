@@ -2,6 +2,8 @@ import re
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.prompt_builders.prompt_constants import (
+    ACTIVE_CELL_OUTPUT_SECTION_HEADING,
+    GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
@@ -21,7 +23,9 @@ def trim_sections_from_message_content(content: str) -> str:
     section_headings = [
         FILES_SECTION_HEADING,
         VARIABLES_SECTION_HEADING,
-        JUPYTER_NOTEBOOK_SECTION_HEADING
+        JUPYTER_NOTEBOOK_SECTION_HEADING,
+        GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
+        ACTIVE_CELL_OUTPUT_SECTION_HEADING
     ]
     
     for heading in section_headings:

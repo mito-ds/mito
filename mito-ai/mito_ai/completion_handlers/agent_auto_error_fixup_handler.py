@@ -25,7 +25,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         """Get a smart debug completion from the AI provider."""
 
         # Add the system message if it doesn't already exist
-        await append_agent_system_message(message_history, provider, metadata.threadId)
+        await append_agent_system_message(message_history, provider, metadata.threadId, metadata.isChromeBrowser)
         
         # Create the prompt
         prompt = create_agent_smart_debug_prompt(metadata)
