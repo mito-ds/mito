@@ -137,6 +137,7 @@ PROMPT_BUILDER_TEST_CASES = [
                 errorMessage=TEST_ERROR,
                 promptType="agent:autoErrorFixup",
                 threadId=ThreadID("test-thread-id"),
+                isChromeBrowser=True
             )
         ),
         ["Error Traceback:", TEST_ERROR],
