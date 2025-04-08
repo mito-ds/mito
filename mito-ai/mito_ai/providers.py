@@ -267,7 +267,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             raise
 
-    async def stream_and_save_completions(
+    async def stream_completions(
         self,
         message_type: MessageType,
         messages: List[ChatCompletionMessageParam],

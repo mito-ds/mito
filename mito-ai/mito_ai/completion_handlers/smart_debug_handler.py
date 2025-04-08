@@ -138,7 +138,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         )
 
         # Stream the completions using the provider's stream method
-        accumulated_response = await provider.stream_and_save_completions(
+        accumulated_response = await provider.stream_completions(
             message_type=MessageType.SMART_DEBUG,
             messages=message_history.get_ai_optimized_history(thread_id),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],

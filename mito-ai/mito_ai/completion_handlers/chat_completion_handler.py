@@ -106,7 +106,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Stream the completions using the provider's stream method
-        accumulated_response = await provider.stream_and_save_completions(
+        accumulated_response = await provider.stream_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],

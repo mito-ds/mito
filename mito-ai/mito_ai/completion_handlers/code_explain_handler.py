@@ -88,7 +88,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, thread_id)
         
         # Stream the completions using the provider's stream method
-        accumulated_response = await provider.stream_and_save_completions(
+        accumulated_response = await provider.stream_completions(
             message_type=MessageType.CODE_EXPLAIN,
             messages=message_history.get_ai_optimized_history(thread_id),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
