@@ -8,7 +8,7 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, waitForIdleNotebook } from "./notebook"
+import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "./websocket/models"
@@ -47,14 +47,14 @@ export const acceptAndRunCode = async (
     */
     previewAICodeToActiveCell()
     acceptAICode()
+
+    // This awaits until after the execution is finished
     await app.commands.execute("notebook:run-cell");
 
-    // Wait for the exeuction to finish before responding to the agent
-    // so we can make sure it has the most up to date state. The next message 
-    // would still wait for the notebook to be idle before it was sent, but I think
-    // the context manager would access the old state instead of the new state. Adding this
-    // ensures that the context manager has the most up to date state.
-    await waitForIdleNotebook(notebookTracker)
+    // By sleeping here, we make sure that this function returns after the variable manager
+    // has updated the state of the variables. This ensures that on the next Ai message
+    // gets the most up to date data.
+    await sleep(1000)
 }
 
 export const retryIfExecutionError = async (

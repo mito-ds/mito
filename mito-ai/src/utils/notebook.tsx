@@ -5,7 +5,6 @@
 
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
-import { Kernel } from '@jupyterlab/services';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from './websocket/models';
 import { captureNode } from './nodeToPng';
@@ -278,55 +277,4 @@ export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, 
             }
         }, 500);
     }
-}
-
-
-export const waitForIdleNotebook = (notebookTracker: INotebookTracker, timeoutMs: number = 30000): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        // Get the current session
-        const session = notebookTracker.currentWidget?.context.sessionContext.session;
-        
-        if (!session || !session.kernel) {
-            // If there's no session or kernel, resolve immediately
-            resolve();
-            return;
-        }
-        
-        // Check the current status
-        if (session.kernel.status === 'idle') {
-            // If already idle, resolve immediately
-            resolve();
-            return;
-        }
-        
-        // Set up a timeout to avoid waiting indefinitely
-        const timeoutId = setTimeout(() => {
-            // Clean up listener if timeout occurs
-            if (session.kernel) {
-                session.kernel.statusChanged.disconnect(statusChangedCallback);
-            }
-            resolve(); // Resolve anyway instead of rejecting to avoid breaking callers
-            console.warn('Notebook did not reach idle state within timeout period');
-        }, timeoutMs);
-        
-        // Handle other terminal states that aren't 'idle'
-        const terminalStates: Kernel.Status[] = ['dead', 'terminating', 'restarting'];
-        
-        // Set up a status changed listener
-        const statusChangedCallback = (sender: any, status: Kernel.Status) => {
-            if (status === 'idle' || terminalStates.includes(status)) {
-                // Clean up
-                clearTimeout(timeoutId);
-                if (session.kernel) {
-                    session.kernel.statusChanged.disconnect(statusChangedCallback);
-                }
-                
-                // Resolve the promise
-                resolve();
-            }
-        };
-        
-        // Connect the listener to the statusChanged signal
-        session.kernel.statusChanged.connect(statusChangedCallback);
-    });
 }
