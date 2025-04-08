@@ -199,7 +199,6 @@ async def stream_ai_completion_from_mito_server(
     # ===== STEP 3: Set up streaming infrastructure =====
     start_time = time.time()
     chunk_queue = asyncio.Queue()
-    streaming_complete = False
     fetch_complete = False
     
     # Define a callback to process chunks and add them to the queue
@@ -265,8 +264,6 @@ async def stream_ai_completion_from_mito_server(
         raise
     finally:
         # ===== STEP 6: Clean up resources =====
-        # Mark streaming as complete
-        streaming_complete = True
         http_client.close()
 
 
