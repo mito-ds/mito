@@ -9,7 +9,7 @@
 import asyncio
 import json
 import time
-from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator
+from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator, Tuple
 from tornado.httpclient import AsyncHTTPClient
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -32,15 +32,27 @@ MITO_AI_URL: Final[str] = MITO_AI_PROD_URL
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
 
-async def get_ai_completion_from_mito_server(
+def _prepare_request_data_and_headers(
     last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
     timeout: int,
     max_retries: int,
     message_type: MessageType,
-) -> str:
+) -> Tuple[Dict[str, Any], Dict[str, str]]:
+    """
+    Prepare request data and headers for Mito server API calls.
     
-    # First check that the user is allowed to use the Mito Server
+    Args:
+        last_message_content: The last message content
+        ai_completion_data: The AI completion data
+        timeout: The timeout in seconds
+        max_retries: The maximum number of retries
+        message_type: The message type
+        
+    Returns:
+        A tuple containing the request data and headers
+    """
+    # Check that the user is allowed to use the Mito Server
     check_mito_server_quota(message_type)
     
     global __user_email, __user_id
@@ -63,14 +75,19 @@ async def get_ai_completion_from_mito_server(
         "Content-Type": "application/json",
     }
     
+    return data, headers
+
+def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
+    """
+    Create an HTTP client with appropriate timeout settings.
     
-    # There are several types of timeout errors that can happen here. 
-    # == 504 Timeout (tornado.httpclient.HTTPClientError: 504) ==  
-    # The server (AWS Lambda) took too long to process your request
-    # == 599 Timeout (tornado.httpclient.HTTPClientError: 599) ==  
-    # The client (Tornado) gave up waiting for a response
-    
-    http_client = None
+    Args:
+        timeout: The timeout in seconds
+        max_retries: The maximum number of retries
+        
+    Returns:
+        A tuple containing the HTTP client and the timeout value in milliseconds
+    """
     if is_running_test():
         # If we are running in a test environment, setting the request_timeout fails for some reason.
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
@@ -82,7 +99,35 @@ async def get_ai_completion_from_mito_server(
         # We also give the HTTP client a 10 second buffer to account for
         http_client_timeout = timeout * 1000 * max_retries + 10000
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
-        
+    
+    return http_client, http_client_timeout
+
+async def get_ai_completion_from_mito_server(
+    last_message_content: Union[str, None],
+    ai_completion_data: Dict[str, Any],
+    timeout: int,
+    max_retries: int,
+    message_type: MessageType,
+) -> str:
+    
+    # Prepare request data and headers
+    data, headers = _prepare_request_data_and_headers(
+        last_message_content, 
+        ai_completion_data, 
+        timeout, 
+        max_retries, 
+        message_type
+    )
+    
+    # Create HTTP client with appropriate timeout settings
+    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
+    
+    # There are several types of timeout errors that can happen here. 
+    # == 504 Timeout (tornado.httpclient.HTTPClientError: 504) ==  
+    # The server (AWS Lambda) took too long to process your request
+    # == 599 Timeout (tornado.httpclient.HTTPClientError: 599) ==  
+    # The client (Tornado) gave up waiting for a response
+    
     start_time = time.time()
     try:
         res = await http_client.fetch(
@@ -139,42 +184,17 @@ async def stream_ai_completion_from_mito_server(
     Yields:
         Chunks of text from the streaming response
     """
-    # ===== STEP 1: Prepare request data and headers =====
-    # Check that the user is allowed to use the Mito Server
-    check_mito_server_quota(message_type)
+    # Prepare request data and headers
+    data, headers = _prepare_request_data_and_headers(
+        last_message_content, 
+        ai_completion_data, 
+        timeout, 
+        max_retries, 
+        message_type
+    )
     
-    global __user_email, __user_id
-
-    if __user_email is None:
-        __user_email = get_user_field(UJ_USER_EMAIL)
-    if __user_id is None:
-        __user_id = get_user_field(UJ_STATIC_USER_ID)
-
-    data = {
-        "timeout": timeout,
-        "max_retries": max_retries,
-        "email": __user_email,
-        "user_id": __user_id,
-        "data": ai_completion_data,
-        "user_input": last_message_content or "",  # We add this just for logging purposes
-    }
-
-    headers = {
-        "Content-Type": "application/json",
-    }
-    
-    # ===== STEP 2: Create HTTP client with appropriate timeout settings =====
-    if is_running_test():
-        # If we are running in a test environment, setting the request_timeout fails for some reason.
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
-        http_client_timeout = None
-    else:
-        # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
-        # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
-        # The OpenAI timeouts are denoted in seconds, whereas the HTTP client expects milliseconds. 
-        # We also give the HTTP client a 10 second buffer to account for
-        http_client_timeout = timeout * 1000 * max_retries + 10000
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
+    # Create HTTP client with appropriate timeout settings
+    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     
     # ===== STEP 3: Set up streaming infrastructure =====
     start_time = time.time()
