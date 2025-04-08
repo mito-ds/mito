@@ -184,7 +184,7 @@ async def stream_ai_completion_from_mito_server(
     Yields:
         Chunks of text from the streaming response
     """
-    # Prepare request data and headers
+    # ===== STEP 1: Prepare request data and headers =====
     data, headers = _prepare_request_data_and_headers(
         last_message_content, 
         ai_completion_data, 
@@ -193,7 +193,7 @@ async def stream_ai_completion_from_mito_server(
         message_type
     )
     
-    # Create HTTP client with appropriate timeout settings
+    # ===== STEP 2: Create HTTP client with appropriate timeout settings =====
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     
     # ===== STEP 3: Set up streaming infrastructure =====
