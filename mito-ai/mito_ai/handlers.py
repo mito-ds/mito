@@ -209,7 +209,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             elif type == MessageType.SMART_DEBUG:
                 smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
                 # Handle streaming if requested and available
-                if stream and self._llm.can_stream:
+                if stream:
                     # Use stream_smart_debug_completion to stream the response
                     await stream_smart_debug_completion(
                         smart_debug_metadata, 
@@ -226,7 +226,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
 
                 # Handle streaming if requested and available
-                if stream and self._llm.can_stream:
+                if stream:
                     # Use stream_code_explain_completion to stream the response
                     await stream_code_explain_completion(
                         code_explain_metadata, 

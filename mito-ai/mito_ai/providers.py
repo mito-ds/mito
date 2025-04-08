@@ -84,7 +84,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
-        self._sync_client: Optional[openai.OpenAI] = None
         self._models: Optional[List[str]] = None
 
     @default("api_key")
@@ -195,22 +194,6 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return self._async_client
     
-    @property
-    def _openAI_sync_client(self) -> Optional[openai.OpenAI]:
-        """Get the synchronous OpenAI client."""
-        if not self.api_key:
-            return None
-
-        if not self._sync_client or self._sync_client.is_closed():
-            self._sync_client = openai.OpenAI(
-                api_key=self.api_key,
-                max_retries=self.max_retries,
-                timeout=self.timeout
-            )
-            
-        return self._sync_client
-        
-        
     async def request_completions(
         self,
         message_type: MessageType,
@@ -233,7 +216,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.last_error = None
             
             # If we're using the user's key, make sure the model is supported.
-            if self._openAI_sync_client and model not in self.models:
+            if self._openAI_async_client and model not in self.models:
                 model = "gpt-4o-mini"
         
             completion_function_params = get_open_ai_completion_function_params(
@@ -241,11 +224,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
             completion = None
-            if self._openAI_sync_client is not None:
+            if self._openAI_async_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
-                completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
-                completion = completion.choices[0].message.content or ""
+                response = await self._openAI_async_client.chat.completions.create(**completion_function_params)
+                completion = response.choices[0].message.content or ""
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
                 
@@ -262,7 +245,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
+                key_type=USER_KEY if self._openAI_async_client is not None else MITO_SERVER_KEY,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
@@ -315,7 +298,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         completion_function_params = get_open_ai_completion_function_params(model, request.messages, True)
 
         # Stream completions based on the available client
-        if self._openAI_sync_client is not None:
+        if self._openAI_async_client is not None:
             async for chunk in self._stream_from_openai(request, message_type, completion_function_params):
                 yield chunk
         else:
