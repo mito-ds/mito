@@ -4,8 +4,17 @@
 from __future__ import annotations
 
 import os
-from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Union, Callable
-
+from typing import (
+    Any,
+    AsyncGenerator,
+    Dict,
+    List,
+    Optional,
+    Union,
+    Type,
+    TYPE_CHECKING,
+    Callable
+)
 import openai
 from openai._streaming import AsyncStream
 from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
@@ -200,14 +209,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
         return self._sync_client
-    
-    @property
-    def key_type(self) -> Literal['mito_server_key', 'user_key']:
-        if self._openAI_sync_client is None:
-            return 'mito_server_key'
-        else:
-            return 'user_key'
-    
+        
+        
     async def request_completions(
         self,
         message_type: MessageType,
@@ -259,7 +262,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=self.key_type,
+                key_type=USER_KEY if self._openAI_sync_client is not None else MITO_SERVER_KEY,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
@@ -335,7 +338,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type='user_key',
+                key_type=USER_KEY,
                 message_type=message_type,
                 last_message_content=str(request.messages[-1].get('content', '')),
                 response={"completion": "not available for streamed completions"},
@@ -466,13 +469,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # Stream completions 
         async for reply in self.stream_completions(request, message_type, model):
-            
-            # Always call reply_fn if it exists, regardless of reply type
-            if reply_fn:
-                reply_fn(reply)
-            
-            # Only accumulate content from actual completion chunks
             if isinstance(reply, CompletionStreamChunk):
                 accumulated_response += reply.chunk.content
+                if reply_fn:
+                    reply_fn(reply)
+            elif reply_fn:
+                reply_fn(reply)
         
         return accumulated_response

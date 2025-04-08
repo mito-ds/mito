@@ -3,7 +3,6 @@
 
 import os
 from datetime import datetime
-from typing import Dict, Optional
 import pytest
 from unittest.mock import patch, MagicMock, call
 
@@ -85,14 +84,7 @@ ALL_TEST_CASES = OS_SUBSCRIPTION_TESTS + PRO_SUBSCRIPTION_TESTS + ERROR_HANDLING
     "is_pro, chat_completion_count, autocomplete_count, last_reset_date, message_type, should_raise_error",
     ALL_TEST_CASES
 )
-def test_check_mito_server_quota(
-    is_pro: bool, 
-    chat_completion_count: int,
-    autocomplete_count: int,
-    last_reset_date: Optional[str], 
-    message_type: MessageType, 
-    should_raise_error: bool
-) -> None:
+def test_check_mito_server_quota(is_pro, chat_completion_count, autocomplete_count, last_reset_date, message_type, should_raise_error):
     """Test the check_mito_server_quota function with various combinations of inputs."""
     
     # Create the patch context managers
@@ -150,7 +142,7 @@ DATE_RESET_TEST_CASES = [
     "reset_date, is_pro, message_type, should_reset",
     DATE_RESET_TEST_CASES
 )
-def test_date_triggers_reset(reset_date: Optional[str], is_pro: bool, message_type: MessageType, should_reset: bool) -> None:
+def test_date_triggers_reset(reset_date, is_pro, message_type, should_reset):
     """
     Test whether different dates trigger counter reset operations.
     Rather than checking downstream behavior, directly verify the reset operation occurs.
@@ -190,7 +182,7 @@ def test_date_triggers_reset(reset_date: Optional[str], is_pro: bool, message_ty
                     assert reset_call not in mock_set_user_field.call_args_list, f"Unexpected reset call {reset_call} found"
 
 # Special test cases that require specific patching of constants
-def test_zero_limits_configured() -> None:
+def test_zero_limits_configured():
     """Test when limits are configured as zero."""
     with (
         patch("mito_ai.utils.server_limits.OS_MONTHLY_AI_COMPLETIONS_LIMIT", 0),
@@ -267,14 +259,7 @@ UPDATE_QUOTA_TEST_CASES = [
     "first_usage_date, last_reset_date, completion_count, autocomplete_count, message_type, expected_ops",
     UPDATE_QUOTA_TEST_CASES
 )
-def test_update_mito_server_quota(
-    first_usage_date: Optional[str], 
-    last_reset_date: Optional[str], 
-    completion_count: int, 
-    autocomplete_count: int, 
-    message_type: MessageType, 
-    expected_ops: Dict[str, bool]
-) -> None:
+def test_update_mito_server_quota(first_usage_date, last_reset_date, completion_count, autocomplete_count, message_type, expected_ops):
     """Test the update_mito_server_quota function with various input combinations."""
     # Mock set_user_field to track calls
     mock_set_user_field = MagicMock()
@@ -288,6 +273,9 @@ def test_update_mito_server_quota(
     ):
         # Call the function
         update_mito_server_quota(message_type)
+        
+        # Prepare expected calls based on test case
+        expected_calls = []
         
         # Check initialization of first usage date
         if first_usage_date is None or expected_ops["update_first_date"]:
@@ -327,7 +315,7 @@ def test_update_mito_server_quota(
                 f"Expected autocomplete increment call {autocomplete_call} not found"
 
 # Special edge cases for update_mito_server_quota
-def test_update_quota_exception_handling() -> None:
+def test_update_quota_exception_handling():
     """Test that exceptions from set_user_field are properly propagated."""
     
     with (
@@ -347,7 +335,7 @@ def test_update_quota_exception_handling() -> None:
             update_mito_server_quota(MessageType.INLINE_COMPLETION)
         assert str(exc_info.value) == "Test error"
 
-def test_update_quota_future_reset_date() -> None:
+def test_update_quota_future_reset_date():
     """Test behavior when reset date is in the future."""
     
     mock_set_user_field = MagicMock()

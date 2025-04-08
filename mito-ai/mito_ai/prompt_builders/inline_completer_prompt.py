@@ -2,11 +2,6 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
-from mito_ai.prompt_builders.prompt_constants import (
-    FILES_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING
-)
 
 
 def create_inline_prompt(
@@ -30,10 +25,10 @@ CRITICAL FORMATTING RULES:
 Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent.
 
 <Example 1>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 file_name: sales.csv
 
-{VARIABLES_SECTION_HEADING} 
+Defined Variables: 
 {{
     'loan_multiplier': 1.5,
     'sales_df': pd.DataFrame({{
@@ -44,7 +39,7 @@ file_name: sales.csv
     }})
 }}
 
-{CODE_SECTION_HEADING}
+Code in the active code cell:
 ```python
 import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
@@ -62,10 +57,10 @@ sales_df['total_price'] = sales_df['total_price'] * loan_multiplier
 IMPORTANT: Notice in Example 1 that the output starts with a newline because the cursor was at the end of a comment. This newline is REQUIRED to maintain proper Python formatting.
 
 <Example 2>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 
 
-{VARIABLES_SECTION_HEADING} 
+Defined Variables: 
 {{
     df: pd.DataFrame({{
         'age': [20, 25, 22, 23, 29],
@@ -73,7 +68,7 @@ IMPORTANT: Notice in Example 1 that the output starts with a newline because the
     }})
 }}
 
-{CODE_SECTION_HEADING}
+Code in the active code cell:
 ```python
 df['age'] = df[<cursor>['age'] > 23]
 ```
@@ -87,13 +82,13 @@ df['age'] = df[df['age'] > 23]
 IMPORTANT: Notice in Example 2 that the output does NOT start with a newline because the cursor is in the middle of existing code.
 
 <Example 3>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 file_name: voters.csv
 
-{VARIABLES_SECTION_HEADING} 
+Defined Variables: 
 {{}}
 
-{CODE_SECTION_HEADING}
+Code in the active code cell:
 ```python
 voters = pd.read_csv('./voters.csv')
 
@@ -113,14 +108,14 @@ tx_voters = voters[voters['state'] == 'TX']
 IMPORTANT: Notice in Example 3 that output does not start with a newline character because it wasnts to continue the line of code that the user started. Also notice the output contains three lines of code because that is the minimal code to achieve the user's intent.
 
 <Example 4>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 file_name: july_2025.xlsx
 file_name: august_2025.xlsx
 
-{VARIABLES_SECTION_HEADING} 
+Defined Variables: 
 {{}}
 
-{CODE_SECTION_HEADING}
+Code in the active code cell:
 ```python
 # Display the first 5 rows of the dataframe
 df.head()
@@ -135,13 +130,13 @@ Output:
 IMPORTANT: Notice in Example 4 that the output is empty becuase the user's intent is already complete.
 
 <Example 5>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 
 
-{VARIABLES_SECTION_HEADING} 
+Defined Variables: 
 {{}}
 
-{CODE_SECTION_HEADING}
+Code in the active code cell:
 ```python
 def even_and_odd():
     for i in range(10):
@@ -160,13 +155,13 @@ Output:
 IMPORTANT: Notice in Example 5 that the output is indented several times because the code must be executed as part of the else block.
 
 <Example 6>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 
 
-{VARIABLES_SECTION_HEADING} 
+Defined Variables: 
 {{}}
 
-{CODE_SECTION_HEADING}
+Code in the active code cell:
 ```python
 days_in_week <cursor>
 ```
@@ -181,13 +176,13 @@ IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, 
 
 Your Task:
 
-{FILES_SECTION_HEADING}
+Files in the current directory:
 {files_str}
 
-{VARIABLES_SECTION_HEADING} 
+Defined Variables: 
 {variables_str}
 
-{CODE_SECTION_HEADING}
+Code in the active code cell:
 ```python
 {prefix}<cursor>{suffix}
 ```

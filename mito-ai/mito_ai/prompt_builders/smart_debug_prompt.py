@@ -2,11 +2,6 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
-from mito_ai.prompt_builders.prompt_constants import (
-    FILES_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING
-)
 
 
 def create_error_prompt(
@@ -20,10 +15,10 @@ def create_error_prompt(
     return f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
 
 <Example 1>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 file_name: sales.csv
 
-{VARIABLES_SECTION_HEADING}
+Defined Variables:
 {{
     'revenue_multiplier': 1.5,
     'sales_df': pd.DataFrame({{
@@ -34,7 +29,7 @@ file_name: sales.csv
     }})
 }}
 
-{CODE_SECTION_HEADING}
+Code in active cell:
 ```python
 import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
@@ -70,10 +65,10 @@ The DataFrame contains 'total_price' rather than 'price'. Updated column referen
 </Example 1>
 
 <Example 2>
-{FILES_SECTION_HEADING}
+Files in the current directory:
 
 
-{VARIABLES_SECTION_HEADING}
+Defined Variables:
 {{
     'df': pd.DataFrame({{
         'order_id': [1, 2, 3, 4],
@@ -82,7 +77,7 @@ The DataFrame contains 'total_price' rather than 'price'. Updated column referen
     }})
 }}
 
-{CODE_SECTION_HEADING}
+Code in active cell:
 ```python
 df['date'] = pd.to_datetime(df['date'])
 ```
@@ -150,13 +145,13 @@ Solution Requirements:
 
 Here is your task. 
 
-{FILES_SECTION_HEADING}
+Files in the current directory:
 {files_str}
 
-{VARIABLES_SECTION_HEADING}
+Defined Variables:
 {variables_str}
 
-{CODE_SECTION_HEADING}
+Code in active cell:
 ```python
 {active_cell_code}
 ```
