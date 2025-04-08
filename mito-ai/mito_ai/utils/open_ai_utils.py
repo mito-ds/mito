@@ -256,17 +256,17 @@ async def stream_ai_completion_from_mito_server(
         print(f"\nStream completed in {time.time() - start_time:.2f} seconds")
     except Exception as e:
         print(f"\nStream failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
-        raise
-    finally:
-        # ===== STEP 6: Clean up resources =====
-        # Mark streaming as complete
-        streaming_complete = True
-        # Wait for the fetch future to complete if it exists
+        # If an exception occurred, ensure the fetch future is awaited to properly clean up
         if fetch_future:
             try:
                 await fetch_future
             except Exception:
                 pass
+        raise
+    finally:
+        # ===== STEP 6: Clean up resources =====
+        # Mark streaming as complete
+        streaming_complete = True
         http_client.close()
 
 
