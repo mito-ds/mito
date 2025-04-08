@@ -3,6 +3,11 @@
 
 from typing import List
 from mito_ai.models import AgentSmartDebugMetadata
+from mito_ai.prompt_builders.prompt_constants import (
+    FILES_SECTION_HEADING,
+    JUPYTER_NOTEBOOK_SECTION_HEADING,
+    VARIABLES_SECTION_HEADING
+)
 
 # TODO:
 # 1. In the future, it might make sense to pass the previous CELL_UPDATE to this prompt?
@@ -53,7 +58,7 @@ ERROR CORRECTION:
 
 <Input>
 
-Files in the current directory:
+{FILES_SECTION_HEADING}
 file_name: sales.csv
 
 Jupyter Notebook:
@@ -79,7 +84,7 @@ Jupyter Notebook:
     }},
 ]
 
-Defined Variables:
+{VARIABLES_SECTION_HEADING}
 {{
     'df': pd.DataFrame({{
         'order_id': [1, 2, 3, 4],
@@ -129,13 +134,13 @@ User is trying to convert the date column to a datetime object even though the d
 
 </Example>
 
-Files in the current directory:
+{FILES_SECTION_HEADING}
 {files_str}
 
-Jupyter Notebook:
+{JUPYTER_NOTEBOOK_SECTION_HEADING}
 {ai_optimized_cells_str}
 
-Defined Variables:
+{VARIABLES_SECTION_HEADING}
 {variables_str}
 
 Cell ID of the Error Producing Code Cell:
