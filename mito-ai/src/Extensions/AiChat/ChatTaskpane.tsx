@@ -187,8 +187,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // If the user sent a message in agent:execution mode, the ai response will be a JSON object which we need to parse. 
                 // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
                 const chatHistoryItem = JSON.parse(item.content as string);
-                if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'is_finished')) {
-                    // If it has the is_finished keys then it is an AgentResponse and we should handle it as such
+                if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'type')) {
+                    // If it is a structured output with 'type', then it is an AgentResponse and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                     isAgentChat = true
@@ -385,7 +385,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: No post processing step needed for explaining code. 
     }
 
-    const sendAgentExecutionMessage = async (input: string, messageIndex?: number): Promise<void> => {
+    const sendAgentExecutionMessage = async (input: string, messageIndex?: number, sendActiveCellOutput: boolean = false): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -401,6 +401,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
         }
+
+        if (sendActiveCellOutput) {
+            const activeCellOutput = await getActiveCellOutput(notebookTracker)
+            if (activeCellOutput !== undefined) {
+                agentExecutionMetadata.base64EncodedActiveCellOutput = activeCellOutput
+            }
+        }
+
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -696,6 +704,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         let isAgentFinished = false
         let agentExecutionDepth = 1
+        let sendActiveCellOutput = false
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
@@ -710,7 +719,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex)
             } else {
-                await sendAgentExecutionMessage('')
+                await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
+                
+                // Reset flag back to false until the agent requests the active cell output again
+                sendActiveCellOutput = false
             }
 
             // Iterate the agent execution depth
@@ -744,47 +756,58 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 isAgentFinished = true
                 break;
             }
-            if (agentResponse.is_finished) {
+
+            if (agentResponse.type === 'finished_task') {
                 // If the agent told us that it is finished, we can stop
                 isAgentFinished = true
                 break;
             }
-            if (agentResponse.cell_update === undefined || agentResponse.cell_update === null) {
+
+            if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
                 // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
                 isAgentFinished = true
                 break;
             }
 
-            // Run the code and handle any errors
-            await acceptAndRunCellUpdate(agentResponse.cell_update, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
-            const status = await retryIfExecutionError(
-                notebookTracker,
-                app,
-                getDuplicateChatHistoryManager,
-                addAIMessageFromResponseAndUpdateState,
-                sendAgentSmartDebugMessage,
-                previewAICodeToActiveCell,
-                acceptAICode,
-                shouldContinueAgentExecution,
-                finalizeAgentStop,
-                chatHistoryManagerRef
-            )
+            if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
+                // Run the code and handle any errors
+                await acceptAndRunCellUpdate(agentResponse.cell_update, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+                const status = await retryIfExecutionError(
+                    notebookTracker,
+                    app,
+                    getDuplicateChatHistoryManager,
+                    addAIMessageFromResponseAndUpdateState,
+                    sendAgentSmartDebugMessage,
+                    previewAICodeToActiveCell,
+                    acceptAICode,
+                    shouldContinueAgentExecution,
+                    finalizeAgentStop,
+                    chatHistoryManagerRef
+                )
 
-            if (status === 'interupted') {
-                break;
+                if (status === 'interupted') {
+                    break;
+                }
+    
+                // If we were not able to run the code, break out of the loop 
+                // so we don't continue to execute the plan. Instead, we encourage
+                // the user to update the plan and try again. 
+                // TODO: Save this message in backend also even if there is not another message sent. 
+                // TODO: Move this into the retryIfExecutionError function?
+                if (status === 'failure') {
+                    addAIMessageFromResponseAndUpdateState(
+                        "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
+                        'agent:execution',
+                        chatHistoryManager
+                    )
+                    break;
+                }
             }
 
-            // If we were not able to run the code, break out of the loop 
-            // so we don't continue to execute the plan. Instead, we encourage
-            // the user to update the plan and try again. 
-            // TODO: Save this message in backend also even if there is not another message sent. 
-            if (status === 'failure') {
-                addAIMessageFromResponseAndUpdateState(
-                    "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                    'agent:execution',
-                    chatHistoryManager
-                )
-                break;
+            if (agentResponse.type === 'get_cell_output') {
+                // Mark that we should send the active cell output to the agent 
+                // in the next loop iteration
+                sendActiveCellOutput = true
             }
         }
 
