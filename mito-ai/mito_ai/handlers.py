@@ -213,9 +213,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
                 completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_EXECUTION:
-                print(metadata_dict)
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
-                
                 completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
                 agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
