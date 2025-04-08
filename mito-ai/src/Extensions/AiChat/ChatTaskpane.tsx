@@ -19,6 +19,7 @@ import '../../../style/TextButton.css';
 import { addIcon, historyIcon, deleteIcon } from '@jupyterlab/ui-components';
 import { OpenIndicatorLabIcon } from '../../icons';
 import SupportIcon from '../../icons/SupportIcon';
+import MitoLogo from '../../icons/MitoLogo';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
@@ -1137,8 +1138,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
                         <p className="long-message">
-                            Ask your personal Python expert anything!
-                            <br />
+                            <div style={{ margin: '0 auto 15px', display: 'block', textAlign: 'center' }}>
+                                <MitoLogo width="90" height="45" />
+                            </div>
+                            <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', marginBottom: '20px', fontSize: '26px' }}>Data Copilot</span>
                             Hint:
                             {[
                                 " Use @ to reference variables.",
@@ -1147,7 +1150,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             ][Math.floor(Math.random() * 3)]}
                         </p>
                         <p className="short-message">
-                            Ask me anything!
+                            <div style={{ margin: '0 auto 8px', display: 'block', textAlign: 'center' }}>
+                                <MitoLogo width="60" height="30" />
+                            </div>
+                            <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px' }}>Data Copilot</span>
                         </p>
                     </div>
                 }
