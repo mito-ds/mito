@@ -8,7 +8,7 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID } from "./notebook"
+import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, waitForIdleNotebook } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "./websocket/models"
@@ -31,11 +31,12 @@ export const acceptAndRunCellUpdate = async (
     }
 
     // The target cell should now be the active cell
-    await acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
+    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode)
 }
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker,
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
 ): Promise<void> => {
@@ -47,6 +48,11 @@ export const acceptAndRunCode = async (
     previewAICodeToActiveCell()
     acceptAICode()
     await app.commands.execute("notebook:run-cell");
+
+    // Wait for the exeuction to finish before responding to the agent
+    // so we can make sure it has the most up to date state.
+    await waitForIdleNotebook(notebookTracker)
+
 }
 
 export const retryIfExecutionError = async (
