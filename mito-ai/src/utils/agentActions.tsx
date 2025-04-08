@@ -50,9 +50,11 @@ export const acceptAndRunCode = async (
     await app.commands.execute("notebook:run-cell");
 
     // Wait for the exeuction to finish before responding to the agent
-    // so we can make sure it has the most up to date state.
+    // so we can make sure it has the most up to date state. The next message 
+    // would still wait for the notebook to be idle before it was sent, but I think
+    // the context manager would access the old state instead of the new state. Adding this
+    // ensures that the context manager has the most up to date state.
     await waitForIdleNotebook(notebookTracker)
-
 }
 
 export const retryIfExecutionError = async (
