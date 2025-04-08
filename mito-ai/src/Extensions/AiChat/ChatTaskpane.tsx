@@ -719,6 +719,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 await sendAgentExecutionMessage(input, messageIndex)
             } else {
                 await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
+                
+                // Reset flag back to false until the agent requests the active cell output again
+                sendActiveCellOutput = false
             }
 
             // Iterate the agent execution depth
