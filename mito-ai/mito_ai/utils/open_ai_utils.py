@@ -9,16 +9,17 @@
 import asyncio
 import json
 import time
-from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator, Tuple
+from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator, Tuple, Callable
 from tornado.httpclient import AsyncHTTPClient
 from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai.utils.utils import is_running_test
-from mito_ai.models import MessageType, ResponseFormatInfo
+from mito_ai.models import MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
+from mito_ai.utils.telemetry_utils import log_ai_completion_success
 
 MITO_AI_PROD_URL: Final[str] = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws/openai/completions"
 # TODO: Create a dev endpoint for streaming
@@ -167,6 +168,8 @@ async def stream_ai_completion_from_mito_server(
     timeout: int,
     max_retries: int,
     message_type: MessageType,
+    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
+    message_id: Optional[str] = None,
 ) -> AsyncGenerator[str, None]:
     """
     Stream AI completions from the Mito server.
@@ -180,6 +183,8 @@ async def stream_ai_completion_from_mito_server(
         timeout: The timeout in seconds
         max_retries: The maximum number of retries
         message_type: The message type
+        reply_fn: Optional function to call with each chunk for streaming replies
+        message_id: The message ID to track the request
         
     Yields:
         Chunks of text from the streaming response
@@ -249,6 +254,19 @@ async def stream_ai_completion_from_mito_server(
                 # which could happen if fetch_complete has not been set to true yet, and 2. it enables
                 # periodic checking if the queue has a new chunk.
                 chunk = await asyncio.wait_for(chunk_queue.get(), timeout=0.1)
+                
+                # If reply_fn is provided, send the chunk directly to the frontend
+                if reply_fn and message_id:
+                    reply_fn(CompletionStreamChunk(
+                        parent_id=message_id,
+                        chunk=CompletionItem(
+                            content=chunk,
+                            isIncomplete=True,
+                            token=message_id,
+                        ),
+                        done=False,
+                    ))
+                
                 yield chunk
             except asyncio.TimeoutError:
                 # No chunk available within timeout, check if fetch is complete
@@ -259,6 +277,26 @@ async def stream_ai_completion_from_mito_server(
                 continue
                 
         print(f"\nStream completed in {time.time() - start_time:.2f} seconds")
+        
+        # Send a final chunk to indicate completion if reply_fn is provided
+        if reply_fn and message_id:
+            reply_fn(CompletionStreamChunk(
+                parent_id=message_id,
+                chunk=CompletionItem(
+                    content="",
+                    isIncomplete=False,
+                    token=message_id,
+                ),
+                done=True,
+            ))
+            
+        # Log the successful completion
+        log_ai_completion_success(
+            key_type='mito_server_key',
+            message_type=message_type,
+            last_message_content=last_message_content or "",
+            response={"completion": "not available for streamed completions"},
+        )
     except Exception as e:
         print(f"\nStream failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
         # If an exception occurred, ensure the fetch future is awaited to properly clean up
