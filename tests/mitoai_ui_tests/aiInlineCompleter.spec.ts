@@ -71,13 +71,13 @@ test.describe("default inline completion", () => {
         providers: {
           "@jupyterlab/inline-completer:history": {
             enabled: false,
-            timeout: 5000,
+            timeout: 10000,
             debouncerDelay: 0,
             maxSuggestions: 100,
           },
           "mito-ai": {
             enabled: true,
-            timeout: 5000,
+            timeout: 10000,
             debouncerDelay: 250,
             triggerKind: "any",
           },
