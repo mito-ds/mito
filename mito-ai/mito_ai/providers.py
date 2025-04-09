@@ -246,7 +246,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # Log the successful completion
             log_ai_completion_success(
-                key_type=USER_KEY if self._openAI_async_client is not None else MITO_SERVER_KEY,
+                key_type=MITO_SERVER_KEY if self._openAI_async_client is None else USER_KEY,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
