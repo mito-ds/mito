@@ -9,6 +9,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
+import { isChromeBasedBrowser } from "../../utils/user";
 
 export type PromptType = 
     'chat' | 
@@ -120,7 +121,8 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             aiOptimizedCells: aiOptimizedCells,
             input: input || '',
-            threadId: activeThreadId
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         // We use this function in two ways: 
@@ -191,7 +193,8 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             errorMessage: errorMessage,
             error_message_producing_code_cell_id: activeCellID || '',
-            threadId: activeThreadId
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         this.displayOptimizedChatHistory.push(
@@ -289,12 +292,17 @@ export class ChatHistoryManager {
 
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
 
-        const code = agentResponse.cell_update?.code
-        const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
-
         let content = agentResponse.message
-        if (codeWithMarkdownFormatting !== undefined) {
-            content = content + '\n\n' + codeWithMarkdownFormatting
+        if (agentResponse.type === 'cell_update') {
+            // For cell_update messages, we want to display the code the agent wrote along with 
+            // the message it sent. For all other agent responses, we ignore all other fields
+            // and just display the message.
+            const code = agentResponse.cell_update?.code
+            const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
+
+            if (codeWithMarkdownFormatting !== undefined) {
+                content = content + '\n\n' + codeWithMarkdownFormatting
+            }
         }
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
