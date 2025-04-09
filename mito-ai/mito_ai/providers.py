@@ -371,7 +371,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         else:
             # Stream from Mito server
             # Stream directly from the Mito server with the reply_fn
-            async for chunk in stream_ai_completion_from_mito_server(
+            async for chunk_from_mito_server in stream_ai_completion_from_mito_server(
                 last_message_content,
                 completion_function_params,
                 self.timeout,
@@ -380,7 +380,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 reply_fn=reply_fn,
                 message_id=message_id,
             ):
-                accumulated_response += str(chunk)
+                accumulated_response += str(chunk_from_mito_server)
         
         # Log the successful completion 
         key_type = USER_KEY if self._openAI_async_client is not None else MITO_SERVER_KEY
