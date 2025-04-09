@@ -199,7 +199,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
-        user_input: str,
+        user_input: Optional[str] = None,
         response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
         """
@@ -250,7 +250,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
-                user_input=user_input
+                user_input=user_input or ""
             )
             
             # Finally, return the completion
@@ -275,8 +275,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         messages: List[ChatCompletionMessageParam],
         model: str,
         message_id: str,
-        user_input: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        user_input: Optional[str] = None,
         response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
         """
@@ -393,7 +393,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             message_type=message_type,
             last_message_content=last_message_content,
             response={"completion": accumulated_response},
-            user_input=user_input
+            user_input=user_input or ""
         )
         
         return accumulated_response
