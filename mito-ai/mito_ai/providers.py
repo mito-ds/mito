@@ -380,7 +380,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 reply_fn=reply_fn,
                 message_id=message_id,
             ):
-                accumulated_response += chunk
+                accumulated_response += str(chunk)
         
         # Log the successful completion 
         key_type = USER_KEY if self._openAI_async_client is not None else MITO_SERVER_KEY
