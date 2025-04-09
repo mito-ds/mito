@@ -1,10 +1,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import pytest  # type: ignore
-from unittest.mock import patch, Mock
-from typing import List, Dict, Any, cast, TypedDict, Optional
-
+import pytest
+from typing import Callable, List, cast
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.message_history_utils import trim_sections_from_message_content, trim_old_messages
 from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
@@ -14,7 +12,6 @@ from mito_ai.prompt_builders.agent_smart_debug_prompt import (
 )
 from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt
 from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prompt
-from mito_ai.prompt_builders.inline_completer_prompt import create_inline_prompt
 from mito_ai.models import (
     AgentExecutionMetadata,
     AgentSmartDebugMetadata,
@@ -36,17 +33,7 @@ TEST_CODE = "import pandas as pd\ndf = pd.read_csv('data.csv')"
 TEST_INPUT = "Calculate the mean of col1"
 TEST_ERROR = "AttributeError: 'Series' object has no attribute 'mena'"
 
-
-@pytest.mark.parametrize(
-    "content,expected", [({"some": "dict"}, {"some": "dict"}), (None, None), (123, 123)]
-)
-def test_trim_non_string_content(content, expected):
-    """Test that non-string content is returned unchanged."""
-    result = trim_sections_from_message_content(content)
-    assert result == expected
-
-
-def test_trim_sections_basic():
+def test_trim_sections_basic() -> None:
     """Test trimming sections on a simple string with all section types."""
     content = f"""Some text before.
 
@@ -100,7 +87,7 @@ Some text after."""
 PROMPT_BUILDER_TEST_CASES = [
     # Chat prompt
     (
-        lambda: create_chat_prompt(TEST_VARIABLES, TEST_FILES, TEST_CODE, TEST_INPUT),
+        lambda: create_chat_prompt(TEST_VARIABLES, TEST_FILES, TEST_CODE, False, TEST_INPUT),
         ["Your task: Calculate the mean of col1"],
         ["data.csv\nscript.py", f"{VARIABLES_SECTION_HEADING}\n'df': pd.DataFrame"],
     ),
@@ -116,6 +103,7 @@ PROMPT_BUILDER_TEST_CASES = [
                 input=TEST_INPUT,
                 promptType="agent:execution",
                 threadId=ThreadID("test-thread-id"),
+                isChromeBrowser=True
             )
         ),
         ["Your task: \nCalculate the mean of col1"],
@@ -149,6 +137,7 @@ PROMPT_BUILDER_TEST_CASES = [
                 errorMessage=TEST_ERROR,
                 promptType="agent:autoErrorFixup",
                 threadId=ThreadID("test-thread-id"),
+                isChromeBrowser=True
             )
         ),
         ["Error Traceback:", TEST_ERROR],
@@ -162,7 +151,7 @@ PROMPT_BUILDER_TEST_CASES = [
 
 
 @pytest.mark.parametrize("prompt_builder,expected_in_result,expected_not_in_result", PROMPT_BUILDER_TEST_CASES)
-def test_prompt_builder_trimming(prompt_builder, expected_in_result, expected_not_in_result):
+def test_prompt_builder_trimming(prompt_builder: Callable[[], str], expected_in_result: List[str], expected_not_in_result: List[str]) -> None:
     """Test trimming for different prompt builders."""
     # Create prompt using the provided builder function
     content = prompt_builder()
@@ -204,7 +193,7 @@ def test_prompt_builder_trimming(prompt_builder, expected_in_result, expected_no
     for not_expected in expected_not_in_result:
         assert not_expected not in result
 
-def test_no_sections_to_trim():
+def test_no_sections_to_trim() -> None:
     """Test trimming content with no sections to trim."""
     content = "This is a simple message with no sections to trim."
     result = trim_sections_from_message_content(content)
@@ -212,7 +201,7 @@ def test_no_sections_to_trim():
 
 
 # Tests for trim_old_messages function
-def test_trim_old_messages_only_trims_user_messages():
+def test_trim_old_messages_only_trims_user_messages() -> None:
     """Test that trim_old_messages only trims content from user messages."""
     # Create test messages with different roles
     user_message_with_sections = f"""User prompt with sections.
@@ -269,7 +258,7 @@ file2.txt
     assert recent_content == "Recent user message"
 
 
-def test_trim_old_messages_preserves_recent_messages():
+def test_trim_old_messages_preserves_recent_messages() -> None:
     """Test that trim_old_messages preserves the most recent messages based on keep_recent parameter."""
     # Create test messages
     old_message_1 = f"""Old message 1.
@@ -324,14 +313,14 @@ file4.csv
     assert FILES_SECTION_HEADING in recent_content_2
     assert "file4.csv" in recent_content_2
 
-def test_trim_old_messages_empty_list():
+def test_trim_old_messages_empty_list() -> None:
     """Test that trim_old_messages handles empty message lists correctly."""
     messages: List[ChatCompletionMessageParam] = []
     result = trim_old_messages(messages, keep_recent=2)
     assert result == []
 
 
-def test_trim_old_messages_fewer_than_keep_recent():
+def test_trim_old_messages_fewer_than_keep_recent() -> None:
     """Test that trim_old_messages doesn't modify messages if there are fewer than keep_recent."""
     messages: List[ChatCompletionMessageParam] = [
         {"role": "user", "content": "User message 1"},
@@ -348,3 +337,43 @@ def test_trim_old_messages_fewer_than_keep_recent():
     assistant_content = result[1].get("content")
     assert isinstance(assistant_content, str)
     assert assistant_content == "Assistant message 1"
+
+
+def test_trim_mixed_content_messages() -> None:
+    """
+    Tests that when a message contains sections other than text (like image_url),
+    those sections are removed completely, leaving only the text content.
+    """
+    # Create sample message with mixed content (text and image)
+    mixed_content_message = cast(ChatCompletionMessageParam, {
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "What is in this image?"
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": "data:image/png;base64,someimagedata"}
+            }
+        ]
+    })
+    
+    # Create sample message list with one old message (the mixed content)
+    # and one recent message (to not be trimmed)
+    message_list: List[ChatCompletionMessageParam] = [
+        mixed_content_message,  # This should get trimmed
+        {"role": "assistant", "content": "That's a chart showing data trends"},
+        {"role": "user", "content": "Can you explain more?"}  # Recent message, should not be trimmed
+    ]
+    
+    # Apply the trimming function
+    trimmed_messages = trim_old_messages(message_list, keep_recent=2)
+    
+    # Verify that the first message has been trimmed properly
+    assert trimmed_messages[0]["role"] == "user"
+    assert trimmed_messages[0]["content"] == "What is in this image?"
+    
+    # Verify that the recent messages are untouched
+    assert trimmed_messages[1] == message_list[1]
+    assert trimmed_messages[2] == message_list[2]
