@@ -329,20 +329,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     
                 stream: AsyncStream[ChatCompletionChunk] = await client.chat.completions.create(**completion_function_params)
                 
-            except BaseException as e:
-                self.last_error = CompletionError.from_exception(e)
-                log(
-                    MITO_AI_COMPLETION_ERROR, 
-                    params={
-                        KEY_TYPE_PARAM: USER_KEY,
-                        'message_type': message_type.value,
-                    },
-                    error=e
-                )
-                raise
-
-            async for chunk in stream:
-                try:
+                async for chunk in stream:
                     is_finished = chunk.choices[0].finish_reason is not None
                     content = chunk.choices[0].delta.content or ""
                     accumulated_response += content
@@ -356,22 +343,31 @@ This attribute is observed by the websocket provider to push the error to the cl
                         ),
                         done=is_finished,
                     ))
-                except BaseException as e:
-                    self.last_error = CompletionError.from_exception(e)
-                    reply_fn(CompletionStreamChunk(
-                        parent_id=message_id,
-                        chunk=CompletionItem(
-                            content="",
-                            isIncomplete=True,
-                            error=CompletionItemError(
-                                message=f"Failed to parse chunk completion: {e!r}"
-                            ),
-                            token=message_id,
+            except BaseException as e:
+                self.last_error = CompletionError.from_exception(e)
+                log(
+                    MITO_AI_COMPLETION_ERROR, 
+                    params={
+                        KEY_TYPE_PARAM: USER_KEY,
+                        'message_type': message_type.value,
+                    },
+                    error=e
+                )
+                # Send error message to client before raising
+                reply_fn(CompletionStreamChunk(
+                    parent_id=message_id,
+                    chunk=CompletionItem(
+                        content="",
+                        isIncomplete=True,
+                        error=CompletionItemError(
+                            message=f"Failed to process completion: {e!r}"
                         ),
-                        done=True,
-                        error=CompletionError.from_exception(e),
-                    ))
-                    break
+                        token=message_id,
+                    ),
+                    done=True,
+                    error=CompletionError.from_exception(e),
+                ))
+                raise
         else:
             # Stream from Mito server
             # Stream directly from the Mito server with the reply_fn
