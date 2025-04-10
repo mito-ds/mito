@@ -514,9 +514,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             // Create the stream handler function and store it in the ref
-            const streamHandler = (
-                _: CompletionWebsocketClient, chunk: ICompletionStreamChunk
-            ) => {                
+            const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {                
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
@@ -1183,6 +1181,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             message={displayOptimizedChat.message}
                             promptType={displayOptimizedChat.promptType}
                             messageType={displayOptimizedChat.type}
+                            agentResponse={displayOptimizedChat.agentResponse}
                             codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}

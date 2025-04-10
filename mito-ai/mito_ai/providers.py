@@ -254,7 +254,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             
             # Finally, return the completion
-            return completion # type: ignore
+            return completion
                 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)

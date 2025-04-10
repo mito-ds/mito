@@ -1,7 +1,7 @@
 import pytest
 from mito_ai.prompt_builders.agent_system_message import create_agent_system_message_prompt
 
-def test_create_agent_system_message_prompt_browser_conditional():
+def test_create_agent_system_message_prompt_browser_conditional() -> None:
     """
     Test that verifies the create_agent_system_message_prompt function produces different output
     based on the browser type.

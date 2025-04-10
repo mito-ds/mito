@@ -234,7 +234,7 @@ async def stream_ai_completion_from_mito_server(
         )
         
         # Create a task to wait for the fetch to complete
-        async def wait_for_fetch():
+        async def wait_for_fetch() -> None:
             try:
                 await fetch_future
                 nonlocal fetch_complete
