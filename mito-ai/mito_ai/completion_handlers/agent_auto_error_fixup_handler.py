@@ -45,7 +45,8 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
                 format=AgentResponse
             ),
             message_type=MessageType.AGENT_AUTO_ERROR_FIXUP,
-            user_input=metadata.errorMessage
+            user_input=metadata.errorMessage,
+            thread_id=metadata.threadId
         )
         
         # Add the response to message history

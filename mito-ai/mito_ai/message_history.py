@@ -26,7 +26,8 @@ async def generate_short_chat_name(user_message: str, assistant_message: str, ll
     completion = await llm_provider.request_completions(
         messages=[{"role": "user", "content": prompt}], 
         model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT_NAME_GENERATION],
-        message_type=MessageType.CHAT_NAME_GENERATION
+        message_type=MessageType.CHAT_NAME_GENERATION,
+        thread_id=None
     )
         
     if not completion or completion == "":

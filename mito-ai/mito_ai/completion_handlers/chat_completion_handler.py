@@ -54,7 +54,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_type=MessageType.CHAT,
-            user_input=metadata.input
+            user_input=metadata.input,
+            thread_id=metadata.threadId
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
@@ -115,7 +116,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_id=message_id,
             reply_fn=reply_fn,
-            user_input=metadata.input
+            user_input=metadata.input,
+            thread_id=metadata.threadId
         )
 
         # Save the accumulated response to message history
