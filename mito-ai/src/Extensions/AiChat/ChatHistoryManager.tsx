@@ -9,6 +9,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
+import { isChromeBasedBrowser } from "../../utils/user";
 
 export type PromptType = 
     'chat' | 
@@ -120,7 +121,8 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             aiOptimizedCells: aiOptimizedCells,
             input: input || '',
-            threadId: activeThreadId
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         // We use this function in two ways: 
@@ -191,7 +193,8 @@ export class ChatHistoryManager {
             files: this.contextManager.files,
             errorMessage: errorMessage,
             error_message_producing_code_cell_id: activeCellID || '',
-            threadId: activeThreadId
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         this.displayOptimizedChatHistory.push(
@@ -318,6 +321,10 @@ export class ChatHistoryManager {
     }
 
     getLastAIMessageIndex = (): number | undefined => {
+        // We assume that assistant messages are always separated by user messages.
+        // This allows us to simply find the last assistant message in the history.
+        // If this invariant changes (e.g., if we need to support consecutive assistant messages),
+        // we should modify this to use message IDs instead.
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
             if (chatEntry.message.role === 'assistant') {

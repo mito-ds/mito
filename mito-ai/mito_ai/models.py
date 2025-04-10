@@ -29,8 +29,9 @@ class AgentResponse(BaseModel):
     type: Literal['cell_update', 'get_cell_output', 'finished_task']
     message: str
     cell_update: Optional[CellUpdate]
-    cell_id: Optional[str]
-  
+    get_cell_output_cell_id: Optional[str]
+    
+    
 @dataclass(frozen=True)
 class ResponseFormatInfo():
     name: str
@@ -82,6 +83,7 @@ class AgentExecutionMetadata():
     threadId: ThreadID
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
+    isChromeBrowser: bool
     base64EncodedActiveCellOutput: Optional[str] = None
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
@@ -94,6 +96,7 @@ class AgentSmartDebugMetadata():
     aiOptimizedCells: List[AIOptimizedCell]
     errorMessage: str
     error_message_producing_code_cell_id: str
+    isChromeBrowser: bool
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     

@@ -27,8 +27,8 @@ MITO_AI_COMPLETION_ERROR = 'mito_ai_error'
 # Params 
 # - logging the type of key 
 KEY_TYPE_PARAM = 'AI_key_type'
-MITO_SERVER_KEY= 'mito_server_key'
-USER_KEY = 'user_key'
+MITO_SERVER_KEY: Literal['mito_server_key'] = 'mito_server_key'
+USER_KEY: Literal['user_key'] = 'user_key'
 
 # - logging the number of usages of the Mito server
 MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'

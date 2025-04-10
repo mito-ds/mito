@@ -59,7 +59,7 @@ import {
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     AgentResponse,
-    ICompletionStreamChunk,
+    ICompletionStreamChunk
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
@@ -231,7 +231,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         }
     };
-
+    
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
@@ -339,7 +339,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'smartDebug',
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
@@ -377,14 +377,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'codeExplain',
             message_id: UUID.uuid4(),
             metadata: explainCodeMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(explainCompletionRequest, newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
 
-    const sendAgentExecutionMessage = async (input: string, messageIndex?: number): Promise<void> => {
+    const sendAgentExecutionMessage = async (input: string, messageIndex?: number, sendActiveCellOutput: boolean = false): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -399,6 +399,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input)
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
+        }
+
+        if (sendActiveCellOutput) {
+            const activeCellOutput = await getActiveCellOutput(notebookTracker)
+            if (activeCellOutput !== undefined) {
+                agentExecutionMetadata.base64EncodedActiveCellOutput = activeCellOutput
+            }
         }
 
         setChatHistoryManager(newChatHistoryManager)
@@ -445,12 +452,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeCellOutput !== undefined) {
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
         }
-        
+
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',
             message_id: UUID.uuid4(),
             metadata: chatMessageMetadata,
-            stream: false
+            stream: true
         }
 
         // Step 2: Scroll to the bottom of the chat messages container
@@ -465,7 +472,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
-        // TODO: Can we move this into the _sendMessageAndSaveResponse function?
+        // TODO: Can we move this into the _sendMessageAndSaveResponse function?        
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
             const chatContainer = chatMessagesRef.current;
@@ -507,7 +514,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             // Create the stream handler function and store it in the ref
-            const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {                
+            const streamHandler = (
+                _: CompletionWebsocketClient, chunk: ICompletionStreamChunk
+            ) => {                
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
@@ -588,7 +597,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
                 if (aiResponse.error) {
-
+                    
                     console.group('Error calling OpenAI API:');
                     console.error('Title:', aiResponse.error.title);
                     console.error('Type:', aiResponse.error.error_type);
@@ -696,6 +705,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         let isAgentFinished = false
         let agentExecutionDepth = 1
+        let sendActiveCellOutput = false
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
@@ -710,7 +720,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex)
             } else {
-                await sendAgentExecutionMessage('')
+                await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
+                
+                // Reset flag back to false until the agent requests the active cell output again
+                sendActiveCellOutput = false
             }
 
             // Iterate the agent execution depth
@@ -793,7 +806,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'get_cell_output') {
-                // TODO: Implement this!
+                // Mark that we should send the active cell output to the agent 
+                // in the next loop iteration
+                sendActiveCellOutput = true
             }
         }
 
