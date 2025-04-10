@@ -1,0 +1,24 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.get-cell-output-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin: 10px 0;
+    color: var(--jp-ui-font-color2);
+}
+
+.get-cell-output-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 5px;
+} 

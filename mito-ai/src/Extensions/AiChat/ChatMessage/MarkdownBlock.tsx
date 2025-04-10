@@ -74,20 +74,26 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     // Extract citations from the markdown, returning the markdown with the JSON citations replaced with 
     // citation placeholders {{${id}}} and an array of citation objects.
     const extractCitations = useCallback((text: string): { processedMarkdown: string; citations: Citation[] } => {
-        // eslint-disable-next-line no-useless-escape
-        const citationRegex = /(\{\"type\"\:\s*\"citation\".*?\})/g;
+        // New regex to match [MITO_CITATION:cell_id:line_number] format
+        const citationRegex = /\[MITO_CITATION:([^:]+):(\d+)\]/g;
         const citations: Citation[] = [];
         let counter = 0;
 
         // Replace each citation with a placeholder
-        const processedMarkdown = text.replace(citationRegex, (match) => {
+        const processedMarkdown = text.replace(citationRegex, (match, cellId, line) => {
             try {
-                const citation = JSON.parse(match);
                 const id = `citation-${counter++}`;
-                citations.push({ id, data: { citation_index: counter, ...citation} });
+                citations.push({
+                    id,
+                    data: {
+                        citation_index: counter,
+                        cell_id: cellId,
+                        line: parseInt(line, 10)
+                    }
+                });
                 return `{{${id}}}`;
             } catch (e) {
-                console.error("Failed to parse citation JSON:", e);
+                console.error("Failed to parse citation:", e);
                 return match;
             }
         });
