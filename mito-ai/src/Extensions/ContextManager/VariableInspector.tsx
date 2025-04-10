@@ -116,7 +116,6 @@ print(structured_globals())
 export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variable[]) => void): void {
     const kernel = notebookPanel.context.sessionContext.session?.kernel;
 
-    console.log("A1")
     if (kernel) {
         // Request the kernel to execute a command to fetch global variables
         const future = kernel.requestExecute({
@@ -134,7 +133,6 @@ export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVa
             if (KernelMessage.isStreamMsg(msg)) {
                 if (msg.content.name === 'stdout') {
                     try {
-                        console.log("A2")
                         setVariables(JSON.parse(msg.content.text))
                     } catch (e) {
                         console.log("Error parsing variables", e)
