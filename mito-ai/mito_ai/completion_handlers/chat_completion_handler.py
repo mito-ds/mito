@@ -1,10 +1,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Union, Callable
+from typing import List, Union, Optional, AsyncGenerator, Callable
 
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import ChatMessageMetadata, MessageType, CompletionStreamChunk, CompletionReply
+from mito_ai.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
 from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
 from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
@@ -47,8 +47,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
-        
-        
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Get the completion (non-streaming)
@@ -111,7 +109,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Stream the completions using the provider's stream method
-        accumulated_response = await provider.stream_and_save_completions(
+        accumulated_response = await provider.stream_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
@@ -125,8 +123,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             "role": "assistant",
             "content": accumulated_response,
         }
-        
-        
         await message_history.append_message(
             ai_response_message, ai_response_message, provider, metadata.threadId
         )
