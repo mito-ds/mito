@@ -252,7 +252,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
                 user_input=user_input or "",
-                thread_id=thread_id
+                thread_id=thread_id or ""
             )
             
             # Finally, return the completion
