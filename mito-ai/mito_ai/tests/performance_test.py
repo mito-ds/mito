@@ -78,7 +78,7 @@
 #         try:
 #             start_time = time.time()
 #             completion = await llm.request_completions(
-#                 message_type=MessageType.CHAT, messages=messages, model=TEST_MODEL
+#                 message_type=MessageType.CHAT, messages=messages, model=TEST_MODEL, thread_id=None
 #             )
 #             end_time = time.time()
 

@@ -199,8 +199,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         message_type: MessageType,
         messages: List[ChatCompletionMessageParam], 
         model: str,
+        thread_id: Optional[str],
         user_input: Optional[str] = None,
-        response_format_info: Optional[ResponseFormatInfo] = None
+        response_format_info: Optional[ResponseFormatInfo] = None,
     ) -> str:
         """
         Request completions from the OpenAI API.
@@ -250,7 +251,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
-                user_input=user_input or ""
+                user_input=user_input or "",
+                thread_id=thread_id or ""
             )
             
             # Finally, return the completion
@@ -275,23 +277,14 @@ This attribute is observed by the websocket provider to push the error to the cl
         messages: List[ChatCompletionMessageParam],
         model: str,
         message_id: str,
+        thread_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
         user_input: Optional[str] = None,
         response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
         """
         Stream completions from the OpenAI API and return the accumulated response.
-        
-        Args:
-            message_type: The type of message to request completions for.
-            messages: The messages to request completions for.
-            model: The model to request completions for.
-            message_id: The message ID to track the request.
-            reply_fn: Function to call with each chunk for streaming replies.
-            response_format_info: Optional response format information.
-            
-        Returns:
-            The accumulated response string.
+        Returns: The accumulated response string.
         """
         # Reset the last error
         self.last_error = None
@@ -389,7 +382,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             message_type=message_type,
             last_message_content=last_message_content,
             response={"completion": accumulated_response},
-            user_input=user_input or ""
+            user_input=user_input or "",
+            thread_id=thread_id
         )
         
         return accumulated_response

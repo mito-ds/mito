@@ -123,7 +123,8 @@ def log(
         log_event: str, 
         params: Optional[Dict[str, Any]]=None, 
         error: Optional[BaseException]=None, 
-        key_type: Optional[Literal['mito_server_key', 'user_key']] = None
+        key_type: Optional[Literal['mito_server_key', 'user_key']] = None,
+        thread_id: Optional[str] = None
     ) -> None:
     """
     This function is the entry point for all logging. 
@@ -140,6 +141,9 @@ def log(
     # Add the error if it exists
     if error is not None:
         final_params['error'] = str(error)
+
+    if thread_id is not None:
+        final_params['thread_id'] = thread_id
 
     # Finally, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
@@ -173,6 +177,7 @@ def log_ai_completion_success(
     last_message_content: str,
     user_input: str,
     response: Dict[str, Any],
+    thread_id: str
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -231,11 +236,11 @@ def log_ai_completion_success(
         final_params["error_message"] = error_message
         final_params["error_type"] = error_type
 
-        log("mito_ai_smart_debug_success", params=final_params, key_type=key_type)
+        log("mito_ai_smart_debug_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.CODE_EXPLAIN:
         final_params = base_params
 
-        log("mito_ai_code_explain_success", params=final_params, key_type=key_type)
+        log("mito_ai_code_explain_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.CHAT:
         final_params = base_params
 
@@ -245,7 +250,7 @@ def log_ai_completion_success(
         for chunk_key, chunk_value in user_input_chunks.items():
             final_params[chunk_key] = chunk_value
 
-        log("mito_ai_chat_success", params=final_params, key_type=key_type)
+        log("mito_ai_chat_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.AGENT_EXECUTION:
         final_params = base_params
 
@@ -255,18 +260,18 @@ def log_ai_completion_success(
         for chunk_key, chunk_value in user_input_chunks.items():
             final_params[chunk_key] = chunk_value
 
-        log("mito_ai_agent_execution_success", params=final_params, key_type=key_type)
+        log("mito_ai_agent_execution_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.INLINE_COMPLETION:
         final_params = base_params
-        log("mito_ai_inline_completion_success", params=final_params, key_type=key_type)
+        log("mito_ai_inline_completion_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.AGENT_AUTO_ERROR_FIXUP:
         final_params = base_params
-        log("mito_ai_agent_auto_error_fixup_success", params=final_params, key_type=key_type)
+        log("mito_ai_agent_auto_error_fixup_success", params=final_params, key_type=key_type, thread_id=thread_id)
     else:
         final_params = base_params
         final_params["note"] = (
             "This input_location has not been accounted for in `telemetry_utils.py`."
         )
 
-        log(f"mito_ai_{message_type.value}_success", params=final_params, key_type=key_type)
+        log(f"mito_ai_{message_type.value}_success", params=final_params, key_type=key_type, thread_id=thread_id)
         
