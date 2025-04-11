@@ -79,20 +79,10 @@
   margin: 0 auto;
 }
 
-.chat-empty-message .short-message {
-  display: none;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
 /* Use container query instead of media query */
 @container (max-width: 300px) {
   .chat-empty-message .long-message {
     display: none;
-  }
-
-  .chat-empty-message .short-message {
-    display: block;
   }
 }
 
