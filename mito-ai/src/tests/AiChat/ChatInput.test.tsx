@@ -151,6 +151,16 @@ describe('ChatInput Component', () => {
             // Preview should not be visible for empty cells
             expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
         });
+
+        it('does not show preview when agent mode is enabled', () => {
+            renderChatInput({ agentModeEnabled: true });
+
+            // Type in textarea
+            typeInTextarea(textarea, 'test input');
+
+            // Preview should not be visible
+            expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
+        });
     });
 
     describe('Keyboard Interactions', () => {
