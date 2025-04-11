@@ -55,6 +55,15 @@
   background-color: var(--purple-600);
 }
 
+.button-light-purple {
+  background-color: var(--purple-400);
+  color: var(--purple-700);
+}
+
+.button-light-purple:hover {
+  background-color: var(--purple-500);
+}
+
 .button-width-block {
   width: 100%;
 }

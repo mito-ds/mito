@@ -97,13 +97,10 @@
 }
 
 .submit-button {
-  background-color: var(--purple-400);
-  color: var(--purple-700);
   padding: 2px 10px;
 }
 
 .submit-button:hover {
-  background-color: var(--purple-500);
   transition: background-color 0.2s ease-in-out;
 }
 

@@ -1252,7 +1252,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         title="Agent can create plans and run code."
                     />
                     <button
-                        className="button-base submit-button"
+                        className={`button-base submit-button ${isStreaming ? 'button-red' : 'button-light-purple'}`}
                         onClick={() => {
                             const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                             if (chatInput && chatInput.value) {
@@ -1270,7 +1270,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             }
                         }}
                     >
-                        {isStreaming ? 'Streaming...' : 'Submit ⏎'}
+                        {isStreaming ? 'Stop ⏹' : 'Submit ⏎'}
                     </button>
                 </div>
             )}
