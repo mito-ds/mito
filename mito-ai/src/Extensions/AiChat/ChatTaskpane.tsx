@@ -1134,8 +1134,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         <div className="chat-taskpane">
-                <p>{isStreaming ? '✅ Streaming' : '❌ Not Streaming'}</p>
-                <div className="chat-taskpane-header">
+            <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-buttons">
                     <IconButton
                         icon={<SupportIcon />}
