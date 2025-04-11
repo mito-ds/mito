@@ -60,6 +60,7 @@
 
 .chat-empty-message {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -68,20 +69,20 @@
   padding: 20px;
   /* Add container query support */
   container-type: inline-size;
+  user-select: none;
 }
 
-.chat-empty-message .short-message {
-  display: none;
+.chat-empty-message .long-message {
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 80%;
+  margin: 0 auto;
 }
 
 /* Use container query instead of media query */
 @container (max-width: 300px) {
   .chat-empty-message .long-message {
     display: none;
-  }
-
-  .chat-empty-message .short-message {
-    display: block;
   }
 }
 

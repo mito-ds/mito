@@ -43,7 +43,8 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(thread_id), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
-            message_type=MessageType.CODE_EXPLAIN
+            message_type=MessageType.CODE_EXPLAIN,
+            thread_id=thread_id
         )
         
         # Add the response to message history
@@ -94,6 +95,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
             message_id=message_id,
             reply_fn=reply_fn,
+            thread_id=thread_id
         )
 
         # Add the response to message history
