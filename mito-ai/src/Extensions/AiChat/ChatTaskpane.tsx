@@ -136,6 +136,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
     const shouldContinueAgentExecution = useRef<boolean>(true);
 
+    const [isStreaming, setIsStreaming] = useState<boolean>(false);
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
 
@@ -506,6 +507,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (completionRequest.stream) {
             // Reset the streaming response and set streaming state
             streamingContentRef.current = '';
+            setIsStreaming(true);
             
             // Disconnect any existing stream handler
             if (streamHandlerRef.current) {
@@ -529,6 +531,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Only set loading to false after we receive the first chunk
                 if (streamingContentRef.current.length > 0) {
                     setLoadingAIResponse(false);
+                }
+
+                // Set streaming to false when streaming is complete or when an error occurs
+                if (chunk.done || chunk.error) {
+                    setIsStreaming(false);
                 }
             };
             
@@ -1116,7 +1123,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         <div className="chat-taskpane">
-            <div className="chat-taskpane-header">
+                <p>{isStreaming ? '✅ Streaming' : '❌ Not Streaming'}</p>
+                <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-buttons">
                     <IconButton
                         icon={<SupportIcon />}
@@ -1262,7 +1270,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             }
                         }}
                     >
-                        Submit ⏎
+                        {isStreaming ? 'Streaming...' : 'Submit ⏎'}
                     </button>
                 </div>
             )}
