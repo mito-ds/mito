@@ -19,6 +19,7 @@ import '../../../style/TextButton.css';
 import { addIcon, historyIcon, deleteIcon } from '@jupyterlab/ui-components';
 import { OpenIndicatorLabIcon } from '../../icons';
 import SupportIcon from '../../icons/SupportIcon';
+import MitoLogo from '../../icons/MitoLogo';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
@@ -1162,18 +1163,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
+                        <div style={{ margin: '0 auto 8px', display: 'block', textAlign: 'center' }}>
+                            <MitoLogo width="60" height="30" />
+                        </div>
+                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
                         <p className="long-message">
-                            Ask your personal Python expert anything!
-                            <br />
+                            <div style={{ display: 'block', textAlign: 'center', marginBottom: '15px' }}>
+                                Ask your personal Python expert anything!
+                            </div>
                             Hint:
                             {[
                                 " Use @ to reference variables.",
                                 ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
                                 ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
                             ][Math.floor(Math.random() * 3)]}
-                        </p>
-                        <p className="short-message">
-                            Ask me anything!
                         </p>
                     </div>
                 }
