@@ -160,10 +160,10 @@ export class CompletionWebsocketClient implements IDisposable {
           if (this._socket === null || this._socket.readyState !== WebSocket.OPEN) {
             try {
               console.log('Connection is closed, attempting to reconnect before sending message...');
-              
+
               // Reset the ready promise since we're going to reconnect
               this._ready = new PromiseDelegate<void>();
-              
+
               await this.reconnect();
               console.log('Successfully reconnected, now sending message');
             } catch (reconnectError) {
@@ -257,6 +257,10 @@ export class CompletionWebsocketClient implements IDisposable {
       URLExt.join(this.serverSettings.baseUrl, `${SERVICE_URL}?check_availability=true`),
       {
         method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `token ${token}`
+        }
       }
     );
 
