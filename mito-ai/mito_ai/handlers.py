@@ -98,8 +98,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if self.get_query_argument('check_availability', None) is not None:
             self.get_service_status()
             return
-            
-        # This is a WebSocket connection request
+
         await ensure_async(self.pre_get()) # type: ignore
 
         initialize_user()
