@@ -254,9 +254,9 @@ export class CompletionWebsocketClient implements IDisposable {
 
     // Check if the service is available before attempting to connect
     const answer = await fetch(
-      URLExt.join(this.serverSettings.baseUrl, SERVICE_URL),
+      URLExt.join(this.serverSettings.baseUrl, `${SERVICE_URL}?check_availability=true`),
       {
-        method: 'HEAD',
+        method: 'GET',
       }
     );
 

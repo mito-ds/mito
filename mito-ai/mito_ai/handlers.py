@@ -73,11 +73,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         return get_logger()
 
     @tornado.web.authenticated
-    def head(self) -> None:
-        """Handle a HEAD request for the websocket."""
+    def get_service_status(self) -> None:
+        """Handle a GET request for service availability check."""
         self.set_status(HTTPStatus.OK)
         self.finish()
-
+        
     async def pre_get(self) -> None:
         """Handles websocket authentication/authorization."""
         # authenticate the request before opening the websocket
@@ -93,8 +93,13 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             raise tornado.web.HTTPError(HTTPStatus.FORBIDDEN)
 
     async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
-        """Get an event to open a socket."""
-        # This method ensure to call `pre_get` before opening the socket.
+        """Get an event to open a socket or check service availability."""
+        # Check if this is just a service availability check
+        if self.get_query_argument('check_availability', None) is not None:
+            self.get_service_status()
+            return
+            
+        # This is a WebSocket connection request
         await ensure_async(self.pre_get()) # type: ignore
 
         initialize_user()
