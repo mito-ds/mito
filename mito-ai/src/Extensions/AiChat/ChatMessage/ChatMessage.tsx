@@ -106,6 +106,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
                 displayActiveCellCode={true}
+                agentModeEnabled={false}
             />
         );
     }

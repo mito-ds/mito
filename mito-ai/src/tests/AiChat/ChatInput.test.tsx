@@ -76,6 +76,7 @@ const createMockProps = (overrides = {}) => ({
         sanitizer: { sanitize: jest.fn() }
     } as unknown as IRenderMimeRegistry,
     displayActiveCellCode: true,
+    agentModeEnabled: false,
     ...overrides
 });
 
