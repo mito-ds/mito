@@ -77,7 +77,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """Handle a GET request for service availability check."""
         self.set_status(HTTPStatus.OK)
         self.finish()
-        
+
     async def pre_get(self) -> None:
         """Handles websocket authentication/authorization."""
         # authenticate the request before opening the websocket
