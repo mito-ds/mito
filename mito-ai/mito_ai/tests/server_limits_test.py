@@ -374,3 +374,33 @@ def test_update_quota_future_reset_date() -> None:
         chat_call = call(UJ_AI_MITO_API_NUM_USAGES, 11)
         assert chat_call in mock_set_user_field.call_args_list, \
             "Chat completion count should still be incremented"
+
+def test_update_quota_chat_name_generation() -> None:
+    """
+    Test that when message_type is MessageType.CHAT_NAME_GENERATION, 
+    neither UJ_AI_MITO_API_NUM_USAGES nor UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES is incremented.
+    """
+    
+    # Mock set_user_field to track calls
+    mock_set_user_field = MagicMock()
+    
+    with (
+        patch("mito_ai.utils.server_limits.get_first_completion_date", return_value=CURRENT_DATE),
+        patch("mito_ai.utils.server_limits.get_last_reset_date", return_value=CURRENT_DATE),
+        patch("mito_ai.utils.server_limits.get_chat_completion_count", return_value=10),
+        patch("mito_ai.utils.server_limits.get_autocomplete_count", return_value=20),
+        patch("mito_ai.utils.server_limits.set_user_field", mock_set_user_field)
+    ):
+        # Call the function with CHAT_NAME_GENERATION message type
+        update_mito_server_quota(MessageType.CHAT_NAME_GENERATION)
+        
+        # Verify that set_user_field was not called at all - no counters should be updated
+        mock_set_user_field.assert_not_called()
+        
+        # For comparison, call with a normal message type
+        update_mito_server_quota(MessageType.CHAT)
+        
+        # Now verify set_user_field was called to increment the chat counter
+        chat_call = call(UJ_AI_MITO_API_NUM_USAGES, 11)
+        assert chat_call in mock_set_user_field.call_args_list, \
+            "Chat completion count should be incremented for regular chat messages"
