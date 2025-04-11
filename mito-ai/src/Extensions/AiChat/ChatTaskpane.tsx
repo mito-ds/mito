@@ -1121,6 +1121,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
+    const stopStreaming = (): void => {
+        // Disconnect the stream handler if it exists
+        if (streamHandlerRef.current) {
+            websocketClient.stream.disconnect(streamHandlerRef.current, null);
+            streamHandlerRef.current = null;
+        }
+        // Reset streaming state
+        setIsStreaming(false);
+        streamingContentRef.current = '';
+    };
+
     return (
         <div className="chat-taskpane">
                 <p>{isStreaming ? '✅ Streaming' : '❌ Not Streaming'}</p>
@@ -1254,19 +1265,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <button
                         className={`button-base submit-button ${isStreaming ? 'button-red' : 'button-light-purple'}`}
                         onClick={() => {
-                            const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
-                            if (chatInput && chatInput.value) {
-                                // Simulate an Enter keypress
-                                // This triggers the existing submission logic in ChatInput.tsx
-                                const enterEvent = new KeyboardEvent('keydown', {
-                                    key: 'Enter',
-                                    code: 'Enter',
-                                    keyCode: 13,
-                                    which: 13,
-                                    bubbles: true,
-                                    cancelable: true
-                                });
-                                chatInput.dispatchEvent(enterEvent);
+                            if (isStreaming) {
+                                stopStreaming();
+                            } else {
+                                const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                if (chatInput && chatInput.value) {
+                                    // Simulate an Enter keypress
+                                    // This triggers the existing submission logic in ChatInput.tsx
+                                    const enterEvent = new KeyboardEvent('keydown', {
+                                        key: 'Enter',
+                                        code: 'Enter',
+                                        keyCode: 13,
+                                        which: 13,
+                                        bubbles: true,
+                                        cancelable: true
+                                    });
+                                    chatInput.dispatchEvent(enterEvent);
+                                }
                             }
                         }}
                     >
