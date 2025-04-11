@@ -525,6 +525,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     completionRequest.metadata.promptType,
                 );
                 setChatHistoryManager(updatedChatHistoryManager);
+                
+                // Only set loading to false after we receive the first chunk
+                if (streamingContentRef.current.length > 0) {
+                    setLoadingAIResponse(false);
+                }
             };
             
             // Store the handler for later cleanup
@@ -537,7 +542,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
                 if (aiResponse.error) {
-
                     console.group('Error calling OpenAI API:');
                     console.error('Title:', aiResponse.error.title);
                     console.error('Type:', aiResponse.error.error_type);
@@ -586,7 +590,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } finally {
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
-                setLoadingAIResponse(false);
             }
         } else {
             // NON-STREAMING RESPONSES
