@@ -1165,6 +1165,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 <MitoLogo width="90" height="45" />
                             </div>
                             <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', marginBottom: '20px', fontSize: '26px' }}>Data Copilot</span>
+                            <div style={{ display: 'block', textAlign: 'center', marginBottom: '15px' }}>
+                                Ask your personal Python expert anything!
+                            </div>
                             Hint:
                             {[
                                 " Use @ to reference variables.",
