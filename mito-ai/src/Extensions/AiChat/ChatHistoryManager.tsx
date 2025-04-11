@@ -321,6 +321,10 @@ export class ChatHistoryManager {
     }
 
     getLastAIMessageIndex = (): number | undefined => {
+        // We assume that assistant messages are always separated by user messages.
+        // This allows us to simply find the last assistant message in the history.
+        // If this invariant changes (e.g., if we need to support consecutive assistant messages),
+        // we should modify this to use message IDs instead.
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
             if (chatEntry.message.role === 'assistant') {

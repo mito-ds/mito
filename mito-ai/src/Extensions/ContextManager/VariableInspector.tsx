@@ -115,6 +115,7 @@ print(structured_globals())
 // Function to fetch variables and sync with the frontend
 export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variable[]) => void): void {
     const kernel = notebookPanel.context.sessionContext.session?.kernel;
+
     if (kernel) {
         // Request the kernel to execute a command to fetch global variables
         const future = kernel.requestExecute({

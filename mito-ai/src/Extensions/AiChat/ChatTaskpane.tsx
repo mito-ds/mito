@@ -60,7 +60,7 @@ import {
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     AgentResponse,
-    ICompletionStreamChunk,
+    ICompletionStreamChunk
 } from '../../utils/websocket/models';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
@@ -232,7 +232,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         }
     };
-
+    
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
@@ -340,7 +340,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'smartDebug',
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
@@ -378,7 +378,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'codeExplain',
             message_id: UUID.uuid4(),
             metadata: explainCodeMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(explainCompletionRequest, newChatHistoryManager)
 
@@ -453,12 +453,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeCellOutput !== undefined) {
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
         }
-        
+
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',
             message_id: UUID.uuid4(),
             metadata: chatMessageMetadata,
-            stream: false
+            stream: true
         }
 
         // Step 2: Scroll to the bottom of the chat messages container
@@ -473,7 +473,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
-        // TODO: Can we move this into the _sendMessageAndSaveResponse function?
+        // TODO: Can we move this into the _sendMessageAndSaveResponse function?        
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
             const chatContainer = chatMessagesRef.current;
@@ -596,7 +596,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
                 if (aiResponse.error) {
-
+                    
                     console.group('Error calling OpenAI API:');
                     console.error('Title:', aiResponse.error.title);
                     console.error('Type:', aiResponse.error.error_type);
@@ -1190,6 +1190,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             message={displayOptimizedChat.message}
                             promptType={displayOptimizedChat.promptType}
                             messageType={displayOptimizedChat.type}
+                            agentResponse={displayOptimizedChat.agentResponse}
                             codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}
