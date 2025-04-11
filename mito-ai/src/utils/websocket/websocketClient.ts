@@ -163,7 +163,7 @@ export class CompletionWebsocketClient implements IDisposable {
               
               // Reset the ready promise since we're going to reconnect
               this._ready = new PromiseDelegate<void>();
-
+              
               await this.reconnect();
               console.log('Successfully reconnected, now sending message');
             } catch (reconnectError) {
