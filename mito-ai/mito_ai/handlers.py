@@ -95,8 +95,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
     async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
         """Get an event to open a socket or check service availability."""
         # Check if this is just a service availability check
-        if self.get_query_argument('check_availability', None) is not None:
-            self.get_service_status()
+        if self.get_query_argument('check_availability', None) == 'true':
             return
 
         await ensure_async(self.pre_get()) # type: ignore
