@@ -416,13 +416,6 @@ def sheet(
     # the conditons for checking if we're in JLab or JNotebook).
     # Then, check if we're in Dash or in Streamlit. 
     # If so, tell user to use the correct component
-    
-    print("HERE 2")
-    print(get_ipython())
-    ip = get_ipython() # type: ignore   
-    
-    
-
     if is_in_vs_code() or is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")

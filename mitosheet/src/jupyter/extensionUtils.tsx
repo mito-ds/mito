@@ -50,7 +50,6 @@ export function getCellIndexesByExecutionCount(cells: CellList | undefined, exec
         // TODO: This doesn't work with SharedCells. 
         if (cell.type === 'code' && 'execution_count' in cell.sharedModel) {
             const executionCountEntry = cell.sharedModel.execution_count
-            console.log(cell)
             if (executionCountEntry === executionCount) {
                 cellsWithExecutionCount.push(i)
             }
@@ -188,6 +187,30 @@ export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, ana
     }
 
     return undefined;
+}
+
+export const getMostLikelyCellIndexByExeuctionNumber = (cellIndexes: number[], activeCellIndex: number): number => {
+
+    let cellIndex = cellIndexes[cellIndexes.length - 1];
+
+    // If there are multiple cells with the same execution count, we 
+    // apply a heuristic to determine which one is most likely the one
+    // that made the mitosheet call.
+    if (cellIndexes.length > 0) {
+        // It is most likely that the previous cell is the one that made the mitosheet call
+        // because users are likely to run-and-advance cells.
+
+        if (cellIndexes.includes(activeCellIndex - 1)) {
+            // If the user ran-and-advanced, then the cell that is displaying the dataframe is 
+            // probably the one above the active cell.
+            cellIndex = activeCellIndex - 1;
+        } else if (cellIndexes.includes(activeCellIndex)) {
+            // If the user ran the cell without advancing, then the cell that is displaying the
+            // dataframe is probably the active cell
+            cellIndex = activeCellIndex;
+        }
+    }
+    return cellIndex;
 }
 
 export function writeToCell(cell: ICellModel | undefined, code: string): void {

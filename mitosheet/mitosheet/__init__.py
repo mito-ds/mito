@@ -42,8 +42,6 @@ from mitosheet.user import initialize_user
 initialize_user()
 
 # Make the Mitosheet the default dataframe display
-
-print("HERE!!!!")
 set_dataframe_display_formatters()
 
 

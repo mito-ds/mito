@@ -71,8 +71,6 @@ def set_dataframe_display_formatters() -> None:
             return p.text(obj)
 
         ip = get_ipython() # type: ignore
-        print("HERE")
-        print(ip)
         
         html_formatter = ip.display_formatter.formatters['text/html']
         plain_formatter = ip.display_formatter.formatters['text/plain']

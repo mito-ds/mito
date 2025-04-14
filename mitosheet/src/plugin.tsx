@@ -12,16 +12,19 @@ import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, getLastNonEmptyLine } from './jupyter/code';
 import { JupyterComm } from './jupyter/comm';
 import {
+    createCodeCellAtIndex,
     getCellAtIndex,
     getCellCallingMitoshetWithAnalysis,
     getCellIndexesByExecutionCount,
     getCellText,
+    getMostLikelyCellIndexByExeuctionNumber,
     getMostLikelyMitosheetCallingCell,
     getParentMitoContainer,
     isEmptyCell,
     tryOverwriteAnalysisToReplayParameter,
     tryWriteAnalysisToReplayParameter,
     writeToCell,
+    writeToCodeCellAtIndex,
 } from './jupyter/extensionUtils';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
@@ -219,63 +222,64 @@ function activateMitosheetExtension(
         label: 'Writes the generated code for a deafult dataframe output mitosheet. Writes the code to the code cell below the specified code cell',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any) => {
-            return
-            // const analysisName = args.analysisName as string;
-            // const codeLines = args.code as string[];
-            // const telemetryEnabled = args.telemetryEnabled as boolean;
-            // const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
-            // const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined; 
+            const analysisName = args.analysisName as string;
+            const codeLines = args.code as string[];
+            const telemetryEnabled = args.telemetryEnabled as boolean;
+            const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
+            const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined; 
 
-            // // This is the last saved analysis' code, which we use to check if the user has changed
-            // // the code in the cell. If they have, we don't want to overwrite their changes automatically.
-            // const oldCode = args.oldCode as string[];
-            // const newCode = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion, true);
-            // const notebook = notebookTracker.currentWidget?.content;
-            // const cells = notebook?.model?.cells;
+            // This is the last saved analysis' code, which we use to check if the user has changed
+            // the code in the cell. If they have, we don't want to overwrite their changes automatically.
+            const oldCode = args.oldCode as string[];
+            const newCode = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion, true);
+            const notebook = notebookTracker.currentWidget?.content;
+            const cells = notebook?.model?.cells;
 
-            // if (inputCellExecutionCount === undefined || notebook === undefined || cells === undefined) {
-            //     return;
-            // }
+            if (inputCellExecutionCount === undefined || notebook === undefined || cells === undefined) {
+                return;
+            }
 
-            // const mimeRenderInputCellIndex = getCellIndexByExecutionCount(cells, inputCellExecutionCount);
-            // if (mimeRenderInputCellIndex === undefined) {
-            //     // If the code cell that created the mitosheet mime render does not exist, 
-            //     // just return. I don't think this should ever happen because you can't 
-            //     // have a mimerender for a code cell that does not exist anymore.
-            //     return;
-            // }
+            const cellIndexes = getCellIndexesByExecutionCount(cells, inputCellExecutionCount);
+            const mimeRenderInputCellIndex = getMostLikelyCellIndexByExeuctionNumber(cellIndexes, notebook.activeCellIndex);
+            
+            if (mimeRenderInputCellIndex === undefined) {
+                // If the code cell that created the mitosheet mime render does not exist, 
+                // just return. I don't think this should ever happen because you can't 
+                // have a mimerender for a code cell that does not exist anymore.
+                return;
+            }
 
-            // const codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
-            // const codeCellText = getCellText(codeCell);
+            const codeCell = getCellAtIndex(cells, mimeRenderInputCellIndex + 1)
+            const codeCellText = getCellText(codeCell);
 
-            // if (codeCell === undefined) {
-            //     // If there is no cell below the mitosheet, create one. 
-            //     createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
-            //     writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
-            //     return;
-            // } else if (codeCellText === '') {
-            //     // If the code cell is empty, then we can write to it. 
-            //     writeToCell(codeCell, newCode)
-            // } else if ((oldCode === null || oldCode.length === 0) && newCode === '') {
-            //     // If the old code is null and the new code is empty, we do nothing.
-            //     // We don't want to create a new cell if there is nothing to write to it.
-            //     return;
-            // } else if ((oldCode === null || oldCode.length === 0) || hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
-            //     // Otherwise, if 
-            //     // 1. its the first time we are writing code, or
-            //     // 2. the code cell below mito is not the Mito generated code 
-            //     // then we create a new code cell and write to it. 
-            //     // Case 2 is occurs when: 
-            //     // 1. The user has edited the generated code 
-            //     // 2. There is some other code right below the mitosheet (this will be common in the mimerender case)
-            //     createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
-            //     writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
-            //     return;
-            // } else {
-            //     // Otherwise, we overwrite the current cell with the new code
-            //     writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
-            //     return;
-            // }
+            if (codeCell === undefined) {
+                // If there is no cell below the mitosheet, create one. 
+                createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            } else if (codeCellText === '') {
+                // If the code cell is empty, then we can write to it. 
+                writeToCell(codeCell, newCode)
+            } else if ((oldCode === null || oldCode.length === 0) && newCode === '') {
+                // If the old code is null and the new code is empty, we do nothing.
+                // We don't want to create a new cell if there is nothing to write to it.
+                return;
+            } else if ((oldCode === null || oldCode.length === 0) || hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
+                // Otherwise, if 
+                // 1. its the first time we are writing code, or
+                // 2. the code cell below mito is not the Mito generated code 
+                // then we create a new code cell and write to it. 
+                // Case 2 is occurs when: 
+                // 1. The user has edited the generated code 
+                // 2. There is some other code right below the mitosheet (this will be common in the mimerender case)
+                createCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook);
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            } else {
+                // Otherwise, we overwrite the current cell with the new code
+                writeToCodeCellAtIndex(mimeRenderInputCellIndex + 1, notebook, newCode);
+                return;
+            }
         }
     })
 
@@ -348,30 +352,7 @@ function activateMitosheetExtension(
                 return [];
             }
 
-            let cellIndex = cellIndexes[cellIndexes.length - 1];
-
-            // If there are multiple cells with the same execution count, we 
-            // apply a heuristic to determine which one is most likely the one
-            // that made the mitosheet call.
-            if (cellIndexes.length > 0) {
-                // If the length is more than 1, we try to find the most likely cell
-                // by checking if the previous cell is a mitosheet call
-                const activeCellIndex = notebook.activeCellIndex;
-                
-
-                // It is most likely that the previous cell is the one that made the mitosheet call
-                // because users are likely to run-and-advance cells.
-
-                if (cellIndexes.includes(activeCellIndex - 1)) {
-                    // If the user ran-and-advanced, then the cell that is displaying the dataframe is 
-                    // probably the one above the active cell.
-                    cellIndex = activeCellIndex - 1;
-                } else if (cellIndexes.includes(activeCellIndex)) {
-                    // If the user ran the cell without advancing, then the cell that is displaying the
-                    // dataframe is probably the active cell
-                    cellIndex = activeCellIndex;
-                }
-            }
+            const cellIndex = getMostLikelyCellIndexByExeuctionNumber(cellIndexes, notebook.activeCellIndex);
 
             const cell = getCellAtIndex(cells, cellIndex);
             if (cell) {
