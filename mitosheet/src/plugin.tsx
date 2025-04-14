@@ -353,7 +353,18 @@ function activateMitosheetExtension(
                 // We assume that we're using this to parse the dataframe name at the end of a code cell
                 // that created a dataframe rendermine mitosheet. If there were other variables on the last line 
                 // besides the dataframe, we would not have gotten the dataframe renderer.
-                const dfName = getLastNonEmptyLine(getCellText(cell));
+                let dfName = getLastNonEmptyLine(getCellText(cell));
+
+
+                // If the line ends with a comment, we want to remove the comment
+                if (dfName && dfName.includes('#')) {
+                    dfName = dfName.split('#')[0];
+                }
+
+                // If the line ends with a .tail() or .head() we want to remove that from the dfName
+                if (dfName && (dfName.endsWith('.tail()') || dfName.endsWith('.head()'))) {
+                    dfName = dfName.slice(0, -7);
+                }
 
                 if (dfName === undefined) {
                     return [];
