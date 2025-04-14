@@ -517,6 +517,30 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Create the stream handler function and store it in the ref
             const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {                
+                if (chunk.error) {
+                    console.group('Error calling OpenAI API:');
+                    console.error('Title:', chunk.error.title);
+                    console.error('Type:', chunk.error.error_type);
+                    console.error('Hint:', chunk.error.hint);
+                    console.log('Full Error Details:', chunk.error);
+                    console.groupEnd();
+                    
+                    // Log traceback separately to preserve formatting
+                    if (chunk.error.traceback) {
+                        console.group('Error Traceback:');
+                        console.error(chunk.error.traceback);
+                        console.groupEnd();
+                    }
+
+                    addAIMessageFromResponseAndUpdateState(
+                        chunk.error.hint || chunk.error.title || "An error occurred",
+                        completionRequest.metadata.promptType,
+                        newChatHistoryManager,
+                        true,
+                        chunk.error.title
+                    );
+                }
+
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
@@ -542,39 +566,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             try {
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+                const content = aiResponse.items[0]?.content ?? '';
 
-                if (aiResponse.error) {
-                    console.group('Error calling OpenAI API:');
-                    console.error('Title:', aiResponse.error.title);
-                    console.error('Type:', aiResponse.error.error_type);
-                    console.error('Hint:', aiResponse.error.hint);
-                    console.log('Full Error Details:', aiResponse.error);
-                    console.groupEnd();
-                    
-                    // Log traceback separately to preserve formatting
-                    if (aiResponse.error.traceback) {
-                        console.group('Error Traceback:');
-                        console.error(aiResponse.error.traceback);
-                        console.groupEnd();
-                    }
-
-                    addAIMessageFromResponseAndUpdateState(
-                        aiResponse.error.hint
-                            ? aiResponse.error.hint
-                            : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
-                        completionRequest.metadata.promptType,
-                        newChatHistoryManager,
-                        true,
-                        aiResponse.error.title
-                    );
-                } else {
-                    const content = aiResponse.items[0]?.content ?? '';
-
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
-                        // Agent:Execution prompts return a CellUpdate object that we need to parse
-                        const agentResponse: AgentResponse = JSON.parse(content)
-                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                    }
+                if (
+                    completionRequest.metadata.promptType === 'agent:execution' ||
+                    completionRequest.metadata.promptType === 'agent:autoErrorFixup'
+                ) {
+                    // Agent:Execution prompts return a CellUpdate object that we need to parse
+                    const agentResponse: AgentResponse = JSON.parse(content)
+                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 }
             } catch (error) {
                 addAIMessageFromResponseAndUpdateState(
@@ -588,10 +588,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     completionRequest.metadata.promptType,
                     newChatHistoryManager,
                     true
-                )
+                );
             } finally {
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
+                setLoadingAIResponse(false);
             }
         } else {
             // NON-STREAMING RESPONSES
