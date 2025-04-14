@@ -23,7 +23,8 @@ import {
   editMitoAIMessage, 
   sendMessagetoAIChat, 
   waitForMitoAILoadingToDisappear,
-  startNewMitoAIChat
+  startNewMitoAIChat,
+  turnOnChatMode
 } from './utils';
 
 test.describe.parallel('Mito AI Chat', () => {
@@ -347,6 +348,9 @@ test.describe.parallel('Mito AI Chat', () => {
 
     await clickOnMitoAIChatTab(page);
     await startNewMitoAIChat(page);
+
+    // Turn on chat mode
+    await turnOnChatMode(page);
 
     // The active cell preview should not be visible before the user focusses on the chat input
     await expect.soft(page.locator('.active-cell-preview-container')).not.toBeVisible();
