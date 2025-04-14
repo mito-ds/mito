@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { Option, Select } from '@jupyter/react-components';
 import type { Dialog } from '@jupyterlab/apputils';
 import { FormComponent, ReactWidget } from '@jupyterlab/ui-components';
