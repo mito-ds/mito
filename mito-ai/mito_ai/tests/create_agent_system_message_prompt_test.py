@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import pytest
 from mito_ai.prompt_builders.agent_system_message import create_agent_system_message_prompt
 
