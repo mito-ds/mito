@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { TextField, Toolbar } from '@jupyter/react-components';
 import { CellChange } from '@jupyter/ydoc';
 import { type ICellModel, type ICodeCellModel } from '@jupyterlab/cells';

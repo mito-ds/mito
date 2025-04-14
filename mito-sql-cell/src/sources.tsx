@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { Button, Skeleton, Toolbar } from '@jupyter/react-components';
 import { ObservableList, type IObservableList } from '@jupyterlab/observables';
 import {
