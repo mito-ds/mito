@@ -34,11 +34,15 @@ export function getCellAtIndex(cells: CellList | undefined, index: number): ICel
     return cell
 }
 
-export function getCellIndexByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number | undefined {
+export function getCellIndexesByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number[] {
     if (cells == undefined || executionCount == undefined) {
-        return undefined;
+        return [];
     }
 
+    // Because multiple cells can have the same execution count, we generate a list of all the 
+    // cells so we can choose the most likely one. This happens if the user restarts the kernel
+    // which does not clear exiting exuection numbers, but starts new executiosn back at 1.
+    const cellsWithExecutionCount = []
     // In order to get the cell index, we need to iterate over the cells and call the `get` method
     // to see the cells in order. Otherwise, the cells are returned in a random order.
     for (let i = 0; i < cells.length; i++) {
@@ -46,13 +50,14 @@ export function getCellIndexByExecutionCount(cells: CellList | undefined, execut
         // TODO: This doesn't work with SharedCells. 
         if (cell.type === 'code' && 'execution_count' in cell.sharedModel) {
             const executionCountEntry = cell.sharedModel.execution_count
+            console.log(cell)
             if (executionCountEntry === executionCount) {
-                return i
+                cellsWithExecutionCount.push(i)
             }
         }
     }
 
-    return undefined
+    return cellsWithExecutionCount
 }
 
 export function getCellText(cell: ICellModel| undefined): string {

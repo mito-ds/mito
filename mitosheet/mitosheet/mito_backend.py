@@ -41,7 +41,6 @@ from mitosheet.utils import get_new_id
 from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
-
 class MitoBackend():
     """
         The Mito Backend holds all of the backend state for the Mito extension, and syncs
@@ -417,6 +416,13 @@ def sheet(
     # the conditons for checking if we're in JLab or JNotebook).
     # Then, check if we're in Dash or in Streamlit. 
     # If so, tell user to use the correct component
+    
+    print("HERE 2")
+    print(get_ipython())
+    ip = get_ipython() # type: ignore   
+    
+    
+
     if is_in_vs_code() or is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
