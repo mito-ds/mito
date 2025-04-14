@@ -117,7 +117,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
-    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
     // the last active thread or create a new thread if there are no previously existing threads. So that
@@ -179,7 +179,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
         // when the user switches mode. When the user reloads a chat, we want to put them back into the same
         // chat mode so that we use the correct system message and preserve this one-type of message invariant.
-        let isAgentChat: boolean = false
+        let isAgentChat: boolean = true
 
         // Add messages to the ChatHistoryManager
         chatHistoryResponse.items.forEach(item => {
@@ -194,6 +194,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     isAgentChat = true
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
+                    isAgentChat = false
                 }
             } catch {
                 newChatHistoryManager.addChatMessageFromHistory(item);
