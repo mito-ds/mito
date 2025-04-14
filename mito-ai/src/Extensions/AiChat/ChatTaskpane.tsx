@@ -539,6 +539,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         true,
                         chunk.error.title
                     );
+
+                    return;
                 }
 
                 // Use a ref to accumulate the content properly
