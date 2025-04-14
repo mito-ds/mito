@@ -21,6 +21,7 @@ from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 from traitlets import  Instance, Unicode, default, validate
 from pydantic import BaseModel
 from traitlets.config import LoggingConfigurable
+import inspect
 
 from mito_ai.logger import get_logger
 from mito_ai.models import (
@@ -50,6 +51,10 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
+
+AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", None)
+AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY", None)
+AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", None)
 
 __all__ = ["OpenAIProvider"]
 
@@ -83,7 +88,7 @@ This attribute is observed by the websocket provider to push the error to the cl
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
-        self._async_client: Optional[openai.AsyncOpenAI] = None
+        self._async_client: Optional[Union[openai.AsyncOpenAI, openai.AzureOpenAI]] = None
         self._models: Optional[List[str]] = None
 
     @default("api_key")
@@ -98,6 +103,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 "No OpenAI API key provided; following back to Mito server API."
             )
             return None
+        
+        return api_key
 
         client = openai.OpenAI(api_key=api_key)
         models = []
@@ -180,17 +187,28 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
 
     @property
-    def _openAI_async_client(self) -> Optional[openai.AsyncOpenAI]:
+    def _openAI_async_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AzureOpenAI]]:
         """Get the asynchronous OpenAI client."""
-        if not self.api_key:
-            return None
-
+        
         if not self._async_client or self._async_client.is_closed():
-            self._async_client = openai.AsyncOpenAI(
-                api_key=self.api_key,
-                max_retries=self.max_retries,
-                timeout=self.timeout
-            )
+            if AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY and AZURE_OPENAI_API_VERSION:
+                # If the Azure environment variables are set, use it
+                self._async_client = openai.AzureOpenAI(
+                    azure_endpoint=AZURE_OPENAI_ENDPOINT,
+                    api_key=AZURE_OPENAI_API_KEY,
+                    api_version=AZURE_OPENAI_API_VERSION,
+                    
+                )
+            elif self.api_key:
+                # Otherwise, use OpenAI_API_KEY is it, use it
+                self._async_client = openai.AsyncOpenAI(
+                    api_key=self.api_key,
+                    max_retries=self.max_retries,
+                    timeout=self.timeout
+                )
+            else:
+                # Otherwise, there is no user key configuration
+                return None
 
         return self._async_client
     
@@ -221,18 +239,31 @@ This attribute is observed by the websocket provider to push the error to the cl
             if self._openAI_async_client and model not in self.models:
                 model = "gpt-4o-mini"
         
+        
+            model = "gpt-4o"
+
             completion_function_params = get_open_ai_completion_function_params(
                 model, messages, False, response_format_info
             )
             
             completion = None
             if self._openAI_async_client is not None:
-                self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
+                # DEBUGGING: Log the type of the client and the create method
+                print(f"Attempting OpenAI API call. Client type: {type(self._openAI_async_client)}")
+                try:
+                    create_method = self._openAI_async_client.chat.completions.create
+                    print(f"Type of create method: {type(create_method)}")
+                    print(f"Is create method a coroutine function? {inspect.iscoroutinefunction(create_method)}")
+                except AttributeError:
+                    print("Client does not have chat.completions.create method.")
+                # END DEBUGGING
+
+                print(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
-                response = await self._openAI_async_client.chat.completions.create(**completion_function_params)
+                response = self._openAI_async_client.chat.completions.create(**completion_function_params)
                 completion = response.choices[0].message.content or ""
             else: 
-                self.log.debug(f"Requesting completion from Mito server with model {model}.")
+                print(f"Requesting completion from Mito server with model {model}.")
                 
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
                 completion = await get_ai_completion_from_mito_server(
@@ -259,6 +290,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return completion
                 
         except BaseException as e:
+            self.log.exception(f"Error during request_completions: {e}")
             self.last_error = CompletionError.from_exception(e)
             key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
             log(
@@ -306,6 +338,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # Get the last message content for logging
         last_message_content = str(messages[-1].get("content", "")) if messages else ""
+        
+        model = "gpt-4o"
         
         # Prepare completion function parameters
         completion_function_params = get_open_ai_completion_function_params(
