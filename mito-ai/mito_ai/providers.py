@@ -88,7 +88,7 @@ This attribute is observed by the websocket provider to push the error to the cl
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
-        self._async_client: Optional[Union[openai.AsyncOpenAI, openai.AzureOpenAI]] = None
+        self._async_client: Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]] = None
         self._models: Optional[List[str]] = None
 
     @default("api_key")
@@ -187,13 +187,13 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
 
     @property
-    def _openAI_async_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AzureOpenAI]]:
+    def _openAI_async_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         """Get the asynchronous OpenAI client."""
         
         if not self._async_client or self._async_client.is_closed():
             if AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY and AZURE_OPENAI_API_VERSION:
                 # If the Azure environment variables are set, use it
-                self._async_client = openai.AzureOpenAI(
+                self._async_client = openai.AsyncAzureOpenAI(
                     azure_endpoint=AZURE_OPENAI_ENDPOINT,
                     api_key=AZURE_OPENAI_API_KEY,
                     api_version=AZURE_OPENAI_API_VERSION,
@@ -260,7 +260,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
                 print(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
-                response = self._openAI_async_client.chat.completions.create(**completion_function_params)
+                response = await self._openAI_async_client.chat.completions.create(**completion_function_params)
                 completion = response.choices[0].message.content or ""
             else: 
                 print(f"Requesting completion from Mito server with model {model}.")
@@ -357,6 +357,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                 stream: AsyncStream[ChatCompletionChunk] = await client.chat.completions.create(**completion_function_params)
                 
                 async for chunk in stream:
+                    print(f"Chunk: {chunk}")
+                    
+                    if len(chunk.choices) == 0:
+                        continue
+                    
                     is_finished = chunk.choices[0].finish_reason is not None
                     content = chunk.choices[0].delta.content or ""
                     accumulated_response += content
