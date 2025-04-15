@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 import { PromiseDelegate } from '@lumino/coreutils';
@@ -203,6 +208,8 @@ export class CompletionWebsocketClient implements IDisposable {
      */
     switch (message.type) {
       case 'chunk': {
+        // To see the stream in action, uncomment the following line
+        // console.log(`[Mito AI Stream] ${message.done ? 'FINAL' : ''} Chunk:`, message.chunk.content);
         this._stream.emit(message);
         break;
       }
@@ -212,6 +219,20 @@ export class CompletionWebsocketClient implements IDisposable {
           resolver.resolve(message);
           this._pendingRepliesMap.delete(message.parent_id);
         } else {
+          // For streaming responses, emit the error through the stream
+          // We need to do this here because errors do not come in as "chunk" messages
+          // they come in as "reply" messages.
+          if (message.error) {
+            this._stream.emit({
+              type: 'chunk',
+              chunk: { content: message.error.hint || message.error.title || "An error occurred" },
+              done: true,
+              parent_id: message.parent_id,
+              error: message.error
+            });
+          }
+          // This will get triggered when streaming and there is an error message.
+          // However, errors are handled via the emit seen above above.
           console.warn('Unhandled mito ai completion message', message);
         }
         break;

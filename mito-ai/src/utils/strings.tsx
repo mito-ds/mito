@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import OpenAI from "openai";
 
 export const PYTHON_CODE_BLOCK_START_WITH_NEW_LINE = '```python\n'

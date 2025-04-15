@@ -1,41 +1,46 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, Type, Union, NewType
+from typing import Annotated, List, Literal, Optional, Type, Union, NewType
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # The ThreadID is the unique identifier for the chat thread.
 ThreadID = NewType('ThreadID', str)
-
-@dataclass(frozen=True)
-class AIOptimizedCell():
-  cell_type: str
-  id: str
-  code: str
   
-# Response format for agent planning
-# TODO: Figure out how to discriminate the 
-# CellUpdateModification and CellUpdateNew types
+########################################################
+# Agent Response formats
+########################################################
     
 class CellUpdate(BaseModel):
     type: Literal['new', 'modification']
     index: Optional[int]
     id: Optional[str]
     code: str
-    description: str
-    
+
+# Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
+# so instead we just combine all of the possible response types into a single class 
+# for now and rely on the AI to respond with the correct types, following the format
+# that we show it in the system prompt.
 class AgentResponse(BaseModel):
-    is_finished: bool
+    type: Literal['cell_update', 'get_cell_output', 'finished_task']
     message: str
     cell_update: Optional[CellUpdate]
-  
+    get_cell_output_cell_id: Optional[str]
+    
+    
 @dataclass(frozen=True)
 class ResponseFormatInfo():
     name: str
     # Use the type because we are actually just providing the type format, not an actual instance of the format
     format: type[AgentResponse]
 
+########################################################
+# Message Types and Metadata
+########################################################
 
 class MessageType(Enum):
     """
@@ -52,36 +57,53 @@ class MessageType(Enum):
     FETCH_HISTORY = "fetch_history"
     GET_THREADS = "get_threads"
     DELETE_THREAD = "delete_thread"
+    
+@dataclass(frozen=True)
+class AIOptimizedCell():
+  cell_type: str
+  id: str
+  code: str
+  
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
     promptType: Literal['chat']
+    threadId: ThreadID
     input: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
-    index: Optional[int] = None   
+    base64EncodedActiveCellOutput: Optional[str] = None
+    index: Optional[int] = None
+    stream: bool = False
     
 @dataclass(frozen=True)
 class AgentExecutionMetadata():
     promptType: Literal['agent:execution']
+    threadId: ThreadID
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
+    isChromeBrowser: bool
+    base64EncodedActiveCellOutput: Optional[str] = None
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
+    index: Optional[int] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():
     promptType: Literal['agent:autoErrorFixup']
+    threadId: ThreadID
     aiOptimizedCells: List[AIOptimizedCell]
     errorMessage: str
     error_message_producing_code_cell_id: str
+    isChromeBrowser: bool
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
     promptType: Literal['smartDebug']
+    threadId: ThreadID
     errorMessage: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
@@ -90,6 +112,7 @@ class SmartDebugMetadata():
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
+    threadId: ThreadID
     variables: Optional[List[str]] = None
     activeCellCode: Optional[str] = None
     
@@ -100,11 +123,6 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class FetchHistoryMetadata():
-    promptType: Literal['fetch_history']
-    
     
 @dataclass(frozen=True)
 class CompletionRequest:

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Dict
 
 from metaprogramming.utils.code_utils import (CLOSE_BRACKET, OPEN_BRACKET,

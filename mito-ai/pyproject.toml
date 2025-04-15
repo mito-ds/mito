@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 [build-system]
 requires = ["setuptools", "wheel", "jupyterlab>=4.0.0,<5"]
 build-backend = "setuptools.build_meta"

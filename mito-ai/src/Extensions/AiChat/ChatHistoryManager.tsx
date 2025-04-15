@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../utils/websocket/models";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
+import { isChromeBasedBrowser } from "../../utils/user";
 
 export type PromptType = 
     'chat' | 
@@ -79,7 +85,7 @@ export class ChatHistoryManager {
         );
     }
 
-    addChatInputMessage(input: string): IChatMessageMetadata {
+    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker)
         const activeCellID = getActiveCellID(this.notebookTracker)
 
@@ -88,7 +94,9 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
-            input: input
+            input: input,
+            threadId: activeThreadId,
+            index: messageIndex
         }
 
         this.displayOptimizedChatHistory.push(
@@ -103,16 +111,18 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(input?: string): IAgentExecutionMetadata {
+    addAgentExecutionMessage(activeThreadId: string, input?: string): IAgentExecutionMetadata {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
-        const agentExecutionMetatada: IAgentExecutionMetadata = {
+        const agentExecutionMetadata: IAgentExecutionMetadata = {
             promptType: 'agent:execution',
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             aiOptimizedCells: aiOptimizedCells,
-            input: input || ''
+            input: input || '',
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         // We use this function in two ways: 
@@ -137,7 +147,7 @@ export class ChatHistoryManager {
             }
         )
 
-        return agentExecutionMetatada
+        return agentExecutionMetadata
     }
 
     dropMessagesStartingAtIndex(index: number): void {
@@ -145,7 +155,7 @@ export class ChatHistoryManager {
     }
 
 
-    addSmartDebugMessage(errorMessage: string): ISmartDebugMetadata {
+    addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -155,7 +165,8 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
-            errorMessage: errorMessage
+            errorMessage: errorMessage,
+            threadId: activeThreadId
         }
 
         this.displayOptimizedChatHistory.push(
@@ -170,7 +181,7 @@ export class ChatHistoryManager {
         return smartDebugMetadata
     }
 
-    addAgentSmartDebugMessage(errorMessage: string): IAgentSmartDebugMetadata {
+    addAgentSmartDebugMessage(activeThreadId: string, errorMessage: string): IAgentSmartDebugMetadata {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getActiveCellCode(this.notebookTracker)
@@ -181,7 +192,9 @@ export class ChatHistoryManager {
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             errorMessage: errorMessage,
-            error_message_producing_code_cell_id: activeCellID || ''
+            error_message_producing_code_cell_id: activeCellID || '',
+            threadId: activeThreadId,
+            isChromeBrowser: isChromeBasedBrowser()
         }
 
         this.displayOptimizedChatHistory.push(
@@ -196,7 +209,7 @@ export class ChatHistoryManager {
         return agentSmartDebugMetadata
     }
 
-    addExplainCodeMessage(): ICodeExplainMetadata {
+    addExplainCodeMessage(activeThreadId: string): ICodeExplainMetadata {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
@@ -204,7 +217,8 @@ export class ChatHistoryManager {
         const codeExplainMetadata: ICodeExplainMetadata = {
             promptType: 'codeExplain',
             variables: this.contextManager.variables,
-            activeCellCode
+            activeCellCode,
+            threadId: activeThreadId
         }
 
         this.displayOptimizedChatHistory.push(
@@ -254,14 +268,41 @@ export class ChatHistoryManager {
         );
     }
 
+    addStreamingAIMessage(
+        messageContent: string,
+        promptType: PromptType
+    ): void {
+        // Find the last AI message in the history
+        const lastAIMessageIndex = this.getLastAIMessageIndex();
+        
+        if (
+            lastAIMessageIndex === undefined || 
+            this.displayOptimizedChatHistory.length !== lastAIMessageIndex + 1
+        ) {
+            // If no AI message exists, create a new one
+            this.addAIMessageFromResponse(messageContent, promptType);
+        } else {
+            // Update the last AI message with the new content
+            const lastMessage = this.displayOptimizedChatHistory[lastAIMessageIndex];
+            if (lastMessage) {
+                lastMessage.message.content = messageContent;
+            }
+        }
+    }
+
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
 
-        const code = agentResponse.cell_update?.code
-        const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
-
         let content = agentResponse.message
-        if (codeWithMarkdownFormatting !== undefined) {
-            content = content + '\n\n' + codeWithMarkdownFormatting
+        if (agentResponse.type === 'cell_update') {
+            // For cell_update messages, we want to display the code the agent wrote along with 
+            // the message it sent. For all other agent responses, we ignore all other fields
+            // and just display the message.
+            const code = agentResponse.cell_update?.code
+            const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
+
+            if (codeWithMarkdownFormatting !== undefined) {
+                content = content + '\n\n' + codeWithMarkdownFormatting
+            }
         }
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
@@ -280,6 +321,10 @@ export class ChatHistoryManager {
     }
 
     getLastAIMessageIndex = (): number | undefined => {
+        // We assume that assistant messages are always separated by user messages.
+        // This allows us to simply find the last assistant message in the history.
+        // If this invariant changes (e.g., if we need to support consecutive assistant messages),
+        // we should modify this to use message IDs instead.
         const displayOptimizedChatHistory = this.getDisplayOptimizedHistory()
         const aiMessageIndexes = displayOptimizedChatHistory.map((chatEntry, index) => {
             if (chatEntry.message.role === 'assistant') {

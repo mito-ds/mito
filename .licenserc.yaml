@@ -1,0 +1,41 @@
+header:
+  license:
+    spdx-id: AGPL-3.0-only
+    copyright-owner: Saga Inc.
+    software-name: Mito
+    content: |
+      Copyright (c) Saga Inc.
+      Distributed under the terms of the GNU Affero General Public License v3.0 License.
+    pattern: |
+      Copyright (c) Saga Inc.
+      Distributed .* License.
+
+  paths-ignore:
+    - 'mitosheet/mitosheet/pro/**'
+    - 'mitosheet/mitosheet/entreprise/**'
+    - 'mitosheet-helpers/**'
+    - '**/*.csv'
+    - '**/*.ipynb'
+    - '**/*.json'
+    - '**/*.md'
+    - '**/*.MD'
+    - '**/*.txt'
+    - '**/*.svg'
+    - '**/*.yml'
+    - '**/*.yaml'
+    - '**/build'
+    - '**/lib'
+    - '**/node_modules'
+    - '**/static'
+    - '**/typings'
+    - '*.map.js'
+    - '*.bundle.js'
+    - '**/.*'
+    - 'binder/postBuild'
+    - 'binder/start'
+    - 'LICENSE'
+    - 'yarn.lock'
+    - 'mitosheet/mitosheet/tests/updates/conftest'
+    - 'trymito.io/public/favicons/site.webmanifest'
+
+  comment: on-failure

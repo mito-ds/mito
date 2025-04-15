@@ -1,4 +1,9 @@
 /*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/*
 Miscellaneous tests that don't fit into other test files,
 but still need to be run if changes are made in mito-ai/
 */
@@ -8,7 +13,6 @@ import {
     createAndRunNotebookWithCells,
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
-
 
 test('Make sure collapsed warnings can be read', async ({ page }) => {
     const warningMessage = 'This is a warning message.';

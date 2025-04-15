@@ -1,5 +1,8 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
 from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from mito_ai.utils.db import get_user_field
@@ -24,8 +27,8 @@ MITO_AI_COMPLETION_ERROR = 'mito_ai_error'
 # Params 
 # - logging the type of key 
 KEY_TYPE_PARAM = 'AI_key_type'
-MITO_SERVER_KEY= 'mito_server_key'
-USER_KEY = 'user_key'
+MITO_SERVER_KEY: Literal['mito_server_key'] = 'mito_server_key'
+USER_KEY: Literal['user_key'] = 'user_key'
 
 # - logging the number of usages of the Mito server
 MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'
@@ -36,11 +39,16 @@ MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'
 MITO_SERVER_FREE_TIER_LIMIT_REACHED = 'mito_server_free_tier_limit_reached'
 #################################
 
-def telemetry_turned_on() -> bool:
+def telemetry_turned_on(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> bool:
     """
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
+    # If the user is on the Mito server, then they are sending
+    # us their information already
+    if key_type == 'mito_server_key':
+        return True
+    
     # If private helper is installed, then we don't log anything
     if MITOSHEET_HELPER_PRIVATE:
         return False
@@ -57,12 +65,12 @@ def telemetry_turned_on() -> bool:
     
     return bool(telemetry)
 
-def identify() -> None:
+def identify(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> None:
     """
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
     """
-    if not telemetry_turned_on():
+    if not telemetry_turned_on(key_type):
         return
 
     static_user_id = get_user_field(UJ_STATIC_USER_ID)
@@ -72,6 +80,7 @@ def identify() -> None:
     params = {
         'version_mitoai': __version__,
         'email': user_email,
+        'is_pro': is_pro(),
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
 
@@ -114,6 +123,8 @@ def log(
         log_event: str, 
         params: Optional[Dict[str, Any]]=None, 
         error: Optional[BaseException]=None, 
+        key_type: Optional[Literal['mito_server_key', 'user_key']] = None,
+        thread_id: Optional[str] = None
     ) -> None:
     """
     This function is the entry point for all logging. 
@@ -131,11 +142,15 @@ def log(
     if error is not None:
         final_params['error'] = str(error)
 
+    if thread_id is not None:
+        final_params['thread_id'] = thread_id
+
     # Finally, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
-    if not is_running_test() and telemetry_turned_on():
+    if not is_running_test() and telemetry_turned_on(key_type):
         # TODO: If the user is in JupyterLite, we need to do some extra work.
         # You can see this in the mitosheet package. 
+        
         try:
             analytics.track(
                 get_user_field(UJ_STATIC_USER_ID), 
@@ -157,10 +172,12 @@ def log(
     # so enterprises can log usage if they want to.
 
 def log_ai_completion_success(
-    key_type: str,
+    key_type: Literal['mito_server_key', 'user_key'],
     message_type: MessageType,
     last_message_content: str,
+    user_input: str,
     response: Dict[str, Any],
+    thread_id: str
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -174,7 +191,7 @@ def log_ai_completion_success(
 
     # Params that every log has
     base_params = {
-        KEY_TYPE_PARAM: key_type,
+        KEY_TYPE_PARAM: str(key_type),
     }
 
     try:
@@ -195,13 +212,9 @@ def log_ai_completion_success(
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
-    full_prompt_chunks = chunk_param(last_message_content, "full_prompt")
     response_chunks = chunk_param(response["completion"], "response")
 
     for chunk_key, chunk_value in code_cell_input_chunks.items():
-        base_params[chunk_key] = chunk_value
-
-    for chunk_key, chunk_value in full_prompt_chunks.items():
         base_params[chunk_key] = chunk_value
 
     for chunk_key, chunk_value in response_chunks.items():
@@ -223,44 +236,42 @@ def log_ai_completion_success(
         final_params["error_message"] = error_message
         final_params["error_type"] = error_type
 
-        log("mito_ai_smart_debug_success", params=final_params)
+        log("mito_ai_smart_debug_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.CODE_EXPLAIN:
         final_params = base_params
 
-        log("mito_ai_code_explain_success", params=final_params)
+        log("mito_ai_code_explain_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.CHAT:
         final_params = base_params
 
         # Chunk the user input
-        user_input = last_message_content.split("Your task: ")[-1]
         user_input_chunks = chunk_param(user_input, "user_input")
         
         for chunk_key, chunk_value in user_input_chunks.items():
             final_params[chunk_key] = chunk_value
 
-        log("mito_ai_chat_success", params=final_params)
+        log("mito_ai_chat_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.AGENT_EXECUTION:
         final_params = base_params
 
         # Chunk the user input
-        user_input = last_message_content.split("Your task: ")[-1]
         user_input_chunks = chunk_param(user_input, "user_input")
         
         for chunk_key, chunk_value in user_input_chunks.items():
             final_params[chunk_key] = chunk_value
 
-        log("mito_ai_agent_execution_success", params=final_params)
+        log("mito_ai_agent_execution_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.INLINE_COMPLETION:
         final_params = base_params
-        log("mito_ai_inline_completion_success", params=final_params)
+        log("mito_ai_inline_completion_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.AGENT_AUTO_ERROR_FIXUP:
         final_params = base_params
-        log("mito_ai_agent_auto_error_fixup_success", params=final_params)
+        log("mito_ai_agent_auto_error_fixup_success", params=final_params, key_type=key_type, thread_id=thread_id)
     else:
         final_params = base_params
         final_params["note"] = (
             "This input_location has not been accounted for in `telemetry_utils.py`."
         )
 
-        log(f"mito_ai_{message_type.value}_success", params=final_params)
+        log(f"mito_ai_{message_type.value}_success", params=final_params, key_type=key_type, thread_id=thread_id)
         

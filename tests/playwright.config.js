@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 exports = require('@jupyterlab/galata/lib/playwright-config');
 import { devices } from '@playwright/test';
 

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
 import { AnalysisData, PopupLocation, PopupType, SheetData, UIState, UserProfile } from "../../../types";

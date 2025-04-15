@@ -1,4 +1,9 @@
 /*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/*
 Integration test for the AI inline completion. This test uses 
 a mocked response from the server to simulate the AI completion
 service's behavior in a more controlled way.

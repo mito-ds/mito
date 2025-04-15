@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.models import InlineCompleterMetadata, MessageType
@@ -35,7 +38,8 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         completion = await provider.request_completions(
             messages=messages, 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.INLINE_COMPLETION],
-            message_type=MessageType.INLINE_COMPLETION
+            message_type=MessageType.INLINE_COMPLETION,
+            thread_id=None
         )
         
         return completion

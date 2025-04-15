@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react';
 import TextButton from '../../../components/TextButton';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../../utils/errors';

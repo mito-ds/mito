@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from evals.eval_types import CodeGenTestCaseCore, InlineCodeCompletionTestCase
 from evals.notebook_states import *
 

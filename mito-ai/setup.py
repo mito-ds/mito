@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from glob import glob
 from typing import List, Tuple
 from setuptools import setup, find_packages

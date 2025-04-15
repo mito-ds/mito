@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 //pages/sitemap.xml.js
 // Dynamically generate a sitemap.xml file for our site following
 // https://nextjs.org/learn-pages-router/seo/crawling-and-indexing/xml-sitemaps

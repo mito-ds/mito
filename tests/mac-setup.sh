@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 set -e
 
 # Create venv and install requirements
@@ -30,5 +33,11 @@ jlpm run build
 # Install mito-ai and build JS
 cd ../mito-ai
 pip install -e ".[test]"
+jlpm install
+jlpm run build
+
+# Install mito-sql-cell and build JS
+cd ../mito-sql-cell
+pip install -e ".[test,optional_features]"
 jlpm install
 jlpm run build

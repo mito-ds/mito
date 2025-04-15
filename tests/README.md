@@ -78,6 +78,24 @@ And then in a separate terminal run from the tests/ directory:
 npm run test:mitoai -- --project=chromium
 ```
 
+### Mito SQL Cell Specific Tests
+
+First, run the following command to install the dependencies from the mito-sql-cell directory:
+```
+jupyter labextension develop . --overwrite
+jupyter server extension enable mito_sql_cell
+```
+
+Then, run the following command to start the JupyterLab server from the tests/ directory:
+```
+jupyter lab --config jupyter_server_test_config.py
+```
+
+And then in a separate terminal run from the tests/ directory: 
+```
+npm run test:mito-sql-cell -- --project=chromium
+```
+
 ### Dash Specific Tests
 
 Run

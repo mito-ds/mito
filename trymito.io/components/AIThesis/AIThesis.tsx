@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import pageStyles from '../../styles/Page.module.css'
 import aiThesisStyles from './AIThesis.module.css'
 import { useState } from 'react'

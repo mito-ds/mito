@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 /**
  * This file contains all the major utilities necessary for writing and
  * reading code to a notebook, whether that be a Jupyterlab notebook or

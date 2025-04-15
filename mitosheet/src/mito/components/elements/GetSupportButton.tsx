@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react'
 import { DISCORD_INVITE_LINK } from '../../data/documentationLinks';
 import { MitoAPI } from '../../api/api';

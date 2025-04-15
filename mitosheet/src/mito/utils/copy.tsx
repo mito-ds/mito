@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { MAX_ROWS } from "../components/endo/EndoGrid";
 import { isValueNone } from "../components/taskpanes/ControlPanel/FilterAndSortTab/filter/filterUtils";
 import { ColumnFormatType, MitoSelection, SheetData } from "../types";

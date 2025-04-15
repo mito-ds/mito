@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { JupyterFrontEndPlugin } from '@jupyterlab/application';
 import type { WidgetTracker } from '@jupyterlab/apputils';
 import { IStatusBar, Popup, showPopup } from '@jupyterlab/statusbar';

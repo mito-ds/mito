@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState } from 'react';
 import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
@@ -22,11 +27,14 @@ import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
+import { AgentResponse } from '../../../utils/websocket/models';
+import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
     messageType: IDisplayOptimizedChatItem['type']
     codeCellID: string | undefined
+    agentResponse: AgentResponse | undefined
     messageIndex: number
     promptType: PromptType
     mitoAIConnectionError: boolean
@@ -48,6 +56,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     message,
     messageType,
     promptType,
+    agentResponse,
     messageIndex,
     mitoAIConnectionError,
     mitoAIConnectionErrorType,
@@ -97,6 +106,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 notebookTracker={notebookTracker}
                 renderMimeRegistry={renderMimeRegistry}
                 displayActiveCellCode={true}
+                agentModeEnabled={false}
             />
         );
     }
@@ -225,6 +235,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                         <PencilIcon />
                     </button>
                 </div>
+            }
+            {agentResponse?.type === 'get_cell_output' && 
+                <GetCellOutputToolUI />
             }
         </div>
     )

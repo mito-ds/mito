@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import datetime
 import os
 import sys
@@ -240,7 +243,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python {python_version}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: {python_version}
       - name: Get the current timestamp

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { CodeCell } from '@jupyterlab/cells';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -71,6 +76,7 @@ const createMockProps = (overrides = {}) => ({
         sanitizer: { sanitize: jest.fn() }
     } as unknown as IRenderMimeRegistry,
     displayActiveCellCode: true,
+    agentModeEnabled: false,
     ...overrides
 });
 
@@ -143,6 +149,16 @@ describe('ChatInput Component', () => {
             typeInTextarea(textarea, 'test input');
 
             // Preview should not be visible for empty cells
+            expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
+        });
+
+        it('does not show preview when agent mode is enabled', () => {
+            renderChatInput({ agentModeEnabled: true });
+
+            // Type in textarea
+            typeInTextarea(textarea, 'test input');
+
+            // Preview should not be visible
             expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
         });
     });

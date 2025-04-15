@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Final
 from mito_ai.utils.db import (
     get_chat_completion_count, 
@@ -95,6 +98,10 @@ def update_mito_server_quota(message_type: MessageType) -> None:
     or we will no longer be able to provide this free tier.
     """
     
+    if message_type == MessageType.CHAT_NAME_GENERATION:
+        # We do not count the Chat Name Generation message type towards the quota
+        return
+    
     current_date = datetime.now()
     first_usage_date = get_first_completion_date()
     last_reset_date_str = get_last_reset_date()
@@ -126,9 +133,7 @@ def update_mito_server_quota(message_type: MessageType) -> None:
     if message_type == MessageType.INLINE_COMPLETION:
         # Increment autocomplete count
         autocomplete_count = get_autocomplete_count()
-        if autocomplete_count is None:
-            autocomplete_count = 0
-        autocomplete_count = autocomplete_count + 1
+        autocomplete_count = 1 if autocomplete_count is None else autocomplete_count + 1
         
         try:
             set_user_field(UJ_AI_MITO_AUTOCOMPLETE_NUM_USAGES, autocomplete_count)
@@ -137,9 +142,7 @@ def update_mito_server_quota(message_type: MessageType) -> None:
     else:
         # Increment chat completion count
         completion_count = get_chat_completion_count()
-        if completion_count is None:
-            completion_count = 0
-        completion_count = completion_count + 1
+        completion_count = 1 if completion_count is None else completion_count + 1
         
         try:
             set_user_field(UJ_AI_MITO_API_NUM_USAGES, completion_count)

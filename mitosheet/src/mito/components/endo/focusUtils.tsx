@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 /* 
     To catch events like an "onKeyUp" in the grid, we need a child element
     of the grid (or the grid itself) to be the active element on the page. 

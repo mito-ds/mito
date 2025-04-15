@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 # check_server.sh
 # This script checks if the Streamlit server is up and running.
 # If it is, it exits with code 0 (success).

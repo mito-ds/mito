@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { LabIcon } from '@jupyterlab/ui-components';
 import LightbulbIcon from '../../src/icons/LightbulbIcon.svg';
 import NucleusIcon from '../../src/icons/NucleusIcon.svg';
