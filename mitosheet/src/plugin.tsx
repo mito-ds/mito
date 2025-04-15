@@ -341,8 +341,6 @@ function activateMitosheetExtension(
         label: 'Reads the arguments on the last line of a code cell.',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         execute: (args: any): string[] => {
-            console.log('get-args-by-execution-count')
-            console.log(notebookTracker)
             const notebook = notebookTracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
             const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined;
