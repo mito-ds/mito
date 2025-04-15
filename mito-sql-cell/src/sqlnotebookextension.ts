@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import type { Cell, ICellModel } from '@jupyterlab/cells';
 import type { DocumentRegistry } from '@jupyterlab/docregistry';
 import {

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from collections.abc import MutableMapping
 from configparser import ConfigParser, DEFAULTSECT, SectionProxy
 from contextlib import contextmanager

@@ -374,6 +374,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 message_id=message_id,
             ):
                 accumulated_response += str(chunk_from_mito_server)
+            
+            # Update quota after streaming is complete
+            update_mito_server_quota(message_type)
         
         # Log the successful completion 
         key_type = USER_KEY if self._openAI_async_client is not None else MITO_SERVER_KEY
