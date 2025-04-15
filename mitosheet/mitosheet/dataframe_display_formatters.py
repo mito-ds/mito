@@ -44,6 +44,10 @@ def set_dataframe_display_formatters() -> None:
         import pandas as pd
         import mitosheet
 
+        ip = get_ipython() # type: ignore
+        if not ip: # Exit if not in an IPython environment
+            return
+
         # Custom HTML formatter for DataFrames using Mitosheet
         def mitosheet_display_formatter(obj, include=None, exclude=None):
             if isinstance(obj, pd.DataFrame):
@@ -67,6 +71,7 @@ def set_dataframe_display_formatters() -> None:
             return p.text(obj)
 
         ip = get_ipython() # type: ignore
+        
         html_formatter = ip.display_formatter.formatters['text/html']
         plain_formatter = ip.display_formatter.formatters['text/plain']
 

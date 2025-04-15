@@ -9,21 +9,22 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
-import { getArgsFromMitosheetCallCode, getCodeString, getLastNonEmptyLine, hasCodeCellBeenEditedByUser } from './jupyter/code';
+import { getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, getLastNonEmptyLine } from './jupyter/code';
 import { JupyterComm } from './jupyter/comm';
 import {
     createCodeCellAtIndex,
     getCellAtIndex,
     getCellCallingMitoshetWithAnalysis,
-    getCellIndexByExecutionCount,
+    getCellIndexesByExecutionCount,
     getCellText,
+    getMostLikelyCellIndexByExeuctionNumber,
     getMostLikelyMitosheetCallingCell,
     getParentMitoContainer,
     isEmptyCell,
     tryOverwriteAnalysisToReplayParameter,
     tryWriteAnalysisToReplayParameter,
     writeToCell,
-    writeToCodeCellAtIndex
+    writeToCodeCellAtIndex,
 } from './jupyter/extensionUtils';
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
@@ -238,7 +239,9 @@ function activateMitosheetExtension(
                 return;
             }
 
-            const mimeRenderInputCellIndex = getCellIndexByExecutionCount(cells, inputCellExecutionCount);
+            const cellIndexes = getCellIndexesByExecutionCount(cells, inputCellExecutionCount);
+            const mimeRenderInputCellIndex = getMostLikelyCellIndexByExeuctionNumber(cellIndexes, notebook.activeCellIndex);
+            
             if (mimeRenderInputCellIndex === undefined) {
                 // If the code cell that created the mitosheet mime render does not exist, 
                 // just return. I don't think this should ever happen because you can't 
@@ -341,20 +344,20 @@ function activateMitosheetExtension(
             const notebook = notebookTracker.currentWidget?.content;
             const cells = notebook?.model?.cells;
             const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined;
-            const cellIndex = getCellIndexByExecutionCount(cells, inputCellExecutionCount);
+            const cellIndexes = getCellIndexesByExecutionCount(cells, inputCellExecutionCount);
 
-            if (notebook === undefined || cells === undefined || cellIndex === undefined) {
+            if (notebook === undefined || cells === undefined || cellIndexes.length === 0) {
                 return [];
             }
 
+            const cellIndex = getMostLikelyCellIndexByExeuctionNumber(cellIndexes, notebook.activeCellIndex);
+
             const cell = getCellAtIndex(cells, cellIndex);
             if (cell) {
-
                 // We assume that we're using this to parse the dataframe name at the end of a code cell
                 // that created a dataframe rendermine mitosheet. If there were other variables on the last line 
                 // besides the dataframe, we would not have gotten the dataframe renderer.
                 let dfName = getLastNonEmptyLine(getCellText(cell));
-
 
                 // If the line ends with a comment, we want to remove the comment
                 if (dfName && dfName.includes('#')) {
