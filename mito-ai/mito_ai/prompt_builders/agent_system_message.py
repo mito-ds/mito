@@ -43,6 +43,7 @@ Format:
 {{
     type: 'cell_update',
     message: str,
+    cell_type: 'code' | 'markdown',
     cell_update: {{
         type: 'modification'
         id: str,
@@ -63,6 +64,7 @@ Format:
 {{
     type: 'cell_update',
     message: str,
+    cell_type: 'code' | 'markdown',
     cell_update: {{
         type: 'new'
         index: int
@@ -113,6 +115,7 @@ Convert the transaction_date column to datetime and then multiply the total_pric
 Output:
 {{
     type: 'cell_update',
+    cell_type: 'code',
     message: "I'll convert the transaction_date column to datetime and multiply the total_price column by the sales_multiplier.",
     cell_update: {{
         type: 'modification'
