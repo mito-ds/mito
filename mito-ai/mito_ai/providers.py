@@ -187,12 +187,20 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def key_type(self) -> str:
         """Returns the authentication key type being used."""
+
         if self.api_key:
             return USER_KEY
-        elif constants.OLLAMA_MODEL:
+
+        if constants.OLLAMA_MODEL:
             return "ollama"
-        else:
-            return MITO_SERVER_KEY
+
+        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            return "claude"
+
+        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            return "gemini"
+
+        return MITO_SERVER_KEY
 
     def _build_openai_client(self) -> Union[openai.AsyncOpenAI, None]:
         base_url = None
