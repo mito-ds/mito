@@ -1,5 +1,7 @@
-from __future__ import annotations
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from __future__ import annotations
 from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 
 import openai
