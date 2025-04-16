@@ -86,14 +86,15 @@ export class ChatHistoryManager {
     }
 
     async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number): Promise<IChatMessageMetadata> {
-        const activeCellCode = getActiveCellCode(this.notebookTracker)
-        const activeCellID = getActiveCellID(this.notebookTracker)
+        const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
+        const activeCellID = getActiveCellID(this.notebookTracker) || ''
 
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
+            activeCellId: activeCellID,
             input: input,
             threadId: activeThreadId,
             index: messageIndex
@@ -157,14 +158,15 @@ export class ChatHistoryManager {
 
     addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
-        const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
+        const activeCellID = getActiveCellID(this.notebookTracker) || ''
+        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID) || ''
 
         const smartDebugMetadata: ISmartDebugMetadata = {
             promptType: 'smartDebug',
             variables: this.contextManager.variables,
             files: this.contextManager.files,
             activeCellCode: activeCellCode,
+            activeCellId: activeCellID,
             errorMessage: errorMessage,
             threadId: activeThreadId
         }

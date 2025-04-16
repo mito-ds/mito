@@ -65,7 +65,8 @@ export interface IChatMessageMetadata {
   promptType: 'chat'
   variables?: Variable[];
   files?: File[];
-  activeCellCode?: string;
+  activeCellCode: string;
+  activeCellId: string;
   base64EncodedActiveCellOutput?: string;
   input: string;
   index?: number;
@@ -100,7 +101,8 @@ export interface ISmartDebugMetadata {
   promptType: 'smartDebug'
   variables?: Variable[];
   files?: File[];
-  activeCellCode?: string;
+  activeCellCode: string;
+  activeCellId: string;
   errorMessage: string;
   threadId: string;
 }
