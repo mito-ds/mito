@@ -776,7 +776,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
                 // Run the code and handle any errors
-                await acceptAndRunCellUpdate(agentResponse.cell_update, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+                await acceptAndRunCellUpdate(
+                    agentResponse.cell_update, 
+                    agentResponse.cell_type, 
+                    notebookTracker, 
+                    app, 
+                    previewAICodeToActiveCell, 
+                    acceptAICode
+                )
+                
                 const status = await retryIfExecutionError(
                     notebookTracker,
                     app,

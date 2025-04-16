@@ -15,6 +15,7 @@ import { CellUpdate } from "./websocket/models"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
+    cellType: 'code' | 'markdown',
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     previewAICodeToActiveCell: () => void,
@@ -31,7 +32,7 @@ export const acceptAndRunCellUpdate = async (
     }
 
     // The target cell should now be the active cell
-    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode)
+    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode, cellType)
 }
 
 export const acceptAndRunCode = async (
@@ -39,6 +40,7 @@ export const acceptAndRunCode = async (
     notebookTracker: INotebookTracker,
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
+    cellType: 'code' | 'markdown'
 ): Promise<void> => {
     /* 
         PreviewAICode applies the code to the current active code cell, 
@@ -48,6 +50,11 @@ export const acceptAndRunCode = async (
     previewAICodeToActiveCell()
     acceptAICode()
 
+    // We always create code cells, and then convert to markdown if necessary.
+    if (cellType === 'markdown') {
+        await app.commands.execute("notebook:change-cell-to-markdown");
+    }
+    
     // This awaits until after the execution is finished.
     // Note that it is important that we just run the cell and don't run and advance the cell. 
     // We rely on the active cell remaining the same after running the cell in order to get the output
@@ -120,9 +127,10 @@ export const retryIfExecutionError = async (
         }
 
         const cellUpdate = aiDisplayOptimizedChatItem.agentResponse.cell_update
-
+        const cellType = aiDisplayOptimizedChatItem.agentResponse.cell_type
+        
         if (cellUpdate !== undefined && cellUpdate !== null) {
-            await acceptAndRunCellUpdate(cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+            await acceptAndRunCellUpdate(cellUpdate, cellType, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
         }
 
         attempts++;

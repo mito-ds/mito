@@ -77,6 +77,7 @@ Important information:
 1. The index should be the 0-index position of where you want the new code cell to be added in the notebook.
 2. The message is a short summary of your thought process that helped you decide what to update in cell_update.
 3. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
+4. The cell_type should only be 'markdown' if there is no code to add. There may be times where the code has comments. These are still code cells and should have the cell_type 'code'.
 
 <Cell Modification Example>
 Jupyter Notebook:
