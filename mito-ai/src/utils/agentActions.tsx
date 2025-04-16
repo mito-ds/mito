@@ -52,6 +52,8 @@ export const acceptAndRunCode = async (
     // We always create code cells, and then convert to markdown if necessary.
     if (cellType === 'markdown') {
         await app.commands.execute("notebook:change-cell-to-markdown");
+    } else if (cellType === 'code') {
+        await app.commands.execute("notebook:change-cell-to-code");
     }
     
     // This awaits until after the execution is finished.
