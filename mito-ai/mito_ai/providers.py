@@ -9,7 +9,6 @@ from . import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
-import inspect
 
 from mito_ai.logger import get_logger
 from mito_ai.models import (
@@ -18,7 +17,6 @@ from mito_ai.models import (
     CompletionItem,
     CompletionItemError,
     CompletionReply,
-    CompletionRequest,
     CompletionStreamChunk,
     MessageType,
     ResponseFormatInfo,
@@ -38,10 +36,6 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
-
-AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", None)
-AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY", None)
-AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", None)
 
 __all__ = ["OpenAIProvider"]
 
@@ -88,8 +82,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 "No OpenAI API key provided; following back to Mito server API."
             )
             return None
-        
-        return api_key
 
         client = openai.OpenAI(api_key=api_key)
         try:
@@ -136,6 +128,15 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
+        
+        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+            return AICapabilities(
+                configuration={
+                    "model": 'gpt-4o'
+                },
+                provider="Azure OpenAI",
+            )
+            
 
         if constants.OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
@@ -213,7 +214,23 @@ This attribute is observed by the websocket provider to push the error to the cl
         base_url = None
         llm_api_key = None
 
-        if constants.OLLAMA_MODEL and not self.api_key:
+        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+            self.log.debug(f"Using Azure OpenAI with model: {constants.AZURE_OPENAI_MODEL}")
+            
+            # The format for using Azure OpenAI is different than using
+            # other providers, so we have a special case for it here.
+            kwargs = {
+                "api_key": constants.AZURE_OPENAI_API_KEY,
+                "api_version": constants.AZURE_OPENAI_API_VERSION,
+                "max_retries": self.max_retries,
+                "timeout": self.timeout,
+                "azure_endpoint": constants.AZURE_OPENAI_ENDPOINT
+            }
+   
+            # Note: Create an instance of AsyncAzureOpenAI instead of AsyncOpenAI
+            return openai.AsyncAzureOpenAI(**kwargs) 
+        
+        elif constants.OLLAMA_MODEL and not self.api_key:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
             self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
@@ -243,6 +260,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         return openai.AsyncOpenAI(**kwargs)
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
+        if constants.AZURE_OPENAI_MODEL and constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT:
+            return constants.AZURE_OPENAI_MODEL
         if constants.OLLAMA_MODEL and not self.api_key:
             return constants.OLLAMA_MODEL
         elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
@@ -251,7 +270,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return constants.GEMINI_MODEL
         elif model and model in self.models:
             return model
-        return "gpt-4o-mini"  # fallback
+        return "gpt-4o"  # fallback
 
     async def request_completions(
             self,
@@ -356,8 +375,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Get the last message content for logging
         last_message_content = str(messages[-1].get("content", "")) if messages else ""
         
-        model = "gpt-4o"
-        
         # Prepare completion function parameters
         completion_function_params = get_open_ai_completion_function_params(
             model, messages, True, response_format_info
@@ -370,12 +387,10 @@ This attribute is observed by the websocket provider to push the error to the cl
                 client = self._active_async_client
                 if client is None:
                     raise ValueError("OpenAI client not initialized")
-
+                
                 stream = await client.chat.completions.create(**completion_function_params)
-                    
+
                 async for chunk in stream:
-                    print(f"Chunk: {chunk}")
-                    
                     if len(chunk.choices) == 0:
                         continue
                     

@@ -19,3 +19,9 @@ OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 
 # OpenAI API KEY
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+# Azure OpenAI Config 
+AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION")
+AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
