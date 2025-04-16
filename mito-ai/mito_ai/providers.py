@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import os
 from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
 
 import openai
-from openai._streaming import AsyncStream
-from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
+from . import constants
+from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
-from pydantic import BaseModel
 from traitlets.config import LoggingConfigurable
 
 from mito_ai.logger import get_logger
@@ -39,10 +37,6 @@ from mito_ai.utils.telemetry_utils import (
 )
 
 __all__ = ["OpenAIProvider"]
-
-# New environment variables - remove USE_OLLAMA
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL")
-OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 
 
 class OpenAIProvider(LoggingConfigurable):
@@ -80,7 +74,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @default("api_key")
     def _api_key_default(self) -> Optional[str]:
-        default_key = os.environ.get("OPENAI_API_KEY")
+        default_key = constants.OPENAI_API_KEY
         return self._validate_api_key(default_key)
 
     @validate("api_key")
@@ -144,7 +138,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         Streaming is supported if either OpenAI API key or Ollama model is provided.
         """
-        return bool(self.api_key or OLLAMA_MODEL)
+        return bool(self.api_key or constants.OLLAMA_MODEL)
 
     @property
     def capabilities(self) -> AICapabilities:
@@ -153,12 +147,12 @@ This attribute is observed by the websocket provider to push the error to the cl
         Returns:
             The provider capabilities.
         """
-        if OLLAMA_MODEL and not self.api_key:
+        if constants.OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
                 configuration={
-                    "model": OLLAMA_MODEL
+                    "model": constants.OLLAMA_MODEL
                 },
-                provider="Ollama (via OpenAI compatibility)",
+                provider="Ollama",
             )
 
         if self._models is None:
@@ -188,53 +182,15 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
 
     @property
-    def _openAI_async_client(self) -> Optional[openai.AsyncOpenAI]:
-        """Get the asynchronous OpenAI client."""
-        if self.api_key:
-            # Standard OpenAI setup with user's API key
-            if not self._async_client or self._async_client.is_closed():
-                self._async_client = openai.AsyncOpenAI(
-                    api_key=self.api_key,
-                    max_retries=self.max_retries,
-                    timeout=self.timeout
-                )
-        elif OLLAMA_MODEL:
-            # Ollama via OpenAI compatibility
-            if not self._async_client or self._async_client.is_closed():
-                self._async_client = openai.AsyncOpenAI(
-                    base_url=OLLAMA_BASE_URL,
-                    api_key="ollama",  # required but unused
-                    max_retries=self.max_retries,
-                    timeout=self.timeout
-                )
-        else:
-            return None
-
+    def _active_async_client(self) -> Optional[openai.AsyncOpenAI]:
+        if not self._async_client or self._async_client.is_closed():
+            self._async_client = self._build_openai_client(async_client=True)
         return self._async_client
 
     @property
-    def _openAI_sync_client(self) -> Optional[openai.OpenAI]:
-        """Get the synchronous OpenAI client."""
-        if self.api_key:
-            # Standard OpenAI setup with user's API key
-            if not self._sync_client or self._sync_client.is_closed():
-                self._sync_client = openai.OpenAI(
-                    api_key=self.api_key,
-                    max_retries=self.max_retries,
-                    timeout=self.timeout
-                )
-        elif OLLAMA_MODEL:
-            # Ollama via OpenAI compatibility
-            if not self._sync_client or self._sync_client.is_closed():
-                self._sync_client = openai.OpenAI(
-                    base_url=OLLAMA_BASE_URL,
-                    api_key="ollama",  # required but unused
-                    max_retries=self.max_retries,
-                    timeout=self.timeout
-                )
-        else:
-            return None
-
+    def _active_sync_client(self) -> Optional[openai.OpenAI]:
+        if not self._sync_client or self._sync_client.is_closed():
+            self._sync_client = self._build_openai_client(async_client=False)
         return self._sync_client
 
     @property
@@ -242,10 +198,54 @@ This attribute is observed by the websocket provider to push the error to the cl
         """Returns the authentication key type being used."""
         if self.api_key:
             return USER_KEY
-        elif OLLAMA_MODEL:
+        elif constants.OLLAMA_MODEL:
             return "ollama"
         else:
             return MITO_SERVER_KEY
+
+    def _build_openai_client(self, async_client: bool = False) -> Union[openai.OpenAI, openai.AsyncOpenAI, None]:
+        base_url = None
+        llm_api_key = None
+
+        if constants.OLLAMA_MODEL and not self.api_key:
+            base_url = constants.OLLAMA_BASE_URL
+            llm_api_key = "ollama"
+            self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
+        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            base_url = constants.CLAUDE_BASE_URL
+            llm_api_key = constants.CLAUDE_API_KEY
+            self.log.debug(f" Using Claude with model: {constants.CLAUDE_MODEL}")
+        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            base_url = constants.GEMINI_BASE_URL
+            llm_api_key = constants.GEMINI_API_KEY
+            self.log.debug(f"Using Gemini with model: {constants.GEMINI_MODEL}")
+        elif self.api_key:
+            llm_api_key = self.api_key
+            self.log.debug("Using OpenAI with user-provided API key")
+        else:
+            self.log.warning("No valid API key or model configuration provided")
+            return None
+
+        kwargs = {
+            "api_key": llm_api_key,
+            "max_retries": self.max_retries,
+            "timeout": self.timeout,
+        }
+        if base_url:
+            kwargs["base_url"] = base_url
+
+        return openai.AsyncOpenAI(**kwargs) if async_client else openai.OpenAI(**kwargs)
+
+    def _resolve_model(self, model: Optional[str] = None) -> str:
+        if constants.OLLAMA_MODEL and not self.api_key:
+            return constants.OLLAMA_MODEL
+        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            return constants.CLAUDE_MODEL
+        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            return constants.GEMINI_MODEL
+        elif model and model in self.models:
+            return model
+        return "gpt-4o-mini"  # fallback
 
     async def request_completions(
             self,
@@ -268,23 +268,17 @@ This attribute is observed by the websocket provider to push the error to the cl
             # Reset the last error
             self.last_error = None
 
-            # If using Ollama, override the model parameter with OLLAMA_MODEL
-            if OLLAMA_MODEL and not self.api_key:
-                model = OLLAMA_MODEL
-                self.log.debug(f"Requesting completion from Ollama with model: {model}")
-            # If we're using the user's key, make sure the model is supported.
-            elif self._openAI_sync_client and model not in self.models:
-                model = "gpt-4o-mini"
+            model = self._resolve_model(model)
 
             completion_function_params = get_open_ai_completion_function_params(
                 model, messages, False, response_format_info
             )
 
             completion = None
-            if self._openAI_sync_client is not None:
+            if self._active_sync_client is not None:
                 self.log.debug(f"Requesting completion using OpenAI API with model: {model}")
 
-                completion = self._openAI_sync_client.chat.completions.create(**completion_function_params)
+                completion = self._active_sync_client.chat.completions.create(**completion_function_params)
                 completion = completion.choices[0].message.content or ""
             else:
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
@@ -341,20 +335,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             parent_id=request.message_id,
         )
 
-        # If using Ollama, override the model parameter with OLLAMA_MODEL
-        if OLLAMA_MODEL and not self.api_key:
-            model = OLLAMA_MODEL
-            self.log.debug(f"Streaming completion from Ollama with model: {model}")
-        elif model not in self.models:
-            # Validate that the model is supported. If not fall back to gpt-4o-mini
-            model = "gpt-4o-mini"
+        model = self._resolve_model(model)
 
         # Send the completion request to the OpenAI API and returns a stream of completion chunks
         try:
             completion_function_params = get_open_ai_completion_function_params(
                 model, request.messages, stream=True
             )
-            client = self._openAI_async_client
+            client = self._active_async_client
             if client is None:
                 raise ValueError("OpenAI client not initialized")
 
