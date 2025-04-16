@@ -2,24 +2,12 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from __future__ import annotations
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Type
 
-import os
-from typing import (
-    Any,
-    AsyncGenerator,
-    Dict,
-    List,
-    Optional,
-    Union,
-    Type,
-    TYPE_CHECKING,
-    Callable
-)
 import openai
-from openai._streaming import AsyncStream
-from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
-from traitlets import  Instance, Unicode, default, validate
-from pydantic import BaseModel
+from . import constants
+from openai.types.chat import ChatCompletionMessageParam
+from traitlets import Instance, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
 
 from mito_ai.logger import get_logger
@@ -33,7 +21,6 @@ from mito_ai.models import (
     CompletionStreamChunk,
     MessageType,
     ResponseFormatInfo,
-    ThreadID
 )
 from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
@@ -61,9 +48,9 @@ class OpenAIProvider(LoggingConfigurable):
         allow_none=True,
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
-    
+
     models: List[str] = ['gpt-4o-mini', 'o3-mini']
-    
+
     last_error = Instance(
         CompletionError,
         allow_none=True,
@@ -71,10 +58,9 @@ class OpenAIProvider(LoggingConfigurable):
 
 This attribute is observed by the websocket provider to push the error to the client.""",
     )
-    
-    
+
     # Consider the request a failure if it takes longer than 45 seconds.
-    # We will try a total of 3 times. Once on the initial request, 
+    # We will try a total of 3 times. Once on the initial request,
     # and then twice more if the first request fails.
     # Note that max_retries cannot be set to None. If we want to disable it, set it to 0.
     timeout = 30
@@ -84,11 +70,10 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
-        self._models: Optional[List[str]] = None
 
     @default("api_key")
     def _api_key_default(self) -> Optional[str]:
-        default_key = os.environ.get("OPENAI_API_KEY")
+        default_key = constants.OPENAI_API_KEY
         return self._validate_api_key(default_key)
 
     @validate("api_key")
@@ -100,14 +85,9 @@ This attribute is observed by the websocket provider to push the error to the cl
             return None
 
         client = openai.OpenAI(api_key=api_key)
-        models = []
         try:
-            # Make an http request to OpenAI to get the models available
-            # for this API key.
-            # And then handle the exceptions if they are thrown.
-            for model in client.models.list():
-                models.append(model.id)
-            self._models = models
+            # Make an http request to OpenAI to make sure it works
+            client.models.list()
         except openai.AuthenticationError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
@@ -148,16 +128,36 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def capabilities(self) -> AICapabilities:
-        """Get the provider capabilities.
+        """Get the provider capabilities."""
 
-        Returns:
-            The provider capabilities.
-        """
-        if self._models is None:
-            self._validate_api_key(self.api_key)
+        if constants.OLLAMA_MODEL and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": constants.OLLAMA_MODEL
+                },
+                provider="Ollama",
+            )
 
-        # If the user has an OpenAI API key, then we don't need to check the Mito server quota.
+        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": constants.CLAUDE_MODEL
+                },
+                provider="Claude",
+            )
+
+        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": constants.GEMINI_MODEL
+                },
+                provider="Gemini",
+            )
+
         if self.api_key:
+            if self._models is None:
+                self._validate_api_key(self.api_key)
+
             return AICapabilities(
                 configuration={
                     "model": self.models,
@@ -166,7 +166,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
         try:
-            # Default to chat completion for capabilities check
             check_mito_server_quota(MessageType.CHAT)
         except Exception as e:
             self.log.warning("Failed to set first usage date in user.json", exc_info=e)
@@ -180,32 +179,85 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
 
     @property
-    def _openAI_async_client(self) -> Optional[openai.AsyncOpenAI]:
-        """Get the asynchronous OpenAI client."""
-        if not self.api_key:
+    def _active_async_client(self) -> Optional[openai.AsyncOpenAI]:
+        if not self._async_client or self._async_client.is_closed():
+            self._async_client = self._build_openai_client()
+        return self._async_client
+
+    @property
+    def key_type(self) -> str:
+        """Returns the authentication key type being used."""
+
+        if self.api_key:
+            return USER_KEY
+
+        if constants.OLLAMA_MODEL:
+            return "ollama"
+
+        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            return "claude"
+
+        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            return "gemini"
+
+        return MITO_SERVER_KEY
+
+    def _build_openai_client(self) -> Union[openai.AsyncOpenAI, None]:
+        base_url = None
+        llm_api_key = None
+
+        if constants.OLLAMA_MODEL and not self.api_key:
+            base_url = constants.OLLAMA_BASE_URL
+            llm_api_key = "ollama"
+            self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
+        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            base_url = constants.CLAUDE_BASE_URL
+            llm_api_key = constants.CLAUDE_API_KEY
+            self.log.debug(f" Using Claude with model: {constants.CLAUDE_MODEL}")
+        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            base_url = constants.GEMINI_BASE_URL
+            llm_api_key = constants.GEMINI_API_KEY
+            self.log.debug(f"Using Gemini with model: {constants.GEMINI_MODEL}")
+        elif self.api_key:
+            llm_api_key = self.api_key
+            self.log.debug("Using OpenAI with user-provided API key")
+        else:
+            self.log.warning("No valid API key or model configuration provided")
             return None
 
-        if not self._async_client or self._async_client.is_closed():
-            self._async_client = openai.AsyncOpenAI(
-                api_key=self.api_key,
-                max_retries=self.max_retries,
-                timeout=self.timeout
-            )
+        kwargs = {
+            "api_key": llm_api_key,
+            "max_retries": self.max_retries,
+            "timeout": self.timeout,
+        }
+        if base_url:
+            kwargs["base_url"] = base_url
 
-        return self._async_client
-    
+        return openai.AsyncOpenAI(**kwargs)
+
+    def _resolve_model(self, model: Optional[str] = None) -> str:
+        if constants.OLLAMA_MODEL and not self.api_key:
+            return constants.OLLAMA_MODEL
+        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            return constants.CLAUDE_MODEL
+        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            return constants.GEMINI_MODEL
+        elif model and model in self.models:
+            return model
+        return "gpt-4o-mini"  # fallback
+
     async def request_completions(
-        self,
-        message_type: MessageType,
-        messages: List[ChatCompletionMessageParam], 
-        model: str,
-        thread_id: Optional[str],
-        user_input: Optional[str] = None,
-        response_format_info: Optional[ResponseFormatInfo] = None,
+            self,
+            message_type: MessageType,
+            messages: List[ChatCompletionMessageParam],
+            model: str,
+            response_format_info: Optional[ResponseFormatInfo] = None,
+            user_input: Optional[str] = None,
+            thread_id: Optional[str] = None
     ) -> str:
         """
         Request completions from the OpenAI API.
-        
+
         Args:
             message_type: The type of message to request completions for.
             messages: The messages to request completions for.
@@ -216,24 +268,22 @@ This attribute is observed by the websocket provider to push the error to the cl
         try:
             # Reset the last error
             self.last_error = None
-            
-            # If we're using the user's key, make sure the model is supported.
-            if self._openAI_async_client and model not in self.models:
-                model = "gpt-4o-mini"
-        
+
+            model = self._resolve_model(model)
+
             completion_function_params = get_open_ai_completion_function_params(
                 model, messages, False, response_format_info
             )
-            
+
             completion = None
-            if self._openAI_async_client is not None:
+            if self._active_async_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
                 
-                response = await self._openAI_async_client.chat.completions.create(**completion_function_params)
+                response = await self._active_async_client.chat.completions.create(**completion_function_params)
                 completion = response.choices[0].message.content or ""
             else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
-                
+
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
                 completion = await get_ai_completion_from_mito_server(
                     last_message_content,
@@ -242,35 +292,27 @@ This attribute is observed by the websocket provider to push the error to the cl
                     self.max_retries,
                     message_type,
                 )
-                
+
                 update_mito_server_quota(message_type)
-            
+
             # Log the successful completion
             log_ai_completion_success(
-                key_type=MITO_SERVER_KEY if self._openAI_async_client is None else USER_KEY,
+                key_type=MITO_SERVER_KEY if self._active_async_client is None else USER_KEY,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
                 user_input=user_input or "",
                 thread_id=thread_id or ""
             )
-            
+
             # Finally, return the completion
-            return completion
+            return completion  # type: ignore
                 
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
-            key_type = MITO_SERVER_KEY if self.api_key is None else USER_KEY
-            log(
-                MITO_AI_COMPLETION_ERROR, 
-                params={
-                    KEY_TYPE_PARAM: key_type,
-                    'message_type': message_type.value,
-                },
-                error=e
-            )
+            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
             raise
-
+    
     async def stream_completions(
         self,
         message_type: MessageType,
@@ -293,8 +335,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         accumulated_response = ""
         
         # Validate that the model is supported. If not fall back to gpt-4o-mini
-        if model not in self.models:
-            model = "gpt-4o-mini"
+        model = self._resolve_model(model)
             
         # Send initial acknowledgment
         reply_fn(CompletionReply(
@@ -312,16 +353,16 @@ This attribute is observed by the websocket provider to push the error to the cl
             model, messages, True, response_format_info
         )
         
-        # Stream completions based on the available client
-        if self._openAI_async_client is not None:
+        if self._active_async_client is not None:
             # Stream from OpenAI
             try:
-                client = self._openAI_async_client
+                # Stream completions based on the available client
+                client = self._active_async_client
                 if client is None:
                     raise ValueError("OpenAI client not initialized")
+
+                stream = await client.chat.completions.create(**completion_function_params)
                     
-                stream: AsyncStream[ChatCompletionChunk] = await client.chat.completions.create(**completion_function_params)
-                
                 async for chunk in stream:
                     is_finished = chunk.choices[0].finish_reason is not None
                     content = chunk.choices[0].delta.content or ""
@@ -359,7 +400,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     ),
                     done=True,
                     error=CompletionError.from_exception(e),
-                ))
+                ))                       
                 raise
         else:
             # Stream from Mito server
@@ -379,7 +420,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             update_mito_server_quota(message_type)
         
         # Log the successful completion 
-        key_type = USER_KEY if self._openAI_async_client is not None else MITO_SERVER_KEY
+        key_type = USER_KEY if self._active_async_client is not None else MITO_SERVER_KEY
         log_ai_completion_success(
             key_type=key_type,
             message_type=message_type,
