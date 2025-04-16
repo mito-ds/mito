@@ -15,7 +15,6 @@ import { CellUpdate } from "./websocket/models"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
-    cellType: 'code' | 'markdown',
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     previewAICodeToActiveCell: () => void,
@@ -32,7 +31,7 @@ export const acceptAndRunCellUpdate = async (
     }
 
     // The target cell should now be the active cell
-    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode, cellType)
+    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode, cellUpdate.cell_type)
 }
 
 export const acceptAndRunCode = async (
@@ -127,10 +126,15 @@ export const retryIfExecutionError = async (
         }
 
         const cellUpdate = aiDisplayOptimizedChatItem.agentResponse.cell_update
-        const cellType = aiDisplayOptimizedChatItem.agentResponse.cell_type
         
         if (cellUpdate !== undefined && cellUpdate !== null) {
-            await acceptAndRunCellUpdate(cellUpdate, cellType, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+            await acceptAndRunCellUpdate(
+                cellUpdate, 
+                notebookTracker, 
+                app,
+                previewAICodeToActiveCell, 
+                acceptAICode
+            )
         }
 
         attempts++;

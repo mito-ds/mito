@@ -26,19 +26,20 @@ export type CellUpdateModification = {
   type: 'modification'
   id: string,
   code: string,
+  cell_type: 'code' | 'markdown',
 }
 
 export type CellUpdateNew = {
   type: 'new'
   index: number,
   code: string,
+  cell_type: 'code' | 'markdown',
 }
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
 export type AgentResponse = {
   type: 'cell_update' | 'get_cell_output' | 'finished_task'
-  cell_type: 'code' | 'markdown',
   message: string,
   cell_update?: CellUpdate,
   cell_id?: string,

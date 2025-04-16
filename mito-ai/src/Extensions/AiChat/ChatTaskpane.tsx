@@ -778,7 +778,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Run the code and handle any errors
                 await acceptAndRunCellUpdate(
                     agentResponse.cell_update, 
-                    agentResponse.cell_type, 
                     notebookTracker, 
                     app, 
                     previewAICodeToActiveCell, 

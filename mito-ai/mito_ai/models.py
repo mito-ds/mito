@@ -20,6 +20,7 @@ class CellUpdate(BaseModel):
     index: Optional[int]
     id: Optional[str]
     code: str
+    cell_type: Optional[Literal['code', 'markdown']]
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
 # so instead we just combine all of the possible response types into a single class 
@@ -27,7 +28,6 @@ class CellUpdate(BaseModel):
 # that we show it in the system prompt.
 class AgentResponse(BaseModel):
     type: Literal['cell_update', 'get_cell_output', 'finished_task']
-    cell_type: Optional[Literal['code', 'markdown']]
     message: str
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]

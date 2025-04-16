@@ -43,11 +43,11 @@ Format:
 {{
     type: 'cell_update',
     message: str,
-    cell_type: 'code' | 'markdown',
     cell_update: {{
         type: 'modification'
         id: str,
         code: str
+        cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None
 }}
@@ -64,11 +64,11 @@ Format:
 {{
     type: 'cell_update',
     message: str,
-    cell_type: 'code' | 'markdown',
     cell_update: {{
         type: 'new'
         index: int
         code: str   
+        cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None
 }}
@@ -117,11 +117,11 @@ Output:
 {{
     type: 'cell_update',
     cell_type: 'code',
-    message: "I'll convert the transaction_date column to datetime and multiply the total_price column by the sales_multiplier.",
     cell_update: {{
         type: 'modification'
         id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
-        code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier"
+        code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
+        cell_type: 'code'
     }},
     get_cell_output_cell_id: None
 }}
