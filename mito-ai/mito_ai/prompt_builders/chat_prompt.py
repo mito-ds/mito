@@ -3,6 +3,7 @@
 
 from typing import List
 from mito_ai.prompt_builders.prompt_constants import (
+    ACTIVE_CELL_ID_SECTION_HEADING,
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING,
@@ -14,23 +15,14 @@ def create_chat_prompt(
     variables: List[str],
     files: List[str],
     active_cell_code: str, 
+    active_cell_id: str,
     has_active_cell_output: bool,
     input: str
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
     
-    prompt = f"""You are an expert python programmer writing a script in a Jupyter notebook. You are given a set of variables, existing code, and a task.
-
-There are two possible types of responses you might give:
-1. Code Update: If the task requires modifying or extending the existing code, respond with the updated active code cell and a short explanation of the changes made. 
-2. Explanation/Information: If the task does not require a code update, provide an explanation, additional information about a package, method, or general programming question, without writing any code. Keep your response concise and to the point.
-
-When responding:
-- Do not use the word "I"
-- Do not recreate variables that already exist
-- Keep as much of the original code as possible
-
+    prompt = f"""Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete.
 <Example>
 
 {FILES_SECTION_HEADING}
@@ -46,6 +38,9 @@ file_name: sales.csv
         'total_price': [10, 19.98, 13.99, 84.00, 500]
     }})
 }}
+
+{ACTIVE_CELL_ID_SECTION_HEADING}
+'9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8'
 
 {CODE_SECTION_HEADING}
 ```python
@@ -63,7 +58,7 @@ sales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])
 sales_df['total_price'] = sales_df['total_price'] * sales_multiplier
 ```
 
-Converted the `transaction_date` column to datetime using the built-in pd.to_datetime function and multiplied the `total_price` column by the `sales_multiplier` variable.
+Converted the `transaction_date` column to datetime using the built-in pd.to_datetime function and multiplied the `total_price` column by the `sales_multiplier` variable [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:3].
 
 </Example>
 
@@ -72,6 +67,9 @@ Converted the `transaction_date` column to datetime using the built-in pd.to_dat
 
 {VARIABLES_SECTION_HEADING}
 {variables_str}
+
+{ACTIVE_CELL_ID_SECTION_HEADING}
+{active_cell_id}
 
 {CODE_SECTION_HEADING}
 ```python

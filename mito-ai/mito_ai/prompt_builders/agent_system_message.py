@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mito_ai.prompt_builders.prompt_constants import (
+    CITATION_RULES,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     VARIABLES_SECTION_HEADING
@@ -220,22 +221,7 @@ RULES
 - When writing the message, use tickmarks when referencing specific variable names. For example, write `sales_df` instead of "sales_df" or just sales_df.
 
 ==== 
-
-RULES FOR CITING YOUR WORK
-
-It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use the following format inline in your response:
-
-[MITO_CITATION:cell_id:line_number]
-
-Citation Rules:
-
-1. Every fact or statement derived from the user's notebook must include a citation. 
-2. When choosing the citation, select the code that will most help the user validate the ract or statement that you shared with them.
-3. Place the citation immediately after the statement it supports. Do not explain the citation with phrases like "See", "Derived from", etc. Just provide the citation object.
-4. For the "line_number" field, use the line number within the cell that is most relevant to the citation. Important: The cell line number should be 0-indexed and should not skip comments.
-5. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
-6. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
-7. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
+{CITATION_RULES}
 
 <Citation Example>
 
