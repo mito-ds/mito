@@ -128,11 +128,8 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def capabilities(self) -> AICapabilities:
-        """Get the provider capabilities.
+        """Get the provider capabilities."""
 
-        Returns:
-            The provider capabilities.
-        """
         if constants.OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
                 configuration={
@@ -141,10 +138,26 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Ollama",
             )
 
-        self._validate_api_key(self.api_key)
+        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": constants.CLAUDE_MODEL
+                },
+                provider="Claude",
+            )
 
-        # If the user has an OpenAI API key, then we don't need to check the Mito server quota.
+        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": constants.GEMINI_MODEL
+                },
+                provider="Gemini",
+            )
+
         if self.api_key:
+            if self._models is None:
+                self._validate_api_key(self.api_key)
+
             return AICapabilities(
                 configuration={
                     "model": self.models,
@@ -153,7 +166,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
         try:
-            # Default to chat completion for capabilities check
             check_mito_server_quota(MessageType.CHAT)
         except Exception as e:
             self.log.warning("Failed to set first usage date in user.json", exc_info=e)
