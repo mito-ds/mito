@@ -36,7 +36,8 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         """Get a smart debug completion from the AI provider."""
 
         error_message = metadata.errorMessage
-        active_cell_code = metadata.activeCellCode or ""
+        active_cell_code = metadata.activeCellCode
+        active_cell_id = metadata.activeCellId
         variables = metadata.variables or []
         files = metadata.files or []
         thread_id = metadata.threadId
@@ -45,7 +46,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         await append_chat_system_message(message_history, provider, thread_id)
 
         # Create the prompt
-        prompt = create_error_prompt(error_message, active_cell_code, variables, files)
+        prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files)
         display_prompt = (
             f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
         )
@@ -111,7 +112,8 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
             The accumulated response string.
         """
         error_message = metadata.errorMessage
-        active_cell_code = metadata.activeCellCode or ""
+        active_cell_code = metadata.activeCellCode
+        active_cell_id = metadata.activeCellId
         variables = metadata.variables or []
         files = metadata.files or []
         thread_id = metadata.threadId
@@ -120,7 +122,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         await append_chat_system_message(message_history, provider, thread_id)
 
         # Create the prompt
-        prompt = create_error_prompt(error_message, active_cell_code, variables, files)
+        prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files)
         display_prompt = (
             f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
         )

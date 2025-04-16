@@ -70,9 +70,10 @@ class ChatMessageMetadata():
     promptType: Literal['chat']
     threadId: ThreadID
     input: str
+    activeCellCode: str 
+    activeCellId: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    activeCellCode: Optional[str] = None
     base64EncodedActiveCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
@@ -105,9 +106,10 @@ class SmartDebugMetadata():
     promptType: Literal['smartDebug']
     threadId: ThreadID
     errorMessage: str
+    activeCellCode: str 
+    activeCellId: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    activeCellCode: Optional[str] = None
     
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
