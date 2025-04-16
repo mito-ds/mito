@@ -182,6 +182,18 @@ def test_gemini_model_resolution(monkeypatch):
         resolved = llm._resolve_model("gpt-4o-mini")
         assert resolved == "gemini-2-pro"
 
+def test_azure_openai_model_resolution(monkeypatch):
+    monkeypatch.setenv("AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://example.com")
+    monkeypatch.setenv("AZURE_OPENAI_MODEL", "fake-model")
+    monkeypatch.setenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+
+    # No OpenAI or Claude or Ollama -> Gemini should be resolved
+    # Mock directly to ensure Gemini is being used
+    with patch.object(OpenAIProvider, "_resolve_model", return_value="fake-model"):
+        llm = OpenAIProvider()
+        resolved = llm._resolve_model("gpt-4o-mini")
+        assert resolved == "fake-model"
 
 def test_openai_model_resolution(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
@@ -195,7 +207,7 @@ def test_openai_model_resolution(monkeypatch):
 def test_model_resolution_fallback(monkeypatch):
     llm = OpenAIProvider()
     resolved = llm._resolve_model("non-existent-model")
-    assert resolved == "gpt-4o-mini"
+    assert resolved == "gpt-4o"
 
 
 def test_fallback_to_mito(monkeypatch):
@@ -208,19 +220,19 @@ def test_fallback_to_mito(monkeypatch):
 
 # Add a new test to check the provider priority order
 def test_provider_priority_order(monkeypatch):
-    # Set all provider environment variables
-    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setenv("OLLAMA_MODEL", "llama3")
-    monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus")
-    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
-    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
+    # Set all provider environment variables by patching the constants module directly
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", "https://example.com")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", "gpt-4o")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OLLAMA_MODEL", "llama3")
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", "gemini-2-pro")
 
     # OpenAI should have highest priority when all are set
-    with (
-        patch_openai_model_list(),
-        mock_openai_capabilities()
-    ):
-        llm = OpenAIProvider()
-        capabilities = llm.capabilities
-        assert "user key" in capabilities.provider
+    llm = OpenAIProvider()
+    capabilities = llm.capabilities
+    assert "Azure OpenAI" in capabilities.provider

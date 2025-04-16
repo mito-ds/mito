@@ -132,7 +132,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
             return AICapabilities(
                 configuration={
-                    "model": 'gpt-4o'
+                    "model": constants.AZURE_OPENAI_MODEL
                 },
                 provider="Azure OpenAI",
             )
