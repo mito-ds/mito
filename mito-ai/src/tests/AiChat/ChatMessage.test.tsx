@@ -189,6 +189,20 @@ describe('ChatMessage Component', () => {
             // Error message should be visible
             expect(screen.getByText('Connection error message')).toBeInTheDocument();
         });
+
+        it('renders free tier limit reached error correctly', () => {
+            renderChatMessage({
+                message: createMockMessage('assistant', 'Test error message'),
+                mitoAIConnectionError: true,
+                mitoAIConnectionErrorType: 'mito_server_free_tier_limit_reached'
+            });
+
+            // Check for the upgrade message
+            expect(screen.getByText(/You've used up your free trial of Mito AI for this month/i)).toBeInTheDocument();
+
+            // Check for the upgrade button
+            expect(screen.getByText(/Upgrade to Pro/i)).toBeInTheDocument();
+        });
     });
 
     describe('User Actions and UI Responses', () => {

@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mito_ai.prompt_builders.prompt_constants import (
+    CITATION_RULES,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     VARIABLES_SECTION_HEADING
@@ -47,6 +48,7 @@ Format:
         type: 'modification'
         id: str,
         code: str
+        cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None
 }}
@@ -67,6 +69,7 @@ Format:
         type: 'new'
         index: int
         code: str   
+        cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None
 }}
@@ -75,6 +78,7 @@ Important information:
 1. The index should be the 0-index position of where you want the new code cell to be added in the notebook.
 2. The message is a short summary of your thought process that helped you decide what to update in cell_update.
 3. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
+4. The cell_type should only be 'markdown' if there is no code to add. There may be times where the code has comments. These are still code cells and should have the cell_type 'code'. Any cells that are labeled 'markdown' will be converted to markdown cells by the user.
 
 <Cell Modification Example>
 Jupyter Notebook:
@@ -113,11 +117,12 @@ Convert the transaction_date column to datetime and then multiply the total_pric
 Output:
 {{
     type: 'cell_update',
-    message: "I'll convert the transaction_date column to datetime and multiply the total_price column by the sales_multiplier.",
+    cell_type: 'code',
     cell_update: {{
         type: 'modification'
         id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
-        code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier"
+        code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
+        cell_type: 'code'
     }},
     get_cell_output_cell_id: None
 }}
@@ -220,22 +225,7 @@ RULES
 - When writing the message, use tickmarks when referencing specific variable names. For example, write `sales_df` instead of "sales_df" or just sales_df.
 
 ==== 
-
-RULES FOR CITING YOUR WORK
-
-It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use the following format inline in your response:
-
-[MITO_CITATION:cell_id:line_number]
-
-Citation Rules:
-
-1. Every fact or statement derived from the user's notebook must include a citation. 
-2. When choosing the citation, select the code that will most help the user validate the ract or statement that you shared with them.
-3. Place the citation immediately after the statement it supports. Do not explain the citation with phrases like "See", "Derived from", etc. Just provide the citation object.
-4. For the "line_number" field, use the line number within the cell that is most relevant to the citation. Important: The cell line number should be 0-indexed and should not skip comments.
-5. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
-6. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
-7. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
+{CITATION_RULES}
 
 <Citation Example>
 

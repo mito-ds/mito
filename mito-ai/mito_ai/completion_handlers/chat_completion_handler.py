@@ -38,7 +38,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         prompt = create_chat_prompt(
             metadata.variables or [], 
             metadata.files or [],
-            metadata.activeCellCode or '', 
+            metadata.activeCellCode, 
+            metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
             metadata.input
         )
@@ -98,7 +99,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         prompt = create_chat_prompt(
             metadata.variables or [], 
             metadata.files or [],
-            metadata.activeCellCode or '', 
+            metadata.activeCellCode, 
+            metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
             metadata.input
         )

@@ -34,11 +34,15 @@ export function getCellAtIndex(cells: CellList | undefined, index: number): ICel
     return cell
 }
 
-export function getCellIndexByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number | undefined {
+export function getCellIndexesByExecutionCount(cells: CellList | undefined, executionCount: number | undefined): number[] {
     if (cells == undefined || executionCount == undefined) {
-        return undefined;
+        return [];
     }
 
+    // Because multiple cells can have the same execution count, we generate a list of all the 
+    // cells so we can choose the most likely one. This happens if the user restarts the kernel
+    // which does not clear exiting exuection numbers, but starts new executiosn back at 1.
+    const cellsWithExecutionCount = []
     // In order to get the cell index, we need to iterate over the cells and call the `get` method
     // to see the cells in order. Otherwise, the cells are returned in a random order.
     for (let i = 0; i < cells.length; i++) {
@@ -47,12 +51,12 @@ export function getCellIndexByExecutionCount(cells: CellList | undefined, execut
         if (cell.type === 'code' && 'execution_count' in cell.sharedModel) {
             const executionCountEntry = cell.sharedModel.execution_count
             if (executionCountEntry === executionCount) {
-                return i
+                cellsWithExecutionCount.push(i)
             }
         }
     }
 
-    return undefined
+    return cellsWithExecutionCount
 }
 
 export function getCellText(cell: ICellModel| undefined): string {
@@ -183,6 +187,30 @@ export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, ana
     }
 
     return undefined;
+}
+
+export const getMostLikelyCellIndexByExeuctionNumber = (cellIndexes: number[], activeCellIndex: number): number => {
+
+    let cellIndex = cellIndexes[cellIndexes.length - 1];
+
+    // If there are multiple cells with the same execution count, we 
+    // apply a heuristic to determine which one is most likely the one
+    // that made the mitosheet call.
+    if (cellIndexes.length > 0) {
+        // It is most likely that the previous cell is the one that made the mitosheet call
+        // because users are likely to run-and-advance cells.
+
+        if (cellIndexes.includes(activeCellIndex - 1)) {
+            // If the user ran-and-advanced, then the cell that is displaying the dataframe is 
+            // probably the one above the active cell.
+            cellIndex = activeCellIndex - 1;
+        } else if (cellIndexes.includes(activeCellIndex)) {
+            // If the user ran the cell without advancing, then the cell that is displaying the
+            // dataframe is probably the active cell
+            cellIndex = activeCellIndex;
+        }
+    }
+    return cellIndex;
 }
 
 export function writeToCell(cell: ICellModel | undefined, code: string): void {

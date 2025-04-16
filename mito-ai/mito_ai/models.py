@@ -20,6 +20,7 @@ class CellUpdate(BaseModel):
     index: Optional[int]
     id: Optional[str]
     code: str
+    cell_type: Optional[Literal['code', 'markdown']]
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
 # so instead we just combine all of the possible response types into a single class 
@@ -70,9 +71,10 @@ class ChatMessageMetadata():
     promptType: Literal['chat']
     threadId: ThreadID
     input: str
+    activeCellCode: str 
+    activeCellId: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    activeCellCode: Optional[str] = None
     base64EncodedActiveCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
@@ -105,9 +107,10 @@ class SmartDebugMetadata():
     promptType: Literal['smartDebug']
     threadId: ThreadID
     errorMessage: str
+    activeCellCode: str 
+    activeCellId: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    activeCellCode: Optional[str] = None
     
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
