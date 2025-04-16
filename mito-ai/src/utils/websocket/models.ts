@@ -26,12 +26,14 @@ export type CellUpdateModification = {
   type: 'modification'
   id: string,
   code: string,
+  cell_type: 'code' | 'markdown',
 }
 
 export type CellUpdateNew = {
   type: 'new'
   index: number,
   code: string,
+  cell_type: 'code' | 'markdown',
 }
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew

@@ -48,6 +48,7 @@ Format:
         type: 'modification'
         id: str,
         code: str
+        cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None
 }}
@@ -68,6 +69,7 @@ Format:
         type: 'new'
         index: int
         code: str   
+        cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None
 }}
@@ -76,6 +78,7 @@ Important information:
 1. The index should be the 0-index position of where you want the new code cell to be added in the notebook.
 2. The message is a short summary of your thought process that helped you decide what to update in cell_update.
 3. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
+4. The cell_type should only be 'markdown' if there is no code to add. There may be times where the code has comments. These are still code cells and should have the cell_type 'code'. Any cells that are labeled 'markdown' will be converted to markdown cells by the user.
 
 <Cell Modification Example>
 Jupyter Notebook:
@@ -114,11 +117,12 @@ Convert the transaction_date column to datetime and then multiply the total_pric
 Output:
 {{
     type: 'cell_update',
-    message: "I'll convert the transaction_date column to datetime and multiply the total_price column by the sales_multiplier.",
+    cell_type: 'code',
     cell_update: {{
         type: 'modification'
         id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
-        code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier"
+        code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
+        cell_type: 'code'
     }},
     get_cell_output_cell_id: None
 }}

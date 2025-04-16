@@ -20,6 +20,7 @@ class CellUpdate(BaseModel):
     index: Optional[int]
     id: Optional[str]
     code: str
+    cell_type: Optional[Literal['code', 'markdown']]
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
 # so instead we just combine all of the possible response types into a single class 
