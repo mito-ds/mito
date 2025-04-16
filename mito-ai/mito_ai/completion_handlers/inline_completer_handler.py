@@ -38,7 +38,8 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         completion = await provider.request_completions(
             messages=messages, 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.INLINE_COMPLETION],
-            message_type=MessageType.INLINE_COMPLETION
+            message_type=MessageType.INLINE_COMPLETION,
+            thread_id=None
         )
         
         return completion

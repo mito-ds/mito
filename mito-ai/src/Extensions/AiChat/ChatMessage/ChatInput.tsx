@@ -26,7 +26,7 @@ interface ChatInputProps {
     notebookTracker: INotebookTracker;
     renderMimeRegistry: IRenderMimeRegistry;
     displayActiveCellCode?: boolean;
-    agentModeEnabled?: boolean;
+    agentModeEnabled: boolean;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -182,7 +182,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }}
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
-            {displayActiveCellCode && activeCellCodePreview.length > 0 
+            {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
                 && (isFocused || input.length > 0)
                 && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
                     <div className='code-block-container'>

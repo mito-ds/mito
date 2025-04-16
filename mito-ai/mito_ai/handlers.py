@@ -40,8 +40,8 @@ from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
-from mito_ai.completion_handlers.smart_debug_handler import get_smart_debug_completion
-from mito_ai.completion_handlers.code_explain_handler import get_code_explain_completion
+from mito_ai.completion_handlers.smart_debug_handler import get_smart_debug_completion, stream_smart_debug_completion
+from mito_ai.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
 from mito_ai.completion_handlers.inline_completer_handler import get_inline_completion
 from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
 from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
@@ -72,12 +72,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """Use Mito AI logger"""
         return get_logger()
 
-    @tornado.web.authenticated
-    def head(self) -> None:
-        """Handle a HEAD request for the websocket."""
-        self.set_status(HTTPStatus.OK)
-        self.finish()
-
     async def pre_get(self) -> None:
         """Handles websocket authentication/authorization."""
         # authenticate the request before opening the websocket
@@ -93,11 +87,16 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             raise tornado.web.HTTPError(HTTPStatus.FORBIDDEN)
 
     async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
-        """Get an event to open a socket."""
-        # This method ensure to call `pre_get` before opening the socket.
+        """Get an event to open a socket or check service availability."""
+        # Check if this is just a service availability check
+        if self.get_query_argument('check_availability', None) == 'true':
+            self.set_status(HTTPStatus.OK)
+            self.finish()
+            return
+
         await ensure_async(self.pre_get()) # type: ignore
 
-        initialize_user(self._llm.key_type)
+        initialize_user()
 
         reply = super().get(*args, **kwargs)
         if reply is not None:
@@ -193,7 +192,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
                 
                 # Handle streaming if requested and available
-                if stream and self._llm.can_stream:
+                if stream:
                     # Use stream_chat_completion to stream the response
                     await stream_chat_completion(
                         chat_metadata, 
@@ -208,10 +207,37 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     completion = await get_chat_completion(chat_metadata, self._llm, message_history)
             elif type == MessageType.SMART_DEBUG:
                 smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
-                completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, message_history)
+                # Handle streaming if requested and available
+                if stream:
+                    # Use stream_smart_debug_completion to stream the response
+                    await stream_smart_debug_completion(
+                        smart_debug_metadata, 
+                        self._llm, 
+                        message_history, 
+                        message_id,
+                        self.reply
+                    )
+                    return
+                else:
+                    # Regular non-streaming completion
+                    completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, message_history)
             elif type == MessageType.CODE_EXPLAIN:
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
-                completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history)
+
+                # Handle streaming if requested and available
+                if stream:
+                    # Use stream_code_explain_completion to stream the response
+                    await stream_code_explain_completion(
+                        code_explain_metadata, 
+                        self._llm, 
+                        message_history,
+                        message_id,
+                        self.reply
+                    )
+                    return
+                else:
+                    # Regular non-streaming completion
+                    completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history)
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
                 completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)

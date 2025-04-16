@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 # # Copyright (c) Saga Inc.
 # # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
@@ -78,7 +81,7 @@
 #         try:
 #             start_time = time.time()
 #             completion = await llm.request_completions(
-#                 message_type=MessageType.CHAT, messages=messages, model=TEST_MODEL
+#                 message_type=MessageType.CHAT, messages=messages, model=TEST_MODEL, thread_id=None
 #             )
 #             end_time = time.time()
 

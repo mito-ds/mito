@@ -1,11 +1,12 @@
 name: Fix License Headers
 
 on:
-  pull_request_target:
+  push:
+    branches:
+      - dev
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   header-license-fix:
@@ -15,11 +16,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout the branch from the PR that triggered the job
-        run: gh pr checkout ${{ github.event.pull_request.number }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fix License Header
         uses: apache/skywalking-eyes/header@v0.7.0
@@ -47,12 +43,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull --no-tags
+          git add .
+          git commit -m "Automatic application of license header to dev branch"
 
-          git add *
-          git commit -m "Automatic application of license header"
-
-          git config push.default upstream
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

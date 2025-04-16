@@ -35,5 +35,7 @@ header:
     - 'binder/start'
     - 'LICENSE'
     - 'yarn.lock'
+    - 'mitosheet/mitosheet/tests/updates/conftest'
+    - 'trymito.io/public/favicons/site.webmanifest'
 
   comment: on-failure

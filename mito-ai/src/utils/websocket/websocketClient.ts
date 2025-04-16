@@ -140,7 +140,12 @@ export class CompletionWebsocketClient implements IDisposable {
    * must be awaited before calling any other method.
    */
   async initialize(): Promise<void> {
-    await this._initialize();
+    try {
+      await this._initialize();
+    } catch (error) {
+      console.error('Failed to initialize WebSocket:', error);
+      throw error;
+    }
   }
 
   /**
@@ -219,6 +224,20 @@ export class CompletionWebsocketClient implements IDisposable {
           resolver.resolve(message);
           this._pendingRepliesMap.delete(message.parent_id);
         } else {
+          // For streaming responses, emit the error through the stream
+          // We need to do this here because errors do not come in as "chunk" messages
+          // they come in as "reply" messages.
+          if (message.error) {
+            this._stream.emit({
+              type: 'chunk',
+              chunk: { content: message.error.hint || message.error.title || "An error occurred" },
+              done: true,
+              parent_id: message.parent_id,
+              error: message.error
+            });
+          }
+          // This will get triggered when streaming and there is an error message.
+          // However, errors are handled via the emit seen above above.
           console.warn('Unhandled mito ai completion message', message);
         }
         break;
@@ -240,9 +259,36 @@ export class CompletionWebsocketClient implements IDisposable {
   }
 
   private async _initialize(): Promise<void> {
-    if (this.isDisposed || this._socket) {
+    if (this.isDisposed) {
       return;
     }
+    
+    // If we already have a pending initialization, return that
+    if (this._initializationInProgress) {
+      return this._ready.promise;
+    }
+    
+    // Mark that initialization is in progress to prevent multiple concurrent initializations
+    this._initializationInProgress = true;
+    
+    // Always create a new ready promise to ensure we're starting fresh
+    this._ready = new PromiseDelegate<void>();
+    
+    // Clean up any existing socket first
+    if (this._socket) {
+      const oldSocket = this._socket;
+      this._socket = null;
+      
+      // Clear handlers before closing to prevent triggering unintended events
+      oldSocket.onopen = () => undefined;
+      oldSocket.onerror = () => undefined;
+      oldSocket.onmessage = () => undefined;
+      oldSocket.onclose = () => undefined;
+      
+      // Close the socket
+      oldSocket.close();
+    }
+
     console.log(
       'Creating a new websocket connection for mito-ai completions...'
     );
@@ -253,54 +299,81 @@ export class CompletionWebsocketClient implements IDisposable {
     }
 
     // Check if the service is available before attempting to connect
-    const answer = await fetch(
-      URLExt.join(this.serverSettings.baseUrl, SERVICE_URL),
-      {
-        method: 'HEAD',
-      }
-    );
+    try {
+      const answer = await fetch(
+        URLExt.join(this.serverSettings.baseUrl, `${SERVICE_URL}?check_availability=true`),
+        {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Authorization': `token ${token}`
+          }
+        }
+      );
 
-    if (!answer.ok) {
-      const message =
-        answer.status == 404
-          ? 'Mito AI extension not enabled.'
-          : `Mito AI completion not available; error ${answer.status} ${answer.statusText}`;
-      const hint =
-        answer.status == 404
-          ? 'You can enable it by running in a cell `!jupyter server extension enable mito_ai`. Then restart the application.'
-          : undefined;
-      this._messages.emit({
-        type: 'error',
-        error_type: 'HTTPError',
-        title: message,
-        hint
-      });
-      this._ready.reject(
-        new MitoAIError(message, {
+      if (!answer.ok) {
+        const message =
+          answer.status == 404
+            ? 'Mito AI extension not enabled.'
+            : `Mito AI completion not available; error ${answer.status} ${answer.statusText}`;
+        const hint =
+          answer.status == 404
+            ? 'You can enable it by running in a cell `!jupyter server extension enable mito_ai`. Then restart the application.'
+            : undefined;
+        this._messages.emit({
+          type: 'error',
+          error_type: 'HTTPError',
+          title: message,
+          hint
+        });
+        
+        const error = new MitoAIError(message, {
           cause: answer,
           hint
-        })
-      );
-      return this._ready.promise;
-    }
-
-    const socket = (this._socket = new WebSocket(url));
-    socket.onopen = e => {
-      this._onOpen(e);
-    };
-    socket.onclose = e => {
-      this._onClose(e);
-    };
-    socket.onerror = e => {
-      this._ready.reject(e);
-    };
-    socket.onmessage = msg => {
-      if (msg.data) {
-        this._onMessage(JSON.parse(msg.data));
+        });
+        
+        this._ready.reject(error);
+        this._initializationInProgress = false;
+        return this._ready.promise;
       }
-    };
 
-    await this._ready.promise;
+      const socket = (this._socket = new WebSocket(url));
+      
+      // Set a timeout to detect stalled connections
+      const connectionTimeout = setTimeout(() => {
+        if (socket.readyState !== WebSocket.OPEN && socket === this._socket) {
+          console.error('WebSocket connection timed out');
+          socket.close();
+        }
+      }, 10000); // 10 second timeout
+      
+      socket.onopen = e => {
+        clearTimeout(connectionTimeout);
+        this._onOpen(e);
+        this._initializationInProgress = false;
+      };
+      socket.onclose = e => {
+        clearTimeout(connectionTimeout);
+        this._onClose(e);
+        this._initializationInProgress = false;
+      };
+      socket.onerror = e => {
+        clearTimeout(connectionTimeout);
+        this._ready.reject(e);
+        this._initializationInProgress = false;
+      };
+      socket.onmessage = msg => {
+        if (msg.data) {
+          this._onMessage(JSON.parse(msg.data));
+        }
+      };
+
+      return this._ready.promise;
+    } catch (error) {
+      this._initializationInProgress = false;
+      this._ready.reject(error);
+      throw error;
+    }
   }
 
   /**
@@ -332,13 +405,8 @@ export class CompletionWebsocketClient implements IDisposable {
     }
     
     if (this._reconnectAttempt >= this._maxReconnectAttempts) {
-      throw new Error(`Failed to reconnect after ${this._maxReconnectAttempts} attempts`);
-    }
-    
-    // Clean up any existing socket
-    if (this._socket) {
-      this._socket.close();
-      this._socket = null;
+      this._reconnectAttempt = 0; // Reset for future attempts
+      throw new MitoAIError(`Failed to reconnect after ${this._maxReconnectAttempts} attempts`);
     }
     
     // Calculate delay using exponential backoff
@@ -357,17 +425,26 @@ export class CompletionWebsocketClient implements IDisposable {
       await this._initialize();
       // Reset reconnect attempt counter on success
       this._reconnectAttempt = 0;
+      return;
     } catch (error) {
       console.error(`Reconnection attempt ${this._reconnectAttempt} failed:`, error);
       
       // If the error is a MitoAIError (like the extension not being enabled),
       // propagate it immediately instead of retrying
       if (error instanceof MitoAIError) {
+        this._reconnectAttempt = 0; // Reset for future attempts
         throw error;
       }
       
-      // Try again recursively with exponential backoff
-      return this.reconnect(false);
+      // If we haven't reached max attempts, try again
+      if (this._reconnectAttempt < this._maxReconnectAttempts) {
+        return this.reconnect(false);
+      } else {
+        this._reconnectAttempt = 0; // Reset for future attempts
+        throw new MitoAIError(`Failed to reconnect after ${this._maxReconnectAttempts} attempts`, {
+          cause: error
+        });
+      }
     }
   }
 
@@ -389,4 +466,9 @@ export class CompletionWebsocketClient implements IDisposable {
     PromiseDelegate<CompleterMessage>
   >();
   private _connectionStatus = new Stream<CompletionWebsocketClient, 'connected' | 'disconnected'>(this);
+  
+  /**
+   * Flag to track if initialization is in progress to prevent multiple concurrent initializations
+   */
+  private _initializationInProgress = false;
 }

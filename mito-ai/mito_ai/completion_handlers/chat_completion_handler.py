@@ -10,7 +10,7 @@ from mito_ai.providers import OpenAIProvider
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.completion_handlers.utils import append_chat_system_message
+from mito_ai.completion_handlers.utils import append_chat_system_message, create_ai_optimized_message
 
 __all__ = ["get_chat_completion", "stream_chat_completion"]
 
@@ -39,12 +39,13 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.variables or [], 
             metadata.files or [],
             metadata.activeCellCode or '', 
+            metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
             metadata.input
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
@@ -52,7 +53,9 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
-            message_type=MessageType.CHAT
+            message_type=MessageType.CHAT,
+            user_input=metadata.input,
+            thread_id=metadata.threadId
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
@@ -96,22 +99,25 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.variables or [], 
             metadata.files or [],
             metadata.activeCellCode or '', 
+            metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
             metadata.input
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Stream the completions using the provider's stream method
-        accumulated_response = await provider.stream_and_save_completions(
+        accumulated_response = await provider.stream_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
             model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_id=message_id,
-            reply_fn=reply_fn
+            reply_fn=reply_fn,
+            user_input=metadata.input,
+            thread_id=metadata.threadId
         )
 
         # Save the accumulated response to message history

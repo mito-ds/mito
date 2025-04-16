@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from __future__ import annotations
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union, Type
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Type
 
 import openai
 from . import constants
@@ -26,9 +26,9 @@ from mito_ai.utils.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,
+    stream_ai_completion_from_mito_server,
 )
 from mito_ai.utils.server_limits import update_mito_server_quota
-
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
@@ -39,7 +39,6 @@ from mito_ai.utils.telemetry_utils import (
 )
 
 __all__ = ["OpenAIProvider"]
-
 
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -64,15 +63,13 @@ This attribute is observed by the websocket provider to push the error to the cl
     # We will try a total of 3 times. Once on the initial request,
     # and then twice more if the first request fails.
     # Note that max_retries cannot be set to None. If we want to disable it, set it to 0.
-    timeout = 45
-    max_retries = 2
+    timeout = 30
+    max_retries = 1
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
-        self._sync_client: Optional[openai.OpenAI] = None
-        self._models: Optional[List[str]] = None
 
     @default("api_key")
     def _api_key_default(self) -> Optional[str]:
@@ -88,14 +85,9 @@ This attribute is observed by the websocket provider to push the error to the cl
             return None
 
         client = openai.OpenAI(api_key=api_key)
-        models = []
         try:
-            # Make an http request to OpenAI to get the models available
-            # for this API key.
-            # And then handle the exceptions if they are thrown.
-            for model in client.models.list():
-                models.append(model.id)
-            self._models = models
+            # Make an http request to OpenAI to make sure it works
+            client.models.list()
         except openai.AuthenticationError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
@@ -135,14 +127,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             return api_key
 
     @property
-    def can_stream(self) -> bool:
-        """Whether the provider supports streaming completions.
-
-        Streaming is supported if either OpenAI API key or Ollama model is provided.
-        """
-        return bool(self.api_key or constants.OLLAMA_MODEL)
-
-    @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities.
 
@@ -157,8 +141,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Ollama",
             )
 
-        if self._models is None:
-            self._validate_api_key(self.api_key)
+        self._validate_api_key(self.api_key)
 
         # If the user has an OpenAI API key, then we don't need to check the Mito server quota.
         if self.api_key:
@@ -186,14 +169,8 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def _active_async_client(self) -> Optional[openai.AsyncOpenAI]:
         if not self._async_client or self._async_client.is_closed():
-            self._async_client = self._build_openai_client(async_client=True)
+            self._async_client = self._build_openai_client()
         return self._async_client
-
-    @property
-    def _active_sync_client(self) -> Optional[openai.OpenAI]:
-        if not self._sync_client or self._sync_client.is_closed():
-            self._sync_client = self._build_openai_client(async_client=False)
-        return self._sync_client
 
     @property
     def key_type(self) -> str:
@@ -205,7 +182,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         else:
             return MITO_SERVER_KEY
 
-    def _build_openai_client(self, async_client: bool = False) -> Union[openai.OpenAI, openai.AsyncOpenAI, None]:
+    def _build_openai_client(self) -> Union[openai.AsyncOpenAI, None]:
         base_url = None
         llm_api_key = None
 
@@ -236,7 +213,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if base_url:
             kwargs["base_url"] = base_url
 
-        return openai.AsyncOpenAI(**kwargs) if async_client else openai.OpenAI(**kwargs)
+        return openai.AsyncOpenAI(**kwargs)
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
         if constants.OLLAMA_MODEL and not self.api_key:
@@ -254,7 +231,9 @@ This attribute is observed by the websocket provider to push the error to the cl
             message_type: MessageType,
             messages: List[ChatCompletionMessageParam],
             model: str,
-            response_format_info: Optional[ResponseFormatInfo] = None
+            response_format_info: Optional[ResponseFormatInfo] = None,
+            user_input: Optional[str] = None,
+            thread_id: Optional[str] = None
     ) -> str:
         """
         Request completions from the OpenAI API.
@@ -277,12 +256,12 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
             completion = None
-            if self._active_sync_client is not None:
-                self.log.debug(f"Requesting completion using OpenAI API with model: {model}")
-
-                completion = self._active_sync_client.chat.completions.create(**completion_function_params)
-                completion = completion.choices[0].message.content or ""
-            else:
+            if self._active_async_client is not None:
+                self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
+                
+                response = await self._active_async_client.chat.completions.create(**completion_function_params)
+                completion = response.choices[0].message.content or ""
+            else: 
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
 
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
@@ -298,96 +277,137 @@ This attribute is observed by the websocket provider to push the error to the cl
 
             # Log the successful completion
             log_ai_completion_success(
-                key_type=self.key_type,
+                key_type=MITO_SERVER_KEY if self._active_async_client is None else USER_KEY,
                 message_type=message_type,
                 last_message_content=str(messages[-1].get('content', '')),
                 response={"completion": completion},
+                user_input=user_input or "",
+                thread_id=thread_id or ""
             )
 
             # Finally, return the completion
             return completion  # type: ignore
-
+                
         except BaseException as e:
             self.last_error = CompletionError.from_exception(e)
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
             raise
-
+    
     async def stream_completions(
-            self, request: CompletionRequest, message_type: MessageType, model: str
-    ) -> AsyncGenerator[Union[CompletionReply, CompletionStreamChunk], None]:
-        """Stream completions from the OpenAI API.
-
-        Args:
-            request: The completion request description.
-            message_type: The type of message that was sent to the AI (e.g. "chat", "smart_debug", "explain")
-        Returns:
-            An async generator yielding first an acknowledge completion reply without
-            completion and then completion chunks from the third-party provider.
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        model: str,
+        message_id: str,
+        thread_id: str,
+        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        user_input: Optional[str] = None,
+        response_format_info: Optional[ResponseFormatInfo] = None
+    ) -> str:
         """
-        # The streaming completion has two steps:
-        # Step 1: Acknowledge the request
-        # Step 2: Stream the completion chunks coming from the OpenAI API
+        Stream completions from the OpenAI API and return the accumulated response.
+        Returns: The accumulated response string.
+        """
+        # Reset the last error
         self.last_error = None
-
-        # Acknowledge the request
-        yield CompletionReply(
-            items=[
-                CompletionItem(content="", isIncomplete=True, token=request.message_id)
-            ],
-            parent_id=request.message_id,
-        )
-
+        
+        # Use a string buffer to accumulate the full response
+        accumulated_response = ""
+        
+        # Validate that the model is supported. If not fall back to gpt-4o-mini
         model = self._resolve_model(model)
-
-        # Send the completion request to the OpenAI API and returns a stream of completion chunks
-        try:
-            completion_function_params = get_open_ai_completion_function_params(
-                model, request.messages, stream=True
-            )
-            client = self._active_async_client
-            if client is None:
-                raise ValueError("OpenAI client not initialized")
-
-            stream = await client.chat.completions.create(**completion_function_params)
-
-            # Log the successful completion
-            log_ai_completion_success(
-                key_type=self.key_type,
-                message_type=message_type,
-                last_message_content=str(request.messages[-1].get('content', '')),
-                response={"completion": "not available for streamed completions"},
-            )
-
-        except BaseException as e:
-            self.last_error = CompletionError.from_exception(e)
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
-            raise
-
-        async for chunk in stream:
+            
+        # Send initial acknowledgment
+        reply_fn(CompletionReply(
+            items=[
+                CompletionItem(content="", isIncomplete=True, token=message_id)
+            ],
+            parent_id=message_id,
+        ))
+        
+        # Get the last message content for logging
+        last_message_content = str(messages[-1].get("content", "")) if messages else ""
+        
+        # Prepare completion function parameters
+        completion_function_params = get_open_ai_completion_function_params(
+            model, messages, True, response_format_info
+        )
+        
+        if self._active_async_client is not None:
+            # Stream from OpenAI
             try:
-                is_finished = chunk.choices[0].finish_reason is not None
-                yield CompletionStreamChunk(
-                    parent_id=request.message_id,
-                    chunk=CompletionItem(
-                        content=chunk.choices[0].delta.content or "",
-                        isIncomplete=True,
-                        token=request.message_id,
-                    ),
-                    done=is_finished,
-                )
+                # Stream completions based on the available client
+                client = self._active_async_client
+                if client is None:
+                    raise ValueError("OpenAI client not initialized")
+
+                stream = await client.chat.completions.create(**completion_function_params)
+                    
+                async for chunk in stream:
+                    is_finished = chunk.choices[0].finish_reason is not None
+                    content = chunk.choices[0].delta.content or ""
+                    accumulated_response += content
+                    
+                    reply_fn(CompletionStreamChunk(
+                        parent_id=message_id,
+                        chunk=CompletionItem(
+                            content=content,
+                            isIncomplete=True,
+                            token=message_id,
+                        ),
+                        done=is_finished,
+                    ))
             except BaseException as e:
                 self.last_error = CompletionError.from_exception(e)
-                yield CompletionStreamChunk(
-                    parent_id=request.message_id,
+                log(
+                    MITO_AI_COMPLETION_ERROR, 
+                    params={
+                        KEY_TYPE_PARAM: USER_KEY,
+                        'message_type': message_type.value,
+                    },
+                    error=e
+                )
+                # Send error message to client before raising
+                reply_fn(CompletionStreamChunk(
+                    parent_id=message_id,
                     chunk=CompletionItem(
                         content="",
                         isIncomplete=True,
                         error=CompletionItemError(
-                            message=f"Failed to parse chunk completion: {e!r}"
+                            message=f"Failed to process completion: {e!r}"
                         ),
-                        token=request.message_id,
+                        token=message_id,
                     ),
                     done=True,
                     error=CompletionError.from_exception(e),
-                )
-                break
+                ))                       
+                raise
+        else:
+            # Stream from Mito server
+            # Stream directly from the Mito server with the reply_fn
+            async for chunk_from_mito_server in stream_ai_completion_from_mito_server(
+                last_message_content,
+                completion_function_params,
+                self.timeout,
+                self.max_retries,
+                message_type,
+                reply_fn=reply_fn,
+                message_id=message_id,
+            ):
+                accumulated_response += str(chunk_from_mito_server)
+            
+            # Update quota after streaming is complete
+            update_mito_server_quota(message_type)
+        
+        # Log the successful completion 
+        key_type = USER_KEY if self._active_async_client is not None else MITO_SERVER_KEY
+        log_ai_completion_success(
+            key_type=key_type,
+            message_type=message_type,
+            last_message_content=last_message_content,
+            response={"completion": accumulated_response},
+            user_input=user_input or "",
+            thread_id=thread_id
+        )
+        
+        return accumulated_response

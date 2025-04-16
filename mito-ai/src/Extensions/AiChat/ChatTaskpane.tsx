@@ -19,6 +19,7 @@ import '../../../style/TextButton.css';
 import { addIcon, historyIcon, deleteIcon } from '@jupyterlab/ui-components';
 import { OpenIndicatorLabIcon } from '../../icons';
 import SupportIcon from '../../icons/SupportIcon';
+import MitoLogo from '../../icons/MitoLogo';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
@@ -36,7 +37,7 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
+import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
@@ -116,7 +117,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
-    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(false)
+    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
     // the last active thread or create a new thread if there are no previously existing threads. So that
@@ -186,13 +187,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // If the user sent a message in agent:execution mode, the ai response will be a JSON object which we need to parse. 
                 // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
                 const chatHistoryItem = JSON.parse(item.content as string);
-                if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'is_finished')) {
-                    // If it has the is_finished keys then it is an AgentResponse and we should handle it as such
+                if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'type')) {
+                    // If it is a structured output with 'type', then it is an AgentResponse and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                     isAgentChat = true
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
+                    isAgentChat = false
                 }
             } catch {
                 newChatHistoryManager.addChatMessageFromHistory(item);
@@ -231,6 +233,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         }
     };
+    
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
@@ -338,7 +341,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'smartDebug',
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
@@ -376,14 +379,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             type: 'codeExplain',
             message_id: UUID.uuid4(),
             metadata: explainCodeMetadata,
-            stream: false
+            stream: true
         }
         await _sendMessageAndSaveResponse(explainCompletionRequest, newChatHistoryManager)
 
         // Step 3: No post processing step needed for explaining code. 
     }
 
-    const sendAgentExecutionMessage = async (input: string, messageIndex?: number): Promise<void> => {
+    const sendAgentExecutionMessage = async (input: string, messageIndex?: number, sendActiveCellOutput: boolean = false): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -399,6 +402,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
         }
+
+        if (sendActiveCellOutput) {
+            const activeCellOutput = await getActiveCellOutput(notebookTracker)
+            if (activeCellOutput !== undefined) {
+                agentExecutionMetadata.base64EncodedActiveCellOutput = activeCellOutput
+            }
+        }
+
         setChatHistoryManager(newChatHistoryManager)
 
         // Step 2: Send the message to the AI
@@ -415,7 +426,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
+        // Step 0: Reject the previous AI generated code if they did not accept it
         rejectAICode()
 
         // Step 1: Add the user's message to the chat history
@@ -426,12 +437,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
         
-        const chatMessageMetadata: IChatMessageMetadata = newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current)
-        if (messageIndex !== undefined) {
-            chatMessageMetadata.index = messageIndex
-        }
+        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current, messageIndex)
 
         setChatHistoryManager(newChatHistoryManager)
+        setLoadingAIResponse(true)
+
+        // Yield control briefly to allow React to re-render the UI
+        // A timeout of 0ms pushes the rest of the function to the next event loop cycle
+        // so we don't get stuck behind the slow getActiveCellOutput function.
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Add the active cell output to the metadata afterwards setting the chatHistoryManager so that 
+        // we don't have to wait on turning the output into a base64 image before we can add the user's message
+        // to the chat.
+        const activeCellOutput = await getActiveCellOutput(notebookTracker)
+        if (activeCellOutput !== undefined) {
+            chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
+        }
 
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',
@@ -452,6 +474,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
 
+        // TODO: Can we move this into the _sendMessageAndSaveResponse function?        
         // Step 4: Scroll to the bottom of the chat smoothly
         setTimeout(() => {
             const chatContainer = chatMessagesRef.current;
@@ -494,6 +517,30 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Create the stream handler function and store it in the ref
             const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {                
+                if (chunk.error) {
+                    console.group('Error calling OpenAI API:');
+                    console.error('Title:', chunk.error.title);
+                    console.error('Type:', chunk.error.error_type);
+                    console.error('Hint:', chunk.error.hint);
+                    console.log('Full Error Details:', chunk.error);
+                    console.groupEnd();
+                    
+                    // Log traceback separately to preserve formatting
+                    if (chunk.error.traceback) {
+                        console.group('Error Traceback:');
+                        console.error(chunk.error.traceback);
+                        console.groupEnd();
+                    }
+
+                    addAIMessageFromResponseAndUpdateState(
+                        chunk.error.hint || chunk.error.title || "An error occurred",
+                        completionRequest.metadata.promptType,
+                        newChatHistoryManager,
+                        true,
+                        chunk.error.title
+                    );
+                }
+
                 // Use a ref to accumulate the content properly
                 streamingContentRef.current += chunk.chunk.content;
                 
@@ -504,6 +551,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     completionRequest.metadata.promptType,
                 );
                 setChatHistoryManager(updatedChatHistoryManager);
+                
+                // Only set loading to false after we receive the first chunk
+                if (streamingContentRef.current.length > 0) {
+                    setLoadingAIResponse(false);
+                }
             };
             
             // Store the handler for later cleanup
@@ -514,40 +566,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             try {
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+                const content = aiResponse.items[0]?.content ?? '';
 
-                if (aiResponse.error) {
-
-                    console.group('Error calling OpenAI API:');
-                    console.error('Title:', aiResponse.error.title);
-                    console.error('Type:', aiResponse.error.error_type);
-                    console.error('Hint:', aiResponse.error.hint);
-                    console.log('Full Error Details:', aiResponse.error);
-                    console.groupEnd();
-                    
-                    // Log traceback separately to preserve formatting
-                    if (aiResponse.error.traceback) {
-                        console.group('Error Traceback:');
-                        console.error(aiResponse.error.traceback);
-                        console.groupEnd();
-                    }
-
-                    addAIMessageFromResponseAndUpdateState(
-                        aiResponse.error.hint
-                            ? aiResponse.error.hint
-                            : `${aiResponse.error.error_type}: ${aiResponse.error.title}`,
-                        completionRequest.metadata.promptType,
-                        newChatHistoryManager,
-                        true,
-                        aiResponse.error.title
-                    );
-                } else {
-                    const content = aiResponse.items[0]?.content ?? '';
-
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
-                        // Agent:Execution prompts return a CellUpdate object that we need to parse
-                        const agentResponse: AgentResponse = JSON.parse(content)
-                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                    }
+                if (
+                    completionRequest.metadata.promptType === 'agent:execution' ||
+                    completionRequest.metadata.promptType === 'agent:autoErrorFixup'
+                ) {
+                    // Agent:Execution prompts return a CellUpdate object that we need to parse
+                    const agentResponse: AgentResponse = JSON.parse(content)
+                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 }
             } catch (error) {
                 addAIMessageFromResponseAndUpdateState(
@@ -561,7 +588,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     completionRequest.metadata.promptType,
                     newChatHistoryManager,
                     true
-                )
+                );
             } finally {
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
@@ -574,7 +601,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
                 if (aiResponse.error) {
-
+                    
                     console.group('Error calling OpenAI API:');
                     console.error('Title:', aiResponse.error.title);
                     console.error('Type:', aiResponse.error.error_type);
@@ -682,6 +709,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         let isAgentFinished = false
         let agentExecutionDepth = 1
+        let sendActiveCellOutput = false
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
@@ -696,7 +724,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex)
             } else {
-                await sendAgentExecutionMessage('')
+                await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
+                
+                // Reset flag back to false until the agent requests the active cell output again
+                sendActiveCellOutput = false
             }
 
             // Iterate the agent execution depth
@@ -730,47 +761,58 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 isAgentFinished = true
                 break;
             }
-            if (agentResponse.is_finished) {
+
+            if (agentResponse.type === 'finished_task') {
                 // If the agent told us that it is finished, we can stop
                 isAgentFinished = true
                 break;
             }
-            if (agentResponse.cell_update === undefined || agentResponse.cell_update === null) {
+
+            if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
                 // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
                 isAgentFinished = true
                 break;
             }
 
-            // Run the code and handle any errors
-            await acceptAndRunCellUpdate(agentResponse.cell_update, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
-            const status = await retryIfExecutionError(
-                notebookTracker,
-                app,
-                getDuplicateChatHistoryManager,
-                addAIMessageFromResponseAndUpdateState,
-                sendAgentSmartDebugMessage,
-                previewAICodeToActiveCell,
-                acceptAICode,
-                shouldContinueAgentExecution,
-                finalizeAgentStop,
-                chatHistoryManagerRef
-            )
+            if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
+                // Run the code and handle any errors
+                await acceptAndRunCellUpdate(agentResponse.cell_update, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+                const status = await retryIfExecutionError(
+                    notebookTracker,
+                    app,
+                    getDuplicateChatHistoryManager,
+                    addAIMessageFromResponseAndUpdateState,
+                    sendAgentSmartDebugMessage,
+                    previewAICodeToActiveCell,
+                    acceptAICode,
+                    shouldContinueAgentExecution,
+                    finalizeAgentStop,
+                    chatHistoryManagerRef
+                )
 
-            if (status === 'interupted') {
-                break;
+                if (status === 'interupted') {
+                    break;
+                }
+    
+                // If we were not able to run the code, break out of the loop 
+                // so we don't continue to execute the plan. Instead, we encourage
+                // the user to update the plan and try again. 
+                // TODO: Save this message in backend also even if there is not another message sent. 
+                // TODO: Move this into the retryIfExecutionError function?
+                if (status === 'failure') {
+                    addAIMessageFromResponseAndUpdateState(
+                        "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
+                        'agent:execution',
+                        chatHistoryManager
+                    )
+                    break;
+                }
             }
 
-            // If we were not able to run the code, break out of the loop 
-            // so we don't continue to execute the plan. Instead, we encourage
-            // the user to update the plan and try again. 
-            // TODO: Save this message in backend also even if there is not another message sent. 
-            if (status === 'failure') {
-                addAIMessageFromResponseAndUpdateState(
-                    "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                    'agent:execution',
-                    chatHistoryManager
-                )
-                break;
+            if (agentResponse.type === 'get_cell_output') {
+                // Mark that we should send the active cell output to the agent 
+                // in the next loop iteration
+                sendActiveCellOutput = true
             }
         }
 
@@ -1123,18 +1165,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
+                        <div style={{ margin: '0 auto 8px', display: 'block', textAlign: 'center' }}>
+                            <MitoLogo width="60" height="30" />
+                        </div>
+                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
                         <p className="long-message">
-                            Ask your personal Python expert anything!
-                            <br />
+                            <div style={{ display: 'block', textAlign: 'center', marginBottom: '15px' }}>
+                                Ask your personal Python expert anything!
+                            </div>
                             Hint:
                             {[
                                 " Use @ to reference variables.",
                                 ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
                                 ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
                             ][Math.floor(Math.random() * 3)]}
-                        </p>
-                        <p className="short-message">
-                            Ask me anything!
                         </p>
                     </div>
                 }
@@ -1145,6 +1189,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             message={displayOptimizedChat.message}
                             promptType={displayOptimizedChat.promptType}
                             messageType={displayOptimizedChat.type}
+                            agentResponse={displayOptimizedChat.agentResponse}
                             codeCellID={displayOptimizedChat.codeCellID}
                             mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
                             mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}

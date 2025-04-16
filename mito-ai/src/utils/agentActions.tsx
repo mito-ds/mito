@@ -31,11 +31,12 @@ export const acceptAndRunCellUpdate = async (
     }
 
     // The target cell should now be the active cell
-    await acceptAndRunCode(app, previewAICodeToActiveCell, acceptAICode)
+    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode)
 }
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker,
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
 ): Promise<void> => {
@@ -46,7 +47,17 @@ export const acceptAndRunCode = async (
     */
     previewAICodeToActiveCell()
     acceptAICode()
+
+    // This awaits until after the execution is finished.
+    // Note that it is important that we just run the cell and don't run and advance the cell. 
+    // We rely on the active cell remaining the same after running the cell in order to get the output
+    // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
     await app.commands.execute("notebook:run-cell");
+
+    // By sleeping here, we make sure that this function returns after the variable manager
+    // has updated the state of the variables. This ensures that on the next Ai message
+    // gets the most up to date data.
+    await sleep(1000)
 }
 
 export const retryIfExecutionError = async (
@@ -99,7 +110,16 @@ export const retryIfExecutionError = async (
 
         await sendAgentSmartDebugMessage(errorMessage)
         const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
-        const cellUpdate = aiDisplayOptimizedChatItem?.agentResponse?.cell_update
+
+        // TODO: We expect that the agent responds with a cell_update if they are prompted to fix an error. 
+        // But we are not enforcing that right now. We can fix this by setting the response_format for agent:smartDebug
+        // to only allow cell_updates and then we can return the agentResponse from sendAgentSmartDebugMessage so 
+        // typescript knows what type it is. 
+        if (aiDisplayOptimizedChatItem?.agentResponse?.type !== 'cell_update' || aiDisplayOptimizedChatItem?.agentResponse?.cell_update === undefined) {
+            return 'failure'
+        }
+
+        const cellUpdate = aiDisplayOptimizedChatItem.agentResponse.cell_update
 
         if (cellUpdate !== undefined && cellUpdate !== null) {
             await acceptAndRunCellUpdate(cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
@@ -115,3 +135,4 @@ export const retryIfExecutionError = async (
 
     return 'success'
 }
+

@@ -24,6 +24,15 @@ jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     };
 });
 
+jest.mock('../../components/AgentToolComponents/GetCellOutputToolUI', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(() => (
+            <div data-testid="get-cell-output-tool">Taking a look at the cell output</div>
+        ))
+    };
+});
+
 jest.mock('../../Extensions/AiChat/ChatMessage/ChatInput', () => {
     return {
         __esModule: true,
@@ -75,6 +84,7 @@ const createMockProps = (overrides = {}) => ({
     codeCellID: 'test-cell-id',
     messageIndex: 0,
     promptType: 'chat' as PromptType,
+    agentResponse: undefined,
     mitoAIConnectionError: false,
     mitoAIConnectionErrorType: null,
     notebookTracker: createMockNotebookTracker(),
@@ -178,6 +188,20 @@ describe('ChatMessage Component', () => {
 
             // Error message should be visible
             expect(screen.getByText('Connection error message')).toBeInTheDocument();
+        });
+
+        it('renders free tier limit reached error correctly', () => {
+            renderChatMessage({
+                message: createMockMessage('assistant', 'Test error message'),
+                mitoAIConnectionError: true,
+                mitoAIConnectionErrorType: 'mito_server_free_tier_limit_reached'
+            });
+
+            // Check for the upgrade message
+            expect(screen.getByText(/You've used up your free trial of Mito AI for this month/i)).toBeInTheDocument();
+
+            // Check for the upgrade button
+            expect(screen.getByText(/Upgrade to Pro/i)).toBeInTheDocument();
         });
     });
 
@@ -322,6 +346,17 @@ describe('ChatMessage Component', () => {
             } else {
                 fail('Reject button not found');
             }
+        });
+
+        it('displays the GetCellOutputToolUI component when agentResponse type is get_cell_output', () => {
+            renderChatMessage({
+                message: createMockMessage('assistant', 'Looking at your cell output...'),
+                agentResponse: { type: 'get_cell_output' }
+            });
+
+            // Check that the GetCellOutputToolUI component is rendered
+            expect(screen.getByTestId('get-cell-output-tool')).toBeInTheDocument();
+            expect(screen.getByText('Taking a look at the cell output')).toBeInTheDocument();
         });
     });
 }); 

@@ -41,7 +41,6 @@ from mitosheet.utils import get_new_id
 from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
 
-
 class MitoBackend():
     """
         The Mito Backend holds all of the backend state for the Mito extension, and syncs
