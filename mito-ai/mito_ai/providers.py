@@ -178,7 +178,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return AICapabilities(
             configuration={
-                "model": self.models,
+                "model": "gpt-4.1",  # Default model when no other configuration is available
             },
             provider="Mito server",
         )
