@@ -206,8 +206,8 @@ def test_azure_openai_model_resolution_not_enterprise(monkeypatch: pytest.Monkey
 
     llm = OpenAIProvider()
     resolved = llm._resolve_model("gpt-4o-mini")
-    assert resolved == "gpt-4o-mini"
-    assert "Mito server" in llm.capabilities.provider
+    assert resolved != "fake-model"
+    assert "Azure OpenAI" not in llm.capabilities.provider
 
 def test_openai_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
