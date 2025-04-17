@@ -188,8 +188,6 @@ def test_azure_openai_model_resolution(monkeypatch):
     monkeypatch.setenv("AZURE_OPENAI_MODEL", "fake-model")
     monkeypatch.setenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
 
-    # No OpenAI or Claude or Ollama -> Gemini should be resolved
-    # Mock directly to ensure Gemini is being used
     with patch.object(OpenAIProvider, "_resolve_model", return_value="fake-model"):
         llm = OpenAIProvider()
         resolved = llm._resolve_model("gpt-4o-mini")
