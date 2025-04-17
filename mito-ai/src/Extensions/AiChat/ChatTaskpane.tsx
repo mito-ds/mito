@@ -541,8 +541,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     );
                     setLoadingAIResponse(false);
                 } else if (chunk.done) {
-                    // Do nothing, for now. Leaving this here in case we need it.
-                    // console.log('DONE')
+                    // Reset states to allow future messages to show the "Apply" button
+                    setCodeReviewStatus('chatPreview');
                 } else {
                     // Use a ref to accumulate the content properly
                     streamingContentRef.current += chunk.chunk.content;
@@ -593,10 +593,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager,
                     true
                 );
-            } finally {
-                // TODO: REMOVE THE FINALLY BLOCK
-                // Reset states to allow future messages to show the "Apply" button
-                setCodeReviewStatus('chatPreview');
             }
         } else {
             // NON-STREAMING RESPONSES
