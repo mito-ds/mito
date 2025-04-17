@@ -9,6 +9,7 @@ from . import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
+from mito_ai.enterprise.utils import is_azure_openai_configured
 
 from mito_ai.logger import get_logger
 from mito_ai.models import (
@@ -127,7 +128,7 @@ This attribute is observed by the websocket provider to push the error to the cl
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
         
-        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+        if is_azure_openai_configured():
             return AICapabilities(
                 configuration={
                     "model": constants.AZURE_OPENAI_MODEL
@@ -210,10 +211,10 @@ This attribute is observed by the websocket provider to push the error to the cl
     def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
         llm_api_key = None
-
-        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+        
+        if is_azure_openai_configured():
             self.log.debug(f"Using Azure OpenAI with model: {constants.AZURE_OPENAI_MODEL}")
-            
+                
             # The format for using Azure OpenAI is different than using
             # other providers, so we have a special case for it here.
             # Create Azure OpenAI client with explicit arguments
@@ -254,7 +255,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         return client
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
-        if constants.AZURE_OPENAI_MODEL and constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT:
+        if is_azure_openai_configured():
             return constants.AZURE_OPENAI_MODEL
         if constants.OLLAMA_MODEL and not self.api_key:
             return constants.OLLAMA_MODEL
