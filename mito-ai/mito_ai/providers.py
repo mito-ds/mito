@@ -155,7 +155,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
         if self.api_key:
-            if self._models is None:
+            if self.models is None:
                 self._validate_api_key(self.api_key)
 
             return AICapabilities(

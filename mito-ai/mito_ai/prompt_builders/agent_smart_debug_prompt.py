@@ -53,6 +53,7 @@ ERROR CORRECTION:
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
 - DO NOT ADD TEMPORARY COMMENTS like '# Fixed the typo here' or '# Added this line to fix the error'
+- If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
 
 <Example>
 
