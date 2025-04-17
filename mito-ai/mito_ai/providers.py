@@ -48,7 +48,7 @@ class OpenAIProvider(LoggingConfigurable):
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
 
-    models: List[str] = ['gpt-4o-mini', 'o3-mini']
+    models: Optional[List[str]] = None
 
     last_error = Instance(
         CompletionError,
@@ -86,7 +86,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         client = openai.OpenAI(api_key=api_key)
         try:
             # Make an http request to OpenAI to make sure it works
-            client.models.list()
+            self.models = client.models.list()
         except openai.AuthenticationError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
@@ -163,7 +163,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
         if self.api_key:
-            if self._models is None:
+            if self.models is None:
                 self._validate_api_key(self.api_key)
 
             return AICapabilities(
