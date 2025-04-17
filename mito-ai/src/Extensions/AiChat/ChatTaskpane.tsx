@@ -355,6 +355,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
+        setLoadingAIResponse(true);
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
@@ -413,6 +414,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         setChatHistoryManager(newChatHistoryManager)
+        setLoadingAIResponse(true);
 
         // Step 2: Send the message to the AI
         const completionRequest: IAgentExecutionCompletionRequest = {
