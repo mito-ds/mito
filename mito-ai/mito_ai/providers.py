@@ -9,6 +9,7 @@ from . import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
+from mito_ai.enterprise.utils import is_azure_openai_configured
 
 from mito_ai.logger import get_logger
 from mito_ai.models import (
@@ -36,6 +37,8 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
+
+OPENAI_MODEL_FALLBACK = "gpt-4.1"
 
 __all__ = ["OpenAIProvider"]
 
@@ -84,7 +87,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         client = openai.OpenAI(api_key=api_key)
         try:
             # Make an http request to OpenAI to make sure it works
-            self.models = client.models.list()
+            client.models.list()
         except openai.AuthenticationError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
@@ -127,14 +130,13 @@ This attribute is observed by the websocket provider to push the error to the cl
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
         
-        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+        if is_azure_openai_configured():
             return AICapabilities(
                 configuration={
                     "model": constants.AZURE_OPENAI_MODEL
                 },
                 provider="Azure OpenAI",
             )
-            
 
         if constants.OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
@@ -165,7 +167,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
             return AICapabilities(
                 configuration={
-                    "model": 'gpt-4.1',
+                    "model": OPENAI_MODEL_FALLBACK,
                 },
                 provider="OpenAI (user key)",
             )
@@ -178,7 +180,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return AICapabilities(
             configuration={
-                "model": "gpt-4.1",  # Default model when no other configuration is available
+                "model": OPENAI_MODEL_FALLBACK,
             },
             provider="Mito server",
         )
@@ -210,17 +212,17 @@ This attribute is observed by the websocket provider to push the error to the cl
     def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
         llm_api_key = None
-
-        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+        
+        if is_azure_openai_configured():
             self.log.debug(f"Using Azure OpenAI with model: {constants.AZURE_OPENAI_MODEL}")
-            
+                
             # The format for using Azure OpenAI is different than using
             # other providers, so we have a special case for it here.
             # Create Azure OpenAI client with explicit arguments
             return openai.AsyncAzureOpenAI(
                 api_key=constants.AZURE_OPENAI_API_KEY,
                 api_version=constants.AZURE_OPENAI_API_VERSION,
-                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT,
+                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT or OPENAI_MODEL_FALLBACK,
                 max_retries=self.max_retries,
                 timeout=self.timeout,
             )
@@ -254,8 +256,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         return client
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
-        if constants.AZURE_OPENAI_MODEL and constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT:
-            return constants.AZURE_OPENAI_MODEL
+        if is_azure_openai_configured():
+            return constants.AZURE_OPENAI_MODEL or OPENAI_MODEL_FALLBACK
         if constants.OLLAMA_MODEL and not self.api_key:
             return constants.OLLAMA_MODEL
         elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
@@ -264,7 +266,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return constants.GEMINI_MODEL
         elif model:
             return model
-        return "gpt-4o"  # fallback
+        return OPENAI_MODEL_FALLBACK
 
     async def request_completions(
             self,
@@ -355,7 +357,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Use a string buffer to accumulate the full response
         accumulated_response = ""
         
-        # Validate that the model is supported. If not fall back to gpt-4o-mini
+        # Validate that the model is supported.
         model = self._resolve_model(model)
             
         # Send initial acknowledgment

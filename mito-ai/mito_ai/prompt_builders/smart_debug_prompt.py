@@ -155,6 +155,7 @@ Solution Requirements:
 - Reuse as much of the existing code as possible.
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
 - The code in the SOLUTION section should be a python code block starting with ```python and ending with ```
+- If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
 
 Here is your task. 
 

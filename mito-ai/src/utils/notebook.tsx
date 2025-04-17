@@ -247,7 +247,12 @@ export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker,
     }, 2000);
 }
 
-export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, lineNumber?: number): void => {
+export const scrollToCell = (
+    notebookTracker: INotebookTracker, 
+    cellID: string, 
+    lineNumber?: number,
+    position: ScrollLogicalPosition = 'center'
+): void => {
 
     // First activate the cell
     setActiveCellByID(notebookTracker, cellID);
@@ -267,7 +272,7 @@ export const scrollToCell = (notebookTracker: INotebookTracker, cellID: string, 
     // Make the cell node visible by scrolling to it
     const cellNode = cell.node;
     if (cellNode) {
-        cellNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cellNode.scrollIntoView({ behavior: 'smooth', block: position });
 
         // Wait for the scroll animation to complete before highlighting the line
         // The default smooth scroll takes about 300-500ms to complete

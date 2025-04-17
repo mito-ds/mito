@@ -183,16 +183,31 @@ def test_gemini_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
         resolved = llm._resolve_model("gpt-4o-mini")
         assert resolved == "gemini-2-pro"
 
-def test_azure_openai_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AZURE_OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://example.com")
-    monkeypatch.setenv("AZURE_OPENAI_MODEL", "fake-model")
-    monkeypatch.setenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+def test_azure_openai_model_resolution_enterprise(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: True)
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_ENDPOINT", "https://example.com")
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_MODEL", "fake-model")
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", "fake-model")
 
-    with patch.object(OpenAIProvider, "_resolve_model", return_value="fake-model"):
-        llm = OpenAIProvider()
-        resolved = llm._resolve_model("gpt-4o-mini")
-        assert resolved == "fake-model"
+    llm = OpenAIProvider()
+    resolved = llm._resolve_model("gpt-4o-mini")
+    assert resolved == "fake-model"
+    assert "Azure OpenAI" in llm.capabilities.provider
+        
+def test_azure_openai_model_resolution_not_enterprise(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: False)
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_ENDPOINT", "https://example.com")
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_MODEL", "fake-model")
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", "fake-model")
+
+    llm = OpenAIProvider()
+    resolved = llm._resolve_model("gpt-4o-mini")
+    assert resolved != "fake-model"
+    assert "Azure OpenAI" not in llm.capabilities.provider
 
 def test_openai_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
@@ -204,11 +219,13 @@ def test_openai_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
 
 # Add a new test to check the provider priority order
 def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch) -> None:
-    # Set all provider environment variables by patching the constants module directly
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", "https://example.com")
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", "gpt-4o")
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: True)
+    # Need to patch Azure OpenAI constants in enterprise.utils since we are using them there
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_ENDPOINT", "https://example.com")
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_MODEL", "gpt-4o")
+    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+    # We can patch the rest in constants since we are just importing them in providers
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
     monkeypatch.setattr("mito_ai.constants.OLLAMA_MODEL", "llama3")
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")

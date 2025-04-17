@@ -8,7 +8,7 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID } from "./notebook"
+import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, getActiveCellID, scrollToCell } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "./websocket/models"
@@ -61,6 +61,12 @@ export const acceptAndRunCode = async (
     // We rely on the active cell remaining the same after running the cell in order to get the output
     // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
     await app.commands.execute("notebook:run-cell");
+
+    // Scroll to the bottom of the active cell to show the output
+    const activeCellID = getActiveCellID(notebookTracker);
+    if (activeCellID) {
+        scrollToCell(notebookTracker, activeCellID, undefined, 'end');
+    }
 
     // By sleeping here, we make sure that this function returns after the variable manager
     // has updated the state of the variables. This ensures that on the next Ai message
