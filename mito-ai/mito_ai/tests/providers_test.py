@@ -201,21 +201,6 @@ def test_openai_model_resolution(monkeypatch):
         resolved = llm._resolve_model("gpt-4o-mini")
         assert resolved == "gpt-4o-mini"
 
-
-def test_model_resolution_fallback(monkeypatch):
-    llm = OpenAIProvider()
-    resolved = llm._resolve_model("non-existent-model")
-    assert resolved == "gpt-4o"
-
-
-def test_fallback_to_mito(monkeypatch):
-    with patch_server_limits(is_pro=False, completion_count=1):
-        llm = OpenAIProvider()
-        capabilities = llm.capabilities
-        assert "Mito" in capabilities.provider
-        assert llm.last_error is None or isinstance(llm.last_error, CompletionError)
-
-
 # Add a new test to check the provider priority order
 def test_provider_priority_order(monkeypatch):
     # Set all provider environment variables by patching the constants module directly

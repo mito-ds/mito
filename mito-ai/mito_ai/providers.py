@@ -48,8 +48,6 @@ class OpenAIProvider(LoggingConfigurable):
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
 
-    models: Optional[List[str]] = None
-
     last_error = Instance(
         CompletionError,
         allow_none=True,
@@ -163,12 +161,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
         if self.api_key:
-            if self.models is None:
-                self._validate_api_key(self.api_key)
+            self._validate_api_key(self.api_key)
 
             return AICapabilities(
                 configuration={
-                    "model": self.models,
+                    "model": 'gpt-4.1',
                 },
                 provider="OpenAI (user key)",
             )
@@ -268,7 +265,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return constants.CLAUDE_MODEL
         elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
             return constants.GEMINI_MODEL
-        elif model and model in self.models:
+        elif model:
             return model
         return "gpt-4o"  # fallback
 
