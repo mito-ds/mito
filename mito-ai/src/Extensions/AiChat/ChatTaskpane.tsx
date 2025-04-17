@@ -335,6 +335,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
+        setLoadingAIResponse(true)
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
@@ -354,6 +355,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
+        setLoadingAIResponse(true);
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
@@ -373,6 +375,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = await startNewChat()
         const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage(activeThreadIdRef.current)
         setChatHistoryManager(newChatHistoryManager)
+        setLoadingAIResponse(true)
 
         // Step 2: Send the message to the AI
         const explainCompletionRequest: ICodeExplainCompletionRequest = {
@@ -411,6 +414,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         setChatHistoryManager(newChatHistoryManager)
+        setLoadingAIResponse(true);
 
         // Step 2: Send the message to the AI
         const completionRequest: IAgentExecutionCompletionRequest = {
@@ -503,8 +507,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _sendMessageAndSaveResponse = async (
         completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
     ): Promise<boolean> => {
-        setLoadingAIResponse(true)
-
         if (completionRequest.stream) {
             // Reset the streaming response and set streaming state
             streamingContentRef.current = '';
@@ -539,22 +541,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         true,
                         chunk.error.title
                     );
-                }
-
-                // Use a ref to accumulate the content properly
-                streamingContentRef.current += chunk.chunk.content;
-                
-                // Create a new chat history manager instance to ensure React detects the state change
-                const updatedChatHistoryManager = newChatHistoryManager.createDuplicateChatHistoryManager();
-                updatedChatHistoryManager.addStreamingAIMessage(
-                    streamingContentRef.current, 
-                    completionRequest.metadata.promptType,
-                );
-                setChatHistoryManager(updatedChatHistoryManager);
-                
-                // Only set loading to false after we receive the first chunk
-                if (streamingContentRef.current.length > 0) {
                     setLoadingAIResponse(false);
+                } else if (chunk.done) {
+                    // Reset states to allow future messages to show the "Apply" button
+                    setCodeReviewStatus('chatPreview');
+                } else {
+                    // Use a ref to accumulate the content properly
+                    streamingContentRef.current += chunk.chunk.content;
+                    
+                    // Create a new chat history manager instance to ensure React detects the state change
+                    const updatedChatHistoryManager = newChatHistoryManager.createDuplicateChatHistoryManager();
+                    updatedChatHistoryManager.addStreamingAIMessage(
+                        streamingContentRef.current, 
+                        completionRequest.metadata.promptType,
+                    );
+                    setChatHistoryManager(updatedChatHistoryManager);
+                    
+                    // Set loading to false after we receive the first chunk
+                    if (streamingContentRef.current.length > 0) {
+                        setLoadingAIResponse(false);
+                    }
                 }
             };
             
@@ -589,10 +595,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager,
                     true
                 );
-            } finally {
-                // Reset states to allow future messages to show the "Apply" button
-                setCodeReviewStatus('chatPreview');
-                setLoadingAIResponse(false);
             }
         } else {
             // NON-STREAMING RESPONSES
