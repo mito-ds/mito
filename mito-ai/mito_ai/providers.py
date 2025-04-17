@@ -17,7 +17,6 @@ from mito_ai.models import (
     CompletionItem,
     CompletionItemError,
     CompletionReply,
-    CompletionRequest,
     CompletionStreamChunk,
     MessageType,
     ResponseFormatInfo,
@@ -48,8 +47,6 @@ class OpenAIProvider(LoggingConfigurable):
         allow_none=True,
         help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
     )
-
-    models: List[str] = ['gpt-4o-mini', 'o3-mini']
 
     last_error = Instance(
         CompletionError,
@@ -87,7 +84,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         client = openai.OpenAI(api_key=api_key)
         try:
             # Make an http request to OpenAI to make sure it works
-            client.models.list()
+            self.models = client.models.list()
         except openai.AuthenticationError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
@@ -129,6 +126,15 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
+        
+        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+            return AICapabilities(
+                configuration={
+                    "model": constants.AZURE_OPENAI_MODEL
+                },
+                provider="Azure OpenAI",
+            )
+            
 
         if constants.OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
@@ -155,12 +161,11 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
         if self.api_key:
-            if self._models is None:
-                self._validate_api_key(self.api_key)
+            self._validate_api_key(self.api_key)
 
             return AICapabilities(
                 configuration={
-                    "model": self.models,
+                    "model": 'gpt-4.1',
                 },
                 provider="OpenAI (user key)",
             )
@@ -202,11 +207,25 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return MITO_SERVER_KEY
 
-    def _build_openai_client(self) -> Union[openai.AsyncOpenAI, None]:
+    def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
         llm_api_key = None
 
-        if constants.OLLAMA_MODEL and not self.api_key:
+        if constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT and constants.AZURE_OPENAI_API_VERSION:
+            self.log.debug(f"Using Azure OpenAI with model: {constants.AZURE_OPENAI_MODEL}")
+            
+            # The format for using Azure OpenAI is different than using
+            # other providers, so we have a special case for it here.
+            # Create Azure OpenAI client with explicit arguments
+            return openai.AsyncAzureOpenAI(
+                api_key=constants.AZURE_OPENAI_API_KEY,
+                api_version=constants.AZURE_OPENAI_API_VERSION,
+                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT,
+                max_retries=self.max_retries,
+                timeout=self.timeout,
+            )
+        
+        elif constants.OLLAMA_MODEL and not self.api_key:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
             self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
@@ -225,26 +244,27 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.log.warning("No valid API key or model configuration provided")
             return None
 
-        kwargs = {
-            "api_key": llm_api_key,
-            "max_retries": self.max_retries,
-            "timeout": self.timeout,
-        }
-        if base_url:
-            kwargs["base_url"] = base_url
-
-        return openai.AsyncOpenAI(**kwargs)
+        # Create the client with explicit arguments to satisfy type checking
+        client = openai.AsyncOpenAI(
+            api_key=llm_api_key,
+            max_retries=self.max_retries,
+            timeout=self.timeout,
+            base_url=base_url if base_url else None,
+        )
+        return client
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
+        if constants.AZURE_OPENAI_MODEL and constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT:
+            return constants.AZURE_OPENAI_MODEL
         if constants.OLLAMA_MODEL and not self.api_key:
             return constants.OLLAMA_MODEL
         elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
             return constants.CLAUDE_MODEL
         elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
             return constants.GEMINI_MODEL
-        elif model and model in self.models:
+        elif model:
             return model
-        return "gpt-4o-mini"  # fallback
+        return "gpt-4o"  # fallback
 
     async def request_completions(
             self,
@@ -306,9 +326,10 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
             # Finally, return the completion
-            return completion  # type: ignore
+            return completion
                 
         except BaseException as e:
+            self.log.exception(f"Error during request_completions: {e}")
             self.last_error = CompletionError.from_exception(e)
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
             raise
@@ -360,10 +381,13 @@ This attribute is observed by the websocket provider to push the error to the cl
                 client = self._active_async_client
                 if client is None:
                     raise ValueError("OpenAI client not initialized")
-
+                
                 stream = await client.chat.completions.create(**completion_function_params)
-                    
+
                 async for chunk in stream:
+                    if len(chunk.choices) == 0:
+                        continue
+                    
                     is_finished = chunk.choices[0].finish_reason is not None
                     content = chunk.choices[0].delta.content or ""
                     accumulated_response += content
