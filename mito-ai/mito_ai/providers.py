@@ -207,7 +207,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return MITO_SERVER_KEY
 
-    def _build_openai_client(self) -> Union[openai.AsyncOpenAI, None]:
+    def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
         llm_api_key = None
 
@@ -216,16 +216,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             
             # The format for using Azure OpenAI is different than using
             # other providers, so we have a special case for it here.
-            kwargs = {
-                "api_key": constants.AZURE_OPENAI_API_KEY,
-                "api_version": constants.AZURE_OPENAI_API_VERSION,
-                "max_retries": self.max_retries,
-                "timeout": self.timeout,
-                "azure_endpoint": constants.AZURE_OPENAI_ENDPOINT
-            }
-   
-            # Note: Create an instance of AsyncAzureOpenAI instead of AsyncOpenAI
-            return openai.AsyncAzureOpenAI(**kwargs) 
+            # Create Azure OpenAI client with explicit arguments
+            return openai.AsyncAzureOpenAI(
+                api_key=constants.AZURE_OPENAI_API_KEY,
+                api_version=constants.AZURE_OPENAI_API_VERSION,
+                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT,
+                max_retries=self.max_retries,
+                timeout=self.timeout,
+            )
         
         elif constants.OLLAMA_MODEL and not self.api_key:
             base_url = constants.OLLAMA_BASE_URL
@@ -246,15 +244,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.log.warning("No valid API key or model configuration provided")
             return None
 
-        kwargs = {
-            "api_key": llm_api_key,
-            "max_retries": self.max_retries,
-            "timeout": self.timeout,
-        }
-        if base_url:
-            kwargs["base_url"] = base_url
-
-        return openai.AsyncOpenAI(**kwargs)
+        # Create the client with explicit arguments to satisfy type checking
+        client = openai.AsyncOpenAI(
+            api_key=llm_api_key,
+            max_retries=self.max_retries,
+            timeout=self.timeout,
+            base_url=base_url if base_url else None,
+        )
+        return client
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
         if constants.AZURE_OPENAI_MODEL and constants.AZURE_OPENAI_API_KEY and constants.AZURE_OPENAI_ENDPOINT:
@@ -329,7 +326,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
             # Finally, return the completion
-            return completion  # type: ignore
+            return completion
                 
         except BaseException as e:
             self.log.exception(f"Error during request_completions: {e}")
