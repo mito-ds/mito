@@ -85,7 +85,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         client = openai.OpenAI(api_key=api_key)
         try:
             # Make an http request to OpenAI to make sure it works
-            self.models = client.models.list()
+            client.models.list()
         except openai.AuthenticationError as e:
             self.log.warning(
                 "Invalid OpenAI API key provided.",
@@ -135,7 +135,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 },
                 provider="Azure OpenAI",
             )
-            
 
         if constants.OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
@@ -179,7 +178,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return AICapabilities(
             configuration={
-                "model": self.models,
+                "model": "gpt-4.1",
             },
             provider="Mito server",
         )
