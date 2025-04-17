@@ -8,10 +8,10 @@
     flex-direction: row;
     align-items: center;
     justify-content: start;
-    background-color: white;
+    background-color: transparent;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--jp-ui-font-color2);
     margin: 10px 0;
     color: var(--jp-ui-font-color2);
 }
