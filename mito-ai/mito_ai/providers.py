@@ -38,6 +38,8 @@ from mito_ai.utils.telemetry_utils import (
     log_ai_completion_success,
 )
 
+OPENAI_MODEL_FALLBACK = "gpt-4.1"
+
 __all__ = ["OpenAIProvider"]
 
 class OpenAIProvider(LoggingConfigurable):
@@ -165,7 +167,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
             return AICapabilities(
                 configuration={
-                    "model": 'gpt-4.1',
+                    "model": OPENAI_MODEL_FALLBACK,
                 },
                 provider="OpenAI (user key)",
             )
@@ -178,7 +180,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         return AICapabilities(
             configuration={
-                "model": "gpt-4.1",
+                "model": OPENAI_MODEL_FALLBACK,
             },
             provider="Mito server",
         )
@@ -220,7 +222,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return openai.AsyncAzureOpenAI(
                 api_key=constants.AZURE_OPENAI_API_KEY,
                 api_version=constants.AZURE_OPENAI_API_VERSION,
-                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT,
+                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT or OPENAI_MODEL_FALLBACK,
                 max_retries=self.max_retries,
                 timeout=self.timeout,
             )
@@ -255,7 +257,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
         if is_azure_openai_configured():
-            return constants.AZURE_OPENAI_MODEL
+            return constants.AZURE_OPENAI_MODEL or OPENAI_MODEL_FALLBACK
         if constants.OLLAMA_MODEL and not self.api_key:
             return constants.OLLAMA_MODEL
         elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
@@ -264,7 +266,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return constants.GEMINI_MODEL
         elif model:
             return model
-        return "gpt-4o"  # fallback
+        return OPENAI_MODEL_FALLBACK
 
     async def request_completions(
             self,
@@ -355,7 +357,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Use a string buffer to accumulate the full response
         accumulated_response = ""
         
-        # Validate that the model is supported. If not fall back to gpt-4o-mini
+        # Validate that the model is supported.
         model = self._resolve_model(model)
             
         # Send initial acknowledgment
