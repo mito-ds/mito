@@ -68,6 +68,31 @@ import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 
+// Suggestion items for chat prompt boxes
+interface SuggestionOption {
+    display: string;
+    prompt: string;
+}
+
+const DEFAULT_SUGGESTION_OPTIONS: SuggestionOption[] = [
+    {
+        display: "Predict outcomes with Decision Trees",
+        prompt: "You have imported the dataset into a variable named df. Please download or simulate the data, then build a Decision Trees model to predict the column INDJUBILADO and perform the necessary analysis."
+    },
+    {
+        display: "Uncover stats in your event data",
+        prompt: "Can you download or generate a file named 'dataset_eventos_2024_a_2025.csv' and perform a statistical analysis on it?"
+    },
+    {
+        display: "Visualize Top EV makes and models",
+        prompt: "Visualize the top 20 electric vehicle (EV) makes and models registered in Washington state. Download the zip file with dataset with requests from https://www.kaggle.com/api/v1/datasets/download/sahirmaharajj/electric-vehicle-population"
+    },
+    {
+        display: "Analyze attendance patterns in the company",
+        prompt: "Generate some imaginary attendance data, then answer: How many employees are absent at least one day and late at least three times? Provide classified statistics by subcompany."
+    }
+];
+
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
@@ -1224,6 +1249,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
+            {displayOptimizedChatHistory.length === 0 && (
+            <div className="chat-suggestions">
+                {DEFAULT_SUGGESTION_OPTIONS.map((opt) => (
+                    <button
+                        key={opt.display}
+                        className="suggestion-box"
+                        onClick={() => {
+                            const prompt = opt.prompt;
+                            if (agentModeEnabled) {
+                                startAgentExecution(prompt);
+                            } else {
+                                sendChatInputMessage(prompt);
+                            }
+                        }}
+                    >
+                        {opt.display}
+                    </button>
+                ))}
+            </div>
+            )}
             <ChatInput
                 initialContent={''}
                 placeholder={
