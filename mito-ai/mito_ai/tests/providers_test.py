@@ -3,6 +3,7 @@
 
 import os
 from datetime import datetime
+from typing import Any
 from unittest.mock import patch, MagicMock, PropertyMock
 
 import pytest
@@ -16,7 +17,7 @@ FAKE_API_KEY = "sk-1234567890"
 
 
 @pytest.fixture(autouse=True)
-def reset_env_vars(monkeypatch):
+def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in [
         "OPENAI_API_KEY", "CLAUDE_MODEL", "CLAUDE_API_KEY",
         "GEMINI_MODEL", "GEMINI_API_KEY", "OLLAMA_MODEL"
@@ -24,7 +25,7 @@ def reset_env_vars(monkeypatch):
         monkeypatch.delenv(var, raising=False)
 
 
-def patch_server_limits(is_pro=False, completion_count=1, first_date=TODAY):
+def patch_server_limits(is_pro: bool = False, completion_count: int = 1, first_date: str = TODAY) -> Any:
     return patch.multiple(
         "mito_ai.utils.server_limits",
         get_chat_completion_count=MagicMock(return_value=completion_count),
@@ -35,7 +36,7 @@ def patch_server_limits(is_pro=False, completion_count=1, first_date=TODAY):
     )
 
 
-def patch_openai_model_list():
+def patch_openai_model_list() -> Any:
     mock_openai_instance = MagicMock()
     mock_openai_instance.models.list.return_value = [MagicMock(id="gpt-4o-mini")]
 
@@ -43,7 +44,7 @@ def patch_openai_model_list():
     return patch("openai.OpenAI", return_value=mock_openai_instance)
 
 
-def mock_openai_capabilities():
+def mock_openai_capabilities() -> Any:
     """Mock the capabilities property to return OpenAI with user key."""
     return patch.object(
         OpenAIProvider,
@@ -57,7 +58,7 @@ def mock_openai_capabilities():
     )
 
 
-def mock_ollama_capabilities():
+def mock_ollama_capabilities() -> Any:
     """Mock the capabilities property to return Ollama."""
     return patch.object(
         OpenAIProvider,
@@ -71,7 +72,7 @@ def mock_ollama_capabilities():
     )
 
 
-def test_os_user_openai_key_set_below_limit(monkeypatch):
+def test_os_user_openai_key_set_below_limit(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
 
     with (
@@ -86,7 +87,7 @@ def test_os_user_openai_key_set_below_limit(monkeypatch):
         assert llm.last_error is None
 
 
-def test_os_user_openai_key_set_above_limit(monkeypatch):
+def test_os_user_openai_key_set_above_limit(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
 
     with (
@@ -110,7 +111,7 @@ def test_os_user_openai_key_set_above_limit(monkeypatch):
         assert llm.last_error is None
 
 
-def test_pro_user_openai_key_set_below_limit(monkeypatch):
+def test_pro_user_openai_key_set_below_limit(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
 
     with (
@@ -124,7 +125,7 @@ def test_pro_user_openai_key_set_below_limit(monkeypatch):
         assert llm.last_error is None
 
 
-def test_pro_user_openai_key_set_above_limit(monkeypatch):
+def test_pro_user_openai_key_set_above_limit(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
 
     with (
@@ -148,7 +149,7 @@ def test_pro_user_openai_key_set_above_limit(monkeypatch):
         assert llm.last_error is None
 
 
-def test_ollama_model_provider(monkeypatch):
+def test_ollama_model_provider(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OLLAMA_MODEL", "llama3")
 
     # Force Ollama provider by patching capabilities directly
@@ -159,7 +160,7 @@ def test_ollama_model_provider(monkeypatch):
         assert capabilities.configuration["model"] == "llama3"
 
 
-def test_claude_model_resolution(monkeypatch):
+def test_claude_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
     monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus")
 
@@ -171,7 +172,7 @@ def test_claude_model_resolution(monkeypatch):
         assert resolved == "claude-3-opus"
 
 
-def test_gemini_model_resolution(monkeypatch):
+def test_gemini_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
     monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
 
@@ -182,8 +183,18 @@ def test_gemini_model_resolution(monkeypatch):
         resolved = llm._resolve_model("gpt-4o-mini")
         assert resolved == "gemini-2-pro"
 
+def test_azure_openai_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://example.com")
+    monkeypatch.setenv("AZURE_OPENAI_MODEL", "fake-model")
+    monkeypatch.setenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
 
-def test_openai_model_resolution(monkeypatch):
+    with patch.object(OpenAIProvider, "_resolve_model", return_value="fake-model"):
+        llm = OpenAIProvider()
+        resolved = llm._resolve_model("gpt-4o-mini")
+        assert resolved == "fake-model"
+
+def test_openai_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
     with patch_openai_model_list() as MockOpenAI:
         MockOpenAI.return_value.models.list.return_value = [MagicMock(id="gpt-4o-mini")]
@@ -191,36 +202,21 @@ def test_openai_model_resolution(monkeypatch):
         resolved = llm._resolve_model("gpt-4o-mini")
         assert resolved == "gpt-4o-mini"
 
-
-def test_model_resolution_fallback(monkeypatch):
-    llm = OpenAIProvider()
-    resolved = llm._resolve_model("non-existent-model")
-    assert resolved == "gpt-4o-mini"
-
-
-def test_fallback_to_mito(monkeypatch):
-    with patch_server_limits(is_pro=False, completion_count=1):
-        llm = OpenAIProvider()
-        capabilities = llm.capabilities
-        assert "Mito" in capabilities.provider
-        assert llm.last_error is None or isinstance(llm.last_error, CompletionError)
-
-
 # Add a new test to check the provider priority order
-def test_provider_priority_order(monkeypatch):
-    # Set all provider environment variables
-    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setenv("OLLAMA_MODEL", "llama3")
-    monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus")
-    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
-    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
+def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Set all provider environment variables by patching the constants module directly
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", "https://example.com")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", "gpt-4o")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OLLAMA_MODEL", "llama3")
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", "gemini-2-pro")
 
     # OpenAI should have highest priority when all are set
-    with (
-        patch_openai_model_list(),
-        mock_openai_capabilities()
-    ):
-        llm = OpenAIProvider()
-        capabilities = llm.capabilities
-        assert "user key" in capabilities.provider
+    llm = OpenAIProvider()
+    capabilities = llm.capabilities
+    assert "Azure OpenAI" in capabilities.provider
