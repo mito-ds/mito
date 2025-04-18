@@ -43,7 +43,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
             code.split('\n').length > 5 ? '\n\n# click to see full input...' : ''
         );
         return (
-            <div className='code-block-container'>
+            <div className='code-block-container active-cell-code-block'>
                 <PythonCode
                     code={previewCode}
                     renderMimeRegistry={renderMimeRegistry}
