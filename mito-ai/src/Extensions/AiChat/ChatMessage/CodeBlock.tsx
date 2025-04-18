@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '../../../../style/CodeBlock.css'
@@ -37,15 +37,20 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     isLastAiMessage,
     codeReviewStatus,
 }): JSX.Element => {
+    const [isExpanded, setIsExpanded] = useState(false);
 
     if (role === 'user') {
         const previewCode = code.split('\n').slice(0, 5).join('\n') + (
             code.split('\n').length > 5 ? '\n\n# click to see full input...' : ''
         );
         return (
-            <div className='code-block-container active-cell-code-block'>
+            <div 
+                className='code-block-container active-cell-code-block' 
+                onClick={() => setIsExpanded(!isExpanded)}
+                style={{cursor: 'pointer'}}
+            >
                 <PythonCode
-                    code={previewCode}
+                    code={isExpanded ? code : previewCode}
                     renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
