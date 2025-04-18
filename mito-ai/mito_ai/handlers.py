@@ -14,6 +14,7 @@ import tornado.web
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
+from mito_ai import constants
 from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.models import (
@@ -33,7 +34,8 @@ from mito_ai.models import (
     CodeExplainMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
-    MessageType
+    MessageType,
+    UpdateModelConfigMetadata
 )
 from mito_ai.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
@@ -180,6 +182,34 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 items=display_history
             )
             self.reply(reply)
+            return
+
+        # Updated handler for receiving model selection via websocket
+        if type == MessageType.UPDATE_MODEL_CONFIG:
+            model = metadata_dict.get('model')
+            if model:
+                constants.set_active_model(model)
+
+                self.log.info(f"Model updated to: {model}")
+
+                reply = CompletionReply(
+                    items=[CompletionItem(content=f"Model updated to {model}", isIncomplete=False)],
+                    parent_id=parsed_message.get('message_id')
+                )
+                self.reply(reply)
+            else:
+                error = CompletionError(
+                    error_type="InvalidModelConfig",
+                    title="Invalid model configuration",
+                    traceback="",
+                    hint="Model name is required"
+                )
+                reply = CompletionReply(
+                    items=[],
+                    error=error,
+                    parent_id=parsed_message.get('message_id')
+                )
+                self.reply(reply)
             return
         
         try:
