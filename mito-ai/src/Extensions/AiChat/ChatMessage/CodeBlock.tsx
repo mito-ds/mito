@@ -39,10 +39,13 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 }): JSX.Element => {
 
     if (role === 'user') {
+        const previewCode = code.split('\n').slice(0, 5).join('\n') + (
+            code.split('\n').length > 5 ? '\n\n# click to see full input...' : ''
+        );
         return (
             <div className='code-block-container'>
                 <PythonCode
-                    code={code}
+                    code={previewCode}
                     renderMimeRegistry={renderMimeRegistry}
                 />
             </div>
