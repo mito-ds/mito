@@ -45,3 +45,13 @@
   background-color: var(--chat-background-color);
   color: var(--chat-assistant-message-font-color);
 }
+
+.active-cell-code-block {
+  opacity: 0.7;
+}
+
+.active-cell-code-block:hover {
+  opacity: 1;
+  transition: 0.3s;
+}
+
