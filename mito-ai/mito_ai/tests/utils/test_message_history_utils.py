@@ -22,6 +22,7 @@ from mito_ai.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING,
+    ACTIVE_CELL_ID_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     CONTENT_REMOVED_PLACEHOLDER,
 )
@@ -56,6 +57,9 @@ var3 = [1, 2, 3]
     }}
 ]
 
+{ACTIVE_CELL_ID_SECTION_HEADING}
+cell1
+
 {CODE_SECTION_HEADING}
 ```python
 def hello():
@@ -70,12 +74,14 @@ Some text after."""
     assert f"{FILES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
     assert f"{VARIABLES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
     assert f"{JUPYTER_NOTEBOOK_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
-
+    assert f"{ACTIVE_CELL_ID_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
+    
     # Verify sections are not in the result anymore
     assert "file1.csv" not in result
     assert "var1 = 1" not in result
     assert "cell_type" not in result
-
+    assert "cell1" not in result
+    
     # Verify other content is preserved
     assert "Some text before." in result
     assert "Some text after." in result
@@ -87,7 +93,7 @@ Some text after."""
 PROMPT_BUILDER_TEST_CASES = [
     # Chat prompt
     (
-        lambda: create_chat_prompt(TEST_VARIABLES, TEST_FILES, TEST_CODE, False, TEST_INPUT),
+        lambda: create_chat_prompt(TEST_VARIABLES, TEST_FILES, TEST_CODE, "cell1", False, TEST_INPUT),
         ["Your task: Calculate the mean of col1"],
         ["data.csv\nscript.py", f"{VARIABLES_SECTION_HEADING}\n'df': pd.DataFrame"],
     ),
@@ -111,11 +117,12 @@ PROMPT_BUILDER_TEST_CASES = [
     ),
     # Smart debug prompt
     (
-        lambda: create_error_prompt(TEST_ERROR, TEST_CODE, TEST_VARIABLES, TEST_FILES),
+        lambda: create_error_prompt(TEST_ERROR, TEST_CODE, "cell1", TEST_VARIABLES, TEST_FILES),
         ["Error Traceback:", TEST_ERROR],
         [
             f"{FILES_SECTION_HEADING}\ndata.csv\nscript.py",
             f"{VARIABLES_SECTION_HEADING}\n'df': pd.DataFrame",
+            f"{ACTIVE_CELL_ID_SECTION_HEADING}\ncell1",
         ],
     ),
     # Explain code prompt (doesn't have sections to trim)
@@ -162,7 +169,7 @@ def test_prompt_builder_trimming(prompt_builder: Callable[[], str], expected_in_
     # If none of the section headings are present, the content shouldn't change
     has_sections_to_trim = any(
         heading in content 
-        for heading in [FILES_SECTION_HEADING, VARIABLES_SECTION_HEADING, JUPYTER_NOTEBOOK_SECTION_HEADING]
+        for heading in [FILES_SECTION_HEADING, VARIABLES_SECTION_HEADING, JUPYTER_NOTEBOOK_SECTION_HEADING, ACTIVE_CELL_ID_SECTION_HEADING]
     )
     
     if not has_sections_to_trim:
@@ -184,6 +191,9 @@ def test_prompt_builder_trimming(prompt_builder: Callable[[], str], expected_in_
             f"{JUPYTER_NOTEBOOK_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}"
             in result
         )
+
+    if ACTIVE_CELL_ID_SECTION_HEADING in content:
+        assert f"{ACTIVE_CELL_ID_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
 
     # Verify expected content is still in the result
     for expected in expected_in_result:

@@ -10,10 +10,11 @@ import ctaButtons from './CTAButtons.module.css'
 import { classNames } from '../../utils/classNames';
 
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
+const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
 export const CALENDLY_LINK = "https://calendly.com/jake_from_mito/30min";
 
 const CTAButtons = (props: {
-    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install' | 'book a demo',
+    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install' | 'book a demo' | 'try jupyterhub',
     align: 'left' | 'center',
     displaySecondaryCTA?: boolean
     secondaryCTA?: 'pro' | 'learn more'
@@ -49,6 +50,14 @@ const CTAButtons = (props: {
                             el.scrollIntoView({behavior: 'smooth'});
                         }
                     }}
+                />
+            }
+            {props.variant === 'try jupyterhub' && 
+                <TextButton 
+                    text={props.ctaText || 'Try online'}
+                    href={JUPYTERHUB_MITO_LINK}
+                    className={props.textButtonClassName}
+                    variant='secondary'
                 />
             }
             {props.variant === 'try jupyterlite' && 

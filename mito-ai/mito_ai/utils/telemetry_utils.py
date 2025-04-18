@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import json
+import os
 from typing import Any, Dict, Literal, Optional
 from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
 from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
@@ -81,6 +82,8 @@ def identify(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) ->
         'version_mitoai': __version__,
         'email': user_email,
         'is_pro': is_pro(),
+        'is_jupyterhub': 'True' if 'JUPYTERHUB_API_URL' in os.environ else 'False',
+        'is_mito_jupyterhub': 'True' if os.getenv('MITO_JUPYTERHUB') is not None else 'False',
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
 

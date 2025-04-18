@@ -8,7 +8,7 @@ import { CodeCell } from "@jupyterlab/cells"
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID } from "./notebook"
+import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, getActiveCellID, scrollToCell } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "./websocket/models"
@@ -31,7 +31,7 @@ export const acceptAndRunCellUpdate = async (
     }
 
     // The target cell should now be the active cell
-    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode)
+    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode, cellUpdate.cell_type)
 }
 
 export const acceptAndRunCode = async (
@@ -39,6 +39,7 @@ export const acceptAndRunCode = async (
     notebookTracker: INotebookTracker,
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
+    cellType: 'code' | 'markdown'
 ): Promise<void> => {
     /* 
         PreviewAICode applies the code to the current active code cell, 
@@ -48,11 +49,24 @@ export const acceptAndRunCode = async (
     previewAICodeToActiveCell()
     acceptAICode()
 
+    // We always create code cells, and then convert to markdown if necessary.
+    if (cellType === 'markdown') {
+        await app.commands.execute("notebook:change-cell-to-markdown");
+    } else if (cellType === 'code') {
+        await app.commands.execute("notebook:change-cell-to-code");
+    }
+    
     // This awaits until after the execution is finished.
     // Note that it is important that we just run the cell and don't run and advance the cell. 
     // We rely on the active cell remaining the same after running the cell in order to get the output
     // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
     await app.commands.execute("notebook:run-cell");
+
+    // Scroll to the bottom of the active cell to show the output
+    const activeCellID = getActiveCellID(notebookTracker);
+    if (activeCellID) {
+        scrollToCell(notebookTracker, activeCellID, undefined, 'end');
+    }
 
     // By sleeping here, we make sure that this function returns after the variable manager
     // has updated the state of the variables. This ensures that on the next Ai message
@@ -120,9 +134,15 @@ export const retryIfExecutionError = async (
         }
 
         const cellUpdate = aiDisplayOptimizedChatItem.agentResponse.cell_update
-
+        
         if (cellUpdate !== undefined && cellUpdate !== null) {
-            await acceptAndRunCellUpdate(cellUpdate, notebookTracker, app, previewAICodeToActiveCell, acceptAICode)
+            await acceptAndRunCellUpdate(
+                cellUpdate, 
+                notebookTracker, 
+                app,
+                previewAICodeToActiveCell, 
+                acceptAICode
+            )
         }
 
         attempts++;

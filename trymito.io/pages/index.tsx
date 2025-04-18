@@ -56,7 +56,7 @@ const Home: NextPage = () => {
                 - Write Python 4x faster. Take the test.
                 - Don't know how to code? Now you do.
               */}
-              Jupyter Extensions That Help You Work Faster.
+              The Jupyter-based Data Copilot
             </h1>
 
             <h2 className={titleStyles.description}>
@@ -66,6 +66,7 @@ const Home: NextPage = () => {
             <div className={homeStyles.cta_button_and_video_spacer}>
               <div className={homeStyles.cta_buttons_homepage_container}>
                 <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+                {/* <CTAButtons variant='try jupyterhub' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/> */}
               </div>
             </div>
 

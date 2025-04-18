@@ -3,6 +3,7 @@
 
 from typing import List
 from mito_ai.prompt_builders.prompt_constants import (
+    ACTIVE_CELL_ID_SECTION_HEADING,
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING
@@ -12,12 +13,13 @@ from mito_ai.prompt_builders.prompt_constants import (
 def create_error_prompt(
     error_message: str,
     active_cell_code: str,
+    active_cell_id: str,
     variables: List[str],
     files: List[str]
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
-    return f"""You are debugging code in a JupyterLab 4 notebook. Analyze the error and provide a solution that maintains the original intent.
+    return f"""Help me debug this code in JupyterLab. Analyze the error and provide a solution that maintains the original intent.
 
 <Example 1>
 {FILES_SECTION_HEADING}
@@ -33,6 +35,9 @@ file_name: sales.csv
         'total_price': [10, 19.98, 13.99, 84.00, 500]
     }})
 }}
+
+{ACTIVE_CELL_ID_SECTION_HEADING}
+'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
 
 {CODE_SECTION_HEADING}
 ```python
@@ -81,6 +86,9 @@ The DataFrame contains 'total_price' rather than 'price'. Updated column referen
         'amount': [100, 150, 299, 99]
     }})
 }}
+
+{ACTIVE_CELL_ID_SECTION_HEADING}
+'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
 
 {CODE_SECTION_HEADING}
 ```python
@@ -147,6 +155,7 @@ Solution Requirements:
 - Reuse as much of the existing code as possible.
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
 - The code in the SOLUTION section should be a python code block starting with ```python and ending with ```
+- If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
 
 Here is your task. 
 
@@ -155,6 +164,9 @@ Here is your task.
 
 {VARIABLES_SECTION_HEADING}
 {variables_str}
+
+{ACTIVE_CELL_ID_SECTION_HEADING}
+{active_cell_id}
 
 {CODE_SECTION_HEADING}
 ```python
