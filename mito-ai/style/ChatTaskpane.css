@@ -134,3 +134,47 @@
   width: 32px;
   padding: 0;
 }
+
+/* Add suggestion box container styling */
+.chat-suggestions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin: 8px 0;
+  /* smooth scrolling on touch devices */
+  -webkit-overflow-scrolling: touch;
+  /* fade out at right edge when content overflows */
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+}
+
+/* Add individual suggestion box styling */
+.suggestion-box {
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  flex-shrink: 0;
+  /* wrap text onto multiple lines */
+  white-space: normal;
+  text-align: center;
+  /* limit width for wrapping into two lines */
+  max-width: 140px;
+  /* align content vertically */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.suggestion-box:hover {
+  background-color: var(--jp-border-color2);
+}
