@@ -58,6 +58,7 @@ class MessageType(Enum):
     FETCH_HISTORY = "fetch_history"
     GET_THREADS = "get_threads"
     DELETE_THREAD = "delete_thread"
+    UPDATE_MODEL_CONFIG = "update_model_config"
     
 @dataclass(frozen=True)
 class AIOptimizedCell():
@@ -356,3 +357,8 @@ class DeleteThreadReply:
 
     # Message type.
     type: Literal["reply"] = "reply"
+
+
+@dataclass(frozen=True)
+class UpdateModelConfigMetadata:
+    model: str

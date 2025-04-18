@@ -68,6 +68,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
+import ModelSelector from "../../components/ModelSelector";
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -139,6 +140,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+
+    const updateModelOnBackend = async (model: string): Promise<void> => {
+      try {
+        await websocketClient.sendMessage({
+          type: "update_model_config",
+          message_id: UUID.uuid4(),
+          metadata: {
+            promptType: "update_model_config",
+            model: model
+          },
+          stream: false
+        });
+
+        console.log('Model configuration updated on backend:', model);
+      } catch (error) {
+        console.error('Failed to update model configuration on backend:', error);
+      }
+    };
 
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
@@ -1128,6 +1147,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         <div className="chat-taskpane">
+            <ModelSelector onConfigChange={(config) => {
+                // Just update the backend
+                updateModelOnBackend(config.model);
+              }}/>
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-buttons">
                     <IconButton

@@ -70,6 +70,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
+        # Track the active model to know when to rebuild the client
+        self._active_model = None
 
     @default("api_key")
     def _api_key_default(self) -> Optional[str]:
@@ -129,7 +131,7 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
-        
+
         if is_azure_openai_configured():
             return AICapabilities(
                 configuration={
@@ -138,7 +140,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Azure OpenAI",
             )
 
-        if constants.OLLAMA_MODEL and not self.api_key:
+        # Check for active Ollama model first
+        active_ollama = constants.get_active_model('ollama')
+        if active_ollama and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": active_ollama
+                },
+                provider="Ollama",
+            )
+        elif constants.OLLAMA_MODEL and not self.api_key:
             return AICapabilities(
                 configuration={
                     "model": constants.OLLAMA_MODEL
@@ -146,7 +157,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Ollama",
             )
 
-        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+        # Check for active Claude model
+        active_claude = constants.get_active_model('claude')
+        if active_claude and constants.CLAUDE_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": active_claude
+                },
+                provider="Claude",
+            )
+        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
             return AICapabilities(
                 configuration={
                     "model": constants.CLAUDE_MODEL
@@ -154,7 +174,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Claude",
             )
 
-        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+        # Check for active Gemini model
+        active_gemini = constants.get_active_model('gemini')
+        if active_gemini and constants.GEMINI_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": active_gemini
+                },
+                provider="Gemini",
+            )
+        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
             return AICapabilities(
                 configuration={
                     "model": constants.GEMINI_MODEL
@@ -162,12 +191,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Gemini",
             )
 
+        # Check for active OpenAI model or user API key
+        active_openai = constants.get_active_model('openai')
         if self.api_key:
             self._validate_api_key(self.api_key)
-
+            model = active_openai or OPENAI_MODEL_FALLBACK
             return AICapabilities(
                 configuration={
-                    "model": OPENAI_MODEL_FALLBACK,
+                    "model": model,
                 },
                 provider="OpenAI (user key)",
             )
@@ -178,6 +209,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.log.warning("Failed to set first usage date in user.json", exc_info=e)
             self.last_error = CompletionError.from_exception(e)
 
+        # Default to Mito server
         return AICapabilities(
             configuration={
                 "model": OPENAI_MODEL_FALLBACK,
@@ -187,8 +219,14 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def _active_async_client(self) -> Optional[openai.AsyncOpenAI]:
-        if not self._async_client or self._async_client.is_closed():
+        # Get the current active model
+        current_model = self._resolve_model()
+
+        # If model has changed or client is closed, rebuild the client
+        if self._active_model != current_model or not self._async_client or self._async_client.is_closed():
+            self._active_model = current_model
             self._async_client = self._build_openai_client()
+
         return self._async_client
 
     @property
@@ -198,13 +236,16 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self.api_key:
             return USER_KEY
 
-        if constants.OLLAMA_MODEL:
+        active_ollama = constants.get_active_model('ollama')
+        if active_ollama or constants.OLLAMA_MODEL:
             return "ollama"
 
-        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+        active_claude = constants.get_active_model('claude')
+        if (active_claude or constants.CLAUDE_MODEL) and constants.CLAUDE_API_KEY:
             return "claude"
 
-        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+        active_gemini = constants.get_active_model('gemini')
+        if (active_gemini or constants.GEMINI_MODEL) and constants.GEMINI_API_KEY:
             return "gemini"
 
         return MITO_SERVER_KEY
@@ -212,10 +253,10 @@ This attribute is observed by the websocket provider to push the error to the cl
     def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
         llm_api_key = None
-        
+
         if is_azure_openai_configured():
             self.log.debug(f"Using Azure OpenAI with model: {constants.AZURE_OPENAI_MODEL}")
-                
+
             # The format for using Azure OpenAI is different than using
             # other providers, so we have a special case for it here.
             # Create Azure OpenAI client with explicit arguments
@@ -226,22 +267,42 @@ This attribute is observed by the websocket provider to push the error to the cl
                 max_retries=self.max_retries,
                 timeout=self.timeout,
             )
-        
-        elif constants.OLLAMA_MODEL and not self.api_key:
+
+        # Check for active Ollama model
+        active_ollama = constants.get_active_model('ollama')
+        if (active_ollama or constants.OLLAMA_MODEL) and not self.api_key:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
-            self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
-        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            model_name = active_ollama or constants.OLLAMA_MODEL
+            self.log.debug(f"Using Ollama with model: {model_name}")
+
+        # Check for active Claude model
+        elif active_claude := constants.get_active_model('claude'):
+            if constants.CLAUDE_API_KEY and not self.api_key:
+                base_url = constants.CLAUDE_BASE_URL
+                llm_api_key = constants.CLAUDE_API_KEY
+                self.log.debug(f"Using Claude with model: {active_claude}")
+        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
             base_url = constants.CLAUDE_BASE_URL
             llm_api_key = constants.CLAUDE_API_KEY
-            self.log.debug(f" Using Claude with model: {constants.CLAUDE_MODEL}")
-        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            self.log.debug(f"Using Claude with model: {constants.CLAUDE_MODEL}")
+
+        # Check for active Gemini model
+        elif active_gemini := constants.get_active_model('gemini'):
+            if constants.GEMINI_API_KEY and not self.api_key:
+                base_url = constants.GEMINI_BASE_URL
+                llm_api_key = constants.GEMINI_API_KEY
+                self.log.debug(f"Using Gemini with model: {active_gemini}")
+        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
             base_url = constants.GEMINI_BASE_URL
             llm_api_key = constants.GEMINI_API_KEY
             self.log.debug(f"Using Gemini with model: {constants.GEMINI_MODEL}")
+
         elif self.api_key:
             llm_api_key = self.api_key
-            self.log.debug("Using OpenAI with user-provided API key")
+            active_openai = constants.get_active_model('openai')
+            model_name = active_openai or OPENAI_MODEL_FALLBACK
+            self.log.debug(f"Using OpenAI with user-provided API key and model: {model_name}")
         else:
             self.log.warning("No valid API key or model configuration provided")
             return None
@@ -256,16 +317,45 @@ This attribute is observed by the websocket provider to push the error to the cl
         return client
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
+        """
+        Resolve which model to use, with the following priority:
+        1. Explicitly passed model parameter
+        2. Active model set by UI
+        3. Environment variable model
+        4. Fallback default
+        """
+        if model:
+            return model
+
         if is_azure_openai_configured():
             return constants.AZURE_OPENAI_MODEL or OPENAI_MODEL_FALLBACK
+
+        # Check for active models first (set from UI)
+        active_ollama = constants.get_active_model('ollama')
+        if active_ollama and not self.api_key:
+            return active_ollama
+
+        active_claude = constants.get_active_model('claude')
+        if active_claude and constants.CLAUDE_API_KEY and not self.api_key:
+            return active_claude
+
+        active_gemini = constants.get_active_model('gemini')
+        if active_gemini and constants.GEMINI_API_KEY and not self.api_key:
+            return active_gemini
+
+        active_openai = constants.get_active_model('openai')
+        if active_openai and self.api_key:
+            return active_openai
+
+        # Fall back to environment variable models
         if constants.OLLAMA_MODEL and not self.api_key:
             return constants.OLLAMA_MODEL
         elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
             return constants.CLAUDE_MODEL
         elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
             return constants.GEMINI_MODEL
-        elif model:
-            return model
+
+        # Final fallback
         return OPENAI_MODEL_FALLBACK
 
     async def request_completions(
@@ -359,7 +449,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # Validate that the model is supported.
         model = self._resolve_model(model)
-            
+
         # Send initial acknowledgment
         reply_fn(CompletionReply(
             items=[

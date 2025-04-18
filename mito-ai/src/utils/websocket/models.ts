@@ -61,7 +61,8 @@ type CompletionRequestMetadata =
   IGetThreadsMetadata |
   IDeleteThreadMetadata |
   IAgentExecutionMetadata | 
-  IAgentSmartDebugMetadata
+  IAgentSmartDebugMetadata |
+  IUpdateModelConfigMetadata
 
 export interface IChatMessageMetadata {
   promptType: 'chat'
@@ -140,6 +141,16 @@ export interface IGetThreadsMetadata {
 export interface IDeleteThreadMetadata {
   promptType: 'delete_thread'
   thread_id: string;
+}
+
+export interface IUpdateModelConfigRequest extends ICompletionRequest {
+  type: 'update_model_config'
+  metadata: IUpdateModelConfigMetadata
+}
+
+export interface IUpdateModelConfigMetadata {
+  promptType: 'update_model_config'
+  model: string;
 }
 
 /* 
