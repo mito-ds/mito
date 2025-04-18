@@ -94,6 +94,9 @@ setup(
         "tornado>=6.2.0",
         "traitlets",
         "pydantic",
+        "googlesearch-python",
+        "langchain-huggingface",
+        "langchain-experimental"
     ],
     extras_require = {
         'deploy': [
