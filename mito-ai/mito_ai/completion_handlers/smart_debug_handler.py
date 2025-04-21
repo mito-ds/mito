@@ -20,7 +20,6 @@ from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.completion_handlers.utils import append_chat_system_message
-from mito_ai.utils.rag_util import find_solutions
 
 __all__ = ["get_smart_debug_completion", "stream_smart_debug_completion"]
 
@@ -46,10 +45,8 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         # Add the system message if it doesn't alredy exist
         await append_chat_system_message(message_history, provider, thread_id)
 
-        rag_context = find_solutions(error_message)
-
         # Create the prompt
-        prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files, rag_context)
+        prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files)
         display_prompt = (
             f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
         )
@@ -123,10 +120,9 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
 
         # Add the system message if it doesn't already exist
         await append_chat_system_message(message_history, provider, thread_id)
-        rag_context = find_solutions(error_message)
 
         # Create the prompt
-        prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files, rag_context)
+        prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files)
         display_prompt = (
             f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
         )

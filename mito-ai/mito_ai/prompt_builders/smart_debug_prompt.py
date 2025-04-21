@@ -15,8 +15,7 @@ def create_error_prompt(
     active_cell_code: str,
     active_cell_id: str,
     variables: List[str],
-    files: List[str],
-    extra_context: Optional[str] = None
+    files: List[str]
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
@@ -183,8 +182,6 @@ INTENT ANALYSIS:
 SOLUTION:
 
 
-Note: You could use the additional context provided below, if it is not empty. Know that not everything in this context may be relevant and it is your work to extract the relevant information from the below information and use it to come up with your solution. The information below may contain more recent data, and could be used along with your prior knowledge to come up with a solution.
-{extra_context}
 """
 
 
