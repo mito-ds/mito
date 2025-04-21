@@ -95,8 +95,10 @@ setup(
         "traitlets",
         "pydantic",
         "googlesearch-python",
-        "langchain-huggingface",
-        "langchain-experimental"
+        "trafilatura",
+        "lxml_html_clean",
+        "numpy>=1.24.0",
+        "keybert"
     ],
     extras_require = {
         'deploy': [
