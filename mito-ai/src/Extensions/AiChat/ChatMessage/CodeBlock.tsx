@@ -40,14 +40,12 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 }): JSX.Element => {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const numCodePreviewLines = 5;
-    const isCodeExpandable = code.split('\n').length > numCodePreviewLines;
-
-
     if (role === 'user') {
-        const previewCode = code.split('\n').slice(0, numCodePreviewLines).join('\n') + (
-            isCodeExpandable ? '\n\n': ''
-        );
+
+        const numCodePreviewLines = 5;
+        const isCodeExpandable = code.split('\n').length > numCodePreviewLines;
+        const previewCode = code.split('\n').slice(0, numCodePreviewLines).join('\n')
+
         return (
             <div 
                 className='code-block-container active-cell-code-block' 
