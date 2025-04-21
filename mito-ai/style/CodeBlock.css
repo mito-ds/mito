@@ -70,10 +70,16 @@
   width: 100%;
   background-color: var(--chat-background-color);
   transition: background-color 0.2s;
+  cursor: pointer;
 }
 
 .code-block-expand-button:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.code-block-expand-button svg {
+  display: block;
+  margin: 0;
 }
 
 .code-block-expand-button .icon-button {

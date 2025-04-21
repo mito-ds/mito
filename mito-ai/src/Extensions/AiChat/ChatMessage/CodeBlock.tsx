@@ -61,13 +61,13 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                 {isCodeExpandable && (
                     <div 
                         className='code-block-expand-button'
-                        onClick={(e) => e.stopPropagation()}
+                        title={isExpanded ? "Collapse" : "Expand"}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsExpanded(!isExpanded);
+                        }}
                     >
-                        <IconButton
-                            icon={<ExpandIcon isExpanded={isExpanded} />}
-                            title={isExpanded ? "Collapse" : "Expand"}
-                            onClick={() => setIsExpanded(!isExpanded)}
-                        />
+                        <ExpandIcon isExpanded={isExpanded} />  
                     </div>
                 )}
             </div>
