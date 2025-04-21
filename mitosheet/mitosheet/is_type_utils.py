@@ -32,6 +32,9 @@ def is_datetime_dtype(dtype: str) -> bool:
 def is_timedelta_dtype(dtype: str) -> bool:
     return 'timedelta' in dtype
 
+def is_period_dtype(dtype: str) -> bool:
+    return 'period' in dtype
+
 def is_number_dtype(dtype: str) -> bool:
     return is_int_dtype(dtype) or is_float_dtype(dtype)
 
@@ -42,8 +45,8 @@ def is_none_type(value: Union[str, None]) -> bool:
     return True if value is None or str(value).lower() in ['nan', 'nat'] else False
 
 
-def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], List[Any]]:
-    float_columns, date_columns, timedelta_columns = [], [], []
+def get_float_dt_td_period_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], List[Any], List[Any]]:
+    float_columns, date_columns, timedelta_columns, period_columns = [], [], [], []
     for column_header in df.columns:
         dtype = str(df[column_header].dtype)
         # NOTE: these functions are called frequently, so we put them in 
@@ -54,5 +57,7 @@ def get_float_dt_td_columns(df: pd.DataFrame) -> Tuple[List[Any], List[Any], Lis
             date_columns.append(column_header)
         elif is_timedelta_dtype(dtype):
             timedelta_columns.append(column_header)
+        elif is_period_dtype(dtype):
+            period_columns.append(column_header)
 
-    return float_columns, date_columns, timedelta_columns
+    return float_columns, date_columns, timedelta_columns, period_columns
