@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Optional
+from typing import List
 from mito_ai.prompt_builders.prompt_constants import (
     ACTIVE_CELL_ID_SECTION_HEADING,
     FILES_SECTION_HEADING,
@@ -180,8 +180,6 @@ ERROR ANALYSIS:
 INTENT ANALYSIS:
 
 SOLUTION:
-
-
 """
 
 
