@@ -96,8 +96,6 @@ setup(
         "pydantic",
         "googlesearch-python",
         "trafilatura",
-        "lxml_html_clean",
-        "numpy>=1.24.0",
         "keybert"
     ],
     extras_require = {
