@@ -6,11 +6,18 @@
 .code-block-container {
   display: flex;
   flex-direction: column;
+  position: relative;
+  margin: 10px 0;
 
   background-color: var(--chat-background-color);
-  border-radius: 3px;
+  border-radius: 4px;
   border: 1px solid var(--grey-300);
   overflow: hidden;
+}
+
+.code-content {
+  width: 100%;
+  overflow-x: auto;
 }
 
 .code-block-toolbar {
@@ -54,4 +61,24 @@
   opacity: 1;
   transition: 0.3s;
 }
+
+.code-block-expand-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+  width: 100%;
+  background-color: var(--chat-background-color);
+  transition: background-color 0.2s;
+}
+
+.code-block-expand-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.code-block-expand-button .icon-button {
+  background-color: transparent;
+}
+
+
 

@@ -14,6 +14,7 @@ import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import { CodeReviewStatus } from '../ChatTaskpane';
 import AcceptIcon from '../../../icons/AcceptIcon';
 import RejectIcon from '../../../icons/RejectIcon';
+import ExpandIcon from '../../../icons/ExpandIcon';
 
 
 interface ICodeBlockProps {
@@ -39,9 +40,13 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 }): JSX.Element => {
     const [isExpanded, setIsExpanded] = useState(false);
 
+    const numCodePreviewLines = 5;
+    const isCodeExpandable = code.split('\n').length > numCodePreviewLines;
+
+
     if (role === 'user') {
-        const previewCode = code.split('\n').slice(0, 5).join('\n') + (
-            code.split('\n').length > 5 ? '\n\n# click to see full input...' : ''
+        const previewCode = code.split('\n').slice(0, numCodePreviewLines).join('\n') + (
+            isCodeExpandable ? '\n\n': ''
         );
         return (
             <div 
@@ -53,6 +58,18 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                     code={isExpanded ? code : previewCode}
                     renderMimeRegistry={renderMimeRegistry}
                 />
+                {isCodeExpandable && (
+                    <div 
+                        className='code-block-expand-button'
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <IconButton
+                            icon={<ExpandIcon isExpanded={isExpanded} />}
+                            title={isExpanded ? "Collapse" : "Expand"}
+                            onClick={() => setIsExpanded(!isExpanded)}
+                        />
+                    </div>
+                )}
             </div>
         )
     }
