@@ -50,6 +50,7 @@ export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeC
 
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+
     if (cell instanceof CodeCell) {
         const outputNode = cell.outputArea?.node;
         if (outputNode) {
