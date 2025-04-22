@@ -1,5 +1,5 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { ICellModel, CodeCell } from '@jupyterlab/cells';
+import { ICellModel } from '@jupyterlab/cells';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
 
@@ -12,68 +12,6 @@ const getCellContent = (cell: ICellModel): string => {
 const getCellType = (cell: ICellModel): string => {
   return cell.type;
 };
-
-// Helper function to check if a cell output contains a dataframe
-const hasDataframeOutput = (cell: CodeCell): boolean => {
-  const outputs = cell.model.outputs;
-  
-  for (let i = 0; i < outputs.length; i++) {
-    const output = outputs.get(i);
-    
-    // Check for dataframe output types
-    const mimeTypes = output.data ? Object.keys(output.data) : [];
-    
-    // Common mime types for dataframe outputs
-    const dataframeMimeTypes = [
-      'application/vnd.dataframe+json',
-      //'application/vnd.jupyter.widget-view+json', // For widget-based dataframes
-      'text/html' // Often used for rendered dataframes
-    ];
-    
-    // If any of the mime types match dataframe types
-    if (mimeTypes.some(type => dataframeMimeTypes.includes(type))) {
-      // Check content in HTML to confirm it looks like a dataframe table
-      if (output.data['text/html']) {
-        const html = output.data['text/html'] as string;
-        // Check for typical dataframe HTML patterns (table with pandas styling)
-        if (html.includes('<table') && 
-            (html.includes('dataframe') || html.includes('pandas') || 
-             html.includes('<tbody>') || html.includes('<tr>'))) {
-          return true;
-        }
-      }
-      
-      // For other dataframe types, trust the mime type
-      if (output.data['application/vnd.dataframe+json']) {
-        return true;
-      }
-    }
-  }
-  
-  return false;
-};
-
-// Extract variable name from a code cell
-// const extractDisplayedVariable = (cellContent: string): string | null => {
-//   // Clean up the content and trim whitespace
-//   const trimmedContent = cellContent.trim();
-  
-//   // If the cell just contains a variable name (and potentially comments), it's the displayed variable
-//   const variableDisplayRegex = /^(\s*#.*\n)*\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(\s*#.*)?$/;
-//   const match = trimmedContent.match(variableDisplayRegex);
-  
-//   if (match) {
-//     const potentialVariable = match[2];
-    
-//     // Ignore common Python keywords and functions
-//     const pythonKeywords = ['if', 'else', 'elif', 'for', 'while', 'def', 'class', 'return', 'import', 'from', 'print'];
-//     if (!pythonKeywords.includes(potentialVariable)) {
-//       return potentialVariable;
-//     }
-//   }
-  
-//   return null;
-// };
 
 // Convert notebook to Streamlit app
 export const convertToStreamlit = async (
@@ -103,53 +41,49 @@ export const convertToStreamlit = async (
   ];
   
   // Process each cell
-  const cells = notebookPanel.content.widgets;
-  for (let i = 0; i < cells.length; i++) {
-    const cellWidget = cells[i];
-    const cellModel = cellWidget?.model;
-    if (!cellModel) {
-      continue;
-    }
+  notebookPanel.content.widgets.forEach((cellWidget) => {
+    const cellModel = cellWidget.model;
     const cellType = getCellType(cellModel);
     const cellContent = getCellContent(cellModel);
+
+    console.log(cellType, cellContent)
     
     if (cellType === 'markdown') {
       // Convert markdown cells to st.markdown
       const escapedContent = cellContent.replace(/"""/g, '\\"\\"\\"');
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
       streamlitCode.push("");
+
+      // Note: The single # Heading markdown in Streamlit is as big as the title, maybe larger.
+      // So we might want to downsize them all by one or something.
     } 
     else if (cellType === 'code') {
-      // Include the original code
+      // For now, just include code cells as Python code with a comment
       streamlitCode.push("# Original code cell:");
       streamlitCode = streamlitCode.concat(cellContent.split('\n'));
-      
-      // Check if this cell has dataframe output
-      if (cellWidget instanceof CodeCell && hasDataframeOutput(cellWidget)) {
-        // Try to extract the variable being displayed
-        //const variableName = extractDisplayedVariable(cellContent);
-        const variableName = "df"
-        
-        if (variableName) {
-          streamlitCode.push("");
-          streamlitCode.push(`# Display dataframe`);
-          streamlitCode.push(`st.dataframe(${variableName})`);
-        } else {
-          // If we couldn't identify the variable but the output is a dataframe,
-          // add a comment suggesting the user might need to manually add display code
-          streamlitCode.push("");
-          streamlitCode.push(`# NOTE: Dataframe output detected, but couldn't determine variable name.`);
-          streamlitCode.push(`# You may need to manually add "st.dataframe(...)" for this content.`);
-        }
-      }
-      
       streamlitCode.push("");
-    }
-  }
 
-  console.log(`Creating the file: ${outputPath}`);
+        /* 
+        Dispalying dataframes:
+        It turns out that streamlit autoamtically renders dataframes if they are hanging on a line of code by themselves. 
+        This is pretty close to what Jupyter does except that in Jupyter the dataframe has to be the final line of code in the code cell. 
+        In Streamlit, since there are no code cells, that is not the case. 
+
+        This will take care of the mito default dataframe output since we don't write any new code to display that dataframe. Sweet!
+        However, this will not automatically handle:
+        1. When the user does display(df) which the Ai sometimes does. This is almost never written by users, so maybe we shold just some prompt 
+        engineering to handle this.
+        2. If the user has a mitosheet.sheet() call. In that case, maybe we should convert it to a mito spreadsheet component. This should be 
+        pretty easy to detect I think! 
+        */
+    }
+  });
+
+
+  console.log(`Creating the file: ${outputPath}`)
   const streamlitSourceCode = streamlitCode.join('\n');
-  console.log(streamlitSourceCode);
+  console.log(streamlitSourceCode)
+
 
   // Eventually, we will write this to a file, but there is no uncertainty here, so we're skipping it for now. 
 };
