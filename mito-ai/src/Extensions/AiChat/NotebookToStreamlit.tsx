@@ -53,6 +53,9 @@ export const convertToStreamlit = async (
       const escapedContent = cellContent.replace(/"""/g, '\\"\\"\\"');
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
       streamlitCode.push("");
+
+      // Note: The single # Heading markdown in Streamlit is as big as the title, maybe larger.
+      // So we might want to downsize them all by one or something.
     } 
     else if (cellType === 'code') {
       // For now, just include code cells as Python code with a comment
