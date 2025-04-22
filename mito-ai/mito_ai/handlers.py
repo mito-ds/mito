@@ -192,6 +192,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
                 self.log.info(f"Model updated to: {model}")
 
+                # Force refresh model in the provider
+                self._llm._active_model = None
+                self._llm._async_client = None
+
                 reply = CompletionReply(
                     items=[CompletionItem(content=f"Model updated to {model}", isIncomplete=False)],
                     parent_id=parsed_message.get('message_id')

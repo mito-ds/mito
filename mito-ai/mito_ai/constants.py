@@ -3,11 +3,8 @@
 
 import os
 
-# Active model selections (updated by UI)
-ACTIVE_CLAUDE_MODEL = None
-ACTIVE_GEMINI_MODEL = None
-ACTIVE_OLLAMA_MODEL = None
-ACTIVE_OPENAI_MODEL = None
+# Single active model selection (updated by UI)
+ACTIVE_MODEL = None
 
 # Claude Base URL
 CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL")
@@ -35,51 +32,44 @@ AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
 
 def set_active_model(model):
     """
-    Set the active model based on the model prefix.
+    Set the active model.
     This will override the environment variable settings.
     """
-    global ACTIVE_CLAUDE_MODEL, ACTIVE_GEMINI_MODEL, ACTIVE_OLLAMA_MODEL, ACTIVE_OPENAI_MODEL
-
-    # Reset all active models
-    ACTIVE_CLAUDE_MODEL = None
-    ACTIVE_GEMINI_MODEL = None
-    ACTIVE_OLLAMA_MODEL = None
-    ACTIVE_OPENAI_MODEL = None
-
-    # Set the appropriate active model based on the prefix
-    if model.startswith('claude'):
-        ACTIVE_CLAUDE_MODEL = model
-    elif model.startswith('gemini'):
-        ACTIVE_GEMINI_MODEL = model
-    elif model.startswith('ollama'):
-        ACTIVE_OLLAMA_MODEL = model
-    elif model.startswith('gpt') or model.startswith('o3'):
-        ACTIVE_OPENAI_MODEL = model
-
+    global ACTIVE_MODEL
+    ACTIVE_MODEL = model
     return model
 
 
-def get_active_model(model_type=None):
+def get_active_model():
     """
-    Get the active model for a given type, with fallback to env variables
+    Get the active model with fallback to env variables
     """
-    if model_type == 'claude':
-        return ACTIVE_CLAUDE_MODEL or CLAUDE_MODEL
-    elif model_type == 'gemini':
-        return ACTIVE_GEMINI_MODEL or GEMINI_MODEL
-    elif model_type == 'ollama':
-        return ACTIVE_OLLAMA_MODEL or OLLAMA_MODEL
-    elif model_type == 'openai':
-        return ACTIVE_OPENAI_MODEL or None
+    # Return the active model if set
+    if ACTIVE_MODEL:
+        return ACTIVE_MODEL
 
-    # If no type specified, return the first active model
-    for model in [ACTIVE_CLAUDE_MODEL, ACTIVE_GEMINI_MODEL, ACTIVE_OLLAMA_MODEL, ACTIVE_OPENAI_MODEL]:
-        if model:
-            return model
-
-    # Default to environment variables if no active models
+    # Default to environment variables if no active model
     for model in [CLAUDE_MODEL, GEMINI_MODEL, OLLAMA_MODEL]:
         if model:
             return model
+
+    return None
+
+
+def get_model_type(model):
+    """
+    Determine the model type based on the model name prefix
+    """
+    if not model:
+        return None
+
+    if model.startswith('claude'):
+        return 'claude'
+    elif model.startswith('gemini'):
+        return 'gemini'
+    elif model.startswith('ollama'):
+        return 'ollama'
+    elif model.startswith('gpt') or model.startswith('o3'):
+        return 'openai'
 
     return None
