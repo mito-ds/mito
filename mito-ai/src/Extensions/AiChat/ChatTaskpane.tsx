@@ -68,6 +68,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
+import { convertToStreamlit } from './NotebookToStreamlit';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1131,6 +1132,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-buttons">
+                    <div>
+                        <button onClick={() => {
+                            console.log(convertToStreamlit(notebookTracker))
+                        }}> 
+                            Streamlit
+                        </button>
+                    </div>
                     <IconButton
                         icon={<SupportIcon />}
                         title="Get Help"
