@@ -160,24 +160,49 @@ const transformMitoAppInput = (line: string): string => {
 
   console.log("Input string", line)
 
-  const textInputIdentifer = 'mito_app_text_input'
-  
-  if (line.startsWith(textInputIdentifer)) {
+  const getVariableNameDefaultAndLabel = (line: string, identifier: string): [string, string, string] => {
     // Split on the equal sign to get the variable name. We must use this full
     // name because its what the python script uses. 
-    const variableName = line.split(' ')[0]?.trim()
+    const variableName = line.split(' ')[0]?.trim() || ''
 
-    // Split on the text input identifier to get the unique label for this variable
-    let variableLabel = variableName?.split(textInputIdentifer)[1]
-    if (variableLabel?.startsWith("_")) {
+    // Split on the identifier to get the unique label for this variable
+    let variableLabel = variableName?.split(identifier)[1] || ''
+    
+    if (variableLabel.startsWith("_")) {
       variableLabel = variableLabel.slice(1)
     }
 
     // Get the value after the equal sign to get the default value for the variable
-    const defaultValue = line.split('=')[1]?.trim()
+    const defaultValue = line.split('=')[1]?.trim() || ''
 
+    return [variableName, variableLabel, defaultValue]
+  } 
+
+  const textInputIdentifer = 'mito_app_text_input'
+  if (line.startsWith(textInputIdentifer)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, textInputIdentifer)
     return `${variableName} = st.text_input('${variableLabel}', ${defaultValue})`
-    
+  }
+
+  const numberInputIdentifier = 'mito_app_number_input'
+  if (line.startsWith(numberInputIdentifier)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, numberInputIdentifier)
+    return `${variableName} = st.number_input('${variableLabel}', ${defaultValue})`
+  }
+
+  const dateInputIdentifier = 'mito_app_date_input'
+  if (line.startsWith(dateInputIdentifier)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, dateInputIdentifier)
+
+    // The user is responsible for making sure the right hand side is a valid option:
+    // "today", datetime.date, datetime.datetime, "YYYY-MM-DD". 
+    return `${variableName} = st.date_input('${variableLabel}', ${defaultValue})`
+  }
+
+  const booleanInputIdentifier = 'mito_app_boolean_input'
+  if (line.startsWith(booleanInputIdentifier)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, booleanInputIdentifier)
+    return `${variableName} = st.checkbox('${variableLabel}', ${defaultValue})`
   }
 
   // If there was no text_input to create, then just return the original line.
