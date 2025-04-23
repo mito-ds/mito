@@ -46,6 +46,7 @@ from mito_ai.completion_handlers.inline_completer_handler import get_inline_comp
 from mito_ai.completion_handlers.agent_execution_handler import get_agent_execution_completion
 from mito_ai.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
+from mito_ai.utils.telemetry_utils import identify
 
 
 # The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
@@ -66,7 +67,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
         self.is_pro = is_pro()
-
+        
+        # Re-identify the user the user once we have the key type so that 
+        # we can check if the user is on the mito server or their own key
+        identify(llm.key_type)
+        
     @property
     def log(self) -> logging.Logger:
         """Use Mito AI logger"""
