@@ -66,7 +66,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
         self.is_pro = is_pro()
-
+        initialize_user(llm.key_type)
+        
     @property
     def log(self) -> logging.Logger:
         """Use Mito AI logger"""

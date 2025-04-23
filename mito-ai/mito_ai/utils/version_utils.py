@@ -38,13 +38,17 @@ def is_pro() -> bool:
     Helper function for returning if this is a
     pro deployment of mito
     """
+    
+    print("IN IS PRO")
 
     # This package overides the user.json
     if MITOSHEET_HELPER_PRO:
+        print('here')
         return True
 
     # This package overides the user.json
     if MITOSHEET_PRIVATE:
+        print('here2')
         return True
 
     # Check if the config is set
@@ -53,12 +57,15 @@ def is_pro() -> bool:
 
     # If you're on Mito Enterprise, then you get all Mito Pro features
     if is_enterprise():
+        print('here3')
         return True
 
     pro = get_user_field(UJ_MITOSHEET_PRO)
     if pro is None:
+        print('here4')
         return False
     
+    print('here5')
     return bool(pro)
 
 def is_enterprise() -> bool:

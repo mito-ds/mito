@@ -57,7 +57,7 @@ def try_create_user_json_file() -> None:
             set_user_field(UJ_USER_EMAIL, GITHUB_ACTION_EMAIL)
 
 
-def initialize_user(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> None:
+def initialize_user(key_type: Optional[str] = None) -> None:
     """
     Internal helper function that gets called whenever a ai completion is requested.
 
