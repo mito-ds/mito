@@ -1,5 +1,5 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { ICellModel } from '@jupyterlab/cells';
+import { CodeCell, ICellModel } from '@jupyterlab/cells';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
 
@@ -11,6 +11,188 @@ const getCellContent = (cell: ICellModel): string => {
 // Helper function to get cell type
 const getCellType = (cell: ICellModel): string => {
   return cell.type;
+};
+
+// Helper function to check if a cell output contains a visualization
+const detectVisualizationType = (cell: CodeCell): {
+  hasViz: boolean;
+  vizType: 'plotly' | 'matplotlib' | null;
+} => {
+  const outputs = cell.model.outputs;
+  
+  for (let i = 0; i < outputs.length; i++) {
+    const output = outputs.get(i);
+    const mimeTypes = output.data ? Object.keys(output.data) : [];
+    
+    // Check for Plotly-specific output types
+    if (mimeTypes.includes('application/vnd.plotly.v1+json')) {
+      return { hasViz: true, vizType: 'plotly' };
+    }
+    
+    // For Matplotlib, look for image outputs
+    if (mimeTypes.includes('image/png') || mimeTypes.includes('image/svg+xml')) {
+      // For matplotlib, we need to examine the HTML data if available
+      if (mimeTypes.includes('text/html')) {
+        const html = output.data['text/html'] as string;
+        
+        // If the HTML contains plotly.js references, it's likely a plotly chart
+        if (html.includes('plotly') || html.includes('Plotly')) {
+          return { hasViz: true, vizType: 'plotly' };
+        }
+      }
+      
+      // Default to matplotlib for other image outputs
+      return { hasViz: true, vizType: 'matplotlib' };
+    }
+  }
+  
+  return { hasViz: false, vizType: null };
+};
+
+// Extract variable name or figure expression from a code cell
+const extractFigureVariable = (cellContent: string, vizType: 'plotly' | 'matplotlib'): string | null => {
+  // Clean up the content and trim whitespace
+  const trimmedContent = cellContent.trim();
+  
+  // Check for bare variable display (e.g., just "fig" on a line)
+  const variableDisplayRegex = /^(\s*#.*\n)*\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(\s*#.*)?$/;
+  const match = trimmedContent.match(variableDisplayRegex);
+  
+  if (match) {
+    const potentialVariable = match[2];
+    const pythonKeywords = ['if', 'else', 'elif', 'for', 'while', 'def', 'class', 'return', 'import', 'from', 'print'];
+    if (potentialVariable && !pythonKeywords.includes(potentialVariable)) {
+      return potentialVariable;
+    }
+  }
+  
+  // Check for common visualization patterns based on the type
+  if (vizType === 'plotly') {
+    // Look for fig.show() or px.* patterns
+    const plotlyPatterns = [
+      // Common variable patterns for figures
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*px\./,
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*go\.Figure/,
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*ff\./,
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*plotly\./,
+      // Show methods
+      /([a-zA-Z_][a-zA-Z0-9_]*).show\(/
+    ];
+    
+    const lines = trimmedContent.split('\n');
+    for (const line of lines) {
+      for (const pattern of plotlyPatterns) {
+        const figMatch = line.match(pattern);
+        if (figMatch && figMatch[1]) {
+          return figMatch[1];
+        }
+      }
+    }
+  } 
+  else if (vizType === 'matplotlib') {
+    // Look for plt.figure, plt.subplots, or fig patterns
+    const matplotlibPatterns = [
+      // Direct matplotlib figure assignments
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*plt\.figure/,
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*plt\.subplots/
+    ];
+    
+    const lines = trimmedContent.split('\n');
+    
+    // First check for figure assignments
+    for (const line of lines) {
+      for (const pattern of matplotlibPatterns) {
+        const figMatch = line.match(pattern);
+        if (figMatch && figMatch[1]) {
+          return figMatch[1];
+        }
+      }
+      
+      // Check for the two-variable subplots pattern: fig, ax = plt.subplots()
+      const subplotsMatch = line.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*plt\.subplots/);
+      if (subplotsMatch && subplotsMatch[1]) {
+        return subplotsMatch[1];
+      }
+    }
+    
+    // If we find plt.show() without a figure assignment, use plt.gcf()
+    for (const line of lines) {
+      if (line.includes('plt.show()') || line.includes('plt.show(')) {
+        return 'plt.gcf()';
+      }
+    }
+    
+    // If we find plotting commands without explicit figure assignments, use plt.gcf()
+    const plotCommands = [
+      'plt.plot(', 'plt.scatter(', 'plt.bar(', 'plt.hist(', 
+      'plt.pie(', 'plt.boxplot(', 'plt.errorbar(', 'plt.violinplot(',
+      'plt.title(', 'plt.xlabel(', 'plt.ylabel('
+    ];
+    
+    for (const line of lines) {
+      if (plotCommands.some(cmd => line.includes(cmd))) {
+        return 'plt.gcf()';
+      }
+    }
+  }
+  
+  return null;
+};
+
+// Process matplotlib code cell and transform for Streamlit
+const transformMatplotlibCell = (cellContent: string): string[] => {
+  const lines = cellContent.split('\n');
+  const transformedLines: string[] = [];
+  
+  // First add commented original code
+  transformedLines.push("# Original code cell:");
+  transformedLines.push(...lines);
+  transformedLines.push("");
+  
+  // Generate modified version with st.pyplot calls after each plt.show()
+  transformedLines.push("# Modified code for Streamlit:");
+  
+  for (let i = 0; i < lines.length; i++) {
+    // Copy the original line
+    transformedLines.push(lines[i] ?? '');
+    
+    // If this is a plt.show() line, add a st.pyplot call right after it
+    if (lines[i]?.trim().startsWith('plt.show')) {
+      transformedLines.push("st.pyplot(plt.gcf())");
+    }
+  }
+  
+  return transformedLines;
+};
+
+// Process plotly code cell and transform for Streamlit
+const transformPlotlyCell = (cellContent: string): string[] => {
+  const lines = cellContent.split('\n');
+  const transformedLines: string[] = [];
+  
+  // First add commented original code
+  transformedLines.push("# Original code cell:");
+  transformedLines.push(...lines);
+  transformedLines.push("");
+  
+  // Try to extract the variable name
+  const figVariable = extractFigureVariable(cellContent, 'plotly');
+  
+  // Generate modified version with st.plotly_chart calls
+  transformedLines.push("# Modified code for Streamlit:");
+  
+  if (figVariable) {
+    // If we could identify the figure variable, add plotly_chart call after the cell
+    transformedLines.push(...lines);
+    transformedLines.push(`st.plotly_chart(${figVariable})`);
+  } else {
+    // If we couldn't identify the variable, add a comment suggesting manual modification
+    transformedLines.push(...lines);
+    transformedLines.push("# Plotly chart detected, but couldn't identify the figure variable.");
+    transformedLines.push("# You may need to manually add: st.plotly_chart(fig)");
+  }
+  
+  return transformedLines;
 };
 
 // Convert notebook to Streamlit app
@@ -45,8 +227,6 @@ export const convertToStreamlit = async (
     const cellModel = cellWidget.model;
     const cellType = getCellType(cellModel);
     const cellContent = getCellContent(cellModel);
-
-    console.log(cellType, cellContent)
     
     if (cellType === 'markdown') {
       // Convert markdown cells to st.markdown
@@ -58,32 +238,57 @@ export const convertToStreamlit = async (
       // So we might want to downsize them all by one or something.
     } 
     else if (cellType === 'code') {
-      // For now, just include code cells as Python code with a comment
-      streamlitCode.push("# Original code cell:");
-      streamlitCode = streamlitCode.concat(cellContent.split('\n'));
-      streamlitCode.push("");
+      // Check for visualization outputs if it's a code cell
+      if (cellWidget instanceof CodeCell) {
+        const { hasViz, vizType } = detectVisualizationType(cellWidget);
+        
+        if (hasViz) {
+          if (vizType === 'matplotlib') {
+            // For matplotlib, transform the cell to add st.pyplot calls after plt.show() calls
+            streamlitCode = streamlitCode.concat(transformMatplotlibCell(cellContent));
+          } 
+          else if (vizType === 'plotly') {
+            // For plotly, transform the cell to add st.plotly_chart calls
+            streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
+          }
+          else {
+            // For other code cells, just include them as is
+            streamlitCode.push("# Original code cell:");
+            streamlitCode = streamlitCode.concat(cellContent.split('\n'));
+            streamlitCode.push("");
+          }
+        } else {
+          // For non-visualization code cells, just include them as is
+          streamlitCode.push("# Original code cell:");
+          streamlitCode = streamlitCode.concat(cellContent.split('\n'));
+          streamlitCode.push("");
+        }
+      } else {
+        // For non-code cells, just include them as is
+        streamlitCode.push("# Original code cell:");
+        streamlitCode = streamlitCode.concat(cellContent.split('\n'));
+        streamlitCode.push("");
+      }
 
-        /* 
-        Dispalying dataframes:
-        It turns out that streamlit autoamtically renders dataframes if they are hanging on a line of code by themselves. 
-        This is pretty close to what Jupyter does except that in Jupyter the dataframe has to be the final line of code in the code cell. 
-        In Streamlit, since there are no code cells, that is not the case. 
+      /* 
+      Dispalying dataframes:
+      It turns out that streamlit autoamtically renders dataframes if they are hanging on a line of code by themselves. 
+      This is pretty close to what Jupyter does except that in Jupyter the dataframe has to be the final line of code in the code cell. 
+      In Streamlit, since there are no code cells, that is not the case. 
 
-        This will take care of the mito default dataframe output since we don't write any new code to display that dataframe. Sweet!
-        However, this will not automatically handle:
-        1. When the user does display(df) which the Ai sometimes does. This is almost never written by users, so maybe we shold just some prompt 
-        engineering to handle this.
-        2. If the user has a mitosheet.sheet() call. In that case, maybe we should convert it to a mito spreadsheet component. This should be 
-        pretty easy to detect I think! 
-        */
+      This will take care of the mito default dataframe output since we don't write any new code to display that dataframe. Sweet!
+      However, this will not automatically handle:
+      1. When the user does display(df) which the Ai sometimes does. This is almost never written by users, so maybe we shold just some prompt 
+      engineering to handle this.
+      2. If the user has a mitosheet.sheet() call. In that case, maybe we should convert it to a mito spreadsheet component. This should be 
+      pretty easy to detect I think! 
+      */
     }
   });
-
 
   console.log(`Creating the file: ${outputPath}`)
   const streamlitSourceCode = streamlitCode.join('\n');
   console.log(streamlitSourceCode)
-
 
   // Eventually, we will write this to a file, but there is no uncertainty here, so we're skipping it for now. 
 };
