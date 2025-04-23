@@ -49,94 +49,43 @@ const detectVisualizationType = (cell: CodeCell): {
   return { hasViz: false, vizType: null };
 };
 
-// Extract variable name or figure expression from a code cell
-const extractFigureVariable = (cellContent: string, vizType: 'plotly' | 'matplotlib'): string | null => {
+// Extract all figure variable names from a code cell
+const extractPlotlyFigVariableNames = (cellContent: string): string[] => {
   // Clean up the content and trim whitespace
   const trimmedContent = cellContent.trim();
-  
-  // Check for bare variable display (e.g., just "fig" on a line)
-  const variableDisplayRegex = /^(\s*#.*\n)*\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(\s*#.*)?$/;
-  const match = trimmedContent.match(variableDisplayRegex);
-  
-  if (match) {
-    const potentialVariable = match[2];
-    const pythonKeywords = ['if', 'else', 'elif', 'for', 'while', 'def', 'class', 'return', 'import', 'from', 'print'];
-    if (potentialVariable && !pythonKeywords.includes(potentialVariable)) {
-      return potentialVariable;
-    }
-  }
+  const figureVariables: string[] = [];
   
   // Check for common visualization patterns based on the type
-  if (vizType === 'plotly') {
-    // Look for fig.show() or px.* patterns
-    const plotlyPatterns = [
-      // Common variable patterns for figures
-      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*px\./,
-      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*go\.Figure/,
-      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*ff\./,
-      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*plotly\./,
-      // Show methods
-      /([a-zA-Z_][a-zA-Z0-9_]*).show\(/
-    ];
-    
-    const lines = trimmedContent.split('\n');
-    for (const line of lines) {
-      for (const pattern of plotlyPatterns) {
-        const figMatch = line.match(pattern);
-        if (figMatch && figMatch[1]) {
-          return figMatch[1];
+  // Look for fig.show() or px.* patterns
+  const plotlyPatterns = [
+    // Common variable patterns for figures
+    /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*px\./,
+    /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*go\.Figure/,
+    /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*ff\./,
+    /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*plotly\./,
+    // Show methods
+    /([a-zA-Z_][a-zA-Z0-9_]*).show\(/
+  ];
+  
+  const lines = trimmedContent.split('\n');
+  
+  // Find all variable assignments that match Plotly patterns
+  for (const line of lines) {
+    for (const pattern of plotlyPatterns) {
+      const matches = [...line.matchAll(new RegExp(pattern, 'g'))];
+      for (const match of matches) {
+        if (match[1] && !figureVariables.includes(match[1])) {
+          // Check if it's not a Python keyword
+          const pythonKeywords = ['if', 'else', 'elif', 'for', 'while', 'def', 'class', 'return', 'import', 'from', 'print'];
+          if (!pythonKeywords.includes(match[1])) {
+            figureVariables.push(match[1]);
+          }
         }
       }
     }
   } 
-  else if (vizType === 'matplotlib') {
-    // Look for plt.figure, plt.subplots, or fig patterns
-    const matplotlibPatterns = [
-      // Direct matplotlib figure assignments
-      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*plt\.figure/,
-      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*plt\.subplots/
-    ];
-    
-    const lines = trimmedContent.split('\n');
-    
-    // First check for figure assignments
-    for (const line of lines) {
-      for (const pattern of matplotlibPatterns) {
-        const figMatch = line.match(pattern);
-        if (figMatch && figMatch[1]) {
-          return figMatch[1];
-        }
-      }
-      
-      // Check for the two-variable subplots pattern: fig, ax = plt.subplots()
-      const subplotsMatch = line.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*,\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*plt\.subplots/);
-      if (subplotsMatch && subplotsMatch[1]) {
-        return subplotsMatch[1];
-      }
-    }
-    
-    // If we find plt.show() without a figure assignment, use plt.gcf()
-    for (const line of lines) {
-      if (line.includes('plt.show()') || line.includes('plt.show(')) {
-        return 'plt.gcf()';
-      }
-    }
-    
-    // If we find plotting commands without explicit figure assignments, use plt.gcf()
-    const plotCommands = [
-      'plt.plot(', 'plt.scatter(', 'plt.bar(', 'plt.hist(', 
-      'plt.pie(', 'plt.boxplot(', 'plt.errorbar(', 'plt.violinplot(',
-      'plt.title(', 'plt.xlabel(', 'plt.ylabel('
-    ];
-    
-    for (const line of lines) {
-      if (plotCommands.some(cmd => line.includes(cmd))) {
-        return 'plt.gcf()';
-      }
-    }
-  }
   
-  return null;
+  return figureVariables;
 };
 
 // Process matplotlib code cell and transform for Streamlit
@@ -150,6 +99,8 @@ const transformMatplotlibCell = (cellContent: string): string[] => {
   for (let i = 0; i < lines.length; i++) {
     
     // If this is a plt.show() line, swap it out for a st.pyplot call
+    // Note: If a notebook cell has plt on the last line, it will render the graph in the notebook
+    // NOT similarly, if there is a line of code that has a hanging matplotlib plot, it will NOT render in streamlit app
     if (lines[i]?.trim().startsWith('plt.show')) {
       transformedLines.push("st.pyplot(plt.gcf())");
     } else {
@@ -165,21 +116,41 @@ const transformPlotlyCell = (cellContent: string): string[] => {
   const lines = cellContent.split('\n');
   const transformedLines: string[] = [];
   
-  // Try to extract the variable name
-  const figVariable = extractFigureVariable(cellContent, 'plotly');
+  // Try to extract all figure variables
+  const figVariables = extractPlotlyFigVariableNames(cellContent);
   
   // Generate modified version with st.plotly_chart calls
   transformedLines.push("# Modified code for Streamlit:");
   
-  if (figVariable) {
-
+  if (figVariables.length > 0) {
+    // Keep track of which figure variables we've already processed
+    const processedFigs = new Set<string>();
+    
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i]?.trim().startsWith('fig.show')) {
-        transformedLines.push(`st.plotly_chart(${figVariable})`);
-      } else {
-        transformedLines.push(lines[i] ?? '');
+      const line = lines[i] ?? '';
+      
+      // Check if this line contains a .show() call for any of our figure variables
+      let matchedFig = false;
+      for (const figVar of figVariables) {
+        // If this is a plt.show() line, swap it out for a st.pyplot call
+        // Note: If a notebook cell has plt on the last line, it will render the graph in the notebook
+        // Similarly, if there is a line of code that has a hanging plotly plot, it will render in streamlit app
+        if (line.trim().startsWith(`${figVar}.show`)) {
+          transformedLines.push(`st.plotly_chart(${figVar})`);
+          processedFigs.add(figVar);
+          matchedFig = true;
+          break;
+        }
+      }
+      
+      // If it's not a .show() call, keep the line as is
+      if (!matchedFig) {
+        transformedLines.push(line);
       }
     }
+  } else {
+    // If no figure variables were found, just include the original code
+    transformedLines.push(...lines);
   }
   
   return transformedLines;
