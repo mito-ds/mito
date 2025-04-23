@@ -144,21 +144,16 @@ const transformMatplotlibCell = (cellContent: string): string[] => {
   const lines = cellContent.split('\n');
   const transformedLines: string[] = [];
   
-  // First add commented original code
-  transformedLines.push("# Original code cell:");
-  transformedLines.push(...lines);
-  transformedLines.push("");
-  
   // Generate modified version with st.pyplot calls after each plt.show()
   transformedLines.push("# Modified code for Streamlit:");
   
   for (let i = 0; i < lines.length; i++) {
-    // Copy the original line
-    transformedLines.push(lines[i] ?? '');
     
-    // If this is a plt.show() line, add a st.pyplot call right after it
+    // If this is a plt.show() line, swap it out for a st.pyplot call
     if (lines[i]?.trim().startsWith('plt.show')) {
       transformedLines.push("st.pyplot(plt.gcf())");
+    } else {
+      transformedLines.push(lines[i] ?? '');
     }
   }
   
@@ -170,11 +165,6 @@ const transformPlotlyCell = (cellContent: string): string[] => {
   const lines = cellContent.split('\n');
   const transformedLines: string[] = [];
   
-  // First add commented original code
-  transformedLines.push("# Original code cell:");
-  transformedLines.push(...lines);
-  transformedLines.push("");
-  
   // Try to extract the variable name
   const figVariable = extractFigureVariable(cellContent, 'plotly');
   
@@ -182,14 +172,14 @@ const transformPlotlyCell = (cellContent: string): string[] => {
   transformedLines.push("# Modified code for Streamlit:");
   
   if (figVariable) {
-    // If we could identify the figure variable, add plotly_chart call after the cell
-    transformedLines.push(...lines);
-    transformedLines.push(`st.plotly_chart(${figVariable})`);
-  } else {
-    // If we couldn't identify the variable, add a comment suggesting manual modification
-    transformedLines.push(...lines);
-    transformedLines.push("# Plotly chart detected, but couldn't identify the figure variable.");
-    transformedLines.push("# You may need to manually add: st.plotly_chart(fig)");
+
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i]?.trim().startsWith('fig.show')) {
+        transformedLines.push(`st.plotly_chart(${figVariable})`);
+      } else {
+        transformedLines.push(lines[i] ?? '');
+      }
+    }
   }
   
   return transformedLines;
@@ -236,38 +226,34 @@ export const convertToStreamlit = async (
 
       // Note: The single # Heading markdown in Streamlit is as big as the title, maybe larger.
       // So we might want to downsize them all by one or something.
-    } 
-    else if (cellType === 'code') {
+    } else if (cellType === 'code') {
       // Check for visualization outputs if it's a code cell
+
+      // TODO: Instead of chekcing cellType, we should just check this instanceof so we don't have to do both
+      // to be type safe
       if (cellWidget instanceof CodeCell) {
         const { hasViz, vizType } = detectVisualizationType(cellWidget);
         
+        let transformedCellContent = false;
         if (hasViz) {
           if (vizType === 'matplotlib') {
             // For matplotlib, transform the cell to add st.pyplot calls after plt.show() calls
             streamlitCode = streamlitCode.concat(transformMatplotlibCell(cellContent));
-          } 
-          else if (vizType === 'plotly') {
+            transformedCellContent = true;
+          } else if (vizType === 'plotly') {
             // For plotly, transform the cell to add st.plotly_chart calls
             streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
+            transformedCellContent = true;
+
           }
-          else {
-            // For other code cells, just include them as is
-            streamlitCode.push("# Original code cell:");
-            streamlitCode = streamlitCode.concat(cellContent.split('\n'));
-            streamlitCode.push("");
-          }
-        } else {
+        }
+
+        if (!transformedCellContent) {
           // For non-visualization code cells, just include them as is
-          streamlitCode.push("# Original code cell:");
+          streamlitCode.push("# Original code cell 2 :");
           streamlitCode = streamlitCode.concat(cellContent.split('\n'));
           streamlitCode.push("");
         }
-      } else {
-        // For non-code cells, just include them as is
-        streamlitCode.push("# Original code cell:");
-        streamlitCode = streamlitCode.concat(cellContent.split('\n'));
-        streamlitCode.push("");
       }
 
       /* 
