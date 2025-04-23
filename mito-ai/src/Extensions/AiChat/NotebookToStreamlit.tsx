@@ -156,6 +156,34 @@ const transformPlotlyCell = (cellContent: string): string[] => {
   return transformedLines;
 };
 
+const transformMitoAppInput = (line: string): string => {
+
+  console.log("Input string", line)
+
+  const textInputIdentifer = 'mito_app_text_input'
+  
+  if (line.startsWith(textInputIdentifer)) {
+    // Split on the equal sign to get the variable name. We must use this full
+    // name because its what the python script uses. 
+    const variableName = line.split(' ')[0]?.trim()
+
+    // Split on the text input identifier to get the unique label for this variable
+    let variableLabel = variableName?.split(textInputIdentifer)[1]
+    if (variableLabel?.startsWith("_")) {
+      variableLabel = variableLabel.slice(1)
+    }
+
+    // Get the value after the equal sign to get the default value for the variable
+    const defaultValue = line.split('=')[1]?.trim()
+
+    return `${variableName} = st.text_input('${variableLabel}', ${defaultValue})`
+    
+  }
+
+  // If there was no text_input to create, then just return the original line.
+  return line
+}
+
 // Convert notebook to Streamlit app
 export const convertToStreamlit = async (
   notebookTracker: INotebookTracker,
@@ -200,6 +228,7 @@ export const convertToStreamlit = async (
     } else if (cellType === 'code') {
       // Check for visualization outputs if it's a code cell
 
+
       // TODO: Instead of chekcing cellType, we should just check this instanceof so we don't have to do both
       // to be type safe
       if (cellWidget instanceof CodeCell) {
@@ -215,14 +244,14 @@ export const convertToStreamlit = async (
             // For plotly, transform the cell to add st.plotly_chart calls
             streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
             transformedCellContent = true;
-
           }
         }
 
         if (!transformedCellContent) {
           // For non-visualization code cells, just include them as is
-          streamlitCode.push("# Original code cell 2 :");
-          streamlitCode = streamlitCode.concat(cellContent.split('\n'));
+          streamlitCode.push("# Code Cell");
+          const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line)})
+          streamlitCode = streamlitCode.concat(transformedLines);
           streamlitCode.push("");
         }
       }
