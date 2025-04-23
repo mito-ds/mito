@@ -72,11 +72,8 @@ def identify(key_type: Optional[str] = None) -> None:
     their python version, mito version, and email.
     """
     if not telemetry_turned_on(key_type):
-        print(f"telemetry turned off for {key_type}")
         return
 
-
-    print("I AM HERE!")
     static_user_id = get_user_field(UJ_STATIC_USER_ID)
     user_email = get_user_field(UJ_USER_EMAIL)
     feedbacks_v2 = get_user_field(UJ_FEEDBACKS_V2)
