@@ -9,6 +9,8 @@ import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from './websocket/models';
 import { captureNode } from './nodeToPng';
 
+const INCLUDE_CELL_IN_APP = 'include-cell-in-app'
+
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
     const activeCell = notebook?.activeCell;
@@ -24,12 +26,12 @@ export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | 
     return notebook?.widgets.find(cell => cell.model.id === cellID);
 }
 
-export const toggleActiveCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTracker): void => {
+export const toggleActiveCellIncludeInAppMetadata = (notebookTracker: INotebookTracker): void => {
     const activeCellID = getActiveCellID(notebookTracker);
-    toggleCellOutputVisibiltiyMetadata(notebookTracker, activeCellID);
+    toggleIncludeCellInAppMetadata(notebookTracker, activeCellID);
 }
 
-export const toggleCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
+export const toggleIncludeCellInAppMetadata = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
 
     if (cellID === undefined) {
         return;
@@ -40,34 +42,32 @@ export const toggleCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTra
         return undefined;
     }
 
-    if (cell.model.metadata.hasOwnProperty('toggle_cell_output_visibility')) {
-        const originalVisibility = cell.model.getMetadata('toggle_cell_output_visibility');
-        cell.model.setMetadata('toggle_cell_output_visibility', !originalVisibility);
+    if (cell.model.metadata.hasOwnProperty(INCLUDE_CELL_IN_APP)) {
+        const originalVisibility = cell.model.getMetadata(INCLUDE_CELL_IN_APP);
+        cell.model.setMetadata(INCLUDE_CELL_IN_APP, !originalVisibility);
     } else {
         // If the metadata doesn't exist yet, that means the user has not yet toggled the visibility.
         // The default value is to show the output, so the first toggle should set the visibiltiy to false.
-        cell.model.setMetadata('toggle_cell_output_visibility', false);
+        cell.model.setMetadata(INCLUDE_CELL_IN_APP, false);
     }
-
-    console.log(JSON.stringify(cell.model.metadata, null, 2));
 }
 
-export const getActiveCellOutputVisibility = (notebookTracker: INotebookTracker): boolean => {
+export const getActiveCellIncludeInApp = (notebookTracker: INotebookTracker): boolean => {
     const activeCellID = getActiveCellID(notebookTracker);
-    return getCellOutputVisibilityByID(notebookTracker, activeCellID);
+    return getIncludeCellInApp(notebookTracker, activeCellID);
 }
 
-export const getCellOutputVisibilityByID = (notebookTracker: INotebookTracker, cellID: string | undefined): boolean => {
+export const getIncludeCellInApp = (notebookTracker: INotebookTracker, cellID: string | undefined): boolean => {
     const cell = getCellByID(notebookTracker, cellID);
     if (!cell) {
         return false;
     }
 
-    if (!cell.model.metadata.hasOwnProperty('toggle_cell_output_visibility')) {
-        cell.model.setMetadata('toggle_cell_output_visibility', true);
+    if (!cell.model.metadata.hasOwnProperty(INCLUDE_CELL_IN_APP)) {
+        cell.model.setMetadata(INCLUDE_CELL_IN_APP, true);
     }
 
-    return cell.model.getMetadata('toggle_cell_output_visibility');
+    return cell.model.getMetadata(INCLUDE_CELL_IN_APP);
 }
 
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
