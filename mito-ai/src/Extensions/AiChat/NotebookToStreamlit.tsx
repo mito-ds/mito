@@ -18,6 +18,16 @@ const detectVisualizationType = (cell: CodeCell): {
   hasViz: boolean;
   vizType: 'plotly' | 'matplotlib' | null;
 } => {
+  // TODO: It would be nice to remove this entire function and just rely on 
+  // parsing the content of the cell! This function relies on the cell outputs being
+  // rendered! We don't really want this for a few reasons: 1) The user might not have
+  // the notebook rendered 2) The rendered version of the notebook could be out of 
+  // sync with the cell content. We _could_ detect this if we needed to, or just ignore it
+  // for v1, or rerun the entire notebook before converting to a streamlit app, but ideally
+  // we could just ignore all of that. TBD if we can reliably just use the cell content however.
+
+  // TOOD: We are not detecting plotly graphs that are rendered with fig.show(renderer='iframe')
+
   const outputs = cell.model.outputs;
   
   for (let i = 0; i < outputs.length; i++) {
@@ -26,12 +36,16 @@ const detectVisualizationType = (cell: CodeCell): {
     
     // Check for Plotly-specific output types
     if (mimeTypes.includes('application/vnd.plotly.v1+json')) {
+      console.log("found with plotly mime type")
       return { hasViz: true, vizType: 'plotly' };
     }
     
     // For Matplotlib, look for image outputs
     if (mimeTypes.includes('image/png') || mimeTypes.includes('image/svg+xml')) {
-      // For matplotlib, we need to examine the HTML data if available
+
+      // Since the Mitosheet html contains references to plotly, we can't do this check 
+      // outside of a more guarded check. Otherwise it will find plotly whenever there is 
+      // a mitosheet in the cell output...
       if (mimeTypes.includes('text/html')) {
         const html = output.data['text/html'] as string;
         
@@ -101,6 +115,8 @@ const transformMatplotlibCell = (cellContent: string): string[] => {
     // If this is a plt.show() line, swap it out for a st.pyplot call
     // Note: If a notebook cell has plt on the last line, it will render the graph in the notebook
     // NOT similarly, if there is a line of code that has a hanging matplotlib plot, it will NOT render in streamlit app
+    // TODO: We are only looking for plt.show calls, but there are probably other ways to show a matplotlib graph, 
+    // just like there are other ways to show a plotly graph
     if (lines[i]?.trim().startsWith('plt.show')) {
       transformedLines.push("st.pyplot(plt.gcf())");
     } else {
@@ -118,6 +134,9 @@ const transformPlotlyCell = (cellContent: string): string[] => {
   
   // Try to extract all figure variables
   const figVariables = extractPlotlyFigVariableNames(cellContent);
+
+  console.log("VARS")
+  console.log(figVariables)
   
   // Generate modified version with st.plotly_chart calls
   transformedLines.push("# Modified code for Streamlit:");
@@ -141,6 +160,8 @@ const transformPlotlyCell = (cellContent: string): string[] => {
           matchedFig = true;
           break;
         }
+
+
       }
       
       // If it's not a .show() call, keep the line as is
@@ -155,6 +176,59 @@ const transformPlotlyCell = (cellContent: string): string[] => {
   
   return transformedLines;
 };
+
+const transformMitoAppInput = (line: string): string => {
+
+  //console.log("Input string", line)
+
+  const getVariableNameDefaultAndLabel = (line: string, identifier: string): [string, string, string] => {
+    // Split on the equal sign to get the variable name. We must use this full
+    // name because its what the python script uses. 
+    const variableName = line.split(' ')[0]?.trim() || ''
+
+    // Split on the identifier to get the unique label for this variable
+    let variableLabel = variableName?.split(identifier)[1] || ''
+    
+    if (variableLabel.startsWith("_")) {
+      variableLabel = variableLabel.slice(1)
+    }
+
+    // Get the value after the equal sign to get the default value for the variable
+    const defaultValue = line.split('=')[1]?.trim() || ''
+
+    return [variableName, variableLabel, defaultValue]
+  } 
+
+  const textInputIdentifer = 'mito_app_text_input'
+  if (line.startsWith(textInputIdentifer)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, textInputIdentifer)
+    return `${variableName} = st.text_input('${variableLabel}', ${defaultValue})`
+  }
+
+  const numberInputIdentifier = 'mito_app_number_input'
+  if (line.startsWith(numberInputIdentifier)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, numberInputIdentifier)
+    return `${variableName} = st.number_input('${variableLabel}', ${defaultValue})`
+  }
+
+  const dateInputIdentifier = 'mito_app_date_input'
+  if (line.startsWith(dateInputIdentifier)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, dateInputIdentifier)
+
+    // The user is responsible for making sure the right hand side is a valid option:
+    // "today", datetime.date, datetime.datetime, "YYYY-MM-DD". 
+    return `${variableName} = st.date_input('${variableLabel}', ${defaultValue})`
+  }
+
+  const booleanInputIdentifier = 'mito_app_boolean_input'
+  if (line.startsWith(booleanInputIdentifier)) {
+    const [variableName, variableLabel, defaultValue] = getVariableNameDefaultAndLabel(line, booleanInputIdentifier)
+    return `${variableName} = st.checkbox('${variableLabel}', ${defaultValue})`
+  }
+
+  // If there was no text_input to create, then just return the original line.
+  return line
+}
 
 // Convert notebook to Streamlit app
 export const convertToStreamlit = async (
@@ -200,6 +274,7 @@ export const convertToStreamlit = async (
     } else if (cellType === 'code') {
       // Check for visualization outputs if it's a code cell
 
+
       // TODO: Instead of chekcing cellType, we should just check this instanceof so we don't have to do both
       // to be type safe
       if (cellWidget instanceof CodeCell) {
@@ -215,14 +290,14 @@ export const convertToStreamlit = async (
             // For plotly, transform the cell to add st.plotly_chart calls
             streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
             transformedCellContent = true;
-
           }
         }
 
         if (!transformedCellContent) {
           // For non-visualization code cells, just include them as is
-          streamlitCode.push("# Original code cell 2 :");
-          streamlitCode = streamlitCode.concat(cellContent.split('\n'));
+          streamlitCode.push("# Code Cell");
+          const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line)})
+          streamlitCode = streamlitCode.concat(transformedLines);
           streamlitCode.push("");
         }
       }
