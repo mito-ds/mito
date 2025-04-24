@@ -79,7 +79,7 @@ interface SuggestionOption {
 const DEFAULT_SUGGESTION_OPTIONS: SuggestionOption[] = [
     {
         display: "Plot Meta Acquisitions Impact",
-        prompt: "Build an annotated graph of how Meta's acquisitions of Instagram, Whatsapp, and Giphy effected the Meta stock price. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/meta_stock_prices.csv"
+        prompt: "Build an annotated graph of how Meta's acquisitions of Instagram, Whatsapp, and Giphy affected the Meta stock price. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/meta_stock_prices.csv"
     },
     {
         display: "Explore EV Registrations",
