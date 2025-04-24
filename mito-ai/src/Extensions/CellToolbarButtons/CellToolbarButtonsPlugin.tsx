@@ -10,7 +10,7 @@ import {
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { lightBulbLabIcon, NucleusLabIcon, OpenIndicatorLabIcon } from '../../icons';
-import { getActiveCellOutputVisibility, toggleActiveCellOutputVisibiltiyMetadata } from '../../utils/notebook';
+import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
 
 const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/cell-toolbar-buttons.json file.
@@ -39,9 +39,9 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE)
         });
 
-        commands.addCommand('toolbar-button:toggle-cell-output-streamlit-visibility', {
+        commands.addCommand('toolbar-button:toggle-include-cell-in-app', {
             icon: () => {
-                const isVisible = getActiveCellOutputVisibility(notebookTracker);
+                const isVisible = getActiveCellIncludeInApp(notebookTracker);
                 return isVisible ? NucleusLabIcon : OpenIndicatorLabIcon;
             },
             caption: 'Toggle cell output visibility in Streamlit app',
@@ -49,10 +49,10 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 /* 
                     In order to click on the cell toolbar button, that cell must be the active cell
                 */
-                toggleActiveCellOutputVisibiltiyMetadata(notebookTracker);
+                toggleActiveCellIncludeInAppMetadata(notebookTracker);
                 
                 // Force command refresh to update the icon
-                commands.notifyCommandChanged('toolbar-button:toggle-cell-output-streamlit-visibility');
+                commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             },
         });
         console.log("mito-ai: CellToolbarButtonsPlugin activated");
