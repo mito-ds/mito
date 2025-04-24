@@ -42,7 +42,9 @@ class NotebookState:
     """Represents the state of variables in a notebook at test time"""
     global_vars: Dict[str, Any]
     cell_contents: List[str]
-    
+    files_str: str = ""
+    active_cell_id: str = ""
+    active_cell_output: str = ""
 
 @dataclass(frozen=True)
 class CodeGenTestCaseCore:
