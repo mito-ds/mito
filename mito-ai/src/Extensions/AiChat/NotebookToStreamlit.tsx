@@ -264,6 +264,8 @@ export const convertToStreamlit = async (
     `st.title('${notebookName}')`,
     ""
   ];
+
+  // TODO: we can set the app favicon https://docs.streamlit.io/develop/api-reference/configuration/st.set_page_config
   
   // Process each cell
   notebookPanel.content.widgets.forEach((cellWidget) => {
@@ -327,8 +329,28 @@ export const convertToStreamlit = async (
       pretty easy to detect I think! 
       */
 
+      /* 
+
+      If the cell was marked to not display the outputs, we need to find a way to remove any hanging variables on a line.
+      There are a few options to do this:
+      1. Use pylance linting for the cell, if we get `Expression value is unusedPylancereportUnusedExpression` and the cell has outputs turned off, 
+          then we would remove that line.. We would need to do this when we convert each cell otherwise we will not be able to easily 
+          go back from line of code to the cell to figure out if we should be dispalying that cell's output or not. Or add comments in 
+          the .py file that mark which code comes from which cell.
+          -> It looks like we can use pyright to run linter for reportUnusedExpression. What we could do is: Add the line  to every line of code
+              in a cell that should have outputs displayed. Then, run the linter, then remove any line of code that fails the reportUnusedExpression check. Finally, remove all of the
+              # pyright: ignore reportUnusedExpression to clean up the code. It would be nice if we could turn the rule on and off for a series of lines, but I'm not seeing how to do that.. 
+          -> Or maybe we can convert each cell, get the python code, run the linter if the cell is not supposed to show outputs, delete the lines that fail.
+      2. Use AI and tell it to remove hanging variables from the cell.
+      3. Find all of the variable names in the notebook and then look for lines that only contain a variable name. We also need to remove
+          just hardcoded values. Although, these are probably pretty rare. 
+      4. Maybe there is a streamlit configuration setting we can turn on for certain lines of code? 
+           -> I'm not seeing one.. 
 
 
+      Anyways, all together, I'm starting to think that this is not a feature we should use in v1. There is probably more work here than it is useful even though 
+      it is a good polish feature. Let's see if users actually want it. We could easily do 'exclude entire cell' instead of just 'exclude cell output'
+      */
     }
   });
 
