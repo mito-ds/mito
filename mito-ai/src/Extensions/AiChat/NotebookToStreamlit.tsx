@@ -2,6 +2,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, ICellModel } from '@jupyterlab/cells';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
+import { getCellOutputVisibilityByID } from '../../utils/notebook';
 
 // Helper function to get cell content
 const getCellContent = (cell: ICellModel): string => {
@@ -103,7 +104,7 @@ const extractPlotlyFigVariableNames = (cellContent: string): string[] => {
 };
 
 // Process matplotlib code cell and transform for Streamlit
-const transformMatplotlibCell = (cellContent: string): string[] => {
+const transformMatplotlibCell = (cellContent: string, includeCellOutputInStreamlit: boolean): string[] => {
   const lines = cellContent.split('\n');
   const transformedLines: string[] = [];
   
@@ -118,7 +119,13 @@ const transformMatplotlibCell = (cellContent: string): string[] => {
     // TODO: We are only looking for plt.show calls, but there are probably other ways to show a matplotlib graph, 
     // just like there are other ways to show a plotly graph
     if (lines[i]?.trim().startsWith('plt.show')) {
-      transformedLines.push("st.pyplot(plt.gcf())");
+      if (includeCellOutputInStreamlit) {
+        // Note: If the cell output is not meant to be included in the streamlit app, we still construct the graph 
+        // and just don't show it because we don't have the ability (yet) to look at the entire cell content and 
+        // decide which code is only needed to build this graph and which code might be relevant in the rest
+        // of the notebook.
+        transformedLines.push("st.pyplot(plt.gcf())");
+      }
     } else {
       transformedLines.push(lines[i] ?? '');
     }
@@ -128,16 +135,13 @@ const transformMatplotlibCell = (cellContent: string): string[] => {
 };
 
 // Process plotly code cell and transform for Streamlit
-const transformPlotlyCell = (cellContent: string): string[] => {
+const transformPlotlyCell = (cellContent: string, includeCellOutputInStreamlit: boolean): string[] => {
   const lines = cellContent.split('\n');
   const transformedLines: string[] = [];
   
   // Try to extract all figure variables
   const figVariables = extractPlotlyFigVariableNames(cellContent);
 
-  console.log("VARS")
-  console.log(figVariables)
-  
   // Generate modified version with st.plotly_chart calls
   transformedLines.push("# Modified code for Streamlit:");
   
@@ -155,13 +159,17 @@ const transformPlotlyCell = (cellContent: string): string[] => {
         // Note: If a notebook cell has plt on the last line, it will render the graph in the notebook
         // Similarly, if there is a line of code that has a hanging plotly plot, it will render in streamlit app
         if (line.trim().startsWith(`${figVar}.show`)) {
-          transformedLines.push(`st.plotly_chart(${figVar})`);
+          if (includeCellOutputInStreamlit) {
+            // Note: If the cell output is not meant to be included in the streamlit app, we still construct the graph 
+            // and just don't show it because we don't have the ability (yet) to look at the entire cell content and 
+            // decide which code is only needed to build this graph and which code might be relevant in the rest
+            // of the notebook.
+            transformedLines.push(`st.plotly_chart(${figVar})`);
+          } 
           processedFigs.add(figVar);
           matchedFig = true;
           break;
         }
-
-
       }
       
       // If it's not a .show() call, keep the line as is
@@ -262,8 +270,11 @@ export const convertToStreamlit = async (
     const cellModel = cellWidget.model;
     const cellType = getCellType(cellModel);
     const cellContent = getCellContent(cellModel);
+
+    // Check if the cell is marked to skip.
+    const includeCellOutputInStreamlit = getCellOutputVisibilityByID(notebookTracker, cellModel.id)
     
-    if (cellType === 'markdown') {
+    if (cellType === 'markdown' && includeCellOutputInStreamlit) {
       // Convert markdown cells to st.markdown
       const escapedContent = cellContent.replace(/"""/g, '\\"\\"\\"');
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
@@ -284,11 +295,11 @@ export const convertToStreamlit = async (
         if (hasViz) {
           if (vizType === 'matplotlib') {
             // For matplotlib, transform the cell to add st.pyplot calls after plt.show() calls
-            streamlitCode = streamlitCode.concat(transformMatplotlibCell(cellContent));
+            streamlitCode = streamlitCode.concat(transformMatplotlibCell(cellContent, includeCellOutputInStreamlit));
             transformedCellContent = true;
           } else if (vizType === 'plotly') {
             // For plotly, transform the cell to add st.plotly_chart calls
-            streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
+            streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent, includeCellOutputInStreamlit));
             transformedCellContent = true;
           }
         }
@@ -315,6 +326,9 @@ export const convertToStreamlit = async (
       2. If the user has a mitosheet.sheet() call. In that case, maybe we should convert it to a mito spreadsheet component. This should be 
       pretty easy to detect I think! 
       */
+
+
+
     }
   });
 
