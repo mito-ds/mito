@@ -45,6 +45,7 @@ class NotebookState:
     files_str: str = ""
     active_cell_id: str = ""
     active_cell_output: str = ""
+    db_schema: Optional[Dict[str, Any]] = None
 
 @dataclass(frozen=True)
 class CodeGenTestCaseCore:
