@@ -69,7 +69,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
-import { convertToStreamlit } from './NotebookToStreamlit';
+import { convertToStreamlit } from '../App/NotebookToStreamlit';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
