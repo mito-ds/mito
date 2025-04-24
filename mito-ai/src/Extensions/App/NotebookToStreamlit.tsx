@@ -3,8 +3,8 @@ import { CodeCell } from '@jupyterlab/cells';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { detectVisualizationType, getCellContent, getCellType, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './utils';
-
+import { detectVisualizationType, getCellContent, getCellType, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './notebookToStreamlitUtils';
+import { generateRequirementsTxt } from './requirementsUtils';
 
 
 // Convert notebook to Streamlit app
@@ -128,9 +128,17 @@ export const convertToStreamlit = async (
     }
   });
 
+  // Create the streamlit app.py file
   console.log(`Creating the file: ${outputPath}`)
   const streamlitSourceCode = streamlitCode.join('\n');
   console.log(streamlitSourceCode)
-
   // Eventually, we will write this to a file, but there is no uncertainty here, so we're skipping it for now. 
+
+
+  // Build the requirements.txt file    
+  const requirementsContent = await generateRequirementsTxt(notebookTracker);
+  console.log("Creating requirements txt")
+  console.log(requirementsContent)
+
+
 };
