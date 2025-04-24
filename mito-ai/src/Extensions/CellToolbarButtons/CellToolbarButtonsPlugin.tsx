@@ -9,7 +9,8 @@ import {
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
-import { lightBulbLabIcon } from '../../icons';
+import { lightBulbLabIcon, NucleusLabIcon, OpenIndicatorLabIcon } from '../../icons';
+import { getActiveCellOutputVisibility, toggleActiveCellOutputVisibiltiyMetadata } from '../../utils/notebook';
 
 const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/cell-toolbar-buttons.json file.
@@ -36,6 +37,23 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 await app.commands.execute(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE);
             },
             isVisible: () => notebookTracker.activeCell?.model.type === 'code' && app.commands.hasCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE)
+        });
+
+        commands.addCommand('toolbar-button:toggle-cell-output-streamlit-visibility', {
+            icon: () => {
+                const isVisible = getActiveCellOutputVisibility(notebookTracker);
+                return isVisible ? NucleusLabIcon : OpenIndicatorLabIcon;
+            },
+            caption: 'Toggle cell output visibility in Streamlit app',
+            execute: async () => {
+                /* 
+                    In order to click on the cell toolbar button, that cell must be the active cell
+                */
+                toggleActiveCellOutputVisibiltiyMetadata(notebookTracker);
+                
+                // Force command refresh to update the icon
+                commands.notifyCommandChanged('toolbar-button:toggle-cell-output-streamlit-visibility');
+            },
         });
         console.log("mito-ai: CellToolbarButtonsPlugin activated");
     }

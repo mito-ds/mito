@@ -24,6 +24,52 @@ export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | 
     return notebook?.widgets.find(cell => cell.model.id === cellID);
 }
 
+export const toggleActiveCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTracker): void => {
+    const activeCellID = getActiveCellID(notebookTracker);
+    toggleCellOutputVisibiltiyMetadata(notebookTracker, activeCellID);
+}
+
+export const toggleCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
+
+    if (cellID === undefined) {
+        return;
+    }
+
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return undefined;
+    }
+
+    if (cell.model.metadata.hasOwnProperty('toggle_cell_output_visibility')) {
+        const originalVisibility = cell.model.getMetadata('toggle_cell_output_visibility');
+        cell.model.setMetadata('toggle_cell_output_visibility', !originalVisibility);
+    } else {
+        // If the metadata doesn't exist yet, that means the user has not yet toggled the visibility.
+        // The default value is to show the output, so the first toggle should set the visibiltiy to false.
+        cell.model.setMetadata('toggle_cell_output_visibility', false);
+    }
+
+    console.log(JSON.stringify(cell.model.metadata, null, 2));
+}
+
+export const getActiveCellOutputVisibility = (notebookTracker: INotebookTracker): boolean => {
+    const activeCellID = getActiveCellID(notebookTracker);
+    return getCellOutputVisibilityByID(notebookTracker, activeCellID);
+}
+
+export const getCellOutputVisibilityByID = (notebookTracker: INotebookTracker, cellID: string | undefined): boolean => {
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return false;
+    }
+
+    if (!cell.model.metadata.hasOwnProperty('toggle_cell_output_visibility')) {
+        cell.model.setMetadata('toggle_cell_output_visibility', true);
+    }
+
+    return cell.model.getMetadata('toggle_cell_output_visibility');
+}
+
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
     return getActiveCell(notebookTracker)?.model.id
 }
@@ -88,7 +134,6 @@ export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: str
         notebookPanel.content.activeCellIndex = cellIndex
     }
 }
-
 
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker,
