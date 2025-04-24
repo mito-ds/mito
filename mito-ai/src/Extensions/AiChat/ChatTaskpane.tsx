@@ -78,20 +78,20 @@ interface SuggestionOption {
 
 const DEFAULT_SUGGESTION_OPTIONS: SuggestionOption[] = [
     {
-        display: "Predict outcomes with Decision Trees",
-        prompt: "You have imported the dataset into a variable named df. Please download or simulate the data, then build a Decision Trees model to predict the column INDJUBILADO and perform the necessary analysis."
+        display: "Plot Meta Acquisitions Impact",
+        prompt: "Build an annotated graph of how Meta's acquisitions of Instagram, Whatsapp, and Giphy effected the Meta stock price. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/meta_stock_prices.csv"
     },
     {
-        display: "Uncover stats in your event data",
-        prompt: "Can you download or generate a file named 'dataset_eventos_2024_a_2025.csv' and perform a statistical analysis on it?"
-    },
-    {
-        display: "Visualize Top EV makes and models",
+        display: "Explore EV Registrations",
         prompt: "Visualize the top 20 electric vehicle (EV) makes and models registered in Washington state. Download the zip file with dataset with requests from https://www.kaggle.com/api/v1/datasets/download/sahirmaharajj/electric-vehicle-population"
     },
     {
-        display: "Analyze attendance patterns in the company",
-        prompt: "Generate some imaginary attendance data, then answer: How many employees are absent at least one day and late at least three times? Provide classified statistics by subcompany."
+        display: "Analyze Vehicle Fatalities",
+        prompt: "Visualize which vehicle types are most deadly to pedestrians and cyclists, measuring total fatalities and fatality rate per collision. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/nyc_car_crashes.csv"
+    },
+    {
+        display: "Compare Trade Balances",
+        prompt: "Graph the countries that have the highest trade surplus with America. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/us_tarrifs.csv"
     }
 ];
 
