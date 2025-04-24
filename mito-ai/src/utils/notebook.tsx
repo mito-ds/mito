@@ -24,19 +24,6 @@ export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | 
     return notebook?.widgets.find(cell => cell.model.id === cellID);
 }
 
-export const getCellMetadataByID = (notebookTracker: INotebookTracker, cellID: string | undefined): Record<string, any> | undefined => {
-    if (cellID === undefined) {
-        return undefined;
-    }
-
-    const cell = getCellByID(notebookTracker, cellID);
-    if (!cell) {
-        return undefined;
-    }
-
-    return cell.model.metadata;
-}
-
 export const toggleActiveCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTracker): void => {
     const activeCellID = getActiveCellID(notebookTracker);
     toggleCellOutputVisibiltiyMetadata(notebookTracker, activeCellID);
@@ -44,7 +31,6 @@ export const toggleActiveCellOutputVisibiltiyMetadata = (notebookTracker: INoteb
 
 export const toggleCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
 
-    console.log("CALLING THIS")
     if (cellID === undefined) {
         return;
     }
@@ -54,43 +40,16 @@ export const toggleCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTra
         return undefined;
     }
 
-    console.log(cell.model.metadata)
-
-//    cell.model.setMetadata('toggle_cell_output_visibility', true);
-
-
     if (cell.model.metadata.hasOwnProperty('toggle_cell_output_visibility')) {
         const originalVisibility = cell.model.getMetadata('toggle_cell_output_visibility');
         cell.model.setMetadata('toggle_cell_output_visibility', !originalVisibility);
     } else {
+        // If the metadata doesn't exist yet, that means the user has not yet toggled the visibility.
+        // The default value is to show the output, so the first toggle should set the visibiltiy to false.
         cell.model.setMetadata('toggle_cell_output_visibility', false);
     }
 
     console.log(JSON.stringify(cell.model.metadata, null, 2));
-}
-
-export const printActiveCellMetadata = (notebookTracker: INotebookTracker): void => {
-    /*
-     * Prints metadata for the currently active cell to the console.
-     *
-     * Args:
-     *   notebookTracker: The notebook tracker.
-     */
-    const activeCellID = getActiveCellID(notebookTracker);
-    
-    if (activeCellID === undefined) {
-        console.log('No active cell found.');
-        return;
-    }
-
-    const metadata = getCellMetadataByID(notebookTracker, activeCellID);
-    if (metadata === undefined) {
-        console.log(`No cell found with ID: ${activeCellID}`);
-        return;
-    }
-    
-    console.log('Cell Metadata:');
-    console.log(JSON.stringify(metadata, null, 2));
 }
 
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {

@@ -44,11 +44,8 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             caption: 'Toggle cell output visibility in Streamlit app',
             execute: async () => {
                 /* 
-                    In order to click on the cell toolbar button, that cell must be the active cell, 
-                    so the ChatHistoryManager will take care of providing the cell context.
+                    In order to click on the cell toolbar button, that cell must be the active cell
                 */
-
-                console.log("CLICKING TOGGLE CELL OUTPUT VISIBILITY");
 
                 toggleActiveCellOutputVisibiltiyMetadata(notebookTracker);
             },
