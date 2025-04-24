@@ -23,6 +23,13 @@ class _ProductionPromptSchema(ChatPromptGenerator):
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
 
         return f"""Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete.
+
+If the user has requested data that you belive is stored in the database: 
+- Use the provided schema.
+- Only use SQLAlchemy to query the database.
+- Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
+- If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
+
 <Example>
 
 {FILES_SECTION_HEADING}

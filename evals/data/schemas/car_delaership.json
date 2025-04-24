@@ -1,0 +1,293 @@
+{
+    "car_dealership": {
+      "cars": [
+        {
+          "data_type": "SERIAL",
+          "column_name": "id",
+          "column_description": "Primary key for the cars table"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "make",
+          "column_description": "Manufacturer of the car"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "model",
+          "column_description": "Model name of the car"
+        },
+        {
+          "data_type": "INTEGER",
+          "column_name": "year",
+          "column_description": "Year of manufacture"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "color",
+          "column_description": "Color of the car"
+        },
+        {
+          "data_type": "VARCHAR(17)",
+          "column_name": "vin_number",
+          "column_description": "Vehicle Identification Number"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "engine_type",
+          "column_description": "Type of engine (e.g., V6, V8, Electric)"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "transmission",
+          "column_description": "Type of transmission (e.g., Automatic, Manual)"
+        },
+        {
+          "data_type": "NUMERIC(10, 2)",
+          "column_name": "cost",
+          "column_description": "Cost of the car"
+        },
+        {
+          "data_type": "TIMESTAMP",
+          "column_name": "crtd_ts",
+          "column_description": "Timestamp when the car was added to the system"
+        }
+      ],
+      "salespersons": [
+        {
+          "data_type": "SERIAL",
+          "column_name": "id",
+          "column_description": "Unique identifier for each salesperson"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "first_name",
+          "column_description": ""
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "last_name",
+          "column_description": ""
+        },
+        {
+          "data_type": "VARCHAR(255)",
+          "column_name": "email",
+          "column_description": ""
+        },
+        {
+          "data_type": "VARCHAR(20)",
+          "column_name": "phone",
+          "column_description": "First 3 digits in brackets is the area code. Format: (123)-456-7890"
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "hire_date",
+          "column_description": ""
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "termination_date",
+          "column_description": ""
+        },
+        {
+          "data_type": "TIMESTAMP",
+          "column_name": "crtd_ts",
+          "column_description": "Timestamp when the salesperson record was created"
+        }
+      ],
+      "customers": [
+        {
+          "data_type": "SERIAL",
+          "column_name": "id",
+          "column_description": "Primary key for the customers table"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "first_name",
+          "column_description": ""
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "last_name",
+          "column_description": ""
+        },
+        {
+          "data_type": "VARCHAR(255)",
+          "column_name": "email",
+          "column_description": ""
+        },
+        {
+          "data_type": "VARCHAR(20)",
+          "column_name": "phone",
+          "column_description": ""
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "address",
+          "column_description": ""
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "city",
+          "column_description": ""
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "state",
+          "column_description": ""
+        },
+        {
+          "data_type": "VARCHAR(10)",
+          "column_name": "zip_code",
+          "column_description": ""
+        },
+        {
+          "data_type": "TIMESTAMP",
+          "column_name": "crtd_ts",
+          "column_description": "Timestamp when the customer record was created"
+        }
+      ],
+      "sales": [
+        {
+          "data_type": "SERIAL",
+          "column_name": "id",
+          "column_description": "Primary key that uniquely identifies each sale"
+        },
+        {
+          "data_type": "INTEGER",
+          "column_name": "car_id",
+          "column_description": "Foreign key referencing the cars table"
+        },
+        {
+          "data_type": "INTEGER",
+          "column_name": "salesperson_id",
+          "column_description": "Foreign key referencing the salespersons table"
+        },
+        {
+          "data_type": "INTEGER",
+          "column_name": "customer_id",
+          "column_description": "Foreign key referencing the customers table"
+        },
+        {
+          "data_type": "NUMERIC(10, 2)",
+          "column_name": "sale_price",
+          "column_description": "Price at which the car was sold"
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "sale_date",
+          "column_description": "Date when the car was sold"
+        },
+        {
+          "data_type": "TIMESTAMP",
+          "column_name": "crtd_ts",
+          "column_description": "Timestamp when the sale record was created"
+        }
+      ],
+      "inventory_snapshots": [
+        {
+          "data_type": "SERIAL",
+          "column_name": "id",
+          "column_description": "Primary key for the inventory_snapshots table"
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "snapshot_date",
+          "column_description": "Date of the inventory snapshot"
+        },
+        {
+          "data_type": "INTEGER",
+          "column_name": "car_id",
+          "column_description": "Foreign key referencing the cars table"
+        },
+        {
+          "data_type": "BOOLEAN",
+          "column_name": "is_in_inventory",
+          "column_description": "Indicates if the car was in inventory on the snapshot date"
+        },
+        {
+          "data_type": "TIMESTAMP",
+          "column_name": "crtd_ts",
+          "column_description": "Timestamp when the inventory snapshot record was created"
+        }
+      ],
+      "payments_received": [
+        {
+          "data_type": "SERIAL",
+          "column_name": "id",
+          "column_description": "Uniquely identifies each payment received record"
+        },
+        {
+          "data_type": "INTEGER",
+          "column_name": "sale_id",
+          "column_description": "Foreign key referencing the sales table"
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "payment_date",
+          "column_description": "Date when the payment was received. Can take place after the sale date, or in installments."
+        },
+        {
+          "data_type": "NUMERIC(10, 2)",
+          "column_name": "payment_amount",
+          "column_description": "Amount of the payment received. Can be less than the sale price if the payment is made in installments."
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "payment_method",
+          "column_description": "Method of payment (e.g., cash, check, card, banktrf, trp01)"
+        },
+        {
+          "data_type": "TIMESTAMP",
+          "column_name": "crtd_ts",
+          "column_description": "Timestamp when the payment received record was created"
+        }
+      ],
+      "payments_made": [
+        {
+          "data_type": "SERIAL",
+          "column_name": "id",
+          "column_description": "Primary key for the payments_made table"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "vendor_name",
+          "column_description": "Name of the vendor to whom the payment was made"
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "payment_date",
+          "column_description": "Date when the payment was made"
+        },
+        {
+          "data_type": "NUMERIC(10, 2)",
+          "column_name": "payment_amount",
+          "column_description": "Amount of the payment made"
+        },
+        {
+          "data_type": "TEXT",
+          "column_name": "payment_method",
+          "column_description": "Method of payment (e.g., check, bank_transfer, credit_card)"
+        },
+        {
+          "data_type": "VARCHAR(50)",
+          "column_name": "invoice_number",
+          "column_description": "Invoice number associated with the payment"
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "invoice_date",
+          "column_description": "Date of the invoice"
+        },
+        {
+          "data_type": "DATE",
+          "column_name": "due_date",
+          "column_description": "Due date of the invoice"
+        },
+        {
+          "data_type": "TIMESTAMP",
+          "column_name": "crtd_ts",
+          "column_description": "Timestamp when the payment made record was created"
+        }
+      ]
+    }
+  }

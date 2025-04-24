@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import json
 from evals.eval_types import NotebookState
 import pandas as pd
 import numpy as np
@@ -232,4 +233,10 @@ nba_players_df = pd.DataFrame({
         26.0, 22.0, 25.0
     ]
 })""", '']
+)
+
+EMPTY_NOTEBOOK_WITH_SCHEMA: NotebookState = NotebookState(
+  global_vars={},
+  cell_contents=[],
+  db_schema=json.load(open('evals/data/schemas/car_delaership.json'))
 )
