@@ -62,6 +62,20 @@ export const convertToStreamlit = async (
       streamlitCode.push("# Original code cell:");
       streamlitCode = streamlitCode.concat(cellContent.split('\n'));
       streamlitCode.push("");
+
+        /* 
+        Dispalying dataframes:
+        It turns out that streamlit autoamtically renders dataframes if they are hanging on a line of code by themselves. 
+        This is pretty close to what Jupyter does except that in Jupyter the dataframe has to be the final line of code in the code cell. 
+        In Streamlit, since there are no code cells, that is not the case. 
+
+        This will take care of the mito default dataframe output since we don't write any new code to display that dataframe. Sweet!
+        However, this will not automatically handle:
+        1. When the user does display(df) which the Ai sometimes does. This is almost never written by users, so maybe we shold just some prompt 
+        engineering to handle this.
+        2. If the user has a mitosheet.sheet() call. In that case, maybe we should convert it to a mito spreadsheet component. This should be 
+        pretty easy to detect I think! 
+        */
     }
   });
 
