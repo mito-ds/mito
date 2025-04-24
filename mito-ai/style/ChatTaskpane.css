@@ -144,11 +144,9 @@
   margin: 8px 0;
   /* smooth scrolling on touch devices */
   -webkit-overflow-scrolling: touch;
-  /* fade out at right edge when content overflows */
-  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  /* Mask properties will be applied dynamically through JavaScript */
   mask-size: 100% 100%;
   mask-repeat: no-repeat;
-  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
   -webkit-mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
 }
