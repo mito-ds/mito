@@ -15,6 +15,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getOperatingSystem, type OperatingSystem } from '../../utils/user';
 import type { IChatWidget as IChatWidget } from './token';
 import { Signal, type ISignal } from '@lumino/signaling';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import type {
   CompleterMessage,
   ErrorMessage,
@@ -38,6 +39,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
       renderMimeRegistry: IRenderMimeRegistry;
       contextManager: IContextManager;
       operatingSystem: OperatingSystem;
+      docManager: IDocumentManager;
     }
   ) {
     super();
@@ -90,6 +92,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
         contextManager={this.options.contextManager}
         operatingSystem={this.options.operatingSystem}
         websocketClient={this.websocketClient}
+        docManager={this.options.docManager}
       />
     );
   }
@@ -114,6 +117,7 @@ export function buildChatWidget(
   notebookTracker: INotebookTracker,
   renderMimeRegistry: IRenderMimeRegistry,
   contextManager: IContextManager,
+  docManager: IDocumentManager
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
   // The operating system won't change, duh.
@@ -124,7 +128,8 @@ export function buildChatWidget(
     notebookTracker,
     renderMimeRegistry,
     contextManager,
-    operatingSystem
+    operatingSystem,
+    docManager
   });
   chatWidget.id = 'mito_ai';
   return chatWidget;
