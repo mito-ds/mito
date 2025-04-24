@@ -12,6 +12,10 @@
           "command": "toolbar-button:explain-code"
         },
         {
+          "name": "toggle-cell-output-streamlit-visibility",
+          "command": "toolbar-button:toggle-cell-output-streamlit-visibility"
+        },
+        {
           "name": "accept-code",
           "command": "toolbar-button:accept-code",
           "rank": 1
