@@ -52,6 +52,24 @@ export const toggleCellOutputVisibiltiyMetadata = (notebookTracker: INotebookTra
     console.log(JSON.stringify(cell.model.metadata, null, 2));
 }
 
+export const getActiveCellOutputVisibility = (notebookTracker: INotebookTracker): boolean => {
+    const activeCellID = getActiveCellID(notebookTracker);
+    return getCellOutputVisibilityByID(notebookTracker, activeCellID);
+}
+
+export const getCellOutputVisibilityByID = (notebookTracker: INotebookTracker, cellID: string | undefined): boolean => {
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return false;
+    }
+
+    if (!cell.model.metadata.hasOwnProperty('toggle_cell_output_visibility')) {
+        cell.model.setMetadata('toggle_cell_output_visibility', true);
+    }
+
+    return cell.model.getMetadata('toggle_cell_output_visibility');
+}
+
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
     return getActiveCell(notebookTracker)?.model.id
 }
