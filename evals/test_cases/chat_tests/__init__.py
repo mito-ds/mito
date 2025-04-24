@@ -10,11 +10,13 @@ from evals.test_cases.chat_tests.dataframe_creation_tests import DATAFRAME_CREAT
 from evals.test_cases.chat_tests.dataframe_transformation_tests import DATAFRAME_TRANSFORMATION_TESTS
 from evals.test_cases.chat_tests.function_tests import FUNCTION_TESTS
 from evals.test_cases.chat_tests.multistep_tests import MULTISTEP_TESTS
+from evals.test_cases.chat_tests.schema_tests import SCHEMA_TESTS
 
 CHAT_TESTS: List[ChatTestCase] = [
     *VARIABLE_TESTS,
     *DATAFRAME_CREATION_TESTS,
     *DATAFRAME_TRANSFORMATION_TESTS,
     *FUNCTION_TESTS,
-    *MULTISTEP_TESTS
+    *MULTISTEP_TESTS,
+    *SCHEMA_TESTS
 ] 

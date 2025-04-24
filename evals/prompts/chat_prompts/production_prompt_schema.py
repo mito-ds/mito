@@ -3,7 +3,7 @@
 
 from evals.eval_types import NotebookState, ChatPromptGenerator
 
-__all__ = ["production_prompt_current_generator"]
+__all__ = ["production_prompt_schmea_generator"]
 
 # Taken from mito-ai/mito_ai/prompt_builders/prompt_constants.py
 FILES_SECTION_HEADING = "Files in the current directory:"
@@ -17,8 +17,8 @@ GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING = (
 JUPYTER_NOTEBOOK_SECTION_HEADING = "Jupyter Notebook:"
 SCHEMA_SECTION_HEADING = "If requested, schema of available databases:"
 
-class _ProductionPromptCurrent(ChatPromptGenerator):
-    prompt_name = "production_prompt_current"
+class _ProductionPromptSchema(ChatPromptGenerator):
+    prompt_name = "production_prompt_schema"
 
     def get_prompt(self, user_input: str, notebook_state: NotebookState) -> str:
 
@@ -85,4 +85,4 @@ Your task: {user_input}
 """
 
 
-production_prompt_current_generator = _ProductionPromptCurrent()
+production_prompt_schema_generator = _ProductionPromptSchema()
