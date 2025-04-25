@@ -84,6 +84,8 @@ export const convertToStreamlit = async (
       }
 
 
+      // TODO: We need to remove lines of code that start with !, like !pip install pandas --quiet
+      // They don't work in streamlit.
 
       /* 
       Dispalying dataframes:
