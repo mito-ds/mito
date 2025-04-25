@@ -1,6 +1,5 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
-import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
 import { detectVisualizationType, getCellContent, getCellType, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './notebookToStreamlitUtils';
@@ -9,10 +8,8 @@ import { generateRequirementsTxt } from './requirementsUtils';
 // Convert notebook to Streamlit app
 export const convertToStreamlit = async (
   notebookTracker: INotebookTracker,
-  docManager: IDocumentManager
 ): Promise<void> => {
 
-  console.log(docManager)
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
     console.error('No notebook is currently active');
@@ -141,21 +138,7 @@ export const convertToStreamlit = async (
   console.log("Creating requirements txt")
   console.log(requirementsContent)
 
-
-  // In your convertToStreamlit function:
-  console.log("DocManager structure:", Object.keys(docManager));
-
-
   const requirementsPath = PathExt.join(notebookDir, 'requirements.txt');
-  try {
-    // Use the contents manager to create the file
-    await docManager.services.contents.save(requirementsPath, {
-      type: 'file',
-      format: 'text',
-      content: requirementsContent
-    });
-    console.log(`Successfully saved requirements.txt to: ${requirementsPath}`);
-  } catch (error) {
-    console.error('Error creating requirements.txt file:', error);
-  }
+  console.log(requirementsPath)
+
 };

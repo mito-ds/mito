@@ -12,8 +12,6 @@ import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 import { Compartment, StateEffect } from '@codemirror/state';
 import OpenAI from "openai";
 import React, { useEffect, useRef, useState } from 'react';
-import { IDocumentManager } from '@jupyterlab/docmanager';
-
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
@@ -84,8 +82,7 @@ interface IChatTaskpaneProps {
     contextManager: IContextManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
-    websocketClient: CompletionWebsocketClient;
-    docManager: IDocumentManager;
+    websocketClient: CompletionWebsocketClient
 }
 
 interface ICellStateBeforeDiff {
@@ -102,10 +99,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     app,
     operatingSystem,
     websocketClient,
-    docManager
 }) => {
-
-    console.log("DocManager structure:", Object.keys(docManager));
 
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
@@ -1140,7 +1134,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <div className="chat-taskpane-header-buttons">
                     <div>
                         <button onClick={() => {
-                            console.log(convertToStreamlit(notebookTracker, docManager))
+                            console.log(convertToStreamlit(notebookTracker))
                         }}> 
                             Streamlit
                         </button>
