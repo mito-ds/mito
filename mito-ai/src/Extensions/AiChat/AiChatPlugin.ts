@@ -13,11 +13,12 @@ import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+
 // The Widget Rank determins where the ChatIcon is displayed
 // in the left hand toolbar
 const WIDGET_RANK = 2000
@@ -31,12 +32,12 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
   description: 'AI chat for JupyterLab',
   autoStart: true,
   requires: [
+    IDocumentManager,
     ILabShell,
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IContextManager,
-    IDocumentManager
+    IContextManager
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -47,9 +48,16 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     palette: ICommandPalette,
     rendermime: IRenderMimeRegistry,
     contextManager: IContextManager,
+    docManager: IDocumentManager,
     restorer: ILayoutRestorer | null,
-    docManager: IDocumentManager
   ): WidgetTracker<ChatWidget> => {
+
+    console.log("!!!DocManager structure:", Object.keys(docManager));
+    console.log("DocManager type:", typeof docManager);
+    console.log("DocManager is Promise:", docManager instanceof Promise);
+
+    console.log("app service manager contents:", app);
+
     // Define a widget creator function,
     // then call it to make a new widget
     const newWidget = (): ChatWidget => {

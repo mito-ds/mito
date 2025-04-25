@@ -104,6 +104,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     websocketClient,
     docManager
 }) => {
+
+    console.log("DocManager structure:", Object.keys(docManager));
+
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
