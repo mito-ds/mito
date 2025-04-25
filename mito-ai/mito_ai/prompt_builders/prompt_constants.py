@@ -6,6 +6,11 @@ This module contains constants used in prompts across the codebase.
 These constants ensure consistency between prompt building and message trimming.
 """
 
+import os
+import json
+from typing import Final
+from mito_ai.utils.schema import MITO_FOLDER
+
 # Section headings used in prompts
 FILES_SECTION_HEADING = "Files in the current directory:"
 VARIABLES_SECTION_HEADING = "Defined Variables:"
@@ -54,4 +59,38 @@ def cell_update_output_str(has_cell_update_output: bool) -> str:
     else:
         return ""
 
+def get_database_configuration():
+    """
+    Returns any database configurations that the user has set up.
+    """
 
+    APP_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER)
+    
+    with open(os.path.join(APP_DIR_PATH, 'db', 'connections.json'), 'r') as f:
+        connections = json.load(f)
+
+    with open(os.path.join(APP_DIR_PATH, 'db', 'schemas.json'), 'r') as f:
+        schemas = json.load(f)
+
+    return connections, schemas
+
+db_connections, db_schemas = get_database_configuration()
+
+if db_connections is not None:
+    DATABASE_RULES = f"""DATABASE RULES:
+    If the user has requested data that you belive is stored in the database:
+    - Use the provided schema.
+    - Only use SQLAlchemy to query the database.
+    - Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
+    - Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
+    - Column names in query results may be returned in lowercase. Always refer to columns using their lowercase names in the resulting DataFrame (e.g., df['date'] instead of df['DATE']).
+    - If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
+
+    Here is the schema:
+    {db_schemas}
+
+    Here are the connection details:
+    {db_connections}
+    """
+else:
+    DATABASE_RULES = ""
