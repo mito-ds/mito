@@ -1,6 +1,5 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, ICellModel } from '@jupyterlab/cells';
-import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
 
@@ -229,7 +228,6 @@ const transformMitoAppInput = (line: string): string => {
 // Convert notebook to Streamlit app
 export const convertToStreamlit = async (
   notebookTracker: INotebookTracker,
-  docManager: IDocumentManager
 ): Promise<void> => {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {

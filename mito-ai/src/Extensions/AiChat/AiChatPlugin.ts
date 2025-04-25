@@ -17,7 +17,6 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
-import { IDocumentManager } from '@jupyterlab/docmanager';
 // The Widget Rank determins where the ChatIcon is displayed
 // in the left hand toolbar
 const WIDGET_RANK = 2000
@@ -36,7 +35,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     ICommandPalette,
     IRenderMimeRegistry,
     IContextManager,
-    IDocumentManager
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -48,7 +46,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     rendermime: IRenderMimeRegistry,
     contextManager: IContextManager,
     restorer: ILayoutRestorer | null,
-    docManager: IDocumentManager
   ): WidgetTracker<ChatWidget> => {
     // Define a widget creator function,
     // then call it to make a new widget
@@ -59,7 +56,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         notebookTracker,
         rendermime,
         contextManager,
-        docManager
       );
       return chatWidget;
     };
