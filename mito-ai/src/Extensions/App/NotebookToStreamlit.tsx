@@ -4,6 +4,7 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
 import { detectVisualizationType, getCellContent, getCellType, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './notebookToStreamlitUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
+import { saveFileWithKernel } from './fileUtils';
 
 // Convert notebook to Streamlit app
 export const convertToStreamlit = async (
@@ -17,10 +18,7 @@ export const convertToStreamlit = async (
   }
   
   const notebookPath = notebookPanel.context.path;
-  const notebookDir = PathExt.dirname(notebookPath);
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
-  const outputFileName = `${notebookName}-streamlit-app.py`;
-  const outputPath = PathExt.join(notebookDir, outputFileName);
   
   // Initialize Streamlit code with imports
   let streamlitCode = [
@@ -127,18 +125,13 @@ export const convertToStreamlit = async (
   });
 
   // Create the streamlit app.py file
-  console.log(`Creating the file: ${outputPath}`)
   const streamlitSourceCode = streamlitCode.join('\n');
   console.log(streamlitSourceCode)
-  // Eventually, we will write this to a file, but there is no uncertainty here, so we're skipping it for now. 
-
 
   // Build the requirements.txt file    
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
-  console.log("Creating requirements txt")
-  console.log(requirementsContent)
 
-  const requirementsPath = PathExt.join(notebookDir, 'requirements.txt');
-  console.log(requirementsPath)
-
+  // Save the files to the current directory
+  await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
+  await saveFileWithKernel(notebookTracker, `./${notebookName}-streamlit-app.py`, streamlitSourceCode);
 };
