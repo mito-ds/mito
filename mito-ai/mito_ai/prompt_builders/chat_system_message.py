@@ -7,7 +7,7 @@ from mito_ai.prompt_builders.prompt_constants import (
     CODE_SECTION_HEADING, 
     FILES_SECTION_HEADING, 
     VARIABLES_SECTION_HEADING, 
-    DATABASE_RULES
+    get_database_rules
 )
 
 def create_chat_system_message_prompt() -> str:
@@ -45,7 +45,7 @@ The average value is 53[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:2]
 Notice in the example above that the citation uses line number 2 because citation line numbers are 0-indexed.
 
 ===
-{DATABASE_RULES}
+{get_database_rules()}
 
 ==== 
 IMPORTANT RULES:

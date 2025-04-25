@@ -59,10 +59,13 @@ def cell_update_output_str(has_cell_update_output: bool) -> str:
     else:
         return ""
 
-def get_database_configuration():
+def get_database_rules():
     """
-    Returns any database configurations that the user has set up.
+    Reads the user's database configurations,
+    and returns the rules for the AI to follow.
     """
+
+    # Get the db configuration from the user's mito folder
 
     APP_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER)
     
@@ -72,25 +75,25 @@ def get_database_configuration():
     with open(os.path.join(APP_DIR_PATH, 'db', 'schemas.json'), 'r') as f:
         schemas = json.load(f)
 
-    return connections, schemas
+    # If there is a db configuration, add return the rules
 
-db_connections, db_schemas = get_database_configuration()
+    if connections is not None:
+        DATABASE_RULES = f"""DATABASE RULES:
+If the user has requested data that you belive is stored in the database:
+- Use the provided schema.
+- Only use SQLAlchemy to query the database.
+- Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
+- Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
+- Column names in query results may be returned in lowercase. Always refer to columns using their lowercase names in the resulting DataFrame (e.g., df['date'] instead of df['DATE']).
+- If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
 
-if db_connections is not None:
-    DATABASE_RULES = f"""DATABASE RULES:
-    If the user has requested data that you belive is stored in the database:
-    - Use the provided schema.
-    - Only use SQLAlchemy to query the database.
-    - Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
-    - Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
-    - Column names in query results may be returned in lowercase. Always refer to columns using their lowercase names in the resulting DataFrame (e.g., df['date'] instead of df['DATE']).
-    - If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
+Here is the schema:
+{schemas}
 
-    Here is the schema:
-    {db_schemas}
+Here are the connection details:
+{connections}
+        """
+    else:
+        DATABASE_RULES = ""
 
-    Here are the connection details:
-    {db_connections}
-    """
-else:
-    DATABASE_RULES = ""
+    return DATABASE_RULES
