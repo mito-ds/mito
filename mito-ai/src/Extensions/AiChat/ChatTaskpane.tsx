@@ -90,7 +90,7 @@ const DEFAULT_SUGGESTION_OPTIONS: SuggestionOption[] = [
         prompt: "Visualize which vehicle types are most deadly to pedestrians and cyclists, measuring total fatalities and fatality rate per collision. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/nyc_car_crashes.csv"
     },
     {
-        display: "Compare Trade Balances",
+        display: "Compare Trade Surpluses",
         prompt: "Graph the countries that have the highest trade surplus with America. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/us_tarrifs.csv"
     }
 ];
