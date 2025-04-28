@@ -31,12 +31,12 @@ const ScrollableSuggestions: React.FC<ScrollableSuggestionsProps> = ({
         initScrollMask(suggestionsContainer);
         
         // Update mask on scroll
-        const handleScroll = () => {
+        const handleScroll = (): void => {
             updateScrollMask(suggestionsContainer);
         };
         
         // Update mask on window resize
-        const handleResize = () => {
+        const handleResize = (): void => {
             updateScrollMask(suggestionsContainer);
         };
         

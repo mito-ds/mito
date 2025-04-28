@@ -1256,9 +1256,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         options={DEFAULT_SUGGESTION_OPTIONS}
                         onSelectSuggestion={(prompt) => {
                             if (agentModeEnabled) {
-                                startAgentExecution(prompt);
+                                void startAgentExecution(prompt);
                             } else {
-                                sendChatInputMessage(prompt);
+                                void sendChatInputMessage(prompt);
                             }
                         }}
                     />
