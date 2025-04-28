@@ -40,13 +40,25 @@ const ScrollableSuggestions: React.FC<ScrollableSuggestionsProps> = ({
             updateScrollMask(suggestionsContainer);
         };
         
+        // Create a ResizeObserver to monitor changes to the container's parent
+        const resizeObserver = new ResizeObserver(() => {
+            updateScrollMask(suggestionsContainer);
+        });
+        
+        // Observe the parent container that has the max-width constraint
+        const parentContainer = suggestionsContainer.closest('.suggestions-container');
+        if (parentContainer) {
+            resizeObserver.observe(parentContainer);
+        }
+        
         suggestionsContainer.addEventListener('scroll', handleScroll);
         window.addEventListener('resize', handleResize);
         
-        // Clean up the event listeners on unmount
+        // Clean up the event listeners and observers on unmount
         return () => {
             suggestionsContainer.removeEventListener('scroll', handleScroll);
             window.removeEventListener('resize', handleResize);
+            resizeObserver.disconnect();
         };
     }, [options.length]); // Re-apply when options change
 

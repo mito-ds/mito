@@ -1251,16 +1251,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             </div>
             {displayOptimizedChatHistory.length === 0 && (
-                <ScrollableSuggestions 
-                    options={DEFAULT_SUGGESTION_OPTIONS}
-                    onSelectSuggestion={(prompt) => {
-                        if (agentModeEnabled) {
-                            startAgentExecution(prompt);
-                        } else {
-                            sendChatInputMessage(prompt);
-                        }
-                    }}
-                />
+                <div className="suggestions-container">
+                    <ScrollableSuggestions 
+                        options={DEFAULT_SUGGESTION_OPTIONS}
+                        onSelectSuggestion={(prompt) => {
+                            if (agentModeEnabled) {
+                                startAgentExecution(prompt);
+                            } else {
+                                sendChatInputMessage(prompt);
+                            }
+                        }}
+                    />
+                </div>
             )}
             <ChatInput
                 initialContent={''}
