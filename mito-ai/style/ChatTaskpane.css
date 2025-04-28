@@ -24,6 +24,13 @@
   padding-bottom: 10px;
 }
 
+.suggestions-container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .chat-taskpane-header {
   display: flex;
   flex-direction: row;
@@ -56,6 +63,8 @@
   flex: 1;
   overflow-y: auto;
   padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-empty-message {
@@ -63,13 +72,17 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  height: auto;
+  min-height: 200px;
+  max-height: 100%;
   text-align: center;
   color: var(--muted-text-color);
   padding: 20px;
   /* Add container query support */
   container-type: inline-size;
   user-select: none;
+  overflow-y: hidden;
+  margin: auto 0; /* This centers it vertically in the flex container */
 }
 
 .chat-empty-message .long-message {

@@ -4,20 +4,27 @@
  */
 
 /**
- * Updates the mask for a scrollable container based on its scroll position
+ * Updates the mask for a scrollable container based on its scroll position and container width
  * @param container - The scrollable container element
  */
 export const updateScrollMask = (container: HTMLElement | null): void => {
   if (!container) return;
   
-  // Calculate scroll position
+  // Get the container and its parent's width
   const scrollLeft = container.scrollLeft;
   const scrollWidth = container.scrollWidth;
   const clientWidth = container.clientWidth;
   const isScrollable = scrollWidth > clientWidth;
   
-  // If not scrollable, no need for any mask
-  if (!isScrollable) {
+  // Get the parent container which has the maximum width set
+  const parentContainer = container.closest('.suggestions-container');
+  const parentWidth = parentContainer?.getBoundingClientRect().width || 0;
+  
+  // Check if we're at max-width (600px) where we should hide the mask
+  const isAtMaxWidth = parentWidth >= 600 && parentWidth <= 601; // Small buffer for rounding errors
+  
+  // If at max width or not scrollable, no need for any mask
+  if (isAtMaxWidth || !isScrollable) {
     container.style.maskImage = 'none';
     container.style.webkitMaskImage = 'none';
     return;
