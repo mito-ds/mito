@@ -5,7 +5,6 @@
 
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css'
@@ -74,6 +73,7 @@ const Teams: NextPage = () => {
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
+                const playbackRate = 4;
                 entries.forEach((entry) => {
                     const index = sectionRefs.findIndex(ref => ref.current === entry.target);
                     if (index !== -1) {
@@ -82,11 +82,11 @@ const Teams: NextPage = () => {
                         
                         if (entry.isIntersecting) {
                             if (mitoVideo && !completedVideos[index * 2]) {
-                                mitoVideo.playbackRate = 2.5;
+                                mitoVideo.playbackRate = playbackRate;
                                 mitoVideo.play();
                             }
                             if (chatVideo && !completedVideos[index * 2 + 1]) {
-                                chatVideo.playbackRate = 2.5;
+                                chatVideo.playbackRate = playbackRate;
                                 chatVideo.play();
                             }
                         } else {
@@ -126,12 +126,12 @@ const Teams: NextPage = () => {
 
             <div className={pageStyles.container}>
                 <main className={pageStyles.main}>
-                    <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
+                    <section className={titleStyles.title_card}>
                         <h1 className={titleStyles.title}>
                             Write code faster, with fewer mistakes
                         </h1>
                         <p className={titleStyles.description}>
-                            No more copy-pasting code from ChatGPT that doesn&apos;t quite work. Mito lives inside Jupyter, helping you generate correct Python code based on your notebook, your data, and your goals.
+                            No more copy-pasting code that doesn&apos;t quite work. Mito lives inside Jupyter, helping you generate code based on your notebook, your data, and your goals.
                         </p>
                     </section>
 
@@ -139,7 +139,7 @@ const Teams: NextPage = () => {
                         <section key={index}>
                             <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
                                 <h2 dangerouslySetInnerHTML={{ __html: section.header }}></h2>
-                                <p className='only-on-desktop-inline-block'>{section.description}</p>
+                                <p className='only-on-desktop-inline-block' style={{ color: 'var(--color-text-secondary)', fontSize: '1.4rem' }}>{section.description}</p>
                             </div>
                             <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
                                 <div ref={sectionRefs[index]}>
