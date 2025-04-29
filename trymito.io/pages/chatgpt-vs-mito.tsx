@@ -21,11 +21,6 @@ interface VideoSection {
     }[];
 }
 
-interface VideoProgress {
-    currentTime: number;
-    duration: number;
-}
-
 const sections: VideoSection[] = [
     {
         header: "<span style='color: var(--color-purple)'>3.2× Faster EDA</span> (Without Manual Fixes)",
@@ -53,7 +48,7 @@ const sections: VideoSection[] = [
     }
 ];
 
-const Teams: NextPage = () => {
+const ChatGPTvsMito: NextPage = () => {
     // Create refs for all videos
     const videoRefs = [
         useRef<HTMLVideoElement>(null),
@@ -126,9 +121,9 @@ const Teams: NextPage = () => {
     return (
         <>
             <Head>
-                <title>Mito for Teams | Teams </title>
+                <title>ChatGPT vs Mito</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="description" content="Mito empowers teams to easily upskill from Excel to Python, with automation, code-gen and AI-assist features, all in a familiar spreadsheet GUI." />
+                <meta name="description" content="No more copy-pasting code that doesn&apos;t quite work. Mito lives inside Jupyter, helping you generate code based on your notebook and data." />
             </Head>
 
             <Header />
@@ -217,4 +212,4 @@ const Teams: NextPage = () => {
     );
 };
 
-export default Teams;
+export default ChatGPTvsMito;
