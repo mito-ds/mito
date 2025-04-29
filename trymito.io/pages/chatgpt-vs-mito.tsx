@@ -17,7 +17,7 @@ interface VideoSection {
     description: string;
     videos: {
         src: string;
-        ref: React.RefObject<HTMLVideoElement>;
+        ref?: React.RefObject<HTMLVideoElement>;
     }[];
 }
 
@@ -25,6 +25,33 @@ interface VideoProgress {
     currentTime: number;
     duration: number;
 }
+
+const sections: VideoSection[] = [
+    {
+        header: "<span style='color: var(--color-purple)'>3.2× Faster EDA</span> (Without Manual Fixes)",
+        description: "Code from ChatGPT pointed to the wrong file path, forcing extra manual fixes before the analysis could even start. Mito was able to write code to help it learn the correct path.",
+        videos: [
+            { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/eda-mito-timed-kycK8H5PQdMdQQNVypV0vxjvG8oJlV.mp4" },
+            { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/eda-chat-timed-jnubwzAT88oWEA0EbYSgE76tQWEMQy.mp4" }
+        ]
+    },
+    {
+        header: "Data Transformation — <span style='color: var(--color-purple)'>From 13 Clicks to 1</span>",
+        description: "With ChatGPT, it took 13 clicks of copy-pasting and back-and-forth — and two code errors that had to be debugged manually. Mito worked the first time.",
+        videos: [
+            { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-mito-timed-18L3d7ubqycxlGemjCOtgjGjWNOnUT.mp4" },
+            { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-chat-timed-NIBagFnEOjL19xC3JVlSOSVh7Csnhl.mp4" }
+        ]
+    },
+    {
+        header: "<span style='color: var(--color-purple)'>4.5× faster ML</span> — because Mito gets your data",
+        description: "ChatGPT needed extra prompting just to understand the column types. Mito works inside your notebook. It already sees the data — so you don't have to explain it.",
+        videos: [
+            { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-mito-timed-oDDXPKHEjEBre3qHieaLma2sqYEGAk.mp4" },
+            { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-chat-timed-t03BApeZs44lijGwtbeCPBHptR8wYx.mp4" }
+        ]
+    }
+];
 
 const Teams: NextPage = () => {
     // Create refs for all videos
@@ -43,32 +70,14 @@ const Teams: NextPage = () => {
     ];
     const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(6).fill(false));
 
-    const sections: VideoSection[] = [
-        {
-            header: "<span style='color: var(--color-purple)'>3.2× Faster EDA</span> (Without Manual Fixes)",
-            description: "Code from ChatGPT pointed to the wrong file path, forcing extra manual fixes before the analysis could even start. Mito was able to write code to help it learn the correct path.",
-            videos: [
-                { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/eda-mito-timed-kycK8H5PQdMdQQNVypV0vxjvG8oJlV.mp4", ref: videoRefs[0] },
-                { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/eda-chat-timed-jnubwzAT88oWEA0EbYSgE76tQWEMQy.mp4", ref: videoRefs[1] }
-            ]
-        },
-        {
-            header: "Data Transformation — <span style='color: var(--color-purple)'>From 13 Clicks to 1</span>",
-            description: "With ChatGPT, it took 13 clicks of copy-pasting and back-and-forth — and two code errors that had to be debugged manually. Mito worked the first time.",
-            videos: [
-                { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-mito-timed-18L3d7ubqycxlGemjCOtgjGjWNOnUT.mp4", ref: videoRefs[2] },
-                { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-chat-timed-NIBagFnEOjL19xC3JVlSOSVh7Csnhl.mp4", ref: videoRefs[3] }
-            ]
-        },
-        {
-            header: "<span style='color: var(--color-purple)'>4.5× faster ML</span> — because Mito gets your data",
-            description: "ChatGPT needed extra prompting just to understand the column types. Mito works inside your notebook. It already sees the data — so you don't have to explain it.",
-            videos: [
-                { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-mito-timed-oDDXPKHEjEBre3qHieaLma2sqYEGAk.mp4", ref: videoRefs[4] },
-                { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-chat-timed-t03BApeZs44lijGwtbeCPBHptR8wYx.mp4", ref: videoRefs[5] }
-            ]
-        }
-    ];
+    // Map the sections with their refs
+    const sectionsWithRefs = sections.map((section, sectionIndex) => ({
+        ...section,
+        videos: section.videos.map((video, videoIndex) => ({
+            ...video,
+            ref: videoRefs[sectionIndex * 2 + videoIndex]
+        }))
+    }));
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -135,7 +144,7 @@ const Teams: NextPage = () => {
                         </p>
                     </section>
 
-                    {sections.map((section, index) => (
+                    {sectionsWithRefs.map((section, index) => (
                         <section key={index}>
                             <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
                                 <h2 dangerouslySetInnerHTML={{ __html: section.header }}></h2>
