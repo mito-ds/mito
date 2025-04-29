@@ -64,7 +64,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompl
                 padding: '2px 8px',
                 width: 'fit-content',
             }}>
-                <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-purple)' }}>{label}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'white' }}>{label}</p>
             </div>
             <div style={{ position: 'relative' }}>
                 <video
