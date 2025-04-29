@@ -42,7 +42,6 @@ const Teams: NextPage = () => {
         useRef<HTMLDivElement>(null),
         useRef<HTMLDivElement>(null)
     ];
-    const [videoProgress, setVideoProgress] = useState<VideoProgress[]>(Array(6).fill({ currentTime: 0, duration: 0 }));
     const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(6).fill(false));
 
     const sections: VideoSection[] = [
@@ -73,73 +72,47 @@ const Teams: NextPage = () => {
     ];
 
     useEffect(() => {
-        const updateProgress = (index: number) => {
-            if (videoRefs[index].current) {
-                setVideoProgress(prev => {
-                    const newProgress = [...prev];
-                    newProgress[index] = {
-                        currentTime: videoRefs[index].current?.currentTime || 0,
-                        duration: videoRefs[index].current?.duration || 0
-                    };
-                    return newProgress;
-                });
-            }
-        };
-
-        // Add timeupdate event listeners to all videos
-        videoRefs.forEach((ref, index) => {
-            if (ref.current) {
-                ref.current.addEventListener('timeupdate', () => updateProgress(index));
-            }
-        });
-
-        return () => {
-            // Cleanup event listeners
-            videoRefs.forEach((ref, index) => {
-                if (ref.current) {
-                    ref.current.removeEventListener('timeupdate', () => updateProgress(index));
-                }
-            });
-        };
-    }, [videoRefs]);
-
-    useEffect(() => {
-        const observers = sectionRefs.map((ref, index) => {
-            return new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    const index = sectionRefs.findIndex(ref => ref.current === entry.target);
+                    if (index !== -1) {
+                        const mitoVideo = videoRefs[index * 2].current;
+                        const chatVideo = videoRefs[index * 2 + 1].current;
+                        
                         if (entry.isIntersecting) {
-                            // Play both videos in the section only if they haven't completed
-                            sections[index].videos.forEach((video, videoIndex) => {
-                                const globalIndex = index * 2 + videoIndex;
-                                if (video.ref.current && !completedVideos[globalIndex]) {
-                                    video.ref.current.playbackRate = 2.5;
-                                    video.ref.current.play();
-                                }
-                            });
+                            if (mitoVideo && !completedVideos[index * 2]) {
+                                mitoVideo.playbackRate = 2.5;
+                                mitoVideo.play();
+                            }
+                            if (chatVideo && !completedVideos[index * 2 + 1]) {
+                                chatVideo.playbackRate = 2.5;
+                                chatVideo.play();
+                            }
+                        } else {
+                            if (mitoVideo) mitoVideo.pause();
+                            if (chatVideo) chatVideo.pause();
                         }
-                    });
-                },
-                { threshold: 0.5 }
-            );
-        });
+                    }
+                });
+            },
+            { threshold: 0.5 }
+        );
 
-        // Observe each section
-        sectionRefs.forEach((ref, index) => {
+        sectionRefs.forEach((ref) => {
             if (ref.current) {
-                observers[index].observe(ref.current);
+                observer.observe(ref.current);
             }
         });
 
         return () => {
-            // Cleanup observers
-            sectionRefs.forEach((ref, index) => {
+            sectionRefs.forEach((ref) => {
                 if (ref.current) {
-                    observers[index].unobserve(ref.current);
+                    observer.unobserve(ref.current);
                 }
             });
         };
-    }, [completedVideos, sectionRefs, sections]);
+    }, [completedVideos]);
 
     return (
         <>
@@ -182,7 +155,7 @@ const Teams: NextPage = () => {
                                         width="100%"
                                         height="auto"
                                         muted
-                                        preload="auto"
+                                        preload="metadata"
                                         src={section.videos[0].src}
                                         style={{ maxWidth: '100%', height: 'auto', border: '3px solid rgba(157, 108, 255, 0.4)' }}
                                         onEnded={() => {
@@ -192,24 +165,8 @@ const Teams: NextPage = () => {
                                                 newCompleted[globalIndex] = true;
                                                 return newCompleted;
                                             });
-                                            if (section.videos[0].ref.current) {
-                                                section.videos[0].ref.current.pause();
-                                            }
                                         }}
                                     ></video>
-                                    <div style={{
-                                        width: '100%',
-                                        height: '4px',
-                                        backgroundColor: 'rgba(157, 108, 255, 0.2)',
-                                        marginTop: '4px'
-                                    }}>
-                                        <div style={{
-                                            width: `${(videoProgress[index * 2].currentTime / videoProgress[index * 2].duration) * 100}%`,
-                                            height: '100%',
-                                            backgroundColor: 'var(--color-purple)',
-                                            transition: 'width 0.1s linear'
-                                        }}></div>
-                                    </div>
                                 </div>
                                 <div className='margin-top-3rem-mobile-only'>
                                     <div style={{
@@ -224,7 +181,7 @@ const Teams: NextPage = () => {
                                         width="100%"
                                         height="auto"
                                         muted
-                                        preload="auto"
+                                        preload="metadata"
                                         src={section.videos[1].src}
                                         style={{ maxWidth: '100%', height: 'auto', border: '3px solid rgba(157, 108, 255, 0.4)' }}
                                         onEnded={() => {
@@ -234,24 +191,8 @@ const Teams: NextPage = () => {
                                                 newCompleted[globalIndex] = true;
                                                 return newCompleted;
                                             });
-                                            if (section.videos[1].ref.current) {
-                                                section.videos[1].ref.current.pause();
-                                            }
                                         }}
                                     ></video>
-                                    <div style={{
-                                        width: '100%',
-                                        height: '4px',
-                                        backgroundColor: 'rgba(157, 108, 255, 0.2)',
-                                        marginTop: '4px'
-                                    }}>
-                                        <div style={{
-                                            width: `${(videoProgress[index * 2 + 1].currentTime / videoProgress[index * 2 + 1].duration) * 100}%`,
-                                            height: '100%',
-                                            backgroundColor: 'var(--color-purple)',
-                                            transition: 'width 0.1s linear'
-                                        }}></div>
-                                    </div>
                                 </div>
                             </div>
                         </section>
