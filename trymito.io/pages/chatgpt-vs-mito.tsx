@@ -34,7 +34,7 @@ const sections: VideoSection[] = [
     },
     {
         header: "Data Transformation — <span style='color: var(--color-purple)'>From 13 clicks to 1</span>",
-        description: "With ChatGPT, it took 13 clicks of copy-pasting and back-and-forth — and two code errors that had to be debugged manually. Mito worked the first time.",
+        description: "With ChatGPT, it took 13 clicks of copy-pasting back-and-forth — and two code errors that had to be debugged manually. Mito worked the first time.",
         videos: [
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-mito-timed-18L3d7ubqycxlGemjCOtgjGjWNOnUT.mp4" },
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-chat-timed-NIBagFnEOjL19xC3JVlSOSVh7Csnhl.mp4" }
