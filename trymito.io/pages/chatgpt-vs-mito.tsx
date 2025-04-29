@@ -48,6 +48,61 @@ const sections: VideoSection[] = [
     }
 ];
 
+interface VideoPlayerProps {
+    videoRef: React.RefObject<HTMLVideoElement>;
+    src: string;
+    label: string;
+    isCompleted: boolean;
+    onCompleted: () => void;
+}
+
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompleted, onCompleted }) => {
+    return (
+        <div style={{ position: 'relative' }}>
+            <div style={{
+                backgroundColor: 'rgba(157, 108, 255, 0.4)',
+                padding: '2px 8px',
+                width: 'fit-content',
+            }}>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-purple)' }}>{label}</p>
+            </div>
+            <div style={{ position: 'relative' }}>
+                <video
+                    ref={videoRef}
+                    width="100%"
+                    height="auto"
+                    muted
+                    preload="metadata"
+                    src={src}
+                    style={{ maxWidth: '100%', height: 'auto', border: '3px solid rgba(157, 108, 255, 0.4)' }}
+                    onEnded={onCompleted}
+                ></video>
+                {isCompleted && (
+                    <>
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            color: 'white',
+                            fontSize: '1.2rem',
+                            fontWeight: 'bold'
+                        }}>
+                            <div>Completed in {Math.round(videoRef.current?.duration || 0)}s</div>
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
 const ChatGPTvsMito: NextPage = () => {
     // Create refs for all videos
     const videoRefs = [
@@ -147,108 +202,36 @@ const ChatGPTvsMito: NextPage = () => {
                             </div>
                             <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
                                 <div ref={sectionRefs[index]}>
-                                    <div style={{ position: 'relative' }}>
-                                        <div style={{
-                                            backgroundColor: 'rgba(157, 108, 255, 0.4)',
-                                            padding: '2px 8px',
-                                            width: 'fit-content',
-                                        }}>
-                                            <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-purple)' }}>Mito</p>
-                                        </div>
-                                        <div style={{ position: 'relative' }}>
-                                            <video
-                                                ref={section.videos[0].ref}
-                                                width="100%"
-                                                height="auto"
-                                                muted
-                                                preload="metadata"
-                                                src={section.videos[0].src}
-                                                style={{ maxWidth: '100%', height: 'auto', border: '3px solid rgba(157, 108, 255, 0.4)' }}
-                                                onEnded={() => {
-                                                    const globalIndex = index * 2;
-                                                    setCompletedVideos(prev => {
-                                                        const newCompleted = [...prev];
-                                                        newCompleted[globalIndex] = true;
-                                                        return newCompleted;
-                                                    });
-                                                }}
-                                            ></video>
-                                            {completedVideos[index * 2] && (
-                                                <>
-                                                    <div style={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        right: 0,
-                                                        bottom: 0,
-                                                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        color: 'white',
-                                                        fontSize: '1.2rem',
-                                                        fontWeight: 'bold'
-                                                    }}>
-                                                        <div>Completed in</div>
-                                                        <div>{Math.round(section.videos[0].ref?.current?.duration || 0)}s</div>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
+                                    <VideoPlayer
+                                        videoRef={section.videos[0].ref}
+                                        src={section.videos[0].src}
+                                        label="Mito"
+                                        isCompleted={completedVideos[index * 2]}
+                                        onCompleted={() => {
+                                            const globalIndex = index * 2;
+                                            setCompletedVideos(prev => {
+                                                const newCompleted = [...prev];
+                                                newCompleted[globalIndex] = true;
+                                                return newCompleted;
+                                            });
+                                        }}
+                                    />
                                 </div>
                                 <div className='margin-top-3rem-mobile-only'>
-                                    <div style={{ position: 'relative' }}>
-                                        <div style={{
-                                            backgroundColor: 'rgba(157, 108, 255, 0.4)',
-                                            padding: '2px 8px',
-                                            width: 'fit-content',
-                                        }}>
-                                            <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-purple)' }}>ChatGPT</p>
-                                        </div>
-                                        <div style={{ position: 'relative' }}>
-                                            <video
-                                                ref={section.videos[1].ref}
-                                                width="100%"
-                                                height="auto"
-                                                muted
-                                                preload="metadata"
-                                                src={section.videos[1].src}
-                                                style={{ maxWidth: '100%', height: 'auto', border: '3px solid rgba(157, 108, 255, 0.4)' }}
-                                                onEnded={() => {
-                                                    const globalIndex = index * 2 + 1;
-                                                    setCompletedVideos(prev => {
-                                                        const newCompleted = [...prev];
-                                                        newCompleted[globalIndex] = true;
-                                                        return newCompleted;
-                                                    });
-                                                }}
-                                            ></video>
-                                            {completedVideos[index * 2 + 1] && (
-                                                <>
-                                                    <div style={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        right: 0,
-                                                        bottom: 0,
-                                                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        color: 'white',
-                                                        fontSize: '1.2rem',
-                                                        fontWeight: 'bold'
-                                                    }}>
-                                                        <div>Completed in</div>
-                                                        <div>{Math.round(section.videos[1].ref?.current?.duration || 0)}s</div>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
+                                    <VideoPlayer
+                                        videoRef={section.videos[1].ref}
+                                        src={section.videos[1].src}
+                                        label="ChatGPT"
+                                        isCompleted={completedVideos[index * 2 + 1]}
+                                        onCompleted={() => {
+                                            const globalIndex = index * 2 + 1;
+                                            setCompletedVideos(prev => {
+                                                const newCompleted = [...prev];
+                                                newCompleted[globalIndex] = true;
+                                                return newCompleted;
+                                            });
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </section>
