@@ -59,6 +59,31 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompleted, onCompleted }) => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    // Lazy load the video
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (videoRef.current) {
+            observer.observe(videoRef.current);
+        }
+
+        return () => {
+            if (videoRef.current) {
+                observer.unobserve(videoRef.current);
+            }
+        };
+    }, [videoRef]);
+
     return (
         <div style={{ position: 'relative' }}>
             <div style={{
@@ -74,8 +99,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompl
                     width="100%"
                     height="auto"
                     muted
-                    preload="metadata"
-                    src={src}
+                    preload="none"
+                    src={isVisible ? src : undefined}
                     style={{ maxWidth: '100%', height: 'auto', border: '3px solid rgba(157, 108, 255, 0.4)' }}
                     onEnded={onCompleted}
                 ></video>
