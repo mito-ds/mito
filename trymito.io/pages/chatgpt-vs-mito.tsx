@@ -29,8 +29,19 @@ interface VideoProgress {
 
 const Teams: NextPage = () => {
     // Create refs for all videos
-    const videoRefs = Array(6).fill(null).map(() => useRef<HTMLVideoElement>(null));
-    const sectionRefs = Array(3).fill(null).map(() => useRef<HTMLDivElement>(null));
+    const videoRefs = [
+        useRef<HTMLVideoElement>(null),
+        useRef<HTMLVideoElement>(null),
+        useRef<HTMLVideoElement>(null),
+        useRef<HTMLVideoElement>(null),
+        useRef<HTMLVideoElement>(null),
+        useRef<HTMLVideoElement>(null)
+    ];
+    const sectionRefs = [
+        useRef<HTMLDivElement>(null),
+        useRef<HTMLDivElement>(null),
+        useRef<HTMLDivElement>(null)
+    ];
     const [videoProgress, setVideoProgress] = useState<VideoProgress[]>(Array(6).fill({ currentTime: 0, duration: 0 }));
     const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(6).fill(false));
 
@@ -53,7 +64,7 @@ const Teams: NextPage = () => {
         },
         {
             header: "<span style='color: var(--color-purple)'>4.5× faster ML</span> — because Mito gets your data",
-            description: "ChatGPT needed extra prompting just to understand the column types. Mito works inside your notebook. It already sees the data — so you don’t have to explain it.",
+            description: "ChatGPT needed extra prompting just to understand the column types. Mito works inside your notebook. It already sees the data — so you don't have to explain it.",
             videos: [
                 { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-mito-timed-oDDXPKHEjEBre3qHieaLma2sqYEGAk.mp4", ref: videoRefs[4] },
                 { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-chat-timed-t03BApeZs44lijGwtbeCPBHptR8wYx.mp4", ref: videoRefs[5] }
@@ -90,7 +101,7 @@ const Teams: NextPage = () => {
                 }
             });
         };
-    }, []);
+    }, [videoRefs]);
 
     useEffect(() => {
         const observers = sectionRefs.map((ref, index) => {
@@ -128,7 +139,7 @@ const Teams: NextPage = () => {
                 }
             });
         };
-    }, [completedVideos]);
+    }, [completedVideos, sectionRefs, sections]);
 
     return (
         <>
@@ -147,7 +158,7 @@ const Teams: NextPage = () => {
                             Write code faster, with fewer mistakes
                         </h1>
                         <p className={titleStyles.description}>
-                            No more copy-pasting code from ChatGPT that doesn't quite work. Mito lives inside Jupyter, helping you generate correct Python code based on your notebook, your data, and your goals.
+                            No more copy-pasting code from ChatGPT that doesn&apos;t quite work. Mito lives inside Jupyter, helping you generate correct Python code based on your notebook, your data, and your goals.
                         </p>
                     </section>
 
