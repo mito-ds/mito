@@ -185,7 +185,7 @@ const ChatGPTvsMito: NextPage = () => {
 
             <div className={pageStyles.container}>
                 <main className={pageStyles.main}>
-                    <section className={titleStyles.title_card}>
+                    <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                         <h1 className={titleStyles.title}>
                             Write code faster, with fewer mistakes
                         </h1>
