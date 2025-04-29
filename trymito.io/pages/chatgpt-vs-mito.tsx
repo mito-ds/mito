@@ -81,10 +81,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompl
                     <>
                         <div style={{
                             position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
+                            top: '3px',
+                            left: '3px',
+                            right: '3px',
+                            bottom: '6px',
                             backgroundColor: 'rgba(0, 0, 0, 0.75)',
                             display: 'flex',
                             flexDirection: 'column',
@@ -138,7 +138,7 @@ const ChatGPTvsMito: NextPage = () => {
                     if (index !== -1) {
                         const mitoVideo = videoRefs[index * 2].current;
                         const chatVideo = videoRefs[index * 2 + 1].current;
-                        
+
                         if (entry.isIntersecting) {
                             if (mitoVideo && !completedVideos[index * 2]) {
                                 mitoVideo.playbackRate = playbackRate;
@@ -195,8 +195,8 @@ const ChatGPTvsMito: NextPage = () => {
                     </section>
 
                     {sectionsWithRefs.map((section, index) => (
-                        <section key={index}>
-                            <div className={pageStyles.subsection + ' ' + pageStyles.subsection_column + ' center'}>
+                        <section key={index} style={{ marginBottom: '0px', marginTop: '50px' }}>
+                            <div className={titleStyles.description + ' ' + pageStyles.subsection_column + ' center'} style={{ marginBottom: '50px' }}>
                                 <h2 dangerouslySetInnerHTML={{ __html: section.header }}></h2>
                                 <p className='only-on-desktop-inline-block' style={{ color: 'var(--color-text-secondary)', fontSize: '1.4rem' }}>{section.description}</p>
                             </div>
