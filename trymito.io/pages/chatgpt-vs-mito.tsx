@@ -25,7 +25,7 @@ interface VideoSection {
 
 const sections: VideoSection[] = [
     {
-        header: "<span style='color: var(--color-purple)'>3.2× Faster EDA</span> (Without Manual Fixes)",
+        header: "<span style='color: var(--color-purple)'>3.2× Faster EDA</span> (without manual fixes)",
         description: "Code from ChatGPT pointed to the wrong file path, forcing extra manual fixes before the analysis could even start. Mito was able to write code to help it learn the correct path.",
         videos: [
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/eda-mito-timed-kycK8H5PQdMdQQNVypV0vxjvG8oJlV.mp4" },
@@ -33,7 +33,7 @@ const sections: VideoSection[] = [
         ]
     },
     {
-        header: "Data Transformation — <span style='color: var(--color-purple)'>From 13 Clicks to 1</span>",
+        header: "Data Transformation — <span style='color: var(--color-purple)'>From 13 clicks to 1</span>",
         description: "With ChatGPT, it took 13 clicks of copy-pasting and back-and-forth — and two code errors that had to be debugged manually. Mito worked the first time.",
         videos: [
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-mito-timed-18L3d7ubqycxlGemjCOtgjGjWNOnUT.mp4" },
@@ -189,7 +189,7 @@ const ChatGPTvsMito: NextPage = () => {
                 <main className={pageStyles.main}>
                     <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                         <h1 className={titleStyles.title}>
-                            Write code faster, with fewer mistakes
+                            Code faster, with fewer mistakes
                         </h1>
                         <p className={titleStyles.description}>
                             No more copy-pasting code that doesn&apos;t quite work. Mito lives inside Jupyter, helping you generate code based on your notebook, your data, and your goals.
