@@ -9,8 +9,10 @@ import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
-import ContactCTACard from '../components/CTACards/ContactCTACard';
 import { useRef, useEffect, useState } from 'react';
+import TextButton from '../components/Buttons/TextButton/TextButton';
+
+const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
 
 interface VideoSection {
     header: string;
@@ -237,8 +239,11 @@ const ChatGPTvsMito: NextPage = () => {
                         </section>
                     ))}
 
-                    <section className={pageStyles.background_card}>
-                        <ContactCTACard />
+                    <section className={pageStyles.background_card} style={{ marginTop: '50px' }}>
+                        <h2 className={titleStyles.title} style={{ marginBottom: '50px' }}>
+                            See Mito in Action — Try the Demo
+                        </h2>
+                        <TextButton text='Try online' href={JUPYTERHUB_MITO_LINK} variant="highlight"/>
                     </section>
                 </main>
                 <Footer />
