@@ -99,9 +99,18 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompl
                     width="100%"
                     height="auto"
                     muted
-                    preload="none"
+                    playsInline
+                    preload="metadata"
+                    controlsList="nodownload"
+                    disablePictureInPicture
                     src={isVisible ? src : undefined}
-                    style={{ maxWidth: '100%', height: 'auto', border: '3px solid rgba(157, 108, 255, 0.4)' }}
+                    style={{ 
+                        maxWidth: '100%', 
+                        height: 'auto', 
+                        border: '3px solid rgba(157, 108, 255, 0.4)',
+                        objectFit: 'contain',
+                        display: 'block'
+                    }}
                     onEnded={onCompleted}
                 ></video>
                 {isCompleted && (
@@ -268,7 +277,7 @@ const ChatGPTvsMito: NextPage = () => {
                         <h2 className={titleStyles.title} style={{ marginBottom: '50px' }}>
                             See Mito in Action — Try the Demo
                         </h2>
-                        <TextButton text='Try online' href={JUPYTERHUB_MITO_LINK} variant="highlight"/>
+                        <TextButton text='Try online' href={JUPYTERHUB_MITO_LINK} variant="highlight" />
                     </section>
                 </main>
                 <Footer />
