@@ -9,7 +9,7 @@ import Head from 'next/head';
 import Image from "next/image";
 import { GetStaticProps } from 'next/types';
 import { useEffect, useState } from 'react';
-import DownloadCTACard from '../../components/CTACards/DownloadCTACard';
+import ComparisonCTACard from '../../components/CTACards/ComparisonCTACard';
 import Footer from '../../components/Footer/Footer';
 import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
 import pageStyles from '../../styles/Page.module.css';
@@ -129,13 +129,9 @@ const PostPage = (props: {post: PostOrPage}) => {
             <div className={postStyles.post_toc}>
               <PageTOC />
               <div className={postStyles.post_cta}>
-                <DownloadCTACard
-                  headerStyle={{
-                    fontSize: '1.25rem',
-                    color: 'var(--color-light-background-accent)',
-                    fontWeight: 'normal'
-                  }}
-                  buttonContainerStyle={{ paddingTop: '2rem' }}
+              <ComparisonCTACard 
+                  headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
+                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG} 
                 />
               </div>
             </div>
@@ -176,9 +172,9 @@ const PostPage = (props: {post: PostOrPage}) => {
             {/* CTA */}
             <div className={postStyles.post_cta_container}>
               <div className={postStyles.post_cta}>
-                <DownloadCTACard 
+                <ComparisonCTACard 
                   headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
-                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG}
+                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG} 
                 />
               </div>
             </div>
