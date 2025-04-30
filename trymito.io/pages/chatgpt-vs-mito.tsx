@@ -62,8 +62,8 @@ interface VideoPlayerProps {
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
     videoRef,
     src,
-    label, 
-    isCompleted, 
+    label,
+    isCompleted,
     onCompleted,
     playbackRate = 4
 }) => {
@@ -164,21 +164,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 };
 
 const ChatGPTvsMito: NextPage = () => {
-    // Create refs for all videos
-    const videoRefs = [
-        useRef<HTMLVideoElement>(null),
-        useRef<HTMLVideoElement>(null),
-        useRef<HTMLVideoElement>(null),
-        useRef<HTMLVideoElement>(null),
-        useRef<HTMLVideoElement>(null),
-        useRef<HTMLVideoElement>(null)
-    ];
-    const sectionRefs = [
-        useRef<HTMLDivElement>(null),
-        useRef<HTMLDivElement>(null),
-        useRef<HTMLDivElement>(null)
-    ];
-    const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(6).fill(false));
+    // Dynamically create refs based on sections
+    const videoRefs = sections.flatMap(section =>
+        section.videos.map(() => useRef<HTMLVideoElement>(null))
+    );
+    const sectionRefs = sections.map(() => useRef<HTMLDivElement>(null));
+    const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(videoRefs.length).fill(false));
 
     // Map the sections with their refs
     const sectionsWithRefs = sections.map((section, sectionIndex) => ({
@@ -255,7 +246,7 @@ const ChatGPTvsMito: NextPage = () => {
                         <section key={index} style={{ marginBottom: '0px' }}>
                             <div className={titleStyles.description + ' ' + pageStyles.subsection_column + ' center'} style={{ marginBottom: '50px' }}>
                                 <h2 dangerouslySetInnerHTML={{ __html: section.header }}></h2>
-                                <p className={titleStyles.description} style={{ color: 'var(--color-text-secondary)'}}>{section.description}</p>
+                                <p className={titleStyles.description} style={{ color: 'var(--color-text-secondary)' }}>{section.description}</p>
                             </div>
                             <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
                                 <div ref={sectionRefs[index]}>
