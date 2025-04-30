@@ -164,12 +164,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 };
 
 const ChatGPTvsMito: NextPage = () => {
-    // Dynamically create refs based on sections
-    const videoRefs = sections.flatMap(section =>
-        section.videos.map(() => useRef<HTMLVideoElement>(null))
-    );
-    const sectionRefs = sections.map(() => useRef<HTMLDivElement>(null));
-    const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(videoRefs.length).fill(false));
+    // Calculate total number of videos needed
+    const totalVideos = sections.reduce((acc, section) => acc + section.videos.length, 0);
+    const totalSections = sections.length;
+
+    // Create refs at the top level
+    const videoRefs = Array(totalVideos).fill(null).map(() => useRef<HTMLVideoElement>(null));
+    const sectionRefs = Array(totalSections).fill(null).map(() => useRef<HTMLDivElement>(null));
+    const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(totalVideos).fill(false));
 
     // Map the sections with their refs
     const sectionsWithRefs = sections.map((section, sectionIndex) => ({
