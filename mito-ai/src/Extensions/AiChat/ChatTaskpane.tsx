@@ -67,7 +67,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
-import { convertToStreamlit } from './NotebookToStreamlit';
+import { convertToStreamlit } from '../App/NotebookToStreamlit';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -82,7 +82,7 @@ interface IChatTaskpaneProps {
     contextManager: IContextManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
-    websocketClient: CompletionWebsocketClient;
+    websocketClient: CompletionWebsocketClient
 }
 
 interface ICellStateBeforeDiff {
@@ -98,8 +98,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     contextManager,
     app,
     operatingSystem,
-    websocketClient
+    websocketClient,
 }) => {
+
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
