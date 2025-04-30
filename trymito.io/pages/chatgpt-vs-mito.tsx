@@ -68,8 +68,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     playbackRate = 4
 }) => {
     const [isVisible, setIsVisible] = useState(false);
-    // Detect Safari browser
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const [isSafari, setIsSafari] = useState(false);
+
+    // Browser detection via useEffect to avoid SSR issues
+    useEffect(() => {
+        setIsSafari(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
+    }, []);
+
     // Use lower playback rate for Safari. If the default playback rate (4x) is used Safari will only play every ~10th second.
     const effectivePlaybackRate = isSafari ? 2 : playbackRate;
 
