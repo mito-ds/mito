@@ -255,7 +255,7 @@ const ChatGPTvsMito: NextPage = () => {
                         <section key={index} style={{ marginBottom: '0px' }}>
                             <div className={titleStyles.description + ' ' + pageStyles.subsection_column + ' center'} style={{ marginBottom: '50px' }}>
                                 <h2 dangerouslySetInnerHTML={{ __html: section.header }}></h2>
-                                <p className='only-on-desktop-inline-block' style={{ color: 'var(--color-text-secondary)', fontSize: '1.4rem' }}>{section.description}</p>
+                                <p className={titleStyles.description} style={{ color: 'var(--color-text-secondary)'}}>{section.description}</p>
                             </div>
                             <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
                                 <div ref={sectionRefs[index]}>
