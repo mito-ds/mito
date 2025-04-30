@@ -124,7 +124,11 @@ export function buildChatWidget(
     notebookTracker,
     renderMimeRegistry,
     contextManager,
+<<<<<<< HEAD
     operatingSystem
+=======
+    operatingSystem,
+>>>>>>> spike/ipynb-to-streamlit-exploration
   });
   chatWidget.id = 'mito_ai';
   return chatWidget;
