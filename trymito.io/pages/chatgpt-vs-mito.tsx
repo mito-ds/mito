@@ -56,9 +56,17 @@ interface VideoPlayerProps {
     label: string;
     isCompleted: boolean;
     onCompleted: () => void;
+    playbackRate?: number;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompleted, onCompleted }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({
+    videoRef,
+    src,
+    label, 
+    isCompleted, 
+    onCompleted,
+    playbackRate = 4
+}) => {
     const [isVisible, setIsVisible] = useState(false);
 
     // Lazy load the video
@@ -84,6 +92,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompl
         };
     }, [videoRef]);
 
+    // Set playback rate when video is loaded
+    useEffect(() => {
+        if (videoRef.current && isVisible) {
+            videoRef.current.playbackRate = playbackRate;
+        }
+    }, [videoRef, isVisible, playbackRate]);
+
     return (
         <div style={{ position: 'relative' }}>
             <div style={{
@@ -104,9 +119,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoRef, src, label, isCompl
                     controlsList="nodownload"
                     disablePictureInPicture
                     src={isVisible ? src : undefined}
-                    style={{ 
-                        maxWidth: '100%', 
-                        height: 'auto', 
+                    style={{
+                        maxWidth: '100%',
+                        height: 'auto',
                         border: '3px solid rgba(157, 108, 255, 0.4)',
                         objectFit: 'contain',
                         display: 'block'
@@ -168,7 +183,6 @@ const ChatGPTvsMito: NextPage = () => {
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                const playbackRate = 4;
                 entries.forEach((entry) => {
                     const index = sectionRefs.findIndex(ref => ref.current === entry.target);
                     if (index !== -1) {
@@ -177,11 +191,9 @@ const ChatGPTvsMito: NextPage = () => {
 
                         if (entry.isIntersecting) {
                             if (mitoVideo && !completedVideos[index * 2]) {
-                                mitoVideo.playbackRate = playbackRate;
                                 mitoVideo.play();
                             }
                             if (chatVideo && !completedVideos[index * 2 + 1]) {
-                                chatVideo.playbackRate = playbackRate;
                                 chatVideo.play();
                             }
                         } else {
