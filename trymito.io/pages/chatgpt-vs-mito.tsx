@@ -9,7 +9,7 @@ import Footer from '../components/Footer/Footer';
 import Header from '../components/Header/Header';
 import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
-import { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import TextButton from '../components/Buttons/TextButton/TextButton';
 
 const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
@@ -168,9 +168,18 @@ const ChatGPTvsMito: NextPage = () => {
     const totalVideos = sections.reduce((acc, section) => acc + section.videos.length, 0);
     const totalSections = sections.length;
 
-    // Create refs at the top level
-    const videoRefs = Array(totalVideos).fill(null).map(() => useRef<HTMLVideoElement>(null));
-    const sectionRefs = Array(totalSections).fill(null).map(() => useRef<HTMLDivElement>(null));
+    // Create refs at the top level without callbacks
+    const videoRefs = useRef<React.RefObject<HTMLVideoElement>[]>([]);
+    const sectionRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
+    
+    // Initialize refs if they haven't been created yet
+    if (videoRefs.current.length === 0) {
+        videoRefs.current = Array(totalVideos).fill(null).map(() => React.createRef<HTMLVideoElement>());
+    }
+    if (sectionRefs.current.length === 0) {
+        sectionRefs.current = Array(totalSections).fill(null).map(() => React.createRef<HTMLDivElement>());
+    }
+
     const [completedVideos, setCompletedVideos] = useState<boolean[]>(Array(totalVideos).fill(false));
 
     // Map the sections with their refs
@@ -178,7 +187,7 @@ const ChatGPTvsMito: NextPage = () => {
         ...section,
         videos: section.videos.map((video, videoIndex) => ({
             ...video,
-            ref: videoRefs[sectionIndex * 2 + videoIndex]
+            ref: videoRefs.current[sectionIndex * 2 + videoIndex]
         }))
     }));
 
@@ -186,21 +195,21 @@ const ChatGPTvsMito: NextPage = () => {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    const index = sectionRefs.findIndex(ref => ref.current === entry.target);
+                    const index = sectionRefs.current.findIndex(ref => ref.current === entry.target);
                     if (index !== -1) {
-                        const mitoVideo = videoRefs[index * 2].current;
-                        const chatVideo = videoRefs[index * 2 + 1].current;
+                        const mitoVideo = videoRefs.current[index * 2];
+                        const chatVideo = videoRefs.current[index * 2 + 1];
 
                         if (entry.isIntersecting) {
-                            if (mitoVideo && !completedVideos[index * 2]) {
-                                mitoVideo.play();
+                            if (mitoVideo?.current && !completedVideos[index * 2]) {
+                                mitoVideo.current.play();
                             }
-                            if (chatVideo && !completedVideos[index * 2 + 1]) {
-                                chatVideo.play();
+                            if (chatVideo?.current && !completedVideos[index * 2 + 1]) {
+                                chatVideo.current.play();
                             }
                         } else {
-                            if (mitoVideo) mitoVideo.pause();
-                            if (chatVideo) chatVideo.pause();
+                            if (mitoVideo?.current) mitoVideo.current.pause();
+                            if (chatVideo?.current) chatVideo.current.pause();
                         }
                     }
                 });
@@ -208,14 +217,14 @@ const ChatGPTvsMito: NextPage = () => {
             { threshold: 0.5 }
         );
 
-        sectionRefs.forEach((ref) => {
+        sectionRefs.current.forEach((ref) => {
             if (ref.current) {
                 observer.observe(ref.current);
             }
         });
 
         return () => {
-            sectionRefs.forEach((ref) => {
+            sectionRefs.current.forEach((ref) => {
                 if (ref.current) {
                     observer.unobserve(ref.current);
                 }
@@ -251,7 +260,7 @@ const ChatGPTvsMito: NextPage = () => {
                                 <p className={titleStyles.description} style={{ color: 'var(--color-text-secondary)' }}>{section.description}</p>
                             </div>
                             <div className={pageStyles.subsection + ' flex-row-desktop-only'}>
-                                <div ref={sectionRefs[index]}>
+                                <div ref={sectionRefs.current[index]}>
                                     <VideoPlayer
                                         videoRef={section.videos[0].ref}
                                         src={section.videos[0].src}
