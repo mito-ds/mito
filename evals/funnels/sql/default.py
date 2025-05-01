@@ -83,6 +83,41 @@ def no_halucinated_tables_test(
         ), f"Table '{table}' does not exist in the schema"
 
 
+def column_table_mismatch_test():
+    pass
+
+
+def get_table_columns(
+    schema: Dict[str, Any], database_name: str, table_name: str
+) -> List[str]:
+    """
+    Helper function to fetch all columns from a table in the schema.
+
+    Args:
+        schema: The database schema containing all valid tables and their columns
+        database_name: The name of the database containing the table
+        table_name: The name of the table to get columns from
+
+    Returns:
+        List of column names for the specified table
+
+    Raises:
+        ValueError: If the database or table is not found in the schema
+    """
+    # Check if database exists
+    if database_name not in schema:
+        raise ValueError(f"Database '{database_name}' not found in schema")
+
+    # Iterate through each schema in the database
+    for schema_name in schema[database_name].values():
+        # Check if the table exists in this schema
+        if table_name in schema_name:
+            # Return list of column names
+            return [col["name"] for col in schema_name[table_name]]
+
+    raise ValueError(f"Table '{table_name}' not found in database '{database_name}'")
+
+
 def test_funnel(
     test_case_specs: SQLTestCase,
     sql_details: SQLDetails,
