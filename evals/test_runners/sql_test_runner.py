@@ -52,4 +52,6 @@ def run_sql_tests(
             ai_generated_code,
             DEFAULT_MODEL_SQL_EXTRACTOR,
         )
-        print(sql_details)
+
+        from evals.funnels.sql.default import test_funnel
+        test_funnel(sql_details)

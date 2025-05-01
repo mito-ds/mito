@@ -183,3 +183,8 @@ class DebugPromptGenerator():
     def get_default_model(self) -> str:
         return "gpt-4o-mini"
     
+
+class SQLDetails(BaseModel):
+    query: str
+    tables: List[str]
+    columns: List[str]
