@@ -4,6 +4,7 @@ from evals.funnels.sql.steps import (
     sql_generated_test,
     correct_tables_test,
     no_table_halucinations_test,
+    no_column_table_mismatch_test,
 )
 
 
@@ -34,6 +35,9 @@ def test_funnel(
     )
 
     # 4. No column-table mismatches - does the SQL query reference any columns that are not in the schema?
+    no_column_table_mismatch_test(
+        test_case_specs.expected_columns, sql_details.columns, schema
+    )
 
     # 5. No halucinated columns - does the SQL query reference any columns that are not in the schema?
 
