@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
     
 @dataclass()
 class Cell:
@@ -117,7 +117,7 @@ class SQLTestCase:
     notebook_state: NotebookState
     user_input: str
     schema: str
-    expected_output: str
+    expected_output: str | None
     expected_tables: List[str]
     expected_columns: List[str]
     
@@ -185,6 +185,12 @@ class DebugPromptGenerator():
     
 
 class SQLDetails(BaseModel):
-    query: str
-    tables: List[str]
-    columns: List[str]
+    query: str | None = Field(
+        description="The SQL query string, or None if no query is provided"
+    )
+    tables: List[str] = Field(
+        description="List of table names referenced in the query, can be empty"
+    )
+    columns: List[str] = Field(
+        description="List of column names referenced in the query, can be empty"
+    )

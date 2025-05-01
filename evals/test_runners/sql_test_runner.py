@@ -54,4 +54,4 @@ def run_sql_tests(
         )
 
         from evals.funnels.sql.default import test_funnel
-        test_funnel(sql_details)
+        test_funnel(test, sql_details)
