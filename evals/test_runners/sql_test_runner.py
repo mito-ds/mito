@@ -7,6 +7,9 @@ from evals.ai_api_calls.get_open_ai_completion import (
 )
 from evals.test_cases.sql_tests import SQL_TESTS
 
+DEFAULT_MODEL = "gpt-4.1"
+DEFAULT_MODEL_SQL_EXTRACTOR = "gpt-4.1"
+
 
 def run_sql_tests(
     test_name: Optional[str],
@@ -38,9 +41,14 @@ def run_sql_tests(
         )
 
         ai_generated_code = get_open_ai_completion_code_block(
-            user_prompt, "gpt-4.1", system_prompt
+            user_prompt,
+            DEFAULT_MODEL if model is None else model,
+            system_prompt,
         )
         print(ai_generated_code)
 
-        sql_details = get_sql_from_message(ai_generated_code, "gpt-4.1")
+        sql_details = get_sql_from_message(
+            ai_generated_code,
+            DEFAULT_MODEL_SQL_EXTRACTOR,
+        )
         print(sql_details)
