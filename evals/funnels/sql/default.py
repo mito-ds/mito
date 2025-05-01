@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 from evals.eval_types import SQLTestCase, SQLDetails
 
 
@@ -43,13 +43,50 @@ def correct_tables_test(expected_tables: List[str], tables_in_query: List[str]):
         ), f"Expected table '{expected_table}' not found in query"
 
 
-def no_halucinated_tables_test(schema, tables_in_query):
-    pass
+def no_halucinated_tables_test(
+    expected_tables: List[str], tables_in_query: List[str], schema: Dict[str, Any]
+):
+    """
+    Verifies that no tables in the query are hallucinated (i.e. don't exist in the schema).
+
+    Args:
+        expected_tables: List of table names that should be used in the query
+        tables_in_query: List of table names actually found in the generated SQL query
+        schema: The database schema containing all valid tables, structured as:
+            {
+                "database_name": {
+                    "schema_name": {
+                        "table_name": [
+                            {"name": "column_name", "type": "column_type"},
+                            ...
+                        ]
+                    }
+                }
+            }
+
+    Raises:
+        AssertionError: If any table in the query doesn't exist in the schema
+    """
+    # Get all valid tables from the schema
+    valid_tables = set()
+    for database in schema.values():
+        for schema_name in database.values():
+            for table_name in schema_name.keys():
+                valid_tables.add(table_name)
+
+    # Check each table in the query against valid tables
+    for table in tables_in_query:
+        # Remove database and schema prefix if present
+        table_name = table.split(".")[-1]
+        assert (
+            table_name in valid_tables
+        ), f"Table '{table}' does not exist in the schema"
 
 
 def test_funnel(
     test_case_specs: SQLTestCase,
     sql_details: SQLDetails,
+    schema: Dict[str, Any],
 ):
     """
     This is the default funnel entry point. It takes two arguments:
@@ -68,6 +105,9 @@ def test_funnel(
     correct_tables_test(test_case_specs.expected_tables, sql_details.tables)
 
     # 3. No halucinated tables - does the SQL query reference any tables that are not in the schema?
+    no_halucinated_tables_test(
+        test_case_specs.expected_tables, sql_details.tables, schema
+    )
 
     # 4. No column-table mismatches - does the SQL query reference any columns that are not in the schema?
 
