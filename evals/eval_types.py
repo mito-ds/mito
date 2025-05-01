@@ -111,6 +111,18 @@ class SmartDebugTestCase:
 
 
 @dataclass(frozen=True)
+class SQLTestCase:
+    """A single test case for SQL"""
+    name: str
+    notebook_state: NotebookState
+    user_input: str
+    schema: str
+    expected_output: str
+    expected_tables: List[str]
+    expected_columns: List[str]
+    
+    
+@dataclass(frozen=True)
 class TestCaseResult:
     """
     The result of running a test case. Used to display the results.

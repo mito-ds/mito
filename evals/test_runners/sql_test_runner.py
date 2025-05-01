@@ -18,9 +18,7 @@ def run_sql_tests(
     model: Optional[str],
 ):
     for test in SQL_TESTS:
-        print(test)
-
-        schema = json.load(open(f"evals/data/schemas/{test['schema']}"))
+        schema = json.load(open(f"evals/data/schemas/{test.schema}"))
 
         prompt_generator = _ProductionPromptWithSQL(
             schemas=schema,
@@ -37,7 +35,7 @@ def run_sql_tests(
         )
         system_prompt = prompt_generator.system_prompt
         user_prompt = prompt_generator.get_prompt(
-            test["user_input"], test["notebook_state"]
+            test.user_input, test.notebook_state
         )
 
         ai_generated_code = get_open_ai_completion_code_block(
@@ -45,7 +43,6 @@ def run_sql_tests(
             DEFAULT_MODEL if model is None else model,
             system_prompt,
         )
-        print(ai_generated_code)
 
         sql_details = get_sql_from_message(
             ai_generated_code,
