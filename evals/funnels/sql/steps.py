@@ -62,10 +62,8 @@ def no_table_halucinations_test(
     Raises:
         AssertionError: If any hallucinated tables are found in the query
     """
-    # If there are no expected tables, and no tables in the query,
-    # we can assume the AI did what it was supposed to do.
     if len(expected_tables) == 0 and len(tables_in_query) == 0:
-        return
+        return  # No tables expected, no tables generated.
 
     # tables_in_query is a list of strings, each respresenting a path:
     # `database_name.schema_name.table_name`
@@ -153,3 +151,7 @@ def no_column_table_mismatch_test(
         assert (
             column_found
         ), f"Column '{column_name}' does not exist in any of the referenced tables"
+
+
+def no_column_halucinations_test():
+    pass
