@@ -1,121 +1,10 @@
 from typing import List, Dict, Any
 from evals.eval_types import SQLTestCase, SQLDetails
-
-
-def sql_generated_test(
-    expected_output: str | None, sql_query_recieved: str | None
-) -> None:
-    """
-    Verifies whether a SQL query was generated as expected.
-
-    This is the first funnel in the SQL evaluation process. It checks if the AI generated
-    a SQL query when it was supposed to, or didn't generate one when it wasn't supposed to.
-
-    Args:
-        expected_output: The expected output string or None if no SQL query was expected
-        sql_query_recieved: The actual SQL query string generated or None if no query was generated
-
-    Raises:
-        AssertionError: If the presence/absence of a SQL query doesn't match expectations
-    """
-    if expected_output is None:
-        assert sql_query_recieved is None, "Expected no SQL query but one was generated"
-    else:
-        assert (
-            sql_query_recieved is not None
-        ), "Expected a SQL query but none was generated"
-
-
-def correct_tables_test(expected_tables: List[str], tables_in_query: List[str]):
-    """
-    Verifies that all expected tables are present in the generated SQL query.
-
-    Args:
-        expected_tables: List of table names that should be used in the query
-        tables_in_query: List of table names actually found in the generated SQL query
-
-    Raises:
-        AssertionError: If any expected table is missing from the query
-    """
-    for expected_table in expected_tables:
-        assert (
-            expected_table in tables_in_query
-        ), f"Expected table '{expected_table}' not found in query"
-
-
-def no_halucinated_tables_test(
-    expected_tables: List[str], tables_in_query: List[str], schema: Dict[str, Any]
-):
-    """
-    Verifies that no tables in the query are hallucinated (i.e. don't exist in the schema).
-
-    Args:
-        expected_tables: List of table names that should be used in the query
-        tables_in_query: List of table names actually found in the generated SQL query
-        schema: The database schema containing all valid tables, structured as:
-            {
-                "database_name": {
-                    "schema_name": {
-                        "table_name": [
-                            {"name": "column_name", "type": "column_type"},
-                            ...
-                        ]
-                    }
-                }
-            }
-
-    Raises:
-        AssertionError: If any table in the query doesn't exist in the schema
-    """
-    # Get all valid tables from the schema
-    valid_tables = set()
-    for database in schema.values():
-        for schema_name in database.values():
-            for table_name in schema_name.keys():
-                valid_tables.add(table_name)
-
-    # Check each table in the query against valid tables
-    for table in tables_in_query:
-        # Remove database and schema prefix if present
-        table_name = table.split(".")[-1]
-        assert (
-            table_name in valid_tables
-        ), f"Table '{table}' does not exist in the schema"
-
-
-def column_table_mismatch_test():
-    pass
-
-
-def get_table_columns(
-    schema: Dict[str, Any], database_name: str, table_name: str
-) -> List[str]:
-    """
-    Helper function to fetch all columns from a table in the schema.
-
-    Args:
-        schema: The database schema containing all valid tables and their columns
-        database_name: The name of the database containing the table
-        table_name: The name of the table to get columns from
-
-    Returns:
-        List of column names for the specified table
-
-    Raises:
-        ValueError: If the database or table is not found in the schema
-    """
-    # Check if database exists
-    if database_name not in schema:
-        raise ValueError(f"Database '{database_name}' not found in schema")
-
-    # Iterate through each schema in the database
-    for schema_name in schema[database_name].values():
-        # Check if the table exists in this schema
-        if table_name in schema_name:
-            # Return list of column names
-            return [col["name"] for col in schema_name[table_name]]
-
-    raise ValueError(f"Table '{table_name}' not found in database '{database_name}'")
+from evals.funnels.sql.steps import (
+    sql_generated_test,
+    correct_tables_test,
+    no_table_halucinations_test,
+)
 
 
 def test_funnel(
@@ -140,7 +29,7 @@ def test_funnel(
     correct_tables_test(test_case_specs.expected_tables, sql_details.tables)
 
     # 3. No halucinated tables - does the SQL query reference any tables that are not in the schema?
-    no_halucinated_tables_test(
+    no_table_halucinations_test(
         test_case_specs.expected_tables, sql_details.tables, schema
     )
 
