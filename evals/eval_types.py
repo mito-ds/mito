@@ -185,7 +185,9 @@ class DebugPromptGenerator():
     
 
 class TableDetails(BaseModel):
-    name: str
+    name: str = Field(
+        description="The name of the table, should be in the format: database_name.schema_name.table_name"
+    )
     columns: List[str] = Field(
         description="List of column names used from this table"
     )
@@ -197,4 +199,7 @@ class SQLDetails(BaseModel):
     query: Optional[str] = Field(
         description="The SQL query string, or None if no query is provided"
     )
-    tables: List[TableDetails]    
+    tables: List[TableDetails] = Field(
+        description="List of tables used in the query, can be empty",
+        default_factory=list
+    )    

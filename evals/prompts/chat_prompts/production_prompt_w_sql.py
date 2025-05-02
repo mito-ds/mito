@@ -17,6 +17,9 @@ class _ProductionPromptWithSQL(ChatPromptGenerator):
         self.system_prompt = get_system_prompt(database_rules=self.database_rules)
 
     def set_database_rules(self, schemas: str, connections: str) -> str:
+        # We need this format for the SQL test funnels
+        test_specific_rules = "When writing the query, make sure to explicitly use the format: database_name.schema_name.table_name"
+
         if connections != "":
             return f"""DATABASE RULES:
 If the user has requested data that you belive is stored in the database:
@@ -32,6 +35,8 @@ Here is the schema:
 
 Here are the connection details:
 {connections}
+
+{test_specific_rules}
 """
         else:
             return ""
