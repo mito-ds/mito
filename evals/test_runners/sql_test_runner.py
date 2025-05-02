@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List, Optional
 from evals.prompts.chat_prompts.production_prompt_w_sql import _ProductionPromptWithSQL
 from evals.ai_api_calls.get_open_ai_completion import (
@@ -17,6 +18,12 @@ def run_sql_tests(
     tags: Optional[List[str]],
     model: Optional[str],
 ):
+    # Before running any tests, make sure the .env file is present
+    if not os.path.exists("evals/.env"):
+        raise FileNotFoundError(
+            "The .env file is not present. Please create one based on the .env.sample file."
+        )
+
     for test in SQL_TESTS:
         # Load the schema, to be included in the system prompt
         schema = json.load(open(f"evals/data/schemas/{test.schema}"))
