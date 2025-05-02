@@ -7,3 +7,4 @@ matplotlib>=3.0.0
 ipython
 pydantic
 mitosheet
+snowflake-sqlalchemy

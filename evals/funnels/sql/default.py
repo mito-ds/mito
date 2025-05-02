@@ -5,6 +5,7 @@ from evals.funnels.sql.steps import (
     correct_tables_test,
     no_table_halucinations_test,
     no_column_table_mismatch_test,
+    syntax_check_test,
 )
 
 
@@ -50,6 +51,13 @@ def test_funnel(
     )
     print(no_column_table_mismatch_result)
 
+    # ================================================
+    # At this point, we switch over to comparing the actual response from the query.
+    # To do this, we'll store the response as a pandas DataFrame, and use that to compare.
+
     # 5. Syntax check - does the query actually run?
+    df_from_generated_query, syntax_check_result = syntax_check_test(sql_details)
+    print(df_from_generated_query)
+    print(syntax_check_result)
 
     # 6. Correct data - does the SQL query return the correct data?

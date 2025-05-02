@@ -1,7 +1,8 @@
+import pandas as pd
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
-from evals.eval_types import TableDetails
-from evals.funnels.sql.utils import parse_table_path
+from typing import List, Dict, Any, Optional, Tuple
+from evals.eval_types import TableDetails, SQLDetails
+from evals.funnels.sql.utils import parse_table_path, run_sql_query
 
 
 @dataclass
@@ -153,3 +154,25 @@ def no_column_table_mismatch_test(
                 )
 
     return FunnelStepResult(name=name, passed=True)
+
+
+def syntax_check_test(
+    sql_details: SQLDetails,
+) -> Tuple[pd.DataFrame | Exception, FunnelStepResult]:
+    """
+    Verifies that the SQL query is syntactically correct.
+
+    Returns:
+        A tuple containing the result of the query (a pandas DataFrame or an Exception) and a FunnelStepResult object.
+    """
+    name = "syntax_check_test"
+
+    try:
+        df = run_sql_query(
+            sql_details.query or "",
+            "TELCO_CHRUN",
+            "PUBLIC",
+        )
+        return df, FunnelStepResult(name=name, passed=True)
+    except Exception as e:
+        return e, FunnelStepResult(name=name, passed=False, notes=str(e))
