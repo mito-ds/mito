@@ -184,13 +184,17 @@ class DebugPromptGenerator():
         return "gpt-4o-mini"
     
 
+class TableDetails(BaseModel):
+    name: str
+    columns: List[str] = Field(
+        description="List of column names used from this table"
+    )
+    alias: Optional[str] = Field(
+        description="Alias used for the table, if any", default=None
+    )
+
 class SQLDetails(BaseModel):
-    query: str | None = Field(
+    query: Optional[str] = Field(
         description="The SQL query string, or None if no query is provided"
     )
-    tables: List[str] = Field(
-        description="List of table names referenced in the query, can be empty"
-    )
-    columns: List[str] = Field(
-        description="List of column names referenced in the query, can be empty"
-    )
+    tables: List[TableDetails]    

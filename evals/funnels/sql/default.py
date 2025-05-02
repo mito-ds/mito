@@ -31,13 +31,16 @@ def test_funnel(
 
     # 2. Tables - does the SQL query use the correct tables?
     correct_tables_result = correct_tables_test(
-        test_case_specs.expected_tables, sql_details.tables
+        test_case_specs.expected_tables,
+        [table.name for table in sql_details.tables],
     )
     print(correct_tables_result)
 
     # 3. No halucinated tables - does the SQL query reference any tables that are not in the schema?
     no_table_halucinations_result = no_table_halucinations_test(
-        test_case_specs.expected_tables, sql_details.tables, schema
+        test_case_specs.expected_tables,
+        [table.name for table in sql_details.tables],
+        schema,
     )
     print(no_table_halucinations_result)
 
