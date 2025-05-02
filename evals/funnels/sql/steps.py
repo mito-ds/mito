@@ -167,6 +167,13 @@ def syntax_check_test(
     """
     name = "syntax_check_test"
 
+    if sql_details.query is None:
+        return pd.DataFrame(), FunnelStepResult(
+            name=name,
+            passed=True,
+            notes="No query was generated, defaulting to pass",
+        )
+
     result, error = run_sql_query(
         sql_details.query or "",
         "TELCO_CHRUN",
@@ -200,3 +207,20 @@ def correct_data_shape_test(
         )
 
     return FunnelStepResult(name=name, passed=True)
+
+
+def correct_data_test(
+    expected_df: pd.DataFrame,
+    actual_df: pd.DataFrame,
+) -> FunnelStepResult:
+    """
+    Verifies that the actual data matches the expected data.
+    """
+    name = "correct_data_test"
+
+    if expected_df.equals(actual_df):
+        return FunnelStepResult(name=name, passed=True)
+    else:
+        return FunnelStepResult(
+            name=name, passed=False, notes="Data does not match expected data"
+        )

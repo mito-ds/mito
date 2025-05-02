@@ -8,6 +8,7 @@ from evals.funnels.sql.steps import (
     no_column_table_mismatch_test,
     syntax_check_test,
     correct_data_shape_test,
+    correct_data_test,
 )
 
 
@@ -72,3 +73,7 @@ def test_funnel(
         expected_df, df_from_generated_query
     )
     print(correct_data_shape_result)
+
+    # 7. Correct data - do the two dataframes have the same data?
+    correct_data_result = correct_data_test(expected_df, df_from_generated_query)
+    print(correct_data_result)
