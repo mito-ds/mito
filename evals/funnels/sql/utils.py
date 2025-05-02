@@ -1,7 +1,6 @@
 import os
 import pandas as pd
-import sqlalchemy.exc
-from typing import Tuple
+from typing import Tuple, Optional
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
@@ -24,8 +23,8 @@ def parse_table_path(table_path: str) -> Tuple[str, str, str]:
 
 def run_sql_query(
     query: str,
-    database: str,
-    schema: str,
+    database: Optional[str] = None,
+    schema: Optional[str] = None,
 ) -> Tuple[pd.DataFrame, Exception | None]:
     """
     Runs a SQL query on a database and returns the result as a pandas DataFrame.

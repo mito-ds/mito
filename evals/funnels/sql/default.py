@@ -57,7 +57,7 @@ def default_test_funnel(
     # ================================================
     # At this point, we switch over to comparing the actual response from the query.
     # To do this, we'll store the response as a pandas DataFrame, and use that to compare.
-    expected_df, error = run_sql_query(test_case_specs.expected_output or "", "", "")
+    expected_df, error = run_sql_query(test_case_specs.expected_output or "")
 
     # 5. Syntax check - does the query actually run?
     df_from_generated_query, syntax_check_result = syntax_check_test(sql_details)

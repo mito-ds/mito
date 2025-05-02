@@ -174,7 +174,7 @@ def syntax_check_test(
             notes="No query was generated, defaulting to pass",
         )
 
-    result, error = run_sql_query(sql_details.query or "", "", "")
+    result, error = run_sql_query(sql_details.query)
 
     # Fail state: the query is syntactically incorrect.
     # Return an empty dataframe which should cause future tests to fail.
