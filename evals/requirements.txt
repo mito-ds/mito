@@ -8,3 +8,4 @@ ipython
 pydantic
 mitosheet
 snowflake-sqlalchemy
+python-dotenv

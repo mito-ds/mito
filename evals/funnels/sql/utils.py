@@ -1,6 +1,10 @@
+import os
 import pandas as pd
 from typing import Tuple
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def parse_table_path(table_path: str) -> Tuple[str, str, str]:
@@ -27,14 +31,12 @@ def run_sql_query(query: str, database: str, schema: str) -> pd.DataFrame | Exce
     Returns:
         A pandas DataFrame containing the result of the query
     """
-    user = "nawaz"
-    password = "Unlighted-Barterer-Monday7"
-    account = "tudbfdr-bc32847"
-    warehouse = "COMPUTE_WH"
+    user = os.getenv("SNOWFLAKE_USER")
+    password = os.getenv("SNOWFLAKE_PASSWORD")
+    account = os.getenv("SNOWFLAKE_ACCOUNT")
+    warehouse = os.getenv("SNOWFLAKE_WAREHOUSE")
 
-    conn_str = (
-        f"snowflake://{user}:{password}@{account}"
-    )
+    conn_str = f"snowflake://{user}:{password}@{account}"
 
     try:
         engine = create_engine(conn_str)
