@@ -30,6 +30,8 @@ def run_sql_tests(
         schema = json.load(open(f"evals/data/schemas/{test.schema}"))
 
         # Generate the prompts
+        # Using dummy credentials for now, the funnel uses the actual credentials
+        # from the .env file.
         prompt_generator = _ProductionPromptWithSQL(
             schemas=schema,
             connections=json.dumps(
