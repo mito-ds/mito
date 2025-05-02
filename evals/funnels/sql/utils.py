@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import sqlalchemy.exc
 from typing import Tuple
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
@@ -21,15 +22,22 @@ def parse_table_path(table_path: str) -> Tuple[str, str, str]:
     return database_name, schema_name, table_name
 
 
-def run_sql_query(query: str, database: str, schema: str) -> pd.DataFrame | Exception:
+def run_sql_query(
+    query: str,
+    database: str,
+    schema: str,
+) -> Tuple[pd.DataFrame, Exception | None]:
     """
     Runs a SQL query on a database and returns the result as a pandas DataFrame.
+    If the result is closed or empty, returns an empty DataFrame.
 
     Args:
         query: The SQL query to execute
+        database: The database name
+        schema: The schema name
 
     Returns:
-        A pandas DataFrame containing the result of the query
+        A pandas DataFrame containing the result of the query, or an empty DataFrame if no results
     """
     user = os.getenv("SNOWFLAKE_USER")
     password = os.getenv("SNOWFLAKE_PASSWORD")
@@ -38,8 +46,8 @@ def run_sql_query(query: str, database: str, schema: str) -> pd.DataFrame | Exce
 
     conn_str = f"snowflake://{user}:{password}@{account}"
 
+    engine = create_engine(conn_str)
     try:
-        engine = create_engine(conn_str)
-        return pd.read_sql_query(query, con=engine)
+        return pd.read_sql_query(query, con=engine), None
     except Exception as e:
-        return e
+        return pd.DataFrame(), e

@@ -158,21 +158,45 @@ def no_column_table_mismatch_test(
 
 def syntax_check_test(
     sql_details: SQLDetails,
-) -> Tuple[pd.DataFrame | Exception, FunnelStepResult]:
+) -> Tuple[pd.DataFrame, FunnelStepResult]:
     """
     Verifies that the SQL query is syntactically correct.
 
     Returns:
-        A tuple containing the result of the query (a pandas DataFrame or an Exception) and a FunnelStepResult object.
+        A tuple containing the result of the query (a pandas DataFrame) and a FunnelStepResult object.
     """
     name = "syntax_check_test"
 
-    try:
-        df = run_sql_query(
-            sql_details.query or "",
-            "TELCO_CHRUN",
-            "PUBLIC",
+    result, error = run_sql_query(
+        sql_details.query or "",
+        "TELCO_CHRUN",
+        "PUBLIC",
+    )
+
+    # Fail state: the query is syntactically incorrect.
+    # Return an empty dataframe which should cause future tests to fail.
+    if error is not None:
+        return pd.DataFrame(), FunnelStepResult(
+            name=name, passed=False, notes=str(error)
         )
-        return df, FunnelStepResult(name=name, passed=True)
-    except Exception as e:
-        return e, FunnelStepResult(name=name, passed=False, notes=str(e))
+    # All good, return the dataframe
+    return result, FunnelStepResult(name=name, passed=True)
+
+
+def correct_data_shape_test(
+    expected_df: pd.DataFrame,
+    actual_df: pd.DataFrame,
+) -> FunnelStepResult:
+    """
+    Verifies that the actual data shape matches the expected data shape.
+    """
+    name = "correct_data_shape_test"
+
+    if expected_df.shape != actual_df.shape:
+        return FunnelStepResult(
+            name=name,
+            passed=False,
+            notes="Data shape does not match expected data shape",
+        )
+
+    return FunnelStepResult(name=name, passed=True)

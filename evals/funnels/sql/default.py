@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import Dict, Any
 from evals.eval_types import SQLTestCase, SQLDetails
 from evals.funnels.sql.utils import run_sql_query
 from evals.funnels.sql.steps import (
@@ -7,6 +7,7 @@ from evals.funnels.sql.steps import (
     no_table_halucinations_test,
     no_column_table_mismatch_test,
     syntax_check_test,
+    correct_data_shape_test,
 )
 
 
@@ -55,16 +56,19 @@ def test_funnel(
     # ================================================
     # At this point, we switch over to comparing the actual response from the query.
     # To do this, we'll store the response as a pandas DataFrame, and use that to compare.
-    expected_df = run_sql_query(
+    expected_df, error = run_sql_query(
         test_case_specs.expected_output or "",
         "TELCO_CHRUN",
         "PUBLIC",
     )
-    print(expected_df)
 
     # 5. Syntax check - does the query actually run?
     df_from_generated_query, syntax_check_result = syntax_check_test(sql_details)
     print(df_from_generated_query)
     print(syntax_check_result)
 
-    # 6. Correct data - does the SQL query return the correct data?
+    # 6. Correct data shape - do the two dataframes have the same shape?
+    correct_data_shape_result = correct_data_shape_test(
+        expected_df, df_from_generated_query
+    )
+    print(correct_data_shape_result)
