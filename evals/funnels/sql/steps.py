@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
 from evals.eval_types import TableDetails
+from evals.funnels.sql.utils import parse_table_path
 
 
 @dataclass
@@ -85,9 +86,7 @@ def no_table_halucinations_test(
 
     # We want to check if each of these tables exist in the schema
     for table_path in tables_in_query:
-        # When working with Snowflake, the table path is in the format:
-        # database_name.schema_name.table_name
-        database_name, schema_name, table_name = table_path.split(".")
+        database_name, schema_name, table_name = parse_table_path(table_path)
 
         # Check if database exists
         if database_name not in schema:
@@ -132,7 +131,7 @@ def no_column_table_mismatch_test(
     name = "no_column_table_mismatch_test"
 
     for table_detail in table_details:
-        database_name, schema_name, table_name = table_detail.name.split(".")
+        database_name, schema_name, table_name = parse_table_path(table_detail.name)
         columns = table_detail.columns
 
         # Our reference point:
