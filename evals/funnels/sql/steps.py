@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
+from evals.eval_types import TableDetails
 
 
 @dataclass
@@ -22,9 +23,6 @@ def sql_generated_test(
     Args:
         expected_output: The expected output string or None if no SQL query was expected
         sql_query_recieved: The actual SQL query string generated or None if no query was generated
-
-    Raises:
-        AssertionError: If the presence/absence of a SQL query doesn't match expectations
     """
     name = "sql_generated_test"
 
@@ -52,9 +50,6 @@ def correct_tables_test(
     Args:
         expected_tables: List of table names that should be used in the query
         tables_in_query: List of table names actually found in the generated SQL query
-
-    Raises:
-        AssertionError: If any expected table is missing from the query
     """
     name = "correct_tables_test"
 
@@ -81,9 +76,6 @@ def no_table_halucinations_test(
         expected_tables: List of table names that should be used in the query
         tables_in_query: List of table names found in the generated SQL query
         schema: The database schema containing all valid tables and their columns
-
-    Raises:
-        AssertionError: If any hallucinated tables are found in the query
     """
     name = "no_table_halucinations_test"
 
@@ -125,23 +117,41 @@ def no_table_halucinations_test(
 
 
 def no_column_table_mismatch_test(
-    columns_in_query: List[str],
-    tables_in_query: List[str],
+    table_details: List[TableDetails],
     schema: Dict[str, Any],
-) -> None:
+) -> FunnelStepResult:
     """
     Verifies that all columns referenced in the query exist in their respective tables.
 
     Args:
-        columns_in_query: List of column names referenced in the query
-        tables_in_query: List of table paths (can be just table name or database.schema.table)
+        table_details: List of table details, each containing a table name and a list of columns
         schema: The database schema containing all valid tables and their columns
-
-    Raises:
-        AssertionError: If any column referenced in the query doesn't exist in any of the referenced tables
     """
     name = "no_column_table_mismatch_test"
-    pass
+
+    for table_detail in table_details:
+        database_name, schema_name, table_name = table_detail.name.split(".")
+        columns = table_detail.columns
+
+        # Our reference point:
+        # the columns that are actually in the schema
+        columns_in_schema = [
+            column["name"] for column in schema[database_name][schema_name][table_name]
+        ]
+
+        # Check if all columns exist in the table
+        for column in columns:
+            if column.startswith("*"):
+                # Skip if the column is a wildcard
+                continue
+            elif column not in columns_in_schema:
+                return FunnelStepResult(
+                    name=name,
+                    passed=False,
+                    notes=f"Column '{column}' not found in table '{table_name}'",
+                )
+
+    return FunnelStepResult(name=name, passed=True)
 
 
 def no_column_halucinations_test():

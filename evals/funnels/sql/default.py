@@ -45,10 +45,10 @@ def test_funnel(
     print(no_table_halucinations_result)
 
     # 4. No column-table mismatches - does the SQL query reference any columns that are not in the schema?
-    # no_column_table_mismatch_result = no_column_table_mismatch_test(
-    #     test_case_specs.expected_columns, sql_details.columns, schema
-    # )
-    # print(no_column_table_mismatch_result)
+    no_column_table_mismatch_result = no_column_table_mismatch_test(
+        sql_details.tables, schema
+    )
+    print(no_column_table_mismatch_result)
 
     # 5. No halucinated columns - does the SQL query reference any columns that are not in the schema?
 
