@@ -12,7 +12,7 @@ from evals.funnels.sql.steps import (
 )
 
 
-def test_funnel(
+def default_test_funnel(
     test_case_specs: SQLTestCase,
     sql_details: SQLDetails,
     schema: Dict[str, Any],

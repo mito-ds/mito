@@ -7,6 +7,7 @@ from evals.ai_api_calls.get_open_ai_completion import (
     get_sql_from_message,
 )
 from evals.test_cases.sql_tests import SQL_TESTS
+from evals.funnels.sql.default import default_test_funnel
 
 DEFAULT_MODEL = "gpt-4.1"
 DEFAULT_MODEL_SQL_EXTRACTOR = "gpt-4.1"
@@ -43,9 +44,7 @@ def run_sql_tests(
             ),
         )
         system_prompt = prompt_generator.system_prompt
-        user_prompt = prompt_generator.get_prompt(
-            test.user_input, test.notebook_state
-        )
+        user_prompt = prompt_generator.get_prompt(test.user_input, test.notebook_state)
 
         # Get the SQL from the AI
         ai_generated_code = get_open_ai_completion_code_block(
@@ -60,5 +59,5 @@ def run_sql_tests(
             DEFAULT_MODEL_SQL_EXTRACTOR,
         )
 
-        from evals.funnels.sql.default import test_funnel
-        test_funnel(test, sql_details, schema)
+        # Run through the funnel
+        default_test_funnel(test, sql_details, schema)
