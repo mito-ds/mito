@@ -1,10 +1,19 @@
-from typing import List, Dict, Any
+import inspect
+from dataclasses import dataclass
+from typing import List, Dict, Any, Optional
+
+
+@dataclass
+class FunnelStepResult:
+    name: str
+    passed: bool
+    notes: Optional[str] = None
 
 
 def sql_generated_test(
     expected_output: str | None,
     sql_query_recieved: str | None,
-) -> None:
+) -> FunnelStepResult:
     """
     Verifies whether a SQL query was generated as expected.
 
@@ -18,18 +27,26 @@ def sql_generated_test(
     Raises:
         AssertionError: If the presence/absence of a SQL query doesn't match expectations
     """
-    if expected_output is None:
-        assert sql_query_recieved is None, "Expected no SQL query but one was generated"
+    name = "sql_generated_test"
+
+    if (expected_output is None) and (sql_query_recieved is None):
+        # No SQL query was expected and none was generated
+        return FunnelStepResult(name=name, passed=True)
+    elif (expected_output is not None) and (sql_query_recieved is not None):
+        # A SQL query was expected and one was generated
+        return FunnelStepResult(name=name, passed=True)
     else:
-        assert (
-            sql_query_recieved is not None
-        ), "Expected a SQL query but none was generated"
+        return FunnelStepResult(
+            name=name,
+            passed=False,
+            notes="SQL query was not generated when it was expected, or generated when it was not expected",
+        )
 
 
 def correct_tables_test(
     expected_tables: List[str],
     tables_in_query: List[str],
-) -> None:
+) -> FunnelStepResult:
     """
     Verifies that all expected tables are present in the generated SQL query.
 
@@ -40,17 +57,24 @@ def correct_tables_test(
     Raises:
         AssertionError: If any expected table is missing from the query
     """
+    name = "correct_tables_test"
+
     for expected_table in expected_tables:
-        assert (
-            expected_table in tables_in_query
-        ), f"Expected table '{expected_table}' not found in query"
+        if expected_table not in tables_in_query:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Expected table '{expected_table}' not found in query",
+            )
+
+    return FunnelStepResult(name=name, passed=True)
 
 
 def no_table_halucinations_test(
     expected_tables: List[str],
     tables_in_query: List[str],
     schema: Dict[str, Any],
-) -> None:
+) -> FunnelStepResult:
     """
     Verifies that no tables in the query are hallucinated (i.e. don't exist in the schema).
 
@@ -62,31 +86,43 @@ def no_table_halucinations_test(
     Raises:
         AssertionError: If any hallucinated tables are found in the query
     """
-    if len(expected_tables) == 0 and len(tables_in_query) == 0:
-        return  # No tables expected, no tables generated.
+    name = "no_table_halucinations_test"
 
-    # tables_in_query is a list of strings, each respresenting a path:
-    # `database_name.schema_name.table_name`
+    if len(expected_tables) == 0 and len(tables_in_query) == 0:
+        # No tables expected, no tables generated.
+        return FunnelStepResult(name=name, passed=True)
 
     # We want to check if each of these tables exist in the schema
     for table_path in tables_in_query:
-        # Split the path into database_name, schema_name, and table_name
+        # When working with Snowflake, the table path is in the format:
+        # database_name.schema_name.table_name
         database_name, schema_name, table_name = table_path.split(".")
 
         # Check if database exists
-        assert (
-            database_name in schema
-        ), f"Database '{database_name}' does not exist in schema"
+        if database_name not in schema:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Database '{database_name}' does not exist in schema",
+            )
 
         # Check if schema exists within database
-        assert (
-            schema_name in schema[database_name]
-        ), f"Schema '{schema_name}' does not exist in database '{database_name}'"
+        if schema_name not in schema[database_name]:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Schema '{schema_name}' does not exist in database '{database_name}'",
+            )
 
         # Check if table exists within schema
-        assert (
-            table_name in schema[database_name][schema_name]
-        ), f"Table '{table_name}' does not exist in schema '{schema_name}' of database '{database_name}'"
+        if table_name not in schema[database_name][schema_name]:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Table '{table_name}' does not exist in schema '{schema_name}' of database '{database_name}'",
+            )
+
+    return FunnelStepResult(name=name, passed=True)
 
 
 def no_column_table_mismatch_test(

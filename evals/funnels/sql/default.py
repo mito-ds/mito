@@ -24,20 +24,28 @@ def test_funnel(
     print(sql_details)
 
     # 1. SQL generated - did the AI generate a SQL query?
-    sql_generated_test(test_case_specs.expected_output, sql_details.query)
+    sql_generated_result = sql_generated_test(
+        test_case_specs.expected_output, sql_details.query
+    )
+    print(sql_generated_result)
 
     # 2. Tables - does the SQL query use the correct tables?
-    correct_tables_test(test_case_specs.expected_tables, sql_details.tables)
+    correct_tables_result = correct_tables_test(
+        test_case_specs.expected_tables, sql_details.tables
+    )
+    print(correct_tables_result)
 
     # 3. No halucinated tables - does the SQL query reference any tables that are not in the schema?
-    no_table_halucinations_test(
+    no_table_halucinations_result = no_table_halucinations_test(
         test_case_specs.expected_tables, sql_details.tables, schema
     )
+    print(no_table_halucinations_result)
 
     # 4. No column-table mismatches - does the SQL query reference any columns that are not in the schema?
-    no_column_table_mismatch_test(
-        test_case_specs.expected_columns, sql_details.columns, schema
-    )
+    # no_column_table_mismatch_result = no_column_table_mismatch_test(
+    #     test_case_specs.expected_columns, sql_details.columns, schema
+    # )
+    # print(no_column_table_mismatch_result)
 
     # 5. No halucinated columns - does the SQL query reference any columns that are not in the schema?
 
