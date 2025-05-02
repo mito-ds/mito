@@ -50,8 +50,6 @@ def test_funnel(
     )
     print(no_column_table_mismatch_result)
 
-    # 5. No halucinated columns - does the SQL query reference any columns that are not in the schema?
+    # 5. Syntax check - does the query actually run?
 
-    # 6. Syntax check - does the query actually run?
-
-    # 7. Correct data - does the SQL query return the correct data?
+    # 6. Correct data - does the SQL query return the correct data?
