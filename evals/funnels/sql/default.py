@@ -65,7 +65,6 @@ def test_funnel(
 
     # 5. Syntax check - does the query actually run?
     df_from_generated_query, syntax_check_result = syntax_check_test(sql_details)
-    print(df_from_generated_query)
     print(syntax_check_result)
 
     # 6. Correct data shape - do the two dataframes have the same shape?
