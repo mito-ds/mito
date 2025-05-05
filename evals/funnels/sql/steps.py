@@ -1,7 +1,7 @@
 import pandas as pd
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional, Tuple
-from evals.eval_types import TableDetails, SQLDetails
+from evals.eval_types import TableDetails, ParsedSQLDetails
 from evals.funnels.sql.utils import parse_table_path, run_sql_query
 
 
@@ -157,7 +157,7 @@ def no_column_table_mismatch_test(
 
 
 def syntax_check_test(
-    sql_details: SQLDetails,
+    sql_details: ParsedSQLDetails,
 ) -> Tuple[pd.DataFrame, FunnelStepResult]:
     """
     Verifies that the SQL query is syntactically correct.

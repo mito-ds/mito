@@ -5,7 +5,7 @@ import os
 from typing import Any, Dict, List, Optional
 from evals.test_cases.agent_find_and_update_tests.simple import CellUpdate
 from openai import OpenAI
-from evals.eval_types import SQLDetails
+from evals.eval_types import ParsedSQLDetails
 
 def get_open_ai_completion_function_params(prompt: str, model: str, system_prompt: Optional[str] = None) -> Dict[str, Any]:
     default_system_prompt = "You are an expert Python programmer."
@@ -61,7 +61,7 @@ def get_code_block_from_message(message: str) -> str:
     
     return message.split('```python\n')[1].split('\n```')[0]
 
-def get_sql_from_message(message: str, model: str) -> SQLDetails:
+def get_sql_from_message(message: str, model: str) -> ParsedSQLDetails:
     """
     Extract the first SQL query + other metadata from a message.
     """
@@ -72,7 +72,7 @@ def get_sql_from_message(message: str, model: str) -> SQLDetails:
             {"role": "system", "content": "You are a helpful assistant that extracts SQL queries from messages."},
             {"role": "user", "content": message}
         ],
-        response_format=SQLDetails,
+        response_format=ParsedSQLDetails,
     )
     parsed = response.choices[0].message.parsed
 

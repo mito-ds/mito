@@ -195,7 +195,7 @@ class TableDetails(BaseModel):
         description="Alias used for the table, if any", default=None
     )
 
-class SQLDetails(BaseModel):
+class ParsedSQLDetails(BaseModel):
     query: Optional[str] = Field(
         description="The SQL query string, or None if no query is provided"
     )

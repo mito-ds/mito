@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from evals.eval_types import SQLTestCase, SQLDetails
+from evals.eval_types import SQLTestCase, ParsedSQLDetails
 from evals.funnels.sql.utils import run_sql_query
 from evals.funnels.sql.steps import (
     sql_generated_test,
@@ -14,7 +14,7 @@ from evals.funnels.sql.steps import (
 
 def default_test_funnel(
     test_case_specs: SQLTestCase,
-    sql_details: SQLDetails,
+    sql_details: ParsedSQLDetails,
     schema: Dict[str, Any],
 ):
     """
