@@ -3,6 +3,8 @@
 
 import json
 import os
+import subprocess
+import sys
 from datetime import datetime
 from typing import List, Optional
 from dataclasses import asdict
@@ -103,3 +105,8 @@ def run_sql_tests(
         "w",
     ) as f:
         json.dump(final_results, f, cls=FunnelStepResultEncoder)
+
+    # Launch the streamlit dashboard
+    dashboard_path = os.path.join(os.path.dirname(__file__), "..", "reporting", "dashboard.py")
+    subprocess.Popen([sys.executable, "-m", "streamlit", "run", dashboard_path])
+    

@@ -105,7 +105,8 @@ def main():
         title="Pass Rate by Check Type",
         labels={"check_name": "Check Type", "pass_rate": "Pass Rate (%)"},
         color="pass_rate",
-        color_continuous_scale=["red", "green"],
+        color_continuous_scale=["red", "yellow", "green"],
+        range_color=[0, 100]
     )
     st.plotly_chart(fig, use_container_width=True)
 
