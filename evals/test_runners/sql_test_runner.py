@@ -56,10 +56,16 @@ def run_sql_tests(
         )
 
         # Extract the SQL from the AI's response
-        parsed_sql_details = get_sql_from_message(
+        parsed_actual_sql = get_sql_from_message(
             ai_generated_code,
             DEFAULT_MODEL_SQL_EXTRACTOR,
         )
 
+        # Extract SQL details from the expected output
+        parsed_expected_sql = get_sql_from_message(
+            test_case.expected_output or "",
+            DEFAULT_MODEL_SQL_EXTRACTOR,
+        )
+
         # Run through the funnel
-        default_test_funnel(test_case, parsed_sql_details, schema)
+        default_test_funnel(test_case, parsed_actual_sql, schema)
