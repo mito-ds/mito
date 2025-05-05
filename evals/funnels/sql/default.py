@@ -37,14 +37,11 @@ def default_test_funnel(
         "expected_sql": parsed_expected_sql.query,
         "results": [],
     }
-    print(f"parsed_actual_sql: {parsed_actual_sql}")
-    print(f"parsed_expected_sql: {parsed_expected_sql}")
 
     # 1. SQL generated - did the AI generate a SQL query?
     is_sql_generated_result = is_sql_generated_test(
         test_case_specs.expected_output, parsed_actual_sql.query
     )
-    print(is_sql_generated_result)
     results["results"].append(is_sql_generated_result)
 
     # 2. Tables - does the SQL query use the correct tables?
@@ -52,7 +49,6 @@ def default_test_funnel(
         [table.name for table in parsed_expected_sql.tables],
         [table.name for table in parsed_actual_sql.tables],
     )
-    print(correct_tables_result)
     results["results"].append(correct_tables_result)
 
     # 3. No halucinated tables - does the SQL query reference any tables that are not in the schema?
@@ -61,14 +57,12 @@ def default_test_funnel(
         [table.name for table in parsed_actual_sql.tables],
         schema,
     )
-    print(no_table_halucinations_result)
     results["results"].append(no_table_halucinations_result)
 
     # 4. No column-table mismatches - does the SQL query reference any columns that are not in the schema?
     no_column_table_mismatch_result = no_column_table_mismatch_test(
         parsed_actual_sql.tables, schema
     )
-    print(no_column_table_mismatch_result)
     results["results"].append(no_column_table_mismatch_result)
 
     # ================================================
@@ -80,19 +74,16 @@ def default_test_funnel(
     df_from_generated_query, execute_without_errors_result = execute_without_errors_test(
         parsed_actual_sql
     )
-    print(execute_without_errors_result)
     results["results"].append(execute_without_errors_result)
 
     # 6. Correct data shape - do the two dataframes have the same shape?
     correct_data_shape_result = correct_data_shape_test(
         expected_df, df_from_generated_query
     )
-    print(correct_data_shape_result)
     results["results"].append(correct_data_shape_result)
 
     # 7. Correct data - do the two dataframes have the same data?
     correct_data_result = correct_data_test(expected_df, df_from_generated_query)
-    print(correct_data_result)
     results["results"].append(correct_data_result)
 
     return results
