@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime
 from typing import List, Optional
 from dataclasses import asdict
@@ -23,7 +24,7 @@ DEFAULT_MODEL_SQL_EXTRACTOR = "gpt-4.1"
 
 class FunnelStepResultEncoder(json.JSONEncoder):
     # This is a custom JSON encoder for FunnelStepResult objects.
-    # It converts the FunnelStepResult objects to dictionaries 
+    # It converts the FunnelStepResult objects to dictionaries
     # so that they can be serialized to JSON.
     def default(self, obj):
         if isinstance(obj, FunnelStepResult):
@@ -48,6 +49,8 @@ def run_sql_tests(
 
     # Save the results
     final_results = []
+    n = 1
+    start_time = time.time()
 
     for test_case in SQL_TESTS:
         # Load the schema, to be included in the system prompt
@@ -99,6 +102,11 @@ def run_sql_tests(
         )
         final_results.append(results)
 
+        print(
+            f"Completed test {n} of {len(SQL_TESTS)} in {time.time() - start_time:.2f} seconds"
+        )
+        n += 1
+
     # Write the results to a file
     with open(
         f"evals/reports/sql_test_results_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json",
@@ -107,6 +115,7 @@ def run_sql_tests(
         json.dump(final_results, f, cls=FunnelStepResultEncoder)
 
     # Launch the streamlit dashboard
-    dashboard_path = os.path.join(os.path.dirname(__file__), "..", "reporting", "dashboard.py")
+    dashboard_path = os.path.join(
+        os.path.dirname(__file__), "..", "reporting", "dashboard.py"
+    )
     subprocess.Popen([sys.executable, "-m", "streamlit", "run", dashboard_path])
-    
