@@ -19,7 +19,7 @@ const ComparisonCTACard = (props: {
                 Tired of copy-pasting code that doesn&apos;t work?
             </h2>
             <p style={{ fontSize: '1rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }}>
-                Mito understands your data in the notebook, so you spend less time fixing broken code.
+                Write Python code 3.2x faster than ChatGPT.
             </p>
             <div>
                 <CTAButtons 
