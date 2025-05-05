@@ -3,7 +3,9 @@
 
 import json
 import os
+from datetime import datetime
 from typing import List, Optional
+from dataclasses import asdict
 from evals.prompts.chat_prompts.production_prompt_w_sql import _ProductionPromptWithSQL
 from evals.ai_api_calls.get_open_ai_completion import (
     get_open_ai_completion_code_block,
@@ -11,9 +13,20 @@ from evals.ai_api_calls.get_open_ai_completion import (
 )
 from evals.test_cases.sql_tests import SQL_TESTS
 from evals.funnels.sql.default import default_test_funnel
+from evals.funnels.sql.steps import FunnelStepResult
 
 DEFAULT_MODEL = "gpt-4.1"
 DEFAULT_MODEL_SQL_EXTRACTOR = "gpt-4.1"
+
+
+class FunnelStepResultEncoder(json.JSONEncoder):
+    # This is a custom JSON encoder for FunnelStepResult objects.
+    # It converts the FunnelStepResult objects to dictionaries 
+    # so that they can be serialized to JSON.
+    def default(self, obj):
+        if isinstance(obj, FunnelStepResult):
+            return asdict(obj)
+        return super().default(obj)
 
 
 def run_sql_tests(
@@ -27,6 +40,12 @@ def run_sql_tests(
         raise FileNotFoundError(
             "The .env file is not present. Please create one based on the .env.sample file."
         )
+
+    # Create the reports directory if it doesn't exist
+    os.makedirs("evals/reports", exist_ok=True)
+
+    # Save the results
+    final_results = []
 
     for test_case in SQL_TESTS:
         # Load the schema, to be included in the system prompt
@@ -49,7 +68,9 @@ def run_sql_tests(
             ),
         )
         system_prompt = prompt_generator.system_prompt
-        user_prompt = prompt_generator.get_prompt(test_case.user_input, test_case.notebook_state)
+        user_prompt = prompt_generator.get_prompt(
+            test_case.user_input, test_case.notebook_state
+        )
 
         # Get the SQL from the AI
         ai_generated_code = get_open_ai_completion_code_block(
@@ -71,4 +92,14 @@ def run_sql_tests(
         )
 
         # Run through the funnel
-        default_test_funnel(test_case, parsed_actual_sql, parsed_expected_sql, schema)
+        results = default_test_funnel(
+            test_case, parsed_actual_sql, parsed_expected_sql, schema
+        )
+        final_results.append(results)
+
+    # Write the results to a file
+    with open(
+        f"evals/reports/sql_test_results_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json",
+        "w",
+    ) as f:
+        json.dump(final_results, f, cls=FunnelStepResultEncoder)

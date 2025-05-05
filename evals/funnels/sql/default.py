@@ -31,14 +31,21 @@ def default_test_funnel(
 
     It then uses a series of "funnels" to compare the two and determine if the SQL is correct.
     """
+    results = {
+        "name": test_case_specs.name,
+        "actual_sql": parsed_actual_sql.query,
+        "expected_sql": parsed_expected_sql.query,
+        "results": [],
+    }
     print(f"parsed_actual_sql: {parsed_actual_sql}")
     print(f"parsed_expected_sql: {parsed_expected_sql}")
 
     # 1. SQL generated - did the AI generate a SQL query?
-    sql_generated_result = is_sql_generated_test(
+    is_sql_generated_result = is_sql_generated_test(
         test_case_specs.expected_output, parsed_actual_sql.query
     )
-    print(sql_generated_result)
+    print(is_sql_generated_result)
+    results["results"].append(is_sql_generated_result)
 
     # 2. Tables - does the SQL query use the correct tables?
     correct_tables_result = correct_tables_test(
@@ -46,6 +53,7 @@ def default_test_funnel(
         [table.name for table in parsed_actual_sql.tables],
     )
     print(correct_tables_result)
+    results["results"].append(correct_tables_result)
 
     # 3. No halucinated tables - does the SQL query reference any tables that are not in the schema?
     no_table_halucinations_result = no_table_halucinations_test(
@@ -54,12 +62,14 @@ def default_test_funnel(
         schema,
     )
     print(no_table_halucinations_result)
+    results["results"].append(no_table_halucinations_result)
 
     # 4. No column-table mismatches - does the SQL query reference any columns that are not in the schema?
     no_column_table_mismatch_result = no_column_table_mismatch_test(
         parsed_actual_sql.tables, schema
     )
     print(no_column_table_mismatch_result)
+    results["results"].append(no_column_table_mismatch_result)
 
     # ================================================
     # At this point, we switch over to comparing the actual response from the query.
@@ -67,15 +77,23 @@ def default_test_funnel(
     expected_df, error = run_sql_query(test_case_specs.expected_output or "")
 
     # 5. Syntax check - does the query actually run?
-    df_from_generated_query, syntax_check_result = execute_without_errors_test(parsed_actual_sql)
-    print(syntax_check_result)
+    df_from_generated_query, execute_without_errors_result = execute_without_errors_test(
+        parsed_actual_sql
+    )
+    print(execute_without_errors_result)
+    results["results"].append(execute_without_errors_result)
 
     # 6. Correct data shape - do the two dataframes have the same shape?
     correct_data_shape_result = correct_data_shape_test(
         expected_df, df_from_generated_query
     )
     print(correct_data_shape_result)
+    results["results"].append(correct_data_shape_result)
 
     # 7. Correct data - do the two dataframes have the same data?
     correct_data_result = correct_data_test(expected_df, df_from_generated_query)
     print(correct_data_result)
+    results["results"].append(correct_data_result)
+
+    return results
+
