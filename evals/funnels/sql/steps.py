@@ -28,10 +28,13 @@ def is_sql_generated_test(
     """
     name = "is_sql_generated_test"
 
-    if (expected_output is None) and (sql_query_recieved is None):
+    expected_sql_query_exists = expected_output is not None and expected_output != ''  
+    actual_sql_query_exists = sql_query_recieved is not None and sql_query_recieved != ''  
+
+    if not expected_sql_query_exists and not actual_sql_query_exists:
         # No SQL query was expected and none was generated
         return FunnelStepResult(name=name, passed=True)
-    elif (expected_output is not None) and (sql_query_recieved is not None):
+    elif expected_sql_query_exists and actual_sql_query_exists:
         # A SQL query was expected and one was generated
         return FunnelStepResult(name=name, passed=True)
     else:
