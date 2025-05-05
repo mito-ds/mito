@@ -186,14 +186,12 @@ class DebugPromptGenerator():
 
 class TableDetails(BaseModel):
     name: str = Field(
-        description="The name of the table, should be in the format: database_name.schema_name.table_name"
+        description="The name of the table, should be in the format: database_name.schema_name.table_name. Do not include the alias."
     )
     columns: List[str] = Field(
         description="List of column names used from this table"
     )
-    alias: Optional[str] = Field(
-        description="Alias used for the table, if any", default=None
-    )
+
 
 class ParsedSQLDetails(BaseModel):
     query: Optional[str] = Field(
