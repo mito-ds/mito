@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import List, Optional
 from mito_ai.prompt_builders.prompt_constants import (
     ACTIVE_CELL_ID_SECTION_HEADING,
     FILES_SECTION_HEADING,
@@ -17,7 +17,8 @@ def create_chat_prompt(
     active_cell_code: str, 
     active_cell_id: str,
     has_active_cell_output: bool,
-    input: str
+    input: str,
+    rag_context: Optional
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
@@ -79,6 +80,10 @@ Converted the `transaction_date` column to datetime using the built-in pd.to_dat
 {get_active_cell_output_str(has_active_cell_output)}
 
 Your task: {input}
+
+Note: You could use the additional context provided below. The information below may contain more recent data, and could be used along with your prior knowledge to come up with a solution.
+Extra context:
+{rag_context}
 """
     
     return prompt

@@ -11,6 +11,8 @@ from mito_ai.message_history import GlobalMessageHistory
 from mito_ai.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.completion_handlers.utils import append_chat_system_message, create_ai_optimized_message
+from mito_ai.utils.rag_util import find_solutions, formulate_query_from_chat
+
 
 __all__ = ["get_chat_completion", "stream_chat_completion"]
 
@@ -33,7 +35,10 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
 
         # Add the system message if it doesn't alredy exist
         await append_chat_system_message(message_history, provider, metadata.threadId)
-        
+
+        rag_input = formulate_query_from_chat(metadata.input)
+        rag_context = find_solutions(rag_input)
+
         # Create the prompt
         prompt = create_chat_prompt(
             metadata.variables or [], 
@@ -41,10 +46,11 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellCode, 
             metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
-            metadata.input
+            metadata.input,
+            rag_context
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
-        
+
         # Add the prompt to the message history
         new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
@@ -94,6 +100,9 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         
         # Add the system message if it doesn't already exist
         await append_chat_system_message(message_history, provider, metadata.threadId)
+
+        rag_input = formulate_query_from_chat(metadata.input)
+        rag_context = find_solutions(rag_input)
         
         # Create the prompt
         prompt = create_chat_prompt(
@@ -102,10 +111,11 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellCode, 
             metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
-            metadata.input
+            metadata.input,
+            rag_context
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
-        
+
         # Add the prompt to the message history
         new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
