@@ -75,7 +75,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         setIsSafari(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
     }, []);
 
-    // Use lower playback rate for Safari. If the default playback rate (4x) is used Safari will only play every ~10th second.
+    // Use lower playback rate for Safari. 
+    // Safari can not handle the default playback rate (4x) so we use 2x instead.
     const effectivePlaybackRate = isSafari ? 2 : playbackRate;
 
     // Lazy load the video
