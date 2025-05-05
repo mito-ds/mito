@@ -44,7 +44,7 @@ def is_sql_generated_test(
 
 def correct_tables_test(
     expected_tables: List[str],
-    tables_in_query: List[str],
+    actual_tables: List[str],
 ) -> FunnelStepResult:
     """
     Verifies that all expected tables are present in the generated SQL query.
@@ -56,7 +56,7 @@ def correct_tables_test(
     name = "correct_tables_test"
 
     for expected_table in expected_tables:
-        if expected_table not in tables_in_query:
+        if expected_table not in actual_tables:
             return FunnelStepResult(
                 name=name,
                 passed=False,
