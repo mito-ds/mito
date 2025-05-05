@@ -40,7 +40,7 @@ MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'
 MITO_SERVER_FREE_TIER_LIMIT_REACHED = 'mito_server_free_tier_limit_reached'
 #################################
 
-def telemetry_turned_on(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> bool:
+def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     """
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
@@ -66,7 +66,7 @@ def telemetry_turned_on(key_type: Optional[Literal['mito_server_key', 'user_key'
     
     return bool(telemetry)
 
-def identify(key_type: Optional[Literal['mito_server_key', 'user_key']]=None) -> None:
+def identify(key_type: Optional[str] = None) -> None:
     """
     Helper function for identifying a user. We just take
     their python version, mito version, and email.

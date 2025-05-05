@@ -330,8 +330,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1. Clear the chat when there is a new error to debug
-        const newChatHistoryManager = await startNewChat()
+        // Step 1: Add the smart debug message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
 
         const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
@@ -371,8 +371,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
-        // Step 1: Clear the chat history, and add the explain code message
-        const newChatHistoryManager = await startNewChat()
+        // Step 1: Add the code explain message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager()
+
         const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage(activeThreadIdRef.current)
         setChatHistoryManager(newChatHistoryManager)
         setLoadingAIResponse(true)

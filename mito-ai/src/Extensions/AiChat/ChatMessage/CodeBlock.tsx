@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '../../../../style/CodeBlock.css'
@@ -14,6 +14,7 @@ import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import { CodeReviewStatus } from '../ChatTaskpane';
 import AcceptIcon from '../../../icons/AcceptIcon';
 import RejectIcon from '../../../icons/RejectIcon';
+import ExpandIcon from '../../../icons/ExpandIcon';
 
 
 interface ICodeBlockProps {
@@ -37,14 +38,36 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     isLastAiMessage,
     codeReviewStatus,
 }): JSX.Element => {
+    const [isExpanded, setIsExpanded] = useState(false);
 
     if (role === 'user') {
+
+        const numCodePreviewLines = 5;
+        const isCodeExpandable = code.split('\n').length > numCodePreviewLines;
+        const previewCode = code.split('\n').slice(0, numCodePreviewLines).join('\n')
+
         return (
-            <div className='code-block-container'>
+            <div 
+                className='code-block-container active-cell-code-block' 
+                onClick={() => setIsExpanded(!isExpanded)}
+                style={{cursor: 'pointer'}}
+            >
                 <PythonCode
-                    code={code}
+                    code={isExpanded ? code : previewCode}
                     renderMimeRegistry={renderMimeRegistry}
                 />
+                {isCodeExpandable && (
+                    <div 
+                        className='code-block-expand-button'
+                        title={isExpanded ? "Collapse" : "Expand"}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsExpanded(!isExpanded);
+                        }}
+                    >
+                        <ExpandIcon isExpanded={isExpanded} />  
+                    </div>
+                )}
             </div>
         )
     }
