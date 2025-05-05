@@ -86,6 +86,18 @@ def main():
         check_type_results["sum"] / check_type_results["count"] * 100
     ).round(1)
 
+    # Get the order of check types from the first test case
+    if results:
+        check_type_order = [check["name"] for check in results[0]["results"]]
+        
+        # Sort the results according to the defined order
+        check_type_results["check_name"] = pd.Categorical(
+            check_type_results["check_name"],
+            categories=check_type_order,
+            ordered=True
+        )
+        check_type_results = check_type_results.sort_values("check_name")
+
     fig = px.bar(
         check_type_results,
         x="check_name",
