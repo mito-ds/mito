@@ -11,6 +11,7 @@ import pageStyles from '../styles/Page.module.css'
 import titleStyles from '../styles/Title.module.css'
 import React, { useRef, useEffect, useState } from 'react';
 import TextButton from '../components/Buttons/TextButton/TextButton';
+import { classNames } from '../utils/classNames';
 
 const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
 
@@ -245,7 +246,7 @@ const ChatGPTvsMito: NextPage = () => {
 
             <div className={pageStyles.container}>
                 <main className={pageStyles.main}>
-                    <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
+                    <section className={classNames(titleStyles.title_card, titleStyles.grid_card)}>
                         <h1 className={titleStyles.title}>
                             Mito is 3.2x faster than ChatGPT
                         </h1>
@@ -256,7 +257,7 @@ const ChatGPTvsMito: NextPage = () => {
 
                     {sectionsWithRefs.map((section, index) => (
                         <section key={index} style={{ marginBottom: '0px' }}>
-                            <div className={titleStyles.description + ' ' + pageStyles.subsection_column + ' center'} style={{ marginBottom: '50px' }}>
+                            <div className={classNames(titleStyles.description, pageStyles.subsection_column, 'center')} style={{ marginBottom: '50px' }}>
                                 <h2 dangerouslySetInnerHTML={{ __html: section.header }}></h2>
                                 <p className={titleStyles.description} style={{ color: 'var(--color-text-secondary)' }}>{section.description}</p>
                             </div>
