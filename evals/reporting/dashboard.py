@@ -133,7 +133,7 @@ def main():
 
     # Display results table
     st.dataframe(
-        filtered_df.style.applymap(
+        filtered_df.style.map(
             lambda x: (
                 "background-color: #90EE90"
                 if x == True
