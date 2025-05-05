@@ -2,7 +2,7 @@ from typing import Dict, Any
 from evals.eval_types import SQLTestCase, ParsedSQLDetails
 from evals.funnels.sql.utils import run_sql_query
 from evals.funnels.sql.steps import (
-    sql_generated_test,
+    is_sql_generated_test,
     correct_tables_test,
     no_table_halucinations_test,
     no_column_table_mismatch_test,
@@ -28,7 +28,7 @@ def default_test_funnel(
     print(sql_details)
 
     # 1. SQL generated - did the AI generate a SQL query?
-    sql_generated_result = sql_generated_test(
+    sql_generated_result = is_sql_generated_test(
         test_case_specs.expected_output, sql_details.query
     )
     print(sql_generated_result)

@@ -12,7 +12,7 @@ class FunnelStepResult:
     notes: Optional[str] = None
 
 
-def sql_generated_test(
+def is_sql_generated_test(
     expected_output: str | None,
     sql_query_recieved: str | None,
 ) -> FunnelStepResult:
@@ -26,7 +26,7 @@ def sql_generated_test(
         expected_output: The expected output string or None if no SQL query was expected
         sql_query_recieved: The actual SQL query string generated or None if no query was generated
     """
-    name = "sql_generated_test"
+    name = "is_sql_generated_test"
 
     if (expected_output is None) and (sql_query_recieved is None):
         # No SQL query was expected and none was generated
