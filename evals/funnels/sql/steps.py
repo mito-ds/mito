@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import pandas as pd
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional, Tuple

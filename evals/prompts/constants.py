@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 FILES_SECTION_HEADING = "Files in the current directory:"
 VARIABLES_SECTION_HEADING = "Defined Variables:"
 CODE_SECTION_HEADING = "Code in the active code cell:"

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from evals.prompts.constants import (
     CITATION_RULES,
     ACTIVE_CELL_ID_SECTION_HEADING,
