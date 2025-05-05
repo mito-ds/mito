@@ -145,16 +145,9 @@ def no_column_table_mismatch_test(
         ]
 
         # Check if all columns exist in the table
-        for column in columns:
-            if column.startswith("*"):
-                # Skip if the column is a wildcard
-                continue
-            elif column not in columns_in_schema:
-                return FunnelStepResult(
-                    name=name,
-                    passed=False,
-                    notes=f"Column '{column}' not found in table '{table_name}'",
-                )
+        missing_columns = [col for col in columns if not col.startswith("*") and col not in columns_in_schema]  
+        if missing_columns:  
+            return FunnelStepResult(name=name, passed=False, notes=f"Columns not found in table '{table_name}': {', '.join(missing_columns)}")  
 
     return FunnelStepResult(name=name, passed=True)
 
