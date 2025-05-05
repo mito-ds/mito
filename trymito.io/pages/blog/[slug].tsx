@@ -27,7 +27,7 @@ import 'prism-themes/themes/prism-coldark-dark.css'
 require('prismjs/components/prism-python');
 
 import { classNames } from '../../utils/classNames';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG } from '../../utils/plausible';
+import { PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG } from '../../utils/plausible';
 
 declare global {
   interface Window { Prism: any; }
@@ -131,7 +131,7 @@ const PostPage = (props: {post: PostOrPage}) => {
               <div className={postStyles.post_cta}>
               <ComparisonCTACard 
                   headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
-                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG} 
+                  textButtonClassName={PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG} 
                 />
               </div>
             </div>
@@ -174,7 +174,7 @@ const PostPage = (props: {post: PostOrPage}) => {
               <div className={postStyles.post_cta}>
                 <ComparisonCTACard 
                   headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
-                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG} 
+                  textButtonClassName={PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG} 
                 />
               </div>
             </div>
