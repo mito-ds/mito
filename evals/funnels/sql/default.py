@@ -6,7 +6,7 @@ from evals.funnels.sql.steps import (
     correct_tables_test,
     no_table_halucinations_test,
     no_column_table_mismatch_test,
-    syntax_check_test,
+    execute_without_errors_test,
     correct_data_shape_test,
     correct_data_test,
 )
@@ -60,7 +60,7 @@ def default_test_funnel(
     expected_df, error = run_sql_query(test_case_specs.expected_output or "")
 
     # 5. Syntax check - does the query actually run?
-    df_from_generated_query, syntax_check_result = syntax_check_test(sql_details)
+    df_from_generated_query, syntax_check_result = execute_without_errors_test(sql_details)
     print(syntax_check_result)
 
     # 6. Correct data shape - do the two dataframes have the same shape?

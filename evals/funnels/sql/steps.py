@@ -156,7 +156,7 @@ def no_column_table_mismatch_test(
     return FunnelStepResult(name=name, passed=True)
 
 
-def syntax_check_test(
+def execute_without_errors_test(
     sql_details: ParsedSQLDetails,
 ) -> Tuple[pd.DataFrame, FunnelStepResult]:
     """
@@ -165,7 +165,7 @@ def syntax_check_test(
     Returns:
         A tuple containing the result of the query (a pandas DataFrame) and a FunnelStepResult object.
     """
-    name = "syntax_check_test"
+    name = "execute_without_errors_test"
 
     if sql_details.query is None:
         return pd.DataFrame(), FunnelStepResult(
