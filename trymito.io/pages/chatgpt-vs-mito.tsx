@@ -26,7 +26,7 @@ interface VideoSection {
 const sections: VideoSection[] = [
     {
         header: "<span style='color: var(--color-purple)'>3.2× Faster EDA</span> (without manual fixes)",
-        description: "Code from ChatGPT pointed to the wrong file path, forcing extra manual fixes before the analysis could even start. Mito was able to write code to help it learn the correct path.",
+        description: "ChatGPT's code pointed to the wrong file path, forcing extra manual fixes before the analysis could even start. Mito first wrote code to find the right file path, and then used it. Mito's code worked on its first attempt.",
         videos: [
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/eda-mito-timed-kycK8H5PQdMdQQNVypV0vxjvG8oJlV.mp4" },
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/eda-chat-timed-jnubwzAT88oWEA0EbYSgE76tQWEMQy.mp4" }
@@ -34,7 +34,7 @@ const sections: VideoSection[] = [
     },
     {
         header: "Data Transformation — <span style='color: var(--color-purple)'>From 13 clicks to 1</span>",
-        description: "With ChatGPT, it took 13 clicks of copy-pasting back-and-forth — and two code errors that had to be debugged manually. Mito worked the first time.",
+        description: "Using ChatGPT took 13 clicks of copy-pasting code back-and-forth — not to mention two code errors that required manual debugging. Mito worked the first time. 0 clicks, 0 errors.",
         videos: [
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-mito-timed-18L3d7ubqycxlGemjCOtgjGjWNOnUT.mp4" },
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/joins-chat-timed-NIBagFnEOjL19xC3JVlSOSVh7Csnhl.mp4" }
@@ -42,7 +42,7 @@ const sections: VideoSection[] = [
     },
     {
         header: "<span style='color: var(--color-purple)'>4.5× faster ML</span> — because Mito gets your data",
-        description: "ChatGPT needed extra prompting just to understand the column types. Mito works inside your notebook. It already sees the data — so you don't have to explain it.",
+        description: "ChatGPT needs extra prompting just to understand the data it's working with. Because Mito lives inside your notebook, it already knows about your data. Let your data explain itself.",
         videos: [
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-mito-timed-oDDXPKHEjEBre3qHieaLma2sqYEGAk.mp4" },
             { src: "https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/chatgpt-vs-mito/ml-chat-timed-t03BApeZs44lijGwtbeCPBHptR8wYx.mp4" }
