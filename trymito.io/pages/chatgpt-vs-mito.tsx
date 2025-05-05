@@ -237,7 +237,7 @@ const ChatGPTvsMito: NextPage = () => {
         <>
             <Head>
                 <title>ChatGPT vs Mito</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="description" content="No more copy-pasting code that doesn&apos;t quite work. Mito AI lives inside Jupyter, helping you generate code based on your notebook and data." />
                 <meta name="description" content="No more copy-pasting code that doesn&apos;t quite work. Mito lives inside Jupyter, helping you generate code based on your notebook and data." />
             </Head>
 
@@ -247,7 +247,7 @@ const ChatGPTvsMito: NextPage = () => {
                 <main className={pageStyles.main}>
                     <section className={titleStyles.title_card + ' ' + titleStyles.grid_card}>
                         <h1 className={titleStyles.title}>
-                            Code faster, with fewer mistakes
+                            Mito is 3.2x faster than ChatGPT
                         </h1>
                         <p className={titleStyles.description}>
                             No more copy-pasting code that doesn&apos;t quite work. Mito lives inside Jupyter, helping you generate code based on your notebook, your data, and your goals.
