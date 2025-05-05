@@ -9,8 +9,6 @@ SIMPLE_TESTS = [
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output=None,
-        expected_tables=[],
-        expected_columns=[],
     ),
     SQLTestCase(
         name="simple_test_1",
@@ -18,7 +16,5 @@ SIMPLE_TESTS = [
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="SELECT * FROM SP_500.PUBLIC.SP500_COMPANIES ORDER BY MARKETCAP DESC LIMIT 1",
-        expected_tables=["SP_500.PUBLIC.SP500_COMPANIES"],
-        expected_columns=["*"],
     ),
 ]    

@@ -118,8 +118,6 @@ class SQLTestCase:
     user_input: str
     schema: str
     expected_output: str | None
-    expected_tables: List[str]
-    expected_columns: List[str]
     
     
 @dataclass(frozen=True)

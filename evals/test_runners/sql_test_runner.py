@@ -68,4 +68,4 @@ def run_sql_tests(
         )
 
         # Run through the funnel
-        default_test_funnel(test_case, parsed_actual_sql, schema)
+        default_test_funnel(test_case, parsed_actual_sql, parsed_expected_sql, schema)
