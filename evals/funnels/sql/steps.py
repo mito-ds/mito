@@ -153,7 +153,7 @@ def no_column_table_mismatch_test(
 
 
 def execute_without_errors_test(
-    sql_details: ParsedSQLDetails,
+    parsed_sql_details: ParsedSQLDetails,
 ) -> Tuple[pd.DataFrame, FunnelStepResult]:
     """
     Verifies that the SQL query is syntactically correct.
@@ -163,14 +163,14 @@ def execute_without_errors_test(
     """
     name = "execute_without_errors_test"
 
-    if sql_details.query is None:
+    if parsed_sql_details.query is None:
         return pd.DataFrame(), FunnelStepResult(
             name=name,
             passed=True,
             notes="No query was generated, defaulting to pass",
         )
 
-    result, error = run_sql_query(sql_details.query)
+    result, error = run_sql_query(parsed_sql_details.query)
 
     # Fail state: the query is syntactically incorrect.
     # Return an empty dataframe which should cause future tests to fail.
