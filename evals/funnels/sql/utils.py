@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def parse_table_path(table_path: str) -> Tuple[str, str, str]:
+def parse_db_schema_table_names(table_path: str) -> Tuple[str, str, str]:
     """
     Parses a table path into its components (database, schema, table).
 

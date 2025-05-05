@@ -2,7 +2,7 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional, Tuple
 from evals.eval_types import TableDetails, ParsedSQLDetails
-from evals.funnels.sql.utils import parse_table_path, run_sql_query
+from evals.funnels.sql.utils import parse_db_schema_table_names, run_sql_query
 
 
 @dataclass
@@ -90,7 +90,7 @@ def no_table_halucinations_test(
 
     # We want to check if each of these tables exist in the schema
     for table_path in tables_in_query:
-        database_name, schema_name, table_name = parse_table_path(table_path)
+        database_name, schema_name, table_name = parse_db_schema_table_names(table_path)
 
         # Check if database exists
         if database_name not in schema:
@@ -135,7 +135,7 @@ def no_column_table_mismatch_test(
     name = "no_column_table_mismatch_test"
 
     for table_detail in table_details:
-        database_name, schema_name, table_name = parse_table_path(table_detail.name)
+        database_name, schema_name, table_name = parse_db_schema_table_names(table_detail.name)
         columns = table_detail.columns
 
         # Our reference point:
