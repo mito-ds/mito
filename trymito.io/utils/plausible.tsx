@@ -37,5 +37,8 @@ export const PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED_PLANS_PAGE = 'plausible-event-nam
 // The user copies the pip install mitosheet command from the homepage
 export const PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET = 'plausible-event-name=copied_pip_install_mitosheet+location_homepage'
 
-// Mito vs ChatGPT comparison 
+// Mito vs ChatGPT comparison CTA
 export const PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG = 'plausible-event-name=mito_vs_chatgpt+location_blog'
+
+// The user clicked on a try online/JupyterHub CTA
+export const PLAUSIBLE_JUPYTERHUB_CTA_PRESSED_LOCATION_MITO_VS_CHATGPT_PAGE = 'plausible-event-name=jupyterhub_cta_pressed+location_mito_vs_chatgpt_page'

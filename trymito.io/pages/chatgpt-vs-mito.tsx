@@ -12,6 +12,7 @@ import titleStyles from '../styles/Title.module.css'
 import React, { useRef, useEffect, useState } from 'react';
 import TextButton from '../components/Buttons/TextButton/TextButton';
 import { classNames } from '../utils/classNames';
+import { PLAUSIBLE_JUPYTER_HUB_CTA_PRESSED_LOCATION_MITO_VS_CHATGPT_PAGE } from '../utils/plausible';
 
 const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
 
@@ -302,7 +303,12 @@ const ChatGPTvsMito: NextPage = () => {
                         <h2 className={titleStyles.title} style={{ marginBottom: '50px' }}>
                             See Mito in Action — Try the Demo
                         </h2>
-                        <TextButton text='Try online' href={JUPYTERHUB_MITO_LINK} variant="highlight" />
+                        <TextButton 
+                            text='Try online' 
+                            href={JUPYTERHUB_MITO_LINK} 
+                            variant="highlight" 
+                            className={PLAUSIBLE_JUPYTER_HUB_CTA_PRESSED_LOCATION_MITO_VS_CHATGPT_PAGE}
+                        />
                     </section>
                 </main>
                 <Footer />
