@@ -18,6 +18,16 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+**For sql tests**
+
+Create the env file:
+
+```
+cp .env.sample .env
+```
+
+Then update the new `.env` file with your Snowflake credentials.
+
 ## Running the tests 
 
 1. Navigate to the `mito` folder. 
