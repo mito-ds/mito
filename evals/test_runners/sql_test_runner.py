@@ -116,6 +116,6 @@ def run_sql_tests(
 
     # Launch the streamlit dashboard
     dashboard_path = os.path.join(
-        os.path.dirname(__file__), "..", "reporting", "dashboard.py"
+        os.path.dirname(__file__), "..", "reporting", "sql_dashboard.py"
     )
-    subprocess.Popen([sys.executable, "-m", "streamlit", "run", dashboard_path])
+    subprocess.run([sys.executable, "-m", "streamlit", "run", dashboard_path])
