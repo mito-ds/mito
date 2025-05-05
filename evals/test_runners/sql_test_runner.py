@@ -25,9 +25,9 @@ def run_sql_tests(
             "The .env file is not present. Please create one based on the .env.sample file."
         )
 
-    for test in SQL_TESTS:
+    for test_case in SQL_TESTS:
         # Load the schema, to be included in the system prompt
-        schema = json.load(open(f"evals/data/schemas/{test.schema}"))
+        schema = json.load(open(f"evals/data/schemas/{test_case.schema}"))
 
         # Generate the prompts
         # Using dummy credentials for now, the funnel uses the actual credentials
@@ -46,7 +46,7 @@ def run_sql_tests(
             ),
         )
         system_prompt = prompt_generator.system_prompt
-        user_prompt = prompt_generator.get_prompt(test.user_input, test.notebook_state)
+        user_prompt = prompt_generator.get_prompt(test_case.user_input, test_case.notebook_state)
 
         # Get the SQL from the AI
         ai_generated_code = get_open_ai_completion_code_block(
@@ -62,4 +62,4 @@ def run_sql_tests(
         )
 
         # Run through the funnel
-        default_test_funnel(test, parsed_sql_details, schema)
+        default_test_funnel(test_case, parsed_sql_details, schema)
