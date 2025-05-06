@@ -2,9 +2,10 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { generateDisplayVizFunction, getCellContent, transformMitoAppInput, transformVisualizationCell } from './cellConversionUtils';
+import { getCellContent, transformMitoAppInput } from './cellConversionUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
+import { generateDisplayVizFunction, transformVisualizationCell } from './visualizationConversionUtils';
 
 /* 
 This function converts a notebook into a streamlit app. It processes each cell one by one,
