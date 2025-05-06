@@ -1147,10 +1147,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         <div className="chat-taskpane">
-            <ModelSelector onConfigChange={(config) => {
-                // Just update the backend
-                updateModelOnBackend(config.model);
-              }}/>
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-buttons">
                     <IconButton
@@ -1280,6 +1276,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         }}
                         title="Agent can create plans and run code."
                     />
+                    <ModelSelector onConfigChange={(config) => {
+                    // Just update the backend
+                    updateModelOnBackend(config.model);
+                    }}/>
                     <button
                         className="button-base submit-button"
                         onClick={() => {
