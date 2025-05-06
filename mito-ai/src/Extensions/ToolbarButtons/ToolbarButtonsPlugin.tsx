@@ -6,7 +6,7 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
-import { lightBulbLabIcon, NucleusLabIcon, OpenIndicatorLabIcon } from '../../icons';
+import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
 import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
 
@@ -39,8 +39,8 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
 
         commands.addCommand('toolbar-button:toggle-include-cell-in-app', {
             icon: () => {
-                const isVisible = getActiveCellIncludeInApp(notebookTracker);
-                return isVisible ? NucleusLabIcon : OpenIndicatorLabIcon;
+                const includeCellInApp = getActiveCellIncludeInApp(notebookTracker);
+                return includeCellInApp ? AppBuilderIncludeCellLabIcon : AppBuilderExcludeCellLabIcon;
             },
             caption: 'Toggle cell output visibility in Streamlit app',
             execute: async () => {
