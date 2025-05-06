@@ -11,7 +11,7 @@ interface ModelConfig {
 }
 
 const ALL_MODELS = [
-  'gpt-4o',
+  'gpt-4.1',
   'o3-mini',
   'claude-3-7-sonnet-latest',
   'claude-3-5-haiku-latest',
@@ -32,40 +32,36 @@ interface ModelSelectorProps {
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>('gpt-4o-mini');
 
-  // Load config from localStorage on component mount
+  // Load config from localStorage on component mount and notify parent
   useEffect(() => {
     const storedConfig = localStorage.getItem('llmModelConfig');
     if (storedConfig) {
       try {
         const parsedConfig = JSON.parse(storedConfig);
-        setSelectedModel(parsedConfig.model || 'gpt-4o-mini');
+        const model = parsedConfig.model || 'gpt-4o-mini';
+        setSelectedModel(model);
+
+        // Notify parent component of initial model
+        onConfigChange({ model });
+
       } catch (e) {
         console.error('Failed to parse stored LLM config', e);
       }
     }
-  }, []);
+  }, [onConfigChange]);
 
   // Handle model selection change
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newModel = e.target.value;
     setSelectedModel(newModel);
-    
+
     // Create a simplified config object
     const newConfig = {
       model: newModel
     };
-    
+
     // Save to localStorage
     localStorage.setItem('llmModelConfig', JSON.stringify(newConfig));
-    
-    // Update environment variables based on model prefix
-    if (newModel.startsWith('claude')) {
-      localStorage.setItem('CLAUDE_MODEL', newModel);
-    } else if (newModel.startsWith('gemini')) {
-      localStorage.setItem('GEMINI_MODEL', newModel);
-    } else if (newModel === 'ollama') {
-      localStorage.setItem('OLLAMA_MODEL', newModel);
-    }
     
     // Notify parent component
     onConfigChange(newConfig);
