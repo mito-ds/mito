@@ -45,6 +45,7 @@ def create_test_results_df(results):
                     "check_name": check["name"],
                     "passed": check["passed"],
                     "notes": check["notes"],
+                    "schema": test["schema"],
                     "actual_sql": test["actual_sql"],
                     "expected_sql": test["expected_sql"],
                 }

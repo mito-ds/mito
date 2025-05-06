@@ -100,6 +100,8 @@ def run_sql_tests(
         results = default_test_funnel(
             test_case, parsed_actual_sql, parsed_expected_sql, schema
         )
+        # Add schema name, and append to final results
+        results["schema"] = test_case.schema
         final_results.append(results)
 
         print(
