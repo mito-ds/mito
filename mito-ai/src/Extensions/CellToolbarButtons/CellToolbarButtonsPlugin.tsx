@@ -47,10 +47,22 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             caption: 'Toggle cell output visibility in Streamlit app',
             execute: async () => {
                 /* 
-                    In order to click on the cell toolbar button, that cell must be the active cell
+                In order to click on the cell toolbar button, that cell must be the active cell.
+
+                Currently we mark the entire cell as not included in the app.
+                    
+                    Future improvement: Allow users to hide only the cell OUTPUT while keeping the code.
+                    
+                    Implementation challenges:
+                    1. Handling displayed expressions: Streamlit automatically displays hanging variables.
+                    
+                    Potential solutions:
+                    - Use linting (pyright/pylance) to detect reportUnusedExpression in cells that have outputs turned off and remove unused expressions 
+                    - Use AI to identify and remove hanging variables
+                    - Parse code to find and remove lone variable references and literals
                 */
                 toggleActiveCellIncludeInAppMetadata(notebookTracker);
-                
+
                 // Force command refresh to update the icon
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             },

@@ -58,6 +58,9 @@ export const getActiveCellIncludeInApp = (notebookTracker: INotebookTracker): bo
 }
 
 export const getIncludeCellInApp = (notebookTracker: INotebookTracker, cellID: string | undefined): boolean => {
+    /* 
+    Checks the cell metadata tag to see if the user has marked that this cell should not be included in the app.
+    */
     const cell = getCellByID(notebookTracker, cellID);
     if (!cell) {
         return false;

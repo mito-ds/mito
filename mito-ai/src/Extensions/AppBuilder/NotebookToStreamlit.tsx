@@ -1,12 +1,21 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { CodeCell } from '@jupyterlab/cells';
+import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { detectVisualizationType, getCellContent, getCellType, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './notebookToStreamlitUtils';
+import { detectVisualizationType, getCellContent, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './notebookToStreamlitUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 
-// Convert notebook to Streamlit app
+/* 
+This function converts a notebook into a streamlit app. It processes each cell one by one,
+and makes sure to convert specific functionality from the jupyter to streamlit equivalents.
+For example, in Jupyter, you can display a streamlit graph by calling plt.show(), whereas in Streamlit,
+you need to call st.plotly_chart().
+
+This function returns:
+1. A <notebook-name>-streamlit-app.py file
+2. A requirements.txt file that lists the dependencies for the streamlit app
+*/
 export const convertNotebookToStreamlit = async (
   notebookTracker: INotebookTracker,
 ): Promise<void> => {
@@ -23,8 +32,6 @@ export const convertNotebookToStreamlit = async (
   // Initialize Streamlit code with imports
   let streamlitCode = [
     "import streamlit as st",
-    "import pandas as pd",
-    "import numpy as np",
     "",
     `st.title('${notebookName}')`,
     ""
@@ -35,7 +42,6 @@ export const convertNotebookToStreamlit = async (
   // Process each cell
   notebookPanel.content.widgets.forEach((cellWidget) => {
     const cellModel = cellWidget.model;
-    const cellType = getCellType(cellModel);
     const cellContent = getCellContent(cellModel);
 
     // Check if the cell is marked to skip.
@@ -44,43 +50,35 @@ export const convertNotebookToStreamlit = async (
       return
     }
 
-    if (cellType === 'markdown') {
+    if (cellWidget instanceof MarkdownCell) {
       // Convert markdown cells to st.markdown
+      // TODO: The single # Heading markdown in Streamlit is as big as the title, maybe larger.
+      // So we might want to downsize them all by one # to make it look nicer.
       const escapedContent = cellContent.replace(/"""/g, '\\"\\"\\"');
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
       streamlitCode.push("");
+    } else if (cellWidget instanceof CodeCell) {
+      const { hasViz, vizType } = detectVisualizationType(cellWidget);
 
-      // Note: The single # Heading markdown in Streamlit is as big as the title, maybe larger.
-      // So we might want to downsize them all by one or something.
-    } else if (cellType === 'code') {
-      // Check for visualization outputs if it's a code cell
-
-
-      // TODO: Instead of chekcing cellType, we should just check this instanceof so we don't have to do both
-      // to be type safe
-      if (cellWidget instanceof CodeCell) {
-        const { hasViz, vizType } = detectVisualizationType(cellWidget);
-
-        let transformedCellContent = false;
-        if (hasViz) {
-          if (vizType === 'matplotlib') {
-            // For matplotlib, transform the cell to add st.pyplot calls after plt.show() calls
-            streamlitCode = streamlitCode.concat(transformMatplotlibCell(cellContent));
-            transformedCellContent = true;
-          } else if (vizType === 'plotly') {
-            // For plotly, transform the cell to add st.plotly_chart calls
-            streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
-            transformedCellContent = true;
-          }
+      let transformedCellContent = false;
+      if (hasViz) {
+        if (vizType === 'matplotlib') {
+          // For matplotlib, transform the cell to add st.pyplot calls after plt.show() calls
+          streamlitCode = streamlitCode.concat(transformMatplotlibCell(cellContent));
+          transformedCellContent = true;
+        } else if (vizType === 'plotly') {
+          // For plotly, transform the cell to add st.plotly_chart calls
+          streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
+          transformedCellContent = true;
         }
+      }
 
-        if (!transformedCellContent) {
-          // For non-visualization code cells, just include them as is
-          streamlitCode.push("# Code Cell");
-          const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line) })
-          streamlitCode = streamlitCode.concat(transformedLines);
-          streamlitCode.push("");
-        }
+      if (!transformedCellContent) {
+        // For non-visualization code cells, just include them as is
+        streamlitCode.push("# Code Cell");
+        const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line) })
+        streamlitCode = streamlitCode.concat(transformedLines);
+        streamlitCode.push("");
       }
 
 
@@ -88,40 +86,17 @@ export const convertNotebookToStreamlit = async (
       // They don't work in streamlit.
 
       /* 
-      Dispalying dataframes:
-      It turns out that streamlit autoamtically renders dataframes if they are hanging on a line of code by themselves. 
-      This is pretty close to what Jupyter does except that in Jupyter the dataframe has to be the final line of code in the code cell. 
-      In Streamlit, since there are no code cells, that is not the case. 
-
-      This will take care of the mito default dataframe output since we don't write any new code to display that dataframe. Sweet!
-      However, this will not automatically handle:
-      1. When the user does display(df) which the Ai sometimes does. This is almost never written by users, so maybe we shold just some prompt 
-      engineering to handle this.
-      2. If the user has a mitosheet.sheet() call. In that case, maybe we should convert it to a mito spreadsheet component. This should be 
-      pretty easy to detect I think! 
-      */
-
-      /* 
-
-      If the cell was marked to not display the outputs, we need to find a way to remove any hanging variables on a line.
-      There are a few options to do this:
-      1. Use pylance linting for the cell, if we get `Expression value is unusedPylancereportUnusedExpression` and the cell has outputs turned off, 
-          then we would remove that line.. We would need to do this when we convert each cell otherwise we will not be able to easily 
-          go back from line of code to the cell to figure out if we should be dispalying that cell's output or not. Or add comments in 
-          the .py file that mark which code comes from which cell.
-          -> It looks like we can use pyright to run linter for reportUnusedExpression. What we could do is: Add the line  to every line of code
-              in a cell that should have outputs displayed. Then, run the linter, then remove any line of code that fails the reportUnusedExpression check. Finally, remove all of the
-              # pyright: ignore reportUnusedExpression to clean up the code. It would be nice if we could turn the rule on and off for a series of lines, but I'm not seeing how to do that.. 
-          -> Or maybe we can convert each cell, get the python code, run the linter if the cell is not supposed to show outputs, delete the lines that fail.
-      2. Use AI and tell it to remove hanging variables from the cell.
-      3. Find all of the variable names in the notebook and then look for lines that only contain a variable name. We also need to remove
-          just hardcoded values. Although, these are probably pretty rare. 
-      4. Maybe there is a streamlit configuration setting we can turn on for certain lines of code? 
-           -> I'm not seeing one.. 
-
-
-      Anyways, all together, I'm starting to think that this is not a feature we should use in v1. There is probably more work here than it is useful even though 
-      it is a good polish feature. Let's see if users actually want it. We could easily do 'exclude entire cell' instead of just 'exclude cell output'
+      Displaying dataframes:
+      
+      Streamlit automatically renders variables that appear alone on a line,
+      similar to Jupyter's behavior with the last line of a cell.
+      
+      Benefits:
+      - Default Mito dataframe output works without modification
+      
+      TODO: Edge cases to handle:
+      1. User/AI-generated display(df) calls. We can tell the AI to not generate this. Users almost never do.
+      2. mitosheet.sheet() calls - consider converting to Mito spreadsheet component or just dataframe output
       */
     }
   });
