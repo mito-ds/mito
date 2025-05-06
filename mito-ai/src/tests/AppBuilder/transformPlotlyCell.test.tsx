@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { transformPlotlyCell, extractPlotlyFigVariableNames } from '../../Extensions/AppBuilder/notebookToStreamlitUtils';
+import { transformPlotlyCell, extractPlotlyFigVariableNames } from '../../Extensions/AppBuilder/cellConversionUtils';
 
 describe('transformPlotlyCell', () => {
   test('should transform a cell with Plotly figure and show() call', () => {

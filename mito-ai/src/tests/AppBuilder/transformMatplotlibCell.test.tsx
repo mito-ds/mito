@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { transformMatplotlibCell } from '../../Extensions/AppBuilder/notebookToStreamlitUtils';
+import { transformMatplotlibCell } from '../../Extensions/AppBuilder/cellConversionUtils';
 
 describe('transformMatplotlibCell', () => {
   test('should transform a cell with plt.show() to use st.pyplot', () => {

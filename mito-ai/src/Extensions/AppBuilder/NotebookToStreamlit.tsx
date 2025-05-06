@@ -2,7 +2,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { detectVisualizationType, getCellContent, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './notebookToStreamlitUtils';
+import { detectVisualizationType, getCellContent, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './cellConversionUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 
@@ -51,6 +51,7 @@ export const convertNotebookToStreamlit = async (
     }
 
     if (cellWidget instanceof MarkdownCell) {
+      streamlitCode.push("\n# Converting Markdown Cell");
       // Convert markdown cells to st.markdown
       // TODO: The single # Heading markdown in Streamlit is as big as the title, maybe larger.
       // So we might want to downsize them all by one # to make it look nicer.
@@ -58,6 +59,7 @@ export const convertNotebookToStreamlit = async (
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
       streamlitCode.push("");
     } else if (cellWidget instanceof CodeCell) {
+      streamlitCode.push("\n# Converting Code Cell");
       const { hasViz, vizType } = detectVisualizationType(cellWidget);
 
       let transformedCellContent = false;
@@ -75,12 +77,10 @@ export const convertNotebookToStreamlit = async (
 
       if (!transformedCellContent) {
         // For non-visualization code cells, just include them as is
-        streamlitCode.push("# Code Cell");
         const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line) })
         streamlitCode = streamlitCode.concat(transformedLines);
         streamlitCode.push("");
       }
-
 
       // TODO: We need to remove lines of code that start with !, like !pip install pandas --quiet
       // They don't work in streamlit.

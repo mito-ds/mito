@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { transformMitoAppInput } from '../../Extensions/AppBuilder/notebookToStreamlitUtils';
+import { transformMitoAppInput } from '../../Extensions/AppBuilder/cellConversionUtils';
 
 describe('transformMitoAppInput', () => {
   test('should transform text input', () => {
