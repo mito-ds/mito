@@ -3,10 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import {
-    JupyterFrontEnd,
-    JupyterFrontEndPlugin
-} from '@jupyterlab/application';
+import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { lightBulbLabIcon, NucleusLabIcon, OpenIndicatorLabIcon } from '../../icons';
@@ -71,11 +68,12 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
 
 
         commands.addCommand('toolbar-button:convert-to-streamlit', {
-            icon: lightBulbLabIcon,
+            label: 'Build App',
             caption: 'Convert to Streamlit',
+            className: 'text-button-mito-ai button-base button-purple button-small',
             execute: async () => {
                 convertNotebookToStreamlit(notebookTracker);
-            },
+            }
         });
 
         console.log("mito-ai: CellToolbarButtonsPlugin activated");

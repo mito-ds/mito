@@ -30,7 +30,7 @@
         {
           "name": "convert-to-streamlit",
           "command": "toolbar-button:convert-to-streamlit",
-          "rank": 10
+          "rank": 1000
         }
       ]
     }
