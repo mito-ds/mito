@@ -7,7 +7,7 @@ import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 
 // Convert notebook to Streamlit app
-export const convertToStreamlit = async (
+export const convertNotebookToStreamlit = async (
   notebookTracker: INotebookTracker,
 ): Promise<void> => {
 
@@ -16,10 +16,10 @@ export const convertToStreamlit = async (
     console.error('No notebook is currently active');
     return;
   }
-  
+
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
-  
+
   // Initialize Streamlit code with imports
   let streamlitCode = [
     "import streamlit as st",
@@ -31,7 +31,7 @@ export const convertToStreamlit = async (
   ];
 
   // TODO: we can set the app favicon https://docs.streamlit.io/develop/api-reference/configuration/st.set_page_config
-  
+
   // Process each cell
   notebookPanel.content.widgets.forEach((cellWidget) => {
     const cellModel = cellWidget.model;
@@ -43,7 +43,7 @@ export const convertToStreamlit = async (
     if (!includeCellInApp) {
       return
     }
-    
+
     if (cellType === 'markdown') {
       // Convert markdown cells to st.markdown
       const escapedContent = cellContent.replace(/"""/g, '\\"\\"\\"');
@@ -60,7 +60,7 @@ export const convertToStreamlit = async (
       // to be type safe
       if (cellWidget instanceof CodeCell) {
         const { hasViz, vizType } = detectVisualizationType(cellWidget);
-        
+
         let transformedCellContent = false;
         if (hasViz) {
           if (vizType === 'matplotlib') {
@@ -77,7 +77,7 @@ export const convertToStreamlit = async (
         if (!transformedCellContent) {
           // For non-visualization code cells, just include them as is
           streamlitCode.push("# Code Cell");
-          const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line)})
+          const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line) })
           streamlitCode = streamlitCode.concat(transformedLines);
           streamlitCode.push("");
         }
@@ -128,7 +128,6 @@ export const convertToStreamlit = async (
 
   // Create the streamlit app.py file
   const streamlitSourceCode = streamlitCode.join('\n');
-  console.log(streamlitSourceCode)
 
   // Build the requirements.txt file    
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
