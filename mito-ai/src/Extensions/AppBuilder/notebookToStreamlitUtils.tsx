@@ -106,9 +106,6 @@ export const transformMatplotlibCell = (cellContent: string): string[] => {
     const lines = cellContent.split('\n');
     const transformedLines: string[] = [];
 
-    // Generate modified version with st.pyplot calls after each plt.show()
-    transformedLines.push("# Modified code for Streamlit:");
-
     for (let i = 0; i < lines.length; i++) {
 
         // If this is a plt.show() line, swap it out for a st.pyplot call
@@ -133,9 +130,6 @@ export const transformPlotlyCell = (cellContent: string): string[] => {
 
     // Try to extract all figure variables
     const figVariables = extractPlotlyFigVariableNames(cellContent);
-
-    // Generate modified version with st.plotly_chart calls
-    transformedLines.push("# Modified code for Streamlit:");
 
     if (figVariables.length > 0) {
         // Keep track of which figure variables we've already processed
