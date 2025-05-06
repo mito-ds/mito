@@ -18,7 +18,7 @@ plt.title('Sine Wave')
 plt.show()
 `;
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import matplotlib.pyplot as plt',
@@ -53,7 +53,7 @@ plt.title('Cosine Wave')
 plt.show()
 `;
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import matplotlib.pyplot as plt',
@@ -82,7 +82,7 @@ plt.plot([1, 2, 3], [4, 5, 6])
 plt.show(block=False)
 `;
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import matplotlib.pyplot as plt',
@@ -103,7 +103,7 @@ plt.title('Sine Wave')
 # No plt.show() call
 `;
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import matplotlib.pyplot as plt',
@@ -126,7 +126,7 @@ df = pd.DataFrame(data)
 print(df)
 `;
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import pandas as pd',
@@ -140,7 +140,7 @@ print(df)
   test('should handle empty cell content', () => {
     const cellContent = '';
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result.length).toBe(0);
   });
@@ -152,7 +152,7 @@ plt.plot([1, 2, 3])
 # plt.show() - commented out
 `;
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import matplotlib.pyplot as plt',
@@ -169,7 +169,7 @@ if True:
     plt.show()
 `;
     
-    const result = transformMatplotlibCell(cellContent).filter((line: string) => line !== '');
+    const result = transformMatplotlibCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     // The current implementation only replaces lines that *start with* 'plt.show'
     // after being trimmed, so the indented plt.show() WILL be replaced

@@ -13,7 +13,7 @@ fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
 fig.show()
 `;
     
-    const result = transformPlotlyCell(cellContent).filter((line: string) => line !== '');
+    const result = transformPlotlyCell(cellContent).split('\n').filter((line: string) => line !== '');
 
     expect(result).toEqual([
       'import plotly.express as px',
@@ -35,7 +35,7 @@ fig2.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 3, 2]))
 fig2.show()
 `;
     
-    const result = transformPlotlyCell(cellContent).filter((line: string) => line !== '');
+    const result = transformPlotlyCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import plotly.express as px',
@@ -55,7 +55,7 @@ fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
 # No fig.show() call
 `;
     
-    const result = transformPlotlyCell(cellContent).filter((line: string) => line !== '');
+    const result = transformPlotlyCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import plotly.express as px',
@@ -71,7 +71,7 @@ df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 print(df)
 `;
     
-    const result = transformPlotlyCell(cellContent).filter((line: string) => line !== '');
+    const result = transformPlotlyCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import pandas as pd',
@@ -83,7 +83,7 @@ print(df)
   test('should handle empty cell content', () => {
     const cellContent = '';
     
-    const result = transformPlotlyCell(cellContent).filter((line: string) => line !== '');
+    const result = transformPlotlyCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result.length).toBe(0);
   });
@@ -110,7 +110,7 @@ figure.update_layout(title_text="Side By Side Plots")
 figure.show()
 `;
     
-    const result = transformPlotlyCell(cellContent).filter((line: string) => line !== '');
+    const result = transformPlotlyCell(cellContent).split('\n').filter((line: string) => line !== '');
     
     expect(result).toEqual([
       'import plotly.graph_objects as go',

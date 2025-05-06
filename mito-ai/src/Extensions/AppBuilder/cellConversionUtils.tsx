@@ -99,7 +99,70 @@ export const extractPlotlyFigVariableNames = (cellContent: string): string[] => 
     return figureVariables;
 };
 
+// Generate the display_viz helper function for Streamlit
+export const generateDisplayVizFunction = (): string => {
+    return `
+def display_viz(fig):
+    """Display a visualization in Streamlit based on its type."""
+    
+    # Check for Plotly figure
+    if hasattr(fig, 'update_layout') or str(type(fig)).find('plotly') >= 0:
+        st.plotly_chart(fig)
+        return
+    
+    # Check for Matplotlib figure
+    if hasattr(fig, 'add_subplot') or str(type(fig)).find('matplotlib') >= 0:
+        st.pyplot(fig)
+        return
+    
+    # Fallback - try pyplot as it's most common
+    try:
+        st.pyplot(fig)
+    except Exception:
+        st.error(f"Couldn't display visualization of type: {type(fig)}")
+        st.write(fig)  # Attempt to display as generic object
+`;
+};
 
+// Transform visualization code for Streamlit using runtime detection
+export const transformVisualizationCell = (cellContent: string): string => {
+    const lines = cellContent.split('\n');
+    const transformedLines: string[] = [];
+    
+    // Extract figure variable names
+    const figVariables = extractPlotlyFigVariableNames(cellContent);
+    
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i] ?? '';
+        
+        // Check for plt.show() calls. We need to replace these with display_viz(plt.gcf())
+        // because we need to make sure we display the current figure.
+        let replacedLine = false;
+        if (line.trim().match(/plt\.show\(/)) {
+            transformedLines.push("display_viz(plt.gcf())");
+            replacedLine = true;
+            continue;
+        }
+        
+        // Check for figure.show() calls for any detected figure variables. Here, we need to pass
+        // the figure name to display_viz.
+        for (const figVar of figVariables) {
+            if (line.trim().startsWith(`${figVar}.show`)) {
+                transformedLines.push(`display_viz(${figVar})`);
+                replacedLine = true;
+                break;
+            }
+        }
+        
+        // If we didn't replace the line, keep the original
+        if (!replacedLine) {
+            transformedLines.push(line);
+        }
+    }
+    
+    return transformedLines.join('\n');
+};
 
 // Process matplotlib code cell and transform for Streamlit
 export const transformMatplotlibCell = (cellContent: string): string => {
@@ -164,8 +227,6 @@ export const transformPlotlyCell = (cellContent: string): string => {
 
     return transformedLines.join('\n');
 };
-
-
 
 export const transformMitoAppInput = (line: string): string => {
 

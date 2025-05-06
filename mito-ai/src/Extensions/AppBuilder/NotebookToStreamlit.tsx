@@ -2,7 +2,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { detectVisualizationType, getCellContent, transformMatplotlibCell, transformMitoAppInput, transformPlotlyCell } from './cellConversionUtils';
+import { generateDisplayVizFunction, getCellContent, transformMitoAppInput, transformVisualizationCell } from './cellConversionUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 
@@ -34,6 +34,7 @@ export const convertNotebookToStreamlit = async (
     "import streamlit as st",
     "",
     `st.title('${notebookName}')`,
+    generateDisplayVizFunction(),
     ""
   ];
 
@@ -61,7 +62,6 @@ export const convertNotebookToStreamlit = async (
     } else if (cellWidget instanceof CodeCell) {
       
       streamlitCode.push("\n# Converting Code Cell");
-      const { hasViz, vizType } = detectVisualizationType(cellWidget);
 
       // Convert the Mito App Input into Streamlit components
       cellContent = cellContent.split('\n').map(line => { return transformMitoAppInput(line) }).join('\n');
@@ -69,17 +69,11 @@ export const convertNotebookToStreamlit = async (
       // Remove lines that start with !, like !pip install pandas, which are not valid python code
       cellContent = cellContent.split('\n').filter(line => !line.startsWith('!')).join('\n');
 
-      if (hasViz) {
-        if (vizType === 'matplotlib') {
-          // For matplotlib, transform the cell to add st.pyplot calls after plt.show() calls
-          cellContent = transformMatplotlibCell(cellContent)
-        } else if (vizType === 'plotly') {
-          // For plotly, transform the cell to add st.plotly_chart calls
-          cellContent = transformPlotlyCell(cellContent);
-        }
-      }
+      // Transform the cell for visualizations using our new unified approach
+      cellContent = transformVisualizationCell(cellContent);
 
       streamlitCode = streamlitCode.concat(cellContent);
+
 
       /* 
       Displaying dataframes:
