@@ -71,7 +71,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             caption: 'Convert to Streamlit',
             className: 'text-button-mito-ai button-base button-purple button-small',
             execute: async () => {
-                convertNotebookToStreamlit(notebookTracker);
+                void convertNotebookToStreamlit(notebookTracker);
             }
         });
 

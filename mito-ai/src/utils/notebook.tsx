@@ -42,7 +42,7 @@ export const toggleIncludeCellInAppMetadata = (notebookTracker: INotebookTracker
         return undefined;
     }
 
-    if (cell.model.metadata.hasOwnProperty(INCLUDE_CELL_IN_APP)) {
+    if (Object.prototype.hasOwnProperty.call(cell.model.metadata, INCLUDE_CELL_IN_APP)) {
         const originalVisibility = cell.model.getMetadata(INCLUDE_CELL_IN_APP);
         cell.model.setMetadata(INCLUDE_CELL_IN_APP, !originalVisibility);
     } else {
@@ -66,7 +66,7 @@ export const getIncludeCellInApp = (notebookTracker: INotebookTracker, cellID: s
         return false;
     }
 
-    if (!cell.model.metadata.hasOwnProperty(INCLUDE_CELL_IN_APP)) {
+    if (!Object.prototype.hasOwnProperty.call(cell.model.metadata, INCLUDE_CELL_IN_APP)) {
         cell.model.setMetadata(INCLUDE_CELL_IN_APP, true);
     }
 
