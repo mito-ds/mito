@@ -25,6 +25,13 @@
           "command": "toolbar-button:reject-code",
           "rank": 2
         }
+      ],
+      "Notebook": [
+        {
+          "name": "convert-to-streamlit",
+          "command": "toolbar-button:convert-to-streamlit",
+          "rank": 10
+        }
       ]
     }
 }

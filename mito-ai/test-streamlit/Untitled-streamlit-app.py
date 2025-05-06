@@ -1,6 +1,4 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 
 st.title('Untitled')
 
@@ -41,7 +39,6 @@ st.markdown("""## Price Visualization
 
 - Visualize the META closing price over time to observe trends, anomalies, and general behavior during 2024. """)
 
-# Modified code for Streamlit:
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(12,6))

@@ -11,6 +11,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { lightBulbLabIcon, NucleusLabIcon, OpenIndicatorLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
+import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
 
 const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/cell-toolbar-buttons.json file.
@@ -67,6 +68,16 @@ const CellToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             },
         });
+
+
+        commands.addCommand('toolbar-button:convert-to-streamlit', {
+            icon: lightBulbLabIcon,
+            caption: 'Convert to Streamlit',
+            execute: async () => {
+                convertNotebookToStreamlit(notebookTracker);
+            },
+        });
+
         console.log("mito-ai: CellToolbarButtonsPlugin activated");
     }
 };
