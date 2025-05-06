@@ -42,7 +42,7 @@ export const convertNotebookToStreamlit = async (
   // Process each cell
   notebookPanel.content.widgets.forEach((cellWidget) => {
     const cellModel = cellWidget.model;
-    const cellContent = getCellContent(cellModel);
+    let cellContent = getCellContent(cellModel);
 
     // Check if the cell is marked to skip.
     const includeCellInApp = getIncludeCellInApp(notebookTracker, cellModel.id)
@@ -59,31 +59,27 @@ export const convertNotebookToStreamlit = async (
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
       streamlitCode.push("");
     } else if (cellWidget instanceof CodeCell) {
+      
       streamlitCode.push("\n# Converting Code Cell");
       const { hasViz, vizType } = detectVisualizationType(cellWidget);
 
-      let transformedCellContent = false;
+      // Convert the Mito App Input into Streamlit components
+      cellContent = cellContent.split('\n').map(line => { return transformMitoAppInput(line) }).join('\n');
+
+      // Remove lines that start with !, like !pip install pandas, which are not valid python code
+      cellContent = cellContent.split('\n').filter(line => !line.startsWith('!')).join('\n');
+
       if (hasViz) {
         if (vizType === 'matplotlib') {
           // For matplotlib, transform the cell to add st.pyplot calls after plt.show() calls
-          streamlitCode = streamlitCode.concat(transformMatplotlibCell(cellContent));
-          transformedCellContent = true;
+          cellContent = transformMatplotlibCell(cellContent)
         } else if (vizType === 'plotly') {
           // For plotly, transform the cell to add st.plotly_chart calls
-          streamlitCode = streamlitCode.concat(transformPlotlyCell(cellContent));
-          transformedCellContent = true;
+          cellContent = transformPlotlyCell(cellContent);
         }
       }
 
-      if (!transformedCellContent) {
-        // For non-visualization code cells, just include them as is
-        const transformedLines = cellContent.split('\n').map(line => { return transformMitoAppInput(line) })
-        streamlitCode = streamlitCode.concat(transformedLines);
-        streamlitCode.push("");
-      }
-
-      // TODO: We need to remove lines of code that start with !, like !pip install pandas --quiet
-      // They don't work in streamlit.
+      streamlitCode = streamlitCode.concat(cellContent);
 
       /* 
       Displaying dataframes:

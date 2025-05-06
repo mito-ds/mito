@@ -102,7 +102,7 @@ export const extractPlotlyFigVariableNames = (cellContent: string): string[] => 
 
 
 // Process matplotlib code cell and transform for Streamlit
-export const transformMatplotlibCell = (cellContent: string): string[] => {
+export const transformMatplotlibCell = (cellContent: string): string => {
     const lines = cellContent.split('\n');
     const transformedLines: string[] = [];
 
@@ -120,11 +120,11 @@ export const transformMatplotlibCell = (cellContent: string): string[] => {
         }
     }
 
-    return transformedLines;
+    return transformedLines.join('\n');
 };
 
 // Process plotly code cell and transform for Streamlit
-export const transformPlotlyCell = (cellContent: string): string[] => {
+export const transformPlotlyCell = (cellContent: string): string => {
     const lines = cellContent.split('\n');
     const transformedLines: string[] = [];
 
@@ -162,7 +162,7 @@ export const transformPlotlyCell = (cellContent: string): string[] => {
         transformedLines.push(...lines);
     }
 
-    return transformedLines;
+    return transformedLines.join('\n');
 };
 
 
