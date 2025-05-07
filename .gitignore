@@ -16,6 +16,9 @@ mitosheet/iframe_figures/*
 mito-ai/iframe_figures/*
 mito-sql-cell
 
+# Evals
+evals/reports/
+
 # Mac Specific 
 
 ## General
