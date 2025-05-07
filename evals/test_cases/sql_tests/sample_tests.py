@@ -5,7 +5,7 @@ from evals.notebook_states import *
 from evals.eval_types import SQLTestCase
 from evals.test_cases.sql_tests.constants import *
 
-SIMPLE_TESTS = [
+SAMPLE_TESTS = [
     SQLTestCase(
         name="non_existent_table",
         user_input="which car brand sold the most cars in 2020?",

@@ -5,9 +5,9 @@ from typing import List
 from evals.eval_types import SQLTestCase
 
 # SQL Tests
-from evals.test_cases.sql_tests.simple_tests import SIMPLE_TESTS
+from evals.test_cases.sql_tests.sample_tests import SAMPLE_TESTS
 
 
 SQL_TESTS: List[SQLTestCase] = [
-    *SIMPLE_TESTS,
+    *SAMPLE_TESTS,
 ]
