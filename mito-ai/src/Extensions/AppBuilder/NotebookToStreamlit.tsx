@@ -2,7 +2,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { getCellContent, transformMitoAppInput } from './cellConversionUtils';
+import { getCellContent, removeInvalidLines, transformMitoAppInput } from './cellConversionUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 import { generateDisplayVizFunction, transformVisualizationCell } from './visualizationConversionUtils';
@@ -67,14 +67,12 @@ export const convertNotebookToStreamlit = async (
       // Convert the Mito App Input into Streamlit components
       cellContent = cellContent.split('\n').map(line => { return transformMitoAppInput(line) }).join('\n');
 
-      // Remove lines that start with !, like !pip install pandas, which are not valid python code
-      cellContent = cellContent.split('\n').filter(line => !line.startsWith('!')).join('\n');
+      cellContent = removeInvalidLines(cellContent);
 
       // Transform the cell for visualizations using our new unified approach
       cellContent = transformVisualizationCell(cellContent);
 
       streamlitCode = streamlitCode.concat(cellContent);
-
 
       /* 
       Displaying dataframes:

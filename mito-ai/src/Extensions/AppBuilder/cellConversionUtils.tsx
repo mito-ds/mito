@@ -60,3 +60,12 @@ export const transformMitoAppInput = (line: string): string => {
     // If there was no text_input to create, then just return the original line.
     return line
 }
+
+export const removeInvalidLines = (cellContent: string): string => {
+    // Remove lines that are special to ipython and won't work in streamlit. These lines start with:
+    // ! -> like !pip install pandas
+    // % -> like %pip install pandas
+    // %% -> like %%pip install pandas
+    const invalidLinesPrefixes = ['!', '%', '%%']
+    return cellContent.split('\n').filter(line => !invalidLinesPrefixes.some(prefix => line.trim().startsWith(prefix))).join('\n')
+}
