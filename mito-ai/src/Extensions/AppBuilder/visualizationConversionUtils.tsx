@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 // Generate the display_viz helper function for Streamlit
 export const generateDisplayVizFunction = (): string => {
     return `
