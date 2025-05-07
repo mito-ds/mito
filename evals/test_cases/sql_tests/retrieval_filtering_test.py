@@ -63,14 +63,14 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
         schema=MEDIUM_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="SELECT * FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS WHERE CHURN_LABEL = TRUE AND CHURN_REASON IS NOT NULL",
-    ),  
+    ),
     SQLTestCase(
         name="made_referral_but_does_not_have_multiple_lines",
         user_input="Find all customers who made a referral but do not have multiple lines.",
         schema=MEDIUM_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="SELECT * FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS WHERE NUMBER_OF_REFERRALS > 0 AND MULTIPLE_LINES = FALSE",
-    ),  
+    ),
     SQLTestCase(
         name="most_referrals",
         user_input="Find the customer with the most referrals.",
@@ -78,6 +78,40 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="SELECT * FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS ORDER BY NUMBER_OF_REFERRALS DESC LIMIT 1",
     ),
-    # LARGE SCHEMA
-    
+    # LARGE SCHEMA (mix and match from the previous tests, good to see if there is performance degradation)
+    SQLTestCase(
+        name="tech_sector_companies",
+        user_input="Which companies belong to the Technology sector?",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT * FROM SP_500.PUBLIC.SP500_COMPANIES WHERE SECTOR = 'Technology'",
+    ),
+    SQLTestCase(
+        name="high_market_cap",
+        user_input="Show me companies with a market cap over 1 trillion.",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT * FROM SP_500.PUBLIC.SP500_COMPANIES WHERE MARKETCAP > 1000000000000",
+    ),
+    SQLTestCase(
+        name="just_joined_low_satisfaction",
+        user_input="Find all customers who just joined and have the lowest possible satisfaction score.",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT * FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS WHERE CUSTOMER_STATUS = 'Joined' AND SATISFACTION_SCORE = 1",
+    ),
+    SQLTestCase(
+        name="churned_and_gave_a_reason",
+        user_input="Find all customers who churned and gave a reason.",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT * FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS WHERE CHURN_LABEL = TRUE AND CHURN_REASON IS NOT NULL",
+    ),
+    SQLTestCase(
+        name="most_referrals",
+        user_input="Find the customer with the most referrals.",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT * FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS ORDER BY NUMBER_OF_REFERRALS DESC LIMIT 1",
+    ),
 ]
