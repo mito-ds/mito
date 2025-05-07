@@ -39,6 +39,6 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
         user_input="Find all companies with 'Inc' in the name.",
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
-        expected_output="SELECT * FROM SP_500.PUBLIC.SP500_COMPANIES WHERE NAME LIKE '%Inc%'",
+        expected_output="SELECT * FROM SP_500.PUBLIC.SP500_COMPANIES WHERE LONGNAME LIKE '%Inc%'",
     ),
 ]
