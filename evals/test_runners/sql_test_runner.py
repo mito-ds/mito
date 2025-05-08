@@ -15,7 +15,7 @@ from evals.ai_api_calls.get_open_ai_completion import (
     get_open_ai_completion_code_block,
     get_sql_from_message,
 )
-from evals.test_cases.sql_tests import SQL_TESTS
+from evals.test_cases.sql_tests import SQL_TESTS, JOIN_TESTS, TIME_BASED_TESTS, BASIC_RETRIEVAL_AND_FILTERING_TESTS, AGGREGATION_AND_GROUPING_TESTS, SEARCH_AND_PATTERN_MATCHING_TESTS
 from evals.funnels.sql.default import default_test_funnel
 from evals.funnels.sql.steps import FunnelStepResult
 
@@ -99,7 +99,15 @@ def run_sql_tests(
         results = default_test_funnel(
             test_case, parsed_actual_sql, parsed_expected_sql, schema
         )
-        # Add schema name, and append to final results
+        
+        # Get test type by finding which array contains the test case
+        # For example, if test_case is in JOIN_TESTS, the test_type will be "join_tests"
+        test_type = next(
+            (name for name, array in globals().items() 
+             if isinstance(array, list) and test_case in array),
+            None
+        )
+        results["test_type"] = test_type
         results["schema"] = test_case.schema
         final_results.append(results)
 
