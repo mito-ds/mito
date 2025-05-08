@@ -11,3 +11,4 @@ snowflake-sqlalchemy
 python-dotenv
 streamlit
 plotly
+tqdm
