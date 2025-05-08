@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import time
+from tqdm import tqdm
 from datetime import datetime
 from typing import List, Optional
 from dataclasses import asdict
@@ -49,10 +50,8 @@ def run_sql_tests(
 
     # Save the results
     final_results = []
-    n = 1
-    start_time = time.time()
 
-    for test_case in SQL_TESTS:
+    for test_case in tqdm(SQL_TESTS):
         # Load the schema, to be included in the system prompt
         schema = json.load(open(f"evals/data/schemas/{test_case.schema}"))
 
@@ -103,11 +102,6 @@ def run_sql_tests(
         # Add schema name, and append to final results
         results["schema"] = test_case.schema
         final_results.append(results)
-
-        print(
-            f"Completed test {n} of {len(SQL_TESTS)} in {time.time() - start_time:.2f} seconds"
-        )
-        n += 1
 
     # Write the results to a file
     with open(
