@@ -7,6 +7,9 @@ import os
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from snowflake.sqlalchemy import URL
 
 
 def load_latest_test_results():
@@ -262,6 +265,57 @@ def main():
 
         st.markdown("**Test Type**")
         st.text(test_data["test_type"])
+
+    # SQL Query Execution Section
+    st.subheader("Execute SQL Queries")
+    
+    # Load environment variables
+    load_dotenv()
+    
+    # Create Snowflake connection
+    try:
+        engine = create_engine(URL(
+            account=os.getenv('SNOWFLAKE_ACCOUNT'),
+            user=os.getenv('SNOWFLAKE_USER'),
+            password=os.getenv('SNOWFLAKE_PASSWORD'),
+            warehouse=os.getenv('SNOWFLAKE_WAREHOUSE')
+        ))
+        
+        # Create two columns for queries
+        col1, col2 = st.columns(2)
+        
+        # First query column
+        with col1:
+            st.markdown("**Query 1**")
+            query1 = st.text_area("Enter your SQL query:", height=150, key="query1")
+            
+            if st.button("Execute Query 1", key="btn1"):
+                if query1:
+                    try:
+                        df1 = pd.read_sql(query1, engine)
+                        st.dataframe(df1, use_container_width=True)
+                    except Exception as e:
+                        st.error(f"Error executing query: {str(e)}")
+                else:
+                    st.warning("Please enter a SQL query")
+        
+        # Second query column
+        with col2:
+            st.markdown("**Query 2**")
+            query2 = st.text_area("Enter your SQL query:", height=150, key="query2")
+            
+            if st.button("Execute Query 2", key="btn2"):
+                if query2:
+                    try:
+                        df2 = pd.read_sql(query2, engine)
+                        st.dataframe(df2, use_container_width=True)
+                    except Exception as e:
+                        st.error(f"Error executing query: {str(e)}")
+                else:
+                    st.warning("Please enter a SQL query")
+                    
+    except Exception as e:
+        st.error(f"Error connecting to database: {str(e)}")
 
 
 if __name__ == "__main__":
