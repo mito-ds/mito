@@ -46,11 +46,9 @@ def create_test_results_df(results):
                 {
                     "test_name": test["name"],
                     "check_name": check["name"],
-                    "passed": check["passed"],
-                    "notes": check["notes"],
                     "schema": test["schema"],
-                    "actual_sql": test["actual_sql"],
-                    "expected_sql": test["expected_sql"],
+                    "notes": check["notes"],
+                    "passed": check["passed"],
                 }
             )
     return pd.DataFrame(rows)
@@ -157,6 +155,10 @@ def main():
 
     test_data = next((r for r in results if r["name"] == selected_test), None)
     if test_data:
+        # Display user input
+        st.markdown("**User Input**")
+        st.code(test_data["user_input"] if test_data["user_input"] else "No user input provided")
+
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("**Actual SQL**")

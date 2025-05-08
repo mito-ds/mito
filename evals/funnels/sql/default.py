@@ -33,6 +33,7 @@ def default_test_funnel(
     """
     results = {
         "name": test_case_specs.name,
+        "user_input": test_case_specs.user_input,
         "actual_sql": parsed_actual_sql.query,
         "expected_sql": parsed_expected_sql.query,
         "results": [],
