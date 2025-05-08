@@ -50,9 +50,10 @@ def run_sql_tests(
     # Save the results
     final_results = []
     n = 1
-    start_time = time.time()
 
     for test_case in SQL_TESTS:
+        start_time = time.time()
+
         # Load the schema, to be included in the system prompt
         schema = json.load(open(f"evals/data/schemas/{test_case.schema}"))
 
