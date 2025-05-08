@@ -119,6 +119,9 @@ def main():
     schema_results["pass_rate"] = (
         schema_results["sum"] / schema_results["count"] * 100
     ).round(1)
+    
+    # Rename 'sum' to 'passed' for clarity
+    schema_results = schema_results.rename(columns={"sum": "passed"})
 
     # Display pass rate metrics
     cols = st.columns(len(schema_results))
@@ -127,7 +130,7 @@ def main():
             st.metric(
                 label=row["schema"],
                 value=f"{row['pass_rate']:.1f}%",
-                delta=f"{row['sum']}/{row['count']} tests",
+                delta=f"{row['passed']}/{row['count']} tests",
                 delta_color="off",
             )
 
@@ -135,10 +138,10 @@ def main():
     schema_fig = px.bar(
         schema_results,
         x="schema",
-        y=["sum", "failed"],
+        y=["passed", "failed"],
         title="Test Results by Schema",
         labels={"schema": "Schema", "value": "Number of Tests", "variable": "Result"},
-        color_discrete_map={"sum": "green", "failed": "red"},
+        color_discrete_map={"passed": "green", "failed": "red"},
         barmode="stack",
     )
     schema_fig.update_layout(
@@ -232,6 +235,9 @@ def main():
 
         st.markdown("**Schema**")
         st.text(test_data["schema"])
+
+        st.markdown("**Test Type**")
+        st.text(test_data["test_type"])
 
 
 if __name__ == "__main__":
