@@ -275,6 +275,12 @@ def main():
     # SQL Query Execution Section
     st.subheader("Execute SQL Queries")
 
+    # Initialize session state for query results if not exists
+    if "query1_result" not in st.session_state:
+        st.session_state.query1_result = None
+    if "query2_result" not in st.session_state:
+        st.session_state.query2_result = None
+
     # Load environment variables
     load_dotenv()
 
@@ -300,12 +306,15 @@ def main():
             if st.button("Execute Query 1", key="btn1"):
                 if query1:
                     try:
-                        df1 = pd.read_sql(query1, engine)
-                        st.dataframe(df1, use_container_width=True)
+                        st.session_state.query1_result = pd.read_sql(query1, engine)
                     except Exception as e:
                         st.error(f"Error executing query: {str(e)}")
                 else:
                     st.warning("Please enter a SQL query")
+
+            # Display results if they exist
+            if st.session_state.query1_result is not None:
+                st.dataframe(st.session_state.query1_result, use_container_width=True)
 
         # Second query column
         with col2:
@@ -315,12 +324,15 @@ def main():
             if st.button("Execute Query 2", key="btn2"):
                 if query2:
                     try:
-                        df2 = pd.read_sql(query2, engine)
-                        st.dataframe(df2, use_container_width=True)
+                        st.session_state.query2_result = pd.read_sql(query2, engine)
                     except Exception as e:
                         st.error(f"Error executing query: {str(e)}")
                 else:
                     st.warning("Please enter a SQL query")
+
+            # Display results if they exist
+            if st.session_state.query2_result is not None:
+                st.dataframe(st.session_state.query2_result, use_container_width=True)
 
     except Exception as e:
         st.error(f"Error connecting to database: {str(e)}")
