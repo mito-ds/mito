@@ -5,7 +5,6 @@ import json
 import os
 import subprocess
 import sys
-import time
 from tqdm import tqdm
 from datetime import datetime
 from typing import List, Optional
