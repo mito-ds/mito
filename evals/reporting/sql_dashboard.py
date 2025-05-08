@@ -123,7 +123,7 @@ def main():
     schema_results["pass_rate"] = (
         schema_results["sum"] / schema_results["count"] * 100
     ).round(1)
-    
+
     # Rename 'sum' to 'passed' for clarity
     schema_results = schema_results.rename(columns={"sum": "passed"})
 
@@ -159,12 +159,14 @@ def main():
     st.subheader("Test Type Performance Analysis")
 
     # Calculate test type statistics
-    test_type_results = df.groupby("test_type")["passed"].agg(["count", "sum"]).reset_index()
+    test_type_results = (
+        df.groupby("test_type")["passed"].agg(["count", "sum"]).reset_index()
+    )
     test_type_results["failed"] = test_type_results["count"] - test_type_results["sum"]
     test_type_results["pass_rate"] = (
         test_type_results["sum"] / test_type_results["count"] * 100
     ).round(1)
-    
+
     # Rename 'sum' to 'passed' for clarity
     test_type_results = test_type_results.rename(columns={"sum": "passed"})
     # Create stacked bar chart for raw counts
@@ -173,7 +175,11 @@ def main():
         x="test_type",
         y=["passed", "failed"],
         title="Test Results by Test Type",
-        labels={"test_type": "Test Type", "value": "Number of Tests", "variable": "Result"},
+        labels={
+            "test_type": "Test Type",
+            "value": "Number of Tests",
+            "variable": "Result",
+        },
         color_discrete_map={"passed": "green", "failed": "red"},
         barmode="stack",
     )
@@ -268,27 +274,29 @@ def main():
 
     # SQL Query Execution Section
     st.subheader("Execute SQL Queries")
-    
+
     # Load environment variables
     load_dotenv()
-    
+
     # Create Snowflake connection
     try:
-        engine = create_engine(URL(
-            account=os.getenv('SNOWFLAKE_ACCOUNT'),
-            user=os.getenv('SNOWFLAKE_USER'),
-            password=os.getenv('SNOWFLAKE_PASSWORD'),
-            warehouse=os.getenv('SNOWFLAKE_WAREHOUSE')
-        ))
-        
+        engine = create_engine(
+            URL(
+                account=os.getenv("SNOWFLAKE_ACCOUNT"),
+                user=os.getenv("SNOWFLAKE_USER"),
+                password=os.getenv("SNOWFLAKE_PASSWORD"),
+                warehouse=os.getenv("SNOWFLAKE_WAREHOUSE"),
+            )
+        )
+
         # Create two columns for queries
         col1, col2 = st.columns(2)
-        
+
         # First query column
         with col1:
             st.markdown("**Query 1**")
             query1 = st.text_area("Enter your SQL query:", height=150, key="query1")
-            
+
             if st.button("Execute Query 1", key="btn1"):
                 if query1:
                     try:
@@ -298,12 +306,12 @@ def main():
                         st.error(f"Error executing query: {str(e)}")
                 else:
                     st.warning("Please enter a SQL query")
-        
+
         # Second query column
         with col2:
             st.markdown("**Query 2**")
             query2 = st.text_area("Enter your SQL query:", height=150, key="query2")
-            
+
             if st.button("Execute Query 2", key="btn2"):
                 if query2:
                     try:
@@ -313,7 +321,7 @@ def main():
                         st.error(f"Error executing query: {str(e)}")
                 else:
                     st.warning("Please enter a SQL query")
-                    
+
     except Exception as e:
         st.error(f"Error connecting to database: {str(e)}")
 
