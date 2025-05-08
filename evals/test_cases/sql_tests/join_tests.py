@@ -29,7 +29,40 @@ JOIN_TESTS = [
         expected_output=None,
     ),
     # MEDIUM SCHEMA
-
+    SQLTestCase(
+        name="churned_customer_avg_age",
+        user_input="What is the avg age for a churned customer?",
+        schema=MEDIUM_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT AVG(c.AGE) FROM TELCO_CHRUN.PUBLIC.CUSTOMER_INFO c JOIN TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS s ON c.CUSTOMER_ID = s.CUSTOMER_ID WHERE s.CHURN_LABEL = TRUE",
+    ),
+    SQLTestCase(
+        name="most_referrals_zip_code",
+        user_input="Can you find the zip code for the customer who has made the most referrals",
+        schema=MEDIUM_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT l.ZIP_CODE FROM TELCO_CHRUN.PUBLIC.LOCATION_DATA l JOIN TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS s ON l.CUSTOMER_ID = s.CUSTOMER_ID WHERE s.NUMBER_OF_REFERRALS = (SELECT MAX(NUMBER_OF_REFERRALS) FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS) LIMIT 1",
+    ),
     # LARGE SCHEMA
-
+    SQLTestCase(
+        name="market_cap_for_highest_volume",
+        user_input="Find the ticker symbol and market cap for the company with the highest volume for the last reported date",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT c.SYMBOL, c.MARKETCAP FROM SP_500.PUBLIC.SP500_COMPANIES c JOIN SP_500.PUBLIC.SP500_STOCKS s ON c.SYMBOL = s.SYMBOL WHERE s.DATE = (SELECT MAX(DATE) FROM SP_500.PUBLIC.SP500_STOCKS) ORDER BY s.VOLUME DESC LIMIT 1",
+    ),
+    SQLTestCase(
+        name="churned_customer_avg_age",
+        user_input="What is the avg age for a churned customer?",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT AVG(c.AGE) FROM TELCO_CHRUN.PUBLIC.CUSTOMER_INFO c JOIN TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS s ON c.CUSTOMER_ID = s.CUSTOMER_ID WHERE s.CHURN_LABEL = TRUE",
+    ),
+    SQLTestCase(
+        name="most_referrals_zip_code",
+        user_input="Can you find the zip code for the customer who has made the most referrals",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="SELECT l.ZIP_CODE FROM TELCO_CHRUN.PUBLIC.LOCATION_DATA l JOIN TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS s ON l.CUSTOMER_ID = s.CUSTOMER_ID WHERE s.NUMBER_OF_REFERRALS = (SELECT MAX(NUMBER_OF_REFERRALS) FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS) LIMIT 1",
+    ),
 ]
