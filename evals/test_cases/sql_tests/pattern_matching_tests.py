@@ -13,10 +13,10 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
-        SELECT SYMBOL, LONGNAME
-        FROM SP_500.PUBLIC.SP500_COMPANIES
-        WHERE LONGNAME ILIKE '%Inc%'
-    """.strip(),
+            SELECT SYMBOL, LONGNAME
+            FROM SP_500.PUBLIC.SP500_COMPANIES
+            WHERE LONGNAME ILIKE '%Inc%'
+        """.strip(),
     ),
     SQLTestCase(
         name="companies_with_growth_in_summary",
@@ -24,10 +24,10 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
-        SELECT SYMBOL, LONGNAME
-        FROM SP_500.PUBLIC.SP500_COMPANIES
-        WHERE LONGBUSINESSSUMMARY ILIKE '%growth%'
-    """.strip(),
+            SELECT SYMBOL, LONGNAME
+            FROM SP_500.PUBLIC.SP500_COMPANIES
+            WHERE LONGBUSINESSSUMMARY ILIKE '%growth%'
+        """.strip(),
     ),
     # MEDIUM SCHEMA
     SQLTestCase(
@@ -36,10 +36,10 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
         schema=MEDIUM_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
-        SELECT CUSTOMER_ID, CHURN_REASON
-        FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS
-        WHERE CHURN_REASON ILIKE '%dissatisfaction%'
-    """.strip(),
+            SELECT CUSTOMER_ID, CHURN_REASON
+            FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS
+            WHERE CHURN_REASON ILIKE '%dissatisfaction%'
+        """.strip(),
     ),
     # LARGE SCHEMA
     SQLTestCase(
@@ -48,10 +48,10 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
         schema=LARGE_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
-        SELECT SYMBOL, LONGNAME
-        FROM SP_500.PUBLIC.SP500_COMPANIES
-        WHERE LONGNAME ILIKE '%Inc%'
-    """.strip(),
+            SELECT SYMBOL, LONGNAME
+            FROM SP_500.PUBLIC.SP500_COMPANIES
+            WHERE LONGNAME ILIKE '%Inc%'
+        """.strip(),
     ),
     SQLTestCase(
         name="companies_with_growth_in_summary",
@@ -59,10 +59,10 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
         schema=LARGE_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
-        SELECT SYMBOL, LONGNAME
-        FROM SP_500.PUBLIC.SP500_COMPANIES
-        WHERE LONGBUSINESSSUMMARY ILIKE '%growth%'
-    """.strip(),
+            SELECT SYMBOL, LONGNAME
+            FROM SP_500.PUBLIC.SP500_COMPANIES
+            WHERE LONGBUSINESSSUMMARY ILIKE '%growth%'
+        """.strip(),
     ),
     SQLTestCase(
         name="customers_with_dissatisfaction_in_reason",
@@ -70,9 +70,9 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
         schema=LARGE_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
-        SELECT CUSTOMER_ID, CHURN_REASON
-        FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS
-        WHERE CHURN_REASON ILIKE '%dissatisfaction%'
-    """.strip(),
+            SELECT CUSTOMER_ID, CHURN_REASON
+            FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS
+            WHERE CHURN_REASON ILIKE '%dissatisfaction%'
+        """.strip(),
     ),
 ]
