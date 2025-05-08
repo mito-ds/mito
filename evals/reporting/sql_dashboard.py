@@ -206,22 +206,14 @@ def main():
     st.subheader("Detailed Test Results")
 
     # Add filters
-    test_filter = st.multiselect(
-        "Filter by Test Name",
-        options=sorted(df["test_name"].unique()),
-        default=sorted(df["test_name"].unique()),
-    )
-
-    check_filter = st.multiselect(
-        "Filter by Check Type",
-        options=sorted(df["check_name"].unique()),
-        default=sorted(df["check_name"].unique()),
+    test_type_filter = st.multiselect(
+        "Filter by Test Type",
+        options=sorted(df["test_type"].unique()),
+        default=sorted(df["test_type"].unique()),
     )
 
     # Apply filters
-    filtered_df = df[
-        (df["test_name"].isin(test_filter)) & (df["check_name"].isin(check_filter))
-    ]
+    filtered_df = df[df["test_type"].isin(test_type_filter)]
 
     # Display results table
     filtered_df["passed"] = filtered_df["passed"].map({True: "✅", False: "❌"})
