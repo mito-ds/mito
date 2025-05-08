@@ -47,6 +47,7 @@ def create_test_results_df(results):
                     "test_name": test["name"],
                     "check_name": check["name"],
                     "schema": test["schema"],
+                    "test_type": test["test_type"],
                     "notes": check["notes"],
                     "passed": check["passed"],
                 }
@@ -150,6 +151,35 @@ def main():
     )
 
     st.plotly_chart(schema_fig, use_container_width=True)
+
+    # Test Type Performance Analysis
+    st.subheader("Test Type Performance Analysis")
+
+    # Calculate test type statistics
+    test_type_results = df.groupby("test_type")["passed"].agg(["count", "sum"]).reset_index()
+    test_type_results["failed"] = test_type_results["count"] - test_type_results["sum"]
+    test_type_results["pass_rate"] = (
+        test_type_results["sum"] / test_type_results["count"] * 100
+    ).round(1)
+    
+    # Rename 'sum' to 'passed' for clarity
+    test_type_results = test_type_results.rename(columns={"sum": "passed"})
+    # Create stacked bar chart for raw counts
+    test_type_fig = px.bar(
+        test_type_results,
+        x="test_type",
+        y=["passed", "failed"],
+        title="Test Results by Test Type",
+        labels={"test_type": "Test Type", "value": "Number of Tests", "variable": "Result"},
+        color_discrete_map={"passed": "green", "failed": "red"},
+        barmode="stack",
+    )
+    test_type_fig.update_layout(
+        legend_title="Test Result",
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+    )
+
+    st.plotly_chart(test_type_fig, use_container_width=True)
 
     # Detailed Test Results
     st.subheader("Detailed Test Results")
