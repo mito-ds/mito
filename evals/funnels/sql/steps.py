@@ -226,6 +226,24 @@ def minimum_expected_cols_test(
     return FunnelStepResult(name=name, passed=True)
 
 
+def row_count_test(
+    expected_df: pd.DataFrame,
+    actual_df: pd.DataFrame,
+) -> FunnelStepResult:
+    """
+    Verifies that the actual dataframe has the same number of rows as the expected dataframe.
+    """
+    name = "row_count_test"
+    if expected_df.shape[0] != actual_df.shape[0]:
+        return FunnelStepResult(
+            name=name,
+            passed=False,
+            notes="Data shape does not match expected data shape",
+        )
+
+    return FunnelStepResult(name=name, passed=True)
+
+
 def correct_data_test(
     expected_df: pd.DataFrame,
     actual_df: pd.DataFrame,

@@ -11,6 +11,7 @@ from evals.funnels.sql.steps import (
     no_column_table_mismatch_test,
     execute_without_errors_test,
     minimum_expected_cols_test,
+    row_count_test,
     correct_data_test,
 )
 
@@ -83,7 +84,11 @@ def default_test_funnel(
     )
     results["results"].append(minimum_expected_cols_result)
 
-    # 7. Correct data - do the two dataframes have the same data?
+    # 7. Row count - do the two dataframes have the same number of rows?
+    row_count_result = row_count_test(expected_df, df_from_generated_query)
+    results["results"].append(row_count_result)
+
+    # 8. Correct data - do the two dataframes have the same data?
     correct_data_result = correct_data_test(expected_df, df_from_generated_query)
     results["results"].append(correct_data_result)
 
