@@ -62,12 +62,16 @@ def main():
     st.set_page_config(page_title="SQL Test Results Dashboard", layout="wide")
     st.title("SQL Test Results Dashboard")
 
-    # Load test results
+    # ============================================================================
+    # LOAD AND INITIALIZE TEST RESULTS
+    # ============================================================================
     results = load_latest_test_results()
     if not results:
         return
 
-    # Calculate and display overall statistics
+    # ============================================================================
+    # OVERALL STATISTICS SECTION
+    # ============================================================================
     stats = calculate_test_statistics(results)
 
     col1, col2, col3, col4 = st.columns(4)
@@ -83,7 +87,9 @@ def main():
     # Create DataFrame for detailed analysis
     df = create_test_results_df(results)
 
-    # Test Results by Check Type
+    # ============================================================================
+    # CHECK TYPE ANALYSIS SECTION
+    # ============================================================================
     st.subheader("Test Results by Check Type")
     check_type_results = (
         df.groupby("check_name")["passed"].agg(["count", "sum"]).reset_index()
@@ -114,7 +120,9 @@ def main():
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Schema Performance Analysis
+    # ============================================================================
+    # SCHEMA PERFORMANCE ANALYSIS SECTION
+    # ============================================================================
     st.subheader("Schema Performance Analysis")
 
     # Calculate schema statistics
@@ -155,7 +163,9 @@ def main():
 
     st.plotly_chart(schema_fig, use_container_width=True)
 
-    # Test Type Performance Analysis
+    # ============================================================================
+    # TEST TYPE ANALYSIS SECTION
+    # ============================================================================
     st.subheader("Test Type Performance Analysis")
 
     # Calculate test type statistics
@@ -190,7 +200,9 @@ def main():
 
     st.plotly_chart(test_type_fig, use_container_width=True)
 
-    # Detailed Test Results
+    # ============================================================================
+    # DETAILED TEST RESULTS SECTION
+    # ============================================================================
     st.subheader("Detailed Test Results")
 
     # Add filters
@@ -218,7 +230,9 @@ def main():
         use_container_width=True,
     )
 
-    # SQL Comparison Section
+    # ============================================================================
+    # SQL COMPARISON SECTION
+    # ============================================================================
     st.subheader("SQL Query Comparison")
     selected_test = st.selectbox(
         "Select Test Case to View SQL Comparison",
@@ -272,7 +286,9 @@ def main():
         st.markdown("**Test Type**")
         st.text(test_data["test_type"])
 
-    # SQL Query Execution Section
+    # ============================================================================
+    # SQL QUERY EXECUTION SECTION
+    # ============================================================================
     st.subheader("Execute SQL Queries")
 
     # Initialize session state for query results if not exists
