@@ -20,7 +20,7 @@ TIME_BASED_TESTS = [
     ),
     SQLTestCase(
         name="highest_volume_last_week",
-        user_input="Which stock had the highest volume in the last 7 days?",
+        user_input="Which stock had the highest volume in the last 7 recorded days?",
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
@@ -33,7 +33,7 @@ TIME_BASED_TESTS = [
     ),
     SQLTestCase(
         name="min_max_close_yesterday",
-        user_input="What were the minimum and maximum closing prices of SP500 stocks yesterday?",
+        user_input="What were the minimum and maximum closing prices of SP500 stocks for the last recorded day?",
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
@@ -43,5 +43,66 @@ TIME_BASED_TESTS = [
         """.strip(),
     ),
     # MEDIUM SCHEMA
+    SQLTestCase(
+        name="total_orders_last_7_days",
+        user_input="How many orders were placed in the last 7 recorded days?",
+        schema=SMALL_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="""
+            SELECT COUNT(*) AS total_orders
+            FROM SALES_DB.PUBLIC.ORDERS
+            WHERE ORDER_DATE >= DATEADD(day, -7, (SELECT MAX(ORDER_DATE) FROM SALES_DB.PUBLIC.ORDERS))
+        """.strip(),
+    ),
+    SQLTestCase(
+        name="daily_order_totals_last_30_days",
+        user_input="Show the total order amount per day for the past 30 recorded days.",
+        schema=SMALL_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="""
+            SELECT ORDER_DATE, SUM(TOTAL_AMOUNT) AS daily_total
+            FROM SALES_DB.PUBLIC.ORDERS
+            WHERE ORDER_DATE >= DATEADD(day, -30, (SELECT MAX(ORDER_DATE) FROM SALES_DB.PUBLIC.ORDERS))
+            GROUP BY ORDER_DATE
+            ORDER BY ORDER_DATE
+        """.strip(),
+    ),
     # LARGE SCHEMA
+    SQLTestCase(
+        name="highest_volume_last_week",
+        user_input="Which stock had the highest volume in the last 7 recorded days?",
+        schema=LARGE_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="""
+            SELECT SYMBOL, VOLUME
+            FROM SP_500.PUBLIC.SP500_STOCKS
+            WHERE DATE >= DATEADD(day, -7, (SELECT MAX(DATE) FROM SP_500.PUBLIC.SP500_STOCKS))
+            ORDER BY VOLUME DESC
+            LIMIT 1
+        """.strip(),
+    ),
+    SQLTestCase(
+        name="total_orders_last_7_days",
+        user_input="How many orders were placed in the last 7 recorded days?",
+        schema=SMALL_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="""
+            SELECT COUNT(*) AS total_orders
+            FROM SALES_DB.PUBLIC.ORDERS
+            WHERE ORDER_DATE >= DATEADD(day, -7, (SELECT MAX(ORDER_DATE) FROM SALES_DB.PUBLIC.ORDERS))
+        """.strip(),
+    ),
+    SQLTestCase(
+        name="daily_order_totals_last_30_days",
+        user_input="Show the total order amount per day for the past 30 recorded days.",
+        schema=SMALL_SCHEMA,
+        notebook_state=EMPTY_NOTEBOOK,
+        expected_output="""
+            SELECT ORDER_DATE, SUM(TOTAL_AMOUNT) AS daily_total
+            FROM SALES_DB.PUBLIC.ORDERS
+            WHERE ORDER_DATE >= DATEADD(day, -30, (SELECT MAX(ORDER_DATE) FROM SALES_DB.PUBLIC.ORDERS))
+            GROUP BY ORDER_DATE
+            ORDER BY ORDER_DATE
+        """.strip(),
+    ),
 ]
