@@ -5,6 +5,8 @@ from evals.notebook_states import *
 from evals.eval_types import SQLTestCase
 from evals.test_cases.sql_tests.constants import *
 
+TEST_TYPE = "basic_retrieval_and_filtering"
+
 BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
     # SMALL SCHEMA
     SQLTestCase(
@@ -17,6 +19,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES 
             WHERE SECTOR = 'Technology'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="high_market_cap",
@@ -28,6 +31,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES 
             WHERE MARKETCAP > 1000000000000
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="top_five_by_price",
@@ -40,6 +44,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             ORDER BY CURRENTPRICE DESC 
             LIMIT 5
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # MEDIUM SCHEMA
     SQLTestCase(
@@ -52,6 +57,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS 
             WHERE CUSTOMER_STATUS = 'Joined' AND SATISFACTION_SCORE = 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="churned_and_gave_a_reason",
@@ -63,6 +69,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS 
             WHERE CHURN_LABEL = TRUE AND CHURN_REASON IS NOT NULL
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="made_referral_but_does_not_have_multiple_lines",
@@ -74,6 +81,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS 
             WHERE NUMBER_OF_REFERRALS > 0 AND MULTIPLE_LINES = FALSE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # LARGE SCHEMA (mix and match from the previous tests, good to see if there is performance degradation)
     SQLTestCase(
@@ -86,6 +94,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES 
             WHERE SECTOR = 'Technology'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="churned_and_gave_a_reason",
@@ -97,6 +106,7 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS 
             WHERE CHURN_LABEL = TRUE AND CHURN_REASON IS NOT NULL
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="made_referral_but_does_not_have_multiple_lines",
@@ -108,5 +118,6 @@ BASIC_RETRIEVAL_AND_FILTERING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS 
             WHERE NUMBER_OF_REFERRALS > 0 AND MULTIPLE_LINES = FALSE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
 ]

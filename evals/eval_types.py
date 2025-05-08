@@ -118,6 +118,7 @@ class SQLTestCase:
     user_input: str
     schema: str
     expected_output: str | None
+    test_type: str
     
     
 @dataclass(frozen=True)

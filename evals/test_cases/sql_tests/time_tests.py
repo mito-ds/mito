@@ -5,6 +5,8 @@ from evals.notebook_states import *
 from evals.eval_types import SQLTestCase
 from evals.test_cases.sql_tests.constants import *
 
+TEST_TYPE = "time_based"
+
 TIME_BASED_TESTS = [
     # SMALL SCHEMA
     SQLTestCase(
@@ -17,6 +19,7 @@ TIME_BASED_TESTS = [
             FROM SP_500.PUBLIC.SP500_STOCKS
             WHERE DATE = (SELECT MAX(DATE) FROM SP_500.PUBLIC.SP500_STOCKS)
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="highest_volume_last_week",
@@ -30,6 +33,7 @@ TIME_BASED_TESTS = [
             ORDER BY VOLUME DESC
             LIMIT 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="min_max_close_yesterday",
@@ -41,6 +45,7 @@ TIME_BASED_TESTS = [
             FROM SP_500.PUBLIC.SP500_STOCKS
             WHERE DATE = DATEADD(day, -1, (SELECT MAX(DATE) FROM SP_500.PUBLIC.SP500_STOCKS))
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # MEDIUM SCHEMA
     SQLTestCase(
@@ -53,6 +58,7 @@ TIME_BASED_TESTS = [
             FROM SALES_DB.PUBLIC.ORDERS
             WHERE ORDER_DATE >= DATEADD(day, -7, (SELECT MAX(ORDER_DATE) FROM SALES_DB.PUBLIC.ORDERS))
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="daily_order_totals_last_30_days",
@@ -66,6 +72,7 @@ TIME_BASED_TESTS = [
             GROUP BY ORDER_DATE
             ORDER BY ORDER_DATE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # LARGE SCHEMA
     SQLTestCase(
@@ -80,6 +87,7 @@ TIME_BASED_TESTS = [
             ORDER BY VOLUME DESC
             LIMIT 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="total_orders_last_7_days",
@@ -91,6 +99,7 @@ TIME_BASED_TESTS = [
             FROM SALES_DB.PUBLIC.ORDERS
             WHERE ORDER_DATE >= DATEADD(day, -7, (SELECT MAX(ORDER_DATE) FROM SALES_DB.PUBLIC.ORDERS))
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="daily_order_totals_last_30_days",
@@ -104,5 +113,6 @@ TIME_BASED_TESTS = [
             GROUP BY ORDER_DATE
             ORDER BY ORDER_DATE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
 ]

@@ -5,6 +5,8 @@ from evals.notebook_states import *
 from evals.eval_types import SQLTestCase
 from evals.test_cases.sql_tests.constants import *
 
+TEST_TYPE = "join_tests"
+
 JOIN_TESTS = [
     # SMALL SCHEMA
     SQLTestCase(
@@ -21,6 +23,7 @@ JOIN_TESTS = [
             ORDER BY s.VOLUME DESC 
             LIMIT 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="ticker_with_lowest_open",
@@ -35,6 +38,7 @@ JOIN_TESTS = [
             WHERE s.DATE = (SELECT MAX(DATE) FROM SP_500.PUBLIC.SP500_STOCKS) 
             ORDER BY s.OPEN ASC LIMIT 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="find_non_existent_sma_table",
@@ -42,6 +46,7 @@ JOIN_TESTS = [
         schema=SMALL_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output=None,
+        test_type=TEST_TYPE,
     ),
     # MEDIUM SCHEMA
     SQLTestCase(
@@ -56,6 +61,7 @@ JOIN_TESTS = [
             ON c.CUSTOMER_ID = s.CUSTOMER_ID 
             WHERE s.CHURN_LABEL = TRUE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="most_referrals_zip_code",
@@ -70,6 +76,7 @@ JOIN_TESTS = [
             WHERE s.NUMBER_OF_REFERRALS = (SELECT MAX(NUMBER_OF_REFERRALS) FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS) 
             LIMIT 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # LARGE SCHEMA
     SQLTestCase(
@@ -85,6 +92,7 @@ JOIN_TESTS = [
             WHERE s.DATE = (SELECT MAX(DATE) FROM SP_500.PUBLIC.SP500_STOCKS) 
             ORDER BY s.VOLUME DESC LIMIT 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="churned_customer_avg_age",
@@ -98,6 +106,7 @@ JOIN_TESTS = [
             ON c.CUSTOMER_ID = s.CUSTOMER_ID 
             WHERE s.CHURN_LABEL = TRUE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="most_referrals_zip_code",
@@ -112,5 +121,6 @@ JOIN_TESTS = [
             WHERE s.NUMBER_OF_REFERRALS = (SELECT MAX(NUMBER_OF_REFERRALS) FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS) 
             LIMIT 1
         """.strip(),
+        test_type=TEST_TYPE,
     ),
 ]

@@ -5,6 +5,8 @@ from evals.notebook_states import *
 from evals.eval_types import SQLTestCase
 from evals.test_cases.sql_tests.constants import *
 
+TEST_TYPE = "aggregation_and_grouping"
+
 AGGREGATION_AND_GROUPING_TESTS = [
     # SMALL SCHEMA
     SQLTestCase(
@@ -16,6 +18,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             SELECT AVG(MARKETCAP) 
             FROM SP_500.PUBLIC.SP500_COMPANIES
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="average_market_cap_by_sector",
@@ -27,6 +30,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES 
             GROUP BY SECTOR
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="tech_companies_w_positive_revenue_growth",
@@ -38,6 +42,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES 
             WHERE SECTOR = 'Technology' AND REVENUEGROWTH > 0
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # MEDIUM SCHEMA
     SQLTestCase(
@@ -50,6 +55,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS 
             WHERE CHURN_LABEL = TRUE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="avg_referrals_for_all_services",
@@ -61,6 +67,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS 
             WHERE INTERNET_SERVICE = TRUE AND PHONE_SERVICE = TRUE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="avg_referrals_for_all_services",
@@ -72,6 +79,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS 
             GROUP BY SATISFACTION_SCORE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # LARGE SCHEMA
     SQLTestCase(
@@ -84,6 +92,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES 
             GROUP BY SECTOR
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="avg_ltv_for_churned_customers",
@@ -95,6 +104,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS 
             WHERE CHURN_LABEL = TRUE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="avg_referrals_for_all_services",
@@ -106,5 +116,6 @@ AGGREGATION_AND_GROUPING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.SERVICE_OPTIONS 
             WHERE INTERNET_SERVICE = TRUE AND PHONE_SERVICE = TRUE
         """.strip(),
+        test_type=TEST_TYPE,
     ),
 ]

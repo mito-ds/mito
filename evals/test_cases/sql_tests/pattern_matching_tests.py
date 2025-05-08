@@ -5,6 +5,8 @@ from evals.notebook_states import *
 from evals.eval_types import SQLTestCase
 from evals.test_cases.sql_tests.constants import *
 
+TEST_TYPE = "search_and_pattern_matching"
+
 SEARCH_AND_PATTERN_MATCHING_TESTS = [
     # SMALL SCHEMA
     SQLTestCase(
@@ -17,6 +19,7 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES
             WHERE LONGNAME ILIKE '%Inc%'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="companies_with_growth_in_summary",
@@ -28,6 +31,7 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES
             WHERE LONGBUSINESSSUMMARY ILIKE '%growth%'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # MEDIUM SCHEMA
     SQLTestCase(
@@ -40,6 +44,7 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS
             WHERE CHURN_REASON ILIKE '%dissatisfaction%'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     # LARGE SCHEMA
     SQLTestCase(
@@ -52,6 +57,7 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES
             WHERE LONGNAME ILIKE '%Inc%'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="companies_with_growth_in_summary",
@@ -63,6 +69,7 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
             FROM SP_500.PUBLIC.SP500_COMPANIES
             WHERE LONGBUSINESSSUMMARY ILIKE '%growth%'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
     SQLTestCase(
         name="customers_with_dissatisfaction_in_reason",
@@ -74,5 +81,6 @@ SEARCH_AND_PATTERN_MATCHING_TESTS = [
             FROM TELCO_CHRUN.PUBLIC.STATUS_ANALYSIS
             WHERE CHURN_REASON ILIKE '%dissatisfaction%'
         """.strip(),
+        test_type=TEST_TYPE,
     ),
 ]

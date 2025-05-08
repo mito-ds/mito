@@ -98,15 +98,7 @@ def run_sql_tests(
         results = default_test_funnel(
             test_case, parsed_actual_sql, parsed_expected_sql, schema
         )
-        
-        # Get test type by finding which array contains the test case
-        # For example, if test_case is in JOIN_TESTS, the test_type will be "join_tests"
-        test_type = next(
-            (name for name, array in globals().items() 
-             if isinstance(array, list) and name != "SQL_TESTS" and test_case in array),
-            None
-        )
-        results["test_type"] = test_type
+        results["test_type"] = test_case.test_type
         results["schema"] = test_case.schema
         final_results.append(results)
 
