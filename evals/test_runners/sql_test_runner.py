@@ -15,7 +15,7 @@ from evals.ai_api_calls.get_open_ai_completion import (
     get_open_ai_completion_code_block,
     get_sql_from_message,
 )
-from evals.test_cases.sql_tests import SQL_TESTS, JOIN_TESTS, TIME_BASED_TESTS, BASIC_RETRIEVAL_AND_FILTERING_TESTS, AGGREGATION_AND_GROUPING_TESTS, SEARCH_AND_PATTERN_MATCHING_TESTS
+from evals.test_cases.sql_tests import SQL_TESTS
 from evals.funnels.sql.default import default_test_funnel
 from evals.funnels.sql.steps import FunnelStepResult
 
