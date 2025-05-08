@@ -182,11 +182,18 @@ def main():
         checks_df = pd.DataFrame(test_data["results"])
         checks_df = checks_df[["name", "passed", "notes"]]
         checks_df = checks_df.rename(
-            columns={"name": "Check Name", "passed": "Passed", "notes": "Notes"}
+            columns={
+                "name": "Check Name",
+                "passed": "Passed",
+                "notes": "Notes",
+            }
         )
         # Convert boolean to string for better display
         checks_df["Passed"] = checks_df["Passed"].map({True: "✅", False: "❌"})
         st.dataframe(checks_df, use_container_width=True)
+
+        st.markdown("**Schema**")
+        st.text(test_data["schema"])
 
 
 if __name__ == "__main__":
