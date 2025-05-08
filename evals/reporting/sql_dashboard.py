@@ -173,15 +173,9 @@ def main():
     ]
 
     # Display results table
+    filtered_df["passed"] = filtered_df["passed"].map({True: "✅", False: "❌"})
     st.dataframe(
-        filtered_df.style.map(
-            lambda x: (
-                "background-color: #90EE90"
-                if x == True
-                else "background-color: #FFB6C1" if x == False else ""
-            ),
-            subset=["passed"],
-        ),
+        filtered_df,
         use_container_width=True,
     )
 
