@@ -110,6 +110,44 @@ def main():
     )
     st.plotly_chart(fig, use_container_width=True)
 
+    # Schema Performance Analysis
+    st.subheader("Schema Performance Analysis")
+
+    # Calculate schema statistics
+    schema_results = df.groupby("schema")["passed"].agg(["count", "sum"]).reset_index()
+    schema_results["failed"] = schema_results["count"] - schema_results["sum"]
+    schema_results["pass_rate"] = (
+        schema_results["sum"] / schema_results["count"] * 100
+    ).round(1)
+
+    # Display pass rate metrics
+    cols = st.columns(len(schema_results))
+    for idx, (_, row) in enumerate(schema_results.iterrows()):
+        with cols[idx]:
+            st.metric(
+                label=row["schema"],
+                value=f"{row['pass_rate']:.1f}%",
+                delta=f"{row['sum']}/{row['count']} tests",
+                delta_color="off",
+            )
+
+    # Create stacked bar chart for raw counts
+    schema_fig = px.bar(
+        schema_results,
+        x="schema",
+        y=["sum", "failed"],
+        title="Test Results by Schema",
+        labels={"schema": "Schema", "value": "Number of Tests", "variable": "Result"},
+        color_discrete_map={"sum": "green", "failed": "red"},
+        barmode="stack",
+    )
+    schema_fig.update_layout(
+        legend_title="Test Result",
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+    )
+
+    st.plotly_chart(schema_fig, use_container_width=True)
+
     # Detailed Test Results
     st.subheader("Detailed Test Results")
 
