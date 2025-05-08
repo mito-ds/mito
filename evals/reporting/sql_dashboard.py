@@ -91,12 +91,10 @@ def main():
     # Get the order of check types from the first test case
     if results:
         check_type_order = [check["name"] for check in results[0]["results"]]
-        
+
         # Sort the results according to the defined order
         check_type_results["check_name"] = pd.Categorical(
-            check_type_results["check_name"],
-            categories=check_type_order,
-            ordered=True
+            check_type_results["check_name"], categories=check_type_order, ordered=True
         )
         check_type_results = check_type_results.sort_values("check_name")
 
@@ -108,7 +106,7 @@ def main():
         labels={"check_name": "Check Type", "pass_rate": "Pass Rate (%)"},
         color="pass_rate",
         color_continuous_scale=["red", "yellow", "green"],
-        range_color=[0, 100]
+        range_color=[0, 100],
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -157,7 +155,11 @@ def main():
     if test_data:
         # Display user input
         st.markdown("**User Input**")
-        st.text(test_data["user_input"] if test_data["user_input"] else "No user input provided")
+        st.text(
+            test_data["user_input"]
+            if test_data["user_input"]
+            else "No user input provided"
+        )
 
         col1, col2 = st.columns(2)
         with col1:
@@ -174,6 +176,17 @@ def main():
                 if test_data["expected_sql"]
                 else "No SQL expected"
             )
+
+        # Display test checks
+        st.markdown("**Test Checks**")
+        checks_df = pd.DataFrame(test_data["results"])
+        checks_df = checks_df[["name", "passed", "notes"]]
+        checks_df = checks_df.rename(
+            columns={"name": "Check Name", "passed": "Passed", "notes": "Notes"}
+        )
+        # Convert boolean to string for better display
+        checks_df["Passed"] = checks_df["Passed"].map({True: "✅", False: "❌"})
+        st.dataframe(checks_df, use_container_width=True)
 
 
 if __name__ == "__main__":
