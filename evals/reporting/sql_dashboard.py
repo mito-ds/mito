@@ -157,7 +157,7 @@ def main():
     if test_data:
         # Display user input
         st.markdown("**User Input**")
-        st.code(test_data["user_input"] if test_data["user_input"] else "No user input provided")
+        st.text(test_data["user_input"] if test_data["user_input"] else "No user input provided")
 
         col1, col2 = st.columns(2)
         with col1:
