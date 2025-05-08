@@ -138,20 +138,23 @@ def no_column_table_mismatch_test(
     name = "no_column_table_mismatch_test"
 
     for table_detail in table_details:
-        database_name, schema_name, table_name = parse_db_schema_table_names(table_detail.name)
-        columns = table_detail.columns
+        try:
+            database_name, schema_name, table_name = parse_db_schema_table_names(table_detail.name)
+            columns = table_detail.columns
 
-        # Our reference point:
-        # the columns that are actually in the schema
-        columns_in_schema = [
-            column["name"] for column in schema[database_name][schema_name][table_name]
-        ]
+            # Our reference point:
+            # the columns that are actually in the schema
+            columns_in_schema = [
+                column["name"] for column in schema[database_name][schema_name][table_name]
+            ]
 
-        # Check if all columns exist in the table
-        missing_columns = [col for col in columns if not col.startswith("*") and col not in columns_in_schema]  
-        if missing_columns:  
-            return FunnelStepResult(name=name, passed=False, notes=f"Columns not found in table '{table_name}': {', '.join(missing_columns)}")  
-
+            # Check if all columns exist in the table
+            missing_columns = [col for col in columns if not col.startswith("*") and col not in columns_in_schema]  
+            if missing_columns:  
+                return FunnelStepResult(name=name, passed=False, notes=f"Columns not found in table '{table_name}': {', '.join(missing_columns)}")  
+        except Exception as e:
+            return FunnelStepResult(name=name, passed=False, notes=f"Error parsing table name: {e}")
+        
     return FunnelStepResult(name=name, passed=True)
 
 
