@@ -46,7 +46,7 @@ TIME_BASED_TESTS = [
     SQLTestCase(
         name="total_orders_last_7_days",
         user_input="How many orders were placed in the last 7 recorded days?",
-        schema=SMALL_SCHEMA,
+        schema=MEDIUM_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
             SELECT COUNT(*) AS total_orders
@@ -57,7 +57,7 @@ TIME_BASED_TESTS = [
     SQLTestCase(
         name="daily_order_totals_last_30_days",
         user_input="Show the total order amount per day for the past 30 recorded days.",
-        schema=SMALL_SCHEMA,
+        schema=MEDIUM_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
             SELECT ORDER_DATE, SUM(TOTAL_AMOUNT) AS daily_total
@@ -84,7 +84,7 @@ TIME_BASED_TESTS = [
     SQLTestCase(
         name="total_orders_last_7_days",
         user_input="How many orders were placed in the last 7 recorded days?",
-        schema=SMALL_SCHEMA,
+        schema=LARGE_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
             SELECT COUNT(*) AS total_orders
@@ -95,7 +95,7 @@ TIME_BASED_TESTS = [
     SQLTestCase(
         name="daily_order_totals_last_30_days",
         user_input="Show the total order amount per day for the past 30 recorded days.",
-        schema=SMALL_SCHEMA,
+        schema=LARGE_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
             SELECT ORDER_DATE, SUM(TOTAL_AMOUNT) AS daily_total
