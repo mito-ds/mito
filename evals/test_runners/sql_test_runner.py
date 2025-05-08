@@ -104,7 +104,7 @@ def run_sql_tests(
         # For example, if test_case is in JOIN_TESTS, the test_type will be "join_tests"
         test_type = next(
             (name for name, array in globals().items() 
-             if isinstance(array, list) and test_case in array),
+             if isinstance(array, list) and name != "SQL_TESTS" and test_case in array),
             None
         )
         results["test_type"] = test_type
