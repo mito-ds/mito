@@ -104,4 +104,7 @@ export const convertNotebookToStreamlit = async (
   // Save the files to the current directory
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
   await saveFileWithKernel(notebookTracker, `./${notebookName}-streamlit-app.py`, streamlitSourceCode);
+
+  // After build the files, we need to send a request to the backend to deploy the app
+  console.log("Going to send")
 };

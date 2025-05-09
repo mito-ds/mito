@@ -3,8 +3,8 @@
 
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
-from mito_ai.handlers import CompletionHandler
-from mito_ai.providers import OpenAIProvider
+from mito_ai.completions.handlers import CompletionHandler
+from mito_ai.completions.providers import OpenAIProvider
 
 try:
     from _version import __version__

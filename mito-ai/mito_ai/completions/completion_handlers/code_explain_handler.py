@@ -3,13 +3,13 @@
 
 from typing import List, Union, Optional, AsyncGenerator, Callable
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import CodeExplainMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
-from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prompt
-from mito_ai.providers import OpenAIProvider
-from mito_ai.message_history import GlobalMessageHistory
-from mito_ai.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.completion_handlers.utils import append_chat_system_message
+from mito_ai.completions.models import CodeExplainMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
+from mito_ai.completions.prompt_builders.explain_code_prompt import create_explain_code_prompt
+from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
+from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
+from mito_ai.completions.completion_handlers.utils import append_chat_system_message
 
 __all__ = ["get_code_explain_completion", "stream_code_explain_completion"]
 

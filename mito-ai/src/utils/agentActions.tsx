@@ -11,7 +11,7 @@ import { sleep } from "./sleep"
 import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, getActiveCellID, scrollToCell } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
-import { CellUpdate } from "./websocket/models"
+import { CellUpdate } from "../websockets/completions/CompletionModels"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,

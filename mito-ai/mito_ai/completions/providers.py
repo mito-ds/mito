@@ -5,14 +5,14 @@ from __future__ import annotations
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Type
 
 import openai
-from . import constants
+from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
 from mito_ai.enterprise.utils import is_azure_openai_configured
 
 from mito_ai.logger import get_logger
-from mito_ai.models import (
+from mito_ai.completions.models import (
     AICapabilities,
     CompletionError,
     CompletionItem,
