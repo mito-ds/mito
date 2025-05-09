@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
-from mito_ai.models import AgentSmartDebugMetadata
-from mito_ai.prompt_builders.prompt_constants import (
+from mito_ai.completions.models import AgentSmartDebugMetadata
+from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     VARIABLES_SECTION_HEADING

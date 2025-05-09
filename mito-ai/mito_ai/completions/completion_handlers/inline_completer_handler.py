@@ -3,12 +3,12 @@
 
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import InlineCompleterMetadata, MessageType
-from mito_ai.prompt_builders.inline_completer_prompt import create_inline_prompt
-from mito_ai.providers import OpenAIProvider
-from mito_ai.message_history import GlobalMessageHistory
-from mito_ai.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
+from mito_ai.completions.models import InlineCompleterMetadata, MessageType
+from mito_ai.completions.prompt_builders.inline_completer_prompt import create_inline_prompt
+from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
+from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 
 __all__ = ["get_inline_completion"]
 

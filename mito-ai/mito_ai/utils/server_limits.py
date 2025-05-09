@@ -18,7 +18,7 @@ from mito_ai.utils.schema import (
 )
 from mito_ai.utils.telemetry_utils import (MITO_SERVER_FREE_TIER_LIMIT_REACHED, log)
 from mito_ai.utils.version_utils import is_pro
-from mito_ai.models import MessageType
+from mito_ai.completions.models import MessageType
 from datetime import datetime, timedelta
 
 """

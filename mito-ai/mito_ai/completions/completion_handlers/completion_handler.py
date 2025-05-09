@@ -3,9 +3,9 @@
 
 from typing import Protocol, TypeVar
 from abc import abstractmethod, ABCMeta
-from mito_ai.models import ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, InlineCompleterMetadata, AgentSmartDebugMetadata
-from mito_ai.providers import OpenAIProvider
-from mito_ai.message_history import GlobalMessageHistory
+from mito_ai.completions.models import ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, InlineCompleterMetadata, AgentSmartDebugMetadata
+from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.message_history import GlobalMessageHistory
 
 T = TypeVar('T', ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, AgentSmartDebugMetadata, InlineCompleterMetadata, contravariant=True)
 

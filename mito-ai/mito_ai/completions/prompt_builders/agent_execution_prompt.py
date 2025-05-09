@@ -1,9 +1,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from mito_ai.models import AgentExecutionMetadata
-from mito_ai.prompt_builders.prompt_constants import (
-    GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
+from mito_ai.completions.models import AgentExecutionMetadata
+from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,

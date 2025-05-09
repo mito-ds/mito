@@ -1,14 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from mito_ai.prompt_builders.prompt_constants import (
-    CITATION_RULES, 
-    ACTIVE_CELL_ID_SECTION_HEADING, 
-    CODE_SECTION_HEADING, 
-    FILES_SECTION_HEADING, 
-    VARIABLES_SECTION_HEADING, 
-    get_database_rules
-)
+from mito_ai.completions.prompt_builders.prompt_constants import CITATION_RULES, ACTIVE_CELL_ID_SECTION_HEADING, CODE_SECTION_HEADING, FILES_SECTION_HEADING, VARIABLES_SECTION_HEADING
 
 def create_chat_system_message_prompt() -> str:
     return f"""You are Mito Data Copilot, an AI assistant for Jupyter. You're a great python programmer, a seasoned data scientist and a subject matter expert.
@@ -43,9 +36,6 @@ The average value is 53[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:2]
 </Example>
 
 Notice in the example above that the citation uses line number 2 because citation line numbers are 0-indexed.
-
-===
-{get_database_rules()}
 
 ==== 
 IMPORTANT RULES:

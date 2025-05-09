@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from mito_ai.prompt_builders.prompt_constants import (
+from mito_ai.completions.prompt_builders.prompt_constants import (
     CITATION_RULES,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,

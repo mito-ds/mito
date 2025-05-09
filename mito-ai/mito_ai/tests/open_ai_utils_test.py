@@ -10,7 +10,7 @@ from mito_ai.utils.server_limits import (
     OS_MONTHLY_AUTOCOMPLETE_LIMIT,
 )
 from mito_ai.utils.telemetry_utils import MITO_SERVER_FREE_TIER_LIMIT_REACHED
-from mito_ai.models import MessageType
+from mito_ai.completions.models import MessageType
 from mito_ai.utils.open_ai_utils import (
     MITO_AI_PROD_URL,
     MITO_AI_URL,

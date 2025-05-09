@@ -12,7 +12,7 @@ import type {
   CompleterMessage,
   ICompletionRequest,
   ICompletionStreamChunk
-} from './models';
+} from './CompletionModels';
 
 const SERVICE_URL = 'mito_ai/completions';
 

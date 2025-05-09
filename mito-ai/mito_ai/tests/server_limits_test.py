@@ -7,7 +7,7 @@ from typing import Dict, Optional
 import pytest
 from unittest.mock import patch, MagicMock, call
 
-from mito_ai.models import MessageType
+from mito_ai.completions.models import MessageType
 from mito_ai.utils.server_limits import (
     OS_MONTHLY_AI_COMPLETIONS_LIMIT,
     OS_MONTHLY_AUTOCOMPLETE_LIMIT,
