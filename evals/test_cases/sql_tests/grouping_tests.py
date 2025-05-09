@@ -70,7 +70,7 @@ AGGREGATION_AND_GROUPING_TESTS = [
         test_type=TEST_TYPE,
     ),
     SQLTestCase(
-        name="avg_referrals_for_all_services",
+        name="avg_ltv_by_satisfaction_score",
         user_input="For each satisfaction score, what is the avg lifetime value?",
         schema=MEDIUM_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
