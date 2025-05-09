@@ -10,7 +10,8 @@ from evals.funnels.sql.steps import (
     no_table_halucinations_test,
     no_column_table_mismatch_test,
     execute_without_errors_test,
-    correct_data_shape_test,
+    minimum_expected_cols_test,
+    row_count_test,
     correct_data_test,
 )
 
@@ -33,6 +34,7 @@ def default_test_funnel(
     """
     results = {
         "name": test_case_specs.name,
+        "user_input": test_case_specs.user_input,
         "actual_sql": parsed_actual_sql.query,
         "expected_sql": parsed_expected_sql.query,
         "results": [],
@@ -76,13 +78,17 @@ def default_test_funnel(
     )
     results["results"].append(execute_without_errors_result)
 
-    # 6. Correct data shape - do the two dataframes have the same shape?
-    correct_data_shape_result = correct_data_shape_test(
+    # 6. Minimum expected columns - do the two dataframes have the same columns?
+    minimum_expected_cols_result = minimum_expected_cols_test(
         expected_df, df_from_generated_query
     )
-    results["results"].append(correct_data_shape_result)
+    results["results"].append(minimum_expected_cols_result)
 
-    # 7. Correct data - do the two dataframes have the same data?
+    # 7. Row count - do the two dataframes have the same number of rows?
+    row_count_result = row_count_test(expected_df, df_from_generated_query)
+    results["results"].append(row_count_result)
+
+    # 8. Correct data - do the two dataframes have the same data?
     correct_data_result = correct_data_test(expected_df, df_from_generated_query)
     results["results"].append(correct_data_result)
 

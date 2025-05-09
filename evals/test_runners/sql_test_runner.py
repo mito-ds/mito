@@ -5,7 +5,6 @@ import json
 import os
 import subprocess
 import sys
-import time
 from tqdm import tqdm
 from datetime import datetime
 from typing import List, Optional
@@ -99,7 +98,7 @@ def run_sql_tests(
         results = default_test_funnel(
             test_case, parsed_actual_sql, parsed_expected_sql, schema
         )
-        # Add schema name, and append to final results
+        results["test_type"] = test_case.test_type
         results["schema"] = test_case.schema
         final_results.append(results)
 
