@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title('Untitled7')
+st.title('actual-app')
 
 def display_viz(fig):
     """Display a visualization in Streamlit based on its type."""
@@ -82,3 +82,5 @@ tesla_stock_df['daily_return'] = tesla_stock_df['close'].pct_change()
 # Summary stats for the daily returns
 return_summary = tesla_stock_df['daily_return'].describe()
 return_summary 
+
+# Converting Code Cell

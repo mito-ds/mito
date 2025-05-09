@@ -6,7 +6,10 @@ import time
 import logging
 import asyncio
 from typing import Any
-
+import boto3
+import zipfile
+import os
+import tempfile
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_builder.models import (
@@ -55,16 +58,13 @@ class AppBuilderHandler(BaseWebSocketHandler):
         start = time.time()
         self.log.debug("App builder message received: %s", message)
         
-        print("IN THE ON MESSAGE")
-        
         try:
             parsed_message = self.parse_message(message)
             message_type = parsed_message.get('type')
             
             if message_type == MessageType.BUILD_APP.value:
                 # Handle build app request
-                # await self._handle_build_app(parsed_message)
-                print('hi')
+                await self._handle_build_app(parsed_message)
             else:
                 self.log.error(f"Unknown message type: {message_type}")
                 error = AppBuilderError(
@@ -135,7 +135,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
             ))
     
     async def _deploy_app(self, app_path: str) -> str:
-        """Deploy the app to a hosting service.
+        """Deploy the app to AWS.
         
         Args:
             app_path: Path to the app file.
@@ -143,15 +143,40 @@ class AppBuilderHandler(BaseWebSocketHandler):
         Returns:
             The URL of the deployed app.
         """
-        # This is a placeholder implementation
-        # In a real implementation, this would deploy the app to a hosting service
-        # For now, we'll just return a fake URL
+        # Set AWS profile and bucket name based on environment
+        aws_profile = "mito-dev-sandbox"
+        bucket_name = "st-app-dev-uploads"
+        domain = "app.dev.trymito.io"
+        environment = 'dev'
         
-        # TODO: Implement actual deployment logic
-        # For example, using Streamlit sharing, Heroku, or a custom service
+        # Directory name 
+        # If the path we are provided is sample-app/my-streamlit-app.ipynb, then we will 
+        # call the app sample_app
+        app_name = os.path.basename(app_path).split('.')[0]
         
-        # Simulate a delay for deployment
-        await asyncio.sleep(2)
+        print(app_name)
+        s3_path = f"uploads/{app_name}/"
         
-        # For testing, return a placeholder URL
-        return f"https://example.com/app/{os.path.basename(app_path)}"
+        # Create a zip file
+        with tempfile.NamedTemporaryFile(suffix='.zip') as temp_zip:
+            with zipfile.ZipFile(temp_zip.name, 'w') as zipf:
+                for root, _, files in os.walk(app_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        zipf.write(file_path, arcname=os.path.relpath(file_path, app_path))
+            
+            # Upload to S3 using boto3
+            session = boto3.Session(profile_name=aws_profile)
+            s3 = session.client('s3')
+            s3.upload_file(temp_zip.name, bucket_name, f"{s3_path}app.zip")
+        
+        # The upload triggers a Lambda that deploys to ECS (as mentioned in bash script)
+        
+        # Check ECS deployment status
+        ecs = session.client('ecs')
+        app_url = f"http://{app_name}.{domain}"
+        
+        # Poll for ECS service status
+        # await self._poll_deployment_status(aws_profile, environment, app_name, app_url)
+        
+        return app_url

@@ -36,7 +36,7 @@ export const convertNotebookToStreamlit = async (
 
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
-  const appFilePath = `./${notebookName}-streamlit-app.py`;
+  const appFilePath = `./app.py`;
 
   // Initialize Streamlit code with imports
   let streamlitCode = [
@@ -108,6 +108,9 @@ export const convertNotebookToStreamlit = async (
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
   await saveFileWithKernel(notebookTracker, appFilePath, streamlitSourceCode);
 
+  // Get the full path to the folder
+  const pathToFolder = PathExt.dirname(notebookPath);
+
   // After building the files, we need to send a request to the backend to deploy the app
   if (appBuilderService) {
     try {
@@ -116,7 +119,7 @@ export const convertNotebookToStreamlit = async (
       const response = await appBuilderService.client.sendMessage({
         type: 'build-app',
         message_id: UUID.uuid4(),
-        path: appFilePath
+        path: pathToFolder
       });
       
       console.log("App deployment response:", response);
