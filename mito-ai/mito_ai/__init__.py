@@ -5,6 +5,7 @@ from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.app_builder.handlers import AppBuilderHandler
 
 try:
     from _version import __version__
@@ -48,6 +49,11 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             CompletionHandler,
             {"llm": open_ai_provider},
         ),
+        (
+            url_path_join(base_url, "mito-ai", "app-builder"),
+            AppBuilderHandler,
+            {}
+        )
     ]
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")
