@@ -66,7 +66,7 @@ TIME_BASED_TESTS = [
         schema=MEDIUM_SCHEMA,
         notebook_state=EMPTY_NOTEBOOK,
         expected_output="""
-            SELECT ORDER_DATE, SUM(TOTAL_AMOUNT) AS daily_total
+            SELECT ORDER_DATE, SUM(TOTAL_AMOUNT)
             FROM SALES_DB.PUBLIC.ORDERS
             WHERE ORDER_DATE >= DATEADD(day, -30, (SELECT MAX(ORDER_DATE) FROM SALES_DB.PUBLIC.ORDERS))
             GROUP BY ORDER_DATE
