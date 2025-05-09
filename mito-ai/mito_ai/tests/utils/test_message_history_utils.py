@@ -5,20 +5,20 @@ import pytest
 from typing import Callable, List, cast
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.message_history_utils import trim_sections_from_message_content, trim_old_messages
-from mito_ai.prompt_builders.chat_prompt import create_chat_prompt
-from mito_ai.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
-from mito_ai.prompt_builders.agent_smart_debug_prompt import (
+from mito_ai.completions.prompt_builders.chat_prompt import create_chat_prompt
+from mito_ai.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
+from mito_ai.completions.prompt_builders.agent_smart_debug_prompt import (
     create_agent_smart_debug_prompt,
 )
-from mito_ai.prompt_builders.smart_debug_prompt import create_error_prompt
-from mito_ai.prompt_builders.explain_code_prompt import create_explain_code_prompt
-from mito_ai.models import (
+from mito_ai.completions.prompt_builders.smart_debug_prompt import create_error_prompt
+from mito_ai.completions.prompt_builders.explain_code_prompt import create_explain_code_prompt
+from mito_ai.completions.models import (
     AgentExecutionMetadata,
     AgentSmartDebugMetadata,
     AIOptimizedCell,
     ThreadID,
 )
-from mito_ai.prompt_builders.prompt_constants import (
+from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING,

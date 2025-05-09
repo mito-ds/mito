@@ -9,6 +9,7 @@ import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } 
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
 import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
+import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
 
 const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/toolbar-buttons.json file.
@@ -18,7 +19,8 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     description: 'Adds an "explain code cell with AI" button to the cell toolbar',
     autoStart: true,
     requires: [INotebookTracker],
-    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
+    optional: [IAppBuilderService],
+    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker, appBuilderService?: IAppBuilderService) => {
         const { commands } = app;
 
         // Important: To add a button to the cell toolbar, the command must start with "toolbar-button:"
@@ -71,7 +73,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             caption: 'Convert to Streamlit',
             className: 'text-button-mito-ai button-base button-purple button-small',
             execute: async () => {
-                void convertNotebookToStreamlit(notebookTracker);
+                void convertNotebookToStreamlit(notebookTracker, appBuilderService);
             }
         });
 

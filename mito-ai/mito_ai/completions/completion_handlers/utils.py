@@ -2,12 +2,12 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import Optional, Union, List, Dict, Any, cast
-from mito_ai.message_history import GlobalMessageHistory
-from mito_ai.models import ThreadID
-from mito_ai.providers import OpenAIProvider
+from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai.completions.models import ThreadID
+from mito_ai.completions.providers import OpenAIProvider
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.prompt_builders.chat_system_message import create_chat_system_message_prompt
-from mito_ai.prompt_builders.agent_system_message import create_agent_system_message_prompt
+from mito_ai.completions.prompt_builders.chat_system_message import create_chat_system_message_prompt
+from mito_ai.completions.prompt_builders.agent_system_message import create_agent_system_message_prompt
 
 
 async def append_chat_system_message(

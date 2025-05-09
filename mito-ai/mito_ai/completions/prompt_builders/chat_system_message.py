@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from mito_ai.prompt_builders.prompt_constants import CITATION_RULES, ACTIVE_CELL_ID_SECTION_HEADING, CODE_SECTION_HEADING, FILES_SECTION_HEADING, VARIABLES_SECTION_HEADING
+from mito_ai.completions.prompt_builders.prompt_constants import CITATION_RULES, ACTIVE_CELL_ID_SECTION_HEADING, CODE_SECTION_HEADING, FILES_SECTION_HEADING, VARIABLES_SECTION_HEADING
 
 def create_chat_system_message_prompt() -> str:
     return f"""You are Mito Data Copilot, an AI assistant for Jupyter. You're a great python programmer, a seasoned data scientist and a subject matter expert.

@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from mito_ai.models import MessageType
+from mito_ai.completions.models import MessageType
 
 # Model name constants
 GPT4O_MINI = "gpt-4o-mini"

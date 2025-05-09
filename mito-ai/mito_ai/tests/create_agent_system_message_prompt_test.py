@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.prompt_builders.agent_system_message import create_agent_system_message_prompt
+from mito_ai.completions.prompt_builders.agent_system_message import create_agent_system_message_prompt
 
 def test_create_agent_system_message_prompt_browser_conditional() -> None:
     """

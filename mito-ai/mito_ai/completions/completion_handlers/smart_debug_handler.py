@@ -4,22 +4,22 @@
 from typing import List, Union, Optional, AsyncGenerator, Callable
 
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.models import (
+from mito_ai.completions.models import (
     SmartDebugMetadata,
     MessageType,
     CompletionRequest,
     CompletionStreamChunk,
     CompletionReply,
 )
-from mito_ai.prompt_builders.smart_debug_prompt import (
+from mito_ai.completions.prompt_builders.smart_debug_prompt import (
     create_error_prompt,
     remove_inner_thoughts_from_message,
 )
-from mito_ai.providers import OpenAIProvider
-from mito_ai.message_history import GlobalMessageHistory
-from mito_ai.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
-from mito_ai.completion_handlers.utils import append_chat_system_message
+from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
+from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
+from mito_ai.completions.completion_handlers.utils import append_chat_system_message
 
 __all__ = ["get_smart_debug_completion", "stream_smart_debug_completion"]
 

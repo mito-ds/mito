@@ -6,7 +6,7 @@
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
-import { AIOptimizedCell } from './websocket/models';
+import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
 import { captureNode } from './nodeToPng';
 
 const INCLUDE_CELL_IN_APP = 'include-cell-in-app'

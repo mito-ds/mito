@@ -20,7 +20,7 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import {
   CompletionWebsocketClient,
   type ICompletionWebsocketClientOptions
-} from '../../utils/websocket/websocketClient';
+} from '../../websockets/completions/CompletionsWebsocketClient';
 import type {
   CompletionError,
   ICompletionRequest,
@@ -29,7 +29,7 @@ import type {
   IInlineCompleterCompletionRequest,
   IInlineCompleterMetadata,
   InlineCompletionStreamChunk
-} from '../../utils/websocket/models';
+} from '../../websockets/completions/CompletionModels';
 import { STRIPE_PAYMENT_LINK } from '../../utils/stripe';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 

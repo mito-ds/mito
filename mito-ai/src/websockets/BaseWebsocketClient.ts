@@ -8,37 +8,30 @@ import { ServerConnection } from '@jupyterlab/services';
 import { PromiseDelegate } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
 import { Signal, Stream, type IStream } from '@lumino/signaling';
-import type {
-  CompleterMessage,
-  ICompletionRequest,
-  ICompletionStreamChunk
-} from './models';
-
-const SERVICE_URL = 'mito-ai/completions';
 
 /**
  * Error thrown by Mito AI completion
  */
 export class MitoAIError extends Error {
-  name = 'MitoAIError';
-  /**
-   * Human readable hint to help the user understand the error.
-   */
-  hint?: string;
+    name = 'MitoAIError';
+    /**
+     * Human readable hint to help the user understand the error.
+     */
+    hint?: string;
 
-  constructor(message: string, options: { cause?: unknown; hint?: string } = {}) {
-    super(message, { cause: options.cause });
-    this.hint = options.hint;
-    if (options.cause && typeof options.cause === 'object' && 'stack' in options.cause) {
-      this.stack = `${this.stack}\nCaused by: ${options.cause.stack}`;
+    constructor(message: string, options: { cause?: unknown; hint?: string } = {}) {
+        super(message, { cause: options.cause });
+        this.hint = options.hint;
+        if (options.cause && typeof options.cause === 'object' && 'stack' in options.cause) {
+            this.stack = `${this.stack}\nCaused by: ${options.cause.stack}`;
+        }
     }
-  }
 }
 
 /**
- * The instantiation options for the inline completion client.
+ * Base options for websocket clients.
  */
-export interface ICompletionWebsocketClientOptions {
+export interface IBaseWebsocketClientOptions {
   /**
    * Jupyter server settings.
    */
@@ -46,22 +39,26 @@ export interface ICompletionWebsocketClientOptions {
 }
 
 /**
- * Mito AI completion client
- *
- * It communicates with the backend over a WebSocket to allow streaming answer.
+ * Base Mito AI websocket client
+ * 
+ * It provides the common functionality for all websocket clients.
  */
-export class CompletionWebsocketClient implements IDisposable {
+export abstract class BaseWebsocketClient<RequestType, ResponseType, StreamType = any> implements IDisposable {
   /**
    * The server settings used to make API requests.
    */
   readonly serverSettings: ServerConnection.ISettings;
+  
+  /**
+   * The service URL for the websocket endpoint.
+   */
+  protected abstract readonly SERVICE_URL: string;
 
   /**
-   * Create a new completion client.
+   * Create a new websocket client.
    */
-  constructor(options: ICompletionWebsocketClientOptions = {}) {
-    this.serverSettings =
-      options.serverSettings ?? ServerConnection.makeSettings();
+  constructor(options: IBaseWebsocketClientOptions = {}) {
+    this.serverSettings = options.serverSettings ?? ServerConnection.makeSettings();
     this._ready = new PromiseDelegate<void>();
   }
 
@@ -73,16 +70,16 @@ export class CompletionWebsocketClient implements IDisposable {
   }
 
   /**
-   * Completion chunk stream.
+   * Message stream.
    */
-  get messages(): IStream<CompletionWebsocketClient, CompleterMessage> {
+  get messages(): IStream<BaseWebsocketClient<RequestType, ResponseType, StreamType>, ResponseType> {
     return this._messages;
   }
 
   /**
-   * Completion chunk stream.
+   * Stream for specific messages, if the client supports streaming.
    */
-  get stream(): IStream<CompletionWebsocketClient, ICompletionStreamChunk> {
+  get stream(): IStream<BaseWebsocketClient<RequestType, ResponseType, StreamType>, StreamType> {
     return this._stream;
   }
 
@@ -96,7 +93,7 @@ export class CompletionWebsocketClient implements IDisposable {
   /**
    * Stream of connection status events
    */
-  get connectionStatus(): IStream<CompletionWebsocketClient, 'connected' | 'disconnected'> {
+  get connectionStatus(): IStream<BaseWebsocketClient<RequestType, ResponseType, StreamType>, 'connected' | 'disconnected'> {
     return this._connectionStatus;
   }
 
@@ -129,31 +126,31 @@ export class CompletionWebsocketClient implements IDisposable {
 
     this._stream.stop();
     for (const resolver of this._pendingRepliesMap.values()) {
-      resolver.reject(new Error('Completion websocket client disposed'));
+      resolver.reject(new Error('Websocket client disposed'));
     }
     this._pendingRepliesMap.clear();
     Signal.clearData(this);
   }
 
   /**
-   * Initializes the WebSocket connection to the completion backend. This
+   * Initializes the WebSocket connection to the backend. This
    * must be awaited before calling any other method.
    */
   async initialize(): Promise<void> {
     try {
       await this._initialize();
     } catch (error) {
-      console.error('Failed to initialize WebSocket:', error);
+      console.error(`Failed to initialize WebSocket for ${this.SERVICE_URL}:`, error);
       throw error;
     }
   }
 
   /**
-   * Sends a message across the WebSocket. Promise resolves to the message ID
-   * when the server sends the same message back, acknowledging receipt.
+   * Sends a message across the WebSocket. Promise resolves to the response
+   * when the server sends the reply back.
    * Automatically ensures the websocket is initialized before sending.
    */
-  sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(
+  sendMessage<T extends RequestType, R extends ResponseType>(
     message: T
   ): Promise<R> {
     // Create a Promise for the eventual result
@@ -186,14 +183,14 @@ export class CompletionWebsocketClient implements IDisposable {
           if (this._socket && this._socket.readyState === WebSocket.OPEN) {
             const pendingReply = new PromiseDelegate<R>();
             this._pendingRepliesMap.set(
-              message.message_id,
-              pendingReply as PromiseDelegate<CompleterMessage>
+              this.getMessageId(message),
+              pendingReply as PromiseDelegate<ResponseType>
             );
             pendingReply.promise.then(resolve).catch(reject);
             // Send the message
             this._socket.send(JSON.stringify(message));
           } else {
-            reject(new Error('Inline completion websocket not initialized'));
+            reject(new Error('Websocket not initialized'));
           }
         } catch (error) {
           reject(error);
@@ -202,63 +199,41 @@ export class CompletionWebsocketClient implements IDisposable {
     });
   }
 
-  private _onMessage(message: CompleterMessage): void {
-    /**
-     * Emit unconditionally the message to interested parties.
-     */
-    this._messages.emit(message);
+  /**
+   * Extract the message ID from a request message.
+   * This is used to match requests with responses.
+   */
+  protected abstract getMessageId(message: RequestType): string;
 
-    /**
-     * Dispatch completion messages
-     */
-    switch (message.type) {
-      case 'chunk': {
-        // To see the stream in action, uncomment the following line
-        // console.log(`[Mito AI Stream] ${message.done ? 'FINAL' : ''} Chunk:`, message.chunk.content);
-        this._stream.emit(message);
-        break;
-      }
-      case 'reply': {
-        const resolver = this._pendingRepliesMap.get(message.parent_id);
-        if (resolver) {
-          resolver.resolve(message);
-          this._pendingRepliesMap.delete(message.parent_id);
-        } else {
-          // For streaming responses, emit the error through the stream
-          // We need to do this here because errors do not come in as "chunk" messages
-          // they come in as "reply" messages.
-          if (message.error) {
-            this._stream.emit({
-              type: 'chunk',
-              chunk: { content: message.error.hint || message.error.title || "An error occurred" },
-              done: true,
-              parent_id: message.parent_id,
-              error: message.error
-            });
-          }
-          // This will get triggered when streaming and there is an error message.
-          // However, errors are handled via the emit seen above above.
-          console.warn('Unhandled mito ai completion message', message);
-        }
-        break;
-      }
-      // default: /* no-op */
-    }
-  }
+  /**
+   * Process a message received from the websocket.
+   * This should handle dispatching messages to the appropriate streams
+   * and resolving pending requests.
+   */
+  protected abstract _onMessage(message: ResponseType): void;
 
-  private _onOpen(_: Event): void {
-    console.log('Mito AI completion websocket connected');
+  /**
+   * Handle websocket connection opened.
+   */
+  protected _onOpen(_: Event): void {
+    console.log(`Mito AI ${this.SERVICE_URL} websocket connected`);
     this._ready.resolve();
     this._connectionStatus.emit('connected');
   }
 
-  private _onClose(_e: CloseEvent): void {
-    this._ready.reject(new Error('Completion websocket disconnected'));
-    console.error('Completion websocket disconnected');
+  /**
+   * Handle websocket connection closed.
+   */
+  protected _onClose(_e: CloseEvent): void {
+    this._ready.reject(new Error(`${this.SERVICE_URL} websocket disconnected`));
+    console.error(`${this.SERVICE_URL} websocket disconnected`);
     this._connectionStatus.emit('disconnected');
   }
 
-  private async _initialize(): Promise<void> {
+  /**
+   * Initialize the websocket connection.
+   */
+  protected async _initialize(): Promise<void> {
     if (this.isDisposed) {
       return;
     }
@@ -290,10 +265,10 @@ export class CompletionWebsocketClient implements IDisposable {
     }
 
     console.log(
-      'Creating a new websocket connection for mito-ai completions...'
+      `Creating a new websocket connection for ${this.SERVICE_URL}...`
     );
     const { appendToken, token, WebSocket, wsUrl } = this.serverSettings;
-    let url = URLExt.join(wsUrl, SERVICE_URL);
+    let url = URLExt.join(wsUrl, this.SERVICE_URL);
     if (appendToken && token !== '') {
       url += `?token=${encodeURIComponent(token)}`;
     }
@@ -301,7 +276,7 @@ export class CompletionWebsocketClient implements IDisposable {
     // Check if the service is available before attempting to connect
     try {
       const answer = await fetch(
-        URLExt.join(this.serverSettings.baseUrl, `${SERVICE_URL}?check_availability=true`),
+        URLExt.join(this.serverSettings.baseUrl, `${this.SERVICE_URL}?check_availability=true`),
         {
           method: 'GET',
           credentials: 'include',
@@ -315,7 +290,7 @@ export class CompletionWebsocketClient implements IDisposable {
         const message =
           answer.status == 404
             ? 'Mito AI extension not enabled.'
-            : `Mito AI completion not available; error ${answer.status} ${answer.statusText}`;
+            : `Mito AI service not available; error ${answer.status} ${answer.statusText}`;
         const hint =
           answer.status == 404
             ? 'You can enable it by running in a cell `!jupyter server extension enable mito_ai`. Then restart the application.'
@@ -325,7 +300,7 @@ export class CompletionWebsocketClient implements IDisposable {
           error_type: 'HTTPError',
           title: message,
           hint
-        });
+        } as unknown as ResponseType);
         
         const error = new MitoAIError(message, {
           cause: answer,
@@ -448,27 +423,28 @@ export class CompletionWebsocketClient implements IDisposable {
     }
   }
 
-  private _isDisposed = false;
-  private _messages = new Stream<CompletionWebsocketClient, CompleterMessage>(
-    this
-  );
-  private _socket: WebSocket | null = null;
-  private _stream = new Stream<
-    CompletionWebsocketClient,
-    ICompletionStreamChunk
-  >(this);
-  private _ready: PromiseDelegate<void> = new PromiseDelegate<void>();
-  /**
-   * Dictionary mapping message IDs to Promise resolvers.
-   */
-  private _pendingRepliesMap = new Map<
-    string,
-    PromiseDelegate<CompleterMessage>
-  >();
-  private _connectionStatus = new Stream<CompletionWebsocketClient, 'connected' | 'disconnected'>(this);
+  /** Whether the websocket client is disposed. */
+  protected _isDisposed = false;
   
-  /**
-   * Flag to track if initialization is in progress to prevent multiple concurrent initializations
-   */
-  private _initializationInProgress = false;
+  /** Messages stream */
+  protected _messages = new Stream<BaseWebsocketClient<RequestType, ResponseType, StreamType>, ResponseType>(this);
+  
+  /** The WebSocket connection */
+  protected _socket: WebSocket | null = null;
+  
+  /** Stream for specific messages, if the client supports streaming */
+  protected _stream = new Stream<BaseWebsocketClient<RequestType, ResponseType, StreamType>, StreamType>(this);
+  
+  /** Promise delegate that resolves when the connection is ready */
+  protected _ready: PromiseDelegate<void> = new PromiseDelegate<void>();
+  
+  /** Dictionary mapping message IDs to Promise resolvers. */
+  protected _pendingRepliesMap = new Map<string, PromiseDelegate<ResponseType>>();
+  
+  /** Connection status stream */
+  protected _connectionStatus = new Stream<BaseWebsocketClient<RequestType, ResponseType, StreamType>, 'connected' | 'disconnected'>(this);
+  
+  /** Flag to track if initialization is in progress to prevent multiple concurrent initializations */
+  protected _initializationInProgress = false;
 }
+

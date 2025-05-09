@@ -14,7 +14,7 @@ import {
 } from '@jupyterlab/ui-components';
 import React from 'react';
 import { NucleusLabIcon } from '../../icons';
-import type { ErrorMessage, IAICapabilities } from '../../utils/websocket/models';
+import type { ErrorMessage, IAICapabilities } from '../../websockets/completions/CompletionModels';
 import { IChatTracker, type IChatWidget } from '../AiChat/token';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../utils/errors';
 import TextButton from '../../components/TextButton';

@@ -27,7 +27,7 @@ import TextButton from '../../../components/TextButton';
 import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
-import { AgentResponse } from '../../../utils/websocket/models';
+import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
 
 interface IChatMessageProps {

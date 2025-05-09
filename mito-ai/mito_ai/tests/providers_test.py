@@ -7,8 +7,8 @@ from typing import Any
 from unittest.mock import patch, MagicMock, PropertyMock
 
 import pytest
-from mito_ai.providers import OpenAIProvider
-from mito_ai.models import MessageType, CompletionError, AICapabilities
+from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.models import MessageType, CompletionError, AICapabilities
 from mito_ai.utils.server_limits import OS_MONTHLY_AI_COMPLETIONS_LIMIT
 
 REALLY_OLD_DATE = "2020-01-01"
