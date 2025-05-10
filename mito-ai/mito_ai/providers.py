@@ -70,6 +70,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
+        self._active_model = None
 
     @default("api_key")
     def _api_key_default(self) -> Optional[str]:
@@ -129,7 +130,7 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
-        
+
         if is_azure_openai_configured():
             return AICapabilities(
                 configuration={
@@ -138,36 +139,38 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Azure OpenAI",
             )
 
-        if constants.OLLAMA_MODEL and not self.api_key:
+        # Get the active model
+        active_model = constants.get_active_model()
+        model_type = constants.get_model_type(active_model)
+
+        # Determine provider based on model type and available API keys
+        if model_type == 'ollama' and not self.api_key:
             return AICapabilities(
                 configuration={
-                    "model": constants.OLLAMA_MODEL
+                    "model": active_model
                 },
                 provider="Ollama",
             )
-
-        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+        elif model_type == 'claude' and constants.CLAUDE_API_KEY and not self.api_key:
             return AICapabilities(
                 configuration={
-                    "model": constants.CLAUDE_MODEL
+                    "model": active_model
                 },
                 provider="Claude",
             )
-
-        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+        elif model_type == 'gemini' and constants.GEMINI_API_KEY and not self.api_key:
             return AICapabilities(
                 configuration={
-                    "model": constants.GEMINI_MODEL
+                    "model": active_model
                 },
                 provider="Gemini",
             )
-
-        if self.api_key:
-            self._validate_api_key(self.api_key)
-
+        elif self.api_key:
+            # User has their own API key, use the active model or fallback
+            model = active_model or OPENAI_MODEL_FALLBACK
             return AICapabilities(
                 configuration={
-                    "model": OPENAI_MODEL_FALLBACK,
+                    "model": model,
                 },
                 provider="OpenAI (user key)",
             )
@@ -178,6 +181,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.log.warning("Failed to set first usage date in user.json", exc_info=e)
             self.last_error = CompletionError.from_exception(e)
 
+        # Default to Mito server
         return AICapabilities(
             configuration={
                 "model": OPENAI_MODEL_FALLBACK,
@@ -187,8 +191,14 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def _active_async_client(self) -> Optional[openai.AsyncOpenAI]:
-        if not self._async_client or self._async_client.is_closed():
+        # Get the current active model
+        current_model = self._resolve_model()
+
+        # If model has changed or client is closed, rebuild the client
+        if self._active_model != current_model or not self._async_client or self._async_client.is_closed():
+            self._active_model = current_model
             self._async_client = self._build_openai_client()
+
         return self._async_client
 
     @property
@@ -198,13 +208,14 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self.api_key:
             return USER_KEY
 
-        if constants.OLLAMA_MODEL:
+        active_model = constants.get_active_model()
+        model_type = constants.get_model_type(active_model)
+
+        if model_type == 'ollama':
             return "ollama"
-
-        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+        elif model_type == 'claude' and constants.CLAUDE_API_KEY:
             return "claude"
-
-        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+        elif model_type == 'gemini' and constants.GEMINI_API_KEY:
             return "gemini"
 
         return MITO_SERVER_KEY
@@ -212,36 +223,39 @@ This attribute is observed by the websocket provider to push the error to the cl
     def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
         llm_api_key = None
-        
+        model = self._resolve_model()
+        model_type = constants.get_model_type(model)
+
         if is_azure_openai_configured():
             self.log.debug(f"Using Azure OpenAI with model: {constants.AZURE_OPENAI_MODEL}")
-                
+
             # The format for using Azure OpenAI is different than using
             # other providers, so we have a special case for it here.
             # Create Azure OpenAI client with explicit arguments
             return openai.AsyncAzureOpenAI(
                 api_key=constants.AZURE_OPENAI_API_KEY,
                 api_version=constants.AZURE_OPENAI_API_VERSION,
-                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT or OPENAI_MODEL_FALLBACK,
+                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT,
                 max_retries=self.max_retries,
                 timeout=self.timeout,
             )
-        
-        elif constants.OLLAMA_MODEL and not self.api_key:
+
+        # Check for model type and available API keys
+        if model_type == 'ollama' and not self.api_key:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
-            self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
-        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            self.log.debug(f"Using Ollama with model: {model}")
+        elif model_type == 'claude' and constants.CLAUDE_API_KEY and not self.api_key:
             base_url = constants.CLAUDE_BASE_URL
             llm_api_key = constants.CLAUDE_API_KEY
-            self.log.debug(f" Using Claude with model: {constants.CLAUDE_MODEL}")
-        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            self.log.debug(f"Using Claude with model: {model}")
+        elif model_type == 'gemini' and constants.GEMINI_API_KEY and not self.api_key:
             base_url = constants.GEMINI_BASE_URL
             llm_api_key = constants.GEMINI_API_KEY
-            self.log.debug(f"Using Gemini with model: {constants.GEMINI_MODEL}")
+            self.log.debug(f"Using Gemini with model: {model}")
         elif self.api_key:
             llm_api_key = self.api_key
-            self.log.debug("Using OpenAI with user-provided API key")
+            self.log.debug(f"Using OpenAI with user-provided API key and model: {model}")
         else:
             self.log.warning("No valid API key or model configuration provided")
             return None
@@ -256,16 +270,44 @@ This attribute is observed by the websocket provider to push the error to the cl
         return client
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
+        """
+        Resolve which model to use, with the following priority:
+        1. Explicitly passed model parameter
+        2. Active model set by UI
+        3. Environment variable model based on type
+        4. Fallback default
+        """
+        if model:
+            return model
+
         if is_azure_openai_configured():
             return constants.AZURE_OPENAI_MODEL or OPENAI_MODEL_FALLBACK
+
+        # Get the active model (set from UI)
+        active_model = constants.get_active_model()
+
+        if active_model:
+            model_type = constants.get_model_type(active_model)
+
+            # Check if we have the appropriate API key for this model type
+            if model_type == 'ollama' and not self.api_key:
+                return active_model
+            elif model_type == 'claude' and constants.CLAUDE_API_KEY and not self.api_key:
+                return active_model
+            elif model_type == 'gemini' and constants.GEMINI_API_KEY and not self.api_key:
+                return active_model
+            elif (model_type == 'openai' or not model_type) and self.api_key:
+                return active_model
+
+        # Fall back to environment variable models if no active model or missing API key
         if constants.OLLAMA_MODEL and not self.api_key:
             return constants.OLLAMA_MODEL
-        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+        elif constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
             return constants.CLAUDE_MODEL
-        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+        elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
             return constants.GEMINI_MODEL
-        elif model:
-            return model
+
+        # Final fallback
         return OPENAI_MODEL_FALLBACK
 
     async def request_completions(
@@ -291,7 +333,12 @@ This attribute is observed by the websocket provider to push the error to the cl
             # Reset the last error
             self.last_error = None
 
-            model = self._resolve_model(model)
+            # Force the model to reset with the one from constants (else it takes the default model that is initialised)
+            active_model = constants.get_active_model()
+            model = active_model if active_model else model
+            resolved_model = self._resolve_model(model)
+
+            model = resolved_model
 
             completion_function_params = get_open_ai_completion_function_params(
                 model, messages, False, response_format_info
@@ -300,10 +347,9 @@ This attribute is observed by the websocket provider to push the error to the cl
             completion = None
             if self._active_async_client is not None:
                 self.log.debug(f"Requesting completion from OpenAI API with personal key with model: {model}")
-                
                 response = await self._active_async_client.chat.completions.create(**completion_function_params)
                 completion = response.choices[0].message.content or ""
-            else: 
+            else:
                 self.log.debug(f"Requesting completion from Mito server with model {model}.")
 
                 last_message_content = str(messages[-1].get("content", "")) if messages else None
@@ -329,13 +375,13 @@ This attribute is observed by the websocket provider to push the error to the cl
 
             # Finally, return the completion
             return completion
-                
+
         except BaseException as e:
             self.log.exception(f"Error during request_completions: {e}")
             self.last_error = CompletionError.from_exception(e)
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
             raise
-    
+
     async def stream_completions(
         self,
         message_type: MessageType,
@@ -353,13 +399,17 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         # Reset the last error
         self.last_error = None
-        
+
         # Use a string buffer to accumulate the full response
         accumulated_response = ""
-        
-        # Validate that the model is supported.
-        model = self._resolve_model(model)
-            
+
+        # Force the model to reset with the one from constants (else it takes the default model that is initialised)
+        active_model = constants.get_active_model()
+        model = active_model if active_model else model
+        resolved_model = self._resolve_model(model)
+
+        model = resolved_model
+
         # Send initial acknowledgment
         reply_fn(CompletionReply(
             items=[
@@ -367,15 +417,16 @@ This attribute is observed by the websocket provider to push the error to the cl
             ],
             parent_id=message_id,
         ))
-        
+
         # Get the last message content for logging
         last_message_content = str(messages[-1].get("content", "")) if messages else ""
-        
+
+
         # Prepare completion function parameters
         completion_function_params = get_open_ai_completion_function_params(
             model, messages, True, response_format_info
         )
-        
+
         if self._active_async_client is not None:
             # Stream from OpenAI
             try:
@@ -383,30 +434,54 @@ This attribute is observed by the websocket provider to push the error to the cl
                 client = self._active_async_client
                 if client is None:
                     raise ValueError("OpenAI client not initialized")
-                
+
                 stream = await client.chat.completions.create(**completion_function_params)
 
                 async for chunk in stream:
+
+                    # Claude sends out a ping chunk which needs to be ignored
+                    if chunk.object == "ping" or not hasattr(chunk, 'choices') or chunk.choices is None:
+                        continue
+
                     if len(chunk.choices) == 0:
                         continue
-                    
-                    is_finished = chunk.choices[0].finish_reason is not None
-                    content = chunk.choices[0].delta.content or ""
-                    accumulated_response += content
-                    
-                    reply_fn(CompletionStreamChunk(
-                        parent_id=message_id,
-                        chunk=CompletionItem(
-                            content=content,
-                            isIncomplete=True,
-                            token=message_id,
-                        ),
-                        done=is_finished,
-                    ))
+
+                    choice = chunk.choices[0]
+                    delta = choice.delta
+                    content = delta.content if delta and hasattr(delta, "content") else ""
+                    is_finished = choice.finish_reason is not None
+
+                    if content:
+                        accumulated_response += content
+                        reply_fn(CompletionStreamChunk(
+                            parent_id=message_id,
+                            chunk=CompletionItem(
+                                content=content,
+                                isIncomplete=True,
+                                token=message_id
+                            ),
+                            done=False,
+                        ))
+
+                    if is_finished:
+                        # Emit final full response
+                        reply_fn(CompletionReply(
+                            items=[
+                                CompletionItem(
+                                    content=accumulated_response,
+                                    isIncomplete=False,
+                                    token=message_id
+                                )
+                            ],
+                            parent_id=message_id,
+                        ))
+
+
+
             except BaseException as e:
                 self.last_error = CompletionError.from_exception(e)
                 log(
-                    MITO_AI_COMPLETION_ERROR, 
+                    MITO_AI_COMPLETION_ERROR,
                     params={
                         KEY_TYPE_PARAM: USER_KEY,
                         'message_type': message_type.value,
@@ -426,7 +501,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     ),
                     done=True,
                     error=CompletionError.from_exception(e),
-                ))                       
+                ))
                 raise
         else:
             # Stream from Mito server
@@ -441,11 +516,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                 message_id=message_id,
             ):
                 accumulated_response += str(chunk_from_mito_server)
-            
+
             # Update quota after streaming is complete
             update_mito_server_quota(message_type)
-        
-        # Log the successful completion 
+
+        # Log the successful completion
         key_type = USER_KEY if self._active_async_client is not None else MITO_SERVER_KEY
         log_ai_completion_success(
             key_type=key_type,
@@ -455,5 +530,5 @@ This attribute is observed by the websocket provider to push the error to the cl
             user_input=user_input or "",
             thread_id=thread_id
         )
-        
+
         return accumulated_response
