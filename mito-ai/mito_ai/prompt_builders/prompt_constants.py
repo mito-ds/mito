@@ -86,7 +86,6 @@ If the user has requested data that you belive is stored in the database:
 - Only use SQLAlchemy to query the database.
 - Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
 - Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
-- Column names in query results may be returned in lowercase. Always refer to columns using their lowercase names in the resulting DataFrame (e.g., df['date'] instead of df['DATE']).
 - Every schema includes a connection field that specifies which database connection to use.
 - Connection details are stored in a JSON file located at: `{connections_path}`
 - This connections.json file follows the structure below:
@@ -106,6 +105,8 @@ If the user has requested data that you belive is stored in the database:
 connections[connection_name]["username"]
 ```
 
+- The user may colloquially as for a "list of x", always assume they want a pandas DataFrame. 
+- When a SQL query is executed and the results are loaded into a pandas DataFrame, all column names are automatically converted to lowercase. Always reference columns using their lowercase names, regardless of how they appear in the database. For example, if the database column is named "DATE", you should reference it as "date" in your code.
 - If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
 
 Here is the schema:
