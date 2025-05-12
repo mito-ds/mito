@@ -6,7 +6,7 @@
 import AiChatPlugin from './Extensions/AiChat/AiChatPlugin';
 import ContextManagerPlugin from './Extensions/ContextManager/ContextManagerPlugin';
 import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRendererPlugin';
-import CellToolbarButtonsPlugin from './Extensions/CellToolbarButtons/CellToolbarButtonsPlugin';
+import ToolbarButtonsPlugin from './Extensions/ToolbarButtons/ToolbarButtonsPlugin';
 import { emptyCellPlaceholder } from './Extensions/emptyCell/EmptyCellPlugin';
 import { completionPlugin } from './Extensions/InlineCompleter';
 import { statusItem } from './Extensions/status';
@@ -17,7 +17,7 @@ export default [
   AiChatPlugin,
   ErrorMimeRendererPlugin,
   ContextManagerPlugin,
-  CellToolbarButtonsPlugin,
+  ToolbarButtonsPlugin,
   emptyCellPlaceholder,
   completionPlugin,
   statusItem

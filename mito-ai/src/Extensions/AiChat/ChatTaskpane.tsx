@@ -12,7 +12,6 @@ import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 import { Compartment, StateEffect } from '@codemirror/state';
 import OpenAI from "openai";
 import React, { useEffect, useRef, useState } from 'react';
-
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
@@ -108,7 +107,7 @@ interface IChatTaskpaneProps {
     contextManager: IContextManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
-    websocketClient: CompletionWebsocketClient;
+    websocketClient: CompletionWebsocketClient
 }
 
 interface ICellStateBeforeDiff {
@@ -124,8 +123,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     contextManager,
     app,
     operatingSystem,
-    websocketClient
+    websocketClient,
 }) => {
+
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 

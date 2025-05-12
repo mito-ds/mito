@@ -9,6 +9,8 @@ mito-ai/**/*.ipynb
 mitosheet/.ipynb_checkpoints/*
 mito-ai/.ipynb_checkpoints/*
 tests/.ipynb_checkpoints/*
+jupyterhub/.ipynb_checkpoints/*
+.ipynb_checkpoints/*
 
 # Ignore all the iframe_figures in mitosheet and mito-ai
 # These get generated when creating plotly graphs
@@ -16,12 +18,16 @@ mitosheet/iframe_figures/*
 mito-ai/iframe_figures/*
 mito-sql-cell
 
+# Evals
+evals/reports/
+
 # Mac Specific 
 
 ## General
 .DS_Store
 .AppleDouble
 .LSOverride
+.env
 
 ## Icon must end with two \r
 Icon

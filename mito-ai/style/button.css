@@ -47,12 +47,12 @@
 }
 
 .button-purple {
-  background-color: var(--purple-700);
-  color: white !important;
+  background-color: var(--purple-300);
+  color: var(--purple-700) !important;
 }
 
 .button-purple:hover {
-  background-color: var(--purple-600);
+  background-color: var(--purple-400);
 }
 
 .button-width-block {
@@ -61,4 +61,10 @@
 
 .button-width-fit-contents {
   width: fit-content;
+}
+
+.button-small {
+  height: 20px;
+  font-size: 12px;
+  padding: 2px 5px;
 }
