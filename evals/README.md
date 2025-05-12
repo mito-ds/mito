@@ -2,7 +2,6 @@
 
 ## Setting up evals
 
-
 1. Create a new virtual environment
 ```
 python -m venv venv
@@ -18,6 +17,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+4. If you want to run the sql tests, create the env file by copying the sample file:
+
+```
+cp .env.sample .env
+```
+
+Then update the new `.env` file with your Snowflake credentials.
+
 ## Running the tests 
 
 1. Navigate to the `mito` folder. 
@@ -32,6 +39,10 @@ python -m evals.main --test_type=inline_code_completion
 3. To run the `smart-debugger` tests, run the command: 
 ```
 python -m evals.main --test_type=smart_debug
+```
+4. To run the `sql` tests, run the command: 
+```
+python -m evals.main --test_type=sql
 ```
 
 ## Running specific tests

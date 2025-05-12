@@ -95,6 +95,7 @@ setup(
         "traitlets",
         "pydantic",
         "SQLAlchemy"
+        "pipreqs",
     ],
     extras_require = {
         'deploy': [

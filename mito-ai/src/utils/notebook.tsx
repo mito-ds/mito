@@ -9,6 +9,8 @@ import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from './websocket/models';
 import { captureNode } from './nodeToPng';
 
+const INCLUDE_CELL_IN_APP = 'include-cell-in-app'
+
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
     const activeCell = notebook?.activeCell;
@@ -22,6 +24,53 @@ export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | 
 
     const notebook = notebookTracker.currentWidget?.content;
     return notebook?.widgets.find(cell => cell.model.id === cellID);
+}
+
+export const toggleActiveCellIncludeInAppMetadata = (notebookTracker: INotebookTracker): void => {
+    const activeCellID = getActiveCellID(notebookTracker);
+    toggleIncludeCellInAppMetadata(notebookTracker, activeCellID);
+}
+
+export const toggleIncludeCellInAppMetadata = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
+
+    if (cellID === undefined) {
+        return;
+    }
+
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return undefined;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(cell.model.metadata, INCLUDE_CELL_IN_APP)) {
+        const originalVisibility = cell.model.getMetadata(INCLUDE_CELL_IN_APP);
+        cell.model.setMetadata(INCLUDE_CELL_IN_APP, !originalVisibility);
+    } else {
+        // If the metadata doesn't exist yet, that means the user has not yet toggled the visibility.
+        // The default value is to show the output, so the first toggle should set the visibiltiy to false.
+        cell.model.setMetadata(INCLUDE_CELL_IN_APP, false);
+    }
+}
+
+export const getActiveCellIncludeInApp = (notebookTracker: INotebookTracker): boolean => {
+    const activeCellID = getActiveCellID(notebookTracker);
+    return getIncludeCellInApp(notebookTracker, activeCellID);
+}
+
+export const getIncludeCellInApp = (notebookTracker: INotebookTracker, cellID: string | undefined): boolean => {
+    /* 
+    Checks the cell metadata tag to see if the user has marked that this cell should not be included in the app.
+    */
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return false;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(cell.model.metadata, INCLUDE_CELL_IN_APP)) {
+        cell.model.setMetadata(INCLUDE_CELL_IN_APP, true);
+    }
+
+    return cell.model.getMetadata(INCLUDE_CELL_IN_APP);
 }
 
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
@@ -50,6 +99,7 @@ export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeC
 
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+
     if (cell instanceof CodeCell) {
         const outputNode = cell.outputArea?.node;
         if (outputNode) {
@@ -87,7 +137,6 @@ export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: str
         notebookPanel.content.activeCellIndex = cellIndex
     }
 }
-
 
 export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker,
