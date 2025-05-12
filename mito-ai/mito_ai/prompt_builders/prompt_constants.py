@@ -59,6 +59,18 @@ def cell_update_output_str(has_cell_update_output: bool) -> str:
     else:
         return ""
 
+def redact_sensitive_info(connections: dict) -> dict:
+    """
+    Redacts sensitive information from connections data.
+    Returns a copy of the connections dict with sensitive fields masked.
+    """
+    redacted = {}
+    for conn_name, conn_data in connections.items():
+        redacted[conn_name] = conn_data.copy()
+        for key, value in redacted[conn_name].items():
+            redacted[conn_name][key] = 'redacted'
+    return redacted
+
 def get_database_rules():
     """
     Reads the user's database configurations,
@@ -73,6 +85,7 @@ def get_database_rules():
     
     with open(connections_path, 'r') as f:
         connections = json.load(f)
+        sanitized_connections = redact_sensitive_info(connections)
 
     with open(schemas_path, 'r') as f:
         schemas = json.load(f)
@@ -88,16 +101,9 @@ If the user has requested data that you believe is stored in the database:
 - Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
 - Every schema includes a connection field that specifies which database connection to use.
 - Connection details are stored in a JSON file located at: `{connections_path}`
-- This connections.json file follows the structure below:
+- Here is the sanitized contents of the connections.json file:
 
-{{
-    "connection_name": {{
-        "username": "username",
-        "password": "password",
-        "account": "account",
-        "warehouse": "warehouse"
-    }}
-}}
+{sanitized_connections}
 
 - Do not hard-code connection credentials into your code. Instead, load the connections.json file and access connection fields dynamically like so:
 
