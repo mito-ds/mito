@@ -13,7 +13,6 @@ import { ConfigSection } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { MitoAIInlineCompleter } from './provider';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
-import { checkForUpdates } from '../../utils/version_check';
 
 /**
  * Interface for the Mito AI configuration settings.
@@ -53,12 +52,6 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
 
     // Only alphanumeric characters are authorized for configuration section
     const CONFIG_SECTION = 'mitoaiconfig';
-
-    // Check for updates - this will only show a notification if an update is available
-    // If any errors occur or if the extension can't check for updates, no notification will be shown
-    checkForUpdates(app.serviceManager.serverSettings).catch(error => {
-      console.warn('Error checking for Mito AI updates:', error);
-    });
 
     // Use Jupyter Server configuration to check if this is the first time the extension is installed.
     // Jupyter Server configuration are stored in the $HOME/.jupyter/serverconfig folder as JSON files.
