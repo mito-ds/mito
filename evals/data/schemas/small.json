@@ -1,0 +1,103 @@
+{
+    "SP_500": {
+        "INFORMATION_SCHEMA": {},
+        "PUBLIC": {
+            "SP500_COMPANIES": [
+                {
+                    "name": "EXCHANGE",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "SYMBOL",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "SHORTNAME",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "LONGNAME",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "SECTOR",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "INDUSTRY",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "CURRENTPRICE",
+                    "type": "NUMBER(38,2)"
+                },
+                {
+                    "name": "MARKETCAP",
+                    "type": "NUMBER(38,0)"
+                },
+                {
+                    "name": "EBITDA",
+                    "type": "NUMBER(38,0)"
+                },
+                {
+                    "name": "REVENUEGROWTH",
+                    "type": "NUMBER(38,3)"
+                },
+                {
+                    "name": "CITY",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "STATE",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "COUNTRY",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "FULLTIMEEMPLOYEES",
+                    "type": "NUMBER(38,0)"
+                },
+                {
+                    "name": "LONGBUSINESSSUMMARY",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "WEIGHT",
+                    "type": "VARCHAR(16777216)"
+                }
+            ],
+            "SP500_STOCKS": [
+                {
+                    "name": "DATE",
+                    "type": "DATE"
+                },
+                {
+                    "name": "SYMBOL",
+                    "type": "VARCHAR(16777216)"
+                },
+                {
+                    "name": "CLOSE",
+                    "type": "NUMBER(38,15)"
+                },
+                {
+                    "name": "HIGH",
+                    "type": "NUMBER(38,15)"
+                },
+                {
+                    "name": "LOW",
+                    "type": "NUMBER(38,15)"
+                },
+                {
+                    "name": "OPEN",
+                    "type": "NUMBER(38,15)"
+                },
+                {
+                    "name": "VOLUME",
+                    "type": "NUMBER(38,1)"
+                }
+            ]
+        }
+    }
+}

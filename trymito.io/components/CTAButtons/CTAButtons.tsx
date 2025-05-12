@@ -12,9 +12,10 @@ import { classNames } from '../../utils/classNames';
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
 const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
 export const CALENDLY_LINK = "https://calendly.com/jake_from_mito/30min";
+export const COMPARISON_LINK = '/chatgpt-vs-mito';
 
 const CTAButtons = (props: {
-    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install' | 'book a demo' | 'try jupyterhub',
+    variant: 'download' | 'contact' | 'try jupyterlite' | 'scroll-to-install' | 'book a demo' | 'try jupyterhub' | 'comparison',
     align: 'left' | 'center',
     displaySecondaryCTA?: boolean
     secondaryCTA?: 'pro' | 'learn more'
@@ -93,7 +94,13 @@ const CTAButtons = (props: {
                         />
                     </div>
                 </>
-                
+            }
+            {props.variant === 'comparison' && 
+                <TextButton 
+                    text='Learn more'
+                    href={COMPARISON_LINK}
+                    className={props.textButtonClassName}
+                />
             }
             
             {displaySecondaryCTA && secondaryCTA === 'pro' && 
