@@ -95,6 +95,7 @@ setup(
         "traitlets",
         "pydantic",
         "pipreqs",
+        "boto3"
     ],
     extras_require = {
         'deploy': [
