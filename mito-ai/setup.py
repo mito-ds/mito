@@ -95,6 +95,7 @@ setup(
         "traitlets",
         "pydantic",
         "requests>=2.25.0",
+        "pipreqs",
     ],
     extras_require = {
         'deploy': [

@@ -1,0 +1,261 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+import pandas as pd
+from dataclasses import dataclass
+from typing import List, Dict, Any, Optional, Tuple
+from evals.eval_types import TableDetails, ParsedSQLDetails
+from evals.funnels.sql.utils import parse_db_schema_table_names, run_sql_query
+
+
+@dataclass
+class FunnelStepResult:
+    name: str
+    passed: bool
+    notes: Optional[str] = None
+
+
+def is_sql_generated_test(
+    expected_output: str | None,
+    sql_query_recieved: str | None,
+) -> FunnelStepResult:
+    """
+    Verifies whether a SQL query was generated as expected.
+
+    This is the first funnel in the SQL evaluation process. It checks if the AI generated
+    a SQL query when it was supposed to, or didn't generate one when it wasn't supposed to.
+
+    Args:
+        expected_output: The expected output string or None if no SQL query was expected
+        sql_query_recieved: The actual SQL query string generated or None if no query was generated
+    """
+    name = "is_sql_generated_test"
+
+    expected_sql_query_exists = expected_output is not None and expected_output != ""
+    actual_sql_query_exists = (
+        sql_query_recieved is not None and sql_query_recieved != ""
+    )
+
+    if not expected_sql_query_exists and not actual_sql_query_exists:
+        # No SQL query was expected and none was generated
+        return FunnelStepResult(name=name, passed=True)
+    elif expected_sql_query_exists and actual_sql_query_exists:
+        # A SQL query was expected and one was generated
+        return FunnelStepResult(name=name, passed=True)
+    else:
+        return FunnelStepResult(
+            name=name,
+            passed=False,
+            notes="SQL query was not generated when it was expected, or generated when it was not expected",
+        )
+
+
+def correct_tables_test(
+    expected_tables: List[str],
+    actual_tables: List[str],
+) -> FunnelStepResult:
+    """
+    Verifies that all expected tables are present in the generated SQL query.
+
+    Args:
+        expected_tables: List of table names that should be used in the query
+        tables_in_query: List of table names actually found in the generated SQL query
+    """
+    name = "correct_tables_test"
+
+    for expected_table in expected_tables:
+        if expected_table not in actual_tables:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Expected table '{expected_table}' not found in query",
+            )
+
+    return FunnelStepResult(name=name, passed=True)
+
+
+def no_table_halucinations_test(
+    expected_tables: List[str],
+    tables_in_query: List[str],
+    schema: Dict[str, Any],
+) -> FunnelStepResult:
+    """
+    Verifies that no tables in the query are hallucinated (i.e. don't exist in the schema).
+
+    Args:
+        expected_tables: List of table names that should be used in the query
+        tables_in_query: List of table names found in the generated SQL query
+        schema: The database schema containing all valid tables and their columns
+    """
+    name = "no_table_halucinations_test"
+
+    if len(expected_tables) == 0 and len(tables_in_query) == 0:
+        # No tables expected, no tables generated.
+        return FunnelStepResult(name=name, passed=True)
+
+    # We want to check if each of these tables exist in the schema
+    for table_path in tables_in_query:
+        database_name, schema_name, table_name = parse_db_schema_table_names(table_path)
+
+        # Check if database exists
+        if database_name not in schema:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Database '{database_name}' does not exist in schema",
+            )
+
+        # Check if schema exists within database
+        if schema_name not in schema[database_name]:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Schema '{schema_name}' does not exist in database '{database_name}'",
+            )
+
+        # Check if table exists within schema
+        if table_name not in schema[database_name][schema_name]:
+            return FunnelStepResult(
+                name=name,
+                passed=False,
+                notes=f"Table '{table_name}' does not exist in schema '{schema_name}' of database '{database_name}'",
+            )
+
+    return FunnelStepResult(name=name, passed=True)
+
+
+def no_column_table_mismatch_test(
+    table_details: List[TableDetails],
+    schema: Dict[str, Any],
+) -> FunnelStepResult:
+    """
+    Verifies that all columns referenced in the query exist in their respective tables.
+    This also doubles as a halucination test, since if a column doesn't exist in the table,
+    it must be a halucination.
+
+    Args:
+        table_details: Generated by the AI; list of table details, each containing a table name and a list of columns
+        schema: The database schema containing all valid tables and their columns
+    """
+    name = "no_column_table_mismatch_test"
+
+    for table_detail in table_details:
+        try:
+            database_name, schema_name, table_name = parse_db_schema_table_names(
+                table_detail.name
+            )
+            columns = table_detail.columns
+
+            # Our reference point:
+            # the columns that are actually in the schema
+            columns_in_schema = [
+                column["name"]
+                for column in schema[database_name][schema_name][table_name]
+            ]
+
+            # Check if all columns exist in the table
+            missing_columns = [
+                col
+                for col in columns
+                if not col.startswith("*") and col not in columns_in_schema
+            ]
+            if missing_columns:
+                return FunnelStepResult(
+                    name=name,
+                    passed=False,
+                    notes=f"Columns not found in table '{table_name}': {', '.join(missing_columns)}",
+                )
+        except Exception as e:
+            return FunnelStepResult(
+                name=name, passed=False, notes=f"Error parsing table name: {e}"
+            )
+
+    return FunnelStepResult(name=name, passed=True)
+
+
+def execute_without_errors_test(
+    parsed_sql_details: ParsedSQLDetails,
+) -> Tuple[pd.DataFrame, FunnelStepResult]:
+    """
+    Verifies that the SQL query is syntactically correct.
+
+    Returns:
+        A tuple containing the result of the query (a pandas DataFrame) and a FunnelStepResult object.
+    """
+    name = "execute_without_errors_test"
+
+    if parsed_sql_details.query is None:
+        return pd.DataFrame(), FunnelStepResult(
+            name=name,
+            passed=True,
+            notes="No query was generated, defaulting to pass",
+        )
+
+    result, error = run_sql_query(parsed_sql_details.query)
+
+    # Fail state: the query is syntactically incorrect.
+    # Return an empty dataframe which should cause future tests to fail.
+    if error is not None:
+        return pd.DataFrame(), FunnelStepResult(
+            name=name, passed=False, notes=str(error)
+        )
+    # All good, return the dataframe
+    return result, FunnelStepResult(name=name, passed=True)
+
+
+def minimum_expected_cols_test(
+    expected_df: pd.DataFrame,
+    actual_df: pd.DataFrame,
+) -> FunnelStepResult:
+    """
+    Verifies that the actual dataframe has (at a minimum) the same columns as the expected dataframe.
+    """
+    name = "minimum_expected_cols_test"
+
+    # Check if the actual dataframe has all the columns that the expected dataframe has
+    missing_columns = [
+        col for col in expected_df.columns if col not in actual_df.columns
+    ]
+    if missing_columns:
+        return FunnelStepResult(
+            name=name,
+            passed=False,
+            notes=f"Columns not found in actual dataframe: {', '.join(missing_columns)}",
+        )
+
+    return FunnelStepResult(name=name, passed=True)
+
+
+def row_count_test(
+    expected_df: pd.DataFrame,
+    actual_df: pd.DataFrame,
+) -> FunnelStepResult:
+    """
+    Verifies that the actual dataframe has the same number of rows as the expected dataframe.
+    """
+    name = "row_count_test"
+    if expected_df.shape[0] != actual_df.shape[0]:
+        return FunnelStepResult(
+            name=name,
+            passed=False,
+            notes="Data shape does not match expected data shape",
+        )
+
+    return FunnelStepResult(name=name, passed=True)
+
+
+def correct_data_test(
+    expected_df: pd.DataFrame,
+    actual_df: pd.DataFrame,
+) -> FunnelStepResult:
+    """
+    Verifies that the actual data matches the expected data.
+    """
+    name = "correct_data_test"
+
+    if expected_df.equals(actual_df):
+        return FunnelStepResult(name=name, passed=True)
+    else:
+        return FunnelStepResult(
+            name=name, passed=False, notes="Data does not match expected data"
+        )

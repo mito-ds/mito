@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
     
 @dataclass()
 class Cell:
@@ -111,6 +111,17 @@ class SmartDebugTestCase:
 
 
 @dataclass(frozen=True)
+class SQLTestCase:
+    """A single test case for SQL"""
+    name: str
+    notebook_state: NotebookState
+    user_input: str
+    schema: str
+    expected_output: str | None
+    test_type: str
+    
+    
+@dataclass(frozen=True)
 class TestCaseResult:
     """
     The result of running a test case. Used to display the results.
@@ -171,3 +182,21 @@ class DebugPromptGenerator():
     def get_default_model(self) -> str:
         return "gpt-4o-mini"
     
+
+class TableDetails(BaseModel):
+    name: str = Field(
+        description="The name of the table, should be in the format: database_name.schema_name.table_name. Do not include the alias."
+    )
+    columns: List[str] = Field(
+        description="List of column names used from this table"
+    )
+
+
+class ParsedSQLDetails(BaseModel):
+    query: Optional[str] = Field(
+        description="The SQL query string, or None if no query is provided"
+    )
+    tables: List[TableDetails] = Field(
+        description="List of tables used in the query, can be empty",
+        default_factory=list
+    )    
