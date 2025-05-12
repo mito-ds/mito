@@ -94,9 +94,7 @@ setup(
         "tornado>=6.2.0",
         "traitlets",
         "pydantic",
-<<<<<<< HEAD
         "SQLAlchemy"
-=======
         "pipreqs",
     ],
     extras_require = {
