@@ -82,7 +82,7 @@ class BaseWebSocketHandler(JupyterHandler, WebSocketHandler):
             ValueError: If the message is not valid JSON.
         """
         try:
-            return json.loads(message)
+            return json.loads(message) # type: ignore
         except ValueError as e:
             self.log.error("Invalid message: %s", e)
             raise 

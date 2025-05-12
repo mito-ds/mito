@@ -5,7 +5,7 @@ import os
 import time
 import logging
 import asyncio
-from typing import Any
+from typing import Any, Union
 import boto3
 import zipfile
 import os
@@ -49,13 +49,18 @@ class AppBuilderHandler(BaseWebSocketHandler):
         if reply is not None:
             await reply
     
-    async def on_message(self, message: str) -> None:
+    async def on_message(self, message: Union[str, bytes]) -> None:
         """Handle incoming messages on the WebSocket.
         
         Args:
             message: The message received on the WebSocket.
         """
         start = time.time()
+        
+        # Convert bytes to string if needed
+        if isinstance(message, bytes):
+            message = message.decode('utf-8')
+        
         self.log.debug("App builder message received: %s", message)
         
         try:
