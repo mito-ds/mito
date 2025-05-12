@@ -89,9 +89,13 @@ with tempfile.TemporaryDirectory() as temp_dir:
       if (resultText.trim()) {
         // Replace the default with pipreqs results
         requirementsContent = resultText.trim();
+        // Remove the entire line that starts with matplotlib
+        requirementsContent = requirementsContent.replace(/matplotlib.*\n/, '');
         // Make sure streamlit is included
         if (!requirementsContent.includes('streamlit')) {
-          requirementsContent = 'streamlit>=1.28.0\n' + requirementsContent;
+          // Make sure matplotlib has version <3.9
+          // Add pip install snowflake-sqlalchemy
+          requirementsContent = 'matplotlib==3.9.2\nsnowflake-sqlalchemy\nstreamlit>=1.28.0\n' + requirementsContent;
         }
       }
     }
