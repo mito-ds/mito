@@ -81,7 +81,7 @@ def get_database_rules():
 
     if connections is not None:
         DATABASE_RULES = f"""DATABASE RULES:
-If the user has requested data that you belive is stored in the database:
+If the user has requested data that you believe is stored in the database:
 - Use the provided schema.
 - Only use SQLAlchemy to query the database.
 - Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
@@ -105,7 +105,7 @@ If the user has requested data that you belive is stored in the database:
 connections[connection_name]["username"]
 ```
 
-- The user may colloquially as for a "list of x", always assume they want a pandas DataFrame. 
+- The user may colloquially ask for a "list of x", always assume they want a pandas DataFrame. 
 - When a SQL query is executed and the results are loaded into a pandas DataFrame, all column names are automatically converted to lowercase. Always reference columns using their lowercase names, regardless of how they appear in the database. For example, if the database column is named "DATE", you should reference it as "date" in your code.
 - If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
 
@@ -115,5 +115,4 @@ Here is the schema:
     else:
         DATABASE_RULES = ""
 
-    print("DATABASE_RULES\n", DATABASE_RULES)
     return DATABASE_RULES
