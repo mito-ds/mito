@@ -68,11 +68,13 @@ def get_database_rules():
     # Get the db configuration from the user's mito folder
 
     APP_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER)
+    connections_path: Final[str] = os.path.join(APP_DIR_PATH, 'db', 'connections.json')
+    schemas_path: Final[str] = os.path.join(APP_DIR_PATH, 'db', 'schemas.json')
     
-    with open(os.path.join(APP_DIR_PATH, 'db', 'connections.json'), 'r') as f:
+    with open(connections_path, 'r') as f:
         connections = json.load(f)
 
-    with open(os.path.join(APP_DIR_PATH, 'db', 'schemas.json'), 'r') as f:
+    with open(schemas_path, 'r') as f:
         schemas = json.load(f)
 
     # If there is a db configuration, add return the rules
@@ -85,15 +87,32 @@ If the user has requested data that you belive is stored in the database:
 - Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
 - Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
 - Column names in query results may be returned in lowercase. Always refer to columns using their lowercase names in the resulting DataFrame (e.g., df['date'] instead of df['DATE']).
+- Every schema includes a connection field that specifies which database connection to use.
+- Connection details are stored in a JSON file located at: `{connections_path}`
+- This connections.json file follows the structure below:
+
+{{
+    "connection_name": {{
+        "username": "username",
+        "password": "password",
+        "account": "account",
+        "warehouse": "warehouse"
+    }}
+}}
+
+- Do not hard-code connection credentials into your code. Instead, load the connections.json file and access connection fields dynamically like so:
+
+```
+connections[connection_name]["username"]
+```
+
 - If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
 
 Here is the schema:
 {schemas}
-
-Here are the connection details:
-{connections}
         """
     else:
         DATABASE_RULES = ""
 
+    print("DATABASE_RULES\n", DATABASE_RULES)
     return DATABASE_RULES
