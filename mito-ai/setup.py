@@ -98,7 +98,6 @@ setup(
         "SQLAlchemy"
 =======
         "pipreqs",
->>>>>>> 22133a979563889631e34c12ebe31871bb1c31ca
     ],
     extras_require = {
         'deploy': [
