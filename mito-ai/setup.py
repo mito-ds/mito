@@ -95,6 +95,7 @@ setup(
         "traitlets",
         "pydantic",
         "SQLAlchemy",
+        "snowflake-sqlalchemy",
         "pipreqs",
     ],
     extras_require = {
