@@ -9,7 +9,6 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.prompt_builders.chat_system_message import create_chat_system_message_prompt
 from mito_ai.prompt_builders.agent_system_message import create_agent_system_message_prompt
 
-
 async def append_chat_system_message(
         message_history: GlobalMessageHistory,
         provider: OpenAIProvider,
@@ -21,7 +20,7 @@ async def append_chat_system_message(
         return
     
     system_message_prompt = create_chat_system_message_prompt()
-    
+
     system_message: ChatCompletionMessageParam = {
         "role": "system",
         "content": system_message_prompt
