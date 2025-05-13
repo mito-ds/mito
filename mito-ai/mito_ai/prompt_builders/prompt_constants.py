@@ -112,7 +112,7 @@ connections[connection_name]["username"]
 ```
 
 - The user may colloquially ask for a "list of x", always assume they want a pandas DataFrame. 
-- When a SQL query is executed and the results are loaded into a pandas DataFrame, all column names are automatically converted to lowercase. Always reference columns using their lowercase names, regardless of how they appear in the database. For example, if the database column is named "DATE", you should reference it as "date" in your code.
+- When working with dataframes created from an SQL query, ALWAYS use lowercase column names. 
 - If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
 
 Here is the schema:
