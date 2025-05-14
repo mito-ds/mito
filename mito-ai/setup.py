@@ -114,10 +114,11 @@ setup(
     },
     keywords=["AI", "Jupyter", "Mito"],
     entry_points={
-        "jupyter_server.extensions": [
-            "mito_ai = mito_ai:_jupyter_server_extension_points",
+        "jupyter_serverproxy_servers": [
+            "mito-ai = mito_ai:_load_jupyter_server_extension",
         ],
     },
+    jupyter_server_extension="mito_ai", # Automatically enable the server extension
     include_package_data=True,  # Ensures labextension files are included
     package_data={
         "": ["labextension/**/*"],
