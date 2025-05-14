@@ -151,9 +151,10 @@
 /* Add suggestion box container styling */
 .chat-suggestions {
   display: flex;
-  gap: 8px;
   flex-wrap: nowrap;
   overflow-x: auto;
+  gap: 8px;
+  padding-bottom: 16px;
   margin: 8px 0;
   /* smooth scrolling on touch devices */
   -webkit-overflow-scrolling: touch;
