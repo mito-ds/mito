@@ -14,7 +14,7 @@ import type {
   ICompletionStreamChunk
 } from './models';
 
-const SERVICE_URL = 'mito-ai/completions';
+const SERVICE_URL = 'mito_ai/completions';
 
 /**
  * Error thrown by Mito AI completion

@@ -8364,9 +8364,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mito-ai@workspace:.":
+"mito_ai@workspace:.":
   version: 0.0.0-use.local
-  resolution: "mito-ai@workspace:."
+  resolution: "mito_ai@workspace:."
   dependencies:
     "@babel/core": ^7.26.9
     "@babel/preset-env": ^7.26.9

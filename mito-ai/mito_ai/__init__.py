@@ -13,13 +13,15 @@ except ImportError:
     # in editable mode with pip. It is highly recommended to install
     # the package from a stable release or in editable mode: https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
     import warnings
+    import os
+    import sys
 
-    warnings.warn("Importing 'mito_ai' outside a proper installation.")
+    if not __file__.startswith(os.path.join(sys.prefix, 'lib')):
+        warnings.warn("Note: Importing 'mito_ai' from development location.")
     __version__ = "dev"
 
-
 def _jupyter_labextension_paths() -> List[Dict[str, str]]:
-    return [{"src": "labextension", "dest": "mito-ai"}]
+    return [{"src": "labextension", "dest": "mito_ai"}]
 
 
 def _jupyter_server_extension_points() -> List[Dict[str, str]]:
@@ -46,7 +48,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
 
     handlers = [
         (
-            url_path_join(base_url, "mito-ai", "completions"),
+            url_path_join(base_url, "mito_ai", "completions"),
             CompletionHandler,
             {"llm": open_ai_provider},
         ),
