@@ -15,8 +15,8 @@ lab_path = Path(HERE, 'mito_ai', 'labextension')
 
 data_files_spec = [
     # Lab extension data files
-    ("share/jupyter/labextensions/mito-ai", str(lab_path), "**"),
-    ("share/jupyter/labextensions/mito-ai", str(HERE), "install.json")
+    ("share/jupyter/labextensions/mito_ai", str(lab_path), "**"),
+    ("share/jupyter/labextensions/mito_ai", str(HERE), "install.json")
 ]
 
 def get_data_files_from_data_files_spec(
@@ -55,14 +55,14 @@ def get_data_files_from_data_files_spec(
 data_files = get_data_files_from_data_files_spec(data_files_spec) 
 
 # Add the jupyter server config file so that the extension is automatically loaded
-data_files.append(("etc/jupyter/jupyter_server_config.d", ["jupyter-config/jupyter_server_config.d/mito-ai.json"]))
+data_files.append(("etc/jupyter/jupyter_server_config.d", ["jupyter-config/jupyter_server_config.d/mito_ai.json"]))
 
 # Read the content of README.md for the long description
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="mito-ai",
+    name="mito_ai",
     version=package_json['version'],
     author="Aaron Diamond-Reivich",
     author_email="aaron@sagacollab.com",
@@ -114,11 +114,10 @@ setup(
     },
     keywords=["AI", "Jupyter", "Mito"],
     entry_points={
-        "jupyter_serverproxy_servers": [
-            "mito-ai = mito_ai:_load_jupyter_server_extension",
+        "jupyter_server.extensions": [
+            "mito_ai = mito_ai:_jupyter_server_extension_points",
         ],
     },
-    jupyter_server_extension="mito_ai", # Automatically enable the server extension 
     include_package_data=True,  # Ensures labextension files are included
     package_data={
         "": ["labextension/**/*"],
