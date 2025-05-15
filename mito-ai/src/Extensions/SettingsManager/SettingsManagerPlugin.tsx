@@ -4,9 +4,6 @@ import { SettingsWidget } from './SettingsWidget';
 
 export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
 
-/**
- * Initialization data for the mito settings extension.
- */
 const SettingsManagerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     id: 'mito-ai:settings-manager',
     description: 'Mito AI settings manager',
