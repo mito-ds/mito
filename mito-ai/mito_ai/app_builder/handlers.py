@@ -19,6 +19,7 @@ from mito_ai.app_builder.models import (
     MessageType
 )
 from mito_ai.logger import get_logger
+import requests
 
 
 class AppBuilderHandler(BaseWebSocketHandler):
@@ -140,7 +141,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
             ))
     
     async def _deploy_app(self, app_path: str) -> str:
-        """Deploy the app to AWS.
+        """Deploy the app using pre-signed URLs.
         
         Args:
             app_path: Path to the app file.
@@ -148,40 +149,58 @@ class AppBuilderHandler(BaseWebSocketHandler):
         Returns:
             The URL of the deployed app.
         """
-        # Set AWS profile and bucket name based on environment
-        aws_profile = "mito-dev-sandbox"
-        bucket_name = "st-app-dev-uploads"
-        domain = "app.dev.trymito.io"
-        environment = 'dev'
-        
-        # Directory name 
-        # If the path we are provided is sample-app/my-streamlit-app.ipynb, then we will 
-        # call the app sample_app
+        # Get app name from the path
         app_name = os.path.basename(app_path).split('.')[0]
+        self.log.info(f"Deploying app: {app_name} from path: {app_path}")
         
-        print(app_name)
-        s3_path = f"uploads/{app_name}/"
+        # API endpoint for getting pre-signed URL
+        API_BASE_URL = "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
         
-        # Create a zip file
-        with tempfile.NamedTemporaryFile(suffix='.zip') as temp_zip:
-            with zipfile.ZipFile(temp_zip.name, 'w') as zipf:
-                for root, _, files in os.walk(app_path):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        zipf.write(file_path, arcname=os.path.relpath(file_path, app_path))
+        try:
+            # Step 1: Get pre-signed URL from API
+            self.log.info("Getting pre-signed upload URL...")
+            url_response = requests.get(f"{API_BASE_URL}/get-upload-url?app_name={app_name}")
+            url_response.raise_for_status()
             
-            # Upload to S3 using boto3
-            session = boto3.Session(profile_name=aws_profile)
-            s3 = session.client('s3')
-            s3.upload_file(temp_zip.name, bucket_name, f"{s3_path}app.zip")
-        
-        # The upload triggers a Lambda that deploys to ECS (as mentioned in bash script)
-        
-        # Check ECS deployment status
-        ecs = session.client('ecs')
-        app_url = f"http://{app_name}.{domain}"
-        
-        # Poll for ECS service status
-        # await self._poll_deployment_status(aws_profile, environment, app_name, app_url)
-        
-        return app_url
+            url_data = url_response.json()
+            presigned_url = url_data['upload_url']
+            expected_app_url = url_data['expected_app_url']
+            
+            self.log.info(f"Received pre-signed URL. App will be available at: {expected_app_url}")
+            
+            # Step 2: Create a zip file of the app
+            with tempfile.NamedTemporaryFile(suffix='.zip') as temp_zip:
+                self.log.info("Zipping application files...")
+                with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    for root, _, files in os.walk(app_path):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            zipf.write(file_path, arcname=os.path.relpath(file_path, app_path))
+                
+                # Step 3: Upload zip directly to S3 using presigned URL
+                self.log.info("Uploading app to S3...")
+                with open(temp_zip.name, 'rb') as file_data:
+                    upload_response = requests.put(
+                        presigned_url,
+                        data=file_data,
+                        headers={'Content-Type': 'application/zip'}
+                    )
+                    upload_response.raise_for_status()
+                
+                self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
+            
+            self.log.info(f"Deployment initiated. App will be available at: {expected_app_url}")
+            return expected_app_url
+            
+        except requests.exceptions.RequestException as e:
+            self.log.error(f"Error during API request: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_detail = e.response.json()
+                    self.log.error(f"Server error details: {error_detail}")
+                except:
+                    self.log.error(f"Server response: {e.response.text}")
+            raise Exception(f"Deployment failed: {str(e)}")
+        except Exception as e:
+            self.log.error(f"Error during deployment: {str(e)}")
+            raise
