@@ -1,14 +1,8 @@
-import {
-    JupyterFrontEnd,
-    JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-
-import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
-import { MainAreaWidget } from '@jupyterlab/apputils';
+import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
+import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
 import { SettingsWidget } from './SettingsWidget';
-import { ILayoutRestorer } from '@jupyterlab/application';
 
-const COMMAND_MITO_SETTINGS = 'mito:open-settings';
+const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
 
 /**
  * Initialization data for the mito settings extension.
@@ -40,7 +34,7 @@ function _activate(
     let widget = newWidget();
 
     // Add an application command
-    app.commands.addCommand(COMMAND_MITO_SETTINGS, {
+    app.commands.addCommand(COMMAND_MITO_AI_SETTINGS, {
         label: 'Mito AI Settings',
         execute: () => {
             // Create the widget if it doesn't exist or is disposed
@@ -65,8 +59,8 @@ function _activate(
 
     // Add the command to the palette
     palette.addItem({
-        command: COMMAND_MITO_SETTINGS,
-        category: 'Mito'
+        command: COMMAND_MITO_AI_SETTINGS,
+        category: 'Mito AI'
     });
 
     // Track and restore the widget state
@@ -79,7 +73,7 @@ function _activate(
     }
 
     if (restorer) {
-        restorer.add(widget, 'mito-settings');
+        restorer.add(widget, 'mito-ai-settings');
     }
 
     return tracker;
