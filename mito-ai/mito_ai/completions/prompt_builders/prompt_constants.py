@@ -71,7 +71,7 @@ def redact_sensitive_info(connections: dict) -> dict:
             redacted[conn_name][key] = 'redacted'
     return redacted
 
-def get_database_rules():
+def get_database_rules() -> str:
     """
     Reads the user's database configurations,
     and returns the rules for the AI to follow.
