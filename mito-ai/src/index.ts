@@ -25,6 +25,6 @@ export default [
   emptyCellPlaceholder,
   completionPlugin,
   statusItem,
-  SettingsManagerPlugin
+  SettingsManagerPlugin,
   versionCheckPlugin
 ];
