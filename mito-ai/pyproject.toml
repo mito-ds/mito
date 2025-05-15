@@ -2,8 +2,92 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 [build-system]
-requires = ["setuptools", "wheel", "jupyterlab>=4.0.0,<5"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.1.0,<5", "hatch-nodejs-version>=0.3.2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mito_ai"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+classifiers = [
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 4",
+    "Framework :: Jupyter :: JupyterLab :: Extensions",
+    "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "jinja2>=3.0.3",
+    "jupyterlab>=4.1.0,<5",
+    "openai>=1.0.0",
+    "analytics-python",
+    "tornado>=6.2.0",
+    "traitlets",
+    "pydantic",
+    "SQLAlchemy",
+    "snowflake-sqlalchemy",
+    "pipreqs",
+]
+dynamic = ["version", "description", "authors", "urls", "keywords"]
+
+[project.optional-dependencies]
+test = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.3",
+    "mypy>=1.8.0",
+    "types-tornado>=5.1.1",
+]
+
+[project.entry-points."jupyter_serverproxy_servers"]
+"mito-ai" = "mito_ai:_load_jupyter_server_extension"
+
+[tool.hatch.version]
+source = "nodejs"
+
+[tool.hatch.metadata.hooks.nodejs]
+fields = ["description", "authors", "urls", "keywords"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["mito_ai/labextension"]
+exclude = [".github", "binder"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"mito_ai/labextension" = "share/jupyter/labextensions/mito_ai"
+"install.json" = "share/jupyter/labextensions/mito_ai/install.json"
+"jupyter-config/jupyter_server_config.d" = "etc/jupyter/jupyter_server_config.d"
+
+[tool.hatch.build.hooks.version]
+path = "mito_ai/_version.py"
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = ["hatch-jupyter-builder>=0.5"]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "mito_ai/labextension/static/style.js",
+    "mito_ai/labextension/package.json",
+]
+skip-if-exists = ["mito_ai/labextension/static/style.js"]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = ["jlpm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "install:extension"
+npm = ["jlpm"]
+source_dir = "src"
+build_dir = "mito_ai/labextension"
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
