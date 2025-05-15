@@ -21,6 +21,8 @@ from mito_ai.app_builder.models import (
 from mito_ai.logger import get_logger
 import requests
 
+# API endpoint for getting pre-signed URL
+API_BASE_URL = "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
 
 class AppBuilderHandler(BaseWebSocketHandler):
     """Handler for app building requests."""
@@ -152,9 +154,6 @@ class AppBuilderHandler(BaseWebSocketHandler):
         # Get app name from the path
         app_name = os.path.basename(app_path).split('.')[0]
         self.log.info(f"Deploying app: {app_name} from path: {app_path}")
-        
-        # API endpoint for getting pre-signed URL
-        API_BASE_URL = "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
         
         try:
             # Step 1: Get pre-signed URL from API
