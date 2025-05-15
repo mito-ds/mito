@@ -76,12 +76,15 @@ def start_new_conversation_history(system_prompt):
 
 def get_history_from_response(response):
     message = response["message"]
-    cell_type = response["cell_update"]["cell_type"]
-    if cell_type == "code":
-        code = response["cell_update"]["code"]
-        content = f"""```python\n{code}\n\n{message}"""
+    if response["type"]=="finished_task":
+        content = message
     else:
-        content=message
+        cell_type = response["cell_update"]["cell_type"]
+        if cell_type == "code":
+            code = response["cell_update"]["code"]
+            content = f"""```python\n{code}\n\n{message}"""
+        else:
+            content=message
     return {"role": "assistant", "content": content}
 
 

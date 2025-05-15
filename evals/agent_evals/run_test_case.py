@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from openai import OpenAI
 
 
-def get_open_ai_completion_function_params_for_agent(user_task: str, model: str, system_prompt: str, conversation_history: Optional[List] = []) -> Tuple[Dict[str, Any], List]:
+def get_open_ai_completion_function_params_for_agent(user_task: str, model: str, system_prompt: str, conversation_history: Optional[List] = []) -> Dict[str, Any]:
     if not conversation_history:
         conversation_history = [
             {"role": "system", "content": system_prompt},
@@ -20,7 +20,7 @@ def get_open_ai_completion_function_params_for_agent(user_task: str, model: str,
         completion_function_params["temperature"] = 0.0
 
     print(f"\ncompletion_function_params: {completion_function_params}")
-    return completion_function_params, conversation_history
+    return completion_function_params
 
 
 def get_code_block_from_message(message: str) -> str:
@@ -39,7 +39,7 @@ def get_openai_code_and_conversation_history(user_task: str, model: str, system_
     print(f"\nAgent response: {response}")
     response_content = response.choices[0].message.content
     print(f"\nResponse content: {response_content}")
-    code_in_response, appended_conversation_history = get_code_block_from_message(response_content)
+    code_in_response = get_code_block_from_message(response_content)
     print(f"\ncode_in_response: {code_in_response}")
 
     return code_in_response
