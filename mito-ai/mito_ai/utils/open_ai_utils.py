@@ -14,7 +14,7 @@ from tornado.httpclient import AsyncHTTPClient
 from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai.utils.utils import is_running_test
-from mito_ai.models import MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
+from mito_ai.completions.models import MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro

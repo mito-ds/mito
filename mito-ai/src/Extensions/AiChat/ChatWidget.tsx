@@ -19,8 +19,8 @@ import type {
   CompleterMessage,
   ErrorMessage,
   IAICapabilities
-} from '../../utils/websocket/models';
-import { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+} from '../../websockets/completions/CompletionModels';
+import { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
 export const chatIcon = new LabIcon({
   name: 'mito_ai',
   svgstr: chatIconSvg
