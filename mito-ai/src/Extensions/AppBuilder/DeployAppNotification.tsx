@@ -1,8 +1,8 @@
 import { Notification } from '@jupyterlab/apputils';
 
-export const deployAppNotification = (): void => {
-    // Total deployment time in milliseconds (2 minutes = 120000ms)
-    const totalDeploymentTime = 10000;
+export const deployAppNotification = (url: string): void => {
+    // Total deployment time in milliseconds (3 minutes = 180000ms)
+    const totalDeploymentTime = 180000;
     
     // Create an array of deployment steps
     const deploymentSteps = [
@@ -38,7 +38,7 @@ export const deployAppNotification = (): void => {
                             label: "Launch Application Now",
                             displayType: 'accent', // Change display type to link
                             callback: () => {
-                                window.open("https://www.trymito.io/", '_blank');
+                                window.open(url, '_blank');
                             }
                         }
                     ]
