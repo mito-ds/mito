@@ -10,6 +10,7 @@ import ToolbarButtonsPlugin from './Extensions/ToolbarButtons/ToolbarButtonsPlug
 import { emptyCellPlaceholder } from './Extensions/emptyCell/EmptyCellPlugin';
 import { completionPlugin } from './Extensions/InlineCompleter';
 import { statusItem } from './Extensions/status';
+import { versionCheckPlugin } from './Extensions/VersionCheck';
 
 // This is the main entry point to the mito-ai extension. It must export all of the top level
 // extensions that we want to load.
@@ -20,5 +21,6 @@ export default [
   ToolbarButtonsPlugin,
   emptyCellPlaceholder,
   completionPlugin,
-  statusItem
+  statusItem,
+  versionCheckPlugin
 ];
