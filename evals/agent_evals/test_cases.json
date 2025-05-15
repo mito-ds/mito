@@ -1,0 +1,18 @@
+[
+  {
+    "test_case_name": "test_case_1",
+    "input_notebook_path": "test_case_inputs/input_notebook/2_empty_notebook.ipynb",
+    "user_task": "Create a pandas dataframe",
+    "output_response_path": "test_case_outputs/observed_agent_response/1_response.json",
+    "output_notebook_path": "test_case_outputs/observed_output_notebook/2_pandas_df_op.ipynb"
+  },
+  {
+    "test_case_name": "test_case_1",
+    "input_notebook_path": "test_case_inputs/input_notebook/2_empty_notebook.ipynb",
+    "user_task": "Create a pandas dataframe",
+    "output_response_path": "test_case_outputs/observed_agent_response/1_response.json",
+    "output_notebook_path": "test_case_outputs/observed_output_notebook/2_pandas_df_op.ipynb",
+    "input_conversation_history": "test_case_inputs/notebook_content/1_conversation_history.json"
+  }
+]
+

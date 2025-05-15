@@ -1,0 +1,46 @@
+import os
+from typing import Any, Dict, List, Optional, Tuple
+from openai import OpenAI
+
+
+def get_open_ai_completion_function_params_for_agent(user_task: str, model: str, system_prompt: str, conversation_history: Optional[List] = []) -> Tuple[Dict[str, Any], List]:
+    if not conversation_history:
+        conversation_history = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_task}
+        ]
+    else:
+        conversation_history.append({"role": "user", "content": user_task})
+
+    completion_function_params = {
+        "model": model,
+        "messages": conversation_history,
+    }
+    if model == "gpt-4o-mini":
+        completion_function_params["temperature"] = 0.0
+
+    print(f"\ncompletion_function_params: {completion_function_params}")
+    return completion_function_params, conversation_history
+
+
+def get_code_block_from_message(message: str) -> str:
+    # If ```python is not part of the message, then we assume that the
+    # entire message is the code block
+    if "```python" not in message:
+        return message
+
+    return message.split('```python\n')[1].split('\n```')[0]
+
+def get_openai_code_and_conversation_history(user_task: str, model: str, system_prompt: Optional[str] = None, conversation_history: Optional[List] = []):
+
+    completion_function_params = get_open_ai_completion_function_params_for_agent(user_task, model, system_prompt, conversation_history)
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    response = client.chat.completions.create(**completion_function_params)
+    print(f"\nAgent response: {response}")
+    response_content = response.choices[0].message.content
+    print(f"\nResponse content: {response_content}")
+    code_in_response, appended_conversation_history = get_code_block_from_message(response_content)
+    print(f"\ncode_in_response: {code_in_response}")
+
+    return code_in_response
+
