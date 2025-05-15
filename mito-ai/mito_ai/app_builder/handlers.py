@@ -189,7 +189,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
                 self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
             
             self.log.info(f"Deployment initiated. App will be available at: {expected_app_url}")
-            return expected_app_url
+            return expected_app_url # type: ignore
             
         except requests.exceptions.RequestException as e:
             self.log.error(f"Error during API request: {e}")
