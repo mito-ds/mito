@@ -2,7 +2,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyte
 import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
 import { SettingsWidget } from './SettingsWidget';
 
-const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
+export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
 
 /**
  * Initialization data for the mito settings extension.
