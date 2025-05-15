@@ -5,7 +5,8 @@ from mito_ai.prompt_builders.prompt_constants import (
     CITATION_RULES,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING
+    VARIABLES_SECTION_HEADING,
+    get_database_rules
 )
 
 
@@ -321,6 +322,9 @@ Output:
 }}
 
 </Cell Addition Example>
+
+===
+{get_database_rules()}
 
 ====
 
