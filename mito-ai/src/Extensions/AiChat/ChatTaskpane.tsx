@@ -40,7 +40,7 @@ import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/c
 import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
-import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
 import {
     IChatThreadMetadataItem,
     IChatMessageMetadata,
@@ -61,7 +61,7 @@ import {
     IAgentExecutionCompletionRequest,
     AgentResponse,
     ICompletionStreamChunk
-} from '../../utils/websocket/models';
+} from '../../websockets/completions/CompletionModels';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';

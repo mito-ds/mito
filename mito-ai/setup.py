@@ -97,6 +97,7 @@ setup(
         "SQLAlchemy",
         "snowflake-sqlalchemy",
         "pipreqs",
+        "boto3"
     ],
     extras_require = {
         'deploy': [
