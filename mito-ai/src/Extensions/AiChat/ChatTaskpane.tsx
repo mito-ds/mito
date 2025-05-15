@@ -21,6 +21,7 @@ import SupportIcon from '../../icons/SupportIcon';
 import MitoLogo from '../../icons/MitoLogo';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
+import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import ToggleButton from '../../components/ToggleButton';
@@ -1224,6 +1225,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
+            {displayOptimizedChatHistory.length === 0 && (
+                <div className="suggestions-container">
+                    <ScrollableSuggestions 
+                        onSelectSuggestion={(prompt) => {
+                            if (agentModeEnabled) {
+                                void startAgentExecution(prompt);
+                            } else {
+                                void sendChatInputMessage(prompt);
+                            }
+                        }}
+                    />
+                </div>
+            )}
             <ChatInput
                 initialContent={''}
                 placeholder={
