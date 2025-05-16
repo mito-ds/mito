@@ -3,7 +3,7 @@
 
 from typing import List, Tuple, Any
 from jupyter_server.utils import url_path_join
-from mito_ai.db.handlers import ConnectionsHandler
+from mito_ai.db.handlers import ConnectionsHandler, SchemaHandler
 
 
 def get_db_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
@@ -25,4 +25,5 @@ def get_db_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
             ConnectionsHandler,
             {},
         ),
+        (url_path_join(BASE_URL, "schemas"), SchemaHandler, {}),
     ]

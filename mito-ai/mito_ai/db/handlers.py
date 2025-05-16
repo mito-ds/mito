@@ -9,6 +9,7 @@ from mito_ai.utils.schema import MITO_FOLDER
 
 APP_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER)
 CONNECTIONS_PATH: Final[str] = os.path.join(APP_DIR_PATH, "db", "connections.json")
+SCHEMAS_PATH: Final[str] = os.path.join(APP_DIR_PATH, "db", "schemas.json")
 
 
 class ConnectionsHandler(tornado.web.RequestHandler):
@@ -110,3 +111,21 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             self.write({"error": str(e)})
         finally:
             self.finish()
+
+
+class SchemaHandler(tornado.web.RequestHandler):
+    """
+    Endpoints for working with schemas.json file.
+    """
+
+    def check_xsrf_cookie(self) -> None:
+        """Override to disable CSRF protection for this handler."""
+        pass
+
+    def get(self, *args: Any, **kwargs: Any) -> None:
+        """Get all schemas."""
+        with open(SCHEMAS_PATH, "r") as f:
+            schemas = json.load(f)
+
+        self.write(schemas)
+        self.finish()
