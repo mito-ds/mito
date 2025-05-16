@@ -19,6 +19,8 @@ def get_db_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
     return [
         (url_path_join(BASE_URL, "connections"), ConnectionsHandler, {}),
         (
+            # URL for deleting a connection.
+            # Same path as the previous url, but with a kwarg (name).
             url_path_join(BASE_URL, "connections", "(?P<name>[^/]+)"),
             ConnectionsHandler,
             {},
