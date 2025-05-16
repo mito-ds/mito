@@ -94,6 +94,7 @@ setup(
         "tornado>=6.2.0",
         "traitlets",
         "pydantic",
+        "google-genai"
     ],
     extras_require = {
         'deploy': [
