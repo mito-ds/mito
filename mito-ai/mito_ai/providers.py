@@ -10,6 +10,7 @@ from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
 from traitlets.config import LoggingConfigurable
 from mito_ai.enterprise.utils import is_azure_openai_configured
+from mito_ai.gemini_client import GeminiClient
 
 from mito_ai.logger import get_logger
 from mito_ai.models import (
@@ -70,6 +71,12 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
+        self._gemini_client: Optional[GeminiClient] = None
+        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
+            self._gemini_client = GeminiClient(
+                api_key=constants.GEMINI_API_KEY,
+                model=constants.GEMINI_MODEL
+            )
 
     @default("api_key")
     def _api_key_default(self) -> Optional[str]:
@@ -293,6 +300,34 @@ This attribute is observed by the websocket provider to push the error to the cl
 
             model = self._resolve_model(model)
 
+            # Handle Gemini API calls
+            if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+                if self._gemini_client is None:
+                    self._gemini_client = GeminiClient(
+                        api_key=constants.GEMINI_API_KEY,
+                        model=model
+                    )
+                
+                # Convert messages to a single string for Gemini
+                prompt = "\n".join([
+                    f"{m.get('role', 'user')}: {m.get('content', '')}" 
+                    for m in messages if isinstance(m, dict) and 'content' in m
+                ])
+                completion = await self._gemini_client.generate_content(prompt)
+                
+                # Log the successful completion
+                log_ai_completion_success(
+                    key_type=USER_KEY,  # Using USER_KEY for Gemini until they have been added in the lambda function
+                    message_type=message_type,
+                    last_message_content=str(messages[-1].get('content', '')) if messages else "",
+                    response={"completion": completion},
+                    user_input=user_input or "",
+                    thread_id=thread_id or ""
+                )
+                
+                return completion
+
+            # Handle other providers as before
             completion_function_params = get_open_ai_completion_function_params(
                 model, messages, False, response_format_info
             )
@@ -370,12 +405,87 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # Get the last message content for logging
         last_message_content = str(messages[-1].get("content", "")) if messages else ""
-        
-        # Prepare completion function parameters
+
+        # Handle Gemini API calls
+        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+            if self._gemini_client is None:
+                self._gemini_client = GeminiClient(
+                    api_key=constants.GEMINI_API_KEY,
+                    model=model
+                )
+            
+            try:
+                # Convert messages to a single string for Gemini
+                prompt = "\n".join([
+                    f"{m.get('role', 'user')}: {m.get('content', '')}" 
+                    for m in messages if isinstance(m, dict) and 'content' in m
+                ])
+                
+                async for chunk in self._gemini_client.stream_content(prompt):
+                    accumulated_response += chunk
+                    reply_fn(CompletionStreamChunk(
+                        parent_id=message_id,
+                        chunk=CompletionItem(
+                            content=chunk,
+                            isIncomplete=True,
+                            token=message_id,
+                        ),
+                        done=False,
+                    ))
+                
+                # Send final chunk
+                reply_fn(CompletionStreamChunk(
+                    parent_id=message_id,
+                    chunk=CompletionItem(
+                        content="",
+                        isIncomplete=False,
+                        token=message_id,
+                    ),
+                    done=True,
+                ))
+
+                # Log the successful completion
+                log_ai_completion_success(
+                    key_type=USER_KEY,  # Use USER_KEY for Gemini as it's a user-provided API key
+                    message_type=message_type,
+                    last_message_content=last_message_content,
+                    response={"completion": accumulated_response},
+                    user_input=user_input or "",
+                    thread_id=thread_id
+                )
+                
+                return accumulated_response
+
+            except Exception as e:
+                self.last_error = CompletionError.from_exception(e)
+                log(
+                    MITO_AI_COMPLETION_ERROR,
+                    params={
+                        KEY_TYPE_PARAM: USER_KEY,  # Use USER_KEY for Gemini
+                        'message_type': message_type.value,
+                    },
+                    error=e
+                )
+                reply_fn(CompletionStreamChunk(
+                    parent_id=message_id,
+                    chunk=CompletionItem(
+                        content="",
+                        isIncomplete=True,
+                        error=CompletionItemError(
+                            message=f"Failed to process completion: {e!r}"
+                        ),
+                        token=message_id,
+                    ),
+                    done=True,
+                    error=CompletionError.from_exception(e),
+                ))
+                raise
+
+        # Handle other providers as before
         completion_function_params = get_open_ai_completion_function_params(
             model, messages, True, response_format_info
         )
-        
+
         if self._active_async_client is not None:
             # Stream from OpenAI
             try:
