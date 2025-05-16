@@ -3,13 +3,14 @@
 
 import os
 from datetime import datetime
-from typing import Any
-from unittest.mock import patch, MagicMock, PropertyMock
+from typing import Any, List, Sequence
+from unittest.mock import patch, MagicMock, PropertyMock, AsyncMock
 
 import pytest
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.models import MessageType, CompletionError, AICapabilities
 from mito_ai.utils.server_limits import OS_MONTHLY_AI_COMPLETIONS_LIMIT
+from openai.types.chat import ChatCompletionMessageParam
 
 REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")
@@ -182,6 +183,169 @@ def test_gemini_model_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
         llm = OpenAIProvider()
         resolved = llm._resolve_model("gpt-4o-mini")
         assert resolved == "gemini-2-pro"
+
+
+def test_gemini_capabilities(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that Gemini capabilities are correctly reported when configured."""
+    # Mock both environment variables and constants
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", "gemini-2-pro")
+    # Ensure other providers are not configured
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.OLLAMA_MODEL", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+
+    llm = OpenAIProvider()
+    capabilities = llm.capabilities
+    assert capabilities.provider == "Gemini"
+    assert capabilities.configuration["model"] == "gemini-2-pro"
+
+
+def test_gemini_client_initialization(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that Gemini client is properly initialized when configured."""
+    # Mock both environment variables and constants
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", "gemini-2-pro")
+    # Ensure other providers are not configured
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.OLLAMA_MODEL", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+
+    # Create a mock GeminiClient class
+    mock_gemini_class = MagicMock()
+    mock_instance = MagicMock()
+    mock_gemini_class.return_value = mock_instance
+    
+    with patch("mito_ai.providers.GeminiClient", mock_gemini_class):
+        llm = OpenAIProvider()
+        assert llm._gemini_client is not None
+        # Verify the client was initialized with correct parameters
+        mock_gemini_class.assert_called_once_with(
+            api_key="gemini-key",
+            model="gemini-2-pro"
+        )
+
+
+@pytest.mark.asyncio
+async def test_gemini_completion_request(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that completion requests are properly routed to Gemini."""
+    # Mock both environment variables and constants
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", "gemini-2-pro")
+    # Ensure other providers are not configured
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.OLLAMA_MODEL", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+
+    # Mock the Gemini client with an async function
+    mock_gemini_client = MagicMock()
+    async def mock_generate_content(prompt: str) -> str:
+        return "Test completion"
+    mock_gemini_client.generate_content = mock_generate_content
+    
+    with patch("mito_ai.providers.GeminiClient", return_value=mock_gemini_client):
+        llm = OpenAIProvider()
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "user", "content": "Test message"}
+        ]
+        
+        completion = await llm.request_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            model="gemini-2-pro"
+        )
+        
+        assert completion == "Test completion"
+
+
+@pytest.mark.asyncio
+async def test_gemini_stream_completion(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that streaming completions are properly handled by Gemini."""
+    # Mock both environment variables and constants
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", "gemini-2-pro")
+    # Ensure other providers are not configured
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.OLLAMA_MODEL", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+
+    # Mock the Gemini client with an async generator
+    async def mock_stream():
+        yield "chunk1"
+        yield "chunk2"
+        yield "chunk3"
+
+    mock_gemini_client = MagicMock()
+    mock_gemini_client.stream_content.return_value = mock_stream()
+    
+    with patch("mito_ai.providers.GeminiClient", return_value=mock_gemini_client):
+        llm = OpenAIProvider()
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "user", "content": "Test message"}
+        ]
+        
+        # Mock the reply function
+        reply_chunks = []
+        def mock_reply(chunk):
+            reply_chunks.append(chunk)
+        
+        completion = await llm.stream_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            model="gemini-2-pro",
+            message_id="test-id",
+            thread_id="test-thread",
+            reply_fn=mock_reply
+        )
+        
+        assert completion == "chunk1chunk2chunk3"
+        # We expect 5 chunks total:
+        # 1. Initial acknowledgment chunk
+        # 2. First content chunk
+        # 3. Second content chunk
+        # 4. Third content chunk
+        # 5. Final empty chunk
+        assert len(reply_chunks) == 5
+        # Verify the first chunk is the initial acknowledgment
+        assert isinstance(reply_chunks[0], CompletionReply)
+        assert reply_chunks[0].items[0].content == ""
+        assert reply_chunks[0].items[0].isIncomplete is True
+        # Verify the last chunk is the final empty chunk
+        assert isinstance(reply_chunks[-1], CompletionStreamChunk)
+        assert reply_chunks[-1].chunk.content == ""
+        assert reply_chunks[-1].chunk.isIncomplete is False
+        assert reply_chunks[-1].done is True
+
+
+def test_gemini_error_handling(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that Gemini errors are properly handled."""
+    monkeypatch.setenv("GEMINI_API_KEY", "invalid-key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
+
+    # Mock Gemini client to raise an error
+    mock_gemini_client = MagicMock()
+    mock_gemini_client.generate_content.side_effect = Exception("Gemini API error")
+    
+    with patch("mito_ai.providers.GeminiClient", return_value=mock_gemini_client):
+        llm = OpenAIProvider()
+        assert llm.last_error is None  # Error should be None until a request is made
+
 
 def test_azure_openai_model_resolution_enterprise(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: True)
