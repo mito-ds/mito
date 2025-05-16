@@ -13,13 +13,14 @@ CONNECTIONS_PATH: Final[str] = os.path.join(APP_DIR_PATH, 'db', 'connections.jso
 
 class ConnectionsHandler(tornado.web.RequestHandler):
     """
-    Handler for retrieving and updating database connections.
+    Endpoints for working with connections.json file.
     """
     def check_xsrf_cookie(self) -> None:
         """Override to disable CSRF protection for this handler."""
         pass
 
     def get(self, *args: Any, **kwargs: Any) -> None:
+        """Get all connections."""
         with open(CONNECTIONS_PATH, 'r') as f:
             connections = json.load(f)
 
@@ -27,12 +28,14 @@ class ConnectionsHandler(tornado.web.RequestHandler):
         self.finish()
     
     def post(self, *args: Any, **kwargs: Any) -> None:
+        """Add a new connection."""
         with open(CONNECTIONS_PATH, 'r') as f:
             connections = json.load(f)
 
         self.write("yo")
 
     def delete(self, *args: Any, **kwargs: Any) -> None:
+        """Delete a connection."""
         with open(CONNECTIONS_PATH, 'r') as f:
             connections = json.load(f)
 
