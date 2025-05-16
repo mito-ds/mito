@@ -68,6 +68,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
+import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1132,6 +1133,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-buttons">
+                    <IconButton
+                        icon={<SupportIcon />}
+                        title="Mito AI Settings"
+                        onClick={() => {
+                            app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+                        }}
+                    />
                     <IconButton
                         icon={<SupportIcon />}
                         title="Get Help"

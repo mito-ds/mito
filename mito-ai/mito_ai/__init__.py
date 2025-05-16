@@ -6,6 +6,7 @@ from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.app_builder.handlers import AppBuilderHandler
+from mito_ai.db.urls import get_db_urls
 
 try:
     from _version import __version__
@@ -43,6 +44,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
 
     open_ai_provider = OpenAIProvider(config=server_app.config)
 
+    # WebSocket handlers
     handlers = [
         (
             url_path_join(base_url, "mito_ai", "completions"),
@@ -55,5 +57,9 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             {}
         )
     ]
+    
+    # REST API endpoints
+    handlers.extend(get_db_urls(base_url))
+    
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")
