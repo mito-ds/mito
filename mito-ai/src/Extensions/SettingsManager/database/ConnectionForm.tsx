@@ -21,12 +21,6 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
             <div className="modal-content">
                 <div className="modal-header">
                     <h2>Add New Connection</h2>
-                    <button
-                        className="jp-mod-styled jp-mod-reject"
-                        onClick={onClose}
-                    >
-                        ×
-                    </button>
                 </div>
                 <form onSubmit={onSubmit}>
                     {formError && <p className="error">{formError}</p>}

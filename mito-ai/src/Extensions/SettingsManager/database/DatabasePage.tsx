@@ -106,12 +106,6 @@ export const DatabasePage = (): JSX.Element => {
         <div className="db-connections">
             <div className="db-connections-header">
                 <h2>Database Connections</h2>
-                <button
-                    className="jp-mod-styled jp-mod-accept"
-                    onClick={() => setShowModal(true)}
-                >
-                    Add Connection
-                </button>
             </div>
 
             <ConnectionList
@@ -120,6 +114,13 @@ export const DatabasePage = (): JSX.Element => {
                 error={error}
                 onDelete={(name) => setDeleteConfirm({ name })}
             />
+
+            <button
+                className="jp-mod-styled jp-mod-accept"
+                onClick={() => setShowModal(true)}
+            >
+                Add Connection
+            </button>
 
             {showModal && (
                 <ConnectionForm
