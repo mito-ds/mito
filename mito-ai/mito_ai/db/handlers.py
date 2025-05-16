@@ -68,9 +68,37 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             self.finish()
 
     def delete(self, *args: Any, **kwargs: Any) -> None:
-        """Delete a connection."""
-        with open(CONNECTIONS_PATH, 'r') as f:
-            connections = json.load(f)
+        """Delete a connection by name."""
+        try:
+            # Get the connection name from the URL
+            connection_name = kwargs.get('name')
+            if not connection_name:
+                self.set_status(400)
+                self.write({'error': 'Connection name is required'})
+                return
 
-        self.write("deleted")
-        self.finish()
+            # Read existing connections
+            with open(CONNECTIONS_PATH, 'r') as f:
+                connections = json.load(f)
+
+            # Check if connection exists
+            if connection_name not in connections:
+                self.set_status(404)
+                self.write({'error': f'Connection {connection_name} not found'})
+                return
+
+            # Remove the connection
+            del connections[connection_name]
+
+            # Write back to file
+            with open(CONNECTIONS_PATH, 'w') as f:
+                json.dump(connections, f, indent=4)
+
+            self.set_status(200)
+            self.write({'status': 'success', 'message': f'Deleted {connection_name} connection'})
+
+        except Exception as e:
+            self.set_status(500)
+            self.write({'error': str(e)})
+        finally:
+            self.finish()
