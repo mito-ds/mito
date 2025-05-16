@@ -8,23 +8,19 @@ from mito_ai.db.handlers import ConnectionsHandler
 
 def get_db_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
     """Get all database related URL patterns.
-    
+
     Args:
         base_url: The base URL for the Jupyter server
-        
+
     Returns:
         List of (url_pattern, handler_class, handler_kwargs) tuples
     """
     BASE_URL = base_url + "/mito-ai/db"
     return [
-        (
-            url_path_join(BASE_URL, "connections"),
-            ConnectionsHandler,
-            {}
-        ),
+        (url_path_join(BASE_URL, "connections"), ConnectionsHandler, {}),
         (
             url_path_join(BASE_URL, "connections", "(?P<name>[^/]+)"),
             ConnectionsHandler,
-            {}
-        )
-    ] 
+            {},
+        ),
+    ]
