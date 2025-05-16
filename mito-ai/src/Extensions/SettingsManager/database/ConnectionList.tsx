@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DBConnections } from './types';
 
 interface ConnectionListProps {
@@ -14,6 +14,8 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
     error,
     onDelete
 }) => {
+    const [clickedDelete, setClickedDelete] = useState<string | null>(null);
+
     if (loading) {
         return <p>Loading connections...</p>;
     }
@@ -27,26 +29,47 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
     }
 
     return (
-        <>
+        <div className="connections-grid">
             {Object.entries(connections).map(([name, connection]) => (
                 <div key={name} className="connection-card">
                     <div className="connection-card-header">
                         <h3>{name}</h3>
-                        <button
-                            className="jp-mod-styled jp-mod-reject delete-button"
-                            onClick={() => onDelete(name)}
-                        >
-                            Delete
-                        </button>
+                    </div>
+                    <div className="connection-type">
+                        {connection.type}
                     </div>
                     <div className="connection-details">
-                        <p><strong>Type:</strong> {connection.type}</p>
                         <p><strong>Username:</strong> {connection.username}</p>
                         <p><strong>Account:</strong> {connection.account}</p>
                         <p><strong>Warehouse:</strong> {connection.warehouse}</p>
                     </div>
+                    <div className="connection-actions">
+                        {clickedDelete === name ? (
+                            <div className="confirmation-buttons">
+                                <button
+                                    className="button-base button-red"
+                                    onClick={() => onDelete(name)}
+                                >
+                                    Yes, I want to delete
+                                </button>
+                                <button
+                                    className="button-base button-gray"
+                                    onClick={() => setClickedDelete(null)}
+                                >
+                                    Nevermind
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                className="button-base button-red"
+                                onClick={() => setClickedDelete(name)}
+                            >
+                                Delete
+                            </button>
+                        )}
+                    </div>
                 </div>
             ))}
-        </>
+        </div>
     );
 }; 

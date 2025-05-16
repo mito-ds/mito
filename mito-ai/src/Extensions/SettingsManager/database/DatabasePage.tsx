@@ -3,7 +3,7 @@ import { PageConfig } from '@jupyterlab/coreutils';
 import { DBConnections, NewConnectionForm } from './types';
 import { ConnectionList } from './ConnectionList';
 import { ConnectionForm } from './ConnectionForm';
-import { DeleteConfirmation } from './DeleteConfirmation';
+import '../../../../style/DatabasePage.css';
 
 export const DatabasePage = (): JSX.Element => {
     const [connections, setConnections] = useState<DBConnections>({});
@@ -19,7 +19,6 @@ export const DatabasePage = (): JSX.Element => {
         warehouse: ''
     });
     const [formError, setFormError] = useState<string | null>(null);
-    const [deleteConfirm, setDeleteConfirm] = useState<{ name: string } | null>(null);
 
     const fetchConnections = async () => {
         try {
@@ -96,7 +95,6 @@ export const DatabasePage = (): JSX.Element => {
 
             // Refresh the connections list
             await fetchConnections();
-            setDeleteConfirm(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         }
@@ -106,38 +104,42 @@ export const DatabasePage = (): JSX.Element => {
         <div className="db-connections">
             <div className="db-connections-header">
                 <h2>Database Connections</h2>
+                <button
+                    className="button-base button-purple"
+                    onClick={() => setShowModal(true)}
+                >
+                    <b>＋ Add Connection</b>
+                </button>
             </div>
 
             <ConnectionList
                 connections={connections}
                 loading={loading}
                 error={error}
-                onDelete={(name) => setDeleteConfirm({ name })}
+                onDelete={handleDelete}
             />
 
-            <button
-                className="jp-mod-styled jp-mod-accept"
-                onClick={() => setShowModal(true)}
-            >
-                Add Connection
-            </button>
-
             {showModal && (
-                <ConnectionForm
-                    formData={formData}
-                    formError={formError}
-                    onInputChange={handleInputChange}
-                    onSubmit={handleSubmit}
-                    onClose={() => setShowModal(false)}
-                />
-            )}
-
-            {deleteConfirm && (
-                <DeleteConfirmation
-                    connectionName={deleteConfirm.name}
-                    onConfirm={() => handleDelete(deleteConfirm.name)}
-                    onCancel={() => setDeleteConfirm(null)}
-                />
+                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Add New Connection</h3>
+                            <button 
+                                className="modal-close-button"
+                                onClick={() => setShowModal(false)}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <ConnectionForm
+                            formData={formData}
+                            formError={formError}
+                            onInputChange={handleInputChange}
+                            onSubmit={handleSubmit}
+                            onClose={() => setShowModal(false)}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );
