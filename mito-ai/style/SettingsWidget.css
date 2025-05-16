@@ -15,12 +15,6 @@
     padding: 20px;
 }
 
-.settings-sidebar h2 {
-    margin: 0 0 20px 0;
-    font-size: 1.2em;
-    color: var(--jp-ui-font-color2);
-}
-
 .settings-sidebar nav ul {
     list-style: none;
     padding: 0;
@@ -50,12 +44,19 @@
     overflow-y: auto;
 }
 
-.settings-main h1 {
-    margin: 0 0 20px 0;
-    font-size: 1.5em;
-    color: var(--jp-ui-font-color2);
+a {
+    color: var(--purple-500) !important;
 }
 
-a {
-    color: var(--purple-500)!important;
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.settings-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--jp-ui-font-color1);
 }

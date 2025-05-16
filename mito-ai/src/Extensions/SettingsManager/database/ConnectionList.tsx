@@ -56,7 +56,7 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
                                     className="button-base button-gray"
                                     onClick={() => setClickedDelete(null)}
                                 >
-                                    Nevermind
+                                    Cancel
                                 </button>
                             </div>
                         ) : (

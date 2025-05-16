@@ -1,16 +1,3 @@
-.db-connections-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.db-connections-header h2 {
-    margin: 0;
-    font-size: 1.5em;
-    color: var(--jp-ui-font-color2);
-}
-
 .connections-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

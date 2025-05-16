@@ -102,7 +102,7 @@ export const DatabasePage = (): JSX.Element => {
 
     return (
         <div className="db-connections">
-            <div className="db-connections-header">
+            <div className="settings-header">
                 <h2>Database Connections</h2>
                 <button
                     className="button-base button-purple"
