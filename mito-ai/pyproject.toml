@@ -63,7 +63,6 @@ exclude = [".github", "binder"]
 "mito_ai/labextension" = "share/jupyter/labextensions/mito_ai"
 "install.json" = "share/jupyter/labextensions/mito_ai/install.json"
 "jupyter-config/jupyter_server_config.d" = "etc/jupyter/jupyter_server_config.d"
-"schema" = "share/jupyter/labextensions/mito_ai/schema"
 
 [tool.hatch.build.hooks.version]
 path = "mito_ai/_version.py"
