@@ -1,24 +1,17 @@
 import React, { useState } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { DatabasePage } from './database/DatabasePage';
+import { SupportPage } from './support/SupportPage';
 import '../../../style/SettingsWidget.css';
 
-// Placeholder components - you can create these in separate files later
-const GeneralSettings = () => <div>General Settings Content</div>;
-const AdvancedSettings = () => <div>Advanced Settings Content</div>;
-
 const TABS_CONFIG = {
-    general: {
-        label: 'General',
-        component: GeneralSettings
-    },
     database: {
         label: 'Database',
         component: DatabasePage
     },
-    advanced: {
-        label: 'Advanced',
-        component: AdvancedSettings
+    support: {
+        label: 'Support',
+        component: SupportPage
     }
 } as const;
 
@@ -34,7 +27,6 @@ const App = (): JSX.Element => {
         <div className="settings-widget">
             <div className="settings-layout">
                 <div className="settings-sidebar">
-                    <h2>Mito AI Settings</h2>
                     <nav>
                         <ul>
                             {Object.entries(TABS_CONFIG).map(([key, { label }]) => (

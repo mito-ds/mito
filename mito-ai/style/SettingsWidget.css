@@ -55,3 +55,7 @@
     font-size: 1.5em;
     color: var(--jp-ui-font-color2);
 }
+
+a {
+    color: var(--purple-500)!important;
+}
