@@ -19,7 +19,6 @@ def get_open_ai_completion_function_params_for_agent(user_task: str, model: str,
     if model == "gpt-4o-mini":
         completion_function_params["temperature"] = 0.0
 
-    print(f"\ncompletion_function_params: {completion_function_params}")
     return completion_function_params
 
 
@@ -36,11 +35,7 @@ def get_openai_code_and_conversation_history(user_task: str, model: str, system_
     completion_function_params = get_open_ai_completion_function_params_for_agent(user_task, model, system_prompt, conversation_history)
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     response = client.chat.completions.create(**completion_function_params)
-    print(f"\nAgent response: {response}")
     response_content = response.choices[0].message.content
-    print(f"\nResponse content: {response_content}")
     code_in_response = get_code_block_from_message(response_content)
-    print(f"\ncode_in_response: {code_in_response}")
-
     return code_in_response
 

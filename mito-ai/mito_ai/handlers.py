@@ -131,6 +131,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
             metadata_dict = parsed_message.get('metadata', {})
             type: MessageType = MessageType(parsed_message.get('type'))
+
+            print(f'metadata_dict: {metadata_dict}')
+            print(f"type: {type}")
+
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return
@@ -194,6 +198,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             stream = parsed_message.get('stream')
 
             if type == MessageType.CHAT:
+                print("In chat Messagetype")
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
                 
                 # Handle streaming if requested and available
@@ -246,6 +251,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
                 completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history)
+                print(f"completion: {completion}")
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
                 agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
                 completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, message_history)
@@ -254,7 +260,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 completion = await get_inline_completion(inline_completer_metadata, self._llm, message_history)
             else:
                 raise ValueError(f"Invalid message type: {type}")
-            
+
+            print(f'Completion items list: [CompletionItem(content=completion, isIncomplete=False)]')
             # Create and send reply
             reply = CompletionReply(
                 items=[CompletionItem(content=completion, isIncomplete=False)],
@@ -337,6 +344,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 It must be a dataclass instance.
         """
         message = asdict(reply)
+        print(f'message in write message: {message}')
         super().write_message(message)
 
     def _send_error(self, change: Dict[str, Any]) -> None:

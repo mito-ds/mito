@@ -1,10 +1,115 @@
 [
   {
     "test_case_name": "test_case_1",
-    "input_notebook_path": "test_case_inputs/input_notebook/2_empty_notebook.ipynb",
-    "user_task": "Create a pandas dataframe",
-    "output_response_path": "test_case_outputs/observed_agent_response/1_response.json",
-    "output_notebook_path": "test_case_outputs/observed_output_notebook/2_pandas_df_op.ipynb"
+    "user_task": "Create an empty pandas dataframe",
+    "conversation_history_present": false,
+    "description": "Testing creation of a dataframe in an empty notebook",
+    "evals_to_test": [
+      {
+        "eval_name": "compare_next_response",
+        "params": {
+          "type": "cell_update", "cell_type": "code"
+        }
+      },
+      {
+        "eval_name": "check_new_cell_added",
+        "params": {
+          "expected_output": false
+        }
+      },
+      {
+        "eval_name": "test_correct_cell_edit",
+        "params":{
+          "expected_cell_to_edit": "73cb3a1d-9364-4a76-87dc-c6ecfec80ea6"
+        }
+      },
+      {
+        "eval_name": "check_executed_variable_type_by_cell_index",
+        "params": {
+          "variable_name": "df",
+          "expected_type": "DataFrame"
+        }
+      }
+    ]
+  },
+  {
+    "test_case_name": "test_case_2",
+    "user_task": "Change Bob to James",
+    "description": "Testing modification of a value in the dataframe in an existing notebook",
+    "conversation_history_present": false,
+    "evals_to_test": [
+      {
+        "eval_name": "compare_next_response",
+        "params": {
+          "type": "cell_update", "cell_type": "code"
+        }
+      },
+      {
+        "eval_name": "check_new_cell_added",
+        "params": {
+          "expected_output": false
+        }
+      },
+      {
+        "eval_name": "test_correct_cell_edit",
+        "params":{
+          "expected_cell_to_edit": "685c26c1-53d2-4365-9cc5-f1da851e4cc4"
+        }
+      }
+    ]
+  },
+
+  {
+    "test_case_name": "test_case_3",
+    "user_task": "Find sum of the 2 numbers",
+    "description": "Compute the sum of 2 numbers",
+    "conversation_history_present": false,
+    "evals_to_test": [
+      {
+        "eval_name": "compare_next_response",
+        "params": {
+          "type": "cell_update", "cell_type": "code"
+        }
+      },
+      {
+        "eval_name": "compare_cells_exact_match",
+        "params": {
+          "cell_id": "685c26c1-53d2-4365-9cc5-f1da851e4cc4"
+        }
+      },
+      {
+        "eval_name": "check_new_cell_added",
+        "params": {
+          "expected_output": true
+        }
+      },
+      {
+        "eval_name": "check_cell_addition_index",
+        "params":{
+          "index_expecting_change": 1
+        }
+      },
+      {
+        "eval_name": "check_executed_variable_value_by_cell_index",
+        "params": {
+          "variable_name": "total_sum",
+          "cell_index": 1,
+          "expected_value": 30
+        }
+      },
+      {
+        "eval_name": "check_executed_variable_type_by_cell_index",
+        "params": {
+          "variable_name": "total_sum",
+          "cell_index": 1,
+          "expected_type": "int"
+        }
+      },
+      {
+        "eval_name": "check_mito_citation",
+        "params": {}
+      }
+    ]
   }
 ]
 

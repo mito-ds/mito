@@ -33,7 +33,6 @@ def exec_code_and_get_globals_and_output(code: str) -> Tuple[Dict[str, Any], str
     except Exception as e:
         # Always restore the stdout
         error_traceback = traceback.format_exc()
-        print("ERRORRRRRR received while executing code:", e)
         sys.stdout = old_stdout
         return globals, error_traceback
 
