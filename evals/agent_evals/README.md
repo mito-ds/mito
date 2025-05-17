@@ -17,3 +17,6 @@
             }
         }
         ```
+
+### How to run the evals:
+1. Run the file handler.py. This will collect the evals from test_cases.json and evaluate them.
