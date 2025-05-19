@@ -6,6 +6,7 @@ import os
 import tornado
 from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
+from mito_ai.db.crawlers import snowflake
 
 APP_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER)
 CONNECTIONS_PATH: Final[str] = os.path.join(APP_DIR_PATH, "db", "connections.json")
@@ -58,6 +59,10 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
 
+            # Crawl the new connection
+            crawler = snowflake.crawl_snowflake(CONNECTIONS_PATH)
+            print(crawler)
+            
             self.write(
                 {"status": "success", "message": f"Added {connection_name} connection"}
             )
