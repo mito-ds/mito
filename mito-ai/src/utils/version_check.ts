@@ -7,6 +7,11 @@ import { ServerConnection } from '@jupyterlab/services';
 import { Notification } from '@jupyterlab/apputils';
 import * as semver from 'semver';
 
+const VERSION_CHECK_TIMEOUT = 5000;
+const VERSION_CHECK_ENDPOINT = 'mito-ai/version-check';
+const DOCS_UPDATE_URL = 'https://docs.trymito.io/getting-started/installing-mito';
+const RELEASE_NOTES_URL = 'https://docs.trymito.io/misc/release-notes';
+
 /**
  * Display a notification when Mito AI is outdated
  */
@@ -17,13 +22,13 @@ export function showVersionOutdatedNotification(currentVersion: string, latestVe
       {
         label: 'Learn how to update',
         callback: () => {
-          window.open('https://docs.trymito.io/getting-started/installing-mito', '_blank');
+          window.open(DOCS_UPDATE_URL, '_blank');
         }
       },
       {
-        label: 'Release notes',
+        label: 'What\'s new?',
         callback: () => {
-          window.open('https://docs.trymito.io/misc/release-notes', '_blank');
+          window.open(RELEASE_NOTES_URL, '_blank');
         }
       }
     ]
@@ -39,11 +44,11 @@ export async function checkForUpdates(serverSettings: ServerConnection.ISettings
   try {
     // Build the URL
     const baseUrl = serverSettings.baseUrl;
-    const url = `${baseUrl}mito-ai/version-check`;
+    const url = `${baseUrl}${VERSION_CHECK_ENDPOINT}`;
     
     // Set timeout to 5 seconds to prevent hanging requests
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), VERSION_CHECK_TIMEOUT);
     
     try {
       // Make the request
