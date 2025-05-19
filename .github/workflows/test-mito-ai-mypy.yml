@@ -27,11 +27,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
-        cache-dependency-path: mito-ai/setup.py
+        cache-dependency-path: mito-ai/pyproject.toml
     - name: Install dependencies
       run: |
         cd mito-ai
         pip install -e ".[test]"
+        # Ensure type stubs are installed
+        pip install types-setuptools types-tornado types-requests
     - name: Check types with MyPY
       run: |
         mypy mito-ai/mito_ai/ --ignore-missing-imports
