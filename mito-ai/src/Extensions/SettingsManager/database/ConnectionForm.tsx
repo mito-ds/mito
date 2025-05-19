@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NewConnectionForm } from './types';
+import LoadingDots from '../../../components/LoadingDots';
 import '../../../../style/ConnectionForm.css';
 
 interface ConnectionFormProps {
@@ -17,8 +18,20 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
     onSubmit,
     onClose
 }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            await onSubmit(e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <form onSubmit={onSubmit} className="connection-form">
+        <form onSubmit={handleSubmit} className="connection-form">
             {formError && <p className="error">{formError}</p>}
 
             <div className="form-group">
@@ -104,14 +117,22 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     type="button"
                     className="button-base button-gray"
                     onClick={onClose}
+                    disabled={isLoading}
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
                     className="button-base button-purple"
+                    disabled={isLoading}
                 >
-                    Add Connection
+                    {isLoading ? (
+                        <>
+                            Adding Connection <LoadingDots />
+                        </>
+                    ) : (
+                        'Add Connection'
+                    )}
                 </button>
             </div>
         </form>

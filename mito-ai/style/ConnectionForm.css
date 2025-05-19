@@ -99,6 +99,14 @@
     padding: 8px 16px;
 }
 
+.form-actions button[type="submit"] {
+    width: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
 .error {
     color: var(--jp-error-color1);
     background: var(--jp-error-color3);
