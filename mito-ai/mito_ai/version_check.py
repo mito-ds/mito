@@ -9,10 +9,10 @@ import logging
 import time
 from functools import lru_cache
 from typing import Tuple, Optional, Any
-import pkg_resources
 import requests
 import tornado.web
 from tornado.web import RequestHandler
+from mito_ai._version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +38,8 @@ class VersionCheckHandler(RequestHandler):
     def get(self) -> None:
         """Get the current and latest Mito AI versions."""
         try:
-            # Get current package version
-            current_version = pkg_resources.get_distribution("mito-ai").version
+            # Get current package version from _version.py
+            current_version = __version__
             
             # Get latest version from PyPI with caching
             latest_version, cache_time = self._get_latest_version()

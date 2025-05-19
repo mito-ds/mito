@@ -62,12 +62,10 @@ class TestVersionCheckHandler(unittest.TestCase):
             # Just verify the exception was raised
             self.assertEqual(str(e), "Connection error")
     
-    @patch("mito_ai.version_check.pkg_resources.get_distribution")
+    @patch("mito_ai.version_check.__version__", "1.0.0")
     @patch("mito_ai.version_check.requests.get")
-    def test_successful_version_fetch(self, mock_requests_get: MagicMock, mock_get_distribution: MagicMock) -> None:
+    def test_successful_version_fetch(self, mock_requests_get: MagicMock) -> None:
         # Mock the responses
-        mock_get_distribution.return_value = MagicMock(version="1.0.0")
-        
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "info": {"version": "1.1.0"}
@@ -91,12 +89,10 @@ class TestVersionCheckHandler(unittest.TestCase):
             "https://pypi.org/pypi/mito-ai/json", timeout=3
         )
     
-    @patch("mito_ai.version_check.pkg_resources.get_distribution")
+    @patch("mito_ai.version_check.__version__", "1.0.0")
     @patch("mito_ai.version_check.requests.get")
-    def test_cache_behavior(self, mock_requests_get: MagicMock, mock_get_distribution: MagicMock) -> None:
+    def test_cache_behavior(self, mock_requests_get: MagicMock) -> None:
         # Mock the responses
-        mock_get_distribution.return_value = MagicMock(version="1.0.0")
-        
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "info": {"version": "1.1.0"}
@@ -114,11 +110,10 @@ class TestVersionCheckHandler(unittest.TestCase):
         # Verify requests.get was called only once
         mock_requests_get.assert_called_once()
     
-    @patch("mito_ai.version_check.pkg_resources.get_distribution")
+    @patch("mito_ai.version_check.__version__", "1.0.0")
     @patch("mito_ai.version_check.requests.get")
-    def test_pypi_request_failure(self, mock_requests_get: MagicMock, mock_get_distribution: MagicMock) -> None:
-        # Mock the responses
-        mock_get_distribution.return_value = MagicMock(version="1.0.0")
+    def test_pypi_request_failure(self, mock_requests_get: MagicMock) -> None:
+        # Mock the response
         mock_requests_get.side_effect = Exception("Connection error")
         
         # Create handler instance
@@ -133,21 +128,19 @@ class TestVersionCheckHandler(unittest.TestCase):
         self.assertIn("error", response_body)
         self.assertEqual(handler._status_code, 500)
     
-    @patch("mito_ai.version_check.pkg_resources.get_distribution")
-    def test_package_version_error(self, mock_get_distribution: MagicMock) -> None:
-        # Mock the error
-        mock_get_distribution.side_effect = Exception("Package not found")
-        
-        # Create handler instance
+    @patch("mito_ai.version_check.__version__", "1.0.0")
+    def test_general_exception_handling(self) -> None:
+        # Create handler instance with a mock that will cause an exception
         handler = self._create_mocked_handler()
         
-        # Call the get method directly
-        handler.get()
-        
-        # Get the response body and verify
-        response_body = json.loads(handler._write_buffer[0])
-        self.assertIn("error", response_body)
-        self.assertEqual(handler._status_code, 500)
+        with patch.object(VersionCheckHandler, '_get_latest_version', side_effect=Exception("Test error")):
+            # Call the get method directly
+            handler.get()
+            
+            # Get the response body and verify
+            response_body = json.loads(handler._write_buffer[0])
+            self.assertIn("error", response_body)
+            self.assertEqual(handler._status_code, 500)
     
     def _create_mocked_handler(self) -> VersionCheckHandler:
         """Create a mocked RequestHandler instance for testing."""
