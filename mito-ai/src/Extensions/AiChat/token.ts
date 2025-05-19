@@ -10,7 +10,7 @@ import type { Widget } from '@lumino/widgets';
 import type {
   ErrorMessage,
   IAICapabilities
-} from '../../utils/websocket/models';
+} from '../../websockets/completions/CompletionModels';
 
 /**
  * The chat panel interface.

@@ -11,6 +11,10 @@ import { getCellContent, removeInvalidLines, transformMitoAppInput } from './cel
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 import { generateDisplayVizFunction, transformVisualizationCell } from './visualizationConversionUtils';
+import { IAppBuilderService } from './AppBuilderPlugin';
+import { UUID } from '@lumino/coreutils';
+import { deployAppNotification } from './DeployAppNotification';
+import { IBuildAppReply } from '../../websockets/appBuilder/appBuilderModels';
 
 /* 
 This function converts a notebook into a streamlit app. It processes each cell one by one,
@@ -24,8 +28,8 @@ This function returns:
 */
 export const convertNotebookToStreamlit = async (
   notebookTracker: INotebookTracker,
+  appBuilderService?: IAppBuilderService,
 ): Promise<void> => {
-
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
     console.error('No notebook is currently active');
@@ -34,6 +38,7 @@ export const convertNotebookToStreamlit = async (
 
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
+  const appFilePath = `./app.py`;
 
   // Initialize Streamlit code with imports
   let streamlitCode = [
@@ -103,5 +108,32 @@ export const convertNotebookToStreamlit = async (
 
   // Save the files to the current directory
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
-  await saveFileWithKernel(notebookTracker, `./${notebookName}-streamlit-app.py`, streamlitSourceCode);
+  await saveFileWithKernel(notebookTracker, appFilePath, streamlitSourceCode);
+
+  // Get the full path to the folder
+  const pathToFolder = PathExt.dirname(notebookPath);
+
+  // After building the files, we need to send a request to the backend to deploy the app
+  if (appBuilderService) {
+    try {
+      console.log("Sending request to deploy the app");
+      
+      const response: IBuildAppReply = await appBuilderService.client.sendMessage({
+        type: 'build-app',
+        message_id: UUID.uuid4(),
+        path: pathToFolder
+      });
+      
+      console.log("App deployment response:", response);
+
+      const url = response.url;
+      deployAppNotification(url);
+
+    } catch (error) {
+      // TODO: Do something with the error
+      console.error("Error deploying app:", error);
+    }
+  } else {
+    console.warn("AppBuilderService not provided - app will not be deployed");
+  }
 };

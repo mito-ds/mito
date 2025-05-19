@@ -21,6 +21,7 @@ import SupportIcon from '../../icons/SupportIcon';
 import MitoLogo from '../../icons/MitoLogo';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
+import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import ToggleButton from '../../components/ToggleButton';
@@ -39,7 +40,7 @@ import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/c
 import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
-import type { CompletionWebsocketClient } from '../../utils/websocket/websocketClient';
+import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
 import {
     IChatThreadMetadataItem,
     IChatMessageMetadata,
@@ -60,7 +61,7 @@ import {
     IAgentExecutionCompletionRequest,
     AgentResponse,
     ICompletionStreamChunk
-} from '../../utils/websocket/models';
+} from '../../websockets/completions/CompletionModels';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
@@ -1224,6 +1225,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
             </div>
+            {displayOptimizedChatHistory.length === 0 && (
+                <div className="suggestions-container">
+                    <ScrollableSuggestions 
+                        onSelectSuggestion={(prompt) => {
+                            if (agentModeEnabled) {
+                                void startAgentExecution(prompt);
+                            } else {
+                                void sendChatInputMessage(prompt);
+                            }
+                        }}
+                    />
+                </div>
+            )}
             <ChatInput
                 initialContent={''}
                 placeholder={

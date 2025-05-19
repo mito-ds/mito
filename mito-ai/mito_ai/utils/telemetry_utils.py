@@ -9,7 +9,7 @@ from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMET
 from mito_ai.utils.db import get_user_field
 from mito_ai._version import __version__
 from mito_ai.utils.utils import is_running_test
-from mito_ai.models import MessageType
+from mito_ai.completions.models import MessageType
 import analytics
 
 WRITE_KEY = '6I7ptc5wcIGC4WZ0N1t0NXvvAbjRGUgX' 

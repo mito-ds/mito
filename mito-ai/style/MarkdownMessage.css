@@ -10,3 +10,10 @@
     display: inline-flex;
     align-items: center;
 }
+
+/* Ensure long URLs in markdown messages wrap instead of overflowing */
+.markdown-message-part a {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
