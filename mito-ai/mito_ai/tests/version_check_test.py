@@ -5,6 +5,7 @@ import json
 import time
 import unittest
 from unittest.mock import patch, MagicMock, PropertyMock
+from typing import Any, Optional, Tuple, List, Dict, Callable, Union, cast
 
 import sys
 import os
@@ -18,13 +19,13 @@ from mito_ai.version_check import VersionCheckHandler
 
 class TestVersionCheckHandler(unittest.TestCase):
     
-    def setUp(self):
+    def setUp(self) -> None:
         # Clear cache before each test
         if hasattr(VersionCheckHandler, '_get_latest_version'):
             VersionCheckHandler._get_latest_version.cache_clear()
     
     @patch("mito_ai.version_check.requests.get")
-    def test_get_latest_version_method(self, mock_requests_get):
+    def test_get_latest_version_method(self, mock_requests_get: MagicMock) -> None:
         # Mock successful response
         mock_response = MagicMock()
         mock_response.json.return_value = {
@@ -48,7 +49,7 @@ class TestVersionCheckHandler(unittest.TestCase):
         mock_requests_get.assert_called_once()
     
     @patch("mito_ai.version_check.requests.get")
-    def test_get_latest_version_error(self, mock_requests_get):
+    def test_get_latest_version_error(self, mock_requests_get: MagicMock) -> None:
         # Mock error response
         mock_requests_get.side_effect = Exception("Connection error")
         
@@ -63,7 +64,7 @@ class TestVersionCheckHandler(unittest.TestCase):
     
     @patch("mito_ai.version_check.pkg_resources.get_distribution")
     @patch("mito_ai.version_check.requests.get")
-    def test_successful_version_fetch(self, mock_requests_get, mock_get_distribution):
+    def test_successful_version_fetch(self, mock_requests_get: MagicMock, mock_get_distribution: MagicMock) -> None:
         # Mock the responses
         mock_get_distribution.return_value = MagicMock(version="1.0.0")
         
@@ -92,7 +93,7 @@ class TestVersionCheckHandler(unittest.TestCase):
     
     @patch("mito_ai.version_check.pkg_resources.get_distribution")
     @patch("mito_ai.version_check.requests.get")
-    def test_cache_behavior(self, mock_requests_get, mock_get_distribution):
+    def test_cache_behavior(self, mock_requests_get: MagicMock, mock_get_distribution: MagicMock) -> None:
         # Mock the responses
         mock_get_distribution.return_value = MagicMock(version="1.0.0")
         
@@ -115,7 +116,7 @@ class TestVersionCheckHandler(unittest.TestCase):
     
     @patch("mito_ai.version_check.pkg_resources.get_distribution")
     @patch("mito_ai.version_check.requests.get")
-    def test_pypi_request_failure(self, mock_requests_get, mock_get_distribution):
+    def test_pypi_request_failure(self, mock_requests_get: MagicMock, mock_get_distribution: MagicMock) -> None:
         # Mock the responses
         mock_get_distribution.return_value = MagicMock(version="1.0.0")
         mock_requests_get.side_effect = Exception("Connection error")
@@ -133,7 +134,7 @@ class TestVersionCheckHandler(unittest.TestCase):
         self.assertEqual(handler._status_code, 500)
     
     @patch("mito_ai.version_check.pkg_resources.get_distribution")
-    def test_package_version_error(self, mock_get_distribution):
+    def test_package_version_error(self, mock_get_distribution: MagicMock) -> None:
         # Mock the error
         mock_get_distribution.side_effect = Exception("Package not found")
         
@@ -148,24 +149,28 @@ class TestVersionCheckHandler(unittest.TestCase):
         self.assertIn("error", response_body)
         self.assertEqual(handler._status_code, 500)
     
-    def _create_mocked_handler(self):
+    def _create_mocked_handler(self) -> VersionCheckHandler:
         """Create a mocked RequestHandler instance for testing."""
         handler = VersionCheckHandler(MagicMock(), MagicMock())
         handler._status_code = 200
         handler._write_buffer = []
         
-        # Mock the write and set_status methods
-        def mock_write(chunk):
-            handler._write_buffer.append(chunk)
+        # We need to assign the mock methods to new variables first to avoid
+        # the mypy "Cannot assign to a method" error
+        def mock_write(chunk: str) -> None:
+            # Convert string to bytes to match expected type
+            encoded_chunk = chunk.encode('utf-8') if isinstance(chunk, str) else chunk
+            handler._write_buffer.append(encoded_chunk)
         
-        def mock_set_status(status_code):
+        def mock_set_status(status_code: int) -> None:
             handler._status_code = status_code
         
-        def mock_set_header(name, value):
+        def mock_set_header(name: str, value: str) -> None:
             pass
         
-        handler.write = mock_write
-        handler.set_status = mock_set_status
-        handler.set_header = mock_set_header
+        # Use setattr instead of direct assignment to avoid mypy errors
+        setattr(handler, 'write', mock_write)
+        setattr(handler, 'set_status', mock_set_status)
+        setattr(handler, 'set_header', mock_set_header)
         
         return handler 

@@ -45,6 +45,7 @@ test = [
     "pytest-asyncio==0.25.3",
     "mypy>=1.8.0",
     "types-tornado>=5.1.1",
+    "types-requests>=2.25.0",
 ]
 
 [project.entry-points."jupyter_serverproxy_servers"]

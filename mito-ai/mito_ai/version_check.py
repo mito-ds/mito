@@ -8,6 +8,7 @@ import json
 import logging
 import time
 from functools import lru_cache
+from typing import Tuple, Optional, Any
 import pkg_resources
 import requests
 import tornado.web
@@ -21,7 +22,7 @@ class VersionCheckHandler(RequestHandler):
     # Cache PyPI results for 1 hour (3600 seconds)
     @staticmethod
     @lru_cache(maxsize=1)
-    def _get_latest_version():
+    def _get_latest_version() -> Tuple[Optional[str], float]:
         """Get the latest version from PyPI with caching."""
         cache_time = time.time()
         try:
@@ -34,7 +35,7 @@ class VersionCheckHandler(RequestHandler):
             logger.warning(f"Failed to fetch latest version from PyPI: {str(e)}")
             return None, cache_time
     
-    def get(self):
+    def get(self) -> None:
         """Get the current and latest Mito AI versions."""
         try:
             # Get current package version
