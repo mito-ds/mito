@@ -61,7 +61,6 @@ export async function checkForUpdates(serverSettings: ServerConnection.ISettings
         serverSettings
       );
       
-// Removed redundant clearTimeout call; cleanup is handled in the finally block.
       if (!response.ok) {
         console.warn('Failed to check for Mito AI updates:', response.statusText);
         return;
