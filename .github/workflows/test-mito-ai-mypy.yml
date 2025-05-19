@@ -31,7 +31,6 @@ jobs:
     - name: Install dependencies
       run: |
         cd mito-ai
-        pip install types-pkg_resources
         pip install -e ".[test]"
         # Ensure type stubs are installed
         pip install types-setuptools types-tornado types-requests
