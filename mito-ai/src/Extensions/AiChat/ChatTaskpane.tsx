@@ -17,7 +17,7 @@ import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
 import { addIcon, historyIcon, deleteIcon } from '@jupyterlab/ui-components';
 import { OpenIndicatorLabIcon } from '../../icons';
-import SupportIcon from '../../icons/SupportIcon';
+import SettingsIcon from '../../icons/SettingsIcon';
 import MitoLogo from '../../icons/MitoLogo';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
@@ -1134,7 +1134,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
-                        icon={<SupportIcon />}
+                        icon={<SettingsIcon />}
                         title="Mito AI Settings"
                         onClick={() => {
                             app.commands.execute(COMMAND_MITO_AI_SETTINGS);
