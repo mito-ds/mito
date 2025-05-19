@@ -1,11 +1,13 @@
-import os
 import nbformat
-import json
-from testing_constants import (JUPYTER_NOTEBOOK_SECTION_HEADING,
-                               VARIABLES_SECTION_HEADING,
-                               FILES_SECTION_HEADING,
-                               USER_TASK_HEADING_SECTION)
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../mito-ai/mito_ai')))
 
+from mito_ai.prompt_builders.prompt_constants import ( JUPYTER_NOTEBOOK_SECTION_HEADING,
+                                                       VARIABLES_SECTION_HEADING,
+                                                       FILES_SECTION_HEADING
+                                                     )
+from testing_constants import USER_TASK_HEADING_SECTION
 
 def process_notebook_update(notebook, cell_update):
     """Create the output notebook based on the specified cell update"""

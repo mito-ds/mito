@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../mito-ai/mito_ai')))
+
 from mito_ai.prompt_builders.prompt_constants import (
     CITATION_RULES,
     FILES_SECTION_HEADING,
