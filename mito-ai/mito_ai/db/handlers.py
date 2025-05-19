@@ -67,8 +67,10 @@ class ConnectionsHandler(tornado.web.RequestHandler):
 
             # Use SchemaHandler to crawl and store the schema
             schema_handler = SchemaHandler(self.application, self.request)
-            success, error_message = schema_handler.crawl_and_store_schema(connection_id)
-            
+            success, error_message = schema_handler.crawl_and_store_schema(
+                connection_id
+            )
+
             if not success:
                 # If we failed to crawl the schema, remove the connection from connections.json
                 del connections[connection_id]
@@ -147,14 +149,6 @@ class SchemaHandler(tornado.web.RequestHandler):
         """Override to disable CSRF protection for this handler."""
         pass
 
-    def get(self, *args: Any, **kwargs: Any) -> None:
-        """Get all schemas."""
-        with open(SCHEMAS_PATH, "r") as f:
-            schemas = json.load(f)
-
-        self.write(schemas)
-        self.finish()
-
     def crawl_and_store_schema(self, connection_id: str) -> tuple[bool, str]:
         """
         Crawl and store schema for a given connection.
@@ -171,3 +165,41 @@ class SchemaHandler(tornado.web.RequestHandler):
                 f.truncate()  # Remove any remaining content
             return True, ""
         return False, "Failed to crawl schema"
+
+    def get(self, *args: Any, **kwargs: Any) -> None:
+        """Get all schemas."""
+        with open(SCHEMAS_PATH, "r") as f:
+            schemas = json.load(f)
+
+        self.write(schemas)
+        self.finish()
+
+    def delete(self, *args: Any, **kwargs: Any) -> None:
+        """Delete a schema by UUID."""
+        # Get the schema UUID from the URL
+        schema_id = kwargs.get("uuid")
+        if not schema_id:
+            self.set_status(400)
+            self.write({"error": "Schema UUID is required"})
+            return
+
+        # Read existing schemas
+        with open(SCHEMAS_PATH, "r") as f:
+            schemas = json.load(f)
+
+        # Check if schema exists
+        if schema_id not in schemas:
+            self.set_status(404)
+            self.write({"error": f"Schema with UUID {schema_id} not found"})
+            return
+
+        # Remove the schema
+        del schemas[schema_id]
+
+        # Write back to file
+        with open(SCHEMAS_PATH, "w") as f:
+            json.dump(schemas, f, indent=4)
+
+        self.set_status(200)
+        self.write({"status": "success", "message": "Schema deleted successfully"})
+        self.finish()
