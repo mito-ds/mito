@@ -65,24 +65,18 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
 
-            # Crawl the new connection
-            schema = snowflake.crawl_snowflake(CONNECTIONS_PATH, connection_id)
-            if schema:
-                # If we successfully crawled the schema, write it to schemas.json
-                with open(SCHEMAS_PATH, "r+") as f:
-                    schemas = json.load(f)
-                    schemas[connection_id] = schema
-                    f.seek(0)  # Move to the beginning of the file
-                    json.dump(schemas, f, indent=4)
-                    f.truncate()  # Remove any remaining content
-            else:
+            # Use SchemaHandler to crawl and store the schema
+            schema_handler = SchemaHandler(self.application, self.request)
+            success, error_message = schema_handler.crawl_and_store_schema(connection_id)
+            
+            if not success:
                 # If we failed to crawl the schema, remove the connection from connections.json
                 del connections[connection_id]
                 with open(CONNECTIONS_PATH, "w") as f:
                     json.dump(connections, f, indent=4)
 
                 self.set_status(500)
-                self.write({"error": "Failed to crawl schema"})
+                self.write({"error": error_message})
                 return
 
             self.write(
@@ -160,3 +154,20 @@ class SchemaHandler(tornado.web.RequestHandler):
 
         self.write(schemas)
         self.finish()
+
+    def crawl_and_store_schema(self, connection_id: str) -> tuple[bool, str]:
+        """
+        Crawl and store schema for a given connection.
+        Returns (success, error_message)
+        """
+        schema = snowflake.crawl_snowflake(CONNECTIONS_PATH, connection_id)
+        if schema:
+            # If we successfully crawled the schema, write it to schemas.json
+            with open(SCHEMAS_PATH, "r+") as f:
+                schemas = json.load(f)
+                schemas[connection_id] = schema
+                f.seek(0)  # Move to the beginning of the file
+                json.dump(schemas, f, indent=4)
+                f.truncate()  # Remove any remaining content
+            return True, ""
+        return False, "Failed to crawl schema"
