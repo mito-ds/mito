@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine, text
 import json
+from sqlalchemy import create_engine, text
 
 
 def get_full_metadata_from_snowflake(engine):

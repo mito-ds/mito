@@ -41,13 +41,9 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(CONNECTIONS_PATH, "r") as f:
                 connections = json.load(f)
 
-            # Generate a UUID for the new connection
-            connection_id = str(uuid.uuid4())
-
-            # Remove the name field as it's used as the key
+            # Copy the new connection data and add the UUID as the key
             connection_data = new_connection.copy()
-
-            # Add the new connection with UUID as key
+            connection_id = str(uuid.uuid4())
             connections[connection_id] = connection_data
 
             # Write back to file
@@ -57,10 +53,11 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             # Crawl the new connection
             schema = snowflake.crawl_snowflake(CONNECTIONS_PATH, connection_id)
             if schema:
+                # If we successfully crawled the schema, write it to schemas.json
                 with open(SCHEMAS_PATH, "w") as f:
                     json.dump(schema, f, indent=4)
             else:
-                # Remove the connection from connections.json
+                # If we failed to crawl the schema, remove the connection from connections.json
                 del connections[connection_id]
                 with open(CONNECTIONS_PATH, "w") as f:
                     json.dump(connections, f, indent=4)
