@@ -1,5 +1,4 @@
 export interface DBConnection {
-    name: string;
     type: string;
     username: string;
     password: string;
@@ -12,7 +11,6 @@ export interface DBConnections {
 }
 
 export interface NewConnectionForm {
-    name: string;
     type: string;
     username: string;
     password: string;

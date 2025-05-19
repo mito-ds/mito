@@ -48,18 +48,6 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
             </div>
 
             <div className="form-group">
-                <label htmlFor="name">Connection Name</label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={onInputChange}
-                    placeholder="e.g., Production Snowflake"
-                />
-            </div>
-
-            <div className="form-group">
                 <label htmlFor="username">Username</label>
                 <input
                     type="text"

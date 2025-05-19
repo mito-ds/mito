@@ -33,7 +33,7 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
             {Object.entries(connections).map(([id, connection]) => (
                 <div key={id} className="connection-card">
                     <div className="connection-card-header">
-                        <h3>{connection.name || 'Unnamed Connection'}</h3>
+                        <h3>{connection.type}</h3>
                     </div>
                     <div className="connection-type">
                         {connection.type}

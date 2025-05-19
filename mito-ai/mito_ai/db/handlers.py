@@ -69,8 +69,12 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             schema = snowflake.crawl_snowflake(CONNECTIONS_PATH, connection_id)
             if schema:
                 # If we successfully crawled the schema, write it to schemas.json
-                with open(SCHEMAS_PATH, "w") as f:
-                    json.dump(schema, f, indent=4)
+                with open(SCHEMAS_PATH, "r+") as f:
+                    schemas = json.load(f)
+                    schemas[connection_id] = schema
+                    f.seek(0)  # Move to the beginning of the file
+                    json.dump(schemas, f, indent=4)
+                    f.truncate()  # Remove any remaining content
             else:
                 # If we failed to crawl the schema, remove the connection from connections.json
                 del connections[connection_id]

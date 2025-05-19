@@ -11,7 +11,6 @@ export const DatabasePage = (): JSX.Element => {
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState<NewConnectionForm>({
-        name: '',
         type: 'snowflake',
         username: '',
         password: '',
@@ -70,7 +69,6 @@ export const DatabasePage = (): JSX.Element => {
             await fetchConnections();
             setShowModal(false);
             setFormData({
-                name: '',
                 type: 'snowflake',
                 username: '',
                 password: '',
@@ -124,7 +122,7 @@ export const DatabasePage = (): JSX.Element => {
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
                             <h3>Add New Connection</h3>
-                            <button 
+                            <button
                                 className="modal-close-button"
                                 onClick={() => setShowModal(false)}
                             >
