@@ -100,6 +100,7 @@ If the user has requested data that you believe is stored in the database:
 - Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
 - Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
 - Every schema has a unique connection ID. This ID can be used to find the connection details in the connections.json file.
+- Do not use the connection ID to query the database. It is only for matching the schema to the correct connection.
 - Connection details are stored in a JSON file located at: `{connections_path}`
 - Here is the sanitized contents of the connections.json file:
 
