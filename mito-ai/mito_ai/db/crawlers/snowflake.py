@@ -23,15 +23,29 @@ def get_full_metadata_from_snowflake(engine):
             db = row[0]
             schema = row[1]
             table = row[2]
-            column = {
-                "column_name": row[3],
-                "data_type": row[4],
-                "description": row[5],
-            }
 
-            metadata.setdefault(db, {}).setdefault(schema, {}).setdefault(
-                table, []
-            ).append(column)
+            # This will produce a rich array of information about each column.
+            # However, it may overload the context window.
+            # column = {
+            #     "column_name": row[3],
+            #     "data_type": row[4],
+            #     "description": row[5],
+            # }
+
+            # So, for now, we'll just return an array of column names.
+            # This decreases the number of chars by 80%.
+            column_name = row[3]
+            
+            # Initialize the nested dictionary structure if it doesn't exist
+            if db not in metadata:
+                metadata[db] = {}
+            if schema not in metadata[db]:
+                metadata[db][schema] = {}
+            if table not in metadata[db][schema]:
+                metadata[db][schema][table] = []
+                
+            # Add the column name
+            metadata[db][schema][table].append(column_name)
 
     return metadata
 
