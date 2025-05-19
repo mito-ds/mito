@@ -180,11 +180,14 @@ class SchemaHandler(tornado.web.RequestHandler):
 
     def delete(self, *args: Any, **kwargs: Any) -> None:
         """Delete a schema by UUID."""
-        # Get the schema UUID from the URL
-        schema_id = kwargs.get("uuid")
+        # Get the schema UUID from either kwargs (when called as a request handler)
+        # or from the first argument (when called programmatically)
+        schema_id = kwargs.get("uuid") or (args[0] if args else None)
         if not schema_id:
             self.set_status(400)
             self.write({"error": "Schema UUID is required"})
+            if not args:  # Only finish if this is a request handler call
+                self.finish()
             return
 
         # Read existing schemas
@@ -195,6 +198,8 @@ class SchemaHandler(tornado.web.RequestHandler):
         if schema_id not in schemas:
             self.set_status(404)
             self.write({"error": f"Schema with UUID {schema_id} not found"})
+            if not args:  # Only finish if this is a request handler call
+                self.finish()
             return
 
         # Remove the schema
@@ -206,4 +211,5 @@ class SchemaHandler(tornado.web.RequestHandler):
 
         self.set_status(200)
         self.write({"status": "success", "message": "Schema deleted successfully"})
-        self.finish()
+        if not args:  # Only finish if this is a request handler call
+            self.finish()
