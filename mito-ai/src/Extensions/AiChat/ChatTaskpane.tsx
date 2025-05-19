@@ -1132,7 +1132,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
-                <div className="chat-taskpane-header-buttons">
+                <div className="chat-taskpane-header-left">
                     <IconButton
                         icon={<SupportIcon />}
                         title="Mito AI Settings"
@@ -1140,13 +1140,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                     />
-                    <IconButton
-                        icon={<SupportIcon />}
-                        title="Get Help"
-                        onClick={() => {
-                            window.open('mailto:founders@sagacollab.com?subject=Mito AI Chat Support', '_blank');
-                        }}
-                    />
+                </div>
+                <div className="chat-taskpane-header-right">
                     <IconButton
                         icon={<addIcon.react />}
                         title="Start New Chat"

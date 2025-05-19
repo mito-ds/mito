@@ -34,7 +34,7 @@
 .chat-taskpane-header {
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding-top: 10px;
   padding-bottom: 5px;
@@ -46,6 +46,16 @@
   /* Ensure background color covers content behind */
   z-index: 1;
   /* Ensure it stays above other content */
+}
+
+.chat-taskpane-header-left {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-taskpane-header-right {
+  display: flex;
+  gap: 8px;
 }
 
 .chat-taskpane-header-title {
