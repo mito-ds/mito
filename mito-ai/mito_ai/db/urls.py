@@ -25,4 +25,10 @@ def get_db_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
             {},
         ),
         (url_path_join(BASE_URL, "schemas"), SchemaHandler, {}),
+        (
+            # URL for deleting a schema.
+            url_path_join(BASE_URL, "schemas", "(?P<uuid>[^/]+)"),
+            SchemaHandler,
+            {},
+        ),
     ]

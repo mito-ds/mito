@@ -125,6 +125,10 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
 
+            # Delete the schema
+            schema_handler = SchemaHandler(self.application, self.request)
+            schema_handler.delete(connection_id)
+
             self.set_status(200)
             self.write(
                 {
