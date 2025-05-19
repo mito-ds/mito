@@ -16,7 +16,7 @@ export const DatabasePage = (): JSX.Element => {
         username: '',
         password: '',
         account: '',
-        warehouse: ''
+        warehouse: '',
     });
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -75,17 +75,17 @@ export const DatabasePage = (): JSX.Element => {
                 username: '',
                 password: '',
                 account: '',
-                warehouse: ''
+                warehouse: '',
             });
         } catch (err) {
             setFormError(err instanceof Error ? err.message : 'An error occurred');
         }
     };
 
-    const handleDelete = async (name: string) => {
+    const handleDelete = async (id: string) => {
         try {
             const baseUrl = PageConfig.getBaseUrl();
-            const response = await fetch(`${baseUrl}mito-ai/db/connections/${name}`, {
+            const response = await fetch(`${baseUrl}mito-ai/db/connections/${id}`, {
                 method: 'DELETE'
             });
 

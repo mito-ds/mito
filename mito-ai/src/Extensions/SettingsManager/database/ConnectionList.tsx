@@ -5,7 +5,7 @@ interface ConnectionListProps {
     connections: DBConnections;
     loading: boolean;
     error: string | null;
-    onDelete: (name: string) => void;
+    onDelete: (id: string) => void;
 }
 
 export const ConnectionList: React.FC<ConnectionListProps> = ({
@@ -30,10 +30,10 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
 
     return (
         <div className="connections-grid">
-            {Object.entries(connections).map(([name, connection]) => (
-                <div key={name} className="connection-card">
+            {Object.entries(connections).map(([id, connection]) => (
+                <div key={id} className="connection-card">
                     <div className="connection-card-header">
-                        <h3>{name}</h3>
+                        <h3>{connection.name || 'Unnamed Connection'}</h3>
                     </div>
                     <div className="connection-type">
                         {connection.type}
@@ -44,11 +44,11 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
                         <p><strong>Warehouse:</strong> {connection.warehouse}</p>
                     </div>
                     <div className="connection-actions">
-                        {clickedDelete === name ? (
+                        {clickedDelete === id ? (
                             <div className="confirmation-buttons">
                                 <button
                                     className="button-base button-red"
-                                    onClick={() => onDelete(name)}
+                                    onClick={() => onDelete(id)}
                                 >
                                     Yes, I want to delete
                                 </button>
@@ -62,7 +62,7 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
                         ) : (
                             <button
                                 className="button-base button-red"
-                                onClick={() => setClickedDelete(name)}
+                                onClick={() => setClickedDelete(id)}
                             >
                                 Delete
                             </button>

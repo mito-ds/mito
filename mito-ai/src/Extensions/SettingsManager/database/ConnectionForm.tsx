@@ -56,7 +56,6 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     value={formData.name}
                     onChange={onInputChange}
                     placeholder="e.g., Production Snowflake"
-                    required
                 />
             </div>
 

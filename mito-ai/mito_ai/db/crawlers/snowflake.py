@@ -36,7 +36,7 @@ def get_full_metadata_from_snowflake(engine):
     return metadata
 
 
-def create_snowflake_engine(connections_file_path):
+def create_snowflake_engine(connections_file_path, connection_id):
     """
     Create a SQLAlchemy engine for Snowflake using credentials from a connections file.
 
@@ -50,7 +50,7 @@ def create_snowflake_engine(connections_file_path):
     with open(connections_file_path, "r") as f:
         connections = json.load(f)
 
-    sf = connections["snowflake"]
+    sf = connections[connection_id]
     conn_str = (
         f"snowflake://{sf['username']}:{sf['password']}@{sf['account']}/"
         f"?warehouse={sf['warehouse']}"
@@ -58,6 +58,10 @@ def create_snowflake_engine(connections_file_path):
     return create_engine(conn_str)
 
 
-def crawl_snowflake(connections_file_path):
-    engine = create_snowflake_engine(connections_file_path)
-    return get_full_metadata_from_snowflake(engine)
+def crawl_snowflake(connections_file_path, connection_id):
+    try:
+        engine = create_snowflake_engine(connections_file_path, connection_id)
+        return get_full_metadata_from_snowflake(engine)
+    except Exception as e:
+        print(f"Error crawling snowflake: {e}")
+        return None

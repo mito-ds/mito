@@ -4,6 +4,7 @@
 import json
 import os
 import tornado
+import uuid
 from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
@@ -40,31 +41,40 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(CONNECTIONS_PATH, "r") as f:
                 connections = json.load(f)
 
-            # Add the new connection
-            # The connection type (e.g. 'snowflake') should be in the request body
-            connection_name = new_connection.get("name")
-            if not connection_name:
-                self.set_status(400)
-                self.write({"error": "Connection name is required"})
-                return
+            # Generate a UUID for the new connection
+            connection_id = str(uuid.uuid4())
 
-            # Remove the type field as it's used as the key
+            # Remove the name field as it's used as the key
             connection_data = new_connection.copy()
-            connection_data.pop("name", None)
 
-            # Add the new connection
-            connections[connection_name] = connection_data
+            # Add the new connection with UUID as key
+            connections[connection_id] = connection_data
 
             # Write back to file
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
 
             # Crawl the new connection
-            crawler = snowflake.crawl_snowflake(CONNECTIONS_PATH)
-            print(crawler)
-            
+            schema = snowflake.crawl_snowflake(CONNECTIONS_PATH, connection_id)
+            if schema:
+                with open(SCHEMAS_PATH, "w") as f:
+                    json.dump(schema, f, indent=4)
+            else:
+                # Remove the connection from connections.json
+                del connections[connection_id]
+                with open(CONNECTIONS_PATH, "w") as f:
+                    json.dump(connections, f, indent=4)
+
+                self.set_status(500)
+                self.write({"error": "Failed to crawl schema"})
+                return
+
             self.write(
-                {"status": "success", "message": f"Added {connection_name} connection"}
+                {
+                    "status": "success",
+                    "message": "Added new connection",
+                    "connection_id": connection_id,
+                }
             )
 
         except json.JSONDecodeError:
@@ -77,13 +87,13 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             self.finish()
 
     def delete(self, *args: Any, **kwargs: Any) -> None:
-        """Delete a connection by name."""
+        """Delete a connection by UUID."""
         try:
-            # Get the connection name from the URL
-            connection_name = kwargs.get("name")
-            if not connection_name:
+            # Get the connection UUID from the URL
+            connection_id = kwargs.get("uuid")
+            if not connection_id:
                 self.set_status(400)
-                self.write({"error": "Connection name is required"})
+                self.write({"error": "Connection UUID is required"})
                 return
 
             # Read existing connections
@@ -91,13 +101,13 @@ class ConnectionsHandler(tornado.web.RequestHandler):
                 connections = json.load(f)
 
             # Check if connection exists
-            if connection_name not in connections:
+            if connection_id not in connections:
                 self.set_status(404)
-                self.write({"error": f"Connection {connection_name} not found"})
+                self.write({"error": f"Connection with UUID {connection_id} not found"})
                 return
 
             # Remove the connection
-            del connections[connection_name]
+            del connections[connection_id]
 
             # Write back to file
             with open(CONNECTIONS_PATH, "w") as f:
@@ -107,7 +117,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             self.write(
                 {
                     "status": "success",
-                    "message": f"Deleted {connection_name} connection",
+                    "message": "Connection deleted successfully",
                 }
             )
 

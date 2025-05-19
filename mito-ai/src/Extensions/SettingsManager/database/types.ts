@@ -1,4 +1,5 @@
 export interface DBConnection {
+    name: string;
     type: string;
     username: string;
     password: string;
@@ -7,7 +8,7 @@ export interface DBConnection {
 }
 
 export interface DBConnections {
-    [key: string]: DBConnection;
+    [key: string]: DBConnection;  // key is now UUID
 }
 
 export interface NewConnectionForm {
