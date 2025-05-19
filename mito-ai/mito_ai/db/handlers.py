@@ -9,15 +9,30 @@ from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
 
-APP_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER)
-CONNECTIONS_PATH: Final[str] = os.path.join(APP_DIR_PATH, "db", "connections.json")
-SCHEMAS_PATH: Final[str] = os.path.join(APP_DIR_PATH, "db", "schemas.json")
+APP_DIR_PATH_DB: Final[str] = os.path.join(MITO_FOLDER, "db")
+CONNECTIONS_PATH: Final[str] = os.path.join(APP_DIR_PATH_DB, "connections.json")
+SCHEMAS_PATH: Final[str] = os.path.join(APP_DIR_PATH_DB, "schemas.json")
 
 
 class ConnectionsHandler(tornado.web.RequestHandler):
     """
     Endpoints for working with connections.json file.
     """
+
+    def prepare(self) -> None:
+        """Called before any request handler method."""
+        # Ensure the db directory exists
+        os.makedirs(os.path.dirname(APP_DIR_PATH_DB), exist_ok=True)
+
+        # Create connections.json if it doesn't exist
+        if not os.path.exists(CONNECTIONS_PATH):
+            with open(CONNECTIONS_PATH, "w") as f:
+                json.dump({}, f, indent=4)
+
+        # Create schemas.json if it doesn't exist
+        if not os.path.exists(SCHEMAS_PATH):
+            with open(SCHEMAS_PATH, "w") as f:
+                json.dump({}, f, indent=4)
 
     def check_xsrf_cookie(self) -> None:
         """Override to disable CSRF protection for this handler."""
