@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
 import { SettingsWidget } from './SettingsWidget';
