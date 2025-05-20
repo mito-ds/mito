@@ -138,12 +138,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                         model=model
                     )
                 
-                # Convert messages to a single string for Gemini
-                prompt = "\n".join([
-                    f"{m.get('role', 'user')}: {m.get('content', '')}" 
-                    for m in messages if isinstance(m, dict) and 'content' in m
-                ])
-                completion = await self._gemini_client.request_completions(prompt, response_format_info)
+                completion = await self._gemini_client.request_completions(messages, response_format_info)
 
             # Handle OpenAI and other providers
             elif self._openai_client:
@@ -151,9 +146,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     message_type=message_type,
                     messages=messages,
                     model=model,
-                    response_format_info=response_format_info,
-                    user_input=user_input,
-                    thread_id=thread_id
+                    response_format_info=response_format_info
                 )
             else:
                 raise ValueError("No AI provider configured")
@@ -213,34 +206,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                         model=model
                     )
                 
-                # Convert messages to a single string for Gemini
-                prompt = "\n".join([
-                    f"{m.get('role', 'user')}: {m.get('content', '')}" 
-                    for m in messages if isinstance(m, dict) and 'content' in m
-                ])
-                
-                async for chunk in self._gemini_client.stream_completions(prompt):
-                    accumulated_response += chunk
-                    reply_fn(CompletionStreamChunk(
-                        parent_id=message_id,
-                        chunk=CompletionItem(
-                            content=chunk,
-                            isIncomplete=True,
-                            token=message_id,
-                        ),
-                        done=False,
-                    ))
-                
-                # Send final chunk
-                reply_fn(CompletionStreamChunk(
-                    parent_id=message_id,
-                    chunk=CompletionItem(
-                        content="",
-                        isIncomplete=False,
-                        token=message_id,
-                    ),
-                    done=True,
-                ))
+                accumulated_response = await self._gemini_client.stream_completions(
+                    messages=messages,
+                    message_id=message_id,
+                    reply_fn=reply_fn,
+                )
 
             # Handle OpenAI and other providers
             elif self._openai_client:
