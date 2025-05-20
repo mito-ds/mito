@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { DatabasePage } from './database/DatabasePage';
 import { SupportPage } from './support/SupportPage';
+import { GeneralPage } from './general/GeneralPage';
 import '../../../style/SettingsWidget.css';
 
 const TABS_CONFIG = {
@@ -9,10 +10,15 @@ const TABS_CONFIG = {
         label: 'Database',
         component: DatabasePage
     },
+    general: {
+        label: 'General',
+        component: GeneralPage
+    },
     support: {
         label: 'Support',
         component: SupportPage
-    }
+    },
+
 } as const;
 
 const App = (): JSX.Element => {
