@@ -126,7 +126,7 @@ export const DatabasePage = (): JSX.Element => {
                                 className="modal-close-button"
                                 onClick={() => setShowModal(false)}
                             >
-                                ×
+                                ✕
                             </button>
                         </div>
                         <ConnectionForm
