@@ -14,6 +14,8 @@ assuming the correct PyPi credentials are on the machine.
 import subprocess
 import sys
 
+from utils import deploy_current_version_to_pypi
+
 def generate_sdist_and_bdist_wheel() -> None:
     """
     Generates the sdist and bdist_wheel for the current version of Mito.
@@ -27,27 +29,6 @@ def generate_sdist_and_bdist_wheel() -> None:
     )
     if build_results.returncode != 0:
         raise Exception("Failed to build sdist and bdist_wheel with output:", build_results.stdout, build_results.stderr)
-
-
-def deploy_current_mito_version_to_pypi(on_dev: bool) -> None:
-    """
-    Deploys the current local version of Mito to PyPi.
-    """
-    cmd = []
-    if on_dev:
-        cmd = ["twine", "upload", "--repository", "testpypi", "dist/*"]
-    else:
-        cmd = ["twine", "upload", "dist/*"]
-
-    deploy_results = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE,
-        universal_newlines=True
-    )
-    if deploy_results.returncode != 0:
-        raise Exception("Failed to deploy to PyPi with output:", deploy_results.stdout, deploy_results.stderr)
-
 
 def main() -> None:
     """
@@ -74,7 +55,7 @@ def main() -> None:
     generate_sdist_and_bdist_wheel()
 
     # Then, we actually deploy Mito to PyPi, if it has not been deployed yet
-    deploy_current_mito_version_to_pypi(deploy_location == 'dev')
+    deploy_current_version_to_pypi(deploy_location == 'dev')
 
 if __name__ == '__main__':
     main()
