@@ -123,11 +123,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         else:
             self.log.debug("User OpenAI API key validated.")
             return api_key
-
+        
     @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
-        
+
         if is_azure_openai_configured():
             return AICapabilities(
                 configuration={
@@ -172,7 +172,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         if not self._async_client or self._async_client.is_closed():
             self._async_client = self._build_openai_client()
         return self._async_client
-
+    
+    
     @property
     def key_type(self) -> str:
         """Returns the authentication key type being used."""
@@ -238,8 +239,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             messages: List[ChatCompletionMessageParam],
             model: str,
             response_format_info: Optional[ResponseFormatInfo] = None,
-            user_input: Optional[str] = None,
-            thread_id: Optional[str] = None
     ) -> str:
         """
         Request completions from the OpenAI API.
