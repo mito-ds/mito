@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NewConnectionForm } from './types';
-import LoadingDots from '../../../components/LoadingDots';
 import '../../../../style/ConnectionForm.css';
+import LoadingCircle from '../../../components/LoadingCircle';
 
 interface ConnectionFormProps {
     formData: NewConnectionForm;
@@ -115,7 +115,9 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                 >
                     {isLoading ? (
                         <>
-                            Adding Connection <LoadingDots />
+                            Validating Connection<div style={{ color: 'var(--purple-700)' }}>
+                                <LoadingCircle />
+                            </div>
                         </>
                     ) : (
                         'Add Connection'
