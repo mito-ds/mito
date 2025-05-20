@@ -9,9 +9,9 @@ from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
 
-APP_DIR_PATH_DB: Final[str] = os.path.join(MITO_FOLDER, "db")
-CONNECTIONS_PATH: Final[str] = os.path.join(APP_DIR_PATH_DB, "connections.json")
-SCHEMAS_PATH: Final[str] = os.path.join(APP_DIR_PATH_DB, "schemas.json")
+DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
+CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
+SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 
 
 class ConnectionsHandler(tornado.web.RequestHandler):
@@ -22,7 +22,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
     def prepare(self) -> None:
         """Called before any request handler method."""
         # Ensure the db directory exists
-        os.makedirs(os.path.dirname(APP_DIR_PATH_DB), exist_ok=True)
+        os.makedirs(os.path.dirname(DB_DIR_PATH), exist_ok=True)
 
         # Create connections.json if it doesn't exist
         if not os.path.exists(CONNECTIONS_PATH):
