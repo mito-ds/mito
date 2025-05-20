@@ -19,17 +19,18 @@ export const DatabasePage = (): JSX.Element => {
     });
     const [formError, setFormError] = useState<string | null>(null);
 
-    const getXsrfToken = () => {
+    const getXsrfToken = (): string | null => {
         const cookies = document.cookie.split(';');
         const xsrfCookie = cookies.find(cookie => cookie.trim().startsWith('_xsrf='));
         if (xsrfCookie) {
-            return xsrfCookie.split('=')[1];
-            }
-            return null;
+            const token = xsrfCookie.split('=')[1];
+            return token || null;
+        }
+        return null;
     }
-  
 
-    const fetchConnections = async () => {
+
+    const fetchConnections = async (): Promise<void> => {
         try {
             const baseUrl = PageConfig.getBaseUrl();
             const response = await fetch(`${baseUrl}mito-ai/db/connections`);
@@ -49,7 +50,7 @@ export const DatabasePage = (): JSX.Element => {
         fetchConnections();
     }, []);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -57,7 +58,7 @@ export const DatabasePage = (): JSX.Element => {
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         setFormError(null);
 
@@ -93,7 +94,7 @@ export const DatabasePage = (): JSX.Element => {
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: string): Promise<void> => {
         try {
             const xsrfToken = getXsrfToken();
             const baseUrl = PageConfig.getBaseUrl();
@@ -103,7 +104,7 @@ export const DatabasePage = (): JSX.Element => {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-XSRFToken': xsrfToken || ''
-                  },            
+                },
             });
 
             if (!response.ok) {
