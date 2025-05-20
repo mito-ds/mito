@@ -1,41 +1,23 @@
-import { PageConfig } from '@jupyterlab/coreutils';
 import React, { useEffect, useState } from 'react';
+import { getSetting, updateSettings } from '../../../RestAPI';
 
 export const GeneralPage = (): JSX.Element => {
 
-    const baseUrl = PageConfig.getBaseUrl();
     const [betaMode, setBetaMode] = useState<boolean>(false);
 
     // When we first open the page, load the settings from the server
     useEffect(() => {
         const fetchSettings = async () => {
-            const response = await fetch(`${baseUrl}mito-ai/settings/beta_mode`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            const data = await response.json();
-            if (data.value !== undefined) {
-                setBetaMode(data.value);
-            }
+            const betaMode = await getSetting('beta_mode');
+            setBetaMode(betaMode === 'true');
         };
         fetchSettings();
     }, []);
 
     const handleBetaModeChange = async () => {
         const newBetaMode = !betaMode;
-
-        const response = await fetch(`${baseUrl}mito-ai/settings/beta_mode`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 'value': newBetaMode }),
-        });
-        const data = await response.json();
-        if (data.value !== undefined) {
-            setBetaMode(data.value);
-        }
+        await updateSettings('beta_mode', newBetaMode.toString());
+        setBetaMode(newBetaMode);
     };
     
     return (
