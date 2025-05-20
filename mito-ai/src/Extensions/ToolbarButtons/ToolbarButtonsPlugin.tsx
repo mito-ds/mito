@@ -91,6 +91,8 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 commands.addCommand('mito-ai:beta-mode-enabled', { execute: () => { /* no-op */ } });
                 commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
             }
+        }).catch(error => {
+            console.error('Error checking beta mode:', error);
         });
 
         console.log("mito-ai: ToolbarButtonsPlugin activated");

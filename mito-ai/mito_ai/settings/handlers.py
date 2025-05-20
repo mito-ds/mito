@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import json
 from typing import Any, Final
-from mito_ai.utils.db import get_user_field, set_user_field
 import tornado
 import os
 from mito_ai.utils.schema import MITO_FOLDER
@@ -25,7 +24,7 @@ class SettingsHandler(tornado.web.RequestHandler):
     
     def get(self, key):
         """Get a specific setting by key"""
-        setting_value = get_user_field(key)
+        setting_value = get_settings_field(key)
         if setting_value is None:
             self.set_status(404)
             self.finish(json.dumps({"error": f"Setting with key '{key}' not found"}))
@@ -55,7 +54,7 @@ def set_settings_field(field: str, value: Any) -> None:
             f.write(json.dumps(old_user_json))
             
             
-def get_user_field(field: str) -> Any:
+def get_settings_field(field: str) -> Any:
     """
     Retrieves the value of a specific field from settings.json
     """

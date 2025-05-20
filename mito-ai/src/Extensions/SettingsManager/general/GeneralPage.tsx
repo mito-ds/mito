@@ -7,14 +7,14 @@ export const GeneralPage = (): JSX.Element => {
 
     // When we first open the page, load the settings from the server
     useEffect(() => {
-        const fetchSettings = async () => {
+        const fetchSettings = async (): Promise<void> => {
             const betaMode = await getSetting('beta_mode');
             setBetaMode(betaMode === 'true');
         };
-        fetchSettings();
+        void fetchSettings();
     }, []);
 
-    const handleBetaModeChange = async () => {
+    const handleBetaModeChange = async (): Promise<void> => {
         const newBetaMode = !betaMode;
         await updateSettings('beta_mode', newBetaMode.toString());
         setBetaMode(newBetaMode);
