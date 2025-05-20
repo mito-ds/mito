@@ -81,7 +81,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     name="account"
                     value={formData.account}
                     onChange={onInputChange}
-                    placeholder="e.g., xy12345.us-east-1"
+                    placeholder="tudbfdr-ab12345"
                     required
                 />
             </div>
@@ -94,7 +94,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     name="warehouse"
                     value={formData.warehouse}
                     onChange={onInputChange}
-                    placeholder="e.g., COMPUTE_WH"
+                    placeholder="COMPUTE_WH"
                     required
                 />
             </div>
