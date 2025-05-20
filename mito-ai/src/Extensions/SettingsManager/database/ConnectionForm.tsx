@@ -20,7 +20,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
 }) => {
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         setIsLoading(true);
         try {

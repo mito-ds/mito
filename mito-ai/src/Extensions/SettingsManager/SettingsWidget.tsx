@@ -18,7 +18,7 @@ const TABS_CONFIG = {
 const App = (): JSX.Element => {
     const [activeTab, setActiveTab] = useState<keyof typeof TABS_CONFIG>('database');
 
-    const renderContent = () => {
+    const renderContent = (): JSX.Element => {
         const TabComponent = TABS_CONFIG[activeTab].component;
         return <TabComponent />;
     };
