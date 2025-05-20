@@ -34,10 +34,6 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(SCHEMAS_PATH, "w") as f:
                 json.dump({}, f, indent=4)
 
-    def check_xsrf_cookie(self) -> None:
-        """Override to disable CSRF protection for this handler."""
-        pass
-
     def get(self, *args: Any, **kwargs: Any) -> None:
         """Get all connections."""
         with open(CONNECTIONS_PATH, "r") as f:
@@ -148,10 +144,6 @@ class SchemaHandler(tornado.web.RequestHandler):
     """
     Endpoints for working with schemas.json file.
     """
-
-    def check_xsrf_cookie(self) -> None:
-        """Override to disable CSRF protection for this handler."""
-        pass
 
     def crawl_and_store_schema(self, connection_id: str) -> tuple[bool, str]:
         """

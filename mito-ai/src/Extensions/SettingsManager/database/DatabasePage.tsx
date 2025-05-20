@@ -19,6 +19,16 @@ export const DatabasePage = (): JSX.Element => {
     });
     const [formError, setFormError] = useState<string | null>(null);
 
+    const getXsrfToken = () => {
+        const cookies = document.cookie.split(';');
+        const xsrfCookie = cookies.find(cookie => cookie.trim().startsWith('_xsrf='));
+        if (xsrfCookie) {
+            return xsrfCookie.split('=')[1];
+            }
+            return null;
+    }
+  
+
     const fetchConnections = async () => {
         try {
             const baseUrl = PageConfig.getBaseUrl();
@@ -52,11 +62,14 @@ export const DatabasePage = (): JSX.Element => {
         setFormError(null);
 
         try {
+            const xsrfToken = getXsrfToken();
             const baseUrl = PageConfig.getBaseUrl();
             const response = await fetch(`${baseUrl}mito-ai/db/connections`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-XSRFToken': xsrfToken || ''
                 },
                 body: JSON.stringify(formData)
             });
@@ -82,9 +95,15 @@ export const DatabasePage = (): JSX.Element => {
 
     const handleDelete = async (id: string) => {
         try {
+            const xsrfToken = getXsrfToken();
             const baseUrl = PageConfig.getBaseUrl();
             const response = await fetch(`${baseUrl}mito-ai/db/connections/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRFToken': xsrfToken || ''
+                  },            
             });
 
             if (!response.ok) {
