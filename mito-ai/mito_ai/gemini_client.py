@@ -1,9 +1,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import AsyncGenerator, Optional
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 from google import genai
-from mito_ai.models import AgentResponse, ResponseFormatInfo
+from mito_ai.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, ResponseFormatInfo
 
 
 class GeminiClient:
@@ -11,9 +11,14 @@ class GeminiClient:
         self.client = genai.Client(api_key=api_key)
         self.model = model
 
-    async def request_completions(self, contents: str, response_format_info: Optional[ResponseFormatInfo] = None) -> str:
+    async def request_completions(
+        self, 
+        messages: List[Dict[str, Any]], 
+        response_format_info: Optional[ResponseFormatInfo] = None
+    ) -> str:
         print("Gemini")
         try:
+            contents = self.convert_messages_for_gemini(messages)
             if response_format_info:
                 response = self.client.models.generate_content(
                     model=self.model,
@@ -67,17 +72,61 @@ class GeminiClient:
         except Exception as e:
             return f"Error generating content: {str(e)}"
 
-    async def stream_completions(self, contents: str) -> AsyncGenerator[str, None]:
-        print("GEMINI")
+    async def stream_completions(
+        self, 
+        messages: List[Dict[str, Any]],
+        message_id: str,
+        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+    ) -> str:
+        accumulated_response = ""
         try:
+            contents = self.convert_messages_for_gemini(messages)
             for chunk in self.client.models.generate_content_stream(
                 model=self.model,
                 contents=contents,
             ):
+                
                 if hasattr(chunk, 'text'):
-                    yield chunk.text
+                    next_chunk = chunk.text
                 else:
-                    yield str(chunk)
+                    next_chunk = str(chunk)
+                    
+                accumulated_response += next_chunk
+                
+                # Return the chunk to the frontend
+                reply_fn(CompletionStreamChunk(
+                    parent_id=message_id,
+                    chunk=CompletionItem(
+                        content=chunk,
+                        isIncomplete=True,
+                        token=message_id,
+                    ),
+                    done=False,
+                ))
+                
+            # Send final chunk
+            reply_fn(CompletionStreamChunk(
+                parent_id=message_id,
+                chunk=CompletionItem(
+                    content="",
+                    isIncomplete=False,
+                    token=message_id,
+                ),
+                done=True,
+            ))
+            
+            return accumulated_response
 
         except Exception as e:
-            yield f"Error streaming content: {str(e)}"
+            return f"Error streaming content: {str(e)}"
+            
+            
+    def convert_messages_for_gemini(self, messages: List[Dict[str, Any]]) -> str:
+        """
+        Convert a list of messages to a single string for Gemini.
+        """
+        prompt = "\n".join([
+            f"{m.get('role', 'user')}: {m.get('content', '')}" 
+            for m in messages if isinstance(m, dict) and 'content' in m
+        ])
+        return prompt
