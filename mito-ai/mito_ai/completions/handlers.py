@@ -55,7 +55,7 @@ from mito_ai.utils.telemetry_utils import identify
 # might be incorrect!
 message_history = GlobalMessageHistory()
 
-# This handler is responsible for the mito-ai/completions endpoint.
+# This handler is responsible for the mito_ai/completions endpoint.
 # It takes a message from the user, sends it to the OpenAI API, and returns the response.
 # Important: Because this is a server extension, print statements are sent to the
 # jupyter server terminal by default (ie: the terminal you ran `jupyter lab`)
@@ -87,7 +87,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # authorize the user.
         if not await ensure_async(
-            self.authorizer.is_authorized(self, user, "execute", "mito-ai-completion")
+            self.authorizer.is_authorized(self, user, "execute", "mito_ai-completion")
         ):
             raise tornado.web.HTTPError(HTTPStatus.FORBIDDEN)
 

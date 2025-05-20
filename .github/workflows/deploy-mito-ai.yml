@@ -48,8 +48,8 @@ jobs:
           rm -rf venv
           python3 -m venv venv
           source venv/bin/activate
-          python -m pip install --upgrade pip setuptools wheel
-          python ../deployment/bump_version.py mito-ai ${{ steps.extract_branch.outputs.branch }}
+          python -m pip install --upgrade pip
+          python ../deployment/bump_version.py mito_ai ${{ steps.extract_branch.outputs.branch }}
           python -m pip install -e ".[deploy]" --verbose
           python -m pip check
           jlpm install --frozen-lockfile
@@ -58,4 +58,4 @@ jobs:
         run: |
           cd mito-ai
           source venv/bin/activate
-          python ../deployment/deploy.py ${{ steps.extract_branch.outputs.branch }}
+          python ../deployment/deploy_hatch.py ${{ steps.extract_branch.outputs.branch }}

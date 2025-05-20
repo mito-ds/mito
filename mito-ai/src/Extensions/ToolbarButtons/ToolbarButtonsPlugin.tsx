@@ -15,7 +15,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/toolbar-buttons.json file.
     // The id here must be mito-ai:toolbar-buttons otherwise the buttons are not successfull added. My understanding is that
     // the id must match the name of the package and `toolbar-buttons` must match the name of the .json file.
-    id: 'mito-ai:toolbar-buttons',
+    id: 'mito_ai:toolbar-buttons',
     description: 'Adds an "explain code cell with AI" button to the cell toolbar',
     autoStart: true,
     requires: [INotebookTracker],
