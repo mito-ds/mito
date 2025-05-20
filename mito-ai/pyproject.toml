@@ -2,7 +2,12 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 [build-system]
-requires = ["hatchling>=1.5.0", "jupyterlab>=4.1.0,<5", "hatch-nodejs-version>=0.3.2"]
+requires = [
+    "hatchling>=1.5.0",
+    "jupyterlab>=4.1.0,<5",
+    "hatch-nodejs-version>=0.3.2",
+    "hatch-jupyter-builder>=0.5"
+]
 build-backend = "hatchling.build"
 
 [project]
@@ -44,6 +49,12 @@ test = [
     "pytest-asyncio==0.25.3",
     "mypy>=1.8.0",
     "types-tornado>=5.1.1",
+]
+deploy = [
+    "twine>=4.0.0",
+    "hatchling>=1.5.0",
+    "hatch-nodejs-version>=0.3.2",
+    "hatch-jupyter-builder>=0.5"
 ]
 
 [project.entry-points."jupyter_serverproxy_servers"]
