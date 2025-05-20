@@ -97,7 +97,7 @@ class GeminiClient:
                 reply_fn(CompletionStreamChunk(
                     parent_id=message_id,
                     chunk=CompletionItem(
-                        content=chunk,
+                        content=next_chunk,
                         isIncomplete=True,
                         token=message_id,
                     ),

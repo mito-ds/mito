@@ -146,9 +146,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     message_type=message_type,
                     messages=messages,
                     model=model,
-                    response_format_info=response_format_info,
-                    user_input=user_input,
-                    thread_id=thread_id
+                    response_format_info=response_format_info
                 )
             else:
                 raise ValueError("No AI provider configured")
