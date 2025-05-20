@@ -37,6 +37,7 @@ dependencies = [
     "tornado>=6.2.0",
     "traitlets",
     "pydantic",
+    "requests>=2.25.0",
     "SQLAlchemy",
     "snowflake-sqlalchemy",
     "pipreqs",
@@ -49,6 +50,7 @@ test = [
     "pytest-asyncio==0.25.3",
     "mypy>=1.8.0",
     "types-tornado>=5.1.1",
+    "types-requests>=2.25.0"
 ]
 deploy = [
     "twine>=4.0.0",
